@@ -19,6 +19,10 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
 import android.os.Looper;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.BasePlayer;
@@ -44,6 +48,8 @@ import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -275,12 +281,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   // Player implementation.
-
-  @Override
-  @Nullable
-  public VideoComponent getVideoComponent() {
-    return null;
-  }
 
   @Override
   public Looper getApplicationLooper() {
@@ -652,6 +652,57 @@ public final class CastPlayer extends BasePlayer {
   public float getVolume() {
     return 1;
   }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setCameraMotionListener(CameraMotionListener listener) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearCameraMotionListener(CameraMotionListener listener) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurface() {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurface(@Nullable Surface surface) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurface(@Nullable Surface surface) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoTextureView(@Nullable TextureView textureView) {}
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoTextureView(@Nullable TextureView textureView) {}
 
   /** This method is not supported and returns an empty list. */
   @Override

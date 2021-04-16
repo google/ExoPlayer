@@ -3,6 +3,11 @@
 ### dev-v2 (not yet released)
 
 *   Core Library:
+    *   Move `Player` components to `ExoPlayer`. For example
+        `Player.VideoComponent` is now `ExoPlayer.VideoComponent`.
+    *   The most used methods of `Player`'s audio/video/text/metadata components
+        have been added to `Player`. Support can be queried using
+        `Player.isCommandAvailable` instead of testing for component nullness.
     *   Add position info of the old and the new position as arguments to
         `EventListener.onPositionDiscontinuity`. Add the new reasons
         `DISCONTINUITY_REASON_SKIP` and `DISCONTINUITY_REASON_REMOVE` and rename
