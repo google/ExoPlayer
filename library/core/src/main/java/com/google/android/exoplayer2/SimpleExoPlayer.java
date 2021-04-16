@@ -263,6 +263,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @param timeoutMs The time limit in milliseconds.
      */
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
+      Assertions.checkState(!buildCalled);
       foregroundModeTimeoutMs = timeoutMs;
       return this;
     }
