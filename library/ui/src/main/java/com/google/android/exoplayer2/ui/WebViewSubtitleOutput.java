@@ -175,7 +175,7 @@ import java.util.Map;
                 + "right:0;"
                 + "color:%s;"
                 + "font-size:%s;"
-                + "line-height:%.2fem;"
+                + "line-height:%.2f;"
                 + "text-shadow:%s;"
                 + "'>",
             HtmlUtils.toCssRgba(style.foregroundColor),

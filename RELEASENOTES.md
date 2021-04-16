@@ -77,6 +77,8 @@
 *   DASH:
     *   Parse `forced_subtitle` role from DASH manifests
         ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
+*   Text:
+    *   Fix lines overlapping when using `SubtitleView.VIEW_TYPE_WEB`.
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
