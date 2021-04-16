@@ -443,7 +443,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           break;
       }
       surfaceView.setLayoutParams(params);
+      // We don't want surfaceView to be clickable separately to the StyledPlayerView itself, but we
+      // do want to register as an OnClickListener so that surfaceView implementations can propagate
+      // click events up to the StyledPlayerView by calling their own performClick method.
       surfaceView.setOnClickListener(componentListener);
+      surfaceView.setClickable(false);
       contentFrame.addView(surfaceView, 0);
     } else {
       surfaceView = null;
