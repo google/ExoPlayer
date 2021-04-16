@@ -74,9 +74,6 @@
     *   Include the session state in DRM session-acquired listener methods.
     *   Prepare DRM sessions (and fetch keys) ahead of the playback position
         ([#4133](https://github.com/google/ExoPlayer/issues/4133)).
-*   DASH:
-    *   Parse `forced_subtitle` role from DASH manifests
-        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
 *   Text:
     *   Fix lines overlapping when using `SubtitleView.VIEW_TYPE_WEB`.
 *   MediaSession extension: Remove dependency to core module and rely on common
@@ -102,6 +99,7 @@
 
 ### 2.13.3 (2021-04-14)
 
+*   Published via the Google Maven repository (i.e., google()) rather than JCenter.
 *   Core:
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
@@ -120,6 +118,9 @@
     *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
         mode) when possible
         ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
+*   DASH:
+    *   Parse `forced_subtitle` role from DASH manifests
+        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
 *   HLS:
     *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
         ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
@@ -167,8 +168,6 @@
     *   Upgrade IMA SDK dependency to 3.23.0, fixing an issue with
         `NullPointerExceptions` within `WebView` callbacks
         ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
-*   Update instructions and publishing configuration for releasing to Google's
-    Maven repository instead of bintray/JCenter.
 *   FFmpeg extension: Fix playback failure when switching to TrueHD tracks
     during playback ([#8616](https://github.com/google/ExoPlayer/issues/8616)).
 
