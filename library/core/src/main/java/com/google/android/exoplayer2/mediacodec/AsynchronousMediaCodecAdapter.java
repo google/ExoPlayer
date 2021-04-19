@@ -123,6 +123,7 @@ import java.nio.ByteBuffer;
   private final boolean synchronizeCodecInteractionsWithQueueing;
   private boolean codecReleased;
   @State private int state;
+  private static final int decodingLinearBlockNum = 30;
 
   private AsynchronousMediaCodecAdapter(
       MediaCodec codec,
@@ -186,7 +187,10 @@ import java.nio.ByteBuffer;
   
   @Override
   @RequiresApi(30)
-  public void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {}
+  public void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {
+    bufferEnqueuer.queueLinearBlockInputBuffer(index, linearBlock, offset, size, presentationTimeUs, flags);
+    asynchronousMediaCodecCallback.storeDecodingLinearBlock(index, linearBlock);
+  }
 
   @Override
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
