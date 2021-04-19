@@ -347,9 +347,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void configureCodec(
+  protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
@@ -357,12 +356,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
-    codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     // Store the input MIME type if we're only using the codec for decryption.
     boolean decryptOnlyCodecEnabled =
         MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
             && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     decryptOnlyCodecFormat = decryptOnlyCodecEnabled ? format : null;
+    return new MediaCodecAdapter.Configuration(
+        codecInfo, mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
   }
 
   @Override

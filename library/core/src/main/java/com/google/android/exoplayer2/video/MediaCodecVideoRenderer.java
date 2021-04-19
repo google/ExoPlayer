@@ -600,9 +600,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void configureCodec(
+  protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
@@ -625,10 +624,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       surface = dummySurface;
     }
-    codec.configure(mediaFormat, surface, crypto, 0);
-    if (Util.SDK_INT >= 23 && tunneling) {
-      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
-    }
+    return new MediaCodecAdapter.Configuration(
+        codecInfo, mediaFormat, surface, crypto, /* flags= */ 0);
   }
 
   @Override
@@ -688,6 +685,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     codecNeedsSetOutputSurfaceWorkaround = codecNeedsSetOutputSurfaceWorkaround(name);
     codecHandlesHdr10PlusOutOfBandMetadata =
         Assertions.checkNotNull(getCodecInfo()).isHdr10PlusOutOfBandMetadataSupported();
+    if (Util.SDK_INT >= 23 && tunneling) {
+      tunnelingOnFrameRenderedListener =
+          new OnFrameRenderedListenerV23(Assertions.checkNotNull(getCodec()));
+    }
   }
 
   @Override
