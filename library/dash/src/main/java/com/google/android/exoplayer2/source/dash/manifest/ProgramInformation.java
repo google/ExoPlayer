@@ -53,7 +53,7 @@ public class ProgramInformation {
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if (!(obj instanceof ProgramInformation)) {
       return false;
     }
     ProgramInformation other = (ProgramInformation) obj;
