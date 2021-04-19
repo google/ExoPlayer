@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -329,7 +331,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       List<? extends MediaChunk> queue,
       MediaChunkIterator[] mediaChunkIterators) {
     long nowMs = clock.elapsedRealtime();
-    long chunkDurationUs = getChunkDurationUs(mediaChunkIterators, queue);
+    long chunkDurationUs = getNextChunkDurationUs(mediaChunkIterators, queue);
 
     // Make initial selection
     if (reason == C.SELECTION_REASON_UNKNOWN) {
@@ -406,7 +408,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     if (playoutBufferedDurationBeforeLastChunkUs < minDurationToRetainAfterDiscardUs) {
       return queueSize;
     }
-    int idealSelectedIndex = determineIdealSelectedIndex(nowMs, getChunkDurationUs(queue));
+    int idealSelectedIndex = determineIdealSelectedIndex(nowMs, getLastChunkDurationUs(queue));
     Format idealFormat = getFormat(idealSelectedIndex);
     // If the chunks contain video, discard from the first SD chunk beyond
     // minDurationToRetainAfterDiscardUs whose resolution and bitrate are both lower than the ideal
@@ -498,24 +500,34 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         : minDurationForQualityIncreaseUs;
   }
 
-  private long getChunkDurationUs(
+  /**
+   * Returns a best estimate of the duration of the next chunk, in microseconds, or {@link
+   * C#TIME_UNSET} if an estimate could not be determined.
+   */
+  private long getNextChunkDurationUs(
       MediaChunkIterator[] mediaChunkIterators, List<? extends MediaChunk> queue) {
-    // First, try to get the chunk duration for currently selected format.
+    // Try to get the next chunk duration for the currently selected format.
     if (selectedIndex < mediaChunkIterators.length && mediaChunkIterators[selectedIndex].next()) {
       MediaChunkIterator iterator = mediaChunkIterators[selectedIndex];
       return iterator.getChunkEndTimeUs() - iterator.getChunkStartTimeUs();
     }
-    // Second, try to get the chunk duration for another format.
+    // Try to get the next chunk duration for another format, on the assumption that chunks
+    // belonging to different formats are likely to have identical or similar durations.
     for (MediaChunkIterator iterator : mediaChunkIterators) {
       if (iterator.next()) {
         return iterator.getChunkEndTimeUs() - iterator.getChunkStartTimeUs();
       }
     }
-    // Third, try to get chunk duration for previous chunk in the queue.
-    return getChunkDurationUs(queue);
+    // Try to get chunk duration for last chunk in the queue, on the assumption that the next chunk
+    // is likely to have a similar duration.
+    return getLastChunkDurationUs(queue);
   }
 
-  private long getChunkDurationUs(List<? extends MediaChunk> queue) {
+  /**
+   * Returns the duration of the last chunk in the queue, in microseconds, or {@link C#TIME_UNSET}
+   * if the queue is empty or if the last chunk has an undefined start or end time.
+   */
+  private long getLastChunkDurationUs(List<? extends MediaChunk> queue) {
     if (queue.isEmpty()) {
       return C.TIME_UNSET;
     }
@@ -552,7 +564,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     if (timeToFirstByteEstimateUs == C.TIME_UNSET || chunkDurationUs == C.TIME_UNSET) {
       return (long) (cautiousBandwidthEstimate / playbackSpeed);
     }
-    float availableTimeToLoadUs = chunkDurationUs / playbackSpeed - timeToFirstByteEstimateUs;
+    float availableTimeToLoadUs =
+        max(chunkDurationUs / playbackSpeed - timeToFirstByteEstimateUs, 0);
     return (long) (cautiousBandwidthEstimate * availableTimeToLoadUs / chunkDurationUs);
   }
 
