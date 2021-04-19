@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.MediaCodec;
+import android.media.MediaCodec.LinearBlock;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -48,6 +49,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
   private static final int MSG_QUEUE_INPUT_BUFFER = 0;
   private static final int MSG_QUEUE_SECURE_INPUT_BUFFER = 1;
   private static final int MSG_OPEN_CV = 2;
+  private static final int MSG_QUEUE_LINEAR_BLOCK_INPUT_BUFFER = 3;
 
   @GuardedBy("MESSAGE_PARAMS_INSTANCE_POOL")
   private static final ArrayDeque<MessageParams> MESSAGE_PARAMS_INSTANCE_POOL = new ArrayDeque<>();
@@ -121,7 +123,16 @@ class AsynchronousMediaCodecBufferEnqueuer {
       int index, int offset, int size, long presentationTimeUs, int flags) {
     maybeThrowException();
     MessageParams messageParams = getMessageParams();
-    messageParams.setQueueParams(index, offset, size, presentationTimeUs, flags);
+    messageParams.setQueueParams(index, null ,offset, size, presentationTimeUs, flags);
+    Message message = castNonNull(handler).obtainMessage(MSG_QUEUE_INPUT_BUFFER, messageParams);
+    message.sendToTarget();
+  }
+
+  public void queueLinearBlockInputBuffer(
+      int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {
+    maybeThrowException();
+    MessageParams messageParams = getMessageParams();
+    messageParams.setQueueParams(index, null ,offset, size, presentationTimeUs, flags);
     Message message = castNonNull(handler).obtainMessage(MSG_QUEUE_INPUT_BUFFER, messageParams);
     message.sendToTarget();
   }
@@ -139,7 +150,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     maybeThrowException();
     MessageParams messageParams = getMessageParams();
-    messageParams.setQueueParams(index, offset, /* size= */ 0, presentationTimeUs, flags);
+    messageParams.setQueueParams(index, null ,offset, /* size= */ 0, presentationTimeUs, flags);
     copy(info, messageParams.cryptoInfo);
     Message message =
         castNonNull(handler).obtainMessage(MSG_QUEUE_SECURE_INPUT_BUFFER, messageParams);
@@ -226,6 +237,11 @@ class AsynchronousMediaCodecBufferEnqueuer {
       case MSG_OPEN_CV:
         conditionVariable.open();
         break;
+      case MSG_QUEUE_LINEAR_BLOCK_INPUT_BUFFER:
+        params = (MessageParams) msg.obj;
+        doQueueLinearBlockInputBuffer(
+            params.index, params.linearBlock, params.offset, params.size, params.presentationTimeUs, params.flags);
+        break;
       default:
         setPendingRuntimeException(new IllegalStateException(String.valueOf(msg.what)));
     }
@@ -238,6 +254,19 @@ class AsynchronousMediaCodecBufferEnqueuer {
       int index, int offset, int size, long presentationTimeUs, int flag) {
     try {
       codec.queueInputBuffer(index, offset, size, presentationTimeUs, flag);
+    } catch (RuntimeException e) {
+      setPendingRuntimeException(e);
+    }
+  }
+
+  private void doQueueLinearBlockInputBuffer(
+      int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flag) {
+    try {
+      MediaCodec.QueueRequest request = codec.getQueueRequest(index);
+      request.setLinearBlock(linearBlock, offset, size);
+      request.setPresentationTimeUs(presentationTimeUs);
+      request.setFlags(flag);
+      request.queue();
     } catch (RuntimeException e) {
       setPendingRuntimeException(e);
     }
@@ -282,6 +311,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
     public final MediaCodec.CryptoInfo cryptoInfo;
     public long presentationTimeUs;
     public int flags;
+    LinearBlock linearBlock;
 
     MessageParams() {
       cryptoInfo = new MediaCodec.CryptoInfo();
@@ -289,8 +319,9 @@ class AsynchronousMediaCodecBufferEnqueuer {
 
     /** Convenience method for setting the queueing parameters. */
     public void setQueueParams(
-        int index, int offset, int size, long presentationTimeUs, int flags) {
+        int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {
       this.index = index;
+      this.linearBlock = linearBlock;
       this.offset = offset;
       this.size = size;
       this.presentationTimeUs = presentationTimeUs;

@@ -74,6 +74,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private IllegalStateException internalException;
 
+  private MediaCodec.LinearBlock decodingLinearBlock[];
+  private static final int decodingLinearBlockNum= 30;
+
   /**
    * Creates a new instance.
    *
@@ -87,6 +90,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.availableOutputBuffers = new IntArrayQueue();
     this.bufferInfos = new ArrayDeque<>();
     this.formats = new ArrayDeque<>();
+    decodingLinearBlock = new MediaCodec.LinearBlock[decodingLinearBlockNum];
+    for (int i = 0; i < decodingLinearBlockNum; i++) {
+      decodingLinearBlock[i] = null;
+    }
   }
 
   /**
@@ -116,10 +123,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void shutdown() {
     synchronized (lock) {
+      for (int i = 0; i < decodingLinearBlockNum; i++) {
+        if (decodingLinearBlock[i] != null) {
+          decodingLinearBlock[i].recycle();
+          decodingLinearBlock[i] = null;
+        }
+      }
       shutDown = true;
       callbackThread.quit();
       flushInternal();
     }
+  }
+
+  public void storeDecodingLinearBlock(int index, MediaCodec.LinearBlock linearBlock) {
+    decodingLinearBlock[index] = linearBlock;
   }
 
   /**
@@ -210,6 +227,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
     synchronized (lock) {
+      if (decodingLinearBlock[index] !=null) {
+        decodingLinearBlock[index].recycle();
+        decodingLinearBlock[index] = null;
+      }
       availableInputBuffers.add(index);
     }
   }
