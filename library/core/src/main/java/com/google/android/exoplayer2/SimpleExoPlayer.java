@@ -79,7 +79,7 @@ import java.util.concurrent.TimeoutException;
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
         ExoPlayer.AudioComponent,
-        ExoPlayer.VideoComponent,
+        Player.VideoComponent,
         ExoPlayer.TextComponent,
         ExoPlayer.MetadataComponent,
         ExoPlayer.DeviceComponent {

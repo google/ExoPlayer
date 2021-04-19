@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
-import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -573,12 +572,15 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
       oldPlayer.removeListener(componentListener);
-      if (surfaceView instanceof TextureView) {
-        oldPlayer.clearVideoTextureView((TextureView) surfaceView);
-      } else if (surfaceView instanceof SphericalGLSurfaceView) {
-        ((SphericalGLSurfaceView) surfaceView).setPlayer(null);
-      } else if (surfaceView instanceof SurfaceView) {
-        oldPlayer.clearVideoSurfaceView((SurfaceView) surfaceView);
+      @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
+      if (oldVideoComponent != null) {
+        if (surfaceView instanceof TextureView) {
+          oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
+        } else if (surfaceView instanceof SphericalGLSurfaceView) {
+          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
+        } else if (surfaceView instanceof SurfaceView) {
+          oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
+        }
       }
     }
     if (subtitleView != null) {
@@ -592,14 +594,16 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     updateErrorMessage();
     updateForCurrentTrackSelections(/* isNewPlayer= */ true);
     if (player != null) {
-      if (player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
+      @Nullable Player.VideoComponent newVideoComponent = player.getVideoComponent();
+      if (newVideoComponent != null) {
         if (surfaceView instanceof TextureView) {
-          player.setVideoTextureView((TextureView) surfaceView);
+          newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
-          ((SphericalGLSurfaceView) surfaceView).setPlayer(player);
+          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
         } else if (surfaceView instanceof SurfaceView) {
-          player.setVideoSurfaceView((SurfaceView) surfaceView);
+          newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
+        newVideoComponent.addVideoListener(componentListener);
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
         subtitleView.setCues(player.getCurrentCues());

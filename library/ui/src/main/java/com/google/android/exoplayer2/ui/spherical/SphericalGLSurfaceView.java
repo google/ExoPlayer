@@ -72,7 +72,7 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   private final SceneRenderer scene;
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
-  @Nullable private Player player;
+  @Nullable private Player.VideoComponent videoComponent;
   private boolean useSensorRotation;
   private boolean isStarted;
   private boolean isOrientationListenerRegistered;
@@ -125,23 +125,23 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     scene.setDefaultStereoMode(stereoMode);
   }
 
-  /** Sets the {@link Player} to use. */
-  public void setPlayer(@Nullable Player newPlayer) {
-    if (newPlayer == player) {
+  /** Sets the {@link Player.VideoComponent} to use. */
+  public void setVideoComponent(@Nullable Player.VideoComponent newVideoComponent) {
+    if (newVideoComponent == videoComponent) {
       return;
     }
-    if (player != null) {
+    if (videoComponent != null) {
       if (surface != null) {
-        player.clearVideoSurface(surface);
+        videoComponent.clearVideoSurface(surface);
       }
-      player.clearVideoFrameMetadataListener(scene);
-      player.clearCameraMotionListener(scene);
+      videoComponent.clearVideoFrameMetadataListener(scene);
+      videoComponent.clearCameraMotionListener(scene);
     }
-    player = newPlayer;
-    if (this.player != null) {
-      player.setVideoFrameMetadataListener(scene);
-      player.setCameraMotionListener(scene);
-      player.setVideoSurface(surface);
+    videoComponent = newVideoComponent;
+    if (videoComponent != null) {
+      videoComponent.setVideoFrameMetadataListener(scene);
+      videoComponent.setCameraMotionListener(scene);
+      videoComponent.setVideoSurface(surface);
     }
   }
 
@@ -174,8 +174,8 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     mainHandler.post(
         () -> {
           if (surface != null) {
-            if (player != null) {
-              player.clearVideoSurface(surface);
+            if (videoComponent != null) {
+              videoComponent.clearVideoSurface(surface);
             }
             releaseSurface(surfaceTexture, surface);
             surfaceTexture = null;
@@ -206,8 +206,8 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
           Surface oldSurface = this.surface;
           this.surfaceTexture = surfaceTexture;
           this.surface = new Surface(surfaceTexture);
-          if (player != null) {
-            player.setVideoSurface(surface);
+          if (videoComponent != null) {
+            videoComponent.setVideoSurface(surface);
           }
           releaseSurface(oldSurfaceTexture, oldSurface);
         });
