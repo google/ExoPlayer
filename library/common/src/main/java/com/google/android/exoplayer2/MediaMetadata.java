@@ -29,6 +29,12 @@ public final class MediaMetadata implements Bundleable {
   /** A builder for {@link MediaMetadata} instances. */
   public static final class Builder {
 
+    public Builder() {}
+
+    private Builder(MediaMetadata mediaMetadata) {
+      this.title = mediaMetadata.title;
+    }
+
     @Nullable private String title;
 
     /** Sets the optional title. */
@@ -39,7 +45,7 @@ public final class MediaMetadata implements Bundleable {
 
     /** Returns a new {@link MediaMetadata} instance with the current builder values. */
     public MediaMetadata build() {
-      return new MediaMetadata(title);
+      return new MediaMetadata(/* builder= */ this);
     }
   }
 
@@ -49,8 +55,13 @@ public final class MediaMetadata implements Bundleable {
   /** Optional title. */
   @Nullable public final String title;
 
-  private MediaMetadata(@Nullable String title) {
-    this.title = title;
+  private MediaMetadata(Builder builder) {
+    this.title = builder.title;
+  }
+
+  /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
+  public Builder buildUpon() {
+    return new Builder(/* mediaMetadata= */ this);
   }
 
   @Override
@@ -89,7 +100,8 @@ public final class MediaMetadata implements Bundleable {
 
   /** Object that can restore {@link MediaMetadata} from a {@link Bundle}. */
   public static final Creator<MediaMetadata> CREATOR =
-      bundle -> new MediaMetadata(bundle.getString(keyForField(FIELD_TITLE)));
+      bundle ->
+          new MediaMetadata.Builder().setTitle(bundle.getString(keyForField(FIELD_TITLE))).build();
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);

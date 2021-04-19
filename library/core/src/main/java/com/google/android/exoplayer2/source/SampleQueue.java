@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_OMIT_SAMPLE_DATA;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_PEEK;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
@@ -37,6 +40,7 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager.DrmSessionReference;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
@@ -402,21 +406,6 @@ public class SampleQueue implements TrackOutput {
     return mayReadSample(getRelativeIndex(readPosition));
   }
 
-  /** Equivalent to {@link #read}, except it never advances the read position. */
-  public final int peek(
-      FormatHolder formatHolder,
-      DecoderInputBuffer buffer,
-      boolean formatRequired,
-      boolean loadingFinished) {
-    int result =
-        peekSampleMetadata(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
-    if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream() && !buffer.isFlagsOnly() &&
-        sampleDataQueue != null) {
-      sampleDataQueue.peekToBuffer(buffer, extrasHolder);
-    }
-    return result;
-  }
-
   /**
    * Attempts to read from the queue.
    *
@@ -426,18 +415,12 @@ public class SampleQueue implements TrackOutput {
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the {@link
-   *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. If a {@link
-   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed and a sample is read, then
-   *     only the buffer {@link DecoderInputBuffer#timeUs timestamp} and flags will be populated,
-   *     and the read position will not be advanced.
-   * @param formatRequired Whether the caller requires that the format of the stream be read even if
-   *     it's not changing. A sample will never be read if set to true, however it is still possible
-   *     for the end of stream or nothing to be read.
+   *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @param readFlags Flags controlling the behavior of this read operation.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
-   * @throws InsufficientCapacityException If the {@code buffer} is not a {@link
-   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer and has insufficient capacity to hold
+   * @throws InsufficientCapacityException If the {@code buffer} has insufficient capacity to hold
    *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
    *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
@@ -445,15 +428,26 @@ public class SampleQueue implements TrackOutput {
   public int read(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
-      boolean formatRequired,
+      @ReadFlags int readFlags,
       boolean loadingFinished) {
-    int result =
-        peekSampleMetadata(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
-    if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream() && !buffer.isFlagsOnly()) {
-      if (sampleDataQueue != null) {
-        sampleDataQueue.readToBuffer(buffer, extrasHolder);
+    int result = peekSampleMetadata(
+            formatHolder,
+            buffer,
+            /* formatRequired= */ (readFlags & FLAG_REQUIRE_FORMAT) != 0,
+            loadingFinished,
+            extrasHolder);
+    if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
+      boolean peek = (readFlags & FLAG_PEEK) != 0;
+      if ((readFlags & FLAG_OMIT_SAMPLE_DATA) == 0 && sampleDataQueue != null) {
+        if (peek) {
+          sampleDataQueue.peekToBuffer(buffer, extrasHolder);
+        } else {
+          sampleDataQueue.readToBuffer(buffer, extrasHolder);
+        }
       }
-      readPosition++;
+      if (!peek) {
+        readPosition++;
+      }
     }
     return result;
   }

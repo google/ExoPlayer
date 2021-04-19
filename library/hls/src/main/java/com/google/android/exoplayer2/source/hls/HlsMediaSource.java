@@ -616,7 +616,9 @@ public final class HlsMediaSource extends BaseMediaSource
     HlsMediaPlaylist.ServerControl serverControl = playlist.serverControl;
     // Select part hold back only if the playlist has a part target duration.
     long offsetToEndOfPlaylistUs;
-    if (serverControl.partHoldBackUs != C.TIME_UNSET
+    if (playlist.startOffsetUs != C.TIME_UNSET) {
+      offsetToEndOfPlaylistUs = playlist.durationUs - playlist.startOffsetUs;
+    } else if (serverControl.partHoldBackUs != C.TIME_UNSET
         && playlist.partTargetDurationUs != C.TIME_UNSET) {
       offsetToEndOfPlaylistUs = serverControl.partHoldBackUs;
     } else if (serverControl.holdBackUs != C.TIME_UNSET) {

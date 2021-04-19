@@ -144,7 +144,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}
  *         <li>Default: false
  *       </ul>
- *   <li><b>{@code show_subtitle_button}</b> - Whether the shuffle button is shown.
+ *   <li><b>{@code show_subtitle_button}</b> - Whether the subtitle button is shown.
  *       <ul>
  *         <li>Corresponding method: {@link #setShowSubtitleButton(boolean)}
  *         <li>Default: false
@@ -1582,29 +1582,6 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private void onLayoutChange(
-      View v,
-      int left,
-      int top,
-      int right,
-      int bottom,
-      int oldLeft,
-      int oldTop,
-      int oldRight,
-      int oldBottom) {
-    int width = right - left;
-    int height = bottom - top;
-    int oldWidth = oldRight - oldLeft;
-    int oldHeight = oldBottom - oldTop;
-
-    if ((width != oldWidth || height != oldHeight) && settingsWindow.isShowing()) {
-      updateSettingsWindowSize();
-      int xOffset = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-      int yOffset = -settingsWindow.getHeight() - settingsWindowMargin;
-      settingsWindow.update(v, xOffset, yOffset, -1, -1);
-    }
-  }
-
   @Override
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
@@ -1674,6 +1651,35 @@ public class StyledPlayerControlView extends FrameLayout {
       }
     }
     return true;
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    controlViewLayoutManager.onLayout(changed, left, top, right, bottom);
+  }
+
+  private void onLayoutChange(
+      View v,
+      int left,
+      int top,
+      int right,
+      int bottom,
+      int oldLeft,
+      int oldTop,
+      int oldRight,
+      int oldBottom) {
+    int width = right - left;
+    int height = bottom - top;
+    int oldWidth = oldRight - oldLeft;
+    int oldHeight = oldBottom - oldTop;
+
+    if ((width != oldWidth || height != oldHeight) && settingsWindow.isShowing()) {
+      updateSettingsWindowSize();
+      int xOffset = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
+      int yOffset = -settingsWindow.getHeight() - settingsWindowMargin;
+      settingsWindow.update(v, xOffset, yOffset, -1, -1);
+    }
   }
 
   private boolean shouldShowPauseButton() {

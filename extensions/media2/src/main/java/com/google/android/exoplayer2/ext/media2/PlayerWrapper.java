@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -138,10 +137,6 @@ import java.util.List;
     controlDispatcher = new DefaultControlDispatcher();
     componentListener = new ComponentListener();
     player.addListener(componentListener);
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
-    if (audioComponent != null) {
-      audioComponent.addAudioListener(componentListener);
-    }
 
     handler = new Handler(player.getApplicationLooper());
     pollBufferRunnable = new PollBufferRunnable();
@@ -437,7 +432,7 @@ import java.util.List;
       case Player.STATE_READY:
         if (!prepared) {
           prepared = true;
-          handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+          handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
           listener.onPrepared(
               Assertions.checkNotNull(getCurrentMediaItem()), player.getBufferedPercentage());
         }
@@ -455,15 +450,15 @@ import java.util.List;
   }
 
   public void setAudioAttributes(AudioAttributesCompat audioAttributes) {
-    Player.AudioComponent audioComponent = Assertions.checkStateNotNull(player.getAudioComponent());
-    audioComponent.setAudioAttributes(
-        Utils.getAudioAttributes(audioAttributes), /* handleAudioFocus= */ true);
+    // Player interface doesn't support setting audio attributes.
   }
 
   public AudioAttributesCompat getAudioAttributes() {
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
-    return Utils.getAudioAttributesCompat(
-        audioComponent != null ? audioComponent.getAudioAttributes() : AudioAttributes.DEFAULT);
+    AudioAttributes audioAttributes = AudioAttributes.DEFAULT;
+    if (player.isCommandAvailable(Player.COMMAND_GET_AUDIO_ATTRIBUTES)) {
+      audioAttributes = player.getAudioAttributes();
+    }
+    return Utils.getAudioAttributesCompat(audioAttributes);
   }
 
   public void setPlaybackSpeed(float playbackSpeed) {
@@ -483,11 +478,6 @@ import java.util.List;
   public void close() {
     handler.removeCallbacks(pollBufferRunnable);
     player.removeListener(componentListener);
-
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
-    if (audioComponent != null) {
-      audioComponent.removeAudioListener(componentListener);
-    }
   }
 
   public boolean isCurrentMediaItemSeekable() {
@@ -517,9 +507,11 @@ import java.util.List;
     int currentWindowIndex = getCurrentMediaItemIndex();
     if (this.currentWindowIndex != currentWindowIndex) {
       this.currentWindowIndex = currentWindowIndex;
-      androidx.media2.common.MediaItem currentMediaItem =
-          Assertions.checkNotNull(getCurrentMediaItem());
-      listener.onCurrentMediaItemChanged(currentMediaItem);
+      if (currentWindowIndex != C.INDEX_UNSET) {
+        androidx.media2.common.MediaItem currentMediaItem =
+            Assertions.checkNotNull(getCurrentMediaItem());
+        listener.onCurrentMediaItemChanged(currentMediaItem);
+      }
     } else {
       listener.onSeekCompleted();
     }
@@ -582,7 +574,7 @@ import java.util.List;
     }
   }
 
-  private final class ComponentListener implements Player.EventListener, AudioListener {
+  private final class ComponentListener implements Player.Listener {
 
     // Player.EventListener implementation.
 
@@ -597,7 +589,10 @@ import java.util.List;
     }
 
     @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @Player.DiscontinuityReason int reason) {
       handlePositionDiscontinuity(reason);
     }
 

@@ -440,8 +440,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public int readData(
-        FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
-      int readResult = sampleStream.readData(formatHolder, buffer, formatRequired);
+        FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+      int readResult = sampleStream.readData(formatHolder, buffer, readFlags);
       if (readResult == C.RESULT_BUFFER_READ) {
         buffer.timeUs = max(0, buffer.timeUs + timeOffsetUs);
       }

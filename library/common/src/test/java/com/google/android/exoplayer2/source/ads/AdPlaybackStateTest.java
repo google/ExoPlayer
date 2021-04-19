@@ -150,7 +150,7 @@ public class AdPlaybackStateTest {
   }
 
   @Test
-  public void roundtripViaBundle_yieldsEqualFieldsExceptAdsId() {
+  public void roundTripViaBundle_yieldsEqualFieldsExceptAdsId() {
     AdPlaybackState originalState =
         state
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -176,7 +176,7 @@ public class AdPlaybackStateTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofAdGroup_yieldsEqualInstance() {
+  public void roundTripViaBundle_ofAdGroup_yieldsEqualInstance() {
     AdPlaybackState.AdGroup adGroup =
         new AdPlaybackState.AdGroup()
             .withAdCount(2)

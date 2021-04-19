@@ -38,6 +38,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.truth.Fact;
 import com.google.common.truth.FailureMetadata;
@@ -579,6 +581,44 @@ public final class SpannedSubject extends Subject {
   }
 
   /**
+   * Checks that the subject has an {@link TextEmphasisSpan} from {@code start} to {@code end}.
+   *
+   * @param start The start of the expected span.
+   * @param end The end of the expected span.
+   * @return A {@link EmphasizedText} object for optional additional assertions on the flags.
+   */
+  public EmphasizedText hasTextEmphasisSpanBetween(int start, int end) {
+    if (actual == null) {
+      failWithoutActual(simpleFact("Spanned must not be null"));
+      return ALREADY_FAILED_WITH_MARK_AND_POSITION;
+    }
+
+    List<TextEmphasisSpan> textEmphasisSpans =
+        findMatchingSpans(start, end, TextEmphasisSpan.class);
+    if (textEmphasisSpans.size() == 1) {
+      return check("TextEmphasisSpan (start=%s,end=%s)", start, end)
+          .about(textEmphasisSubjects(actual))
+          .that(textEmphasisSpans);
+    }
+    failWithExpectedSpan(
+        start, end, TextEmphasisSpan.class, actual.toString().substring(start, end));
+    return ALREADY_FAILED_WITH_MARK_AND_POSITION;
+  }
+
+  /**
+   * Checks that the subject has no {@link TextEmphasisSpan}s on any of the text between {@code
+   * start} and {@code end}.
+   *
+   * <p>This fails even if the start and end indexes don't exactly match.
+   *
+   * @param start The start index to start searching for spans.
+   * @param end The end index to stop searching for spans.
+   */
+  public void hasNoTextEmphasisSpanBetween(int start, int end) {
+    hasNoSpansOfTypeBetween(TextEmphasisSpan.class, start, end);
+  }
+
+  /**
    * Checks that the subject has no {@link HorizontalTextInVerticalContextSpan}s on any of the text
    * between {@code start} and {@code end}.
    *
@@ -1033,7 +1073,7 @@ public final class SpannedSubject extends Subject {
      * @param position The expected position of the text.
      * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
      */
-    AndSpanFlags withTextAndPosition(String text, @RubySpan.Position int position);
+    AndSpanFlags withTextAndPosition(String text, @TextAnnotation.Position int position);
   }
 
   private static final RubyText ALREADY_FAILED_WITH_TEXT =
@@ -1057,7 +1097,7 @@ public final class SpannedSubject extends Subject {
     }
 
     @Override
-    public AndSpanFlags withTextAndPosition(String text, @RubySpan.Position int position) {
+    public AndSpanFlags withTextAndPosition(String text, @TextAnnotation.Position int position) {
       List<Integer> matchingSpanFlags = new ArrayList<>();
       List<TextAndPosition> spanTextsAndPositions = new ArrayList<>();
       for (RubySpan span : actualSpans) {
@@ -1074,7 +1114,7 @@ public final class SpannedSubject extends Subject {
 
     private static final class TextAndPosition {
       private final String text;
-      @RubySpan.Position private final int position;
+      @TextAnnotation.Position private final int position;
 
       private TextAndPosition(String text, int position) {
         this.text = text;
@@ -1107,6 +1147,110 @@ public final class SpannedSubject extends Subject {
       @Override
       public String toString() {
         return String.format("{text='%s',position=%s}", text, position);
+      }
+    }
+  }
+
+  /** Allows assertions about a span's text emphasis mark and its position. */
+  public interface EmphasizedText {
+    /**
+     * Checks that at least one of the matched spans has the expected {@code mark} and {@code
+     * position}.
+     *
+     * @param markShape The expected mark shape.
+     * @param markFill The expected mark fill style.
+     * @param position The expected position of the mark.
+     * @return A {@link AndSpanFlags} object for optional additional assertions on the flags.
+     */
+    AndSpanFlags withMarkAndPosition(
+        @TextEmphasisSpan.MarkShape int markShape,
+        @TextEmphasisSpan.MarkFill int markFill,
+        @TextAnnotation.Position int position);
+  }
+
+  private static final EmphasizedText ALREADY_FAILED_WITH_MARK_AND_POSITION =
+      (markShape, markFill, position) -> ALREADY_FAILED_AND_FLAGS;
+
+  private static Factory<TextEmphasisSubject, List<TextEmphasisSpan>> textEmphasisSubjects(
+      Spanned actualSpanned) {
+    return (FailureMetadata metadata, List<TextEmphasisSpan> spans) ->
+        new TextEmphasisSubject(metadata, spans, actualSpanned);
+  }
+
+  private static final class TextEmphasisSubject extends Subject implements EmphasizedText {
+
+    private final List<TextEmphasisSpan> actualSpans;
+    private final Spanned actualSpanned;
+
+    private TextEmphasisSubject(
+        FailureMetadata metadata, List<TextEmphasisSpan> actualSpans, Spanned actualSpanned) {
+      super(metadata, actualSpans);
+      this.actualSpans = actualSpans;
+      this.actualSpanned = actualSpanned;
+    }
+
+    @Override
+    public AndSpanFlags withMarkAndPosition(
+        @TextEmphasisSpan.MarkShape int markShape,
+        @TextEmphasisSpan.MarkFill int markFill,
+        @TextAnnotation.Position int position) {
+      List<Integer> matchingSpanFlags = new ArrayList<>();
+      List<MarkAndPosition> textEmphasisMarksAndPositions = new ArrayList<>();
+      for (TextEmphasisSpan span : actualSpans) {
+        textEmphasisMarksAndPositions.add(
+            new MarkAndPosition(span.markShape, span.markFill, span.position));
+        if (span.markFill == markFill && span.markShape == markShape && span.position == position) {
+          matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
+        }
+      }
+      check("textEmphasisMarkAndPosition")
+          .that(textEmphasisMarksAndPositions)
+          .containsExactly(new MarkAndPosition(markShape, markFill, position));
+      return check("flags").about(spanFlags()).that(matchingSpanFlags);
+    }
+
+    private static final class MarkAndPosition {
+
+      @TextEmphasisSpan.MarkShape private final int markShape;
+      @TextEmphasisSpan.MarkFill private final int markFill;
+      @TextAnnotation.Position private final int position;
+
+      private MarkAndPosition(
+          @TextEmphasisSpan.MarkShape int markShape,
+          @TextEmphasisSpan.MarkFill int markFill,
+          @TextAnnotation.Position int position) {
+        this.markFill = markFill;
+        this.markShape = markShape;
+        this.position = position;
+      }
+
+      @Override
+      public boolean equals(@Nullable Object o) {
+        if (this == o) {
+          return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+          return false;
+        }
+
+        TextEmphasisSubject.MarkAndPosition that = (TextEmphasisSubject.MarkAndPosition) o;
+        return (position == that.position)
+            && (markShape == that.markShape)
+            && (markFill == that.markFill);
+      }
+
+      @Override
+      public int hashCode() {
+        int result = markShape;
+        result = 31 * result + markFill;
+        result = 31 * result + position;
+        return result;
+      }
+
+      @Override
+      public String toString() {
+        return String.format(
+            "{markShape=%s,markFill=%s,position=%s}", markShape, markFill, position);
       }
     }
   }

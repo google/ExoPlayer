@@ -33,8 +33,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Iterables;
@@ -71,14 +71,14 @@ public final class TransformerTest {
   private Context context;
   private String outputPath;
   private TestMuxer testMuxer;
-  private AutoAdvancingFakeClock clock;
+  private FakeClock clock;
   private ProgressHolder progressHolder;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    clock = new AutoAdvancingFakeClock();
+    clock = new FakeClock(/* isAutoAdvancing= */ true);
     progressHolder = new ProgressHolder();
     createEncodersAndDecoders();
   }

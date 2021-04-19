@@ -83,6 +83,17 @@ public class FakeClock implements Clock {
 
   /**
    * Creates a fake clock that assumes that the system was booted exactly at time {@code 0} (the
+   * Unix Epoch) and an {@code initialTimeMs} of {@code 0}.
+   *
+   * @param isAutoAdvancing Whether the clock should automatically advance the time to the time of
+   *     next message that is due to be sent.
+   */
+  public FakeClock(boolean isAutoAdvancing) {
+    this(/* bootTimeMs= */ 0, /* initialTimeMs= */ 0, isAutoAdvancing);
+  }
+
+  /**
+   * Creates a fake clock that assumes that the system was booted exactly at time {@code 0} (the
    * Unix Epoch) and {@code initialTimeMs} milliseconds have passed since system boot.
    *
    * @param initialTimeMs The initial elapsed time since the boot time, in milliseconds.

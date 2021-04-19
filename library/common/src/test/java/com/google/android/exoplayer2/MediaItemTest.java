@@ -38,18 +38,12 @@ public class MediaItemTest {
   private static final String URI_STRING = "http://www.google.com";
 
   @Test
-  public void builder_needsUriOrMediaId() {
-    assertThrows(NullPointerException.class, () -> new MediaItem.Builder().build());
-  }
-
-  @Test
   public void builderWithUri_setsUri() {
     Uri uri = Uri.parse(URI_STRING);
 
     MediaItem mediaItem = MediaItem.fromUri(uri);
 
-    assertThat(mediaItem.playbackProperties.uri.toString()).isEqualTo(URI_STRING);
-    assertThat(mediaItem.mediaId).isEqualTo(URI_STRING);
+    assertThat(mediaItem.playbackProperties.uri).isEqualTo(uri);
     assertThat(mediaItem.mediaMetadata).isNotNull();
   }
 
@@ -58,7 +52,13 @@ public class MediaItemTest {
     MediaItem mediaItem = MediaItem.fromUri(URI_STRING);
 
     assertThat(mediaItem.playbackProperties.uri.toString()).isEqualTo(URI_STRING);
-    assertThat(mediaItem.mediaId).isEqualTo(URI_STRING);
+  }
+
+  @Test
+  public void builderWithoutMediaId_usesDefaultMediaId() {
+    MediaItem mediaItem = MediaItem.fromUri(URI_STRING);
+
+    assertThat(mediaItem.mediaId).isEqualTo(MediaItem.DEFAULT_MEDIA_ID);
   }
 
   @Test
@@ -395,7 +395,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundtripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
+  public void roundTripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("mediaId")
@@ -417,7 +417,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundtripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
+  public void roundTripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.playbackProperties).isNotNull();

@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public class AudioAttributesTest {
 
   @Test
-  public void roundtripViaBundle_yieldsEqualInstance() {
+  public void roundTripViaBundle_yieldsEqualInstance() {
     AudioAttributes audioAttributes =
         new AudioAttributes.Builder()
             .setContentType(C.CONTENT_TYPE_SONIFICATION)

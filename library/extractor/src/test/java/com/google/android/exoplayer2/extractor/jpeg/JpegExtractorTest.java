@@ -46,6 +46,14 @@ public final class JpegExtractorTest {
   }
 
   @Test
+  public void samplePixelMotionPhotoJfifSegmentShortened() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        JpegExtractor::new,
+        "media/jpeg/pixel-motion-photo-jfif-segment-shortened.jpg",
+        simulationConfig);
+  }
+
+  @Test
   public void samplePixelMotionPhotoVideoRemovedShortened() throws Exception {
     ExtractorAsserts.assertBehavior(
         JpegExtractor::new,

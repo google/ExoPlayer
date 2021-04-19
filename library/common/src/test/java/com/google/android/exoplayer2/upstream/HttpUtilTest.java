@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.upstream.HttpUtil.buildRangeRequestHeader;
 import static com.google.android.exoplayer2.upstream.HttpUtil.getContentLength;
+import static com.google.android.exoplayer2.upstream.HttpUtil.getDocumentSize;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -77,5 +78,23 @@ public class HttpUtilTest {
   public void getContentLength_ignoresUnhandledRangeUnits() {
     assertThat(getContentLength(null, "unhandled 5-9/100")).isEqualTo(C.LENGTH_UNSET);
     assertThat(getContentLength("10", "unhandled 0-4/100")).isEqualTo(10);
+  }
+
+  @Test
+  public void getDocumentSize_noHeader_returnsUnset() {
+    assertThat(getDocumentSize(null)).isEqualTo(C.LENGTH_UNSET);
+    assertThat(getDocumentSize("")).isEqualTo(C.LENGTH_UNSET);
+  }
+
+  @Test
+  public void getDocumentSize_returnsSize() {
+    assertThat(getDocumentSize("bytes */20")).isEqualTo(20);
+    assertThat(getDocumentSize("bytes 0-4/20")).isEqualTo(20);
+  }
+
+  @Test
+  public void getDocumentSize_ignoresUnhandledRangeUnits() {
+    assertThat(getDocumentSize("unhandled */20")).isEqualTo(C.LENGTH_UNSET);
+    assertThat(getDocumentSize("unhandled 0-4/20")).isEqualTo(C.LENGTH_UNSET);
   }
 }

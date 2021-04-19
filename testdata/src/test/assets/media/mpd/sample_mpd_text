@@ -7,11 +7,13 @@
    </SegmentTimeline>
   </SegmentTemplate>
   <AdaptationSet id="0" mimeType="application/x-rawcc" subsegmentAlignment="true">
+   <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="subtitle"/>
    <Representation id="0" codecs="cea608" bandwidth="16">
     <BaseURL>https://test.com/0</BaseURL>
    </Representation>
   </AdaptationSet>
   <AdaptationSet id="0" mimeType="application/mp4" subsegmentAlignment="true">
+   <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="forced_subtitle"/>
    <Representation id="0" codecs="stpp.ttml.im1t" bandwidth="16">
     <BaseURL>https://test.com/0</BaseURL>
    </Representation>

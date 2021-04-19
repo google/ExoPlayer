@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AacUtil;
+import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -340,7 +341,7 @@ public final class MimeTypes {
     if (codec == null) {
       return null;
     }
-    codec = Util.toLowerInvariant(codec.trim());
+    codec = Ascii.toLowerCase(codec.trim());
     if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
       return MimeTypes.VIDEO_H264;
     } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {

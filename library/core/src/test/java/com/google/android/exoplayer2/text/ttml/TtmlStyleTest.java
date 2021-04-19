@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import static android.graphics.Color.BLACK;
+import static com.google.android.exoplayer2.text.span.TextAnnotation.POSITION_BEFORE;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD_ITALIC;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_ITALIC;
@@ -28,7 +29,8 @@ import android.graphics.Color;
 import android.text.Layout;
 import androidx.annotation.ColorInt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,9 +45,11 @@ public final class TtmlStyleTest {
   @TtmlStyle.FontSizeUnit private static final int FONT_SIZE_UNIT = TtmlStyle.FONT_SIZE_UNIT_EM;
   @ColorInt private static final int BACKGROUND_COLOR = Color.BLACK;
   private static final int RUBY_TYPE = TtmlStyle.RUBY_TYPE_TEXT;
-  private static final int RUBY_POSITION = RubySpan.POSITION_UNDER;
+  private static final int RUBY_POSITION = TextAnnotation.POSITION_AFTER;
   private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
   private static final boolean TEXT_COMBINE = true;
+  public static final String TEXT_EMPHASIS_STYLE = "dot before";
+  public static final float SHEAR_PERCENTAGE = 16f;
 
   private final TtmlStyle populatedStyle =
       new TtmlStyle()
@@ -62,7 +66,9 @@ public final class TtmlStyleTest {
           .setRubyType(RUBY_TYPE)
           .setRubyPosition(RUBY_POSITION)
           .setTextAlign(TEXT_ALIGN)
-          .setTextCombine(TEXT_COMBINE);
+          .setTextCombine(TEXT_COMBINE)
+          .setTextEmphasis(TextEmphasis.parse(TEXT_EMPHASIS_STYLE))
+          .setShearPercentage(SHEAR_PERCENTAGE);
 
   @Test
   public void inheritStyle() {
@@ -86,6 +92,11 @@ public final class TtmlStyleTest {
     assertWithMessage("backgroundColor should not be inherited")
         .that(style.hasBackgroundColor())
         .isFalse();
+    assertThat(style.getTextEmphasis()).isNotNull();
+    assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_DOT);
+    assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
+    assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
+    assertThat(style.getShearPercentage()).isEqualTo(SHEAR_PERCENTAGE);
   }
 
   @Test
@@ -109,6 +120,11 @@ public final class TtmlStyleTest {
         .that(style.getBackgroundColor())
         .isEqualTo(BACKGROUND_COLOR);
     assertWithMessage("rubyType should be chained").that(style.getRubyType()).isEqualTo(RUBY_TYPE);
+    assertThat(style.getTextEmphasis()).isNotNull();
+    assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_DOT);
+    assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
+    assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
+    assertThat(style.getShearPercentage()).isEqualTo(SHEAR_PERCENTAGE);
   }
 
   @Test
@@ -221,9 +237,9 @@ public final class TtmlStyleTest {
   public void rubyPosition() {
     TtmlStyle style = new TtmlStyle();
 
-    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_UNKNOWN);
-    style.setRubyPosition(RubySpan.POSITION_OVER);
-    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_OVER);
+    assertThat(style.getRubyPosition()).isEqualTo(TextAnnotation.POSITION_UNKNOWN);
+    style.setRubyPosition(POSITION_BEFORE);
+    assertThat(style.getRubyPosition()).isEqualTo(POSITION_BEFORE);
   }
 
   @Test
@@ -244,5 +260,27 @@ public final class TtmlStyleTest {
     assertThat(style.getTextCombine()).isFalse();
     style.setTextCombine(true);
     assertThat(style.getTextCombine()).isTrue();
+  }
+
+  @Test
+  public void textEmphasis() {
+    TtmlStyle style = new TtmlStyle();
+    assertThat(style.getTextEmphasis()).isNull();
+    style.setTextEmphasis(TextEmphasis.parse("open sesame after"));
+    assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_SESAME);
+    assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_OPEN);
+    assertThat(style.getTextEmphasis().position).isEqualTo(TextAnnotation.POSITION_AFTER);
+  }
+
+  @Test
+  public void shear() {
+    TtmlStyle style = new TtmlStyle();
+    assertThat(style.getShearPercentage()).isEqualTo(TtmlStyle.UNSPECIFIED_SHEAR);
+    style.setShearPercentage(101f);
+    assertThat(style.getShearPercentage()).isEqualTo(101f);
+    style.setShearPercentage(-200f);
+    assertThat(style.getShearPercentage()).isEqualTo(-200f);
+    style.setShearPercentage(0.1f);
+    assertThat(style.getShearPercentage()).isEqualTo(0.1f);
   }
 }

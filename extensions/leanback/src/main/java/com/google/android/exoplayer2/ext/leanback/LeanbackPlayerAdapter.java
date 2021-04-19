@@ -306,7 +306,10 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
 
     @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @DiscontinuityReason int reason) {
       Callback callback = getCallback();
       callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
       callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);

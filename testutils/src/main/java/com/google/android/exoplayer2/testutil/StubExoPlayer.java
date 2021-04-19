@@ -21,15 +21,19 @@ import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -39,7 +43,7 @@ import java.util.List;
  * An abstract {@link ExoPlayer} implementation that throws {@link UnsupportedOperationException}
  * from every method.
  */
-public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
+public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public AudioComponent getAudioComponent() {
@@ -82,7 +86,17 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void addListener(Listener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeListener(Listener listener) {
     throw new UnsupportedOperationException();
   }
 
@@ -110,13 +124,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   @Override
   @PlaybackSuppressionReason
   public int getPlaybackSuppressionReason() {
-    throw new UnsupportedOperationException();
-  }
-
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Override
-  public ExoPlaybackException getPlaybackError() {
     throw new UnsupportedOperationException();
   }
 
@@ -288,7 +295,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }
 
@@ -354,6 +361,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public MediaMetadata getMediaMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     throw new UnsupportedOperationException();
   }
@@ -410,6 +422,61 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public long getContentBufferedPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AudioAttributes getAudioAttributes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVolume(float audioVolume) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public float getVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Cue> getCurrentCues() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DeviceInfo getDeviceInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isDeviceMuted() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceVolume(int volume) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void increaseDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void decreaseDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted) {
     throw new UnsupportedOperationException();
   }
 

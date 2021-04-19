@@ -1,0 +1,32 @@
+seekMap:
+  isSeekable = true
+  duration = 867000
+  getPosition(0) = [[timeUs=0, position=6425]]
+  getPosition(1) = [[timeUs=0, position=6425]]
+  getPosition(433500) = [[timeUs=0, position=6425]]
+  getPosition(867000) = [[timeUs=0, position=6425]]
+numberOfTracks = 2
+track 0:
+  total output bytes = 3865
+  sample count = 1
+  format 0:
+    id = 1
+    sampleMimeType = video/avc
+    codecs = avc1.64000A
+    maxInputSize = 3895
+    width = 180
+    height = 120
+    pixelWidthHeightRatio = 0.5
+    initializationData:
+      data = length 32, hash 1F3D6E87
+      data = length 10, hash 7A0D0F2B
+  sample 0:
+    time = 0
+    flags = 536870913
+    data = length 3865, hash 5B0DEEC7
+track 1024:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    metadata = entries=[Motion photo metadata: photoStartPosition=0, photoSize=6377, photoPresentationTimestampUs=1232840, videoStartPosition=6377, videoSize=4686]
+tracksEnded = true

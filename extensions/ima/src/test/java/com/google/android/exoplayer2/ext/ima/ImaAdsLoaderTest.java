@@ -68,6 +68,8 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.ui.AdOverlayInfo;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -129,8 +131,8 @@ public final class ImaAdsLoaderTest {
   private TimelineWindowDefinition[] timelineWindowDefinitions;
   private AdsMediaSource adsMediaSource;
   private ViewGroup adViewGroup;
-  private AdsLoader.AdViewProvider adViewProvider;
-  private AdsLoader.AdViewProvider audioAdsAdViewProvider;
+  private AdViewProvider adViewProvider;
+  private AdViewProvider audioAdsAdViewProvider;
   private AdEvent.AdEventListener adEventListener;
   private ContentProgressProvider contentProgressProvider;
   private VideoAdPlayer videoAdPlayer;
@@ -145,30 +147,19 @@ public final class ImaAdsLoaderTest {
     adViewGroup = new FrameLayout(getApplicationContext());
     View adOverlayView = new View(getApplicationContext());
     adViewProvider =
-        new AdsLoader.AdViewProvider() {
+        new AdViewProvider() {
           @Override
           public ViewGroup getAdViewGroup() {
             return adViewGroup;
           }
 
           @Override
-          public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+          public ImmutableList<AdOverlayInfo> getAdOverlayInfos() {
             return ImmutableList.of(
-                new AdsLoader.OverlayInfo(adOverlayView, AdsLoader.OverlayInfo.PURPOSE_CLOSE_AD));
+                new AdOverlayInfo(adOverlayView, AdOverlayInfo.PURPOSE_CLOSE_AD));
           }
         };
-    audioAdsAdViewProvider =
-        new AdsLoader.AdViewProvider() {
-          @Override
-          public ViewGroup getAdViewGroup() {
-            return null;
-          }
-
-          @Override
-          public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
-            return ImmutableList.of();
-          }
-        };
+    audioAdsAdViewProvider = () -> null;
     imaAdsLoader =
         new ImaAdsLoader.Builder(getApplicationContext())
             .setImaFactory(mockImaFactory)
@@ -281,7 +272,26 @@ public final class ImaAdsLoaderTest {
     videoAdPlayer.pauseAd(TEST_AD_MEDIA_INFO);
     videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
     imaAdsLoader.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
-    imaAdsLoader.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    imaAdsLoader.onPositionDiscontinuity(
+        new Player.PositionInfo(
+            /* windowUid= */ new Object(),
+            /* windowIndex= */ 0,
+            /* periodUid= */ new Object(),
+            /* periodIndex= */ 0,
+            /* positionMs= */ 10_000,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ -1,
+            /* adIndexInAdGroup= */ -1),
+        new Player.PositionInfo(
+            /* windowUid= */ new Object(),
+            /* windowIndex= */ 1,
+            /* periodUid= */ new Object(),
+            /* periodIndex= */ 0,
+            /* positionMs= */ 20_000,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ -1,
+            /* adIndexInAdGroup= */ -1),
+        Player.DISCONTINUITY_REASON_SEEK);
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
     imaAdsLoader.handlePrepareError(
         adsMediaSource, /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());

@@ -387,6 +387,13 @@ public final class ProgressiveMediaSource extends BaseMediaSource
               window.isPlaceholder = true;
               return window;
             }
+
+            @Override
+            public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+              super.getPeriod(periodIndex, period, setIds);
+              period.isPlaceholder = true;
+              return period;
+            }
           };
     }
     refreshSourceInfo(timeline);

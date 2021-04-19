@@ -26,11 +26,13 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.SurfaceTexture;
+import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
@@ -67,7 +69,7 @@ public class SimpleExoPlayerTest {
                 ApplicationProvider.getApplicationContext(),
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
@@ -87,22 +89,25 @@ public class SimpleExoPlayerTest {
 
   @Test
   public void releaseAfterRendererEvents_triggersPendingVideoEventsInListener() throws Exception {
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(
                 ApplicationProvider.getApplicationContext(),
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
     player.setMediaSource(
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.setVideoSurface(surface);
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_READY);
 
     player.release();
+    surface.release();
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener, atLeastOnce()).onEvents(any(), any()); // EventListener

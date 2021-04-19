@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -154,7 +155,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       if (infoNameAndValue.length != 2) {
         continue;
       }
-      switch (Util.toLowerInvariant(infoNameAndValue[0].trim())) {
+      switch (Ascii.toLowerCase(infoNameAndValue[0].trim())) {
         case "playresx":
           try {
             screenWidth = Float.parseFloat(infoNameAndValue[1].trim());

@@ -110,14 +110,18 @@ import java.util.List;
     int inputSize = inputData.limit();
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
     int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
-    if (result == AUDIO_DECODER_ERROR_INVALID_DATA) {
+    if (result == AUDIO_DECODER_ERROR_OTHER) {
+      return new FfmpegDecoderException("Error decoding (see logcat).");
+    } else if (result == AUDIO_DECODER_ERROR_INVALID_DATA) {
       // Treat invalid data errors as non-fatal to match the behavior of MediaCodec. No output will
       // be produced for this buffer, so mark it as decode-only to ensure that the audio sink's
       // position is reset when more audio is produced.
       outputBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
       return null;
-    } else if (result == AUDIO_DECODER_ERROR_OTHER) {
-      return new FfmpegDecoderException("Error decoding (see logcat).");
+    } else if (result == 0) {
+      // There's no need to output empty buffers.
+      outputBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+      return null;
     }
     if (!hasOutputFormat) {
       channelCount = ffmpegGetChannelCount(nativeContext);

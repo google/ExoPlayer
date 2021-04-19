@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.WindowManager;
 import androidx.annotation.AnyThread;
@@ -144,11 +145,6 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     }
   }
 
-  /** Sets the {@link SingleTapListener} used to listen to single tap events on this view. */
-  public void setSingleTapListener(@Nullable SingleTapListener listener) {
-    touchTracker.setSingleTapListener(listener);
-  }
-
   /** Sets whether to use the orientation sensor for rotation (if available). */
   public void setUseSensorRotation(boolean useSensorRotation) {
     this.useSensorRotation = useSensorRotation;
@@ -232,7 +228,7 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
    * onDrawFrame and updatePitchMatrix.
    */
   @VisibleForTesting
-  /* package */ class Renderer
+  /* package */ final class Renderer
       implements GLSurfaceView.Renderer, TouchTracker.Listener, OrientationListener.Listener {
     private final SceneRenderer scene;
     private final float[] projectionMatrix = new float[16];
@@ -323,6 +319,12 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
       touchPitch = scrollOffsetDegrees.y;
       updatePitchMatrix();
       Matrix.setRotateM(touchYawMatrix, 0, -scrollOffsetDegrees.x, 0, 1, 0);
+    }
+
+    @Override
+    @UiThread
+    public boolean onSingleTapUp(MotionEvent event) {
+      return performClick();
     }
 
     private float calculateFieldOfViewInYDirection(float aspect) {

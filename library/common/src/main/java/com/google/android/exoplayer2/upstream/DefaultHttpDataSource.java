@@ -27,9 +27,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -331,7 +331,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
-    this.bytesRead = 0;
+    bytesRead = 0;
+    bytesToRead = 0;
     transferInitializing(dataSpec);
 
     try {
@@ -339,7 +340,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     } catch (IOException e) {
       @Nullable String message = e.getMessage();
       if (message != null
-          && Util.toLowerInvariant(message).matches("cleartext http traffic.*not permitted.*")) {
+          && Ascii.toLowerCase(message).matches("cleartext http traffic.*not permitted.*")) {
         throw new CleartextNotPermittedException(e, dataSpec);
       }
       throw new HttpDataSourceException(
@@ -360,6 +361,16 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
+      if (responseCode == 416) {
+        long documentSize =
+            HttpUtil.getDocumentSize(connection.getHeaderField(HttpHeaders.CONTENT_RANGE));
+        if (dataSpec.position == documentSize) {
+          opened = true;
+          transferStarted(dataSpec);
+          return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : 0;
+        }
+      }
+
       @Nullable InputStream errorStream = connection.getErrorStream();
       byte[] errorResponseBody;
       try {
@@ -372,7 +383,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       InvalidResponseCodeException exception =
           new InvalidResponseCodeException(
               responseCode, responseMessage, headers, dataSpec, errorResponseBody);
-
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -692,10 +702,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     int read = castNonNull(inputStream).read(buffer, offset, readLength);
     if (read == -1) {
-      if (bytesToRead != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new EOFException();
-      }
       return C.RESULT_END_OF_INPUT;
     }
 

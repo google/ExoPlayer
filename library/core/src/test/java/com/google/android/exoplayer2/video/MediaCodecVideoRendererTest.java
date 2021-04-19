@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSample
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.format;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,6 +51,7 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -75,6 +75,7 @@ public class MediaCodecVideoRendererTest {
           .build();
 
   private Looper testMainLooper;
+  private Surface surface;
   private MediaCodecVideoRenderer mediaCodecVideoRenderer;
   @Nullable private Format currentOutputFormat;
 
@@ -118,8 +119,13 @@ public class MediaCodecVideoRendererTest {
           }
         };
 
-    mediaCodecVideoRenderer.handleMessage(
-        Renderer.MSG_SET_SURFACE, new Surface(new SurfaceTexture(/* texName= */ 0)));
+    surface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
+  }
+
+  @After
+  public void cleanUp() {
+    surface.release();
   }
 
   @Test
@@ -323,7 +329,7 @@ public class MediaCodecVideoRendererTest {
     }
     shadowOf(testMainLooper).idle();
 
-    verify(eventListener).onRenderedFirstFrame(any());
+    verify(eventListener).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
   }
 
   @Test
@@ -353,7 +359,7 @@ public class MediaCodecVideoRendererTest {
     }
     shadowOf(testMainLooper).idle();
 
-    verify(eventListener, never()).onRenderedFirstFrame(any());
+    verify(eventListener, never()).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
   }
 
   @Test
@@ -383,7 +389,7 @@ public class MediaCodecVideoRendererTest {
     }
     shadowOf(testMainLooper).idle();
 
-    verify(eventListener).onRenderedFirstFrame(any());
+    verify(eventListener).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
   }
 
   @Test
@@ -437,7 +443,8 @@ public class MediaCodecVideoRendererTest {
 
     // Expect only the first frame of the first stream to have been rendered.
     shadowLooper.idle();
-    verify(eventListener, times(2)).onRenderedFirstFrame(any());
+    verify(eventListener, times(2))
+        .onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
   }
 
   @Test
@@ -488,12 +495,13 @@ public class MediaCodecVideoRendererTest {
     }
 
     shadowLooper.idle();
-    verify(eventListener).onRenderedFirstFrame(any());
+    verify(eventListener).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
 
     // Render to streamOffsetUs and verify the new first frame gets rendered.
     mediaCodecVideoRenderer.render(/* positionUs= */ 100, SystemClock.elapsedRealtime() * 1000);
 
     shadowLooper.idle();
-    verify(eventListener, times(2)).onRenderedFirstFrame(any());
+    verify(eventListener, times(2))
+        .onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
   }
 }

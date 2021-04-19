@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.robolectric.RandomizedMp3Decoder;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
@@ -90,7 +90,7 @@ public class EndToEndGaplessTest {
   public void testPlayback_twoIdenticalMp3Files() throws Exception {
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext())
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
 
     player.setMediaItems(

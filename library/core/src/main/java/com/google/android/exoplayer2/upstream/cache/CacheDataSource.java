@@ -630,22 +630,6 @@ public final class CacheDataSource implements DataSource {
         return read(buffer, offset, readLength);
       }
       return bytesRead;
-    } catch (IOException e) {
-      // TODO: This is not correct, because position-out-of-range exceptions should only be thrown
-      // if the requested position is more than one byte beyond the end of the resource. Conversely,
-      // this code is assuming that a position-out-of-range exception indicates the requested
-      // position is exactly one byte beyond the end of the resource, which is not a case for which
-      // this type of exception should be thrown. This exception handling may be required for
-      // interop with current HttpDataSource implementations that do (incorrectly) throw a
-      // position-out-of-range exception at this position. It should be removed when the
-      // HttpDataSource implementations are fixed.
-      if (currentDataSpec.length == C.LENGTH_UNSET
-          && DataSourceException.isCausedByPositionOutOfRange(e)) {
-        setNoBytesRemainingAndMaybeStoreLength(castNonNull(requestDataSpec.key));
-        return C.RESULT_END_OF_INPUT;
-      }
-      handleBeforeThrow(e);
-      throw e;
     } catch (Throwable e) {
       handleBeforeThrow(e);
       throw e;

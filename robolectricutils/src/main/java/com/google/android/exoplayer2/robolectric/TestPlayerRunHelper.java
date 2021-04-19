@@ -158,8 +158,8 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onPositionDiscontinuity} callback with the specified {@link
-   * Player.DiscontinuityReason} occurred.
+   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}
+   * callback with the specified {@link Player.DiscontinuityReason} occurred.
    *
    * @param player The {@link Player}.
    * @param expectedReason The expected {@link Player.DiscontinuityReason}.
@@ -173,7 +173,8 @@ public class TestPlayerRunHelper {
     Player.EventListener listener =
         new Player.EventListener() {
           @Override
-          public void onPositionDiscontinuity(int reason) {
+          public void onPositionDiscontinuity(
+              Player.PositionInfo oldPosition, Player.PositionInfo newPosition, int reason) {
             if (reason == expectedReason) {
               receivedCallback.set(true);
               player.removeListener(this);

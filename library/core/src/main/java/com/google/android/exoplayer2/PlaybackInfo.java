@@ -50,6 +50,8 @@ import java.util.List;
    * suspended content.
    */
   public final long requestedContentPositionUs;
+  /** The start position after a reported position discontinuity, in microseconds. */
+  public final long discontinuityStartPositionUs;
   /** The current playback state. One of the {@link Player}.STATE_ constants. */
   @Player.State public final int playbackState;
   /** The current playback error, or null if this is not an error state. */
@@ -104,6 +106,7 @@ import java.util.List;
         Timeline.EMPTY,
         PLACEHOLDER_MEDIA_PERIOD_ID,
         /* requestedContentPositionUs= */ C.TIME_UNSET,
+        /* discontinuityStartPositionUs= */ 0,
         Player.STATE_IDLE,
         /* playbackError= */ null,
         /* isLoading= */ false,
@@ -147,6 +150,7 @@ import java.util.List;
       Timeline timeline,
       MediaPeriodId periodId,
       long requestedContentPositionUs,
+      long discontinuityStartPositionUs,
       @Player.State int playbackState,
       @Nullable ExoPlaybackException playbackError,
       boolean isLoading,
@@ -165,6 +169,7 @@ import java.util.List;
     this.timeline = timeline;
     this.periodId = periodId;
     this.requestedContentPositionUs = requestedContentPositionUs;
+    this.discontinuityStartPositionUs = discontinuityStartPositionUs;
     this.playbackState = playbackState;
     this.playbackError = playbackError;
     this.isLoading = isLoading;
@@ -207,6 +212,7 @@ import java.util.List;
       MediaPeriodId periodId,
       long positionUs,
       long requestedContentPositionUs,
+      long discontinuityStartPositionUs,
       long totalBufferedDurationUs,
       TrackGroupArray trackGroups,
       TrackSelectorResult trackSelectorResult,
@@ -215,6 +221,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -244,6 +251,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -273,6 +281,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -302,6 +311,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -331,6 +341,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -360,6 +371,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -393,6 +405,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -422,6 +435,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -452,6 +466,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -481,6 +496,7 @@ import java.util.List;
         timeline,
         periodId,
         requestedContentPositionUs,
+        discontinuityStartPositionUs,
         playbackState,
         playbackError,
         isLoading,

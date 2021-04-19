@@ -22,6 +22,7 @@ import static junit.framework.TestCase.assertFalse;
 import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -80,6 +81,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     private Format[] supportedFormats;
     private Object manifest;
     private ActionSchedule actionSchedule;
+    private Surface surface;
     private Player.EventListener eventListener;
     private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
@@ -277,6 +279,17 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
+     * Sets the video {@link Surface}. The default value is {@code null}.
+     *
+     * @param surface The {@link Surface} to be used by the player.
+     * @return This builder.
+     */
+    public Builder setVideoSurface(Surface surface) {
+      this.surface = surface;
+      return this;
+    }
+
+    /**
      * Sets an {@link Player.EventListener} to be registered to listen to player events.
      *
      * @param eventListener A {@link Player.EventListener} to be registered by the test runner to
@@ -334,6 +347,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           skipSettingMediaSources,
           initialWindowIndex,
           initialPositionMs,
+          surface,
           actionSchedule,
           eventListener,
           analyticsListener,
@@ -347,6 +361,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final boolean skipSettingMediaSources;
   private final int initialWindowIndex;
   private final long initialPositionMs;
+  @Nullable private final Surface surface;
   @Nullable private final ActionSchedule actionSchedule;
   @Nullable private final Player.EventListener eventListener;
   @Nullable private final AnalyticsListener analyticsListener;
@@ -376,6 +391,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       boolean skipSettingMediaSources,
       int initialWindowIndex,
       long initialPositionMs,
+      @Nullable Surface surface,
       @Nullable ActionSchedule actionSchedule,
       @Nullable Player.EventListener eventListener,
       @Nullable AnalyticsListener analyticsListener,
@@ -386,6 +402,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.skipSettingMediaSources = skipSettingMediaSources;
     this.initialWindowIndex = initialWindowIndex;
     this.initialPositionMs = initialPositionMs;
+    this.surface = surface;
     this.actionSchedule = actionSchedule;
     this.eventListener = eventListener;
     this.analyticsListener = analyticsListener;
@@ -430,6 +447,12 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         () -> {
           try {
             player = playerBuilder.setLooper(Looper.myLooper()).build();
+            if (surface != null) {
+              player.setVideoSurface(surface);
+            }
+            if (pauseAtEndOfMediaItems) {
+              player.setPauseAtEndOfMediaItems(true);
+            }
             player.addListener(ExoPlayerTestRunner.this);
             if (eventListener != null) {
               player.addListener(eventListener);
@@ -437,15 +460,12 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             if (analyticsListener != null) {
               player.addAnalyticsListener(analyticsListener);
             }
-            if (pauseAtEndOfMediaItems) {
-              player.setPauseAtEndOfMediaItems(true);
-            }
             player.play();
             if (actionSchedule != null) {
               actionSchedule.start(
                   player,
                   playerBuilder.getTrackSelector(),
-                  /* surface= */ null,
+                  surface,
                   handler,
                   /* callback= */ ExoPlayerTestRunner.this);
             }
@@ -575,7 +595,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   /**
-   * Asserts that {@link Player.EventListener#onPositionDiscontinuity(int)} was not called.
+   * Asserts that {@link Player.EventListener#onPositionDiscontinuity(Player.PositionInfo,
+   * Player.PositionInfo, int)} was not called.
    */
   public void assertNoPositionDiscontinuities() {
     assertThat(discontinuityReasons).isEmpty();
@@ -583,7 +604,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the discontinuity reasons reported by {@link
-   * Player.EventListener#onPositionDiscontinuity(int)} are equal to the provided values.
+   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}
+   * are equal to the provided values.
    *
    * @param discontinuityReasons The expected discontinuity reasons.
    */
@@ -676,10 +698,15 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     discontinuityReasons.add(reason);
     int currentIndex = player.getCurrentPeriodIndex();
-    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+    if ((reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+            && oldPosition.adGroupIndex != C.INDEX_UNSET
+            && newPosition.adGroupIndex != C.INDEX_UNSET)
         || periodIndices.isEmpty()
         || periodIndices.get(periodIndices.size() - 1) != currentIndex) {
       // Ignore seek or internal discontinuities within a period.

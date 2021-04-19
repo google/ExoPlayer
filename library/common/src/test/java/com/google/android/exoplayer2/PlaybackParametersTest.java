@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 public class PlaybackParametersTest {
 
   @Test
-  public void roundtripViaBundle_ofPlaybackParameters_yieldsEqualInstance() {
+  public void roundTripViaBundle_ofPlaybackParameters_yieldsEqualInstance() {
     PlaybackParameters playbackParameters =
         new PlaybackParameters(/* speed= */ 2.9f, /* pitch= */ 1.2f);
 

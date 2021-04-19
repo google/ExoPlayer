@@ -21,21 +21,23 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.device.DeviceInfo;
+import com.google.android.exoplayer2.device.DeviceListener;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
-import com.google.android.exoplayer2.source.ClippingMediaSource;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
-import com.google.android.exoplayer2.source.SingleSampleMediaSource;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -61,15 +63,13 @@ import java.util.List;
  * Components common to all ExoPlayer implementations are:
  *
  * <ul>
- *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
- *       which the loaded media can be read. A MediaSource is injected via {@link
- *       #setMediaSource(MediaSource)} at the start of playback. The library modules provide default
- *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
- *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
- *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
- *       most often used for side-loaded subtitle files, and implementations for building more
- *       complex MediaSources from simpler ones ({@link MergingMediaSource}, {@link
- *       ConcatenatingMediaSource}, {@link LoopingMediaSource} and {@link ClippingMediaSource}).
+ *   <li><b>{@link MediaSource MediaSources}</b> that define the media to be played, load the media,
+ *       and from which the loaded media can be read. MediaSources are created from {@link MediaItem
+ *       MediaItems} by the {@link MediaSourceFactory} injected in the {@link
+ *       Builder#setMediaSourceFactory Builder}, or can be added directly by methods like {@link
+ *       #setMediaSource(MediaSource)}. The library provides a {@link DefaultMediaSourceFactory} for
+ *       progressive media files, DASH, SmoothStreaming and HLS, including functionality for
+ *       side-loading subtitle files and clipping media.
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A
@@ -133,6 +133,179 @@ import java.util.List;
  * </ul>
  */
 public interface ExoPlayer extends Player {
+
+  /** The audio component of an {@link ExoPlayer}. */
+  interface AudioComponent {
+
+    /**
+     * Adds a listener to receive audio events.
+     *
+     * @param listener The listener to register.
+     */
+    void addAudioListener(AudioListener listener);
+
+    /**
+     * Removes a listener of audio events.
+     *
+     * @param listener The listener to unregister.
+     */
+    void removeAudioListener(AudioListener listener);
+
+    /**
+     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+     * default audio attributes will be used. They are suitable for general media playback.
+     *
+     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+     * the audio track is recreated. A new audio session id will also be generated.
+     *
+     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+     * ignored, but they will take effect if audio is later played without tunneling.
+     *
+     * <p>If the device is running a build before platform API version 21, audio attributes cannot
+     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
+     * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * @param audioAttributes The attributes to use for audio playback.
+     * @param handleAudioFocus True if the player should handle audio focus, false otherwise.
+     */
+    void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
+
+    /** Returns the attributes for audio playback. */
+    AudioAttributes getAudioAttributes();
+
+    /**
+     * Sets the ID of the audio session to attach to the underlying {@link
+     * android.media.AudioTrack}.
+     *
+     * <p>The audio session ID can be generated using {@link C#generateAudioSessionIdV21(Context)}
+     * for API 21+.
+     *
+     * @param audioSessionId The audio session ID, or {@link C#AUDIO_SESSION_ID_UNSET} if it should
+     *     be generated by the framework.
+     */
+    void setAudioSessionId(int audioSessionId);
+
+    /** Returns the audio session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} if not set. */
+    int getAudioSessionId();
+
+    /** Sets information on an auxiliary audio effect to attach to the underlying audio track. */
+    void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
+
+    /** Detaches any previously attached auxiliary audio effect from the underlying audio track. */
+    void clearAuxEffectInfo();
+
+    /**
+     * Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
+     *
+     * @param audioVolume Linear output gain to apply to all audio channels.
+     */
+    void setVolume(float audioVolume);
+
+    /**
+     * Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
+     *
+     * @return The linear gain applied to all audio channels.
+     */
+    float getVolume();
+
+    /**
+     * Sets whether skipping silences in the audio stream is enabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+     */
+    void setSkipSilenceEnabled(boolean skipSilenceEnabled);
+
+    /** Returns whether skipping silences in the audio stream is enabled. */
+    boolean getSkipSilenceEnabled();
+  }
+
+  /** The text component of an {@link ExoPlayer}. */
+  interface TextComponent {
+
+    /**
+     * Registers an output to receive text events.
+     *
+     * @param listener The output to register.
+     */
+    void addTextOutput(TextOutput listener);
+
+    /**
+     * Removes a text output.
+     *
+     * @param listener The output to remove.
+     */
+    void removeTextOutput(TextOutput listener);
+
+    /** Returns the current {@link Cue Cues}. This list may be empty. */
+    List<Cue> getCurrentCues();
+  }
+
+  /** The metadata component of an {@link ExoPlayer}. */
+  interface MetadataComponent {
+
+    /**
+     * Adds a {@link MetadataOutput} to receive metadata.
+     *
+     * @param output The output to register.
+     */
+    void addMetadataOutput(MetadataOutput output);
+
+    /**
+     * Removes a {@link MetadataOutput}.
+     *
+     * @param output The output to remove.
+     */
+    void removeMetadataOutput(MetadataOutput output);
+  }
+
+  /** The device component of an {@link ExoPlayer}. */
+  interface DeviceComponent {
+
+    /** Adds a listener to receive device events. */
+    void addDeviceListener(DeviceListener listener);
+
+    /** Removes a listener of device events. */
+    void removeDeviceListener(DeviceListener listener);
+
+    /** Gets the device information. */
+    DeviceInfo getDeviceInfo();
+
+    /**
+     * Gets the current volume of the device.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume
+     * returned by this method varies according to the current {@link C.StreamType stream type}. The
+     * stream type is determined by {@link AudioAttributes#usage} which can be converted to stream
+     * type with {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of
+     * the remote device is returned.
+     */
+    int getDeviceVolume();
+
+    /** Gets whether the device is muted or not. */
+    boolean isDeviceMuted();
+
+    /**
+     * Sets the volume of the device.
+     *
+     * @param volume The volume to set.
+     */
+    void setDeviceVolume(int volume);
+
+    /** Increases the volume of the device. */
+    void increaseDeviceVolume();
+
+    /** Decreases the volume of the device. */
+    void decreaseDeviceVolume();
+
+    /** Sets the mute state of the device. */
+    void setDeviceMuted(boolean muted);
+  }
 
   /**
    * The default timeout for calls to {@link #release} and {@link #setForegroundMode}, in
@@ -463,7 +636,8 @@ public interface ExoPlayer extends Player {
               pauseAtEndOfMediaItems,
               clock,
               looper,
-              /* wrappingPlayer= */ null);
+              /* wrappingPlayer= */ null,
+              /* additionalPermanentAvailableCommands= */ Commands.EMPTY);
 
       if (setForegroundModeTimeoutMs > 0) {
         player.experimentalSetForegroundModeTimeoutMs(setForegroundModeTimeoutMs);
@@ -471,6 +645,24 @@ public interface ExoPlayer extends Player {
       return player;
     }
   }
+
+  /** Returns the component of this player for audio output, or null if audio is not supported. */
+  @Nullable
+  AudioComponent getAudioComponent();
+
+  /** Returns the component of this player for text output, or null if text is not supported. */
+  @Nullable
+  TextComponent getTextComponent();
+
+  /**
+   * Returns the component of this player for metadata output, or null if metadata is not supported.
+   */
+  @Nullable
+  MetadataComponent getMetadataComponent();
+
+  /** Returns the component of this player for playback device, or null if it's not supported. */
+  @Nullable
+  DeviceComponent getDeviceComponent();
 
   /**
    * Adds a listener to receive audio offload events.

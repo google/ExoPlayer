@@ -20,6 +20,8 @@ import static com.google.android.exoplayer2.C.BUFFER_FLAG_KEY_FRAME;
 import static com.google.android.exoplayer2.C.RESULT_BUFFER_READ;
 import static com.google.android.exoplayer2.C.RESULT_FORMAT_READ;
 import static com.google.android.exoplayer2.C.RESULT_NOTHING_READ;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_OMIT_SAMPLE_DATA;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_PEEK;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MAX_VALUE;
 import static java.lang.Long.MIN_VALUE;
@@ -208,14 +210,11 @@ public final class SampleQueueTest {
     sampleQueue.format(FORMAT_1);
     clearFormatHolderAndInputBuffer();
     int result =
-        sampleQueue.peek(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+        sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     // formatHolder should be populated.
     assertThat(formatHolder.format).isEqualTo(FORMAT_1);
-    result =
-        sampleQueue.peek(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+    result = sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_NOTHING_READ);
   }
 
@@ -454,7 +453,7 @@ public final class SampleQueueTest {
 
     int result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
@@ -463,13 +462,13 @@ public final class SampleQueueTest {
     assertThat(formatHolder.drmSession).isNull();
     result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isNull();
     assertReadEncryptedSample(/* sampleIndex= */ 2);
     result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
   }
@@ -484,7 +483,7 @@ public final class SampleQueueTest {
 
     int result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
@@ -493,13 +492,13 @@ public final class SampleQueueTest {
     assertThat(formatHolder.drmSession).isNull();
     result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isSameInstanceAs(mockPlaceholderDrmSession);
     assertReadEncryptedSample(/* sampleIndex= */ 2);
     result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
     assertReadEncryptedSample(/* sampleIndex= */ 3);
@@ -527,7 +526,7 @@ public final class SampleQueueTest {
 
     int result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
 
     // Fill cryptoInfo.iv with non-zero data. When the 8 byte initialization vector is written into
@@ -537,7 +536,7 @@ public final class SampleQueueTest {
 
     result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
 
     // Assert cryptoInfo.iv contains the 8-byte initialization vector and that the trailing 8 bytes
@@ -1558,7 +1557,11 @@ public final class SampleQueueTest {
   private void assertReadNothing(boolean formatRequired) {
     clearFormatHolderAndInputBuffer();
     int result =
-        sampleQueue.read(formatHolder, inputBuffer, formatRequired, /* loadingFinished= */ false);
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            formatRequired ? SampleStream.FLAG_REQUIRE_FORMAT : 0,
+            /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_NOTHING_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -1576,7 +1579,11 @@ public final class SampleQueueTest {
   private void assertReadEndOfStream(boolean formatRequired) {
     clearFormatHolderAndInputBuffer();
     int result =
-        sampleQueue.read(formatHolder, inputBuffer, formatRequired, /* loadingFinished= */ true);
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            formatRequired ? SampleStream.FLAG_REQUIRE_FORMAT : 0,
+            /* loadingFinished= */ true);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -1597,7 +1604,11 @@ public final class SampleQueueTest {
   private void assertReadFormat(boolean formatRequired, Format format) {
     clearFormatHolderAndInputBuffer();
     int result =
-        sampleQueue.read(formatHolder, inputBuffer, formatRequired, /* loadingFinished= */ false);
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            formatRequired ? SampleStream.FLAG_REQUIRE_FORMAT : 0,
+            /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     // formatHolder should be populated.
     assertThat(formatHolder.format).isEqualTo(format);
@@ -1641,24 +1652,51 @@ public final class SampleQueueTest {
       byte[] sampleData,
       int offset,
       int length) {
-    // Check that peeks yields the expected values.
-    clearFormatHolderAndInputBuffer();
+    // Check that peek whilst omitting data yields the expected values.
+    formatHolder.format = null;
+    DecoderInputBuffer flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     int result =
-        sampleQueue.peek(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
-    assertBufferReadResult(
+        sampleQueue.read(
+            formatHolder,
+            flagsOnlyBuffer,
+            FLAG_OMIT_SAMPLE_DATA | FLAG_PEEK,
+            /* loadingFinished= */ false);
+    assertSampleBufferReadResult(
+        flagsOnlyBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted);
+
+    // Check that peek yields the expected values.
+    clearFormatHolderAndInputBuffer();
+    result = sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
+    assertSampleBufferReadResult(
         result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
 
     // Check that read yields the expected values.
     clearFormatHolderAndInputBuffer();
     result =
         sampleQueue.read(
-            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
-    assertBufferReadResult(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertSampleBufferReadResult(
         result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
   }
 
-  private void assertBufferReadResult(
+  private void assertSampleBufferReadResult(
+      DecoderInputBuffer inputBuffer,
+      int result,
+      long timeUs,
+      boolean isKeyFrame,
+      boolean isDecodeOnly,
+      boolean isEncrypted) {
+    assertThat(result).isEqualTo(RESULT_BUFFER_READ);
+    // formatHolder should not be populated.
+    assertThat(formatHolder.format).isNull();
+    // inputBuffer should be populated with metadata.
+    assertThat(inputBuffer.timeUs).isEqualTo(timeUs);
+    assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyFrame);
+    assertThat(inputBuffer.isDecodeOnly()).isEqualTo(isDecodeOnly);
+    assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
+  }
+
+  private void assertSampleBufferReadResult(
       int result,
       long timeUs,
       boolean isKeyFrame,
@@ -1667,14 +1705,9 @@ public final class SampleQueueTest {
       byte[] sampleData,
       int offset,
       int length) {
-    assertThat(result).isEqualTo(RESULT_BUFFER_READ);
-    // formatHolder should not be populated.
-    assertThat(formatHolder.format).isNull();
-    // inputBuffer should be populated.
-    assertThat(inputBuffer.timeUs).isEqualTo(timeUs);
-    assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyFrame);
-    assertThat(inputBuffer.isDecodeOnly()).isEqualTo(isDecodeOnly);
-    assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
+    assertSampleBufferReadResult(
+        inputBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted);
+    // inputBuffer should be populated with data.
     inputBuffer.flip();
     assertThat(inputBuffer.data.limit()).isEqualTo(length);
     byte[] readData = new byte[length];

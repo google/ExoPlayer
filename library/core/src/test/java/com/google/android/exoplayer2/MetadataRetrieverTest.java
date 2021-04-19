@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -49,12 +49,12 @@ public class MetadataRetrieverTest {
   private static final long TEST_TIMEOUT_SEC = 10;
 
   private Context context;
-  private AutoAdvancingFakeClock clock;
+  private FakeClock clock;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
-    clock = new AutoAdvancingFakeClock();
+    clock = new FakeClock(/* isAutoAdvancing= */ true);
   }
 
   @Test

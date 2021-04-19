@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -27,6 +26,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -42,6 +42,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * one of highest quality given the current network conditions and the state of the buffer.
  */
 public class AdaptiveTrackSelection extends BaseTrackSelection {
+
+  private static final String TAG = "AdaptiveTrackSelection";
 
   /** Factory for {@link AdaptiveTrackSelection} instances. */
   public static class Factory implements ExoTrackSelection.Factory {
@@ -74,7 +76,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
      *     quality, the selection may indicate that media already buffered at the lower quality can
      *     be discarded to speed up the switch. This is the minimum duration of media that must be
-     *     retained at the lower quality.
+     *     retained at the lower quality. It must be at least {@code
+     *     minDurationForQualityIncreaseMs}.
      * @param bandwidthFraction The fraction of the available bandwidth that the selection should
      *     consider available for use. Setting to a value less than 1 is recommended to account for
      *     inaccuracies in the bandwidth estimator.
@@ -103,7 +106,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
      *     quality, the selection may indicate that media already buffered at the lower quality can
      *     be discarded to speed up the switch. This is the minimum duration of media that must be
-     *     retained at the lower quality.
+     *     retained at the lower quality. It must be at least {@code
+     *     minDurationForQualityIncreaseMs}.
      * @param bandwidthFraction The fraction of the available bandwidth that the selection should
      *     consider available for use. Setting to a value less than 1 is recommended to account for
      *     inaccuracies in the bandwidth estimator.
@@ -250,7 +254,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
    *     quality, the selection may indicate that media already buffered at the lower quality can be
    *     discarded to speed up the switch. This is the minimum duration of media that must be
-   *     retained at the lower quality.
+   *     retained at the lower quality. It must be at least {@code minDurationForQualityIncreaseMs}.
    * @param bandwidthFraction The fraction of the available bandwidth that the selection should
    *     consider available for use. Setting to a value less than 1 is recommended to account for
    *     inaccuracies in the bandwidth estimator.
@@ -277,6 +281,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       List<AdaptationCheckpoint> adaptationCheckpoints,
       Clock clock) {
     super(group, tracks, type);
+    if (minDurationToRetainAfterDiscardMs < minDurationForQualityIncreaseMs) {
+      Log.w(
+          TAG,
+          "Adjusting minDurationToRetainAfterDiscardMs to be at least"
+              + " minDurationForQualityIncreaseMs");
+      minDurationToRetainAfterDiscardMs = minDurationForQualityIncreaseMs;
+    }
     this.bandwidthMeter = bandwidthMeter;
     this.minDurationForQualityIncreaseUs = minDurationForQualityIncreaseMs * 1000L;
     this.maxDurationForQualityDecreaseUs = maxDurationForQualityDecreaseMs * 1000L;
@@ -318,11 +329,12 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       List<? extends MediaChunk> queue,
       MediaChunkIterator[] mediaChunkIterators) {
     long nowMs = clock.elapsedRealtime();
+    long chunkDurationUs = getChunkDurationUs(mediaChunkIterators, queue);
 
     // Make initial selection
     if (reason == C.SELECTION_REASON_UNKNOWN) {
       reason = C.SELECTION_REASON_INITIAL;
-      selectedIndex = determineIdealSelectedIndex(nowMs);
+      selectedIndex = determineIdealSelectedIndex(nowMs, chunkDurationUs);
       return;
     }
 
@@ -334,7 +346,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       previousSelectedIndex = formatIndexOfPreviousChunk;
       previousReason = Iterables.getLast(queue).trackSelectionReason;
     }
-    int newSelectedIndex = determineIdealSelectedIndex(nowMs);
+    int newSelectedIndex = determineIdealSelectedIndex(nowMs, chunkDurationUs);
     if (!isBlacklisted(previousSelectedIndex, nowMs)) {
       // Revert back to the previous selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(previousSelectedIndex);
@@ -394,7 +406,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     if (playoutBufferedDurationBeforeLastChunkUs < minDurationToRetainAfterDiscardUs) {
       return queueSize;
     }
-    int idealSelectedIndex = determineIdealSelectedIndex(nowMs);
+    int idealSelectedIndex = determineIdealSelectedIndex(nowMs, getChunkDurationUs(queue));
     Format idealFormat = getFormat(idealSelectedIndex);
     // If the chunks contain video, discard from the first SD chunk beyond
     // minDurationToRetainAfterDiscardUs whose resolution and bitrate are both lower than the ideal
@@ -459,9 +471,11 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    *
    * @param nowMs The current time in the timebase of {@link Clock#elapsedRealtime()}, or {@link
    *     Long#MIN_VALUE} to ignore track exclusion.
+   * @param chunkDurationUs The duration of a media chunk in microseconds, or {@link C#TIME_UNSET}
+   *     if unknown.
    */
-  private int determineIdealSelectedIndex(long nowMs) {
-    long effectiveBitrate = getAllocatedBandwidth();
+  private int determineIdealSelectedIndex(long nowMs, long chunkDurationUs) {
+    long effectiveBitrate = getAllocatedBandwidth(chunkDurationUs);
     int lowestBitrateAllowedIndex = 0;
     for (int i = 0; i < length; i++) {
       if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
@@ -484,9 +498,35 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         : minDurationForQualityIncreaseUs;
   }
 
-  private long getAllocatedBandwidth() {
-    long totalBandwidth =
-        (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction / playbackSpeed);
+  private long getChunkDurationUs(
+      MediaChunkIterator[] mediaChunkIterators, List<? extends MediaChunk> queue) {
+    // First, try to get the chunk duration for currently selected format.
+    if (selectedIndex < mediaChunkIterators.length && mediaChunkIterators[selectedIndex].next()) {
+      MediaChunkIterator iterator = mediaChunkIterators[selectedIndex];
+      return iterator.getChunkEndTimeUs() - iterator.getChunkStartTimeUs();
+    }
+    // Second, try to get the chunk duration for another format.
+    for (MediaChunkIterator iterator : mediaChunkIterators) {
+      if (iterator.next()) {
+        return iterator.getChunkEndTimeUs() - iterator.getChunkStartTimeUs();
+      }
+    }
+    // Third, try to get chunk duration for previous chunk in the queue.
+    return getChunkDurationUs(queue);
+  }
+
+  private long getChunkDurationUs(List<? extends MediaChunk> queue) {
+    if (queue.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+    MediaChunk lastChunk = Iterables.getLast(queue);
+    return lastChunk.startTimeUs != C.TIME_UNSET && lastChunk.endTimeUs != C.TIME_UNSET
+        ? lastChunk.endTimeUs - lastChunk.startTimeUs
+        : C.TIME_UNSET;
+  }
+
+  private long getAllocatedBandwidth(long chunkDurationUs) {
+    long totalBandwidth = getTotalAllocatableBandwidth(chunkDurationUs);
     if (adaptationCheckpoints.isEmpty()) {
       return totalBandwidth;
     }
@@ -503,6 +543,17 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     return previous.allocatedBandwidth
         + (long)
             (fractionBetweenCheckpoints * (next.allocatedBandwidth - previous.allocatedBandwidth));
+  }
+
+  private long getTotalAllocatableBandwidth(long chunkDurationUs) {
+    long cautiousBandwidthEstimate =
+        (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
+    long timeToFirstByteEstimateUs = bandwidthMeter.getTimeToFirstByteEstimateUs();
+    if (timeToFirstByteEstimateUs == C.TIME_UNSET || chunkDurationUs == C.TIME_UNSET) {
+      return (long) (cautiousBandwidthEstimate / playbackSpeed);
+    }
+    float availableTimeToLoadUs = chunkDurationUs / playbackSpeed - timeToFirstByteEstimateUs;
+    return (long) (cautiousBandwidthEstimate * availableTimeToLoadUs / chunkDurationUs);
   }
 
   /**

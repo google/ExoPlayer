@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Default {@link PlaybackSessionManager} which instantiates a new session for each window in the
@@ -184,16 +185,14 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
         }
       }
     }
-    updateSessionsWithDiscontinuity(eventTime, Player.DISCONTINUITY_REASON_INTERNAL);
+    updateCurrentSession(eventTime);
   }
 
   @Override
   public synchronized void updateSessionsWithDiscontinuity(
       EventTime eventTime, @DiscontinuityReason int reason) {
     Assertions.checkNotNull(listener);
-    boolean hasAutomaticTransition =
-        reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
-            || reason == Player.DISCONTINUITY_REASON_AD_INSERTION;
+    boolean hasAutomaticTransition = reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION;
     Iterator<SessionDescriptor> iterator = sessions.values().iterator();
     while (iterator.hasNext()) {
       SessionDescriptor session = iterator.next();
@@ -210,6 +209,31 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
         }
       }
     }
+    updateCurrentSession(eventTime);
+  }
+
+  @Override
+  @Nullable
+  public synchronized String getActiveSessionId() {
+    return currentSessionId;
+  }
+
+  @Override
+  public synchronized void finishAllSessions(EventTime eventTime) {
+    currentSessionId = null;
+    Iterator<SessionDescriptor> iterator = sessions.values().iterator();
+    while (iterator.hasNext()) {
+      SessionDescriptor session = iterator.next();
+      iterator.remove();
+      if (session.isCreated && listener != null) {
+        listener.onSessionFinished(
+            eventTime, session.sessionId, /* automaticTransitionToNextPlayback= */ false);
+      }
+    }
+  }
+
+  @RequiresNonNull("listener")
+  private void updateCurrentSession(EventTime eventTime) {
     @Nullable SessionDescriptor previousSessionDescriptor = sessions.get(currentSessionId);
     SessionDescriptor currentSessionDescriptor =
         getOrAddSession(eventTime.windowIndex, eventTime.mediaPeriodId);
@@ -233,20 +257,6 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
           getOrAddSession(eventTime.windowIndex, contentMediaPeriodId);
       listener.onAdPlaybackStarted(
           eventTime, contentSession.sessionId, currentSessionDescriptor.sessionId);
-    }
-  }
-
-  @Override
-  public void finishAllSessions(EventTime eventTime) {
-    currentSessionId = null;
-    Iterator<SessionDescriptor> iterator = sessions.values().iterator();
-    while (iterator.hasNext()) {
-      SessionDescriptor session = iterator.next();
-      iterator.remove();
-      if (session.isCreated && listener != null) {
-        listener.onSessionFinished(
-            eventTime, session.sessionId, /* automaticTransitionToNextPlayback= */ false);
-      }
     }
   }
 

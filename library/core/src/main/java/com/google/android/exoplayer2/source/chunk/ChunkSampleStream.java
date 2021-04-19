@@ -381,8 +381,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
+  public int readData(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
@@ -395,7 +395,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
     maybeNotifyPrimaryTrackFormatChanged();
 
-    return primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
+    return primarySampleQueue.read(formatHolder, buffer, readFlags, loadingFinished);
   }
 
   @Override
@@ -862,8 +862,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        boolean formatRequired) {
+    public int readData(
+        FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       if (isPendingReset()) {
         return C.RESULT_NOTHING_READ;
       }
@@ -875,7 +875,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         return C.RESULT_NOTHING_READ;
       }
       maybeNotifyDownstreamFormat();
-      return sampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
+      return sampleQueue.read(formatHolder, buffer, readFlags, loadingFinished);
     }
 
     public void release() {

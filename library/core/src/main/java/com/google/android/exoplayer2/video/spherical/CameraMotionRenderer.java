@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -94,8 +94,7 @@ public final class CameraMotionRenderer extends BaseRenderer {
     while (!hasReadStreamToEnd() && lastTimestampUs < positionUs + SAMPLE_WINDOW_DURATION_US) {
       buffer.clear();
       FormatHolder formatHolder = getFormatHolder();
-      @SampleStream.ReadDataResult
-      int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
+      @ReadDataResult int result = readSource(formatHolder, buffer, /* readFlags= */ 0);
       if (result != C.RESULT_BUFFER_READ || buffer.isEndOfStream()) {
         return;
       }

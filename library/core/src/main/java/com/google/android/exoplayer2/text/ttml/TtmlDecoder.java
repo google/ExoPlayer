@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.text.Layout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -22,12 +25,13 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
+import com.google.common.base.Ascii;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -81,7 +85,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private static final Pattern OFFSET_TIME =
       Pattern.compile("^([0-9]+(?:\\.[0-9]+)?)(h|m|s|ms|f|t)$");
   private static final Pattern FONT_SIZE = Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
-  private static final Pattern PERCENTAGE_COORDINATES =
+  static final Pattern SIGNED_PERCENTAGE = Pattern.compile("^([-+]?\\d+\\.?\\d*?)%$");
+  static final Pattern PERCENTAGE_COORDINATES =
       Pattern.compile("^(\\d+\\.?\\d*?)% (\\d+\\.?\\d*?)%$");
   private static final Pattern PIXEL_COORDINATES =
       Pattern.compile("^(\\d+\\.?\\d*?)px (\\d+\\.?\\d*?)px$");
@@ -428,7 +433,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     String displayAlign =
         XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_DISPLAY_ALIGN);
     if (displayAlign != null) {
-      switch (Util.toLowerInvariant(displayAlign)) {
+      switch (Ascii.toLowerCase(displayAlign)) {
         case "center":
           lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
           line += height / 2;
@@ -450,7 +455,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     String writingDirection =
         XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_WRITING_MODE);
     if (writingDirection != null) {
-      switch (Util.toLowerInvariant(writingDirection)) {
+      switch (Ascii.toLowerCase(writingDirection)) {
           // TODO: Support horizontal RTL modes.
         case TtmlNode.VERTICAL:
         case TtmlNode.VERTICAL_LR:
@@ -529,7 +534,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               TtmlNode.ITALIC.equalsIgnoreCase(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_TEXT_ALIGN:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.LEFT:
             case TtmlNode.START:
               style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
@@ -547,7 +552,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_TEXT_COMBINE:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.COMBINE_NONE:
               style = createIfNull(style).setTextCombine(false);
               break;
@@ -560,7 +565,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_RUBY:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.RUBY_CONTAINER:
               style = createIfNull(style).setRubyType(TtmlStyle.RUBY_TYPE_CONTAINER);
               break;
@@ -581,12 +586,12 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_RUBY_POSITION:
-          switch (Util.toLowerInvariant(attributeValue)) {
-            case TtmlNode.RUBY_BEFORE:
-              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_OVER);
+          switch (Ascii.toLowerCase(attributeValue)) {
+            case TtmlNode.ANNOTATION_POSITION_BEFORE:
+              style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_BEFORE);
               break;
-            case TtmlNode.RUBY_AFTER:
-              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_UNDER);
+            case TtmlNode.ANNOTATION_POSITION_AFTER:
+              style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_AFTER);
               break;
             default:
               // ignore
@@ -594,7 +599,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_TEXT_DECORATION:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.LINETHROUGH:
               style = createIfNull(style).setLinethrough(true);
               break;
@@ -608,6 +613,12 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               style = createIfNull(style).setUnderline(false);
               break;
           }
+          break;
+        case TtmlNode.ATTR_TTS_TEXT_EMPHASIS:
+          style = createIfNull(style).setTextEmphasis(TextEmphasis.parse(attributeValue));
+          break;
+        case TtmlNode.ATTR_TTS_SHEAR:
+          style = createIfNull(style).setShearPercentage(parseShear(attributeValue));
           break;
         default:
           // ignore
@@ -751,10 +762,35 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   }
 
   /**
+   * Returns the parsed shear percentage (between -100.0 and +100.0 inclusive), or {@link
+   * TtmlStyle#UNSPECIFIED_SHEAR} if parsing failed.
+   */
+  private static float parseShear(String expression) {
+    Matcher matcher = SIGNED_PERCENTAGE.matcher(expression);
+    if (!matcher.matches()) {
+      Log.w(TAG, "Invalid value for shear: " + expression);
+      return TtmlStyle.UNSPECIFIED_SHEAR;
+    }
+    try {
+      String percentage = Assertions.checkNotNull(matcher.group(1));
+      float value = Float.parseFloat(percentage);
+      // https://www.w3.org/TR/2018/REC-ttml2-20181108/#semantics-style-procedures-shear
+      // If the absolute value of the specified percentage is greater than 100%, then it must be
+      // interpreted as if 100% were specified with the appropriate sign.
+      value = max(-100f, value);
+      value = min(100f, value);
+      return value;
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Failed to parse shear: " + expression, e);
+      return TtmlStyle.UNSPECIFIED_SHEAR;
+    }
+  }
+
+  /**
    * Parses a time expression, returning the parsed timestamp.
-   * <p>
-   * For the format of a time expression, see:
-   * <a href="http://www.w3.org/TR/ttaf1-dfxp/#timing-value-timeExpression">timeExpression</a>
+   *
+   * <p>For the format of a time expression, see: <a
+   * href="http://www.w3.org/TR/ttaf1-dfxp/#timing-value-timeExpression">timeExpression</a>
    *
    * @param time A string that includes the time expression.
    * @param frameAndTickRate The effective frame and tick rates of the stream.

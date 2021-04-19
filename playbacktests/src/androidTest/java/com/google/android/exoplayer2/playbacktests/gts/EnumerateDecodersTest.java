@@ -22,6 +22,7 @@ import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -43,7 +44,11 @@ public class EnumerateDecodersTest {
 
   @Before
   public void setUp() {
-    metricsLogger = MetricsLogger.Factory.createDefault(TAG);
+    metricsLogger =
+        MetricsLogger.DEFAULT_FACTORY.create(
+            InstrumentationRegistry.getInstrumentation(),
+            TAG,
+            /* streamName= */ "enumerate-decoders");
   }
 
   @Test

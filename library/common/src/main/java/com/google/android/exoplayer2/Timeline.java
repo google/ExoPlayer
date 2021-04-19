@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
@@ -24,9 +25,9 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.core.app.BundleCompat;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.BundleUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -588,6 +589,12 @@ public abstract class Timeline implements Bundleable {
      */
     public long positionInWindowUs;
 
+    /**
+     * Whether this period contains placeholder information because the real information has yet to
+     * be loaded.
+     */
+    public boolean isPlaceholder;
+
     private AdPlaybackState adPlaybackState;
 
     /** Creates a new instance with no ad playback state. */
@@ -649,6 +656,7 @@ public abstract class Timeline implements Bundleable {
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
       this.adPlaybackState = adPlaybackState;
+      this.isPlaceholder = false;
       return this;
     }
 
@@ -813,6 +821,7 @@ public abstract class Timeline implements Bundleable {
           && windowIndex == that.windowIndex
           && durationUs == that.durationUs
           && positionInWindowUs == that.positionInWindowUs
+          && isPlaceholder == that.isPlaceholder
           && Util.areEqual(adPlaybackState, that.adPlaybackState);
     }
 
@@ -824,6 +833,7 @@ public abstract class Timeline implements Bundleable {
       result = 31 * result + windowIndex;
       result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
       result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
+      result = 31 * result + (isPlaceholder ? 1 : 0);
       result = 31 * result + adPlaybackState.hashCode();
       return result;
     }
@@ -836,6 +846,7 @@ public abstract class Timeline implements Bundleable {
       FIELD_WINDOW_INDEX,
       FIELD_DURATION_US,
       FIELD_POSITION_IN_WINDOW_US,
+      FIELD_PLACEHOLDER,
       FIELD_AD_PLAYBACK_STATE
     })
     private @interface FieldNumber {}
@@ -843,7 +854,8 @@ public abstract class Timeline implements Bundleable {
     private static final int FIELD_WINDOW_INDEX = 0;
     private static final int FIELD_DURATION_US = 1;
     private static final int FIELD_POSITION_IN_WINDOW_US = 2;
-    private static final int FIELD_AD_PLAYBACK_STATE = 3;
+    private static final int FIELD_PLACEHOLDER = 3;
+    private static final int FIELD_AD_PLAYBACK_STATE = 4;
 
     /**
      * {@inheritDoc}
@@ -858,6 +870,7 @@ public abstract class Timeline implements Bundleable {
       bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
       bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
       bundle.putLong(keyForField(FIELD_POSITION_IN_WINDOW_US), positionInWindowUs);
+      bundle.putBoolean(keyForField(FIELD_PLACEHOLDER), isPlaceholder);
       bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATE), adPlaybackState.toBundle());
       return bundle;
     }
@@ -875,6 +888,7 @@ public abstract class Timeline implements Bundleable {
           bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
       long positionInWindowUs =
           bundle.getLong(keyForField(FIELD_POSITION_IN_WINDOW_US), /* defaultValue= */ 0);
+      boolean isPlaceholder = bundle.getBoolean(keyForField(FIELD_PLACEHOLDER));
       @Nullable
       Bundle adPlaybackStateBundle = bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATE));
       AdPlaybackState adPlaybackState =
@@ -883,13 +897,15 @@ public abstract class Timeline implements Bundleable {
               : AdPlaybackState.NONE;
 
       Period period = new Period();
-      return period.set(
+      period.set(
           /* id= */ null,
           /* uid= */ null,
           windowIndex,
           durationUs,
           positionInWindowUs,
           adPlaybackState);
+      period.isPlaceholder = isPlaceholder;
+      return period;
     }
 
     private static String keyForField(@Period.FieldNumber int field) {
@@ -1255,11 +1271,16 @@ public abstract class Timeline implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FIELD_WINDOWS, FIELD_PERIODS})
+  @IntDef({
+    FIELD_WINDOWS,
+    FIELD_PERIODS,
+    FIELD_SHUFFLED_WINDOW_INDICES,
+  })
   private @interface FieldNumber {}
 
   private static final int FIELD_WINDOWS = 0;
   private static final int FIELD_PERIODS = 1;
+  private static final int FIELD_SHUFFLED_WINDOW_INDICES = 2;
 
   /**
    * {@inheritDoc}
@@ -1272,25 +1293,34 @@ public abstract class Timeline implements Bundleable {
   public final Bundle toBundle() {
     List<Bundle> windowBundles = new ArrayList<>();
     int windowCount = getWindowCount();
+    Window window = new Window();
     for (int i = 0; i < windowCount; i++) {
-      Window window = new Window();
-      getWindow(i, window, /* defaultPositionProjectionUs= */ 0);
-      windowBundles.add(window.toBundle());
+      windowBundles.add(getWindow(i, window, /* defaultPositionProjectionUs= */ 0).toBundle());
     }
 
     List<Bundle> periodBundles = new ArrayList<>();
     int periodCount = getPeriodCount();
+    Period period = new Period();
     for (int i = 0; i < periodCount; i++) {
-      Period period = new Period();
-      getPeriod(i, period, /* setIds= */ false);
-      periodBundles.add(period.toBundle());
+      periodBundles.add(getPeriod(i, period, /* setIds= */ false).toBundle());
+    }
+
+    int[] shuffledWindowIndices = new int[windowCount];
+    if (windowCount > 0) {
+      shuffledWindowIndices[0] = getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+    }
+    for (int i = 1; i < windowCount; i++) {
+      shuffledWindowIndices[i] =
+          getNextWindowIndex(
+              shuffledWindowIndices[i - 1], Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true);
     }
 
     Bundle bundle = new Bundle();
-    BundleCompat.putBinder(
+    BundleUtil.putBinder(
         bundle, keyForField(FIELD_WINDOWS), new BundleListRetriever(windowBundles));
-    BundleCompat.putBinder(
+    BundleUtil.putBinder(
         bundle, keyForField(FIELD_PERIODS), new BundleListRetriever(periodBundles));
+    bundle.putIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES), shuffledWindowIndices);
     return bundle;
   }
 
@@ -1306,11 +1336,18 @@ public abstract class Timeline implements Bundleable {
   private static Timeline fromBundle(Bundle bundle) {
     ImmutableList<Window> windows =
         fromBundleListRetriever(
-            Window.CREATOR, BundleCompat.getBinder(bundle, keyForField(FIELD_WINDOWS)));
+            Window.CREATOR, BundleUtil.getBinder(bundle, keyForField(FIELD_WINDOWS)));
     ImmutableList<Period> periods =
         fromBundleListRetriever(
-            Period.CREATOR, BundleCompat.getBinder(bundle, keyForField(FIELD_PERIODS)));
-    return new RemotableTimeline(windows, periods);
+            Period.CREATOR, BundleUtil.getBinder(bundle, keyForField(FIELD_PERIODS)));
+    @Nullable
+    int[] shuffledWindowIndices = bundle.getIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES));
+    return new RemotableTimeline(
+        windows,
+        periods,
+        shuffledWindowIndices == null
+            ? generateUnshuffledIndices(windows.size())
+            : shuffledWindowIndices);
   }
 
   private static <T extends Bundleable> ImmutableList<T> fromBundleListRetriever(
@@ -1330,6 +1367,14 @@ public abstract class Timeline implements Bundleable {
     return Integer.toString(field, Character.MAX_RADIX);
   }
 
+  private static int[] generateUnshuffledIndices(int n) {
+    int[] indices = new int[n];
+    for (int i = 0; i < n; i++) {
+      indices[i] = i;
+    }
+    return indices;
+  }
+
   /**
    * A concrete class of {@link Timeline} to restore a {@link Timeline} instance from a {@link
    * Bundle} sent by another process via {@link IBinder}.
@@ -1338,10 +1383,19 @@ public abstract class Timeline implements Bundleable {
 
     private final ImmutableList<Window> windows;
     private final ImmutableList<Period> periods;
+    private final int[] shuffledWindowIndices;
+    private final int[] windowIndicesInShuffled;
 
-    public RemotableTimeline(ImmutableList<Window> windows, ImmutableList<Period> periods) {
+    public RemotableTimeline(
+        ImmutableList<Window> windows, ImmutableList<Period> periods, int[] shuffledWindowIndices) {
+      checkArgument(windows.size() == shuffledWindowIndices.length);
       this.windows = windows;
       this.periods = periods;
+      this.shuffledWindowIndices = shuffledWindowIndices;
+      windowIndicesInShuffled = new int[shuffledWindowIndices.length];
+      for (int i = 0; i < shuffledWindowIndices.length; i++) {
+        windowIndicesInShuffled[shuffledWindowIndices[i]] = i;
+      }
     }
 
     @Override
@@ -1373,6 +1427,56 @@ public abstract class Timeline implements Bundleable {
     }
 
     @Override
+    public int getNextWindowIndex(
+        int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+      if (repeatMode == Player.REPEAT_MODE_ONE) {
+        return windowIndex;
+      }
+      if (windowIndex == getLastWindowIndex(shuffleModeEnabled)) {
+        return repeatMode == Player.REPEAT_MODE_ALL
+            ? getFirstWindowIndex(shuffleModeEnabled)
+            : C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled
+          ? shuffledWindowIndices[windowIndicesInShuffled[windowIndex] + 1]
+          : windowIndex + 1;
+    }
+
+    @Override
+    public int getPreviousWindowIndex(
+        int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+      if (repeatMode == Player.REPEAT_MODE_ONE) {
+        return windowIndex;
+      }
+      if (windowIndex == getFirstWindowIndex(shuffleModeEnabled)) {
+        return repeatMode == Player.REPEAT_MODE_ALL
+            ? getLastWindowIndex(shuffleModeEnabled)
+            : C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled
+          ? shuffledWindowIndices[windowIndicesInShuffled[windowIndex] - 1]
+          : windowIndex - 1;
+    }
+
+    @Override
+    public int getLastWindowIndex(boolean shuffleModeEnabled) {
+      if (isEmpty()) {
+        return C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled
+          ? shuffledWindowIndices[getWindowCount() - 1]
+          : getWindowCount() - 1;
+    }
+
+    @Override
+    public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+      if (isEmpty()) {
+        return C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled ? shuffledWindowIndices[0] : 0;
+    }
+
+    @Override
     public int getPeriodCount() {
       return periods.size();
     }
@@ -1380,8 +1484,9 @@ public abstract class Timeline implements Bundleable {
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
       Period p = periods.get(periodIndex);
-      return period.set(
-          p.id, p.uid, p.windowIndex, p.durationUs, p.positionInWindowUs, p.adPlaybackState);
+      period.set(p.id, p.uid, p.windowIndex, p.durationUs, p.positionInWindowUs, p.adPlaybackState);
+      period.isPlaceholder = p.isPlaceholder;
+      return period;
     }
 
     @Override

@@ -472,7 +472,6 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
           new CacheWriter(
               dataSource,
               segment.dataSpec,
-              /* allowShortContent= */ false,
               temporaryBuffer,
               progressNotifier);
     }

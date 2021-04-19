@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
 import java.util.List;
@@ -28,60 +27,6 @@ public abstract class BasePlayer implements Player {
 
   public BasePlayer() {
     window = new Timeline.Window();
-  }
-
-  @Override
-  public final void addListener(Listener listener) {
-    Assertions.checkNotNull(listener);
-    @Nullable AudioComponent audioComponent = getAudioComponent();
-    if (audioComponent != null) {
-      audioComponent.addAudioListener(listener);
-    }
-    @Nullable VideoComponent videoComponent = getVideoComponent();
-    if (videoComponent != null) {
-      videoComponent.addVideoListener(listener);
-    }
-    @Nullable TextComponent textComponent = getTextComponent();
-    if (textComponent != null) {
-      textComponent.addTextOutput(listener);
-    }
-    @Nullable MetadataComponent metadataComponent = getMetadataComponent();
-    if (metadataComponent != null) {
-      metadataComponent.addMetadataOutput(listener);
-    }
-    @Nullable DeviceComponent deviceComponent = getDeviceComponent();
-    if (deviceComponent != null) {
-      deviceComponent.addDeviceListener(listener);
-    }
-    EventListener eventListener = listener;
-    addListener(eventListener);
-  }
-
-  @Override
-  public final void removeListener(Listener listener) {
-    Assertions.checkNotNull(listener);
-    @Nullable AudioComponent audioComponent = getAudioComponent();
-    if (audioComponent != null) {
-      audioComponent.removeAudioListener(listener);
-    }
-    @Nullable VideoComponent videoComponent = getVideoComponent();
-    if (videoComponent != null) {
-      videoComponent.removeVideoListener(listener);
-    }
-    @Nullable TextComponent textComponent = getTextComponent();
-    if (textComponent != null) {
-      textComponent.removeTextOutput(listener);
-    }
-    @Nullable MetadataComponent metadataComponent = getMetadataComponent();
-    if (metadataComponent != null) {
-      metadataComponent.removeMetadataOutput(listener);
-    }
-    @Nullable DeviceComponent deviceComponent = getDeviceComponent();
-    if (deviceComponent != null) {
-      deviceComponent.removeDeviceListener(listener);
-    }
-    EventListener eventListener = listener;
-    removeListener(eventListener);
   }
 
   @Override
@@ -134,6 +79,14 @@ public abstract class BasePlayer implements Player {
   @Override
   public final void clearMediaItems() {
     removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
+  }
+
+  /** @deprecated Use {@link #getPlayerError()} instead. */
+  @Deprecated
+  @Override
+  @Nullable
+  public final ExoPlaybackException getPlaybackError() {
+    return getPlayerError();
   }
 
   @Override
@@ -320,12 +273,14 @@ public abstract class BasePlayer implements Player {
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }
 
-  protected Commands getAvailableCommands(@Command int[] permanentAvailableCommands) {
+  protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
         .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
         .build();
   }
 }

@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.SurfaceTexture;
 import android.os.Looper;
 import android.util.SparseArray;
 import android.view.Surface;
@@ -662,6 +663,8 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* SOURCE_UPDATE */,
             WINDOW_0 /* PLAYLIST_CHANGE */,
             period0Seq1 /* SOURCE_UPDATE */);
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
+        .containsExactly(WINDOW_0 /* REMOVE */);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq1, period0Seq1)
         .inOrder();
@@ -937,6 +940,9 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* SOURCE_UPDATE (second item) */,
             period0Seq1 /* PLAYLIST_CHANGED (remove) */)
         .inOrder();
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
+        .containsExactly(period0Seq1 /* REMOVE */)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
@@ -1037,9 +1043,11 @@ public final class AnalyticsCollectorTest {
                         new Player.EventListener() {
                           @Override
                           public void onPositionDiscontinuity(
+                              Player.PositionInfo oldPosition,
+                              Player.PositionInfo newPosition,
                               @Player.DiscontinuityReason int reason) {
                             if (!player.isPlayingAd()
-                                && reason == Player.DISCONTINUITY_REASON_AD_INSERTION) {
+                                && reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
                               // Finished playing ad. Marked as played.
                               adPlaybackState.set(
                                   adPlaybackState
@@ -1631,6 +1639,9 @@ public final class AnalyticsCollectorTest {
   public void onEvents_isReportedWithCorrectEventTimes() throws Exception {
     SimpleExoPlayer player =
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    player.setVideoSurface(surface);
+
     AnalyticsListener listener = mock(AnalyticsListener.class);
     Format[] formats =
         new Format[] {
@@ -1651,11 +1662,12 @@ public final class AnalyticsCollectorTest {
     player.addMediaSource(new FakeMediaSource(new FakeTimeline(), formats));
     player.play();
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
     ShadowLooper.runMainLooperToNextTask();
     player.release();
+    surface.release();
 
     // Verify that expected individual callbacks have been called and capture EventTimes.
     ArgumentCaptor<AnalyticsListener.EventTime> individualTimelineChangedEventTimes =
@@ -1975,11 +1987,13 @@ public final class AnalyticsCollectorTest {
       @Nullable ActionSchedule actionSchedule,
       RenderersFactory renderersFactory)
       throws Exception {
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
       new ExoPlayerTestRunner.Builder(ApplicationProvider.getApplicationContext())
           .setMediaSources(mediaSource)
           .setRenderersFactory(renderersFactory)
+          .setVideoSurface(surface)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
           .build()
@@ -1988,6 +2002,8 @@ public final class AnalyticsCollectorTest {
           .blockUntilEnded(TIMEOUT_MS);
     } catch (ExoPlaybackException e) {
       // Ignore ExoPlaybackException as these may be expected.
+    } finally {
+      surface.release();
     }
     return listener;
   }
@@ -2085,7 +2101,11 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onPositionDiscontinuity(EventTime eventTime, int reason) {
+    public void onPositionDiscontinuity(
+        EventTime eventTime,
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        int reason) {
       reportedEvents.add(new ReportedEvent(EVENT_POSITION_DISCONTINUITY, eventTime));
     }
 
@@ -2289,8 +2309,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onRenderedFirstFrame(
-        EventTime eventTime, @Nullable Surface surface, long renderTimeMs) {
+    public void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {
       reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
     }
 
@@ -2347,12 +2366,7 @@ public final class AnalyticsCollectorTest {
 
       @Override
       public String toString() {
-        return "{"
-            + "type="
-            + Long.numberOfTrailingZeros(eventType)
-            + ", windowAndPeriodId="
-            + eventWindowAndPeriodId
-            + '}';
+        return "{" + "type=" + eventType + ", windowAndPeriodId=" + eventWindowAndPeriodId + '}';
       }
     }
   }
@@ -2364,14 +2378,12 @@ public final class AnalyticsCollectorTest {
    */
   private static final class EmptyDrmCallback implements MediaDrmCallback {
     @Override
-    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
-        throws MediaDrmCallbackException {
+    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request) {
       return new byte[0];
     }
 
     @Override
-    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
-        throws MediaDrmCallbackException {
+    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request) {
       return new byte[0];
     }
   }

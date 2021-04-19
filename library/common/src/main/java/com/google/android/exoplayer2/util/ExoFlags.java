@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Assertions.checkIndex;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.util.SparseBooleanArray;
@@ -85,6 +86,20 @@ public final class ExoFlags {
     }
 
     /**
+     * Adds {@link ExoFlags flags}.
+     *
+     * @param flags The set of flags to add.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder addAll(ExoFlags flags) {
+      for (int i = 0; i < flags.size(); i++) {
+        add(flags.get(i));
+      }
+      return this;
+    }
+
+    /**
      * Builds an {@link ExoFlags} instance.
      *
      * @throws IllegalStateException If this method has already been called.
@@ -138,10 +153,10 @@ public final class ExoFlags {
    *
    * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
    * @return The flag at the given index.
-   * @throws IllegalArgumentException If index is outside the allowed range.
+   * @throws IndexOutOfBoundsException If index is outside the allowed range.
    */
   public int get(int index) {
-    Assertions.checkArgument(index >= 0 && index < size());
+    checkIndex(index, /* start= */ 0, /* limit= */ size());
     return flags.keyAt(index);
   }
 

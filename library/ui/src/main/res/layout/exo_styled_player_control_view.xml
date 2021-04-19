@@ -15,10 +15,14 @@
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <!-- 0dp dimensions are used to prevent this view from influencing the size of
+       the parent view if it uses "wrap_content". It is expanded to occupy the
+       entirety of the parent in code, after the parent's size has been
+       determined. See: https://github.com/google/ExoPlayer/issues/8726.
+  -->
   <View android:id="@id/exo_controls_background"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
       android:background="@color/exo_black_opacity_60"/>
 
   <FrameLayout android:id="@id/exo_bottom_bar"
@@ -126,7 +130,8 @@
       android:layout_gravity="center"
       android:background="@android:color/transparent"
       android:gravity="center"
-      android:padding="@dimen/exo_styled_controls_padding">
+      android:padding="@dimen/exo_styled_controls_padding"
+      android:clipToPadding="false">
 
     <ImageButton android:id="@id/exo_prev"
         style="@style/ExoStyledControls.Button.Center.Previous"/>

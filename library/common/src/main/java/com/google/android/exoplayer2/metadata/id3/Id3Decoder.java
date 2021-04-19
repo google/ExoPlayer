@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -539,13 +540,13 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     int mimeTypeEndIndex;
     if (majorVersion == 2) {
       mimeTypeEndIndex = 2;
-      mimeType = "image/" + Util.toLowerInvariant(new String(data, 0, 3, "ISO-8859-1"));
+      mimeType = "image/" + Ascii.toLowerCase(new String(data, 0, 3, "ISO-8859-1"));
       if ("image/jpg".equals(mimeType)) {
         mimeType = "image/jpeg";
       }
     } else {
       mimeTypeEndIndex = indexOfZeroByte(data, 0);
-      mimeType = Util.toLowerInvariant(new String(data, 0, mimeTypeEndIndex, "ISO-8859-1"));
+      mimeType = Ascii.toLowerCase(new String(data, 0, mimeTypeEndIndex, "ISO-8859-1"));
       if (mimeType.indexOf('/') == -1) {
         mimeType = "image/" + mimeType;
       }

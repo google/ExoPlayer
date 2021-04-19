@@ -21,7 +21,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import androidx.annotation.BinderThread;
-import androidx.annotation.Nullable;
 
 /**
  * Basic touch input system.
@@ -47,8 +46,12 @@ import androidx.annotation.Nullable;
 /* package */ final class TouchTracker extends GestureDetector.SimpleOnGestureListener
     implements View.OnTouchListener, OrientationListener.Listener {
 
-  /* package */ interface Listener {
+  public interface Listener {
     void onScrollChange(PointF scrollOffsetDegrees);
+
+    default boolean onSingleTapUp(MotionEvent event) {
+      return false;
+    }
   }
 
   // Touch input won't change the pitch beyond +/- 45 degrees. This reduces awkward situations
@@ -65,7 +68,6 @@ import androidx.annotation.Nullable;
   // The conversion from touch to yaw & pitch requires compensating for device roll. This is set
   // on the sensor thread and read on the UI thread.
   private volatile float roll;
-  @Nullable private SingleTapListener singleTapListener;
 
   @SuppressWarnings({
     "nullness:assignment.type.incompatible",
@@ -76,10 +78,6 @@ import androidx.annotation.Nullable;
     this.pxPerDegrees = pxPerDegrees;
     gestureDetector = new GestureDetector(context, this);
     roll = SphericalGLSurfaceView.UPRIGHT_ROLL;
-  }
-
-  public void setSingleTapListener(@Nullable SingleTapListener listener) {
-    singleTapListener = listener;
   }
 
   /**
@@ -125,10 +123,7 @@ import androidx.annotation.Nullable;
 
   @Override
   public boolean onSingleTapUp(MotionEvent e) {
-    if (singleTapListener != null) {
-      return singleTapListener.onSingleTapUp(e);
-    }
-    return false;
+    return listener.onSingleTapUp(e);
   }
 
   @Override

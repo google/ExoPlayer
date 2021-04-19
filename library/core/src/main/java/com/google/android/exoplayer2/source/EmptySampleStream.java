@@ -35,8 +35,8 @@ public final class EmptySampleStream implements SampleStream {
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
+  public int readData(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
     buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
     return C.RESULT_BUFFER_READ;
   }

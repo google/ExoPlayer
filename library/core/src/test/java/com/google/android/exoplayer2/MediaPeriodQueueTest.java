@@ -430,6 +430,7 @@ public final class MediaPeriodQueueTest {
             mediaPeriodQueue.resolveMediaPeriodIdForAds(
                 playlistTimeline, firstPeriodUid, /* positionUs= */ 0),
             /* requestedContentPositionUs= */ C.TIME_UNSET,
+            /* discontinuityStartPositionUs= */ 0,
             Player.STATE_READY,
             /* playbackError= */ null,
             /* isLoading= */ false,

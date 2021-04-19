@@ -54,7 +54,6 @@
     <enum name="always" value="2"/>
   </attr>
   <attr name="keep_content_on_player_reset" format="boolean"/>
-  <attr name="use_sensor_rotation" format="boolean"/>
   <attr name="player_layout_id" format="reference"/>
 
   <!-- PlayerControlView and StyledPlayerControlView attributes -->
@@ -104,7 +103,6 @@
     <attr name="auto_show"/>
     <attr name="show_buffering"/>
     <attr name="keep_content_on_player_reset"/>
-    <attr name="use_sensor_rotation"/>
     <attr name="player_layout_id"/>
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
@@ -143,7 +141,6 @@
     <attr name="auto_show"/>
     <attr name="show_buffering"/>
     <attr name="keep_content_on_player_reset"/>
-    <attr name="use_sensor_rotation"/>
     <attr name="player_layout_id"/>
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->

@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -569,8 +570,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     chunkSource.maybeThrowError();
   }
 
-  public int readData(int sampleQueueIndex, FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean requireFormat) {
+  public int readData(
+      int sampleQueueIndex,
+      FormatHolder formatHolder,
+      DecoderInputBuffer buffer,
+      @ReadFlags int readFlags) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
@@ -602,7 +606,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     int result =
-        sampleQueues[sampleQueueIndex].read(formatHolder, buffer, requireFormat, loadingFinished);
+        sampleQueues[sampleQueueIndex].read(formatHolder, buffer, readFlags, loadingFinished);
     if (result == C.RESULT_FORMAT_READ) {
       Format format = Assertions.checkNotNull(formatHolder.format);
       if (sampleQueueIndex == primarySampleQueueIndex) {
@@ -1070,6 +1074,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             drmSessionManager,
             drmEventDispatcher,
             overridingDrmInitData);
+    sampleQueue.setStartTimeUs(lastSeekPositionUs);
     if (isAudioVideo) {
       sampleQueue.setDrmInitData(drmInitData);
     }

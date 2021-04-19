@@ -45,6 +45,7 @@ public class CueTest {
             .setSize(0.8f)
             .setWindowColor(Color.CYAN)
             .setVerticalType(Cue.VERTICAL_TYPE_RL)
+            .setShearDegrees(-15f)
             .build();
 
     Cue modifiedCue = cue.buildUpon().build();
@@ -61,6 +62,7 @@ public class CueTest {
     assertThat(cue.windowColor).isEqualTo(Color.CYAN);
     assertThat(cue.windowColorSet).isTrue();
     assertThat(cue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
+    assertThat(cue.shearDegrees).isEqualTo(-15f);
 
     assertThat(modifiedCue.text).isSameInstanceAs(cue.text);
     assertThat(modifiedCue.textAlignment).isEqualTo(cue.textAlignment);
@@ -74,6 +76,7 @@ public class CueTest {
     assertThat(modifiedCue.windowColor).isEqualTo(cue.windowColor);
     assertThat(modifiedCue.windowColorSet).isEqualTo(cue.windowColorSet);
     assertThat(modifiedCue.verticalType).isEqualTo(cue.verticalType);
+    assertThat(modifiedCue.shearDegrees).isEqualTo(cue.shearDegrees);
   }
 
   @Test

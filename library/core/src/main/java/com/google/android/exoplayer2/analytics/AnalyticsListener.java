@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -236,7 +237,7 @@ public interface AnalyticsListener {
   int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
   /**
    * A position discontinuity occurred. See {@link
-   * Player.EventListener#onPositionDiscontinuity(int)}.
+   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
@@ -532,18 +533,32 @@ public interface AnalyticsListener {
       @Player.MediaItemTransitionReason int reason) {}
 
   /**
-   * Called when a position discontinuity occurred.
-   *
-   * @param eventTime The event time.
-   * @param reason The reason for the position discontinuity.
+   * @deprecated Use {@link #onPositionDiscontinuity(EventTime, Player.PositionInfo,
+   *     Player.PositionInfo, int)} instead.
    */
+  @Deprecated
   default void onPositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason) {}
 
   /**
-   * Called when a seek operation started.
+   * Called when a position discontinuity occurred.
    *
    * @param eventTime The event time.
+   * @param oldPosition The position before the discontinuity.
+   * @param newPosition The position after the discontinuity.
+   * @param reason The reason for the position discontinuity.
    */
+  default void onPositionDiscontinuity(
+      EventTime eventTime,
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @DiscontinuityReason int reason) {}
+
+  /**
+   * @deprecated Use {@link #onPositionDiscontinuity(EventTime, Player.PositionInfo,
+   *     Player.PositionInfo, int)} instead, listening to changes with {@link
+   *     Player#DISCONTINUITY_REASON_SEEK}.
+   */
+  @Deprecated
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
@@ -1006,16 +1021,11 @@ public interface AnalyticsListener {
    * renderer was reset, or since the stream being rendered was changed.
    *
    * @param eventTime The event time.
-   * @param surface The {@link Surface} to which a frame has been rendered, or {@code null} if the
-   *     renderer renders to something that isn't a {@link Surface}.
+   * @param output The output to which a frame has been rendered. Normally a {@link Surface},
+   *     however may also be other output types (e.g., a {@link VideoDecoderOutputBufferRenderer}).
    * @param renderTimeMs {@link SystemClock#elapsedRealtime()} when the first frame was rendered.
    */
-  default void onRenderedFirstFrame(
-      EventTime eventTime, @Nullable Surface surface, long renderTimeMs) {}
-
-  /** @deprecated Use {@link #onRenderedFirstFrame(EventTime, Surface, long)} instead. */
-  @Deprecated
-  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
+  default void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time

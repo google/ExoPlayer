@@ -19,6 +19,18 @@ import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.dvbsi.AppInfoTable;
+import com.google.android.exoplayer2.metadata.emsg.EventMessage;
+import com.google.android.exoplayer2.metadata.flac.PictureFrame;
+import com.google.android.exoplayer2.metadata.flac.VorbisComment;
+import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
+import com.google.android.exoplayer2.metadata.icy.IcyInfo;
+import com.google.android.exoplayer2.metadata.id3.Id3Frame;
+import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
+import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
+import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
+import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
+import com.google.android.exoplayer2.metadata.scte35.SpliceCommand;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.text.Cue;
@@ -89,11 +101,36 @@ public final class PlaybackOutput implements Dumper.Dumpable {
       dumper.startBlock("Metadata[" + i + "]");
       Metadata metadata = metadatas.get(i);
       for (int j = 0; j < metadata.length(); j++) {
-        dumper.add("entry[" + j + "]", metadata.get(j).getClass().getSimpleName());
+        dumper.add("entry[" + j + "]", getEntryAsString(metadata.get(j)));
       }
       dumper.endBlock();
     }
     dumper.endBlock();
+  }
+
+  /**
+   * Returns {@code entry.toString()} if we know the implementation overrides it, otherwise returns
+   * the simple class name.
+   */
+  private static String getEntryAsString(Metadata.Entry entry) {
+    if (entry instanceof EventMessage
+        || entry instanceof PictureFrame
+        || entry instanceof VorbisComment
+        || entry instanceof Id3Frame
+        || entry instanceof MdtaMetadataEntry
+        || entry instanceof MotionPhotoMetadata
+        || entry instanceof SlowMotionData
+        || entry instanceof SmtaMetadataEntry
+        || entry instanceof AppInfoTable
+        || entry instanceof IcyHeaders
+        || entry instanceof IcyInfo
+        || entry instanceof SpliceCommand
+        || "com.google.android.exoplayer2.hls.HlsTrackMetadataEntry"
+            .equals(entry.getClass().getCanonicalName())) {
+      return entry.toString();
+    } else {
+      return entry.getClass().getSimpleName();
+    }
   }
 
   private void dumpSubtitles(Dumper dumper) {

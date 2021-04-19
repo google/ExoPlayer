@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.os.Looper;
 import android.util.SparseArray;
-import android.view.Surface;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -170,6 +169,7 @@ public class AnalyticsCollector
    * Notify analytics collector that a seek operation will start. Should be called before the player
    * adjusts its state and position to the seek.
    */
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   public final void notifySeekStarted() {
     if (!isSeeking) {
       EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
@@ -177,11 +177,6 @@ public class AnalyticsCollector
       sendEvent(
           eventTime, /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onSeekStarted(eventTime));
     }
-  }
-
-  /** Resets the analytics collector for a new playlist. */
-  public final void resetForNewPlaylist() {
-    // TODO: remove method.
   }
 
   // MetadataOutput events.
@@ -446,17 +441,13 @@ public class AnalyticsCollector
                 eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
   }
 
-  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   @Override
-  public final void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {
+  public final void onRenderedFirstFrame(Object output, long renderTimeMs) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_RENDERED_FIRST_FRAME,
-        listener -> {
-          listener.onRenderedFirstFrame(eventTime, surface);
-          listener.onRenderedFirstFrame(eventTime, surface, renderTimeMs);
-        });
+        listener -> listener.onRenderedFirstFrame(eventTime, output, renderTimeMs));
   }
 
   @Override
@@ -711,8 +702,13 @@ public class AnalyticsCollector
         listener -> listener.onPlayerError(eventTime, error));
   }
 
+  // Calling deprecated callback.
+  @SuppressWarnings("deprecation")
   @Override
-  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public final void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
       isSeeking = false;
     }
@@ -721,7 +717,10 @@ public class AnalyticsCollector
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_POSITION_DISCONTINUITY,
-        listener -> listener.onPositionDiscontinuity(eventTime, reason));
+        listener -> {
+          listener.onPositionDiscontinuity(eventTime, reason);
+          listener.onPositionDiscontinuity(eventTime, oldPosition, newPosition, reason);
+        });
   }
 
   @Override

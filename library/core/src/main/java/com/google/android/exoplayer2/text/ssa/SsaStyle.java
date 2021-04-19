@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -284,7 +285,7 @@ import java.util.regex.Pattern;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
-        switch (Util.toLowerInvariant(keys[i].trim())) {
+        switch (Ascii.toLowerCase(keys[i].trim())) {
           case "name":
             nameIndex = i;
             break;

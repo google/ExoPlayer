@@ -147,7 +147,7 @@ MediaCodecAdapter (exotest.audio.aac):
   buffers[144] = length 0, hash 1
 MetadataOutput:
   Metadata[0]:
-    entry[0] = ApicFrame
+    entry[0] = APIC: mimeType=image/jpeg, description=Hello World
   Metadata[1]:
-    entry[0] = CommentFrame
-    entry[1] = ApicFrame
+    entry[0] = COMM: language=eng, description=description
+    entry[1] = APIC: mimeType=image/jpeg, description=Hello World

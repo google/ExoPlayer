@@ -204,14 +204,14 @@ public class FakeMediaSource extends BaseMediaSource {
   @Override
   @Nullable
   public Timeline getInitialTimeline() {
-    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1
+    return timeline == null || timeline.isEmpty() || timeline.getWindowCount() == 1
         ? null
         : new InitialTimeline(timeline);
   }
 
   @Override
   public boolean isSingleWindow() {
-    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1;
+    return timeline == null || timeline.isEmpty() || timeline.getWindowCount() == 1;
   }
 
   @Override

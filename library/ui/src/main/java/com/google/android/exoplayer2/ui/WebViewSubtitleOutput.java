@@ -29,7 +29,6 @@ import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -176,7 +175,7 @@ import java.util.Map;
                 + "right:0;"
                 + "color:%s;"
                 + "font-size:%s;"
-                + "line-height:%.2fem;"
+                + "line-height:%.2f;"
                 + "text-shadow:%s;"
                 + "'>",
             HtmlUtils.toCssRgba(style.foregroundColor),
@@ -278,6 +277,7 @@ import java.util.Map;
               Util.formatInvariant(
                   "<div style='"
                       + "position:absolute;"
+                      + "z-index:%s;"
                       + "%s:%.2f%%;"
                       + "%s:%s;"
                       + "%s:%s;"
@@ -285,8 +285,10 @@ import java.util.Map;
                       + "writing-mode:%s;"
                       + "font-size:%s;"
                       + "background-color:%s;"
-                      + "transform:translate(%s%%,%s%%);"
+                      + "transform:translate(%s%%,%s%%)"
+                      + "%s;"
                       + "'>",
+                  /* z-index */ i,
                   positionProperty,
                   positionPercent,
                   lineProperty,
@@ -298,7 +300,8 @@ import java.util.Map;
                   cueTextSizeCssPx,
                   windowCssColor,
                   horizontalTranslatePercent,
-                  verticalTranslatePercent))
+                  verticalTranslatePercent,
+                  getBlockShearTransformFunction(cue)))
           .append(Util.formatInvariant("<span class='%s'>", DEFAULT_BACKGROUND_CSS_CLASS))
           .append(htmlAndCss.html)
           .append("</span>")
@@ -318,6 +321,17 @@ import java.util.Map;
         Base64.encodeToString(html.toString().getBytes(Charsets.UTF_8), Base64.NO_PADDING),
         "text/html",
         "base64");
+  }
+
+  private static String getBlockShearTransformFunction(Cue cue) {
+    if (cue.shearDegrees != 0.0f) {
+      String direction =
+          (cue.verticalType == Cue.VERTICAL_TYPE_LR || cue.verticalType == Cue.VERTICAL_TYPE_RL)
+              ? "skewY"
+              : "skewX";
+      return Util.formatInvariant("%s(%.2fdeg)", direction, cue.shearDegrees);
+    }
+    return "";
   }
 
   /**

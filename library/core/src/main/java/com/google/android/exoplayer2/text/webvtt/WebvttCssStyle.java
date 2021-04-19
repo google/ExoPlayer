@@ -20,8 +20,8 @@ import android.text.TextUtils;
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.span.RubySpan;
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.common.base.Ascii;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -95,7 +95,7 @@ public final class WebvttCssStyle {
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
-  @RubySpan.Position private int rubyPosition;
+  @TextAnnotation.Position private int rubyPosition;
   private boolean combineUpright;
 
   public WebvttCssStyle() {
@@ -111,7 +111,7 @@ public final class WebvttCssStyle {
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
-    rubyPosition = RubySpan.POSITION_UNKNOWN;
+    rubyPosition = TextAnnotation.POSITION_UNKNOWN;
     combineUpright = false;
   }
 
@@ -216,7 +216,7 @@ public final class WebvttCssStyle {
   }
 
   public WebvttCssStyle setFontFamily(@Nullable String fontFamily) {
-    this.fontFamily = Util.toLowerInvariant(fontFamily);
+    this.fontFamily = fontFamily == null ? null : Ascii.toLowerCase(fontFamily);
     return this;
   }
 
@@ -272,12 +272,12 @@ public final class WebvttCssStyle {
     return fontSize;
   }
 
-  public WebvttCssStyle setRubyPosition(@RubySpan.Position int rubyPosition) {
+  public WebvttCssStyle setRubyPosition(@TextAnnotation.Position int rubyPosition) {
     this.rubyPosition = rubyPosition;
     return this;
   }
 
-  @RubySpan.Position
+  @TextAnnotation.Position
   public int getRubyPosition() {
     return rubyPosition;
   }
