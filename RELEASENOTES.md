@@ -29,6 +29,14 @@
         `PlaybackParameters.DEFAULT` instead.
     *   Use an empty string instead of the URI if the media ID is not explicitly
         set with `MediaItem.Builder.setMediaId(String)`.
+    *   Remove `MediaCodecRenderer.configureCodec()` and add
+        `MediaCodecRenderer.getMediaCodecConfiguration()`. The new method is
+        called just before the `MediaCodec` is created and returns the
+        parameters needed to create and configure the `MediaCodec` instance.
+        Applications can override `MediaCodecRenderer.onCodecInitialized()` to
+        get notified after MediaCodec is initialized, or they can inject a
+        custom `MediaCodecAdapter.Factory` if they want to control how the
+        `MediaCodec` is configured.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.

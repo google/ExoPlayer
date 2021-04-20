@@ -1221,6 +1221,33 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
+  public void iframeOnly_withExplicitInitSegment_hasCorrectByteRange() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:1616630672\n"
+            + "#EXT-X-TARGETDURATION:7\n"
+            + "#EXT-X-DISCONTINUITY-SEQUENCE:491 \n"
+            + "#EXT-X-MAP:URI=\"iframe0.tsv\",BYTERANGE=\"564@0\"\n"
+            + "\n"
+            + "#EXT-X-I-FRAMES-ONLY\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2021-04-12T17:08:22.000Z\n"
+            + "#EXTINF:1.001000,\n"
+            + "#EXT-X-BYTERANGE:121260@1128\n"
+            + "iframe0.tsv";
+
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsMediaPlaylist standalonePlaylist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    @Nullable Segment initSegment = standalonePlaylist.segments.get(0).initializationSegment;
+
+    assertThat(standalonePlaylist.segments).hasSize(1);
+    assertThat(initSegment.byteRangeLength).isEqualTo(564);
+    assertThat(initSegment.byteRangeOffset).isEqualTo(0);
+  }
+
+  @Test
   public void masterPlaylistAttributeInheritance() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =

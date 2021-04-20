@@ -532,18 +532,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throws DecoderQueryException;
 
   /**
-   * Configures a newly created {@link MediaCodec}.
+   * Returns the {@link MediaCodecAdapter.Configuration} that will be used to create and configure a
+   * {@link MediaCodec} to decode the given {@link Format} for a playback.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param codec The {@link MediaCodecAdapter} to configure.
    * @param format The {@link Format} for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
    *     no codec operating rate should be set.
+   * @return The parameters needed to call {@link MediaCodec#configure}.
    */
-  protected abstract void configureCodec(
+  @Nullable
+  protected abstract MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate);
@@ -1115,7 +1116,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     long codecInitializedTimestamp;
     @Nullable MediaCodecAdapter codecAdapter = null;
     String codecName = codecInfo.name;
-
     float codecOperatingRate =
         Util.SDK_INT < 23
             ? CODEC_OPERATING_RATE_UNSET
@@ -1123,35 +1123,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
-
-    try {
-      codecInitializingTimestamp = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("createCodec:" + codecName);
-      MediaCodec codec = MediaCodec.createByCodecName(codecName);
-      if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
-        codecAdapter =
-            new AsynchronousMediaCodecAdapter.Factory(
-                    getTrackType(),
-                    forceAsyncQueueingSynchronizationWorkaround,
-                    enableSynchronizeCodecInteractionsWithQueueing)
-                .createAdapter(codec);
-      } else {
-        codecAdapter = codecAdapterFactory.createAdapter(codec);
-      }
-      TraceUtil.endSection();
-      TraceUtil.beginSection("configureCodec");
-      configureCodec(codecInfo, codecAdapter, inputFormat, crypto, codecOperatingRate);
-      TraceUtil.endSection();
-      TraceUtil.beginSection("startCodec");
-      codecAdapter.start();
-      TraceUtil.endSection();
-      codecInitializedTimestamp = SystemClock.elapsedRealtime();
-    } catch (Exception e) {
-      if (codecAdapter != null) {
-        codecAdapter.release();
-      }
-      throw e;
+    codecInitializingTimestamp = SystemClock.elapsedRealtime();
+    TraceUtil.beginSection("createCodec:" + codecName);
+    MediaCodecAdapter.Configuration configuration =
+        getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
+    if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
+      codecAdapter =
+          new AsynchronousMediaCodecAdapter.Factory(
+                  getTrackType(),
+                  forceAsyncQueueingSynchronizationWorkaround,
+                  enableSynchronizeCodecInteractionsWithQueueing)
+              .createAdapter(configuration);
+    } else {
+      codecAdapter = codecAdapterFactory.createAdapter(configuration);
     }
+    codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
     this.codec = codecAdapter;
     this.codecInfo = codecInfo;

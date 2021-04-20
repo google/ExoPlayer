@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.media.MediaCodec;
-import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +45,7 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,10 +121,11 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
       @RequiresApi(18)
       @Override
-      public MediaCodecAdapter createAdapter(MediaCodec codec) {
+      public MediaCodecAdapter createAdapter(Configuration configuration) throws IOException {
         CapturingMediaCodecAdapter adapter =
             new CapturingMediaCodecAdapter(
-                MediaCodecAdapter.Factory.DEFAULT.createAdapter(codec), codec.getName());
+                MediaCodecAdapter.Factory.DEFAULT.createAdapter(configuration),
+                configuration.codecInfo.name);
         constructedAdapters.add(adapter);
         return adapter;
       }
@@ -166,20 +167,6 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     }
 
     // MediaCodecAdapter implementation
-
-    @Override
-    public void configure(
-        @Nullable MediaFormat mediaFormat,
-        @Nullable Surface surface,
-        @Nullable MediaCrypto crypto,
-        int flags) {
-      delegate.configure(mediaFormat, surface, crypto, flags);
-    }
-
-    @Override
-    public void start() {
-      delegate.start();
-    }
 
     @Override
     public int dequeueInputBufferIndex() {

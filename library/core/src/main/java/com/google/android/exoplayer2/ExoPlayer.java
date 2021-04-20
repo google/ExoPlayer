@@ -436,6 +436,7 @@ public interface ExoPlayer extends Player {
      * @param timeoutMs The time limit in milliseconds.
      */
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
+      Assertions.checkState(!buildCalled);
       setForegroundModeTimeoutMs = timeoutMs;
       return this;
     }

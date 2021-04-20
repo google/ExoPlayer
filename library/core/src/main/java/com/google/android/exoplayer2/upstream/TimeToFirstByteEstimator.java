@@ -25,7 +25,7 @@ public interface TimeToFirstByteEstimator {
    */
   long getTimeToFirstByteEstimateUs();
 
-  /** Resets the estimator. The estimator should drop all samples and reset to its initial state. */
+  /** Resets the estimator. */
   void reset();
 
   /**
