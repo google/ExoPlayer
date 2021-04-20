@@ -1,0 +1,6 @@
+{%- assign _page_path_first_char = include.page.path | slice: 0, 1 -%}
+{%- if _page_path_first_char == '_' -%}
+  {%- assign __return = true -%}
+{%- else -%}
+  {%- assign __return = false -%}
+{%- endif -%}

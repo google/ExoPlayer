@@ -1,0 +1,35 @@
+{%- include snippets/get-sources.html -%}
+{%- assign _sources = __return -%}
+
+{%- assign _LEANCLOUD_APP_ID = site.pageview.leancloud.app_id -%}
+{%- assign _LEANCLOUD_APP_KEY = site.pageview.leancloud.app_key -%}
+{%- assign _LEANCLOUD_APP_CLASS = site.pageview.leancloud.app_class -%}
+
+{%- if _LEANCLOUD_APP_ID and
+  _LEANCLOUD_APP_KEY and
+  _LEANCLOUD_APP_CLASS -%}
+
+  <script>
+    {%- include pageview-providers/leancloud/leancloud.js -%}
+  </script>
+  <script>
+    window.Lazyload.js(['{{ _sources.jquery }}', '{{ _sources.leancloud_js_sdk}}'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    '{{ _LEANCLOUD_APP_ID }}',
+        appKey:   '{{ _LEANCLOUD_APP_KEY }}',
+        appClass: '{{ _LEANCLOUD_APP_CLASS }}'
+      });
+      $('.js-pageview').each(function() {
+        var $this = $(this);
+        var key = $this.attr('data-page-key');
+        pageview.get(key, function(view) {
+          $this.attr('itemprop', 'userInteractionCount').attr('content', view).text(view);
+        });
+      });
+    });
+  </script>
+
+{%- endif -%}
+
+
+

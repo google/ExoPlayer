@@ -1,0 +1,17 @@
+{%- include snippets/assign.html target=site.data.variables.default.chart
+  source0=site.chart source1=page.chart -%}
+{%- if __return == true -%}
+  {%- include markdown-enhancements/chart.html -%}
+{%- endif -%}
+
+{%- include snippets/assign.html target=site.data.variables.default.mathjax
+  source0=site.mathjax source1=page.mathjax -%}
+{%- if __return == true -%}
+  {%- include markdown-enhancements/mathjax.html -%}
+{%- endif -%}
+
+{%- include snippets/assign.html target=site.data.variables.default.mermaid
+  source0=site.mermaid source1=page.mermaid -%}
+{%- if __return == true -%}
+  {%- include markdown-enhancements/mermaid.html -%}
+{%- endif -%}
