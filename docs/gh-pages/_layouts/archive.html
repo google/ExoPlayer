@@ -1,0 +1,31 @@
+---
+layout: page
+titles:
+  en      : &EN       Archive
+  en-GB   : *EN
+  en-US   : *EN
+  en-CA   : *EN
+  en-AU   : *EN
+  zh-Hans : &ZH_HANS  归档
+  zh      : *ZH_HANS
+  zh-CN   : *ZH_HANS
+  zh-SG   : *ZH_HANS
+  zh-Hant : &ZH_HANT  歸檔
+  zh-TW   : *ZH_HANT
+  zh-HK   : *ZH_HANT
+  ko      : &KO       아카이브
+  ko-KR   : *KO
+---
+
+<div class="layout--archive js-all">
+  {%- include tags.html -%}
+  <div class="js-result layout--archive__result d-none">
+    {%- include article-list.html articles=site.posts type='brief' show_info=true reverse=true group_by='year' -%}
+  </div>
+</div>
+
+<script>
+  {%- include scripts/archieve.js -%}
+</script>
+
+{{ content }}

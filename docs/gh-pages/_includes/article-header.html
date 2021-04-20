@@ -1,0 +1,49 @@
+{%- include snippets/get-article-title.html article=include.article-%}
+{%- assign _article_title = __return -%}
+
+{%- if include.html != false -%}
+
+  {%- include snippets/assign.html
+    target=site.data.variables.default.page.show_title
+    source0=layout.show_title source1=include.article.show_title -%}
+  {%- assign _show_title = __return -%}
+
+  {%- include snippets/assign.html
+    target=site.data.variables.default.page.show_edit_on_github
+    source0=layout.show_edit_on_github source1=include.article.show_edit_on_github -%}
+  {%- assign _show_edit_on_github = __return -%}
+
+  {%- if _show_title or _show_edit_on_github -%}
+    <div class="article__header">
+      {%- if _show_title -%}
+        <header><h1>{{ _article_title }}</h1></header>
+      {%- endif -%}
+      {%- if _show_edit_on_github -%}
+        {%- if site.repository and site.repository_tree -%}
+          {%- include snippets/is_collection.html page=include.article -%}
+          {%- assign _is_article_collection = __return -%}
+          {%- include snippets/get-locale-string.html key='POST_ON_GITHUB' -%}
+          {%- assign _locale_post_on_github = __return -%}
+          {%- if _is_article_collection -%}
+            {%- include snippets/prepend-path.html path=include.article.path prepend_path=site.collections_dir -%}
+            {%- assign _article_path = __return -%}
+          {%- else -%}
+            {%- assign _article_path = include.article.path -%}
+          {%- endif -%}
+          {%- assign _github_path = site.repository | append: '/tree/' | append: site.repository_tree | append: '/' | append: _article_path | replace:'//','/' -%}
+          <span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="{{ _locale_post_on_github }}"
+            href="https://github.com/{{ _github_path }}">
+            <i class="far fa-edit"></i></a>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    <header style="display:none;"><h1>{{ _article_title }}</h1></header>
+  {%- endif -%}
+{%- endif -%}
+
+{%- if include.semantic != false -%}
+  <meta itemprop="headline" content="{{ _article_title }}">
+{%- endif -%}
