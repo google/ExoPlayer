@@ -142,6 +142,10 @@
 *   DASH:
     *   Parse `forced_subtitle` role from DASH manifests
         ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
+*   DASH:
+    *   Fix rounding error that could cause `SegmentTemplate.getSegmentCount()`
+        to return incorrect values
+        ([#8804](https://github.com/google/ExoPlayer/issues/8804)).
 *   HLS:
     *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
         ([#8764](https://github.com/google/ExoPlayer/pull/8764)).

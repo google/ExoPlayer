@@ -352,12 +352,12 @@ public abstract class Representation {
     }
 
     @Override
-    public int getSegmentCount(long periodDurationUs) {
+    public long getSegmentCount(long periodDurationUs) {
       return segmentBase.getSegmentCount(periodDurationUs);
     }
 
     @Override
-    public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
+    public long getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
       return segmentBase.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
     }
 

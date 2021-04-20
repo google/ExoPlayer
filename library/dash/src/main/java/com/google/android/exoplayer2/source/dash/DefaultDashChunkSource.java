@@ -222,7 +222,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       if (representationHolder.segmentIndex != null) {
         long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
-        int segmentCount = representationHolder.getSegmentCount();
+        long segmentCount = representationHolder.getSegmentCount();
         long secondSyncUs =
             firstSyncUs < positionUs
                     && (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED
@@ -465,7 +465,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
           representationHolders[trackSelection.indexOf(chunk.trackFormat)];
-      int segmentCount = representationHolder.getSegmentCount();
+      long segmentCount = representationHolder.getSegmentCount();
       if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED && segmentCount != 0) {
         long lastAvailableSegmentNum = representationHolder.getFirstSegmentNum() + segmentCount - 1;
         if (((MediaChunk) chunk).getNextChunkIndex() > lastAvailableSegmentNum) {
@@ -723,7 +723,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             newPeriodDurationUs, newRepresentation, chunkExtractor, segmentNumShift, newIndex);
       }
 
-      int oldIndexSegmentCount = oldIndex.getSegmentCount(newPeriodDurationUs);
+      long oldIndexSegmentCount = oldIndex.getSegmentCount(newPeriodDurationUs);
       if (oldIndexSegmentCount == 0) {
         // Segment numbers cannot shift if the old index was empty.
         return new RepresentationHolder(
@@ -777,7 +777,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           + segmentNumShift;
     }
 
-    public int getSegmentCount() {
+    public long getSegmentCount() {
       return segmentIndex.getSegmentCount(periodDurationUs);
     }
 
