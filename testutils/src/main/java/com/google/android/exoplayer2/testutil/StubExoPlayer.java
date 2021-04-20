@@ -16,6 +16,10 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -37,6 +41,8 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
 
 /**
@@ -437,6 +443,71 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public float getVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setCameraMotionListener(CameraMotionListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearCameraMotionListener(CameraMotionListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurface() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurface(@Nullable Surface surface) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoSurface(@Nullable Surface surface) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoTextureView(@Nullable TextureView textureView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoTextureView(@Nullable TextureView textureView) {
     throw new UnsupportedOperationException();
   }
 
