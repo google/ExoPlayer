@@ -60,16 +60,6 @@ public final class DefaultPlaybackSessionManagerTest {
   }
 
   @Test
-  public void updatesSession_withEmptyTimeline_doesNotCreateNewSession() {
-    EventTime eventTime =
-        createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId */ null);
-
-    sessionManager.updateSessions(eventTime);
-
-    verifyNoMoreInteractions(mockListener);
-  }
-
-  @Test
   public void updateSessions_withoutMediaPeriodId_createsNewSession() {
     Timeline timeline = new FakeTimeline();
     EventTime eventTime = createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId */ null);
@@ -496,6 +486,8 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void belongsToSession_withSameWindowIndex_returnsTrue() {
+    EventTime eventTime =
+        createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
     Timeline timeline = new FakeTimeline();
     EventTime eventTimeWithTimeline =
         createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
@@ -504,10 +496,11 @@ public final class DefaultPlaybackSessionManagerTest {
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
     EventTime eventTimeWithMediaPeriodId =
         createEventTime(timeline, /* windowIndex= */ 0, mediaPeriodId);
-    sessionManager.updateSessions(eventTimeWithTimeline);
+    sessionManager.updateSessions(eventTime);
 
     ArgumentCaptor<String> sessionId = ArgumentCaptor.forClass(String.class);
-    verify(mockListener).onSessionCreated(eq(eventTimeWithTimeline), sessionId.capture());
+    verify(mockListener).onSessionCreated(eq(eventTime), sessionId.capture());
+    assertThat(sessionManager.belongsToSession(eventTime, sessionId.getValue())).isTrue();
     assertThat(sessionManager.belongsToSession(eventTimeWithTimeline, sessionId.getValue()))
         .isTrue();
     assertThat(sessionManager.belongsToSession(eventTimeWithMediaPeriodId, sessionId.getValue()))
@@ -516,11 +509,11 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void belongsToSession_withOtherWindowIndex_returnsFalse() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     EventTime eventTime =
-        createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
+        createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
     EventTime eventTimeOtherWindow =
-        createEventTime(timeline, /* windowIndex= */ 1, /* mediaPeriodId= */ null);
+        createEventTime(Timeline.EMPTY, /* windowIndex= */ 1, /* mediaPeriodId= */ null);
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 1);
@@ -592,18 +585,18 @@ public final class DefaultPlaybackSessionManagerTest {
   }
 
   @Test
-  public void timelineUpdate_toEmpty_finishesAllSessionsAndDoesNotCreateNewSessions() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
+  public void initialTimelineUpdate_finishesAllSessionsOutsideTimeline() {
     EventTime eventTime1 =
-        createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
+        createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
     EventTime eventTime2 =
-        createEventTime(timeline, /* windowIndex= */ 1, /* mediaPeriodId= */ null);
+        createEventTime(Timeline.EMPTY, /* windowIndex= */ 1, /* mediaPeriodId= */ null);
     sessionManager.updateSessions(eventTime1);
     sessionManager.updateSessions(eventTime2);
+    Timeline timeline = new FakeTimeline();
+    EventTime newTimelineEventTime =
+        createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
 
-    EventTime eventTimeWithEmptyTimeline =
-        createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
-    sessionManager.updateSessionsWithTimelineChange(eventTimeWithEmptyTimeline);
+    sessionManager.updateSessionsWithTimelineChange(newTimelineEventTime);
 
     ArgumentCaptor<String> sessionId1 = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> sessionId2 = ArgumentCaptor.forClass(String.class);
@@ -612,19 +605,14 @@ public final class DefaultPlaybackSessionManagerTest {
     verify(mockListener).onSessionActive(eventTime1, sessionId1.getValue());
     verify(mockListener)
         .onSessionFinished(
-            eventTimeWithEmptyTimeline,
-            sessionId1.getValue(),
-            /* automaticTransitionToNextPlayback= */ false);
-    verify(mockListener)
-        .onSessionFinished(
-            eventTimeWithEmptyTimeline,
+            newTimelineEventTime,
             sessionId2.getValue(),
             /* automaticTransitionToNextPlayback= */ false);
     verifyNoMoreInteractions(mockListener);
   }
 
   @Test
-  public void timelineUpdate_resolvesWindowIndices() {
+  public void dynamicTimelineUpdate_resolvesWindowIndices() {
     Timeline initialTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ 100),

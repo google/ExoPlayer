@@ -240,7 +240,7 @@ public final class PlaybackStatsListener
     if (events.size() == 0) {
       return;
     }
-    maybeAddSessions(events);
+    maybeAddSessions(player, events);
     for (String session : playbackStatsTrackers.keySet()) {
       Pair<EventTime, Boolean> eventTimeAndBelongsToPlayback = findBestEventTime(events, session);
       PlaybackStatsTracker tracker = playbackStatsTrackers.get(session);
@@ -281,15 +281,17 @@ public final class PlaybackStatsListener
     }
   }
 
-  private void maybeAddSessions(Events events) {
+  private void maybeAddSessions(Player player, Events events) {
+    boolean isCompletelyIdle =
+        player.getCurrentTimeline().isEmpty() && player.getPlaybackState() == Player.STATE_IDLE;
     for (int i = 0; i < events.size(); i++) {
       @EventFlags int event = events.get(i);
       EventTime eventTime = events.getEventTime(event);
       if (event == EVENT_TIMELINE_CHANGED) {
         sessionManager.updateSessionsWithTimelineChange(eventTime);
-      } else if (event == EVENT_POSITION_DISCONTINUITY) {
+      } else if (!isCompletelyIdle && event == EVENT_POSITION_DISCONTINUITY) {
         sessionManager.updateSessionsWithDiscontinuity(eventTime, discontinuityReason);
-      } else {
+      } else if (!isCompletelyIdle) {
         sessionManager.updateSessions(eventTime);
       }
     }

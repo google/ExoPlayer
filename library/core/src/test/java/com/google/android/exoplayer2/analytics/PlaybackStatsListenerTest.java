@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -78,18 +77,15 @@ public final class PlaybackStatsListenerTest {
   }
 
   @Test
-  public void stateChangeEvent_toEndedWithEmptyTimeline_doesNotCreateInitialPlaybackStats()
-      throws Exception {
-    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
+  public void stateChangeEvent_toNonIdle_createsInitialPlaybackStats() throws Exception {
     PlaybackStatsListener playbackStatsListener =
-        new PlaybackStatsListener(/* keepHistory= */ true, callback);
+        new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
     player.addAnalyticsListener(playbackStatsListener);
 
     player.prepare();
     runUntilPendingCommandsAreFullyHandled(player);
 
-    assertThat(playbackStatsListener.getPlaybackStats()).isNull();
-    verifyNoMoreInteractions(callback);
+    assertThat(playbackStatsListener.getPlaybackStats()).isNotNull();
   }
 
   @Test
