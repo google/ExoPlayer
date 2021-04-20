@@ -79,6 +79,8 @@
         instead.
     *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
         module instead.
+    *   Remove `DefaultMediaSourceEventListener`. Use `MediaSourceEventListener`
+        instead.
 *   DRM:
     *   Only dispatch DRM session acquire and release events once per period
         when playing content that uses the same encryption keys for both audio &
