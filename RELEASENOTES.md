@@ -42,6 +42,10 @@
         get notified after MediaCodec is initialized, or they can inject a
         custom `MediaCodecAdapter.Factory` if they want to control how the
         `MediaCodec` is configured.
+    *   Promote `AdaptiveTrackSelection.AdaptationCheckpoint` to `public`
+        visibility in order to allow Kotlin subclasses of
+        `AdaptiveTrackSelection.Factory`
+        ([#8830](https://github.com/google/ExoPlayer/issues/8830)).
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.
