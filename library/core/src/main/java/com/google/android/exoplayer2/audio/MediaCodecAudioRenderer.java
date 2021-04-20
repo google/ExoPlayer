@@ -362,7 +362,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     decryptOnlyCodecFormat = decryptOnlyCodecEnabled ? format : null;
     return new MediaCodecAdapter.Configuration(
-        codecInfo, mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
+        codecInfo, mediaFormat, format, /* surface= */ null, crypto, /* flags= */ 0);
   }
 
   @Override

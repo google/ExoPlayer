@@ -25,6 +25,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,11 +38,13 @@ import java.nio.ByteBuffer;
  */
 public interface MediaCodecAdapter {
   /** Configuration parameters for a {@link MediaCodecAdapter}. */
-  class Configuration {
+  final class Configuration {
     /** Information about the {@link MediaCodec} being configured. */
     public final MediaCodecInfo codecInfo;
     /** The {@link MediaFormat} for which the codec is being configured. */
     public final MediaFormat mediaFormat;
+    /** The {@link Format} for which the codec is being configured. */
+    public final Format format;
     /** For video playbacks, the output where the object will render the decoded frames. */
     @Nullable public final Surface surface;
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
@@ -56,11 +59,13 @@ public interface MediaCodecAdapter {
     public Configuration(
         MediaCodecInfo codecInfo,
         MediaFormat mediaFormat,
+        Format format,
         @Nullable Surface surface,
         @Nullable MediaCrypto crypto,
         int flags) {
       this.codecInfo = codecInfo;
       this.mediaFormat = mediaFormat;
+      this.format = format;
       this.surface = surface;
       this.crypto = crypto;
       this.flags = flags;
