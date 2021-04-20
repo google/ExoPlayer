@@ -59,7 +59,6 @@ import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
@@ -1507,8 +1506,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   private final class ComponentListener
-      implements Player.EventListener,
-          TextOutput,
+      implements Player.Listener,
           VideoListener,
           OnLayoutChangeListener,
           OnClickListener,
