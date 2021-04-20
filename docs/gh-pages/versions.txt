@@ -1,0 +1,1430 @@
+r2.3.0  aede0f894d4 HttpDataSource        (bachinger             2017-03-10  46)     @Deprecated
+r2.3.0  a335c964500 HttpDataSource (bachinger             2020-12-14  47)     RequestProperties getDefaultRequestProperties();
+r2.3.0  --
+r2.4.0  1e12c079547 ExoPlayerFactory (olly         2017-04-26  36)   @Deprecated
+r2.4.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  37)   @SuppressWarnings("deprecation")
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  38)   public static SimpleExoPlayer newSimpleInstance(
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  39)       Context context,
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  40)       TrackSelector trackSelector,
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  41)       LoadControl loadControl,
+r2.4.0  1e12c079547 ExoPlayerFactory (olly         2017-04-26  42)       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode) {
+r2.4.0  --
+r2.4.0  1e12c079547 ExoPlayerFactory (olly         2017-04-26  49)   @Deprecated
+r2.4.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  50)   @SuppressWarnings("deprecation")
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  51)   public static SimpleExoPlayer newSimpleInstance(
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  52)       Context context,
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  53)       TrackSelector trackSelector,
+r2.4.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  54)       LoadControl loadControl,
+r2.4.0  1e12c079547 ExoPlayerFactory (olly         2017-04-26  55)       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode,
+r2.4.0  894ae1a310c ExoPlayerFactory      (olly         2016-11-24  56)       long allowedVideoJoiningTimeMs) {
+r2.4.0  --
+r2.7.0  fbccdf594a5 ExtractorMediaSource (andrewlewis     2017-12-04  45)   @Deprecated
+r2.7.0  bbceb459fdb ExtractorMediaSource   (olly            2016-03-15  46)   public interface EventListener {
+r2.7.0  --
+r2.7.0  e3499050396 ExtractorMediaSource (hoangtc         2017-11-17 247)   @Deprecated
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 248)   public ExtractorMediaSource(
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 249)       Uri uri,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 250)       DataSource.Factory dataSourceFactory,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 251)       ExtractorsFactory extractorsFactory,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 252)       @Nullable Handler eventHandler,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 253)       @Nullable EventListener eventListener) {
+r2.7.0  --
+r2.7.0  e3499050396 ExtractorMediaSource (hoangtc         2017-11-17 269)   @Deprecated
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 270)   public ExtractorMediaSource(
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 271)       Uri uri,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 272)       DataSource.Factory dataSourceFactory,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 273)       ExtractorsFactory extractorsFactory,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 274)       @Nullable Handler eventHandler,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 275)       @Nullable EventListener eventListener,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 276)       @Nullable String customCacheKey) {
+r2.7.0  --
+r2.7.0  e3499050396 ExtractorMediaSource (hoangtc         2017-11-17 301)   @Deprecated
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 302)   public ExtractorMediaSource(
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 303)       Uri uri,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 304)       DataSource.Factory dataSourceFactory,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 305)       ExtractorsFactory extractorsFactory,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 306)       @Nullable Handler eventHandler,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 307)       @Nullable EventListener eventListener,
+r2.7.0  3e990a3d24e ExtractorMediaSource (tonihei         2019-05-23 308)       @Nullable String customCacheKey,
+r2.7.0  8c7fe8a258e ExtractorMediaSource (andrewlewis     2017-12-11 309)       int continueLoadingCheckIntervalBytes) {
+r2.7.0  --
+r2.8.0  8f952162ffe SingleSampleMediaSource (tonihei         2018-03-09 134)     @Deprecated
+r2.8.0  5b0e971f0e4 SingleSampleMediaSource (bachinger       2020-05-18 135)     public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
+r2.8.0  --
+r2.8.0  5fb6fc12269 DefaultBandwidthMeter (tonihei        2018-03-02 285)   @Deprecated
+r2.8.0  ca4b5d0a0de DefaultBandwidthMeter (olly           2018-10-19 286)   public DefaultBandwidthMeter() {
+r2.8.0  --
+r2.9.0  156e2317cca Player   (tonihei      2018-06-22  672)   @Deprecated
+r2.9.0  52de36c5ebd Player   (tonihei      2017-09-27  673)   abstract class DefaultEventListener implements EventListener {
+r2.9.0  --
+r2.9.0  924a76d5323 ExtractorMediaSource (olly            2018-08-24 383)   @Deprecated
+r2.9.0  1629a5afd39 ExtractorMediaSource (olly            2019-11-18 384)   private static final class EventListenerWrapper implements MediaSourceEventListener {
+r2.9.0  --
+r2.9.0  41345dcb835 DashMediaSource (Oliver Woodman   2018-07-23  230)     @Deprecated
+r2.9.0  41b58d503ae DashMediaSource (christosts       2020-10-14  231)     public Factory setLivePresentationDelayMs(
+r2.9.0  41b58d503ae DashMediaSource (christosts       2020-10-14  232)         long livePresentationDelayMs, boolean overridesManifest) {
+r2.9.0  --
+r2.10.0  355b3d6334f CryptoInfo   (olly           2019-01-24 125)   @Deprecated
+r2.10.0  355b3d6334f CryptoInfo   (olly           2019-01-24 126)   public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
+r2.10.0  --
+r2.10.0  2dfe7a7ad6a HttpDataSource   (Oliver Woodman        2018-10-31 294)     @Deprecated
+r2.10.0  2dfe7a7ad6a HttpDataSource   (Oliver Woodman        2018-10-31 295)     public InvalidResponseCodeException(
+r2.10.0  2dfe7a7ad6a HttpDataSource   (Oliver Woodman        2018-10-31 296)         int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
+r2.10.0  --
+r2.10.0  67be9e77834 DefaultRenderersFactory (olly         2019-02-04 117)   @Deprecated
+r2.10.0  67be9e77834 DefaultRenderersFactory (olly         2019-02-04 118)   @SuppressWarnings("deprecation")
+r2.10.0  3cbe91a3b0b DefaultRenderersFactory (tonihei      2018-03-26 119)   public DefaultRenderersFactory(
+r2.10.0  3cbe91a3b0b DefaultRenderersFactory (tonihei      2018-03-26 120)       Context context, @ExtensionRendererMode int extensionRendererMode) {
+r2.10.0  --
+r2.10.0  67be9e77834 DefaultRenderersFactory (olly         2019-02-04 128)   @Deprecated
+r2.10.0  3cbe91a3b0b DefaultRenderersFactory (tonihei      2018-03-26 129)   public DefaultRenderersFactory(
+r2.10.0  3cbe91a3b0b DefaultRenderersFactory (tonihei      2018-03-26 130)       Context context,
+r2.10.0  3cbe91a3b0b DefaultRenderersFactory (tonihei      2018-03-26 131)       @ExtensionRendererMode int extensionRendererMode,
+r2.10.0  3cbe91a3b0b DefaultRenderersFactory (tonihei      2018-03-26 132)       long allowedVideoJoiningTimeMs) {
+r2.10.0  --
+r2.10.0  b84c51434f7 ActionFile (olly       2019-04-11  37) @Deprecated
+r2.10.0  b84c51434f7 ActionFile (olly       2019-04-11  38) /* package */ final class ActionFile {
+r2.10.0  --
+r2.10.0  45433869e50 ExtractorMediaSource (olly            2019-01-29  40) @Deprecated
+r2.10.0  45433869e50 ExtractorMediaSource (olly            2019-01-29  41) @SuppressWarnings("deprecation")
+r2.10.0  df81bd6a682 ExtractorMediaSource (tonihei         2019-07-12  42) public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
+r2.10.0  --
+r2.10.0  45433869e50 ExtractorMediaSource (olly            2019-01-29  65)   @Deprecated
+r2.10.0  4ca670bed35 ExtractorMediaSource (eguven          2019-05-15  66)   public static final class Factory implements MediaSourceFactory {
+r2.10.0  --
+r2.10.0  45433869e50 ExtractorMediaSource (olly            2019-01-29 231)   @Deprecated
+r2.10.0  45433869e50 ExtractorMediaSource (olly            2019-01-29 232)   public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES =
+r2.10.0  45433869e50 ExtractorMediaSource (olly            2019-01-29 233)       ProgressiveMediaSource.DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
+r2.10.0  --
+r2.10.0  7acc0ee798d ProgressiveMediaSource (andrewlewis  2019-03-11  94)     @Deprecated
+r2.10.0  c5e11696665 ProgressiveMediaSource (bachinger    2020-01-17  95)     public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
+r2.10.0  --
+r2.10.0  9c759a867b5 SimpleCache (olly            2019-04-15 136)   @Deprecated
+r2.10.0  23d680a4b44 SimpleCache (ibaker          2020-07-13 137)   @SuppressWarnings("deprecation")
+r2.10.0  ^27ab5c83a6 SimpleCache       (Oliver Woodman  2014-06-16 138)   public SimpleCache(File cacheDir, CacheEvictor evictor) {
+r2.10.0  --
+r2.10.0  9c759a867b5 SimpleCache (olly            2019-04-15 153)   @Deprecated
+r2.10.0  809234bc4ff SimpleCache (tonihei         2019-11-20 154)   @SuppressWarnings("deprecation")
+r2.10.0  3e03e71cf96 SimpleCache (olly            2019-02-22 155)   public SimpleCache(File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey) {
+r2.10.0  --
+r2.10.0  9c759a867b5 SimpleCache (olly            2019-04-15 172)   @Deprecated
+r2.10.0  3e03e71cf96 SimpleCache (olly            2019-02-22 173)   public SimpleCache(
+r2.10.0  3e03e71cf96 SimpleCache (olly            2019-02-22 174)       File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey, boolean encrypt) {
+r2.10.0  --
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 100)   @Deprecated
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 101)   public DashManifest(
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 102)       long availabilityStartTimeMs,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 103)       long durationMs,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 104)       long minBufferTimeMs,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 105)       boolean dynamic,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 106)       long minUpdatePeriodMs,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 107)       long timeShiftBufferDepthMs,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 108)       long suggestedPresentationDelayMs,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 109)       long publishTimeMs,
+r2.10.0  074b6f8ebd1 DashManifest (tonihei            2019-08-07 110)       @Nullable UtcTimingElement utcTiming,
+r2.10.0  074b6f8ebd1 DashManifest (tonihei            2019-08-07 111)       @Nullable Uri location,
+r2.10.0  2dfe7a7ad6a DashManifest (Oliver Woodman     2018-10-31 112)       List<Period> periods) {
+r2.10.0  --
+r2.10.0  e3981ec4840 DownloadNotificationUtil (olly        2019-02-05 31) @Deprecated
+r2.10.0  b3da82dc1c9 DownloadNotificationUtil (eguven      2018-01-24 32) public final class DownloadNotificationUtil {
+r2.10.0  --
+r2.10.0  16a185de1d4 PlayerNotificationManager (bachinger       2019-01-16  264)     @Deprecated
+r2.10.0  16a185de1d4 PlayerNotificationManager (bachinger       2019-01-16  265)     default void onNotificationStarted(int notificationId, Notification notification) {}
+r2.10.0  --
+r2.10.0  16a185de1d4 PlayerNotificationManager (bachinger       2019-01-16  273)     @Deprecated
+r2.10.0  16a185de1d4 PlayerNotificationManager (bachinger       2019-01-16  274)     default void onNotificationCancelled(int notificationId) {}
+r2.10.0  --
+r2.10.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  744)   @Deprecated
+r2.10.0  afd11de57dc PlayerNotificationManager (bachinger       2018-03-08  745)   public final void setNotificationListener(NotificationListener notificationListener) {
+r2.10.0  --
+r2.11.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  403)   @Deprecated
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  404)   public CronetDataSource(
+r2.11.0  8edce41ff35 CronetDataSource (olly                  2019-05-15  405)       CronetEngine cronetEngine,
+r2.11.0  8edce41ff35 CronetDataSource (olly                  2019-05-15  406)       Executor executor,
+r2.11.0  8edce41ff35 CronetDataSource (olly                  2019-05-15  407)       @Nullable Predicate<String> contentTypePredicate) {
+r2.11.0  --
+r2.11.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  420)   @Deprecated
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  421)   public CronetDataSource(
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  422)       CronetEngine cronetEngine,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  423)       Executor executor,
+r2.11.0  8edce41ff35 CronetDataSource (olly                  2019-05-15  424)       @Nullable Predicate<String> contentTypePredicate,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  425)       int connectTimeoutMs,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  426)       int readTimeoutMs,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  427)       boolean resetTimeoutOnRedirects,
+r2.11.0  118218cc73e CronetDataSource (olly                  2019-05-22  428)       @Nullable RequestProperties defaultRequestProperties) {
+r2.11.0  --
+r2.11.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  441)   @Deprecated
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  442)   public CronetDataSource(
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  443)       CronetEngine cronetEngine,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  444)       Executor executor,
+r2.11.0  8edce41ff35 CronetDataSource (olly                  2019-05-15  445)       @Nullable Predicate<String> contentTypePredicate,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  446)       int connectTimeoutMs,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  447)       int readTimeoutMs,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  448)       boolean resetTimeoutOnRedirects,
+r2.11.0  118218cc73e CronetDataSource (olly                  2019-05-22  449)       @Nullable RequestProperties defaultRequestProperties,
+r2.11.0  985160a47dd CronetDataSource (tonihei               2018-07-03  450)       boolean handleSetCookieRequests) {
+r2.11.0  --
+r2.11.0  7ccbc4c436f GvrAudioProcessor  (olly        2019-10-21  34) @Deprecated
+r2.11.0  dd54259d47a GvrAudioProcessor  (olly        2020-03-25  35) public class GvrAudioProcessor implements AudioProcessor {
+r2.11.0  --
+r2.11.0  b6d6d8c4114 JobDispatcherScheduler (eguven         2019-05-21  60) @Deprecated
+r2.11.0  b3da82dc1c9 JobDispatcherScheduler (eguven         2018-01-24  61) public final class JobDispatcherScheduler implements Scheduler {
+r2.11.0  --
+r2.11.0  22c3be75ea9 VpxOutputBuffer (sofijajvc 2019-09-27 28) @Deprecated
+r2.11.0  b6441a02f5e VpxOutputBuffer (sofijajvc 2019-08-05 29) public final class VpxOutputBuffer extends VideoDecoderOutputBuffer {
+r2.11.0  --
+r2.11.0  49a2e5a5cba Player   (bachinger    2019-07-10  431)     @Deprecated
+r2.11.0  156e2317cca Player   (tonihei      2018-06-22  432)     default void onTimelineChanged(
+r2.11.0  45c1e9eef3d Player   (eguven       2018-08-01  433)         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
+r2.11.0  --
+r2.11.0  20fd4e16d24 Timeline   (tonihei      2019-08-19  813)   @Deprecated
+r2.11.0  6b82d1c2bdf Timeline   (tonihei      2018-04-05  814)   public final Window getWindow(int windowIndex, Window window, boolean setTag) {
+r2.11.0  --
+r2.11.0  cd2c1f2f24c ExoPlayer (bachinger      2019-11-06 469)   @Deprecated
+r2.11.0  e6e2dcc58dd ExoPlayer (bachinger      2019-10-21 470)   void prepare(MediaSource mediaSource);
+r2.11.0  --
+r2.11.0  cd2c1f2f24c ExoPlayer (bachinger      2019-11-06 475)   @Deprecated
+r2.11.0  cd2c1f2f24c ExoPlayer (bachinger      2019-11-06 476)   void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  30) @Deprecated
+r2.11.0  ced7de15a9f ExoPlayerFactory       (olly         2016-05-24  31) public final class ExoPlayerFactory {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  65)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  66)   @SuppressWarnings("deprecation")
+r2.11.0  decbb33490d ExoPlayerFactory (tonihei      2018-09-18  67)   public static SimpleExoPlayer newSimpleInstance(Context context) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  72)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  73)   @SuppressWarnings("deprecation")
+r2.11.0  1e12c079547 ExoPlayerFactory (olly         2017-04-26  74)   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  79)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  80)   @SuppressWarnings("deprecation")
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  81)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19  82)       Context context, RenderersFactory renderersFactory, TrackSelector trackSelector) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  87)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  88)   @SuppressWarnings("deprecation")
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  89)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19  90)       Context context, TrackSelector trackSelector, LoadControl loadControl) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  96)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14  97)   @SuppressWarnings("deprecation")
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  98)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01  99)       Context context,
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 100)       RenderersFactory renderersFactory,
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 101)       TrackSelector trackSelector,
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 102)       LoadControl loadControl) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 108)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 109)   @SuppressWarnings("deprecation")
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 110)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 111)       Context context,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 112)       RenderersFactory renderersFactory,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 113)       TrackSelector trackSelector,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 114)       LoadControl loadControl,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 115)       BandwidthMeter bandwidthMeter) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 127)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 128)   @SuppressWarnings("deprecation")
+r2.11.0  92dd708ef8f ExoPlayerFactory (tonihei      2018-04-16 129)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 130)       Context context,
+r2.11.0  92dd708ef8f ExoPlayerFactory (tonihei      2018-04-16 131)       RenderersFactory renderersFactory,
+r2.11.0  92dd708ef8f ExoPlayerFactory (tonihei      2018-04-16 132)       TrackSelector trackSelector,
+r2.11.0  92dd708ef8f ExoPlayerFactory (tonihei      2018-04-16 133)       LoadControl loadControl,
+r2.11.0  561949a2251 ExoPlayerFactory (tonihei      2019-08-01 134)       AnalyticsCollector analyticsCollector) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 145)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 146)   @SuppressWarnings("deprecation")
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 147)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 148)       Context context,
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 149)       RenderersFactory renderersFactory,
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 150)       TrackSelector trackSelector,
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 151)       LoadControl loadControl,
+r2.11.0  528104919f1 ExoPlayerFactory (olly         2020-04-28 152)       Looper applicationLooper) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 163)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 164)   @SuppressWarnings("deprecation")
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 165)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 166)       Context context,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 167)       RenderersFactory renderersFactory,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 168)       TrackSelector trackSelector,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 169)       LoadControl loadControl,
+r2.11.0  561949a2251 ExoPlayerFactory (tonihei      2019-08-01 170)       AnalyticsCollector analyticsCollector,
+r2.11.0  528104919f1 ExoPlayerFactory (olly         2020-04-28 171)       Looper applicationLooper) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 184)   @Deprecated
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 185)   public static SimpleExoPlayer newSimpleInstance(
+r2.11.0  5715960304f ExoPlayerFactory (andrewlewis  2018-08-01 186)       Context context,
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 187)       RenderersFactory renderersFactory,
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 188)       TrackSelector trackSelector,
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 189)       LoadControl loadControl,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 190)       BandwidthMeter bandwidthMeter,
+r2.11.0  561949a2251 ExoPlayerFactory (tonihei      2019-08-01 191)       AnalyticsCollector analyticsCollector,
+r2.11.0  528104919f1 ExoPlayerFactory (olly         2020-04-28 192)       Looper applicationLooper) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 207)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 208)   @SuppressWarnings("deprecation")
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 209)   public static ExoPlayer newInstance(
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 210)       Context context, Renderer[] renderers, TrackSelector trackSelector) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 215)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 216)   @SuppressWarnings("deprecation")
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 217)   public static ExoPlayer newInstance(
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 218)       Context context, Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 224)   @Deprecated
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 225)   @SuppressWarnings("deprecation")
+r2.11.0  4f2b5960620 ExoPlayerFactory (tonihei      2018-06-20 226)   public static ExoPlayer newInstance(
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 227)       Context context,
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 228)       Renderer[] renderers,
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 229)       TrackSelector trackSelector,
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 230)       LoadControl loadControl,
+r2.11.0  528104919f1 ExoPlayerFactory (olly         2020-04-28 231)       Looper applicationLooper) {
+r2.11.0  --
+r2.11.0  cd4571161ae ExoPlayerFactory (tonihei      2019-08-14 242)   @Deprecated
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 243)   public static ExoPlayer newInstance(
+r2.11.0  ca4b5d0a0de ExoPlayerFactory (olly         2018-10-19 244)       Context context,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 245)       Renderer[] renderers,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 246)       TrackSelector trackSelector,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 247)       LoadControl loadControl,
+r2.11.0  6aab2bdc554 ExoPlayerFactory (tonihei      2018-07-17 248)       BandwidthMeter bandwidthMeter,
+r2.11.0  528104919f1 ExoPlayerFactory (olly         2020-04-28 249)       Looper applicationLooper) {
+r2.11.0  --
+r2.11.0  cd2c1f2f24c ExoPlayerImpl (bachinger      2019-11-06  345)   @Deprecated
+r2.11.0  36fa9d5a434 ExoPlayerImpl (bachinger      2019-12-17  346)   @Override
+r2.11.0  e6e2dcc58dd ExoPlayerImpl (bachinger      2019-10-21  347)   public void prepare(MediaSource mediaSource) {
+r2.11.0  --
+r2.11.0  cd2c1f2f24c ExoPlayerImpl (bachinger      2019-11-06  356)   @Deprecated
+r2.11.0  36fa9d5a434 ExoPlayerImpl (bachinger      2019-12-17  357)   @Override
+r2.11.0  e6e2dcc58dd ExoPlayerImpl (bachinger      2019-10-21  358)   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+r2.11.0  --
+r2.11.0  cd2c1f2f24c SimpleExoPlayer    (bachinger      2019-11-06 1272)   @Deprecated
+r2.11.0  36fa9d5a434 SimpleExoPlayer    (bachinger      2019-12-17 1273)   @Override
+r2.11.0  cd2c1f2f24c SimpleExoPlayer    (bachinger      2019-11-06 1274)   @SuppressWarnings("deprecation")
+r2.11.0  962b5940c2f SimpleExoPlayer         (olly           2016-08-31 1275)   public void prepare(MediaSource mediaSource) {
+r2.11.0  --
+r2.11.0  cd2c1f2f24c SimpleExoPlayer    (bachinger      2019-11-06 1283)   @Deprecated
+r2.11.0  36fa9d5a434 SimpleExoPlayer    (bachinger      2019-12-17 1284)   @Override
+r2.11.0  7ee8567f4a8 SimpleExoPlayer         (aquilescanta   2017-01-30 1285)   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+r2.11.0  --
+r2.11.0  433526e0343 DefaultDrmSessionManager (aquilescanta   2019-10-03 307)   @Deprecated
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 308)   public DefaultDrmSessionManager(
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 309)       UUID uuid,
+r2.11.0  aa9eb5abc9b DefaultDrmSessionManager (aquilescanta   2020-03-19 310)       ExoMediaDrm exoMediaDrm,
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 311)       MediaDrmCallback callback,
+r2.11.0  0db1fc67fa3 DefaultDrmSessionManager (olly           2019-11-18 312)       @Nullable HashMap<String, String> keyRequestParameters) {
+r2.11.0  --
+r2.11.0  433526e0343 DefaultDrmSessionManager (aquilescanta   2019-10-03 333)   @Deprecated
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 334)   public DefaultDrmSessionManager(
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 335)       UUID uuid,
+r2.11.0  aa9eb5abc9b DefaultDrmSessionManager (aquilescanta   2020-03-19 336)       ExoMediaDrm exoMediaDrm,
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 337)       MediaDrmCallback callback,
+r2.11.0  0db1fc67fa3 DefaultDrmSessionManager (olly           2019-11-18 338)       @Nullable HashMap<String, String> keyRequestParameters,
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 339)       boolean multiSession) {
+r2.11.0  --
+r2.11.0  433526e0343 DefaultDrmSessionManager (aquilescanta   2019-10-03 361)   @Deprecated
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 362)   public DefaultDrmSessionManager(
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 363)       UUID uuid,
+r2.11.0  aa9eb5abc9b DefaultDrmSessionManager (aquilescanta   2020-03-19 364)       ExoMediaDrm exoMediaDrm,
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 365)       MediaDrmCallback callback,
+r2.11.0  0db1fc67fa3 DefaultDrmSessionManager (olly           2019-11-18 366)       @Nullable HashMap<String, String> keyRequestParameters,
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 367)       boolean multiSession,
+r2.11.0  40947d52f08 DefaultDrmSessionManager (tonihei        2018-03-23 368)       int initialDrmRequestRetryCount) {
+r2.11.0  --
+r2.11.0  531c5638a22 DownloadHelper (tonihei        2019-09-20  108)   @Deprecated
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  109)   public static final Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT =
+r2.11.0  531c5638a22 DownloadHelper (tonihei        2019-09-20  110)       DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT;
+r2.11.0  --
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  116)   @Deprecated
+r2.11.0  22948f2eda7 DownloadHelper (tonihei        2018-12-07  117)   public static final DefaultTrackSelector.Parameters DEFAULT_TRACK_SELECTOR_PARAMETERS =
+r2.11.0  531c5638a22 DownloadHelper (tonihei        2019-09-20  118)       DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT;
+r2.11.0  --
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  173)   @Deprecated
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  174)   public static DownloadHelper forProgressive(Context context, Uri uri) {
+r2.11.0  --
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  179)   @Deprecated
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  180)   public static DownloadHelper forProgressive(Context context, Uri uri, @Nullable String cacheKey) {
+r2.11.0  --
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  266)   @Deprecated
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  267)   public static DownloadHelper forSmoothStreaming(
+r2.11.0  d77d661e528 DownloadHelper (olly           2019-07-29  268)       Uri uri, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {
+r2.11.0  --
+r2.11.0  0e7f015020b DownloadService (Oliver Woodman  2019-07-18  226)   @Deprecated
+r2.11.0  ddd603a1ee3 DownloadService (andrewlewis     2018-04-23  227)   protected DownloadService(
+r2.11.0  ddd603a1ee3 DownloadService (andrewlewis     2018-04-23  228)       int foregroundNotificationId,
+r2.11.0  ddd603a1ee3 DownloadService (andrewlewis     2018-04-23  229)       long foregroundNotificationUpdateInterval,
+r2.11.0  ddd603a1ee3 DownloadService (andrewlewis     2018-04-23  230)       @Nullable String channelId,
+r2.11.0  6e6df6a2f01 DownloadService (olly            2019-03-27  231)       @StringRes int channelNameResourceId) {
+r2.11.0  --
+r2.11.0  7f19b885065 DefaultMediaSourceEventListener (olly    2019-11-18 22) @Deprecated
+r2.11.0  7f19b885065 DefaultMediaSourceEventListener (olly    2019-11-18 23) public abstract class DefaultMediaSourceEventListener implements MediaSourceEventListener {}
+r2.11.0  --
+r2.11.0  d77d661e528 DefaultTrackSelector (olly                 2019-07-29  211)     @Deprecated
+r2.11.0  0cc0444af81 DefaultTrackSelector (tonihei              2019-09-20  212)     @SuppressWarnings({"deprecation"})
+r2.11.0  --
+r2.11.0  d77d661e528 DefaultTrackSelector (olly                 2019-07-29 1630)   @Deprecated
+r2.11.0  2c54363204b DefaultTrackSelector      (olly                 2016-10-25 1631)   public DefaultTrackSelector() {
+r2.11.0  --
+r2.11.0  d77d661e528 DefaultTrackSelector (olly                 2019-07-29 1636)   @Deprecated
+r2.11.0  ec437350543 DefaultTrackSelector (krocard              2021-01-25 1637)   public DefaultTrackSelector(ExoTrackSelection.Factory trackSelectionFactory) {
+r2.11.0  --
+r2.11.0  31b9280e0e0 TrackSelectionParameters (tonihei        2019-09-20  64)     @Deprecated
+r2.11.0  2bd12c2270c TrackSelectionParameters (aquilescanta   2019-01-30  65)     public Builder() {
+r2.11.0  --
+r2.11.0  0cc0444af81 TrackSelectionParameters (tonihei        2019-09-20 267)   @Deprecated public static final TrackSelectionParameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
+r2.11.0  --
+r2.11.0  4ae79105ded FileDataSourceFactory (olly    2019-10-11 21) @Deprecated
+r2.11.0  26466679dff FileDataSourceFactory      (eguven  2016-09-08 22) public final class FileDataSourceFactory implements DataSource.Factory {
+r2.11.0  --
+r2.11.0  0e7f015020b NotificationUtil (Oliver Woodman  2019-07-18  67)   @Deprecated
+r2.11.0  a8e16f3cfe4 NotificationUtil     (eguven          2018-04-17  68)   public static void createNotificationChannel(
+r2.11.0  6e6df6a2f01 NotificationUtil (olly            2019-03-27  69)       Context context, String id, @StringRes int nameResourceId, @Importance int importance) {
+r2.11.0  --
+r2.11.0  0e7f015020b PlayerNotificationManager (Oliver Woodman  2019-07-18  424)   @Deprecated
+r2.11.0  b125d79ed65 PlayerNotificationManager (andrewlewis     2018-04-20  425)   public static PlayerNotificationManager createWithNotificationChannel(
+r2.11.0  b125d79ed65 PlayerNotificationManager (andrewlewis     2018-04-20  426)       Context context,
+r2.11.0  b125d79ed65 PlayerNotificationManager (andrewlewis     2018-04-20  427)       String channelId,
+r2.11.0  b125d79ed65 PlayerNotificationManager (andrewlewis     2018-04-20  428)       @StringRes int channelName,
+r2.11.0  9de4e5d7ac0 PlayerNotificationManager (andrewlewis     2018-04-20  429)       int notificationId,
+r2.11.0  9de4e5d7ac0 PlayerNotificationManager (andrewlewis     2018-04-20  430)       MediaDescriptionAdapter mediaDescriptionAdapter) {
+r2.11.0  --
+r2.11.0  0e7f015020b PlayerNotificationManager (Oliver Woodman  2019-07-18  478)   @Deprecated
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  479)   public static PlayerNotificationManager createWithNotificationChannel(
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  480)       Context context,
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  481)       String channelId,
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  482)       @StringRes int channelName,
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  483)       int notificationId,
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  484)       MediaDescriptionAdapter mediaDescriptionAdapter,
+r2.11.0  91d9fbd95d5 PlayerNotificationManager (bachinger       2018-11-08  485)       @Nullable NotificationListener notificationListener) {
+r2.11.0  --
+r2.12.0  d0fc83ed8a8 CastPlayer (bachinger    2020-03-25  163)   @Deprecated
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  164)   @Nullable
+r2.12.0  aafdd2267ab CastPlayer (aquilescanta 2017-08-29  165)   public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
+r2.12.0  --
+r2.12.0  d0fc83ed8a8 CastPlayer (bachinger    2020-03-25  174)   @Deprecated
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  175)   @Nullable
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  176)   public PendingResult<MediaChannelResult> loadItems(
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  177)       MediaQueueItem[] items, int startIndex, long positionMs, @RepeatMode int repeatMode) {
+r2.12.0  --
+r2.12.0  d0fc83ed8a8 CastPlayer (bachinger    2020-03-25  182)   @Deprecated
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  183)   @Nullable
+r2.12.0  aafdd2267ab CastPlayer (aquilescanta 2017-08-29  184)   public PendingResult<MediaChannelResult> addItems(MediaQueueItem... items) {
+r2.12.0  --
+r2.12.0  d0fc83ed8a8 CastPlayer (bachinger    2020-03-25  189)   @Deprecated
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  190)   @Nullable
+r2.12.0  aafdd2267ab CastPlayer (aquilescanta 2017-08-29  191)   public PendingResult<MediaChannelResult> addItems(int periodId, MediaQueueItem... items) {
+r2.12.0  --
+r2.12.0  d0fc83ed8a8 CastPlayer (bachinger    2020-03-25  200)   @Deprecated
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  201)   @Nullable
+r2.12.0  aafdd2267ab CastPlayer (aquilescanta 2017-08-29  202)   public PendingResult<MediaChannelResult> removeItem(int periodId) {
+r2.12.0  --
+r2.12.0  d0fc83ed8a8 CastPlayer (bachinger    2020-03-25  210)   @Deprecated
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  211)   @Nullable
+r2.12.0  aafdd2267ab CastPlayer (aquilescanta 2017-08-29  212)   public PendingResult<MediaChannelResult> moveItem(int periodId, int newIndex) {
+r2.12.0  --
+r2.12.0  c02933ac0a8 CastPlayer (bachinger    2020-02-09  389)   @Deprecated
+r2.12.0  d4aceef8a8b CastPlayer (olly         2018-04-18  390)   @Override
+r2.12.0  e852ff1dfa1 CastPlayer (olly         2019-07-05  391)   @Nullable
+r2.12.0  c8ec77ef96f CastPlayer (olly         2018-04-30  392)   public ExoPlaybackException getPlaybackError() {
+r2.12.0  --
+r2.12.0  e1c48515eb3 MediaSessionConnector (bachinger      2020-02-05  558)   @Deprecated
+r2.12.0  063f5704cd8 MediaSessionConnector (olly           2018-11-09  559)   public void setRewindIncrementMs(int rewindMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 MediaSessionConnector (bachinger      2020-02-05  571)   @Deprecated
+r2.12.0  063f5704cd8 MediaSessionConnector (olly           2018-11-09  572)   public void setFastForwardIncrementMs(int fastForwardMs) {
+r2.12.0  --
+r2.12.0  df1536ab24c WorkManagerScheduler (olly            2020-07-20  53)   @Deprecated
+r2.12.0  df1536ab24c WorkManagerScheduler (olly            2020-07-20  54)   @SuppressWarnings("deprecation")
+r2.12.0  df1536ab24c WorkManagerScheduler (olly            2020-07-20  55)   public WorkManagerScheduler(String workName) {
+r2.12.0  --
+r2.12.0  b7233c28e97 BasePlayer (bachinger 2020-06-16 159)   @Deprecated
+r2.12.0  a8b851ce34e BasePlayer (tonihei   2018-10-02 160)   @Override
+r2.12.0  a8b851ce34e BasePlayer (tonihei   2018-10-02 161)   @Nullable
+r2.12.0  a8b851ce34e BasePlayer (tonihei   2018-10-02 162)   public final Object getCurrentTag() {
+r2.12.0  --
+r2.12.0  836babd5d61 C (samrobinson    2020-06-22   94)   @Deprecated public static final String ASCII_NAME = "US-ASCII";
+r2.12.0  --
+r2.12.0  836babd5d61 C (samrobinson    2020-06-22  100)   @Deprecated public static final String UTF8_NAME = "UTF-8";
+r2.12.0  --
+r2.12.0  836babd5d61 C (samrobinson    2020-06-22  106)   @Deprecated public static final String ISO88591_NAME = "ISO-8859-1";
+r2.12.0  --
+r2.12.0  836babd5d61 C (samrobinson    2020-06-22  112)   @Deprecated public static final String UTF16_NAME = "UTF-16";
+r2.12.0  --
+r2.12.0  836babd5d61 C (samrobinson    2020-06-22  118)   @Deprecated public static final String UTF16LE_NAME = "UTF-16LE";
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  778)   @Deprecated public static final int MSG_SET_SURFACE = 1;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  781)   @Deprecated public static final int MSG_SET_VOLUME = 2;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  784)   @Deprecated public static final int MSG_SET_AUDIO_ATTRIBUTES = 3;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  787)   @Deprecated public static final int MSG_SET_SCALING_MODE = 4;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  790)   @Deprecated public static final int MSG_SET_AUX_EFFECT_INFO = 5;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  793)   @Deprecated public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  796)   @Deprecated public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  799)   @Deprecated public static final int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = 8;
+r2.12.0  --
+r2.12.0  c8f0814bd07 C   (andrewlewis    2020-01-22  802)   @Deprecated public static final int MSG_CUSTOM_BASE = 10000;
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  772)   @Deprecated
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  773)   public static Format createVideoContainerFormat(
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  774)       @Nullable String id,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  775)       @Nullable String label,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  776)       @Nullable String containerMimeType,
+r2.12.0  881fcf829a3 Format   (tonihei        2019-10-23  777)       @Nullable String sampleMimeType,
+r2.12.0  881fcf829a3 Format   (tonihei        2019-10-23  778)       @Nullable String codecs,
+r2.12.0  a572fb3f22d Format   (aquilescanta   2019-08-14  779)       @Nullable Metadata metadata,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  780)       int bitrate,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  781)       int width,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  782)       int height,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  783)       float frameRate,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  784)       @Nullable List<byte[]> initializationData,
+r2.12.0  58d746ecaa8 Format   (Arnold Szabo   2019-03-03  785)       @C.SelectionFlags int selectionFlags,
+r2.12.0  854419962ad Format   (Arnold Szabo   2019-03-05  786)       @C.RoleFlags int roleFlags) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  806)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  807)   public static Format createVideoSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  808)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  809)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  810)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  811)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  812)       int maxInputSize,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  813)       int width,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  814)       int height,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  815)       float frameRate,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  816)       @Nullable List<byte[]> initializationData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  817)       @Nullable DrmInitData drmInitData) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  834)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  835)   public static Format createVideoSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  836)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  837)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  838)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  839)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  840)       int maxInputSize,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  841)       int width,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  842)       int height,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  843)       float frameRate,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  844)       @Nullable List<byte[]> initializationData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  845)       int rotationDegrees,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  846)       float pixelWidthHeightRatio,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  847)       @Nullable DrmInitData drmInitData) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  866)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  867)   public static Format createVideoSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  868)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  869)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  870)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  871)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  872)       int maxInputSize,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  873)       int width,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  874)       int height,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  875)       float frameRate,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  876)       @Nullable List<byte[]> initializationData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  877)       int rotationDegrees,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  878)       float pixelWidthHeightRatio,
+r2.12.0  881fcf829a3 Format   (tonihei        2019-10-23  879)       @Nullable byte[] projectionData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  880)       @C.StereoMode int stereoMode,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  881)       @Nullable ColorInfo colorInfo,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  882)       @Nullable DrmInitData drmInitData) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  906)   @Deprecated
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  907)   public static Format createAudioContainerFormat(
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  908)       @Nullable String id,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  909)       @Nullable String label,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  910)       @Nullable String containerMimeType,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  911)       @Nullable String sampleMimeType,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  912)       @Nullable String codecs,
+r2.12.0  a572fb3f22d Format   (aquilescanta   2019-08-14  913)       @Nullable Metadata metadata,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  914)       int bitrate,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  915)       int channelCount,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  916)       int sampleRate,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  917)       @Nullable List<byte[]> initializationData,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  918)       @C.SelectionFlags int selectionFlags,
+r2.12.0  d7c2519a5db Format   (Arnold Szabo   2019-03-07  919)       @C.RoleFlags int roleFlags,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12  920)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  940)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  941)   public static Format createAudioSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  942)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  943)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  944)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  945)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  946)       int maxInputSize,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  947)       int channelCount,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  948)       int sampleRate,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  949)       @Nullable List<byte[]> initializationData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  950)       @Nullable DrmInitData drmInitData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  951)       @C.SelectionFlags int selectionFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  952)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21  970)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  971)   public static Format createAudioSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  972)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  973)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  974)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  975)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  976)       int maxInputSize,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  977)       int channelCount,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  978)       int sampleRate,
+r2.12.0  6d92eebe513 Format (olly           2020-07-23  979)       @C.PcmEncoding int pcmEncoding,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24  980)       @Nullable List<byte[]> initializationData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  981)       @Nullable DrmInitData drmInitData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  982)       @C.SelectionFlags int selectionFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02  983)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1002)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1003)   public static Format createAudioSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1004)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1005)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1006)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1007)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1008)       int maxInputSize,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1009)       int channelCount,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1010)       int sampleRate,
+r2.12.0  6d92eebe513 Format (olly           2020-07-23 1011)       @C.PcmEncoding int pcmEncoding,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1012)       int encoderDelay,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1013)       int encoderPadding,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24 1014)       @Nullable List<byte[]> initializationData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1015)       @Nullable DrmInitData drmInitData,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1016)       @C.SelectionFlags int selectionFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1017)       @Nullable String language,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1018)       @Nullable Metadata metadata) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1042)   @Deprecated
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1043)   public static Format createTextContainerFormat(
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1044)       @Nullable String id,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1045)       @Nullable String label,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1046)       @Nullable String containerMimeType,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1047)       @Nullable String sampleMimeType,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1048)       @Nullable String codecs,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1049)       int bitrate,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1050)       @C.SelectionFlags int selectionFlags,
+r2.12.0  77d597de5f1 Format   (olly           2019-03-22 1051)       @C.RoleFlags int roleFlags,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1052)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1068)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1069)   public static Format createTextContainerFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1070)       @Nullable String id,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1071)       @Nullable String label,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1072)       @Nullable String containerMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1073)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1074)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1075)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1076)       @C.SelectionFlags int selectionFlags,
+r2.12.0  d7c2519a5db Format   (Arnold Szabo   2019-03-07 1077)       @C.RoleFlags int roleFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1078)       @Nullable String language,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1079)       int accessibilityChannel) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1096)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1097)   public static Format createTextSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1098)       @Nullable String id,
+r2.12.0  881fcf829a3 Format   (tonihei        2019-10-23 1099)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1100)       @C.SelectionFlags int selectionFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1101)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1111)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1112)   public static Format createTextSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1113)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1114)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1115)       @C.SelectionFlags int selectionFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1116)       @Nullable String language,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1117)       int accessibilityChannel,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1118)       long subsampleOffsetUs,
+r2.12.0  881fcf829a3 Format   (tonihei        2019-10-23 1119)       @Nullable List<byte[]> initializationData) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1134)   @Deprecated
+r2.12.0  214d46d9578 Format   (olly           2018-01-10 1135)   public static Format createImageSampleFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1136)       @Nullable String id,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1137)       @Nullable String sampleMimeType,
+r2.12.0  214d46d9578 Format   (olly           2018-01-10 1138)       @C.SelectionFlags int selectionFlags,
+r2.12.0  340d846d9b1 Format   (olly           2018-07-24 1139)       @Nullable List<byte[]> initializationData,
+r2.12.0  0be3451c393 Format (olly           2020-01-31 1140)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1153)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1154)   public static Format createContainerFormat(
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1155)       @Nullable String id,
+r2.12.0  05a31dfd243 Format   (Oliver Woodman 2018-07-12 1156)       @Nullable String label,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1157)       @Nullable String containerMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1158)       @Nullable String sampleMimeType,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1159)       @Nullable String codecs,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1160)       int bitrate,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1161)       @C.SelectionFlags int selectionFlags,
+r2.12.0  d7c2519a5db Format   (Arnold Szabo   2019-03-07 1162)       @C.RoleFlags int roleFlags,
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1163)       @Nullable String language) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1179)   @Deprecated
+r2.12.0  d287e13d9ec Format (olly           2020-01-31 1180)   public static Format createSampleFormat(@Nullable String id, @Nullable String sampleMimeType) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1285)   @Deprecated
+r2.12.0  a7adcce018a Format         (olly           2016-02-12 1286)   public Format copyWithMaxInputSize(int maxInputSize) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1291)   @Deprecated
+r2.12.0  a7adcce018a Format         (olly           2016-02-12 1292)   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1297)   @Deprecated
+r2.12.0  b052ea9bed2 Format   (olly           2019-10-07 1298)   public Format copyWithLabel(@Nullable String label) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1303)   @Deprecated
+r2.12.0  7625c1b862d Format        (olly           2017-02-13 1304)   public Format copyWithManifestFormatInfo(Format manifestFormat) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1379)   @Deprecated
+r2.12.0  a1a48abe920 Format         (olly           2016-03-15 1380)   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1385)   @Deprecated
+r2.12.0  ed1f41db1bc Format   (andrewlewis    2019-01-04 1386)   public Format copyWithFrameRate(float frameRate) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1391)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1392)   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1397)   @Deprecated
+r2.12.0  7799e8fd5e0 Format   (tonihei        2018-05-02 1398)   public Format copyWithMetadata(@Nullable Metadata metadata) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1406)   @Deprecated
+r2.12.0  be2636c3651 Format   (Oliver Woodman 2018-12-18 1407)   public Format copyWithBitrate(int bitrate) {
+r2.12.0  --
+r2.12.0  42d4afe7b6d Format (olly           2020-02-21 1415)   @Deprecated
+r2.12.0  fd1179aaa14 Format   (tonihei        2019-05-30 1416)   public Format copyWithVideoSize(int width, int height) {
+r2.12.0  --
+r2.12.0  0eb0267131e Player   (bachinger    2020-02-10  497)     @Deprecated
+r2.12.0  156e2317cca Player   (tonihei      2018-06-22  498)     default void onLoadingChanged(boolean isLoading) {}
+r2.12.0  --
+r2.12.0  4bb6036cf62 Player   (bachinger    2020-02-03  504)     @Deprecated
+r2.12.0  0bb32a8f091 Player   (tonihei      2019-04-30  505)     default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
+r2.12.0  --
+r2.12.0  e9511a56ead Player   (tonihei      2020-04-24  616)     @Deprecated
+r2.12.0  156e2317cca Player   (tonihei      2018-06-22  617)     default void onSeekProcessed() {}
+r2.12.0  --
+r2.12.0  c02933ac0a8 Player   (bachinger    2020-02-09 1182)   @Deprecated
+r2.12.0  c02933ac0a8 Player   (bachinger    2020-02-09 1183)   @Nullable
+r2.12.0  c8ec77ef96f Player   (olly         2018-04-30 1184)   ExoPlaybackException getPlaybackError();
+r2.12.0  --
+r2.12.0  b7233c28e97 Player   (bachinger    2020-06-16 1469)   @Deprecated
+r2.12.0  b7233c28e97 Player   (bachinger    2020-06-16 1470)   @Nullable
+r2.12.0  b7233c28e97 Player   (bachinger    2020-06-16 1471)   Object getCurrentTag();
+r2.12.0  --
+r2.12.0  ab559eb3735 Timeline   (bachinger    2020-05-05  154)     @Deprecated @Nullable public Object tag;
+r2.12.0  --
+r2.12.0  04b1782a535 Cue   (ibaker               2019-12-17 286)   @Deprecated
+r2.12.0  658a7ffba59 Cue         (Oliver Woodman       2015-05-19 287)   public Cue(CharSequence text) {
+r2.12.0  --
+r2.12.0  04b1782a535 Cue   (ibaker               2019-12-17 313)   @Deprecated
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 314)   public Cue(
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 315)       CharSequence text,
+r2.12.0  10ee7d8e861 Cue   (olly                 2019-05-22 316)       @Nullable Alignment textAlignment,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 317)       float line,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 318)       @LineType int lineType,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 319)       @AnchorType int lineAnchor,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 320)       float position,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 321)       @AnchorType int positionAnchor,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 322)       float size) {
+r2.12.0  --
+r2.12.0  04b1782a535 Cue   (ibaker               2019-12-17 352)   @Deprecated
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 353)   public Cue(
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 354)       CharSequence text,
+r2.12.0  9376479553a Cue   (olly                 2019-12-05 355)       @Nullable Alignment textAlignment,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 356)       float line,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 357)       @LineType int lineType,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 358)       @AnchorType int lineAnchor,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 359)       float position,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 360)       @AnchorType int positionAnchor,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 361)       float size,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 362)       @TextSizeType int textSizeType,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 363)       float textSize) {
+r2.12.0  --
+r2.12.0  04b1782a535 Cue   (ibaker               2019-12-17 398)   @Deprecated
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 399)   public Cue(
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 400)       CharSequence text,
+r2.12.0  10ee7d8e861 Cue   (olly                 2019-05-22 401)       @Nullable Alignment textAlignment,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 402)       float line,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 403)       @LineType int lineType,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 404)       @AnchorType int lineAnchor,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 405)       float position,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 406)       @AnchorType int positionAnchor,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 407)       float size,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 408)       boolean windowColorSet,
+r2.12.0  15413548193 Cue   (hoangtc              2018-05-17 409)       int windowColor) {
+r2.12.0  --
+r2.12.0  829282fa122 DataSpec (olly           2020-02-11 358)   @Deprecated public final long absoluteStreamPosition;
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 423)   @Deprecated
+r2.12.0  1546da899bc DataSpec        (andrewlewis    2016-09-22 424)   public DataSpec(Uri uri, @Flags int flags) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 438)   @Deprecated
+r2.12.0  7d19a85c593 DataSpec (olly           2020-02-10 439)   public DataSpec(Uri uri, long position, long length, @Nullable String key) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 454)   @Deprecated
+r2.12.0  7d19a85c593 DataSpec (olly           2020-02-10 455)   public DataSpec(Uri uri, long position, long length, @Nullable String key, @Flags int flags) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 471)   @Deprecated
+r2.12.0  5695bae9d8f DataSpec   (christosts     2019-09-23 472)   public DataSpec(
+r2.12.0  5695bae9d8f DataSpec   (christosts     2019-09-23 473)       Uri uri,
+r2.12.0  7d19a85c593 DataSpec (olly           2020-02-10 474)       long position,
+r2.12.0  5695bae9d8f DataSpec   (christosts     2019-09-23 475)       long length,
+r2.12.0  5695bae9d8f DataSpec   (christosts     2019-09-23 476)       @Nullable String key,
+r2.12.0  5695bae9d8f DataSpec   (christosts     2019-09-23 477)       @Flags int flags,
+r2.12.0  5695bae9d8f DataSpec   (christosts     2019-09-23 478)       Map<String, String> httpRequestHeaders) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 503)   @Deprecated
+r2.12.0  2b9c31a14f1 DataSpec   (tonihei        2018-05-18 504)   public DataSpec(
+r2.12.0  2b9c31a14f1 DataSpec   (tonihei        2018-05-18 505)       Uri uri,
+r2.12.0  2b9c31a14f1 DataSpec   (tonihei        2018-05-18 506)       long absoluteStreamPosition,
+r2.12.0  2b9c31a14f1 DataSpec   (tonihei        2018-05-18 507)       long position,
+r2.12.0  2b9c31a14f1 DataSpec   (tonihei        2018-05-18 508)       long length,
+r2.12.0  2b9c31a14f1 DataSpec   (tonihei        2018-05-18 509)       @Nullable String key,
+r2.12.0  1546da899bc DataSpec        (andrewlewis    2016-09-22 510)       @Flags int flags) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 532)   @Deprecated
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 533)   public DataSpec(
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 534)       Uri uri,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 535)       @Nullable byte[] postBody,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 536)       long absoluteStreamPosition,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 537)       long position,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 538)       long length,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 539)       @Nullable String key,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 540)       @Flags int flags) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 566)   @Deprecated
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 567)   public DataSpec(
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 568)       Uri uri,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 569)       @HttpMethod int httpMethod,
+r2.12.0  d3686cf8a2f DataSpec   (sammon         2018-08-07 570)       @Nullable byte[] httpBody,
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 571)       long absoluteStreamPosition,
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 572)       long position,
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 573)       long length,
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 574)       @Nullable String key,
+r2.12.0  fbccdf594a5 DataSpec   (andrewlewis    2017-12-04 575)       @Flags int flags) {
+r2.12.0  --
+r2.12.0  1cbe3f72e62 DataSpec (olly           2020-02-11 602)   @Deprecated
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 603)   public DataSpec(
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 604)       Uri uri,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 605)       @HttpMethod int httpMethod,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 606)       @Nullable byte[] httpBody,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 607)       long absoluteStreamPosition,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 608)       long position,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 609)       long length,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 610)       @Nullable String key,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 611)       @Flags int flags,
+r2.12.0  ce37b7eea20 DataSpec   (christosts     2019-08-23 612)       Map<String, String> httpRequestHeaders) {
+r2.12.0  --
+r2.12.0  d94a40ac773 HttpDataSource (Fillmore, Christopher 2020-01-10 308)     @Deprecated
+r2.12.0  70ccbc6eb8f HttpDataSource   (tonihei               2018-10-23 309)     public InvalidResponseCodeException(
+r2.12.0  70ccbc6eb8f HttpDataSource   (tonihei               2018-10-23 310)         int responseCode,
+r2.12.0  70ccbc6eb8f HttpDataSource   (tonihei               2018-10-23 311)         @Nullable String responseMessage,
+r2.12.0  70ccbc6eb8f HttpDataSource   (tonihei               2018-10-23 312)         Map<String, List<String>> headerFields,
+r2.12.0  ^27ab5c83a6 HttpDataSource         (Oliver Woodman        2014-06-16 313)         DataSpec dataSpec) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 DefaultControlDispatcher (bachinger 2020-02-05 175)   @Deprecated
+r2.12.0  e1c48515eb3 DefaultControlDispatcher (bachinger 2020-02-05 176)   public void setRewindIncrementMs(long rewindMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 DefaultControlDispatcher (bachinger 2020-02-05 184)   @Deprecated
+r2.12.0  e1c48515eb3 DefaultControlDispatcher (bachinger 2020-02-05 185)   public void setFastForwardIncrementMs(long fastForwardMs) {
+r2.12.0  --
+r2.12.0  cf3fbdd19b8 DefaultLoadControl (krocard     2020-07-02 222)     @Deprecated
+r2.12.0  5f576819d75 DefaultLoadControl (eguven      2018-03-08 223)     public DefaultLoadControl createDefaultLoadControl() {
+r2.12.0  --
+r2.12.0  36fa9d5a434 ExoPlayer (bachinger      2019-12-17 465)   @Deprecated
+r2.12.0  c57fe1897c1 ExoPlayer (olly           2018-09-04 466)   void retry();
+r2.12.0  --
+r2.12.0  c02933ac0a8 ExoPlayerImpl (bachinger      2020-02-09  298)   @Deprecated
+r2.12.0  d4aceef8a8b ExoPlayerImpl (olly           2018-04-18  299)   @Override
+r2.12.0  3afdd7ac5ab ExoPlayerImpl (olly           2019-05-24  300)   @Nullable
+r2.12.0  3afdd7ac5ab ExoPlayerImpl (olly           2019-05-24  301)   public ExoPlaybackException getPlaybackError() {
+r2.12.0  --
+r2.12.0  36fa9d5a434 ExoPlayerImpl (bachinger      2019-12-17  312)   @Deprecated
+r2.12.0  c57fe1897c1 ExoPlayerImpl (olly           2018-09-04  313)   @Override
+r2.12.0  c57fe1897c1 ExoPlayerImpl (olly           2018-09-04  314)   public void retry() {
+r2.12.0  --
+r2.12.0  3100f5938dd SimpleExoPlayer    (tonihei        2020-05-04  612)   @Deprecated
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  613)   protected SimpleExoPlayer(
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  614)       Context context,
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  615)       RenderersFactory renderersFactory,
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  616)       TrackSelector trackSelector,
+r2.12.0  2028fdd7560 SimpleExoPlayer    (bachinger      2020-03-12  617)       MediaSourceFactory mediaSourceFactory,
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  618)       LoadControl loadControl,
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  619)       BandwidthMeter bandwidthMeter,
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  620)       AnalyticsCollector analyticsCollector,
+r2.12.0  36fa9d5a434 SimpleExoPlayer    (bachinger      2019-12-17  621)       boolean useLazyPreparation,
+r2.12.0  6a122f4740e SimpleExoPlayer    (aquilescanta   2019-08-15  622)       Clock clock,
+r2.12.0  528104919f1 SimpleExoPlayer    (olly           2020-04-28  623)       Looper applicationLooper) {
+r2.12.0  --
+r2.12.0  c02933ac0a8 SimpleExoPlayer    (bachinger      2020-02-09 1236)   @Deprecated
+r2.12.0  d4aceef8a8b SimpleExoPlayer    (olly           2018-04-18 1237)   @Override
+r2.12.0  3afdd7ac5ab SimpleExoPlayer    (olly           2019-05-24 1238)   @Nullable
+r2.12.0  3afdd7ac5ab SimpleExoPlayer    (olly           2019-05-24 1239)   public ExoPlaybackException getPlaybackError() {
+r2.12.0  --
+r2.12.0  36fa9d5a434 SimpleExoPlayer    (bachinger      2019-12-17 1251)   @Deprecated
+r2.12.0  c57fe1897c1 SimpleExoPlayer    (olly           2018-09-04 1252)   @Override
+r2.12.0  c57fe1897c1 SimpleExoPlayer    (olly           2018-09-04 1253)   public void retry() {
+r2.12.0  --
+r2.12.0  88e356f2142 SimpleExoPlayer    (samrobinson    2020-02-27 1723)   @Deprecated
+r2.12.0  f5873b8f00d SimpleExoPlayer    (samrobinson    2019-10-01 1724)   public void setHandleWakeLock(boolean handleWakeLock) {
+r2.12.0  --
+r2.12.0  4bb6036cf62 AnalyticsListener (bachinger    2020-02-03  465)   @Deprecated
+r2.12.0  24c21a292f3 AnalyticsListener (tonihei      2018-06-25  466)   default void onPlayerStateChanged(
+r2.12.0  0bb32a8f091 AnalyticsListener (tonihei      2019-04-30  467)       EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
+r2.12.0  --
+r2.12.0  e9511a56ead AnalyticsListener (tonihei      2020-04-24  543)   @Deprecated
+r2.12.0  24c21a292f3 AnalyticsListener (tonihei      2018-06-25  544)   default void onSeekProcessed(EventTime eventTime) {}
+r2.12.0  --
+r2.12.0  0eb0267131e AnalyticsListener (bachinger    2020-02-10  583)   @Deprecated
+r2.12.0  24c21a292f3 AnalyticsListener (tonihei      2018-06-25  584)   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
+r2.12.0  --
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  705)   @Deprecated
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  706)   default void onDecoderEnabled(
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  707)       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
+r2.12.0  --
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  713)   @Deprecated
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  714)   default void onDecoderInitialized(
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  715)       EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
+r2.12.0  --
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  721)   @Deprecated
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  722)   default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
+r2.12.0  --
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  725)   @Deprecated
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  726)   default void onDecoderDisabled(
+r2.12.0  a6640ae377c AnalyticsListener (olly         2020-07-16  727)       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
+r2.12.0  --
+r2.12.0  2e5444b49be OfflineLicenseHelper (tonihei        2020-03-18 128)   @Deprecated
+r2.12.0  40947d52f08 OfflineLicenseHelper (tonihei        2018-03-23 129)   public OfflineLicenseHelper(
+r2.12.0  40947d52f08 OfflineLicenseHelper (tonihei        2018-03-23 130)       UUID uuid,
+r2.12.0  aa9eb5abc9b OfflineLicenseHelper (aquilescanta   2020-03-19 131)       ExoMediaDrm.Provider mediaDrmProvider,
+r2.12.0  40947d52f08 OfflineLicenseHelper (tonihei        2018-03-23 132)       MediaDrmCallback callback,
+r2.12.0  eeab811301a OfflineLicenseHelper (ibaker         2020-03-06 133)       @Nullable Map<String, String> optionalKeyRequestParameters,
+r2.12.0  fa594489d9a OfflineLicenseHelper (ibaker         2020-07-07 134)       DrmSessionEventListener.EventDispatcher eventDispatcher) {
+r2.12.0  --
+r2.12.0  314bc65d620 DefaultDownloaderFactory (olly       2020-06-29  48)   @Deprecated
+r2.12.0  4abaaf138ca DefaultDownloaderFactory (olly       2020-04-21  49)   public DefaultDownloaderFactory(CacheDataSource.Factory cacheDataSourceFactory) {
+r2.12.0  --
+r2.12.0  d233c04582f DownloadHelper (bachinger      2020-05-20  190)   @Deprecated
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  191)   public static DownloadHelper forDash(
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  192)       Context context,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  193)       Uri uri,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  194)       DataSource.Factory dataSourceFactory,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  195)       RenderersFactory renderersFactory) {
+r2.12.0  --
+r2.12.0  d233c04582f DownloadHelper (bachinger      2020-05-20  208)   @Deprecated
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  209)   public static DownloadHelper forDash(
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  210)       Uri uri,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  211)       DataSource.Factory dataSourceFactory,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  212)       RenderersFactory renderersFactory,
+r2.12.0  aa9eb5abc9b DownloadHelper (aquilescanta   2020-03-19  213)       @Nullable DrmSessionManager drmSessionManager,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  214)       DefaultTrackSelector.Parameters trackSelectorParameters) {
+r2.12.0  --
+r2.12.0  d233c04582f DownloadHelper (bachinger      2020-05-20  228)   @Deprecated
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  229)   public static DownloadHelper forHls(
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  230)       Context context,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  231)       Uri uri,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  232)       DataSource.Factory dataSourceFactory,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  233)       RenderersFactory renderersFactory) {
+r2.12.0  --
+r2.12.0  d233c04582f DownloadHelper (bachinger      2020-05-20  246)   @Deprecated
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  247)   public static DownloadHelper forHls(
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  248)       Uri uri,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  249)       DataSource.Factory dataSourceFactory,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  250)       RenderersFactory renderersFactory,
+r2.12.0  aa9eb5abc9b DownloadHelper (aquilescanta   2020-03-19  251)       @Nullable DrmSessionManager drmSessionManager,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  252)       DefaultTrackSelector.Parameters trackSelectorParameters) {
+r2.12.0  --
+r2.12.0  d233c04582f DownloadHelper (bachinger      2020-05-20  282)   @Deprecated
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  283)   public static DownloadHelper forSmoothStreaming(
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  284)       Context context,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  285)       Uri uri,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  286)       DataSource.Factory dataSourceFactory,
+r2.12.0  d77d661e528 DownloadHelper (olly           2019-07-29  287)       RenderersFactory renderersFactory) {
+r2.12.0  --
+r2.12.0  d233c04582f DownloadHelper (bachinger      2020-05-20  300)   @Deprecated
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  301)   public static DownloadHelper forSmoothStreaming(
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  302)       Uri uri,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  303)       DataSource.Factory dataSourceFactory,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  304)       RenderersFactory renderersFactory,
+r2.12.0  aa9eb5abc9b DownloadHelper (aquilescanta   2020-03-19  305)       @Nullable DrmSessionManager drmSessionManager,
+r2.12.0  71d77d7fa07 DownloadHelper (tonihei        2019-01-29  306)       DefaultTrackSelector.Parameters trackSelectorParameters) {
+r2.12.0  --
+r2.12.0  314bc65d620 DownloadManager (olly           2020-06-29  204)   @Deprecated
+r2.12.0  01ad1c1a84a DownloadManager (eguven         2019-04-26  205)   public DownloadManager(
+r2.12.0  01ad1c1a84a DownloadManager (eguven         2019-04-26  206)       Context context, DatabaseProvider databaseProvider, Cache cache, Factory upstreamFactory) {
+r2.12.0  --
+r2.12.0  d7643acd52d DownloadService (olly            2020-01-13  769)   @Deprecated
+r2.12.0  8688bd2d888 DownloadService (eguven          2019-04-10  770)   protected void onDownloadChanged(Download download) {
+r2.12.0  --
+r2.12.0  d7643acd52d DownloadService (olly            2020-01-13  780)   @Deprecated
+r2.12.0  8688bd2d888 DownloadService (eguven          2019-04-10  781)   protected void onDownloadRemoved(Download download) {
+r2.12.0  --
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  50)   @Deprecated
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  51)   public ProgressiveDownloader(
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  52)       Uri uri, @Nullable String customCacheKey, CacheDataSource.Factory cacheDataSourceFactory) {
+r2.12.0  --
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  72)   @Deprecated
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  73)   public ProgressiveDownloader(
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  74)       Uri uri,
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  75)       @Nullable String customCacheKey,
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  76)       CacheDataSource.Factory cacheDataSourceFactory,
+r2.12.0  c1aa9b917ba ProgressiveDownloader (bachinger   2020-05-14  77)       Executor executor) {
+r2.12.0  --
+r2.12.0  5b28cb52094 ClippingMediaSource (bachinger       2020-06-15 195)   @Deprecated
+r2.12.0  b278b02816c ClippingMediaSource (GiuseppePiscopo 2018-12-03 196)   @Override
+r2.12.0  b278b02816c ClippingMediaSource (GiuseppePiscopo 2018-12-03 197)   @Nullable
+r2.12.0  b278b02816c ClippingMediaSource (GiuseppePiscopo 2018-12-03 198)   public Object getTag() {
+r2.12.0  --
+r2.12.0  4517829610b DefaultMediaSourceFactory (bachinger    2020-03-04 307)   @Deprecated
+r2.12.0  4517829610b DefaultMediaSourceFactory (bachinger    2020-03-04 308)   @Override
+r2.12.0  4517829610b DefaultMediaSourceFactory (bachinger    2020-03-04 309)   public DefaultMediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 ExtractorMediaSource (bachinger       2020-03-02 120)     @Deprecated
+r2.12.0  c5e11696665 ExtractorMediaSource (bachinger       2020-01-17 121)     public Factory setTag(@Nullable Object tag) {
+r2.12.0  --
+r2.12.0  61c43c30ac1 ExtractorMediaSource (aquilescanta    2019-12-04 171)     @Deprecated
+r2.12.0  c5e11696665 ExtractorMediaSource (bachinger       2020-01-17 172)     @Override
+r2.12.0  aa9eb5abc9b ExtractorMediaSource (aquilescanta    2020-03-19 173)     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
+r2.12.0  --
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 180)     @Deprecated
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 181)     @Override
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 182)     public MediaSourceFactory setDrmHttpDataSourceFactory(
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 183)         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
+r2.12.0  --
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 188)     @Deprecated
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 189)     @Override
+r2.12.0  e55b345595c ExtractorMediaSource (bachinger       2020-08-20 190)     public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
+r2.12.0  --
+r2.12.0  25d9f76a07b ExtractorMediaSource (bachinger       2020-03-26 196)     @Deprecated
+r2.12.0  8f952162ffe ExtractorMediaSource (tonihei         2018-03-09 197)     @Override
+r2.12.0  a5cd0b87bc5 ExtractorMediaSource (olly            2017-12-13 198)     public ExtractorMediaSource createMediaSource(Uri uri) {
+r2.12.0  --
+r2.12.0  5b28cb52094 ExtractorMediaSource (bachinger       2020-06-15 349)   @Deprecated
+r2.12.0  b278b02816c ExtractorMediaSource (GiuseppePiscopo 2018-12-03 350)   @Override
+r2.12.0  b278b02816c ExtractorMediaSource (GiuseppePiscopo 2018-12-03 351)   @Nullable
+r2.12.0  b278b02816c ExtractorMediaSource (GiuseppePiscopo 2018-12-03 352)   public Object getTag() {
+r2.12.0  --
+r2.12.0  5b28cb52094 LoopingMediaSource (bachinger       2020-06-15  73)   @Deprecated
+r2.12.0  b278b02816c LoopingMediaSource (GiuseppePiscopo 2018-12-03  74)   @Override
+r2.12.0  b278b02816c LoopingMediaSource (GiuseppePiscopo 2018-12-03  75)   @Nullable
+r2.12.0  b278b02816c LoopingMediaSource (GiuseppePiscopo 2018-12-03  76)   public Object getTag() {
+r2.12.0  --
+r2.12.0  5b28cb52094 MaskingMediaSource (bachinger   2020-06-15  92)   @Deprecated
+r2.12.0  0145edb60d2 MaskingMediaSource (tonihei     2019-07-03  93)   @Override
+r2.12.0  47133f46cb7 MaskingMediaSource (olly        2020-02-20  94)   @Nullable
+r2.12.0  0145edb60d2 MaskingMediaSource (tonihei     2019-07-03  95)   public Object getTag() {
+r2.12.0  --
+r2.12.0  5b28cb52094 MediaSource (bachinger       2020-06-15 176)   @Deprecated
+r2.12.0  556dd7e9e0f MediaSource (Oliver Woodman  2018-12-05 177)   @Nullable
+r2.12.0  556dd7e9e0f MediaSource (Oliver Woodman  2018-12-05 178)   default Object getTag() {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 MediaSourceFactory (bachinger    2020-03-02  56)   @Deprecated
+r2.12.0  c5e11696665 MediaSourceFactory (bachinger    2020-01-17  57)   default MediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+r2.12.0  --
+r2.12.0  25d9f76a07b MediaSourceFactory (bachinger    2020-03-26 163)   @Deprecated
+r2.12.0  d1bbd3507a8 MediaSourceFactory (bachinger    2020-03-02 164)   default MediaSource createMediaSource(Uri uri) {
+r2.12.0  --
+r2.12.0  5b28cb52094 MergingMediaSource (bachinger       2020-06-15 170)   @Deprecated
+r2.12.0  b278b02816c MergingMediaSource (GiuseppePiscopo 2018-12-03 171)   @Override
+r2.12.0  b278b02816c MergingMediaSource (GiuseppePiscopo 2018-12-03 172)   @Nullable
+r2.12.0  b278b02816c MergingMediaSource (GiuseppePiscopo 2018-12-03 173)   public Object getTag() {
+r2.12.0  --
+r2.12.0  d7280f096ff ProgressiveMediaSource (bachinger    2020-04-15 105)     @Deprecated
+r2.12.0  cea37c60f8b ProgressiveMediaSource (olly         2020-01-14 106)     public Factory setCustomCacheKey(@Nullable String customCacheKey) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 ProgressiveMediaSource (bachinger    2020-03-02 115)     @Deprecated
+r2.12.0  c5e11696665 ProgressiveMediaSource (bachinger    2020-01-17 116)     public Factory setTag(@Nullable Object tag) {
+r2.12.0  --
+r2.12.0  25d9f76a07b ProgressiveMediaSource (bachinger    2020-03-26 194)     @Deprecated
+r2.12.0  45433869e50 ProgressiveMediaSource (olly         2019-01-29 195)     @Override
+r2.12.0  45433869e50 ProgressiveMediaSource (olly         2019-01-29 196)     public ProgressiveMediaSource createMediaSource(Uri uri) {
+r2.12.0  --
+r2.12.0  5b28cb52094 ProgressiveMediaSource (bachinger    2020-06-15 278)   @Deprecated
+r2.12.0  45433869e50 ProgressiveMediaSource (olly         2019-01-29 279)   @Override
+r2.12.0  45433869e50 ProgressiveMediaSource (olly         2019-01-29 280)   @Nullable
+r2.12.0  45433869e50 ProgressiveMediaSource (olly         2019-01-29 281)   public Object getTag() {
+r2.12.0  --
+r2.12.0  5b28cb52094 SilenceMediaSource (bachinger    2020-06-15 155)   @Deprecated
+r2.12.0  08b0e08b694 SilenceMediaSource (olly         2020-06-04 156)   @Nullable
+r2.12.0  08b0e08b694 SilenceMediaSource (olly         2020-06-04 157)   @Override
+r2.12.0  08b0e08b694 SilenceMediaSource (olly         2020-06-04 158)   public Object getTag() {
+r2.12.0  --
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  55)   @Deprecated
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  56)   public SinglePeriodTimeline(
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  57)       long durationUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  58)       boolean isSeekable,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  59)       boolean isDynamic,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  60)       boolean isLive,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  61)       @Nullable Object manifest,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11  62)       @Nullable Object tag) {
+r2.12.0  --
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 111)   @Deprecated
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 112)   public SinglePeriodTimeline(
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 113)       long periodDurationUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 114)       long windowDurationUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 115)       long windowPositionInPeriodUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 116)       long windowDefaultStartPositionUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 117)       boolean isSeekable,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 118)       boolean isDynamic,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 119)       boolean isLive,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 120)       @Nullable Object manifest,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 121)       @Nullable Object tag) {
+r2.12.0  --
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 183)   @Deprecated
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 184)   public SinglePeriodTimeline(
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 185)       long presentationStartTimeMs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 186)       long windowStartTimeMs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 187)       long elapsedRealtimeEpochOffsetMs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 188)       long periodDurationUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 189)       long windowDurationUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 190)       long windowPositionInPeriodUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 191)       long windowDefaultStartPositionUs,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 192)       boolean isSeekable,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 193)       boolean isDynamic,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 194)       boolean isLive,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 195)       @Nullable Object manifest,
+r2.12.0  19d639eb9a7 SinglePeriodTimeline (bachinger    2020-05-11 196)       @Nullable Object tag) {
+r2.12.0  --
+r2.12.0  5b28cb52094 SingleSampleMediaSource (bachinger       2020-06-15 205)   @Deprecated
+r2.12.0  b278b02816c SingleSampleMediaSource (GiuseppePiscopo 2018-12-03 206)   @Override
+r2.12.0  b278b02816c SingleSampleMediaSource (GiuseppePiscopo 2018-12-03 207)   @Nullable
+r2.12.0  b278b02816c SingleSampleMediaSource (GiuseppePiscopo 2018-12-03 208)   public Object getTag() {
+r2.12.0  --
+r2.12.0  3214851fbb2 AdsLoader (andrewlewis 2020-07-10  94)     @Deprecated
+r2.12.0  3214851fbb2 AdsLoader (andrewlewis 2020-07-10  95)     default View[] getAdOverlayViews() {
+r2.12.0  --
+r2.12.0  5b28cb52094 AdsMediaSource (bachinger       2020-06-15 180)   @Deprecated
+r2.12.0  b278b02816c AdsMediaSource (GiuseppePiscopo 2018-12-03 181)   @Override
+r2.12.0  b278b02816c AdsMediaSource (GiuseppePiscopo 2018-12-03 182)   @Nullable
+r2.12.0  b278b02816c AdsMediaSource (GiuseppePiscopo 2018-12-03 183)   public Object getTag() {
+r2.12.0  --
+r2.12.0  ba33f60485e LoadErrorHandlingPolicy (aquilescanta 2020-05-18  67)   @Deprecated
+r2.12.0  ba33f60485e LoadErrorHandlingPolicy (aquilescanta 2020-05-18  68)   default long getBlacklistDurationMsFor(
+r2.12.0  ba33f60485e LoadErrorHandlingPolicy (aquilescanta 2020-05-18  69)       int dataType, long loadDurationMs, IOException exception, int errorCount) {
+r2.12.0  --
+r2.12.0  ba33f60485e LoadErrorHandlingPolicy (aquilescanta 2020-05-18  91)   @Deprecated
+r2.12.0  ba33f60485e LoadErrorHandlingPolicy (aquilescanta 2020-05-18  92)   default long getRetryDelayMsFor(
+r2.12.0  ba33f60485e LoadErrorHandlingPolicy (aquilescanta 2020-05-18  93)       int dataType, long loadDurationMs, IOException exception, int errorCount) {
+r2.12.0  --
+r2.12.0  fab80874729 CacheDataSinkFactory (olly     2020-04-21 21) @Deprecated
+r2.12.0  26466679dff CacheDataSinkFactory      (eguven   2016-09-08 22) public final class CacheDataSinkFactory implements DataSink.Factory {
+r2.12.0  --
+r2.12.0  fab80874729 CacheDataSourceFactory (olly   2020-04-21  24) @Deprecated
+r2.12.0  26466679dff CacheDataSourceFactory      (eguven 2016-09-08  25) public final class CacheDataSourceFactory implements DataSource.Factory {
+r2.12.0  --
+r2.12.0  ab95e3f3880 SimpleCacheTest   (ibaker      2020-07-16 692)   @Deprecated
+r2.12.0  ab95e3f3880 SimpleCacheTest   (ibaker      2020-07-16 693)   @SuppressWarnings("deprecation") // Testing deprecated behaviour.
+r2.12.0  63123f455c4 SimpleCacheTest (eguven      2017-01-13 694)   private SimpleCache getEncryptedSimpleCache(byte[] secretKey) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 DashMediaSource (bachinger        2020-03-02  151)     @Deprecated
+r2.12.0  074b6f8ebd1 DashMediaSource (tonihei          2019-08-07  152)     public Factory setTag(@Nullable Object tag) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 DashMediaSource (bachinger        2020-03-02  162)     @Deprecated
+r2.12.0  c5e11696665 DashMediaSource (bachinger        2020-01-17  163)     @Override
+r2.12.0  c5e11696665 DashMediaSource (bachinger        2020-01-17  164)     public Factory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+r2.12.0  --
+r2.12.0  25d9f76a07b DashMediaSource (bachinger        2020-03-26  352)     @Deprecated
+r2.12.0  e419154b86b DashMediaSource (andrewlewis      2017-12-08  353)     @Override
+r2.12.0  d1bbd3507a8 DashMediaSource (bachinger        2020-03-02  354)     public DashMediaSource createMediaSource(Uri uri) {
+r2.12.0  --
+r2.12.0  5b28cb52094 DashMediaSource (bachinger        2020-06-15  545)   @Deprecated
+r2.12.0  b278b02816c DashMediaSource (GiuseppePiscopo  2018-12-03  546)   @Override
+r2.12.0  b278b02816c DashMediaSource (GiuseppePiscopo  2018-12-03  547)   @Nullable
+r2.12.0  b278b02816c DashMediaSource (GiuseppePiscopo  2018-12-03  548)   public Object getTag() {
+r2.12.0  --
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14  77)   @Deprecated
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14  78)   public DashDownloader(
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14  79)       Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+r2.12.0  --
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14  97)   @Deprecated
+r2.12.0  175a0100d09 DashDownloader (olly         2018-05-01  98)   public DashDownloader(
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14  99)       Uri manifestUri,
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14 100)       List<StreamKey> streamKeys,
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14 101)       CacheDataSource.Factory cacheDataSourceFactory,
+r2.12.0  9e35c6c28c8 DashDownloader (bachinger    2020-05-14 102)       Executor executor) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 HlsMediaSource (bachinger       2020-03-02 147)     @Deprecated
+r2.12.0  58d4fd93dd0 HlsMediaSource (tonihei         2019-08-07 148)     public Factory setTag(@Nullable Object tag) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 HlsMediaSource (bachinger       2020-03-02 330)     @Deprecated
+r2.12.0  c5e11696665 HlsMediaSource (bachinger       2020-01-17 331)     @Override
+r2.12.0  c5e11696665 HlsMediaSource (bachinger       2020-01-17 332)     public Factory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+r2.12.0  --
+r2.12.0  25d9f76a07b HlsMediaSource (bachinger       2020-03-26 353)     @Deprecated
+r2.12.0  d1bbd3507a8 HlsMediaSource (bachinger       2020-03-02 354)     @Override
+r2.12.0  d1bbd3507a8 HlsMediaSource (bachinger       2020-03-02 355)     public HlsMediaSource createMediaSource(Uri uri) {
+r2.12.0  --
+r2.12.0  5b28cb52094 HlsMediaSource (bachinger       2020-06-15 458)   @Deprecated
+r2.12.0  b278b02816c HlsMediaSource (GiuseppePiscopo 2018-12-03 459)   @Override
+r2.12.0  b278b02816c HlsMediaSource (GiuseppePiscopo 2018-12-03 460)   @Nullable
+r2.12.0  b278b02816c HlsMediaSource (GiuseppePiscopo 2018-12-03 461)   public Object getTag() {
+r2.12.0  --
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  70)   @Deprecated
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  71)   public HlsDownloader(
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  72)       Uri playlistUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+r2.12.0  --
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  90)   @Deprecated
+r2.12.0  175a0100d09 HlsDownloader (olly         2018-05-01  91)   public HlsDownloader(
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  92)       Uri playlistUri,
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  93)       List<StreamKey> streamKeys,
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  94)       CacheDataSource.Factory cacheDataSourceFactory,
+r2.12.0  9e35c6c28c8 HlsDownloader (bachinger    2020-05-14  95)       Executor executor) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 SsMediaSource (bachinger       2020-03-02 128)     @Deprecated
+r2.12.0  313bd109517 SsMediaSource (tonihei         2019-08-08 129)     public Factory setTag(@Nullable Object tag) {
+r2.12.0  --
+r2.12.0  d1bbd3507a8 SsMediaSource (bachinger       2020-03-02 241)     @Deprecated
+r2.12.0  c5e11696665 SsMediaSource (bachinger       2020-01-17 242)     @Override
+r2.12.0  d1bbd3507a8 SsMediaSource (bachinger       2020-03-02 243)     public Factory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+r2.12.0  --
+r2.12.0  25d9f76a07b SsMediaSource (bachinger       2020-03-26 250)     @Deprecated
+r2.12.0  d1bbd3507a8 SsMediaSource (bachinger       2020-03-02 251)     @Override
+r2.12.0  d1bbd3507a8 SsMediaSource (bachinger       2020-03-02 252)     public SsMediaSource createMediaSource(Uri uri) {
+r2.12.0  --
+r2.12.0  5b28cb52094 SsMediaSource (bachinger       2020-06-15 433)   @Deprecated
+r2.12.0  b278b02816c SsMediaSource (GiuseppePiscopo 2018-12-03 434)   @Override
+r2.12.0  b278b02816c SsMediaSource (GiuseppePiscopo 2018-12-03 435)   @Nullable
+r2.12.0  b278b02816c SsMediaSource (GiuseppePiscopo 2018-12-03 436)   public Object getTag() {
+r2.12.0  --
+r2.12.0  9e35c6c28c8 SsDownloader (bachinger 2020-05-14  68)   @Deprecated
+r2.12.0  175a0100d09 SsDownloader (olly      2018-05-01  69)   public SsDownloader(
+r2.12.0  4abaaf138ca SsDownloader (olly      2020-04-21  70)       Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+r2.12.0  --
+r2.12.0  9e35c6c28c8 SsDownloader (bachinger 2020-05-14  88)   @Deprecated
+r2.12.0  cd828e5c10c SsDownloader (olly      2020-04-22  89)   public SsDownloader(
+r2.12.0  cd828e5c10c SsDownloader (olly      2020-04-22  90)       Uri manifestUri,
+r2.12.0  cd828e5c10c SsDownloader (olly      2020-04-22  91)       List<StreamKey> streamKeys,
+r2.12.0  cd828e5c10c SsDownloader (olly      2020-04-22  92)       CacheDataSource.Factory cacheDataSourceFactory,
+r2.12.0  2e9ed51503b SsDownloader (olly      2020-04-27  93)       Executor executor) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 PlayerControlView (bachinger      2020-02-05  687)   @Deprecated
+r2.12.0  c577d9d3519 PlayerControlView (olly           2018-01-18  688)   public void setRewindIncrementMs(int rewindMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 PlayerControlView (bachinger      2020-02-05  700)   @Deprecated
+r2.12.0  c577d9d3519 PlayerControlView (olly           2018-01-18  701)   public void setFastForwardIncrementMs(int fastForwardMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 PlayerNotificationManager (bachinger       2020-02-05  754)   @Deprecated
+r2.12.0  afd11de57dc PlayerNotificationManager (bachinger       2018-03-08  755)   public final void setFastForwardIncrementMs(long fastForwardMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 PlayerNotificationManager (bachinger       2020-02-05  767)   @Deprecated
+r2.12.0  afd11de57dc PlayerNotificationManager (bachinger       2018-03-08  768)   public final void setRewindIncrementMs(long rewindMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 PlayerView (bachinger                2020-02-05 1024)   @Deprecated
+r2.12.0  c577d9d3519 PlayerView (olly                     2018-01-18 1025)   public void setRewindIncrementMs(int rewindMs) {
+r2.12.0  --
+r2.12.0  e1c48515eb3 PlayerView (bachinger                2020-02-05 1035)   @Deprecated
+r2.12.0  c577d9d3519 PlayerView (olly                     2018-01-18 1036)   public void setFastForwardIncrementMs(int fastForwardMs) {
+r2.12.0  --
+r2.12.0  5b28cb52094 FakeMediaSource (bachinger       2020-06-15 186)   @Deprecated
+r2.12.0  b278b02816c FakeMediaSource (GiuseppePiscopo 2018-12-03 187)   @Override
+r2.12.0  b278b02816c FakeMediaSource (GiuseppePiscopo 2018-12-03 188)   @Nullable
+r2.12.0  b278b02816c FakeMediaSource (GiuseppePiscopo 2018-12-03 189)   public Object getTag() {
+r2.12.0  --
+r2.12.0  c02933ac0a8 StubExoPlayer             (bachinger   2020-02-09 107)   @Deprecated
+r2.12.0  d4aceef8a8b StubExoPlayer (olly        2018-04-18 108)   @Override
+r2.12.0  d4aceef8a8b StubExoPlayer (olly        2018-04-18 109)   public ExoPlaybackException getPlaybackError() {
+r2.12.0  --
+r2.12.0  36fa9d5a434 StubExoPlayer             (bachinger   2019-12-17 119)   @Deprecated
+r2.12.0  c57fe1897c1 StubExoPlayer (olly        2018-09-04 120)   @Override
+r2.12.0  c57fe1897c1 StubExoPlayer (olly        2018-09-04 121)   public void retry() {
+r2.12.0  --
+r2.12.0  36fa9d5a434 StubExoPlayer             (bachinger   2019-12-17 128)   @Deprecated
+r2.12.0  cd2c1f2f24c StubExoPlayer             (bachinger   2019-11-06 129)   @Override
+r2.12.0  cd2c1f2f24c StubExoPlayer             (bachinger   2019-11-06 130)   public void prepare() {
+r2.12.0  --
+r2.12.0  36fa9d5a434 StubExoPlayer             (bachinger   2019-12-17 137)   @Deprecated
+r2.12.0  5301d381360 StubExoPlayer             (olly        2017-11-15 138)   @Override
+r2.12.0  5301d381360 StubExoPlayer             (olly        2017-11-15 139)   public void prepare(MediaSource mediaSource) {
+r2.12.0  --
+r2.12.0  36fa9d5a434 StubExoPlayer             (bachinger   2019-12-17 147)   @Deprecated
+r2.12.0  5301d381360 StubExoPlayer             (olly        2017-11-15 148)   @Override
+r2.12.0  5301d381360 StubExoPlayer             (olly        2017-11-15 149)   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+r2.12.0  --
+r2.12.2  11b09dd58d2 LeanbackPlayerAdapter (bachinger 2020-11-09  89)   @Deprecated
+r2.12.2  4828f275c71 LeanbackPlayerAdapter (olly      2018-01-19  90)   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+r2.12.2  --
+r2.12.2  11b09dd58d2 PlaybackPreparer (bachinger 2020-11-09 19) @Deprecated
+r2.12.2  4828f275c71 PlaybackPreparer (olly      2018-01-19 20) public interface PlaybackPreparer {
+r2.12.2  --
+r2.12.2  11b09dd58d2 PlaybackPreparer (bachinger 2020-11-09 23)   @Deprecated
+r2.12.2  4828f275c71 PlaybackPreparer (olly      2018-01-19 24)   void preparePlayback();
+r2.12.2  --
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  112)     @Deprecated
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  113)     @Override
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  114)     public final RequestProperties getDefaultRequestProperties() {
+r2.13.0  --
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  347)   @Deprecated
+r2.13.0  8edce41ff35 CronetDataSource (olly                  2019-05-15  348)   public CronetDataSource(CronetEngine cronetEngine, Executor executor) {
+r2.13.0  --
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  359)   @Deprecated
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  360)   public CronetDataSource(
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  361)       CronetEngine cronetEngine,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  362)       Executor executor,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  363)       int connectTimeoutMs,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  364)       int readTimeoutMs,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  365)       boolean resetTimeoutOnRedirects,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  366)       @Nullable RequestProperties defaultRequestProperties) {
+r2.13.0  --
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  380)   @Deprecated
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  381)   public CronetDataSource(
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  382)       CronetEngine cronetEngine,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  383)       Executor executor,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  384)       int connectTimeoutMs,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  385)       int readTimeoutMs,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  386)       boolean resetTimeoutOnRedirects,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  387)       @Nullable RequestProperties defaultRequestProperties,
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  388)       boolean handleSetCookieRequests) {
+r2.13.0  --
+r2.13.0  62720858edd CronetDataSource (bachinger             2020-12-21  496)   @Deprecated
+r2.13.0  14c46bc4062 CronetDataSource (olly                  2019-05-23  497)   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+r2.13.0  --
+r2.13.0  62720858edd CronetDataSourceFactory        (bachinger 2020-12-21  28) @Deprecated
+r2.13.0  9d48d4e4865 CronetDataSourceFactory        (olly      2017-01-05  29) public final class CronetDataSourceFactory extends BaseFactory {
+r2.13.0  --
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14  88)     @Deprecated
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14  89)     @Override
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14  90)     public final RequestProperties getDefaultRequestProperties() {
+r2.13.0  --
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14 194)   @Deprecated
+r2.13.0  b2b08ade99b OkHttpDataSource (olly                  2020-09-08 195)   public OkHttpDataSource(Call.Factory callFactory) {
+r2.13.0  --
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14 201)   @Deprecated
+r2.13.0  8edce41ff35 OkHttpDataSource (olly                  2019-05-15 202)   public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent) {
+r2.13.0  --
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14 207)   @Deprecated
+r2.13.0  14c46bc4062 OkHttpDataSource (olly                  2019-05-23 208)   public OkHttpDataSource(
+r2.13.0  14c46bc4062 OkHttpDataSource (olly                  2019-05-23 209)       Call.Factory callFactory,
+r2.13.0  14c46bc4062 OkHttpDataSource (olly                  2019-05-23 210)       @Nullable String userAgent,
+r2.13.0  14c46bc4062 OkHttpDataSource (olly                  2019-05-23 211)       @Nullable CacheControl cacheControl,
+r2.13.0  14c46bc4062 OkHttpDataSource (olly                  2019-05-23 212)       @Nullable RequestProperties defaultRequestProperties) {
+r2.13.0  --
+r2.13.0  6114c894dfa OkHttpDataSource (bachinger             2020-12-14 239)   @Deprecated
+r2.13.0  14c46bc4062 OkHttpDataSource (olly                  2019-05-23 240)   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+r2.13.0  --
+r2.13.0  6114c894dfa OkHttpDataSourceFactory        (bachinger         2020-12-14  27) @Deprecated
+r2.13.0  9d48d4e4865 OkHttpDataSourceFactory        (olly              2017-01-05  28) public final class OkHttpDataSourceFactory extends BaseFactory {
+r2.13.0  --
+r2.13.0  2a5f6d8f627 ExoPlayerLibraryInfo (olly           2021-01-09 54)   @Deprecated
+r2.13.0  b2b08ade99b ExoPlayerLibraryInfo (olly           2020-09-08 55)   public static final String DEFAULT_USER_AGENT =
+r2.13.0  2a5f6d8f627 ExoPlayerLibraryInfo (olly           2021-01-09 56)       VERSION_SLASHY + " (Linux; Android " + Build.VERSION.RELEASE + ") " + VERSION_SLASHY;
+r2.13.0  --
+r2.13.0  456622a275f Player   (andrewlewis  2021-01-07 1366)   @Deprecated
+r2.13.0  f46cb907b7f Player   (tonihei      2017-11-28 1367)   void stop(boolean reset);
+r2.13.0  --
+r2.13.0  05c928f96d7 Timeline (bachinger    2020-12-10  197)     @Deprecated public boolean isLive;
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21  84)     @Deprecated
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21  85)     @Override
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21  86)     public final RequestProperties getDefaultRequestProperties() {
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21 236)   @Deprecated
+r2.13.0  b2b08ade99b DefaultHttpDataSource (olly                  2020-09-08 237)   public DefaultHttpDataSource() {
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21 243)   @Deprecated
+r2.13.0  2a5f6d8f627 DefaultHttpDataSource (olly                  2021-01-09 244)   public DefaultHttpDataSource(@Nullable String userAgent) {
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21 250)   @Deprecated
+r2.13.0  2a5f6d8f627 DefaultHttpDataSource (olly                  2021-01-09 251)   public DefaultHttpDataSource(
+r2.13.0  2a5f6d8f627 DefaultHttpDataSource (olly                  2021-01-09 252)       @Nullable String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21 262)   @Deprecated
+r2.13.0  14c46bc4062 DefaultHttpDataSource (olly                  2019-05-23 263)   public DefaultHttpDataSource(
+r2.13.0  2a5f6d8f627 DefaultHttpDataSource (olly                  2021-01-09 264)       @Nullable String userAgent,
+r2.13.0  14c46bc4062 DefaultHttpDataSource (olly                  2019-05-23 265)       int connectTimeoutMillis,
+r2.13.0  14c46bc4062 DefaultHttpDataSource (olly                  2019-05-23 266)       int readTimeoutMillis,
+r2.13.0  14c46bc4062 DefaultHttpDataSource (olly                  2019-05-23 267)       boolean allowCrossProtocolRedirects,
+r2.13.0  14c46bc4062 DefaultHttpDataSource (olly                  2019-05-23 268)       @Nullable RequestProperties defaultRequestProperties) {
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSource (bachinger             2020-12-21 299)   @Deprecated
+r2.13.0  14c46bc4062 DefaultHttpDataSource (olly                  2019-05-23 300)   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+r2.13.0  --
+r2.13.0  a335c964500 HttpDataSource (bachinger             2020-12-14 159)     @Deprecated
+r2.13.0  aede0f894d4 HttpDataSource        (bachinger             2017-03-10 160)     @Override
+r2.13.0  139252c9d39 HttpDataSource        (Oliver Woodman        2017-03-13 161)     public final RequestProperties getDefaultRequestProperties() {
+r2.13.0  --
+r2.13.0  4cbd4e2e2a3 PlayerMessage (tonihei    2021-01-21 150)   @Deprecated
+r2.13.0  4cbd4e2e2a3 PlayerMessage (tonihei    2021-01-21 151)   public PlayerMessage setHandler(Handler handler) {
+r2.13.0  --
+r2.13.0  553d5351c20 Renderer (krocard        2020-12-02 195)   @Deprecated
+r2.13.0  c8f0814bd07 Renderer (andrewlewis    2020-01-22 196)   @interface VideoScalingMode {}
+r2.13.0  --
+r2.13.0  553d5351c20 Renderer (krocard        2020-12-02 198)   @Deprecated int VIDEO_SCALING_MODE_SCALE_TO_FIT = C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+r2.13.0  --
+r2.13.0  553d5351c20 Renderer (krocard        2020-12-02 200)   @Deprecated
+r2.13.0  c8f0814bd07 Renderer (andrewlewis    2020-01-22 201)   int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
+r2.13.0  c8f0814bd07 Renderer (andrewlewis    2020-01-22 202)       C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+r2.13.0  --
+r2.13.0  553d5351c20 Renderer (krocard        2020-12-02 204)   @Deprecated int VIDEO_SCALING_MODE_DEFAULT = C.VIDEO_SCALING_MODE_DEFAULT;
+r2.13.0  --
+r2.13.0  538445572d7 RendererCapabilities (krocard      2020-11-27  40)   @Deprecated
+r2.13.0  72d5b425d38 RendererCapabilities (tonihei      2019-12-04  41)   @interface FormatSupport {}
+r2.13.0  --
+r2.13.0  f0edcc40036 RendererCapabilities (krocard      2020-12-04  45)   @Deprecated int FORMAT_HANDLED = C.FORMAT_HANDLED;
+r2.13.0  --
+r2.13.0  f0edcc40036 RendererCapabilities (krocard      2020-12-04  47)   @Deprecated int FORMAT_EXCEEDS_CAPABILITIES = C.FORMAT_EXCEEDS_CAPABILITIES;
+r2.13.0  --
+r2.13.0  f0edcc40036 RendererCapabilities (krocard      2020-12-04  49)   @Deprecated int FORMAT_UNSUPPORTED_DRM = C.FORMAT_UNSUPPORTED_DRM;
+r2.13.0  --
+r2.13.0  f0edcc40036 RendererCapabilities (krocard      2020-12-04  51)   @Deprecated int FORMAT_UNSUPPORTED_SUBTYPE = C.FORMAT_UNSUPPORTED_SUBTYPE;
+r2.13.0  --
+r2.13.0  f0edcc40036 RendererCapabilities (krocard      2020-12-04  53)   @Deprecated int FORMAT_UNSUPPORTED_TYPE = C.FORMAT_UNSUPPORTED_TYPE;
+r2.13.0  --
+r2.13.0  c47e62209da AnalyticsListener (olly         2020-11-13  751)   @Deprecated
+r2.13.0  c47e62209da AnalyticsListener (olly         2020-11-13  752)   default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+r2.13.0  --
+r2.13.0  c47e62209da AnalyticsListener (olly         2020-11-13  871)   @Deprecated
+r2.13.0  c47e62209da AnalyticsListener (olly         2020-11-13  872)   default void onVideoInputFormatChanged(EventTime eventTime, Format format) {}
+r2.13.0  --
+r2.13.0  c47e62209da AudioRendererEventListener (olly        2020-11-13  59)   @Deprecated
+r2.13.0  c47e62209da AudioRendererEventListener (olly        2020-11-13  60)   default void onAudioInputFormatChanged(Format format) {}
+r2.13.0  --
+r2.13.0  a1f06987ebe DrmSessionManager (olly           2021-01-25  57)   @Deprecated DrmSessionManager DUMMY = DRM_UNSUPPORTED;
+r2.13.0  --
+r2.13.0  a1f06987ebe DrmSessionManager (olly           2021-01-25  64)   @Deprecated
+r2.13.0  a1f06987ebe DrmSessionManager (olly           2021-01-25  65)   static DrmSessionManager getDummyDrmSessionManager() {
+r2.13.0  --
+r2.13.0  d436a69d8f5 MediaCodecInfo (olly           2020-10-26 365)   @Deprecated
+r2.13.0  35c230f3c6e MediaCodecInfo (andrewlewis    2018-09-11 366)   public boolean isSeamlessAdaptationSupported(
+r2.13.0  35c230f3c6e MediaCodecInfo (andrewlewis    2018-09-11 367)       Format oldFormat, Format newFormat, boolean isNewFormatComplete) {
+r2.13.0  --
+r2.13.0  5b9fa7d7d9d ExtractorMediaSource (ibaker          2021-01-22 163)     @Deprecated
+r2.13.0  5b9fa7d7d9d ExtractorMediaSource (ibaker          2021-01-22 164)     @Override
+r2.13.0  5b9fa7d7d9d ExtractorMediaSource (ibaker          2021-01-22 165)     public Factory setDrmSessionManagerProvider(
+r2.13.0  5b9fa7d7d9d ExtractorMediaSource (ibaker          2021-01-22 166)         @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+r2.13.0  --
+r2.13.0  5b9fa7d7d9d MediaSourceFactory (ibaker       2021-01-22  92)   @Deprecated
+r2.13.0  aa9eb5abc9b MediaSourceFactory (aquilescanta 2020-03-19  93)   MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager);
+r2.13.0  --
+r2.13.0  5b9fa7d7d9d MediaSourceFactory (ibaker       2021-01-22 110)   @Deprecated
+r2.13.0  e55b345595c MediaSourceFactory (bachinger    2020-08-20 111)   MediaSourceFactory setDrmHttpDataSourceFactory(
+r2.13.0  e55b345595c MediaSourceFactory (bachinger    2020-08-20 112)       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory);
+r2.13.0  --
+r2.13.0  5b9fa7d7d9d MediaSourceFactory (ibaker       2021-01-22 134)   @Deprecated
+r2.13.0  e55b345595c MediaSourceFactory (bachinger    2020-08-20 135)   MediaSourceFactory setDrmUserAgent(@Nullable String userAgent);
+r2.13.0  --
+r2.13.0  04824dfd250 DefaultHttpDataSourceFactory (bachinger 2020-12-21  23) @Deprecated
+r2.13.0  9d48d4e4865 DefaultHttpDataSourceFactory      (olly      2017-01-05  24) public final class DefaultHttpDataSourceFactory extends BaseFactory {
+r2.13.0  --
+r2.13.0  c47e62209da VideoRendererEventListener (olly        2020-11-13  57)   @Deprecated
+r2.13.0  c47e62209da VideoRendererEventListener (olly        2020-11-13  58)   default void onVideoInputFormatChanged(Format format) {}
+r2.13.0  --
+r2.13.0  41b58d503ae DashMediaSource (christosts       2020-10-14  428)   @Deprecated public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30_000;
+r2.13.0  --
+r2.13.0  b03df4e8b54 PlayerControlView (bachinger      2020-11-09  625)   @Deprecated
+r2.13.0  4828f275c71 PlayerControlView (olly           2018-01-19  626)   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+r2.13.0  --
+r2.13.0  b03df4e8b54 PlayerNotificationManager (bachinger       2020-11-09  717)   @Deprecated
+r2.13.0  9ca019b8f80 PlayerNotificationManager (olly            2018-11-12  718)   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+r2.13.0  --
+r2.13.0  93ed71fb3e2 PlayerNotificationManager (olly            2020-11-24  805)   @Deprecated
+r2.13.0  afd11de57dc PlayerNotificationManager (bachinger       2018-03-08  806)   public final void setUseNavigationActions(boolean useNavigationActions) {
+r2.13.0  --
+r2.13.0  93ed71fb3e2 PlayerNotificationManager (olly            2020-11-24  848)   @Deprecated
+r2.13.0  baf00406c02 PlayerNotificationManager (bachinger       2019-04-08  849)   public final void setUseNavigationActionsInCompactView(
+r2.13.0  baf00406c02 PlayerNotificationManager (bachinger       2019-04-08  850)       boolean useNavigationActionsInCompactView) {
+r2.13.0  --
+r2.13.0  b03df4e8b54 PlayerView (bachinger                2020-11-09  963)   @Deprecated
+r2.13.0  4828f275c71 PlayerView (olly                     2018-01-19  964)   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+r2.13.0  --
+r2.13.0  b03df4e8b54 StyledPlayerControlView (bachinger      2020-11-09  856)   @Deprecated
+r2.13.0  a3bbcf33950 StyledPlayerControlView (insun          2020-06-30  857)   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+r2.13.0  --
+r2.13.0  b03df4e8b54 StyledPlayerView (bachinger   2020-11-09  984)   @Deprecated
+r2.13.0  a3bbcf33950 StyledPlayerView (insun       2020-06-30  985)   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+r2.13.0  --

@@ -1,0 +1,98 @@
+{%- if paginator.total_pages > 1 -%}
+  <div class="pagination">
+
+    {%- include snippets/get-locale-string.html key='STATISTICS' -%}
+    {%- assign _locale_statistics = __return -%}
+
+    {%- assign _post_count = site.posts | size -%}
+    {%- assign _page_count = paginator.total_pages -%}
+    <p>{{ _locale_statistics | replace: '[POST_COUNT]', _post_count | replace: '[PAGE_COUNT]', _page_count }}</p>
+    <div class="pagination__menu">
+      <ul class="menu menu--nowrap">
+        {%- assign _max_show = 5 -%}
+        {%- assign _max_show_modulo_two = _max_show | modulo: 2 -%}
+        {%- assign _length = paginator.total_pages -%}
+        {%- assign _length_mimus_one = _length | minus: 1 -%}
+        {%- assign _cur = paginator.page -%}
+        {%- assign _extra = _max_show | minus: 3 -%}
+        {%- assign _extra_half = _extra | divided_by: 2 -%}
+
+        {%- if  _max_show > 4 and _max_show_modulo_two == 1 and paginator.total_pages > _max_show -%}
+          {%- assign _condition0 = _extra | divided_by: 2 | plus: 1 -%}
+          {%- assign _condition1 = _length | minus: _extra_half  -%}
+          {%- if _cur <= _condition0 -%}
+            {%- assign _n0 = 2 -%}
+            {%- assign _n1 = _extra | plus: 2 -%}
+          {%- elsif _cur >= _condition1 -%}
+            {%- assign _n0 = _length | minus: _extra | minus: 1 -%}
+            {%- assign _n1 = _length | minus: 1 -%}
+          {%- else -%}
+            {%- assign _n0 = _cur | minus: _extra_half -%}
+            {%- assign _n1 = _cur | plus: _extra_half -%}
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if paginator.previous_page -%}
+          {%- include snippets/prepend-baseurl.html path=paginator.previous_page_path -%}
+          {%- assign _href = __return -%}
+          <li><a class="button button--secondary button--circle" href="{{ _href }}">
+            <i class="fas fa-angle-left"></i>
+          </a></li>
+        {%- else -%}
+          <li><div class="button button--secondary button--circle disabled">
+            <i class="fas fa-angle-left"></i>
+          </div></li>
+        {%- endif -%}
+
+        {%- for page in (1.._length) -%}
+          {%- if page == _cur -%}
+            <li>
+              <div class="button button--primary button--circle focus"><span>{{ page }}</span></div>
+            </li>
+
+          {%- elsif page == 1 -%}
+            {%- assign _home_path = site.paths.home | default: site.data.variables.default.paths.home -%}
+            {%- include snippets/prepend-baseurl.html path=_home_path -%}
+            {%- assign _href = __return -%}
+            <li>
+              <a class="button button--secondary button--circle" href="{{ _href }}"><span>{{ page }}</span></a>
+            </li>
+
+          {%- else -%}
+            {%- if _n0 and _n1 -%}
+              {%- if page > 1 and page < _n0 -%}
+                {%- if page == 2 -%}<li><span class="pagination__omit"><i class="fas fa-ellipsis-h"></i></span></li>{%- endif -%}
+              {%- elsif page > _n1 and page < _length -%}
+                {%- if page == _length_mimus_one -%}<li><span class="pagination__omit"><i class="fas fa-ellipsis-h"></i></span></li>{%- endif -%}
+              {%- else -%}
+                {%- include snippets/prepend-baseurl.html path=site.paginate_path -%}
+                {%- assign _href = __return -%}
+                <li>
+                  <a class="button button--secondary button--circle" href="{{ _href | replace: ':num', page }}"><span>{{ page }}</span></a>
+                </li>
+              {%- endif -%}
+            {%- else -%}
+              {%- include snippets/prepend-baseurl.html path=site.paginate_path -%}
+              {%- assign _href = __return -%}
+              <li>
+                <a class="button button--secondary button--circle" href="{{ _href | replace: ':num', page }}"><span>{{ page }}</span></a>
+              </li>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if paginator.next_page -%}
+          {%- include snippets/prepend-baseurl.html path=paginator.next_page_path -%}
+          {%- assign _href = __return -%}
+          <li><a class="button button--secondary button--circle" href="{{ _href }}">
+            <i class="fas fa-angle-right"></i>
+          </a></li>
+        {%- else -%}
+          <li><div class="button button--secondary button--circle disabled">
+            <i class="fas fa-angle-right"></i>
+          </div></li>
+        {%- endif -%}
+      </ul>
+    </div>
+  </div>
+{%- endif -%}

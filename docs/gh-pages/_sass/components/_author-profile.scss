@@ -1,0 +1,26 @@
+.author-profile {
+  max-width: 25rem;
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+  margin: map-get($spacers, 4) 0;
+  font-size: map-get($base, font-size-sm);
+  background-color: $text-background-color;
+  @include media-breakpoint-down(md) {
+    text-align: center;
+  }
+}
+.author-profile__avatar {
+  width: 5rem;
+  height: 5rem;
+  margin-top: map-get($spacers, 2);
+  border-radius: 50%;
+}
+.author-profile__name {
+  font-size: map-get($base, font-size-lg);
+  font-weight: map-get($base, font-weight-bold);
+  a {
+    @include link-colors($text-color, $main-color-1);
+  }
+}
+.author-profile__links {
+  @include overflow(auto);
+}

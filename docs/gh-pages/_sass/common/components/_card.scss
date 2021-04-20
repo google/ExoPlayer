@@ -1,0 +1,103 @@
+
+.card {
+  max-width: 18rem;
+  border-radius: map-get($base, border-radius);
+  @include box-shadow();
+  @include transition(box-shadow map-get($animation, duration) map-get($animation, timing-function));
+  & > :first-child {
+    border-top-left-radius: map-get($base, border-radius);
+    border-top-right-radius: map-get($base, border-radius);
+  }
+  & > :last-child {
+    border-bottom-right-radius: map-get($base, border-radius);
+    border-bottom-left-radius: map-get($base, border-radius);
+  }
+}
+
+.cell {
+  & > .card {
+    max-width: unset;
+  }
+}
+
+.card__content {
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+}
+
+.card__header, .card__header > a {
+  @include link-colors($text-color-d, $main-color-1);
+}
+
+.card__image {
+  position: relative;
+  width: 100%;
+  & > img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: inherit;
+  }
+  & > .overlay {
+    position: absolute;
+    width: 100%;
+    max-height: 100%;
+    padding: map-get($spacers, 2);
+    a {
+      text-decoration: none !important;
+    }
+  }
+  & > .overlay, & > .overlay--top {
+    top: 0;
+    bottom: auto;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  & > .overlay--bottom {
+    top: auto;
+    bottom: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: inherit;
+  }
+  & > .overlay--full {
+    top: 0;
+    bottom: 0;
+  }
+  & > .overlay, & > .overlay--dark {
+    @extend .text--dark;
+    background-color: rgba(#000, .4);
+  }
+  & > .overlay--light {
+    @extend .text--light;
+    background: rgba(#fff, .4);
+  }
+}
+
+.card--clickable {
+  cursor: pointer;
+  @include hover() {
+    @include box-shadow(2);
+    .card__image {
+      & > img {
+        height: inherit;
+      }
+    }
+  }
+  @include transition(map-get($clickable, transition));
+}
+
+.card--flat {
+  @include box-shadow(0);
+  .card__image {
+    & > img {
+      border-radius: map-get($base, border-radius);
+    }
+  }
+  .card__content {
+    padding-top: 0;
+    padding-left: 0;
+  }
+}

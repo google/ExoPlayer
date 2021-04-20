@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>ExoPlayer library</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
+<script type="text/javascript">
+    tmpTargetPage = "" + window.location.search;
+    if (tmpTargetPage != "" && tmpTargetPage != "undefined")
+        tmpTargetPage = tmpTargetPage.substring(1);
+    if (tmpTargetPage.indexOf(":") != -1 || (tmpTargetPage != "" && !validURL(tmpTargetPage)))
+        tmpTargetPage = "undefined";
+    targetPage = tmpTargetPage;
+    function validURL(url) {
+        try {
+            url = decodeURIComponent(url);
+        }
+        catch (error) {
+            return false;
+        }
+        var pos = url.indexOf(".html");
+        if (pos == -1 || pos != url.length - 5)
+            return false;
+        var allowNumber = false;
+        var allowSep = false;
+        var seenDot = false;
+        for (var i = 0; i < url.length - 5; i++) {
+            var ch = url.charAt(i);
+            if ('a' <= ch && ch <= 'z' ||
+                    'A' <= ch && ch <= 'Z' ||
+                    ch == '$' ||
+                    ch == '_' ||
+                    ch.charCodeAt(0) > 127) {
+                allowNumber = true;
+                allowSep = true;
+            } else if ('0' <= ch && ch <= '9'
+                    || ch == '-') {
+                if (!allowNumber)
+                     return false;
+            } else if (ch == '/' || ch == '.') {
+                if (!allowSep)
+                    return false;
+                allowNumber = false;
+                allowSep = false;
+                if (ch == '.')
+                     seenDot = true;
+                if (ch == '/' && seenDot)
+                     return false;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+    function loadFrames() {
+        if (targetPage != "" && targetPage != "undefined")
+             top.classFrame.location = top.targetPage;
+    }
+</script>
+</head>
+<body onload="loadFrames()">
+<script type="text/javascript">
+if (targetPage == "" || targetPage == "undefined")
+     window.location.replace('overview-summary.html');
+</script>
+<noscript>JavaScript is disabled on your browser.</noscript>
+<div class="mainContainer">
+<div class="leftContainer">
+<div class="leftTop">
+<iframe src="overview-frame.html" name="packageListFrame" title="All Packages"></iframe>
+</div>
+<div class="leftBottom">
+<iframe src="allclasses-frame.html" name="packageFrame" title="All classes and interfaces (except non-static nested types)"></iframe>
+</div>
+</div>
+<div class="rightContainer">
+<iframe src="overview-summary.html" name="classFrame" title="Package, class and interface descriptions" class="rightIframe"></iframe>
+</div>
+</div>
+</body>
+</html>
