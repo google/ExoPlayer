@@ -73,6 +73,8 @@
     *   Spherical UI components moved from `video.spherical` package to
         `ui.spherical` package, and made package private.
 *   Remove deprecated symbols:
+    *   Remove `ExoPlayerFactory` methods. Use `SimpleExoPlayer.Builder`
+        instead.
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
     *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
