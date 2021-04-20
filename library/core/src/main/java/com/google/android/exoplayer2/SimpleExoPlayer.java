@@ -1821,7 +1821,10 @@ public class SimpleExoPlayer extends BasePlayer
    * <p>The default is {@code true} and this method will be removed in the future.
    *
    * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
+   * @deprecated Disabling the enforcement can result in hard-to-detect bugs. Do not use this method
+   *     except to ease the transition while wrong thread access problems are fixed.
    */
+  @Deprecated
   public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
