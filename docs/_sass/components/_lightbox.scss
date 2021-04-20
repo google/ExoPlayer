@@ -1,7 +1,0 @@
-.popup-image {
-  cursor: pointer;
-  @include hover() {
-    @include box-shadow(2);
-  }
-  @include transition(map-get($clickable, transition));
-}
