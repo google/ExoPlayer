@@ -151,6 +151,17 @@ public interface Player {
     default void onStaticMetadataChanged(List<Metadata> metadataList) {}
 
     /**
+     * Called when the combined {@link MediaMetadata} changes.
+     *
+     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
+     * and the static and dynamic metadata sourced from {@link
+     * EventListener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
+     *
+     * @param mediaMetadata The combined {@link MediaMetadata}.
+     */
+    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    /**
      * Called when the player starts or stops loading the source.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with

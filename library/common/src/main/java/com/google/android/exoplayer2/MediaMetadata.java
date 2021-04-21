@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -29,17 +30,34 @@ public final class MediaMetadata implements Bundleable {
   /** A builder for {@link MediaMetadata} instances. */
   public static final class Builder {
 
+    @Nullable private String title;
+
     public Builder() {}
 
     private Builder(MediaMetadata mediaMetadata) {
       this.title = mediaMetadata.title;
     }
 
-    @Nullable private String title;
-
     /** Sets the optional title. */
     public Builder setTitle(@Nullable String title) {
       this.title = title;
+      return this;
+    }
+
+    /**
+     * Sets all fields supported by the {@link Metadata.Entry entries} within the {@link Metadata}.
+     *
+     * <p>Fields are only set if the {@link Metadata.Entry} has an implementation for {@link
+     * Metadata.Entry#populateMediaMetadata(Builder)}.
+     *
+     * <p>In the event that multiple {@link Metadata.Entry} objects within the {@link Metadata}
+     * relate to the same {@link MediaMetadata} field, then the last one will be used.
+     */
+    public Builder populateFromMetadata(Metadata metadata) {
+      for (int i = 0; i < metadata.length(); i++) {
+        Metadata.Entry entry = metadata.get(i);
+        entry.populateMediaMetadata(this);
+      }
       return this;
     }
 

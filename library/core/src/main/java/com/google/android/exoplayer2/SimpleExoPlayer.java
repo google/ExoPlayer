@@ -2067,6 +2067,14 @@ public class SimpleExoPlayer extends BasePlayer
     return keepSessionIdAudioTrack.getAudioSessionId();
   }
 
+  private void setMediaMetadata(MediaMetadata mediaMetadata) {
+    if (this.currentMediaMetadata.equals(mediaMetadata)) {
+      return;
+    }
+    this.currentMediaMetadata = mediaMetadata;
+    componentListener.onMediaMetadataChanged(this.currentMediaMetadata);
+  }
+
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {
     return new DeviceInfo(
         DeviceInfo.PLAYBACK_TYPE_LOCAL,
@@ -2242,6 +2250,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onMetadata(Metadata metadata) {
       analyticsCollector.onMetadata(metadata);
+      setMediaMetadata(getMediaMetadata().buildUpon().populateFromMetadata(metadata).build());
       for (MetadataOutput metadataOutput : metadataOutputs) {
         metadataOutput.onMetadata(metadata);
       }
@@ -2369,6 +2378,16 @@ public class SimpleExoPlayer extends BasePlayer
     public void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
       currentMediaMetadata = mediaItem == null ? MediaMetadata.EMPTY : mediaItem.mediaMetadata;
+    }
+
+    @Override
+    public void onStaticMetadataChanged(List<Metadata> metadataList) {
+      MediaMetadata.Builder metadataBuilder = getMediaMetadata().buildUpon();
+      for (int i = 0; i < metadataList.size(); i++) {
+        metadataBuilder.populateFromMetadata(metadataList.get(i));
+      }
+
+      setMediaMetadata(metadataBuilder.build());
     }
 
     @Override
