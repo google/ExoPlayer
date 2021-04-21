@@ -132,7 +132,7 @@ shows you where). You can temporarily opt out from these exceptions being thrown
 by calling `SimpleExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case
 the issue will be logged as a warning instead. Using this opt out is not safe
 and may result in unexpected or obscure errors. It will be removed in ExoPlayer
-2.14.
+2.16.
 {:.info}
 
 For more information about ExoPlayer's treading model, see the
