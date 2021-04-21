@@ -74,8 +74,6 @@
         cache.
 *   Library restructuring:
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
-    *   Spherical UI components moved from `video.spherical` package to
-        `ui.spherical` package, and made package private.
 *   Remove deprecated symbols:
     *   Remove `ExoPlayerFactory` methods. Use `SimpleExoPlayer.Builder`
         instead.

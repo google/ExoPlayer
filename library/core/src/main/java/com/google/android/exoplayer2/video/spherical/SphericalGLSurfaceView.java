@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ui.spherical;
+package com.google.android.exoplayer2.video.spherical;
 
 import android.content.Context;
 import android.graphics.PointF;
@@ -36,9 +36,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -54,6 +55,16 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public final class SphericalGLSurfaceView extends GLSurfaceView {
 
+  /** Listener for the {@link Surface} to which video frames should be rendered. */
+  public interface VideoSurfaceListener {
+
+    /** Called when the {@link Surface} to which video frames should be rendered is created. */
+    void onVideoSurfaceCreated(Surface surface);
+
+    /** Called when the {@link Surface} to which video frames should be rendered is destroyed. */
+    void onVideoSurfaceDestroyed(Surface surface);
+  }
+
   // Arbitrary vertical field of view.
   private static final int FIELD_OF_VIEW_DEGREES = 90;
   private static final float Z_NEAR = 0.1f;
@@ -64,6 +75,7 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
 
   /* package */ static final float UPRIGHT_ROLL = (float) Math.PI;
 
+  private final CopyOnWriteArrayList<VideoSurfaceListener> videoSurfaceListeners;
   private final SensorManager sensorManager;
   @Nullable private final Sensor orientationSensor;
   private final OrientationListener orientationListener;
@@ -72,7 +84,6 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   private final SceneRenderer scene;
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
-  @Nullable private Player player;
   private boolean useSensorRotation;
   private boolean isStarted;
   private boolean isOrientationListenerRegistered;
@@ -83,6 +94,7 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
 
   public SphericalGLSurfaceView(Context context, @Nullable AttributeSet attributeSet) {
     super(context, attributeSet);
+    videoSurfaceListeners = new CopyOnWriteArrayList<>();
     mainHandler = new Handler(Looper.getMainLooper());
 
     // Configure sensors and touch.
@@ -116,6 +128,43 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   }
 
   /**
+   * Adds a {@link VideoSurfaceListener}.
+   *
+   * @param listener The listener to add.
+   */
+  public void addVideoSurfaceListener(VideoSurfaceListener listener) {
+    videoSurfaceListeners.add(listener);
+  }
+
+  /**
+   * Removes a {@link VideoSurfaceListener}.
+   *
+   * @param listener The listener to remove.
+   */
+  public void removeVideoSurfaceListener(VideoSurfaceListener listener) {
+    videoSurfaceListeners.remove(listener);
+  }
+
+  /**
+   * Returns the {@link Surface} to which video frames should be rendered, or {@code null} if it has
+   * not been created.
+   */
+  @Nullable
+  public Surface getVideoSurface() {
+    return surface;
+  }
+
+  /** Returns the {@link VideoFrameMetadataListener} that should be registered during playback. */
+  public VideoFrameMetadataListener getVideoFrameMetadataListener() {
+    return scene;
+  }
+
+  /** Returns the {@link CameraMotionListener} that should be registered during playback. */
+  public CameraMotionListener getCameraMotionListener() {
+    return scene;
+  }
+
+  /**
    * Sets the default stereo mode. If the played video doesn't contain a stereo mode the default one
    * is used.
    *
@@ -123,26 +172,6 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
    */
   public void setDefaultStereoMode(@C.StereoMode int stereoMode) {
     scene.setDefaultStereoMode(stereoMode);
-  }
-
-  /** Sets the {@link Player} to use. */
-  public void setPlayer(@Nullable Player newPlayer) {
-    if (newPlayer == player) {
-      return;
-    }
-    if (player != null) {
-      if (surface != null) {
-        player.clearVideoSurface(surface);
-      }
-      player.clearVideoFrameMetadataListener(scene);
-      player.clearCameraMotionListener(scene);
-    }
-    player = newPlayer;
-    if (this.player != null) {
-      player.setVideoFrameMetadataListener(scene);
-      player.setCameraMotionListener(scene);
-      player.setVideoSurface(surface);
-    }
   }
 
   /** Sets whether to use the orientation sensor for rotation (if available). */
@@ -173,14 +202,15 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     // Post to make sure we occur in order with any onSurfaceTextureAvailable calls.
     mainHandler.post(
         () -> {
-          if (surface != null) {
-            if (player != null) {
-              player.clearVideoSurface(surface);
+          @Nullable Surface oldSurface = surface;
+          if (oldSurface != null) {
+            for (VideoSurfaceListener videoSurfaceListener : videoSurfaceListeners) {
+              videoSurfaceListener.onVideoSurfaceDestroyed(oldSurface);
             }
-            releaseSurface(surfaceTexture, surface);
-            surfaceTexture = null;
-            surface = null;
           }
+          releaseSurface(surfaceTexture, oldSurface);
+          surfaceTexture = null;
+          surface = null;
         });
   }
 
@@ -199,15 +229,16 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   }
 
   // Called on GL thread.
-  private void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture) {
+  private void onSurfaceTextureAvailable(SurfaceTexture newSurfaceTexture) {
     mainHandler.post(
         () -> {
-          SurfaceTexture oldSurfaceTexture = this.surfaceTexture;
-          Surface oldSurface = this.surface;
-          this.surfaceTexture = surfaceTexture;
-          this.surface = new Surface(surfaceTexture);
-          if (player != null) {
-            player.setVideoSurface(surface);
+          @Nullable SurfaceTexture oldSurfaceTexture = surfaceTexture;
+          @Nullable Surface oldSurface = surface;
+          Surface newSurface = new Surface(newSurfaceTexture);
+          surfaceTexture = newSurfaceTexture;
+          surface = newSurface;
+          for (VideoSurfaceListener videoSurfaceListener : videoSurfaceListeners) {
+            videoSurfaceListener.onVideoSurfaceCreated(newSurface);
           }
           releaseSurface(oldSurfaceTexture, oldSurface);
         });

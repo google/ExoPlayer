@@ -63,12 +63,12 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
-import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
+import com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -570,11 +570,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     }
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
-      oldPlayer.removeListener(componentListener);
       if (surfaceView instanceof TextureView) {
         oldPlayer.clearVideoTextureView((TextureView) surfaceView);
-      } else if (surfaceView instanceof SphericalGLSurfaceView) {
-        ((SphericalGLSurfaceView) surfaceView).setPlayer(null);
       } else if (surfaceView instanceof SurfaceView) {
         oldPlayer.clearVideoSurfaceView((SurfaceView) surfaceView);
       }
@@ -593,8 +590,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       if (player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
         if (surfaceView instanceof TextureView) {
           player.setVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalGLSurfaceView) {
-          ((SphericalGLSurfaceView) surfaceView).setPlayer(player);
         } else if (surfaceView instanceof SurfaceView) {
           player.setVideoSurfaceView((SurfaceView) surfaceView);
         }

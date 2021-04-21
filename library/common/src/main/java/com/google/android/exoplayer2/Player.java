@@ -35,9 +35,7 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
-import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -1685,40 +1683,6 @@ public interface Player {
    * @return The linear gain applied to all audio channels.
    */
   float getVolume();
-
-  /**
-   * Sets a listener to receive video frame metadata events.
-   *
-   * <p>This method is intended to be called by the same component that sets the {@link Surface}
-   * onto which video will be rendered. If using ExoPlayer's standard UI components, this method
-   * should not be called directly from application code.
-   *
-   * @param listener The listener.
-   */
-  void setVideoFrameMetadataListener(VideoFrameMetadataListener listener);
-
-  /**
-   * Clears the listener which receives video frame metadata events if it matches the one passed.
-   * Else does nothing.
-   *
-   * @param listener The listener to clear.
-   */
-  void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
-
-  /**
-   * Sets a listener of camera motion events.
-   *
-   * @param listener The listener.
-   */
-  void setCameraMotionListener(CameraMotionListener listener);
-
-  /**
-   * Clears the listener which receives camera motion events if it matches the one passed. Else does
-   * nothing.
-   *
-   * @param listener The listener to clear.
-   */
-  void clearCameraMotionListener(CameraMotionListener listener);
 
   /**
    * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}

@@ -48,8 +48,6 @@ import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -652,22 +650,6 @@ public final class CastPlayer extends BasePlayer {
   public float getVolume() {
     return 1;
   }
-
-  /** This method is not supported and does nothing. */
-  @Override
-  public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {}
-
-  /** This method is not supported and does nothing. */
-  @Override
-  public void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener) {}
-
-  /** This method is not supported and does nothing. */
-  @Override
-  public void setCameraMotionListener(CameraMotionListener listener) {}
-
-  /** This method is not supported and does nothing. */
-  @Override
-  public void clearCameraMotionListener(CameraMotionListener listener) {}
 
   /** This method is not supported and does nothing. */
   @Override

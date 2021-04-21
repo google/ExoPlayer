@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ui.spherical;
+package com.google.android.exoplayer2.video.spherical;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ui.spherical.Projection.Mesh;
-import com.google.android.exoplayer2.ui.spherical.Projection.SubMesh;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.spherical.Projection.Mesh;
+import com.google.android.exoplayer2.video.spherical.Projection.SubMesh;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 

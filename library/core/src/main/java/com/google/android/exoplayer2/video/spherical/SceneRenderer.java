@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ui.spherical;
+package com.google.android.exoplayer2.video.spherical;
 
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
