@@ -509,7 +509,7 @@
       {
         "name": "SubStation Alpha positioning",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
-        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",
+        "subtitle_uri": "https://drive.google.com/uc?export=download&id=16IrvtynQ6-ANRpRX7hU6xEQeFU91LmXl",
         "subtitle_mime_type": "text/x-ssa",
         "subtitle_language": "en"
       },

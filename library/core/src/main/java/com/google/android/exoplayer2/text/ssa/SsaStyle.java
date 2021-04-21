@@ -94,6 +94,8 @@ import java.util.regex.Pattern;
   public final float fontSize;
   public final boolean bold;
   public final boolean italic;
+  public final boolean underline;
+  public final boolean strikeout;
 
   private SsaStyle(
       String name,
@@ -101,13 +103,17 @@ import java.util.regex.Pattern;
       @Nullable @ColorInt Integer primaryColor,
       float fontSize,
       boolean bold,
-      boolean italic) {
+      boolean italic,
+      boolean underline,
+      boolean strikeout) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
     this.fontSize = fontSize;
     this.bold = bold;
     this.italic = italic;
+    this.underline = underline;
+    this.strikeout = strikeout;
   }
 
   @Nullable
@@ -135,10 +141,16 @@ import java.util.regex.Pattern;
               ? parseFontSize(styleValues[format.fontSizeIndex].trim())
               : Cue.DIMEN_UNSET,
           format.boldIndex != C.INDEX_UNSET
-              ? parseBoldOrItalic(styleValues[format.boldIndex].trim())
+              ? parseBooleanData(styleValues[format.boldIndex].trim())
               : false,
           format.italicIndex != C.INDEX_UNSET
-              ? parseBoldOrItalic(styleValues[format.italicIndex].trim())
+              ? parseBooleanData(styleValues[format.italicIndex].trim())
+              : false,
+          format.underlineIndex != C.INDEX_UNSET
+              ? parseBooleanData(styleValues[format.underlineIndex].trim())
+              : false,
+          format.strikeoutIndex != C.INDEX_UNSET
+              ? parseBooleanData(styleValues[format.strikeoutIndex].trim())
               : false);
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
@@ -225,12 +237,12 @@ import java.util.regex.Pattern;
     }
   }
 
-  private static boolean parseBoldOrItalic(String boldOrItalic) {
+  private static boolean parseBooleanData(String booleanData) {
     try {
-      int value = Integer.parseInt(boldOrItalic);
+      int value = Integer.parseInt(booleanData);
       return value == 1 || value == -1;
     } catch (NumberFormatException e) {
-      Log.w(TAG, "Failed to parse bold/italic: '" + boldOrItalic + "'", e);
+      Log.w(TAG, "Failed to parse boolean data: '" + booleanData + "'", e);
       return false;
     }
   }
@@ -249,6 +261,8 @@ import java.util.regex.Pattern;
     public final int fontSizeIndex;
     public final int boldIndex;
     public final int italicIndex;
+    public final int underlineIndex;
+    public final int strikeoutIndex;
     public final int length;
 
     private Format(
@@ -258,6 +272,8 @@ import java.util.regex.Pattern;
         int fontSizeIndex,
         int boldIndex,
         int italicIndex,
+        int underlineIndex,
+        int strikeoutIndex,
         int length) {
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
@@ -265,6 +281,8 @@ import java.util.regex.Pattern;
       this.fontSizeIndex = fontSizeIndex;
       this.boldIndex = boldIndex;
       this.italicIndex = italicIndex;
+      this.underlineIndex = underlineIndex;
+      this.strikeoutIndex = strikeoutIndex;
       this.length = length;
     }
 
@@ -281,6 +299,8 @@ import java.util.regex.Pattern;
       int fontSizeIndex = C.INDEX_UNSET;
       int boldIndex = C.INDEX_UNSET;
       int italicIndex = C.INDEX_UNSET;
+      int underlineIndex = C.INDEX_UNSET;
+      int strikeoutIndex = C.INDEX_UNSET;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
@@ -303,6 +323,12 @@ import java.util.regex.Pattern;
           case "italic":
             italicIndex = i;
             break;
+          case "underline":
+            underlineIndex = i;
+            break;
+          case "strikeout":
+            strikeoutIndex = i;
+            break;
         }
       }
       return nameIndex != C.INDEX_UNSET
@@ -313,6 +339,8 @@ import java.util.regex.Pattern;
               fontSizeIndex,
               boldIndex,
               italicIndex,
+              underlineIndex,
+              strikeoutIndex,
               keys.length)
           : null;
     }

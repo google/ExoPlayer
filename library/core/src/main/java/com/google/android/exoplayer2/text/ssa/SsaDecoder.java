@@ -22,7 +22,9 @@ import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
@@ -338,6 +340,12 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
             /* start= */ 0,
             /* end= */ spannableText.length(),
             SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      if (style.underline) {
+        spannableText.setSpan(new UnderlineSpan(), 0, spannableText.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      if(style.strikeout) {
+        spannableText.setSpan(new StrikethroughSpan(), 0, spannableText.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
     }
 
