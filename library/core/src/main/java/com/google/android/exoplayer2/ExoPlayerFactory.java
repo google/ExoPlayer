@@ -18,7 +18,6 @@ package com.google.android.exoplayer2;
 import android.content.Context;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
@@ -29,13 +28,6 @@ import com.google.android.exoplayer2.util.Util;
 public final class ExoPlayerFactory {
 
   private ExoPlayerFactory() {}
-
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public static SimpleExoPlayer newSimpleInstance(Context context) {
-    return newSimpleInstance(context, new DefaultTrackSelector(context));
-  }
 
   /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
   @Deprecated
@@ -71,27 +63,5 @@ public final class ExoPlayerFactory {
         /* useLazyPreparation= */ true,
         Clock.DEFAULT,
         Util.getCurrentOrMainLooper());
-  }
-
-  /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
-  @Deprecated
-  public static ExoPlayer newInstance(
-      Context context, Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
-    return new ExoPlayerImpl(
-        renderers,
-        trackSelector,
-        new DefaultMediaSourceFactory(context),
-        loadControl,
-        DefaultBandwidthMeter.getSingletonInstance(context),
-        /* analyticsCollector= */ null,
-        /* useLazyPreparation= */ true,
-        SeekParameters.DEFAULT,
-        new DefaultLivePlaybackSpeedControl.Builder().build(),
-        ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS,
-        /* pauseAtEndOfMediaItems= */ false,
-        Clock.DEFAULT,
-        Util.getCurrentOrMainLooper(),
-        /* wrappingPlayer= */ null,
-        /* additionalPermanentAvailableCommands= */ Player.Commands.EMPTY);
   }
 }
