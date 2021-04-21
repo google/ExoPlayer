@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import java.util.Arrays;
 
 /** Configurable loader for native libraries. */

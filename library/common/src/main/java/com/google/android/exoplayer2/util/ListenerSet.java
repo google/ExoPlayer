@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.CheckResult;

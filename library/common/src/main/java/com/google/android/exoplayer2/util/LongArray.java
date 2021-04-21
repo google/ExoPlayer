@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import java.util.Arrays;
 
 /** An append-only, auto-growing {@code long[]}. */

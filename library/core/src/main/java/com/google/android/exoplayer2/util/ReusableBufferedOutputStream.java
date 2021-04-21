@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

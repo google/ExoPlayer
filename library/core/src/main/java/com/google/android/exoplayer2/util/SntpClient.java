@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import android.os.SystemClock;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;

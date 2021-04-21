@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import android.graphics.Color;
 import android.text.TextUtils;
 import androidx.annotation.ColorInt;

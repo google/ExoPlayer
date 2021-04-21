@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import static java.lang.Math.min;
 
 import com.google.common.base.Charsets;

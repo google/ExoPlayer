@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.widget.TextView;

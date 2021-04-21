@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

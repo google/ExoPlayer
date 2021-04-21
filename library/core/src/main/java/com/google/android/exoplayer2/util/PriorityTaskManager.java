@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import static java.lang.Math.max;
 
 import java.io.IOException;

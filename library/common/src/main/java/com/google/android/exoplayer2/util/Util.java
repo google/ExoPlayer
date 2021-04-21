@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import static android.content.Context.UI_MODE_SERVICE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.abs;

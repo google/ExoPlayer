@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;

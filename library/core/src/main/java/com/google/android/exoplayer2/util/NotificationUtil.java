@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
