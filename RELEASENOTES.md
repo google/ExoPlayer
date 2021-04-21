@@ -85,6 +85,7 @@
         module instead.
     *   Remove `DefaultMediaSourceEventListener`. Use `MediaSourceEventListener`
         instead.
+    *   Remove `ExtractorMediaSource`. Use `ProgressiveMediaSource` instead.
     *   Remove
         `NotificationUtil.createNotificationChannel(Context, String, int, int)`.
         Use `createNotificationChannel(Context, String, int, int, int)`

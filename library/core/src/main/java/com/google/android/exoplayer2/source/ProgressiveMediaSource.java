@@ -265,8 +265,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   private boolean timelineIsLive;
   @Nullable private TransferListener transferListener;
 
-  // TODO: Make private when ExtractorMediaSource is deleted.
-  /* package */ ProgressiveMediaSource(
+  private ProgressiveMediaSource(
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       ProgressiveMediaExtractor.Factory progressiveMediaExtractorFactory,
