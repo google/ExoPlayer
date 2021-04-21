@@ -20,9 +20,7 @@ import com.google.android.exoplayer2.C;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Encapsulates media content components over a contiguous period of time.
- */
+/** Encapsulates media content components over a contiguous period of time. */
 public class Period {
 
   /**

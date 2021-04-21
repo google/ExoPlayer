@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A collection of metadata entries.
- */
+/** A collection of metadata entries. */
 public final class Metadata implements Parcelable {
 
   /** A metadata entry. */

@@ -44,9 +44,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-/**
- * Default {@link RenderersFactory} implementation.
- */
+/** Default {@link RenderersFactory} implementation. */
 public class DefaultRenderersFactory implements RenderersFactory {
 
   /**

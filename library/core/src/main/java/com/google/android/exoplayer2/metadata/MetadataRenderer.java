@@ -33,9 +33,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A renderer for metadata.
- */
+/** A renderer for metadata. */
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private static final String TAG = "MetadataRenderer";

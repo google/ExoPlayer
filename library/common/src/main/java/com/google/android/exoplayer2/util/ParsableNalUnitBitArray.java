@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.util;
 
 /**
  * Wraps a byte array, providing methods that allow it to be read as a NAL unit bitstream.
- * <p>
- * Whenever the byte sequence [0, 0, 3] appears in the wrapped byte array, it is treated as [0, 0]
- * for all reading/skipping operations, which makes the bitstream appear to be unescaped.
+ *
+ * <p>Whenever the byte sequence [0, 0, 3] appears in the wrapped byte array, it is treated as [0,
+ * 0] for all reading/skipping operations, which makes the bitstream appear to be unescaped.
  */
 public final class ParsableNalUnitBitArray {
 

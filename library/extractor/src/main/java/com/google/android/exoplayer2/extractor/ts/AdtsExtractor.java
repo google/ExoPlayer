@@ -41,9 +41,7 @@ import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Extracts data from AAC bit streams with ADTS framing.
- */
+/** Extracts data from AAC bit streams with ADTS framing. */
 public final class AdtsExtractor implements Extractor {
 
   /** Factory for {@link AdtsExtractor} instances. */

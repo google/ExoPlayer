@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import com.google.android.exoplayer2.ParserException;
 
-/**
- * Thrown if the input format was not recognized.
- */
+/** Thrown if the input format was not recognized. */
 public class UnrecognizedInputFormatException extends ParserException {
 
   /**

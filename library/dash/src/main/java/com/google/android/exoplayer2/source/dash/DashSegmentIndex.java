@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source.dash;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
-/**
- * Indexes the segments within a media stream.
- */
+/** Indexes the segments within a media stream. */
 public interface DashSegmentIndex {
 
   int INDEX_UNBOUNDED = -1;

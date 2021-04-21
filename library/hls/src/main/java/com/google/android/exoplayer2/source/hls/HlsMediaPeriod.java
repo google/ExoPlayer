@@ -59,11 +59,11 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A {@link MediaPeriod} that loads an HLS stream.
- */
-public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper.Callback,
-    HlsPlaylistTracker.PlaylistEventListener {
+/** A {@link MediaPeriod} that loads an HLS stream. */
+public final class HlsMediaPeriod
+    implements MediaPeriod,
+        HlsSampleStreamWrapper.Callback,
+        HlsPlaylistTracker.PlaylistEventListener {
 
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;

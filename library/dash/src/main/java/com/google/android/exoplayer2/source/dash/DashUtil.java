@@ -40,9 +40,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Utility methods for DASH streams.
- */
+/** Utility methods for DASH streams. */
 public final class DashUtil {
 
   /**

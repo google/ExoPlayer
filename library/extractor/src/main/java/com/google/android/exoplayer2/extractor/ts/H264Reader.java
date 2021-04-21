@@ -39,9 +39,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses a continuous H264 byte stream and extracts individual frames.
- */
+/** Parses a continuous H264 byte stream and extracts individual frames. */
 public final class H264Reader implements ElementaryStreamReader {
 
   private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information

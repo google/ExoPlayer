@@ -23,9 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Text information ID3 frame.
- */
+/** Text information ID3 frame. */
 public final class TextInformationFrame extends Id3Frame {
 
   @Nullable public final String description;

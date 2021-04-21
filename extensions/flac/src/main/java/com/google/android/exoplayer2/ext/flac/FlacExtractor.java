@@ -45,9 +45,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Facilitates the extraction of data from the FLAC container format.
- */
+/** Facilitates the extraction of data from the FLAC container format. */
 public final class FlacExtractor implements Extractor {
 
   /** Factory that returns one extractor which is a {@link FlacExtractor}. */

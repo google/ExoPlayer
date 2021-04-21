@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import java.util.List;
 
-/**
- * A {@link TrackSelection} consisting of a single track.
- */
+/** A {@link TrackSelection} consisting of a single track. */
 public final class FixedTrackSelection extends BaseTrackSelection {
 
   private final int reason;

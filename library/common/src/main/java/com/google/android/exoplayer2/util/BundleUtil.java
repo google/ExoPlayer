@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.Nullable;

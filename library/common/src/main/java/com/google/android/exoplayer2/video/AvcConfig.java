@@ -25,9 +25,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * AVC configuration data.
- */
+/** AVC configuration data. */
 public final class AvcConfig {
 
   public final List<byte[]> initializationData;

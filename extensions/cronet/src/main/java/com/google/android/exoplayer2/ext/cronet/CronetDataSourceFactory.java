@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
-
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;

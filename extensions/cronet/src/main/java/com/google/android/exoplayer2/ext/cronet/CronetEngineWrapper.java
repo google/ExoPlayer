@@ -33,9 +33,7 @@ import java.util.List;
 import org.chromium.net.CronetEngine;
 import org.chromium.net.CronetProvider;
 
-/**
- * A wrapper class for a {@link CronetEngine}.
- */
+/** A wrapper class for a {@link CronetEngine}. */
 public final class CronetEngineWrapper {
 
   private static final String TAG = "CronetEngineWrapper";

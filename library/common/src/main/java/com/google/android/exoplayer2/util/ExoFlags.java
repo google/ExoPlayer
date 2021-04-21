@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+
 import static com.google.android.exoplayer2.util.Assertions.checkIndex;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 

@@ -20,9 +20,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
-/**
- * A {@link Factory} that produces {@link RtmpDataSource}.
- */
+/** A {@link Factory} that produces {@link RtmpDataSource}. */
 public final class RtmpDataSourceFactory implements DataSource.Factory {
 
   @Nullable private final TransferListener listener;

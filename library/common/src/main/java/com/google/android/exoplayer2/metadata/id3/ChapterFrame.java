@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * Chapter information ID3 frame.
- */
+/** Chapter information ID3 frame. */
 public final class ChapterFrame extends Id3Frame {
 
   public static final String ID = "CHAP";

@@ -34,9 +34,7 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Extracts data from the MPEG-2 PS container format.
- */
+/** Extracts data from the MPEG-2 PS container format. */
 public final class PsExtractor implements Extractor {
 
   /** Factory for {@link PsExtractor} instances. */

@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 
-/**
- * Reads section data.
- */
+/** Reads section data. */
 public interface SectionPayloadReader {
 
   /**

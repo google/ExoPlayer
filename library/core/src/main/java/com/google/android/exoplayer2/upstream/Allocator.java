@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-/**
- * A source of allocations.
- */
+/** A source of allocations. */
 public interface Allocator {
 
   /**

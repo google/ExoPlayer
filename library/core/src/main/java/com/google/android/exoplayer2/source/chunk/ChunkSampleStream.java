@@ -53,8 +53,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link SampleStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  * May also be configured to expose additional embedded {@link SampleStream}s.
  */
-public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, SequenceableLoader,
-    Loader.Callback<Chunk>, Loader.ReleaseCallback {
+public class ChunkSampleStream<T extends ChunkSource>
+    implements SampleStream, SequenceableLoader, Loader.Callback<Chunk>, Loader.ReleaseCallback {
 
   /** A callback to be notified when a sample stream has finished being released. */
   public interface ReleaseCallback<T extends ChunkSource> {

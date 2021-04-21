@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-/**
- * Default implementation of {@link CompositeSequenceableLoaderFactory}.
- */
+/** Default implementation of {@link CompositeSequenceableLoaderFactory}. */
 public final class DefaultCompositeSequenceableLoaderFactory
     implements CompositeSequenceableLoaderFactory {
 

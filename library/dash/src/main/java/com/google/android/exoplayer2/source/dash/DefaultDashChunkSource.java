@@ -53,9 +53,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A default {@link DashChunkSource} implementation.
- */
+/** A default {@link DashChunkSource} implementation. */
 public class DefaultDashChunkSource implements DashChunkSource {
 
   public static final class Factory implements DashChunkSource.Factory {

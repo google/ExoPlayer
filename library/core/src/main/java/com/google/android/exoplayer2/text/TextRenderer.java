@@ -41,10 +41,10 @@ import java.util.List;
 
 /**
  * A renderer for text.
- * <p>
- * {@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances obtained
- * from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s is
- * delegated to a {@link TextOutput}.
+ *
+ * <p>{@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances
+ * obtained from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s
+ * is delegated to a {@link TextOutput}.
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
 

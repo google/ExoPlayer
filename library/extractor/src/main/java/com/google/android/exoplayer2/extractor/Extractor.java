@@ -22,9 +22,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Extracts media data from a container format.
- */
+/** Extracts media data from a container format. */
 public interface Extractor {
 
   /**

@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
-/**
- * Represents a UTCTiming element.
- */
+/** Represents a UTCTiming element. */
 public final class UtcTimingElement {
 
   public final String schemeIdUri;

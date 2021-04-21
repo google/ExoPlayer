@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * HEVC configuration data.
- */
+/** HEVC configuration data. */
 public final class HevcConfig {
 
   /**

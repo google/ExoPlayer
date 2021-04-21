@@ -42,9 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/**
- * A utility class for querying the available codecs.
- */
+/** A utility class for querying the available codecs. */
 @SuppressLint("InlinedApi")
 public final class MediaCodecUtil {
 

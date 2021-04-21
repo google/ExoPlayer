@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+
 import android.os.Looper;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
@@ -22,9 +23,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
-/**
- * Provides methods for asserting the truth of expressions and properties.
- */
+/** Provides methods for asserting the truth of expressions and properties. */
 public final class Assertions {
 
   private Assertions() {}

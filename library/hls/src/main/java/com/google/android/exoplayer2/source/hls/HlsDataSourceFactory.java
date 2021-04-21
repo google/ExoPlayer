@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 
-/**
- * Creates {@link DataSource}s for HLS playlists, encryption and media chunks.
- */
+/** Creates {@link DataSource}s for HLS playlists, encryption and media chunks. */
 public interface HlsDataSourceFactory {
 
   /**

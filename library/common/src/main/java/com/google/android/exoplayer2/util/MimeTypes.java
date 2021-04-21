@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -25,9 +26,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Defines common MIME types and helper methods.
- */
+/** Defines common MIME types and helper methods. */
 public final class MimeTypes {
 
   public static final String BASE_TYPE_VIDEO = "video";

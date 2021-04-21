@@ -19,9 +19,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 
-/**
- * Assertions for {@link DecoderCounters}.
- */
+/** Assertions for {@link DecoderCounters}. */
 public final class DecoderCountersUtil {
 
   private DecoderCountersUtil() {}

@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.Map;
 import javax.crypto.Cipher;
 
-/**
- * A {@link DataSource} that decrypts the data read from an upstream source.
- */
+/** A {@link DataSource} that decrypts the data read from an upstream source. */
 public final class AesCipherDataSource implements DataSource {
 
   private final DataSource upstream;

@@ -31,9 +31,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
-/**
- * Defines constants used by the library.
- */
+/** Defines constants used by the library. */
 @SuppressWarnings("InlinedApi")
 public final class C {
 

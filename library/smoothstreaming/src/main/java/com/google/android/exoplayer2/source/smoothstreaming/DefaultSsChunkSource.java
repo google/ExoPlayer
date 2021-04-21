@@ -43,9 +43,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * A default {@link SsChunkSource} implementation.
- */
+/** A default {@link SsChunkSource} implementation. */
 public class DefaultSsChunkSource implements SsChunkSource {
 
   public static final class Factory implements SsChunkSource.Factory {

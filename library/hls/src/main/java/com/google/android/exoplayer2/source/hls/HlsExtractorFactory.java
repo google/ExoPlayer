@@ -26,9 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Factory for HLS media chunk extractors.
- */
+/** Factory for HLS media chunk extractors. */
 public interface HlsExtractorFactory {
 
   HlsExtractorFactory DEFAULT = new DefaultHlsExtractorFactory();

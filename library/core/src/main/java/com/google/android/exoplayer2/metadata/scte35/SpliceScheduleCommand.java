@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents a splice schedule command as defined in SCTE35, Section 9.3.2.
- */
+/** Represents a splice schedule command as defined in SCTE35, Section 9.3.2. */
 public final class SpliceScheduleCommand extends SpliceCommand {
 
   /**

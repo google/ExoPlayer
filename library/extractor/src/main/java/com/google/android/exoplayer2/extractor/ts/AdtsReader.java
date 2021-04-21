@@ -38,9 +38,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses a continuous ADTS byte stream and extracts individual frames.
- */
+/** Parses a continuous ADTS byte stream and extracts individual frames. */
 public final class AdtsReader implements ElementaryStreamReader {
 
   private static final String TAG = "AdtsReader";

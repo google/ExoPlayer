@@ -24,9 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/**
- * Holds input for a decoder.
- */
+/** Holds input for a decoder. */
 public class DecoderInputBuffer extends Buffer {
 
   /**

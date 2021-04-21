@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+
 import static com.google.android.exoplayer2.util.MimeTypes.normalizeMimeType;
 
 import android.net.Uri;

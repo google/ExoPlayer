@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer2.util;
 
+
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 
-/**
- * Calls through to {@link android.os.Trace} methods on supported API levels.
- */
+/** Calls through to {@link android.os.Trace} methods on supported API levels. */
 public final class TraceUtil {
 
   private TraceUtil() {}

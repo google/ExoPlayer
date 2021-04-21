@@ -28,9 +28,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
-/**
- * Receives track level data extracted by an {@link Extractor}.
- */
+/** Receives track level data extracted by an {@link Extractor}. */
 public interface TrackOutput {
 
   /**

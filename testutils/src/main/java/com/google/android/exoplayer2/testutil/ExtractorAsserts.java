@@ -37,9 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Assertion methods for {@link Extractor}.
- */
+/** Assertion methods for {@link Extractor}. */
 public final class ExtractorAsserts {
 
   /**
