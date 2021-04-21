@@ -121,12 +121,6 @@ public final class CryptoInfo {
     return frameworkCryptoInfo;
   }
 
-  /** @deprecated Use {@link #getFrameworkCryptoInfo()}. */
-  @Deprecated
-  public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
-    return getFrameworkCryptoInfo();
-  }
-
   /**
    * Increases the number of clear data for the first sub sample by {@code count}.
    *

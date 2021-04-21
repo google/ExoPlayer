@@ -261,25 +261,6 @@ public class PlayerNotificationManager {
   public interface NotificationListener {
 
     /**
-     * Called after the notification has been started.
-     *
-     * @param notificationId The id with which the notification has been posted.
-     * @param notification The {@link Notification}.
-     * @deprecated Use {@link #onNotificationPosted(int, Notification, boolean)} instead.
-     */
-    @Deprecated
-    default void onNotificationStarted(int notificationId, Notification notification) {}
-
-    /**
-     * Called after the notification has been cancelled.
-     *
-     * @param notificationId The id of the notification which has been cancelled.
-     * @deprecated Use {@link #onNotificationCancelled(int, boolean)}.
-     */
-    @Deprecated
-    default void onNotificationCancelled(int notificationId) {}
-
-    /**
      * Called after the notification has been cancelled.
      *
      * @param notificationId The id of the notification which has been cancelled.
@@ -644,6 +625,7 @@ public class PlayerNotificationManager {
   private final String channelId;
   private final int notificationId;
   private final MediaDescriptionAdapter mediaDescriptionAdapter;
+  @Nullable private final NotificationListener notificationListener;
   @Nullable private final CustomActionReceiver customActionReceiver;
   private final Handler mainHandler;
   private final NotificationManagerCompat notificationManager;
@@ -663,7 +645,6 @@ public class PlayerNotificationManager {
   private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
-  @Nullable private NotificationListener notificationListener;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
   private boolean usePreviousAction;
   private boolean useNextAction;
@@ -960,21 +941,6 @@ public class PlayerNotificationManager {
       this.controlDispatcher = controlDispatcher;
       invalidate();
     }
-  }
-
-  /**
-   * Sets the {@link NotificationListener}.
-   *
-   * <p>Please note that you should call this method before you call {@link #setPlayer(Player)} or
-   * you may not get the {@link NotificationListener#onNotificationStarted(int, Notification)}
-   * called on your listener.
-   *
-   * @param notificationListener The {@link NotificationListener}.
-   * @deprecated Pass the notification listener to the constructor instead.
-   */
-  @Deprecated
-  public final void setNotificationListener(NotificationListener notificationListener) {
-    this.notificationListener = notificationListener;
   }
 
   /**
@@ -1290,8 +1256,6 @@ public class PlayerNotificationManager {
     }
   }
 
-  // We're calling a deprecated listener method that we still want to notify.
-  @SuppressWarnings("deprecation")
   private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
@@ -1303,22 +1267,16 @@ public class PlayerNotificationManager {
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
       context.registerReceiver(notificationBroadcastReceiver, intentFilter);
-      if (notificationListener != null) {
-        notificationListener.onNotificationStarted(notificationId, notification);
-      }
     }
-    @Nullable NotificationListener listener = notificationListener;
-    if (listener != null) {
+    if (notificationListener != null) {
       // Always pass true for ongoing with the first notification to tell a service to go into
       // foreground even when paused.
-      listener.onNotificationPosted(
+      notificationListener.onNotificationPosted(
           notificationId, notification, ongoing || !isNotificationStarted);
     }
     isNotificationStarted = true;
   }
 
-  // We're calling a deprecated listener method that we still want to notify.
-  @SuppressWarnings("deprecation")
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
       isNotificationStarted = false;
@@ -1327,7 +1285,6 @@ public class PlayerNotificationManager {
       context.unregisterReceiver(notificationBroadcastReceiver);
       if (notificationListener != null) {
         notificationListener.onNotificationCancelled(notificationId, dismissedByUser);
-        notificationListener.onNotificationCancelled(notificationId);
       }
     }
   }

@@ -87,6 +87,21 @@
         module instead.
     *   Remove `DefaultMediaSourceEventListener`. Use `MediaSourceEventListener`
         instead.
+    *   Remove
+        `NotificationUtil.createNotificationChannel(Context, String, int, int)`.
+        Use `createNotificationChannel(Context, String, int, int, int)`
+        instead.
+    *   Remove `PlayerNotificationManager.NotificationListener`
+        `onNotificationStarted(int, Notification)` and
+        `onNotificationCancelled(int)`. Use
+        `onNotificationPosted(int, Notification, boolean)` and
+        `onNotificationCancelled(int, boolean)` instead.
+    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
+        `PlayerNotificationManager.Builder.setNotificationListener` instead.
+    *   Remove `DashManifest` constructor. Use the remaining constructor with
+        `programInformation` and `serviceDescription` set to `null` instead.
+    *   Remove `CryptoInfo.getFrameworkCryptoInfoV16`. Use
+        `CryptoInfo.getFrameworkCryptoInfo` instead.
 *   DRM:
     *   Only dispatch DRM session acquire and release events once per period
         when playing content that uses the same encryption keys for both audio &
