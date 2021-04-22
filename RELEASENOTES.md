@@ -75,8 +75,7 @@
 *   Library restructuring:
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
 *   Remove deprecated symbols:
-    *   Remove `ExoPlayerFactory` methods. Use `SimpleExoPlayer.Builder`
-        instead.
+    *   Remove `ExoPlayerFactory`. Use `SimpleExoPlayer.Builder` instead.
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
     *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
@@ -86,15 +85,14 @@
     *   Remove `DefaultMediaSourceEventListener`. Use `MediaSourceEventListener`
         instead.
     *   Remove `ExtractorMediaSource`. Use `ProgressiveMediaSource` instead.
-    *   Remove
-        `NotificationUtil.createNotificationChannel(Context, String, int, int)`.
-        Use `createNotificationChannel(Context, String, int, int, int)`
+    *   Remove `NotificationUtil.createNotificationChannel(Context, String, int,
+        int)`. Use `createNotificationChannel(Context, String, int, int, int)`
         instead.
     *   Remove `PlayerNotificationManager.NotificationListener`
         `onNotificationStarted(int, Notification)` and
-        `onNotificationCancelled(int)`. Use
-        `onNotificationPosted(int, Notification, boolean)` and
-        `onNotificationCancelled(int, boolean)` instead.
+        `onNotificationCancelled(int)`. Use `onNotificationPosted(int,
+        Notification, boolean)` and `onNotificationCancelled(int, boolean)`
+        instead.
     *   Remove `PlayerNotificationManager.setNotificationListener`. Use
         `PlayerNotificationManager.Builder.setNotificationListener` instead.
     *   Remove `DashManifest` constructor. Use the remaining constructor with
