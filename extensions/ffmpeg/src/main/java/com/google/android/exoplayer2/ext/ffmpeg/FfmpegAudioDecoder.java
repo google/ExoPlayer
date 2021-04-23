@@ -43,7 +43,7 @@ import java.util.List;
 
   private final String codecName;
   @Nullable private final byte[] extraData;
-  private final @C.Encoding int encoding;
+  @C.Encoding private final int encoding;
   private final int outputBufferSize;
 
   private long nativeContext; // May be reassigned on resetting the codec.
@@ -98,7 +98,8 @@ import java.util.List;
   }
 
   @Override
-  protected @Nullable FfmpegDecoderException decode(
+  @Nullable
+  protected FfmpegDecoderException decode(
       DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       nativeContext = ffmpegReset(nativeContext, extraData);
@@ -159,7 +160,8 @@ import java.util.List;
   }
 
   /** Returns the encoding of output audio. */
-  public @C.Encoding int getEncoding() {
+  @C.Encoding
+  public int getEncoding() {
     return encoding;
   }
 
@@ -167,7 +169,8 @@ import java.util.List;
    * Returns FFmpeg-compatible codec-specific initialization data ("extra data"), or {@code null} if
    * not required.
    */
-  private static @Nullable byte[] getExtraData(String mimeType, List<byte[]> initializationData) {
+  @Nullable
+  private static byte[] getExtraData(String mimeType, List<byte[]> initializationData) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
       case MimeTypes.AUDIO_OPUS:
