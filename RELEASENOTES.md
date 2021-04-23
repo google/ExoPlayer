@@ -18,8 +18,9 @@
         `onPositionDiscontinuity(int)` callback
         ([#6163](https://github.com/google/ExoPlayer/issues/6163),
         [#4768](https://github.com/google/ExoPlayer/issues/4768)).
-    *   Add `isCommandAvailable` method and `onAvailableCommandsChanged`
-        listener to query the commands that can be executed on the player.
+    *   Add methods `Player.getAvailableCommands`, `PLayer.isCommandAvailable`
+        and `EventListener.onAvailableCommandsChanged` to query the commands
+        that can be executed on the player.
     *   `AdsLoader.AdViewProvider` and `AdsLoader.OverlayInfo` have been renamed
         `com.google.android.exoplayer2.ui.AdViewProvider` and
         `com.google.android.exoplayer2.ui.AdOverlayInfo` respectively.

@@ -249,7 +249,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public boolean isCommandAvailable(int command) {
+  public Commands getAvailableCommands() {
     throw new UnsupportedOperationException();
   }
 

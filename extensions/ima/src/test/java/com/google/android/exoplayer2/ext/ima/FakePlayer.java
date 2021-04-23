@@ -195,14 +195,8 @@ import com.google.android.exoplayer2.util.ListenerSet;
   }
 
   @Override
-  public boolean isCommandAvailable(@Command int command) {
-    // Only support querrying the minimal set of command for testing.
-    switch (command) {
-      case COMMAND_GET_VOLUME:
-        return false;
-      default:
-        throw new UnsupportedOperationException();
-    }
+  public Commands getAvailableCommands() {
+    return Commands.EMPTY;
   }
 
   @Override

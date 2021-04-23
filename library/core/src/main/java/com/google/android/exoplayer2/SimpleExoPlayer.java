@@ -1349,9 +1349,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public boolean isCommandAvailable(@Command int command) {
+  public Commands getAvailableCommands() {
     verifyApplicationThread();
-    return player.isCommandAvailable(command);
+    return player.getAvailableCommands();
   }
 
   @Override

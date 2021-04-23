@@ -81,6 +81,11 @@ public abstract class BasePlayer implements Player {
     removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
   }
 
+  @Override
+  public final boolean isCommandAvailable(@Command int command) {
+    return getAvailableCommands().contains(command);
+  }
+
   /** @deprecated Use {@link #getPlayerError()} instead. */
   @Deprecated
   @Override

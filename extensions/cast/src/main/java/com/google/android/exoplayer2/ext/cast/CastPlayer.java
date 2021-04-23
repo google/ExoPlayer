@@ -367,8 +367,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public boolean isCommandAvailable(@Command int command) {
-    return availableCommands.contains(command);
+  public Commands getAvailableCommands() {
+    return availableCommands;
   }
 
   @Override
