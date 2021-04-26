@@ -588,9 +588,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   private static final String TAG = "SimpleExoPlayer";
-  private static final String WRONG_THREAD_ERROR_MESSAGE =
-      "Player is accessed on the wrong thread. See "
-          + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread";
 
   protected final Renderer[] renderers;
 
@@ -2014,13 +2011,18 @@ public class SimpleExoPlayer extends BasePlayer
     // the app thread until the constructor finished executing.
     constructorFinished.blockUninterruptible();
     if (Looper.myLooper() != getApplicationLooper()) {
+      String message =
+          Util.formatInvariant(
+              "Player is accessed on the wrong thread.\n"
+                  + "Current thread: '%s'\n"
+                  + "Expected thread: '%s'\n"
+                  + "See https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+              Looper.myLooper().getThread().getName(),
+              getApplicationLooper().getThread().getName());
       if (throwsWhenUsingWrongThread) {
-        throw new IllegalStateException(WRONG_THREAD_ERROR_MESSAGE);
+        throw new IllegalStateException(message);
       }
-      Log.w(
-          TAG,
-          WRONG_THREAD_ERROR_MESSAGE,
-          hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
+      Log.w(TAG, message, hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
     }
   }
