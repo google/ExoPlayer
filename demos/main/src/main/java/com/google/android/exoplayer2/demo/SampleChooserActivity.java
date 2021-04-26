@@ -433,7 +433,7 @@ public class SampleChooserActivity extends AppCompatActivity
             Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(uri, extension));
         mediaItem
             .setUri(uri)
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
+            .setMediaMetadata(new MediaMetadata.Builder().setTrackTitle(title).build())
             .setMimeType(adaptiveMimeType);
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =

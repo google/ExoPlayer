@@ -46,7 +46,7 @@ public final class TextInformationFrame extends Id3Frame {
     switch (id) {
       case "TT2":
       case "TIT2":
-        builder.setTitle(value);
+        builder.setTrackTitle(value);
         break;
       default:
         break;

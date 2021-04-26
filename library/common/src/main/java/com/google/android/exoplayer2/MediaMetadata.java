@@ -30,17 +30,24 @@ public final class MediaMetadata implements Bundleable {
   /** A builder for {@link MediaMetadata} instances. */
   public static final class Builder {
 
-    @Nullable private String title;
+    @Nullable private CharSequence trackTitle;
 
     public Builder() {}
 
     private Builder(MediaMetadata mediaMetadata) {
-      this.title = mediaMetadata.title;
+      this.trackTitle = mediaMetadata.trackTitle;
     }
 
-    /** Sets the optional title. */
+    /** @deprecated Use {@link #setTrackTitle(CharSequence)} instead. */
+    @Deprecated
     public Builder setTitle(@Nullable String title) {
-      this.title = title;
+      this.trackTitle = title;
+      return this;
+    }
+
+    /** Sets the optional track title. */
+    public Builder setTrackTitle(@Nullable CharSequence trackTitle) {
+      this.trackTitle = trackTitle;
       return this;
     }
 
@@ -70,11 +77,15 @@ public final class MediaMetadata implements Bundleable {
   /** Empty {@link MediaMetadata}. */
   public static final MediaMetadata EMPTY = new MediaMetadata.Builder().build();
 
-  /** Optional title. */
-  @Nullable public final String title;
+  /** @deprecated Use {@link #trackTitle} instead. */
+  @Deprecated @Nullable public final String title;
+
+  /** Optional track title. */
+  @Nullable public final CharSequence trackTitle;
 
   private MediaMetadata(Builder builder) {
-    this.title = builder.title;
+    this.title = builder.trackTitle != null ? builder.trackTitle.toString() : null;
+    this.trackTitle = builder.trackTitle;
   }
 
   /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
@@ -92,34 +103,36 @@ public final class MediaMetadata implements Bundleable {
     }
     MediaMetadata other = (MediaMetadata) obj;
 
-    return Util.areEqual(title, other.title);
+    return Util.areEqual(trackTitle, other.trackTitle);
   }
 
   @Override
   public int hashCode() {
-    return title == null ? 0 : title.hashCode();
+    return trackTitle == null ? 0 : trackTitle.hashCode();
   }
 
   // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FIELD_TITLE})
+  @IntDef({FIELD_TRACK_TITLE})
   private @interface FieldNumber {}
 
-  private static final int FIELD_TITLE = 0;
+  private static final int FIELD_TRACK_TITLE = 0;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putString(keyForField(FIELD_TITLE), title);
+    bundle.putCharSequence(keyForField(FIELD_TRACK_TITLE), trackTitle);
     return bundle;
   }
 
   /** Object that can restore {@link MediaMetadata} from a {@link Bundle}. */
   public static final Creator<MediaMetadata> CREATOR =
       bundle ->
-          new MediaMetadata.Builder().setTitle(bundle.getString(keyForField(FIELD_TITLE))).build();
+          new MediaMetadata.Builder()
+              .setTrackTitle(bundle.getCharSequence(keyForField(FIELD_TRACK_TITLE)))
+              .build();
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);

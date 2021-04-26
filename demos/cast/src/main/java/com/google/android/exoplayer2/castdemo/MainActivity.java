@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity
       holder.item = Assertions.checkNotNull(playerManager.getItem(position));
 
       TextView view = holder.textView;
-      view.setText(holder.item.mediaMetadata.title);
+      view.setText(holder.item.mediaMetadata.trackTitle);
       // TODO: Solve coloring using the theme's ColorStateList.
       view.setTextColor(
           ColorUtils.setAlphaComponent(
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity
     @NonNull
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
       View view = super.getView(position, convertView, parent);
-      ((TextView) view).setText(Util.castNonNull(getItem(position)).mediaMetadata.title);
+      ((TextView) view).setText(Util.castNonNull(getItem(position)).mediaMetadata.trackTitle);
       return view;
     }
   }

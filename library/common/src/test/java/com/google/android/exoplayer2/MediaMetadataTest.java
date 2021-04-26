@@ -31,21 +31,21 @@ public class MediaMetadataTest {
   public void builder_minimal_correctDefaults() {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().build();
 
-    assertThat(mediaMetadata.title).isNull();
+    assertThat(mediaMetadata.trackTitle).isNull();
   }
 
   @Test
-  public void builderSetTitle_setsTitle() {
+  public void builderSetsTrackTitle_setsTrackTitle() {
     String title = "title";
 
-    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle(title).build();
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTrackTitle(title).build();
 
-    assertThat(mediaMetadata.title).isEqualTo(title);
+    assertThat(mediaMetadata.trackTitle.toString()).isEqualTo(title);
   }
 
   @Test
   public void roundTripViaBundle_yieldsEqualInstance() {
-    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTrackTitle("title").build();
 
     assertThat(MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle())).isEqualTo(mediaMetadata);
   }
@@ -58,6 +58,6 @@ public class MediaMetadataTest {
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     entry.populateMediaMetadata(builder);
-    assertThat(builder.build().title).isEqualTo(title);
+    assertThat(builder.build().trackTitle.toString()).isEqualTo(title);
   }
 }
