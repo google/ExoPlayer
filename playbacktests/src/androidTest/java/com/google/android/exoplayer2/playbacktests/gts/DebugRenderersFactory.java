@@ -140,10 +140,11 @@ import java.util.ArrayList;
     protected void resetCodecStateForFlush() {
       super.resetCodecStateForFlush();
       clearTimestamps();
+      // Check if there is a format change on the input side still pending propagation to the
+      // output.
+      inputFormatChanged = !inputFormatChangeTimesUs.isEmpty();
       inputFormatChangeTimesUs.clear();
-      inputFormatChanged = false;
       outputMediaFormatChanged = false;
-      currentMediaFormat = null;
     }
 
     @Override
