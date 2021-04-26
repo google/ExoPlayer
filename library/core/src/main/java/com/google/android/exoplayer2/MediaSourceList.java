@@ -340,6 +340,7 @@ import java.util.Set;
         Log.e(TAG, "Failed to release child source.", e);
       }
       childSource.mediaSource.removeEventListener(childSource.eventListener);
+      childSource.mediaSource.removeDrmEventListener(childSource.eventListener);
     }
     childSources.clear();
     enabledMediaSourceHolders.clear();
@@ -449,6 +450,7 @@ import java.util.Set;
           Assertions.checkNotNull(childSources.remove(mediaSourceHolder));
       removedChild.mediaSource.releaseSource(removedChild.caller);
       removedChild.mediaSource.removeEventListener(removedChild.eventListener);
+      removedChild.mediaSource.removeDrmEventListener(removedChild.eventListener);
       enabledMediaSourceHolders.remove(mediaSourceHolder);
     }
   }
@@ -504,12 +506,12 @@ import java.util.Set;
 
     public final MediaSource mediaSource;
     public final MediaSource.MediaSourceCaller caller;
-    public final MediaSourceEventListener eventListener;
+    public final ForwardingEventListener eventListener;
 
     public MediaSourceAndListener(
         MediaSource mediaSource,
         MediaSource.MediaSourceCaller caller,
-        MediaSourceEventListener eventListener) {
+        ForwardingEventListener eventListener) {
       this.mediaSource = mediaSource;
       this.caller = caller;
       this.eventListener = eventListener;
