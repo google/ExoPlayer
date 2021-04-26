@@ -50,6 +50,8 @@ public final class SsaDecoderTest {
   private static final String STYLE_COLORS = "media/ssa/style_colors";
   private static final String STYLE_FONT_SIZE = "media/ssa/style_font_size";
   private static final String STYLE_BOLD_ITALIC = "media/ssa/style_bold_italic";
+  private static final String STYLE_UNDERLINE = "media/ssa/style_underline";
+  private static final String STYLE_STRIKEOUT = "media/ssa/style_strikeout";
 
   @Test
   public void decodeEmpty() throws IOException {
@@ -354,6 +356,39 @@ public final class SsaDecoderTest {
     Spanned thirdCueText =
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4))).text;
     SpannedSubject.assertThat(thirdCueText).hasBoldItalicSpanBetween(0, thirdCueText.length());
+  }
+
+  @Test
+  public void decodeUnderline() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_UNDERLINE);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+
+    Spanned firstCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
+    SpannedSubject.assertThat(firstCueText).hasUnderlineSpanBetween(0, firstCueText.length());
+    Spanned secondCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
+    SpannedSubject.assertThat(secondCueText).hasNoUnderlineSpanBetween(0, secondCueText.length());
+  }
+
+  @Test
+  public void decodeStrikeout() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_STRIKEOUT);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+
+    Spanned firstCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
+    SpannedSubject.assertThat(firstCueText).hasStrikethroughSpanBetween(0, firstCueText.length());
+    Spanned secondCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
+    SpannedSubject.assertThat(secondCueText)
+        .hasNoStrikethroughSpanBetween(0, secondCueText.length());
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {
