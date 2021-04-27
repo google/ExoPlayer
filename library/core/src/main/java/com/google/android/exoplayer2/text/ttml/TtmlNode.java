@@ -426,12 +426,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           regionOutput.setMultiRowAlignment(resolvedStyle.getMultiRowAlign());
         }
       }
-
-      if (resolvedStyle.getTextAlign() != null) {
-        // Only set text alignment if defined in current node, otherwise could overwrite
-        // inherited text alignment
-        regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
-      }
     }
   }
 
