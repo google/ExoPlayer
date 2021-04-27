@@ -132,6 +132,8 @@
         `DashMediaSource.Factory`.
     *   We don't currently support using platform extractors with
         SmoothStreaming.
+*   RTSP
+    *   Release the initial version of ExoPlayer's RTSP support.
 
 ### 2.13.3 (2021-04-14)
 
