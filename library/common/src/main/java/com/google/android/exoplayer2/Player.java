@@ -157,6 +157,9 @@ public interface Player {
      * and the static and dynamic metadata sourced from {@link
      * EventListener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param mediaMetadata The combined {@link MediaMetadata}.
      */
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
@@ -899,7 +902,8 @@ public interface Player {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
-    EVENT_AVAILABLE_COMMANDS_CHANGED
+    EVENT_AVAILABLE_COMMANDS_CHANGED,
+    EVENT_MEDIA_METADATA_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -935,6 +939,8 @@ public interface Player {
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;
   /** {@link #isCommandAvailable(int)} changed for at least one {@link Command}. */
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
+  /** {@link #getMediaMetadata()} changed. */
+  int EVENT_MEDIA_METADATA_CHANGED = 15;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link

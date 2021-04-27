@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -730,6 +731,15 @@ public class AnalyticsCollector
         eventTime,
         AnalyticsListener.EVENT_PLAYBACK_PARAMETERS_CHANGED,
         listener -> listener.onPlaybackParametersChanged(eventTime, playbackParameters));
+  }
+
+  @Override
+  public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_MEDIA_METADATA_CHANGED,
+        listener -> listener.onMediaMetadataChanged(eventTime, mediaMetadata));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.

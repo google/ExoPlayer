@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /** Metadata of a {@link MediaItem} or a playlist. */
 public final class MediaMetadata implements Bundleable {
@@ -64,6 +65,27 @@ public final class MediaMetadata implements Bundleable {
       for (int i = 0; i < metadata.length(); i++) {
         Metadata.Entry entry = metadata.get(i);
         entry.populateMediaMetadata(this);
+      }
+      return this;
+    }
+
+    /**
+     * Sets all fields supported by the {@link Metadata.Entry entries} within the list of {@link
+     * Metadata}.
+     *
+     * <p>Fields are only set if the {@link Metadata.Entry} has an implementation for {@link
+     * Metadata.Entry#populateMediaMetadata(Builder)}.
+     *
+     * <p>In the event that multiple {@link Metadata.Entry} objects within any of the {@link
+     * Metadata} relate to the same {@link MediaMetadata} field, then the last one will be used.
+     */
+    public Builder populateFromMetadata(List<Metadata> metadataList) {
+      for (int i = 0; i < metadataList.size(); i++) {
+        Metadata metadata = metadataList.get(i);
+        for (int j = 0; j < metadata.length(); j++) {
+          Metadata.Entry entry = metadata.get(j);
+          entry.populateMediaMetadata(this);
+        }
       }
       return this;
     }

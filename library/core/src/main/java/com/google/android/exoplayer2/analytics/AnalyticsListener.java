@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -42,6 +43,7 @@ import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -166,6 +168,7 @@ public interface AnalyticsListener {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_MEDIA_METADATA_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -242,6 +245,8 @@ public interface AnalyticsListener {
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** {@link Player#getMediaMetadata()} changed. */
+  int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -639,6 +644,19 @@ public interface AnalyticsListener {
    * @param metadataList The static metadata.
    */
   default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
+
+  /**
+   * Called when the combined {@link MediaMetadata} changes.
+   *
+   * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
+   * and the static and dynamic metadata sourced from {@link
+   * Player.EventListener#onStaticMetadataChanged(List)} and {@link
+   * MetadataOutput#onMetadata(Metadata)}.
+   *
+   * @param eventTime The event time.
+   * @param mediaMetadata The combined {@link MediaMetadata}.
+   */
+  default void onMediaMetadataChanged(EventTime eventTime, MediaMetadata mediaMetadata) {}
 
   /**
    * Called when a media source started loading data.

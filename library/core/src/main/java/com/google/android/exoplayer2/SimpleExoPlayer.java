@@ -636,7 +636,6 @@ public class SimpleExoPlayer extends BasePlayer
   private boolean isPriorityTaskManagerRegistered;
   private boolean playerReleased;
   private DeviceInfo deviceInfo;
-  private MediaMetadata currentMediaMetadata;
 
   /** @deprecated Use the {@link Builder} and pass it to {@link #SimpleExoPlayer(Builder)}. */
   @Deprecated
@@ -749,7 +748,6 @@ public class SimpleExoPlayer extends BasePlayer
       wifiLockManager = new WifiLockManager(builder.context);
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
-      currentMediaMetadata = MediaMetadata.EMPTY;
 
       sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
@@ -1656,7 +1654,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public MediaMetadata getMediaMetadata() {
-    return currentMediaMetadata;
+    return player.getMediaMetadata();
   }
 
   @Override
@@ -2069,14 +2067,6 @@ public class SimpleExoPlayer extends BasePlayer
     return keepSessionIdAudioTrack.getAudioSessionId();
   }
 
-  private void setMediaMetadata(MediaMetadata mediaMetadata) {
-    if (this.currentMediaMetadata.equals(mediaMetadata)) {
-      return;
-    }
-    this.currentMediaMetadata = mediaMetadata;
-    componentListener.onMediaMetadataChanged(this.currentMediaMetadata);
-  }
-
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {
     return new DeviceInfo(
         DeviceInfo.PLAYBACK_TYPE_LOCAL,
@@ -2252,7 +2242,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onMetadata(Metadata metadata) {
       analyticsCollector.onMetadata(metadata);
-      setMediaMetadata(getMediaMetadata().buildUpon().populateFromMetadata(metadata).build());
+      player.onMetadata(metadata);
       for (MetadataOutput metadataOutput : metadataOutputs) {
         metadataOutput.onMetadata(metadata);
       }
@@ -2374,22 +2364,6 @@ public class SimpleExoPlayer extends BasePlayer
           isPriorityTaskManagerRegistered = false;
         }
       }
-    }
-
-    @Override
-    public void onMediaItemTransition(
-        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
-      currentMediaMetadata = mediaItem == null ? MediaMetadata.EMPTY : mediaItem.mediaMetadata;
-    }
-
-    @Override
-    public void onStaticMetadataChanged(List<Metadata> metadataList) {
-      MediaMetadata.Builder metadataBuilder = getMediaMetadata().buildUpon();
-      for (int i = 0; i < metadataList.size(); i++) {
-        metadataBuilder.populateFromMetadata(metadataList.get(i));
-      }
-
-      setMediaMetadata(metadataBuilder.build());
     }
 
     @Override

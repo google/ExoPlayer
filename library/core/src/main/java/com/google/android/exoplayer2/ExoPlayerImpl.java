@@ -102,6 +102,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private ShuffleOrder shuffleOrder;
   private boolean pauseAtEndOfMediaItems;
   private Commands availableCommands;
+  private MediaMetadata mediaMetadata;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -208,6 +209,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .add(COMMAND_SEEK_TO_DEFAULT_POSITION)
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
+    mediaMetadata = MediaMetadata.EMPTY;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -983,8 +985,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public MediaMetadata getMediaMetadata() {
-    // Unsupported operation.
-    return MediaMetadata.EMPTY;
+    return mediaMetadata;
+  }
+
+  public void onMetadata(Metadata metadata) {
+    MediaMetadata newMediaMetadata =
+        mediaMetadata.buildUpon().populateFromMetadata(metadata).build();
+    if (newMediaMetadata.equals(mediaMetadata)) {
+      return;
+    }
+    mediaMetadata = newMediaMetadata;
+    listeners.sendEvent(
+        EVENT_MEDIA_METADATA_CHANGED, listener -> listener.onMediaMetadataChanged(mediaMetadata));
   }
 
   @Override
@@ -1194,6 +1206,24 @@ import java.util.concurrent.CopyOnWriteArraySet;
             !previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline));
     boolean mediaItemTransitioned = mediaItemTransitionInfo.first;
     int mediaItemTransitionReason = mediaItemTransitionInfo.second;
+    MediaMetadata newMediaMetadata = mediaMetadata;
+    @Nullable MediaItem mediaItem = null;
+    if (mediaItemTransitioned) {
+      if (!newPlaybackInfo.timeline.isEmpty()) {
+        int windowIndex =
+            newPlaybackInfo.timeline.getPeriodByUid(newPlaybackInfo.periodId.periodUid, period)
+                .windowIndex;
+        mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
+      }
+      mediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
+    }
+    if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
+      newMediaMetadata =
+          newMediaMetadata.buildUpon().populateFromMetadata(newPlaybackInfo.staticMetadata).build();
+    }
+    boolean metadataChanged = !newMediaMetadata.equals(mediaMetadata);
+    mediaMetadata = newMediaMetadata;
+
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
@@ -1222,18 +1252,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
           });
     }
     if (mediaItemTransitioned) {
-      @Nullable final MediaItem mediaItem;
-      if (!newPlaybackInfo.timeline.isEmpty()) {
-        int windowIndex =
-            newPlaybackInfo.timeline.getPeriodByUid(newPlaybackInfo.periodId.periodUid, period)
-                .windowIndex;
-        mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
-      } else {
-        mediaItem = null;
-      }
+      @Nullable final MediaItem finalMediaItem = mediaItem;
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
-          listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
+          listener -> listener.onMediaItemTransition(finalMediaItem, mediaItemTransitionReason));
     }
     if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError
         && newPlaybackInfo.playbackError != null) {
@@ -1253,6 +1275,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
       listeners.queueEvent(
           Player.EVENT_STATIC_METADATA_CHANGED,
           listener -> listener.onStaticMetadataChanged(newPlaybackInfo.staticMetadata));
+    }
+    if (metadataChanged) {
+      final MediaMetadata finalMediaMetadata = mediaMetadata;
+      listeners.queueEvent(
+          Player.EVENT_MEDIA_METADATA_CHANGED,
+          listener -> listener.onMediaMetadataChanged(finalMediaMetadata));
     }
     if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
       listeners.queueEvent(
