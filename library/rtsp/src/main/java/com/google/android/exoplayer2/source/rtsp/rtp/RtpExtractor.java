@@ -139,8 +139,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     long packetArrivalTimeMs = SystemClock.elapsedRealtime();
+    long packetCutoffTimeMs = getCutoffTimeMs(packetArrivalTimeMs);
     reorderingQueue.offer(packet, packetArrivalTimeMs);
-    @Nullable RtpPacket dequeuedPacket = reorderingQueue.poll(getCutoffTimeMs(packetArrivalTimeMs));
+    @Nullable RtpPacket dequeuedPacket = reorderingQueue.poll(packetCutoffTimeMs);
     if (dequeuedPacket == null) {
       // No packet is available for reading.
       return RESULT_CONTINUE;
@@ -164,15 +165,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // Ignores the incoming packets while seek is pending.
       if (isSeekPending) {
         if (nextRtpTimestamp != C.TIME_UNSET && playbackStartTimeUs != C.TIME_UNSET) {
+          reorderingQueue.reset();
           payloadReader.seek(nextRtpTimestamp, playbackStartTimeUs);
           isSeekPending = false;
           nextRtpTimestamp = C.TIME_UNSET;
           playbackStartTimeUs = C.TIME_UNSET;
         }
       } else {
-        rtpPacketDataBuffer.reset(packet.payloadData);
-        payloadReader.consume(
-            rtpPacketDataBuffer, packet.timestamp, packet.sequenceNumber, packet.marker);
+        do {
+          // Deplete the reordering queue as much as possible.
+          rtpPacketDataBuffer.reset(packet.payloadData);
+          payloadReader.consume(
+              rtpPacketDataBuffer, packet.timestamp, packet.sequenceNumber, packet.marker);
+          packet = reorderingQueue.poll(packetCutoffTimeMs);
+        } while (packet != null);
       }
     }
     return RESULT_CONTINUE;
