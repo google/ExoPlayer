@@ -353,6 +353,13 @@ public final class RtspMediaPeriod implements MediaPeriod {
     }
   }
 
+  private void updateLoadingFinished() {
+    loadingFinished = true;
+    for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
+      loadingFinished &= rtspLoaderWrappers.get(i).canceled;
+    }
+  }
+
   private static ImmutableList<TrackGroup> buildTrackGroups(
       ImmutableList<RtspLoaderWrapper> rtspLoaderWrappers) {
     ImmutableList.Builder<TrackGroup> listBuilder = new ImmutableList.Builder<>();
@@ -583,9 +590,7 @@ public final class RtspMediaPeriod implements MediaPeriod {
       canceled = true;
 
       // Update loadingFinished every time loading is canceled.
-      for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
-        loadingFinished &= rtspLoaderWrappers.get(i).canceled;
-      }
+      updateLoadingFinished();
     }
 
     /** Resets the {@link Loadable} and {@link SampleQueue} to prepare for an RTSP seek. */
