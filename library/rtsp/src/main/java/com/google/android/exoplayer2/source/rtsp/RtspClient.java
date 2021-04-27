@@ -443,12 +443,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     public void onDescribeResponseReceived(RtspDescribeResponse response) {
+      @Nullable
       String sessionRangeAttributeString =
-          checkNotNull(response.sessionDescription.attributes.get(SessionDescription.ATTR_RANGE));
+          response.sessionDescription.attributes.get(SessionDescription.ATTR_RANGE);
 
       try {
         sessionInfoListener.onSessionTimelineUpdated(
-            RtspSessionTiming.parseTiming(sessionRangeAttributeString),
+            sessionRangeAttributeString != null
+                ? RtspSessionTiming.parseTiming(sessionRangeAttributeString)
+                : RtspSessionTiming.DEFAULT,
             buildTrackList(response.sessionDescription, uri));
         hasUpdatedTimelineAndTracks = true;
       } catch (ParserException e) {

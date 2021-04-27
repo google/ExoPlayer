@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * <p>Currently only NPT is supported. See RFC2326 Section 3.6 for detail of NPT.
  */
 public final class RtspSessionTiming {
-  /** The default session timing starting from 0.000 and indefinite length. */
+  /** The default session timing starting from 0.000 and indefinite length, effectively live. */
   public static final RtspSessionTiming DEFAULT =
       new RtspSessionTiming(/* startTimeMs= */ 0, /* stopTimeMs= */ C.TIME_UNSET);
 
