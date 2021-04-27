@@ -938,7 +938,7 @@ public interface Player {
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
-   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
+   * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
    * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
@@ -953,7 +953,7 @@ public interface Player {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     COMMAND_PLAY_PAUSE,
-    COMMAND_PREPARE_STOP_RELEASE,
+    COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
     COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
@@ -979,7 +979,7 @@ public interface Player {
   /** Command to start, pause or resume playback. */
   int COMMAND_PLAY_PAUSE = 1;
   /** Command to prepare the player, stop playback or release the player. */
-  int COMMAND_PREPARE_STOP_RELEASE = 2;
+  int COMMAND_PREPARE_STOP = 2;
   /** Command to seek to the default position of the current window. */
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
   /** Command to seek anywhere into the current window. */
