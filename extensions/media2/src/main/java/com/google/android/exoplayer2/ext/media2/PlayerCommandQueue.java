@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /** Manages the queue of player actions and handles running them one by one. */
-/* package */ class PlayerCommandQueue implements AutoCloseable {
+/* package */ class PlayerCommandQueue {
 
   private static final String TAG = "PlayerCommandQueue";
   private static final boolean DEBUG = false;
@@ -141,9 +141,6 @@ import java.util.concurrent.Callable;
   @GuardedBy("lock")
   private final Deque<PlayerCommand> pendingPlayerCommandQueue;
 
-  @GuardedBy("lock")
-  private boolean closed;
-
   // Should be only used on the handler.
   @Nullable private AsyncPlayerCommandResult pendingAsyncPlayerCommandResult;
 
@@ -152,17 +149,6 @@ import java.util.concurrent.Callable;
     this.handler = handler;
     lock = new Object();
     pendingPlayerCommandQueue = new ArrayDeque<>();
-  }
-
-  @Override
-  public void close() {
-    synchronized (lock) {
-      if (closed) {
-        return;
-      }
-      closed = true;
-    }
-    reset();
   }
 
   public void reset() {
@@ -187,11 +173,6 @@ import java.util.concurrent.Callable;
       @CommandCode int commandCode, Callable<Boolean> command, @Nullable Object tag) {
     SettableFuture<PlayerResult> result = SettableFuture.create();
     synchronized (lock) {
-      if (closed) {
-        // OK to set result with lock hold because developers cannot add listener here.
-        result.set(new PlayerResult(PlayerResult.RESULT_ERROR_INVALID_STATE, /* item= */ null));
-        return result;
-      }
       PlayerCommand playerCommand = new PlayerCommand(commandCode, command, result, tag);
       result.addListener(
           () -> {
