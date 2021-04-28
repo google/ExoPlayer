@@ -20,23 +20,33 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-/** Metadata of a {@link MediaItem} or a playlist. */
+/**
+ * Metadata of a {@link MediaItem}, playlist, or a combination of multiple sources of {@link
+ * Metadata}.
+ */
 public final class MediaMetadata implements Bundleable {
 
   /** A builder for {@link MediaMetadata} instances. */
   public static final class Builder {
 
     @Nullable private CharSequence trackTitle;
+    @Nullable private CharSequence trackArtist;
+    @Nullable private CharSequence albumTitle;
+    @Nullable private CharSequence albumArtist;
 
     public Builder() {}
 
     private Builder(MediaMetadata mediaMetadata) {
       this.trackTitle = mediaMetadata.trackTitle;
+      this.trackArtist = mediaMetadata.trackArtist;
+      this.albumTitle = mediaMetadata.albumTitle;
+      this.albumArtist = mediaMetadata.albumArtist;
     }
 
     /** @deprecated Use {@link #setTrackTitle(CharSequence)} instead. */
@@ -49,6 +59,21 @@ public final class MediaMetadata implements Bundleable {
     /** Sets the optional track title. */
     public Builder setTrackTitle(@Nullable CharSequence trackTitle) {
       this.trackTitle = trackTitle;
+      return this;
+    }
+
+    public Builder setTrackArtist(@Nullable CharSequence trackArtist) {
+      this.trackArtist = trackArtist;
+      return this;
+    }
+
+    public Builder setAlbumTitle(@Nullable CharSequence albumTitle) {
+      this.albumTitle = albumTitle;
+      return this;
+    }
+
+    public Builder setAlbumArtist(@Nullable CharSequence albumArtist) {
+      this.albumArtist = albumArtist;
       return this;
     }
 
@@ -102,12 +127,17 @@ public final class MediaMetadata implements Bundleable {
   /** @deprecated Use {@link #trackTitle} instead. */
   @Deprecated @Nullable public final String title;
 
-  /** Optional track title. */
   @Nullable public final CharSequence trackTitle;
+  @Nullable public final CharSequence trackArtist;
+  @Nullable public final CharSequence albumTitle;
+  @Nullable public final CharSequence albumArtist;
 
   private MediaMetadata(Builder builder) {
     this.title = builder.trackTitle != null ? builder.trackTitle.toString() : null;
     this.trackTitle = builder.trackTitle;
+    this.trackArtist = builder.trackArtist;
+    this.albumTitle = builder.albumTitle;
+    this.albumArtist = builder.albumArtist;
   }
 
   /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
@@ -123,29 +153,37 @@ public final class MediaMetadata implements Bundleable {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    MediaMetadata other = (MediaMetadata) obj;
-
-    return Util.areEqual(trackTitle, other.trackTitle);
+    MediaMetadata that = (MediaMetadata) obj;
+    return Util.areEqual(trackTitle, that.trackTitle)
+        && Util.areEqual(trackArtist, that.trackArtist)
+        && Util.areEqual(albumTitle, that.albumTitle)
+        && Util.areEqual(albumArtist, that.albumArtist);
   }
 
   @Override
   public int hashCode() {
-    return trackTitle == null ? 0 : trackTitle.hashCode();
+    return Objects.hashCode(trackTitle, trackArtist, albumTitle, albumArtist);
   }
 
   // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FIELD_TRACK_TITLE})
+  @IntDef({FIELD_TRACK_TITLE, FIELD_TRACK_ARTIST, FIELD_ALBUM_TITLE, FIELD_ALBUM_ARTIST})
   private @interface FieldNumber {}
 
   private static final int FIELD_TRACK_TITLE = 0;
+  private static final int FIELD_TRACK_ARTIST = 1;
+  private static final int FIELD_ALBUM_TITLE = 2;
+  private static final int FIELD_ALBUM_ARTIST = 3;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putCharSequence(keyForField(FIELD_TRACK_TITLE), trackTitle);
+    bundle.putCharSequence(keyForField(FIELD_TRACK_ARTIST), trackArtist);
+    bundle.putCharSequence(keyForField(FIELD_ALBUM_TITLE), albumTitle);
+    bundle.putCharSequence(keyForField(FIELD_ALBUM_ARTIST), albumArtist);
     return bundle;
   }
 
@@ -154,6 +192,9 @@ public final class MediaMetadata implements Bundleable {
       bundle ->
           new MediaMetadata.Builder()
               .setTrackTitle(bundle.getCharSequence(keyForField(FIELD_TRACK_TITLE)))
+              .setTrackArtist(bundle.getCharSequence(keyForField(FIELD_TRACK_ARTIST)))
+              .setAlbumTitle(bundle.getCharSequence(keyForField(FIELD_ALBUM_TITLE)))
+              .setAlbumArtist(bundle.getCharSequence(keyForField(FIELD_ALBUM_ARTIST)))
               .build();
 
   private static String keyForField(@FieldNumber int field) {
