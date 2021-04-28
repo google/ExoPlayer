@@ -1504,9 +1504,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED))
         .containsExactly(period0, period1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED))
-        .containsExactly(period0, period1)
-        .inOrder();
+    // The pre-fetched key load for period1 might complete before the blocking key load for period0,
+    // so we can't assert the order:
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0, period1);
     // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
     // thread has been quit during clean-up.
     assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
