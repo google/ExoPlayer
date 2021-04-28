@@ -387,7 +387,7 @@ public final class VideoFrameReleaseHelper {
             : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
     try {
       surface.setFrameRate(frameRate, compatibility);
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException e) {
       Log.e(TAG, "Failed to call Surface.setFrameRate", e);
     }
   }
