@@ -108,6 +108,15 @@
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
+    *   Remove `PlaybackPreparer`. UI components that previously had
+        `setPlaybackPreparer` methods will now call `Player.prepare` by default.
+        If this behavior is sufficient, use of `PlaybackPreparer` can be removed
+        from application code without replacement. For custom preparation logic,
+        replace calls to `setPlaybackPreparer` with calls to
+        `setControlDispatcher` on the same components, passing a
+        `ControlDispatcher` that implements custom preparation logic in
+        `dispatchPrepare`. Extend `DefaultControlDispatcher` to avoid having to
+        implement the other `ControlDispatcher` methods.
 *   DRM:
     *   Only dispatch DRM session acquire and release events once per period
         when playing content that uses the same encryption keys for both audio &

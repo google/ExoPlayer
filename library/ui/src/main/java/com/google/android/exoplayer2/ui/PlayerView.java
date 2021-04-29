@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Timeline;
@@ -911,21 +910,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     if (listener != null) {
       controller.addVisibilityListener(listener);
     }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The view calls {@link
-   *     ControlDispatcher#dispatchPrepare(Player)} instead of {@link
-   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that the view
-   *     uses by default, calls {@link Player#prepare()}. If you wish to customize this behaviour,
-   *     you can provide a custom implementation of {@link
-   *     ControlDispatcher#dispatchPrepare(Player)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    Assertions.checkStateNotNull(controller);
-    controller.setPlaybackPreparer(playbackPreparer);
   }
 
   /**
