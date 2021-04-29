@@ -436,7 +436,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private static SparseArray<MediaSourceFactory> loadDelegates(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     SparseArray<MediaSourceFactory> factories = new SparseArray<>();
-    // LINT.IfChange
     try {
       Class<? extends MediaSourceFactory> factoryClazz =
           Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
@@ -476,7 +475,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     } catch (Exception e) {
       // Expected if the app was built without the RTSP module.
     }
-    // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     factories.put(
         C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory));
     return factories;

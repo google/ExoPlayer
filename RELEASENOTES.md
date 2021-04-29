@@ -47,6 +47,7 @@
         visibility in order to allow Kotlin subclasses of
         `AdaptiveTrackSelection.Factory`
         ([#8830](https://github.com/google/ExoPlayer/issues/8830)).
+    *   Hide LINT.IfChange tags in public sources.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.

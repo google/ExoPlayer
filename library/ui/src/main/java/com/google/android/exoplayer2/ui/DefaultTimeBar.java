@@ -152,12 +152,10 @@ public class DefaultTimeBar extends View implements TimeBar {
   /** Default color for played ad markers. */
   public static final int DEFAULT_PLAYED_AD_MARKER_COLOR = 0x33FFFF00;
 
-  // LINT.IfChange
   /** Vertical gravity for progress bar to be located at the center in the view. */
   public static final int BAR_GRAVITY_CENTER = 0;
   /** Vertical gravity for progress bar to be located at the bottom in the view. */
   public static final int BAR_GRAVITY_BOTTOM = 1;
-  // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
 
   /** The threshold in dps above the bar at which touch events trigger fine scrub mode. */
   private static final int FINE_SCRUB_Y_THRESHOLD_DP = -50;

@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 /** Util class for repeat mode handling. */
 public final class RepeatModeUtil {
 
-  // LINT.IfChange
   /**
    * Set of repeat toggle modes. Can be combined using bit-wise operations. Possible flag values are
    * {@link #REPEAT_TOGGLE_MODE_NONE}, {@link #REPEAT_TOGGLE_MODE_ONE} and {@link
@@ -46,7 +45,6 @@ public final class RepeatModeUtil {
   public static final int REPEAT_TOGGLE_MODE_ONE = 1;
   /** "Repeat All" button enabled. */
   public static final int REPEAT_TOGGLE_MODE_ALL = 1 << 1; // 2
-  // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
 
   private RepeatModeUtil() {
     // Prevent instantiation.
