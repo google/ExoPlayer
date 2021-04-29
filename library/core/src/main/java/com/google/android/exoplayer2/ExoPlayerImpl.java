@@ -52,6 +52,7 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1055,6 +1056,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /** This method is not supported and does nothing. */
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {}
+
+  /** This method is not supported and returns {@link VideoSize#UNKNOWN}. */
+  @Override
+  public VideoSize getVideoSize() {
+    return VideoSize.UNKNOWN;
+  }
 
   /** This method is not supported and returns an empty list. */
   @Override

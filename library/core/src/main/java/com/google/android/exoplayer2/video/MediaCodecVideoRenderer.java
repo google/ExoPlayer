@@ -145,10 +145,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int currentHeight;
   private int currentUnappliedRotationDegrees;
   private float currentPixelWidthHeightRatio;
-  private int reportedWidth;
-  private int reportedHeight;
-  private int reportedUnappliedRotationDegrees;
-  private float reportedPixelWidthHeightRatio;
+  @Nullable private VideoSize reportedVideoSize;
 
   private boolean tunneling;
   private int tunnelingAudioSessionId;
@@ -1200,30 +1197,29 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void clearReportedVideoSize() {
-    reportedWidth = Format.NO_VALUE;
-    reportedHeight = Format.NO_VALUE;
-    reportedPixelWidthHeightRatio = Format.NO_VALUE;
-    reportedUnappliedRotationDegrees = Format.NO_VALUE;
+    reportedVideoSize = null;
   }
 
   private void maybeNotifyVideoSizeChanged() {
     if ((currentWidth != Format.NO_VALUE || currentHeight != Format.NO_VALUE)
-      && (reportedWidth != currentWidth || reportedHeight != currentHeight
-        || reportedUnappliedRotationDegrees != currentUnappliedRotationDegrees
-        || reportedPixelWidthHeightRatio != currentPixelWidthHeightRatio)) {
-      eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
-          currentPixelWidthHeightRatio);
-      reportedWidth = currentWidth;
-      reportedHeight = currentHeight;
-      reportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
-      reportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
+        && (reportedVideoSize == null
+            || reportedVideoSize.width != currentWidth
+            || reportedVideoSize.height != currentHeight
+            || reportedVideoSize.unappliedRotationDegrees != currentUnappliedRotationDegrees
+            || reportedVideoSize.pixelWidthHeightRatio != currentPixelWidthHeightRatio)) {
+      reportedVideoSize =
+          new VideoSize(
+              currentWidth,
+              currentHeight,
+              currentUnappliedRotationDegrees,
+              currentPixelWidthHeightRatio);
+      eventDispatcher.videoSizeChanged(reportedVideoSize);
     }
   }
 
   private void maybeRenotifyVideoSizeChanged() {
-    if (reportedWidth != Format.NO_VALUE || reportedHeight != Format.NO_VALUE) {
-      eventDispatcher.videoSizeChanged(reportedWidth, reportedHeight,
-          reportedUnappliedRotationDegrees, reportedPixelWidthHeightRatio);
+    if (reportedVideoSize != null) {
+      eventDispatcher.videoSizeChanged(reportedVideoSize);
     }
   }
 

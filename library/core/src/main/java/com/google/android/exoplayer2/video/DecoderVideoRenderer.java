@@ -133,8 +133,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private int reportedWidth;
-  private int reportedHeight;
+  @Nullable private VideoSize reportedVideoSize;
 
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
@@ -914,26 +913,21 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   private void clearReportedVideoSize() {
-    reportedWidth = Format.NO_VALUE;
-    reportedHeight = Format.NO_VALUE;
+    reportedVideoSize = null;
   }
 
   private void maybeNotifyVideoSizeChanged(int width, int height) {
-    if (reportedWidth != width || reportedHeight != height) {
-      reportedWidth = width;
-      reportedHeight = height;
-      eventDispatcher.videoSizeChanged(
-          width, height, /* unappliedRotationDegrees= */ 0, /* pixelWidthHeightRatio= */ 1);
+    if (reportedVideoSize == null
+        || reportedVideoSize.width != width
+        || reportedVideoSize.height != height) {
+      reportedVideoSize = new VideoSize(width, height);
+      eventDispatcher.videoSizeChanged(reportedVideoSize);
     }
   }
 
   private void maybeRenotifyVideoSizeChanged() {
-    if (reportedWidth != Format.NO_VALUE || reportedHeight != Format.NO_VALUE) {
-      eventDispatcher.videoSizeChanged(
-          reportedWidth,
-          reportedHeight,
-          /* unappliedRotationDegrees= */ 0,
-          /* pixelWidthHeightRatio= */ 1);
+    if (reportedVideoSize != null) {
+      eventDispatcher.videoSizeChanged(reportedVideoSize);
     }
   }
 

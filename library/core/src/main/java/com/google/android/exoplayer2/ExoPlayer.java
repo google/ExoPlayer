@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
 
@@ -368,6 +369,16 @@ public interface ExoPlayer extends Player {
      * @param textureView The texture view to clear.
      */
     void clearVideoTextureView(@Nullable TextureView textureView);
+
+    /**
+     * Gets the size of the video.
+     *
+     * <p>The width and height of size could be 0 if there is no video or the size has not been
+     * determined yet.
+     *
+     * @see Listener#onVideoSizeChanged(int, int, int, float)
+     */
+    VideoSize getVideoSize();
   }
 
   /** The text component of an {@link ExoPlayer}. */
