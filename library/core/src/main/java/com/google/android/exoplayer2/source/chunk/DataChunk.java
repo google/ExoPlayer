@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * A base class for {@link Chunk} implementations where the data should be loaded into a
- * {@code byte[]} before being consumed.
+ * A base class for {@link Chunk} implementations where the data should be loaded into a {@code
+ * byte[]} before being consumed.
  */
 public abstract class DataChunk extends Chunk {
 

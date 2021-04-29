@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An abstract base class for {@link Loadable} implementations that load chunks of data required
- * for the playback of streams.
+ * An abstract base class for {@link Loadable} implementations that load chunks of data required for
+ * the playback of streams.
  */
 public abstract class Chunk implements Loadable {
 

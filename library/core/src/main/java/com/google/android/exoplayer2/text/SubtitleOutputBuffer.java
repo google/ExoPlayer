@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.decoder.OutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
 
-/**
- * Base class for {@link SubtitleDecoder} output buffers.
- */
+/** Base class for {@link SubtitleDecoder} output buffers. */
 public abstract class SubtitleOutputBuffer extends OutputBuffer implements Subtitle {
 
   @Nullable private Subtitle subtitle;

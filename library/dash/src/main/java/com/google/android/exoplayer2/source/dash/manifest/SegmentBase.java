@@ -29,9 +29,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * An approximate representation of a SegmentBase manifest element.
- */
+/** An approximate representation of a SegmentBase manifest element. */
 public abstract class SegmentBase {
 
   @Nullable /* package */ final RangedUri initialization;
