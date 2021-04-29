@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
 /**
@@ -272,6 +273,11 @@ public class ForwardingPlayer extends BasePlayer {
   @Override
   public float getVolume() {
     return player.getVolume();
+  }
+
+  @Override
+  public VideoSize getVideoSize() {
+    return player.getVideoSize();
   }
 
   @Override

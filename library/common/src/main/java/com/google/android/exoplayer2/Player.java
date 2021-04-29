@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -1796,6 +1797,16 @@ public interface Player {
    * @param textureView The texture view to clear.
    */
   void clearVideoTextureView(@Nullable TextureView textureView);
+
+  /**
+   * Gets the size of the video.
+   *
+   * <p>The video's width and height are {@code 0} if there is no video or its size has not been
+   * determined yet.
+   *
+   * @see Listener#onVideoSizeChanged(int, int, int, float)
+   */
+  VideoSize getVideoSize();
 
   /** Returns the current {@link Cue Cues}. This list may be empty. */
   List<Cue> getCurrentCues();

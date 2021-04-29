@@ -52,6 +52,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -430,16 +431,22 @@ public class AnalyticsCollector
         });
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   @Override
-  public final void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+  public final void onVideoSizeChanged(VideoSize videoSize) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_VIDEO_SIZE_CHANGED,
-        listener ->
-            listener.onVideoSizeChanged(
-                eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
+        listener -> {
+          listener.onVideoSizeChanged(eventTime, videoSize);
+          listener.onVideoSizeChanged(
+              eventTime,
+              videoSize.width,
+              videoSize.height,
+              videoSize.unappliedRotationDegrees,
+              videoSize.pixelWidthHeightRatio);
+        });
   }
 
   @Override

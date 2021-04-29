@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
 /**
@@ -486,6 +487,11 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public VideoSize getVideoSize() {
     throw new UnsupportedOperationException();
   }
 

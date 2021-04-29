@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,8 +90,7 @@ public final class PlaybackStatsListener
   private long bandwidthBytes;
   @Nullable private Format videoFormat;
   @Nullable private Format audioFormat;
-  private int videoHeight;
-  private int videoWidth;
+  private VideoSize videoSize;
 
   /**
    * Creates listener for playback stats.
@@ -107,6 +107,7 @@ public final class PlaybackStatsListener
     sessionStartEventTimes = new HashMap<>();
     finishedPlaybackStats = PlaybackStats.EMPTY;
     period = new Period();
+    videoSize = VideoSize.UNKNOWN;
     sessionManager.setListener(this);
   }
 
@@ -229,10 +230,8 @@ public final class PlaybackStatsListener
   }
 
   @Override
-  public void onVideoSizeChanged(
-      EventTime eventTime, int width, int height, int rotationDegrees, float pixelRatio) {
-    videoWidth = width;
-    videoHeight = height;
+  public void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {
+    this.videoSize = videoSize;
   }
 
   @Override
@@ -270,8 +269,7 @@ public final class PlaybackStatsListener
           hasBandwidthData ? bandwidthBytes : 0,
           hasFormatData ? videoFormat : null,
           hasFormatData ? audioFormat : null,
-          hasVideoSize ? videoHeight : Format.NO_VALUE,
-          hasVideoSize ? videoWidth : Format.NO_VALUE);
+          hasVideoSize ? videoSize : null);
     }
     videoFormat = null;
     audioFormat = null;
@@ -480,8 +478,7 @@ public final class PlaybackStatsListener
      * @param bandwidthBytes The number of bytes loaded for this playback.
      * @param videoFormat A reported downstream video format for this playback, or null.
      * @param audioFormat A reported downstream audio format for this playback, or null.
-     * @param videoHeight The reported video height for this playback, or {@link Format#NO_VALUE}.
-     * @param videoWidth The reported video width for this playback, or {@link Format#NO_VALUE}.
+     * @param videoSize The reported video size for this playback, or null.
      */
     public void onEvents(
         Player player,
@@ -498,8 +495,7 @@ public final class PlaybackStatsListener
         long bandwidthBytes,
         @Nullable Format videoFormat,
         @Nullable Format audioFormat,
-        int videoHeight,
-        int videoWidth) {
+        @Nullable VideoSize videoSize) {
       if (discontinuityFromPositionMs != C.TIME_UNSET) {
         maybeUpdateMediaTimeHistory(eventTime.realtimeMs, discontinuityFromPositionMs);
         isSeeking = true;
@@ -550,9 +546,13 @@ public final class PlaybackStatsListener
       }
       if (currentVideoFormat != null
           && currentVideoFormat.height == Format.NO_VALUE
-          && videoHeight != Format.NO_VALUE) {
+          && videoSize != null) {
         Format formatWithHeightAndWidth =
-            currentVideoFormat.buildUpon().setWidth(videoWidth).setHeight(videoHeight).build();
+            currentVideoFormat
+                .buildUpon()
+                .setWidth(videoSize.width)
+                .setHeight(videoSize.height)
+                .build();
         maybeUpdateVideoFormat(eventTime, formatWithHeightAndWidth);
       }
       if (startedLoading) {

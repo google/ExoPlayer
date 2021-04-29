@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link FakeRenderer} that supports {@link C#TRACK_TYPE_VIDEO}. */
@@ -119,7 +120,8 @@ public class FakeVideoRenderer extends FakeRenderer {
     if (shouldProcess && !renderedFirstFrameAfterReset && output != null) {
       @MonotonicNonNull Format format = Assertions.checkNotNull(this.format);
       eventDispatcher.videoSizeChanged(
-          format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio);
+          new VideoSize(
+              format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio));
       eventDispatcher.renderedFirstFrame(output);
       renderedFirstFrameAfterReset = true;
       renderedFirstFrameAfterEnable = true;

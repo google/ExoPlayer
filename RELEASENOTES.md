@@ -61,6 +61,10 @@
     *   Allow forcing offload for gapless content even if gapless playback is
         not supported.
     *   Allow fall back from DTS-HD to DTS when playing via passthrough.
+*   Video:
+    *   Add `Player.getVideoSize()` to retrieve the current size of the video
+        stream. Add `Listener.onVideoSizeChanged(VideoSize)` and
+        deprecate `Listener.onVideoSizeChanged(int weight, int height...)`.
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Downloads and caching:

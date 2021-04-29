@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.video.VideoSize;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
@@ -457,13 +458,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onVideoSizeChanged(
-      EventTime eventTime,
-      int width,
-      int height,
-      int unappliedRotationDegrees,
-      float pixelWidthHeightRatio) {
-    logd(eventTime, "videoSize", width + ", " + height);
+  public void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {
+    logd(eventTime, "videoSize", videoSize.width + ", " + videoSize.height);
   }
 
   @Override

@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -1050,14 +1051,12 @@ public interface AnalyticsListener {
    * there's a change in the size or pixel aspect ratio of the video being rendered.
    *
    * @param eventTime The event time.
-   * @param width The width of the video.
-   * @param height The height of the video.
-   * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
-   *     rotation in degrees that the application should apply for the video for it to be rendered
-   *     in the correct orientation. This value will always be zero on API levels 21 and above,
-   *     since the renderer will apply all necessary rotations internally.
-   * @param pixelWidthHeightRatio The width to height ratio of each pixel.
+   * @param videoSize The new size of the video.
    */
+  default void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {}
+
+  /** @deprecated Implement {@link #onVideoSizeChanged(EventTime eventTime, VideoSize)} instead. */
+  @Deprecated
   default void onVideoSizeChanged(
       EventTime eventTime,
       int width,

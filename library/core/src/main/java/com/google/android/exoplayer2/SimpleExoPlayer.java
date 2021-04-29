@@ -76,6 +76,7 @@ import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView;
 import java.util.ArrayList;
@@ -636,6 +637,7 @@ public class SimpleExoPlayer extends BasePlayer
   private boolean isPriorityTaskManagerRegistered;
   private boolean playerReleased;
   private DeviceInfo deviceInfo;
+  private VideoSize videoSize;
 
   /** @deprecated Use the {@link Builder} and pass it to {@link #SimpleExoPlayer(Builder)}. */
   @Deprecated
@@ -748,6 +750,7 @@ public class SimpleExoPlayer extends BasePlayer
       wifiLockManager = new WifiLockManager(builder.context);
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
+      videoSize = VideoSize.UNKNOWN;
 
       sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
@@ -824,6 +827,11 @@ public class SimpleExoPlayer extends BasePlayer
   @C.VideoScalingMode
   public int getVideoScalingMode() {
     return videoScalingMode;
+  }
+
+  @Override
+  public VideoSize getVideoSize() {
+    return videoSize;
   }
 
   @Override
@@ -2122,13 +2130,16 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onVideoSizeChanged(
-        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      analyticsCollector.onVideoSizeChanged(
-          width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+    public void onVideoSizeChanged(VideoSize videoSize) {
+      SimpleExoPlayer.this.videoSize = videoSize;
+      analyticsCollector.onVideoSizeChanged(videoSize);
       for (VideoListener videoListener : videoListeners) {
+        videoListener.onVideoSizeChanged(videoSize);
         videoListener.onVideoSizeChanged(
-            width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+            videoSize.width,
+            videoSize.height,
+            videoSize.unappliedRotationDegrees,
+            videoSize.pixelWidthHeightRatio);
       }
     }
 
