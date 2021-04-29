@@ -26,9 +26,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegm
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A DASH representation.
- */
+/** A DASH representation. */
 public abstract class Representation {
 
   /**

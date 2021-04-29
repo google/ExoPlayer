@@ -27,9 +27,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 
-/**
- * An abstract base class suitable for most {@link Renderer} implementations.
- */
+/** An abstract base class suitable for most {@link Renderer} implementations. */
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final int trackType;

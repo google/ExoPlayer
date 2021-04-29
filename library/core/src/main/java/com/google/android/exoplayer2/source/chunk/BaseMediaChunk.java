@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A base implementation of {@link MediaChunk} that outputs to a {@link BaseMediaChunkOutput}.
- */
+/** A base implementation of {@link MediaChunk} that outputs to a {@link BaseMediaChunkOutput}. */
 public abstract class BaseMediaChunk extends MediaChunk {
 
   /**
