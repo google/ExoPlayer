@@ -2023,8 +2023,7 @@ public class SimpleExoPlayer extends BasePlayer
                   + "Current thread: '%s'\n"
                   + "Expected thread: '%s'\n"
                   + "See https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
-              Looper.myLooper().getThread().getName(),
-              getApplicationLooper().getThread().getName());
+              Thread.currentThread().getName(), getApplicationLooper().getThread().getName());
       if (throwsWhenUsingWrongThread) {
         throw new IllegalStateException(message);
       }
