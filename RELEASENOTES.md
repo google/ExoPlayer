@@ -104,6 +104,9 @@
         `programInformation` and `serviceDescription` set to `null` instead.
     *   Remove `CryptoInfo.getFrameworkCryptoInfoV16`. Use
         `CryptoInfo.getFrameworkCryptoInfo` instead.
+    *   Remove `CastPlayer` specific playlist manipulation methods. Use
+        `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
+        instead.
 *   DRM:
     *   Only dispatch DRM session acquire and release events once per period
         when playing content that uses the same encryption keys for both audio &
