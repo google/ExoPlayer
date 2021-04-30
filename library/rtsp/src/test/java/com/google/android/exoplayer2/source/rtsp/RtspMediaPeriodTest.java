@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.rtsp.rtp.RtpDataChannel;
 import com.google.android.exoplayer2.source.rtsp.sdp.MediaDescription;
 import com.google.android.exoplayer2.source.rtsp.sdp.SessionDescription;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -68,7 +69,8 @@ public class RtspMediaPeriodTest {
                         .addAttribute(SessionDescription.ATTR_CONTROL, "track1")
                         .build(),
                     Uri.parse("rtsp://localhost/test"))),
-            PLACEHOLDER_RTSP_CLIENT);
+            PLACEHOLDER_RTSP_CLIENT,
+            RtpDataChannel.DEFAULT_FACTORY);
 
     AtomicBoolean prepareCallbackCalled = new AtomicBoolean(false);
     rtspMediaPeriod.prepare(
@@ -95,7 +97,8 @@ public class RtspMediaPeriodTest {
         new RtspMediaPeriod(
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             ImmutableList.of(),
-            PLACEHOLDER_RTSP_CLIENT);
+            PLACEHOLDER_RTSP_CLIENT,
+            RtpDataChannel.DEFAULT_FACTORY);
 
     assertThat(rtspMediaPeriod.getBufferedPositionUs()).isEqualTo(C.TIME_END_OF_SOURCE);
   }

@@ -43,11 +43,11 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.PlaybackEventListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
+import com.google.android.exoplayer2.source.rtsp.rtp.RtpDataChannel;
 import com.google.android.exoplayer2.source.rtsp.rtp.RtpDataLoadable;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Util;
@@ -72,6 +72,7 @@ public final class RtspMediaPeriod implements MediaPeriod {
 
   private final InternalListener internalListener;
   private final RtspClient rtspClient;
+  private final RtpDataChannel.Factory rtpDataChannelFactory;
   private final List<RtspLoaderWrapper> rtspLoaderWrappers;
   private final List<RtpLoadInfo> selectedLoadInfos;
 
@@ -93,9 +94,13 @@ public final class RtspMediaPeriod implements MediaPeriod {
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param rtspTracks A list of tracks in an RTSP playback session.
    * @param rtspClient The {@link RtspClient} for the current RTSP playback.
+   * @param rtpDataChannelFactory A {@link RtpDataChannel.Factory} for {@link RtpDataChannel}.
    */
   public RtspMediaPeriod(
-      Allocator allocator, List<RtspMediaTrack> rtspTracks, RtspClient rtspClient) {
+      Allocator allocator,
+      List<RtspMediaTrack> rtspTracks,
+      RtspClient rtspClient,
+      RtpDataChannel.Factory rtpDataChannelFactory) {
     this.allocator = allocator;
     handler = Util.createHandlerForCurrentLooper();
 
@@ -103,6 +108,7 @@ public final class RtspMediaPeriod implements MediaPeriod {
     rtspLoaderWrappers = new ArrayList<>(rtspTracks.size());
     this.rtspClient = rtspClient;
     this.rtspClient.setPlaybackEventListener(internalListener);
+    this.rtpDataChannelFactory = rtpDataChannelFactory;
 
     for (int i = 0; i < rtspTracks.size(); i++) {
       RtspMediaTrack rtspMediaTrack = rtspTracks.get(i);
@@ -506,7 +512,7 @@ public final class RtspMediaPeriod implements MediaPeriod {
       playbackException = error;
     }
 
-    /** Handles the {@link Loadable} whose {@link DataSource} timed out. */
+    /** Handles the {@link Loadable} whose {@link RtpDataChannel} timed out. */
     private void handleSocketTimeout(RtpDataLoadable loadable) {
       // TODO(b/172331505) Allow for retry when loading is not ending.
       if (getBufferedPositionUs() == Long.MIN_VALUE) {
@@ -648,7 +654,8 @@ public final class RtspMediaPeriod implements MediaPeriod {
               trackId,
               mediaTrack,
               /* eventListener= */ transportEventListener,
-              /* output= */ internalListener);
+              /* output= */ internalListener,
+              rtpDataChannelFactory);
     }
 
     /**
