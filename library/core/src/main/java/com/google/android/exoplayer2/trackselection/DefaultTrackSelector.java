@@ -105,10 +105,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  * }</pre>
  *
  * If {@code rendererTrackGroups} is null then there aren't any currently mapped tracks, and so
- * setting an override isn't possible. Note that a {@link Player.EventListener} registered on the
- * player can be used to determine when the current tracks (and therefore the mapping) changes. If
- * {@code rendererTrackGroups} is non-null then an override can be set. The next step is to query
- * the properties of the available tracks to determine the {@code groupIndex} and the {@code
+ * setting an override isn't possible. Note that a {@link Player.Listener} registered on the player
+ * can be used to determine when the current tracks (and therefore the mapping) changes. If {@code
+ * rendererTrackGroups} is non-null then an override can be set. The next step is to query the
+ * properties of the available tracks to determine the {@code groupIndex} and the {@code
  * trackIndices} within the group it that should be selected. The override can then be specified
  * using {@link ParametersBuilder#setSelectionOverride}:
  *

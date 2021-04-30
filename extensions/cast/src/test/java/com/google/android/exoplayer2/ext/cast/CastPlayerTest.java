@@ -97,7 +97,7 @@ public class CastPlayerTest {
   @Mock private CastContext mockCastContext;
   @Mock private SessionManager mockSessionManager;
   @Mock private CastSession mockCastSession;
-  @Mock private Player.EventListener mockListener;
+  @Mock private Player.Listener mockListener;
   @Mock private PendingResult<RemoteMediaClient.MediaChannelResult> mockPendingResult;
 
   @Captor

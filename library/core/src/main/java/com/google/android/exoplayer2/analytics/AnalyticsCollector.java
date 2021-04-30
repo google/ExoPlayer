@@ -66,7 +66,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * Data collector that forwards analytics events to {@link AnalyticsListener AnalyticsListeners}.
  */
 public class AnalyticsCollector
-    implements Player.EventListener,
+    implements Player.Listener,
         AudioRendererEventListener,
         VideoRendererEventListener,
         MediaSourceEventListener,

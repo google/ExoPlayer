@@ -1041,7 +1041,7 @@ public final class AnalyticsCollectorTest {
                   @Override
                   public void run(SimpleExoPlayer player) {
                     player.addListener(
-                        new Player.EventListener() {
+                        new Player.Listener() {
                           @Override
                           public void onPositionDiscontinuity(
                               Player.PositionInfo oldPosition,

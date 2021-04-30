@@ -74,7 +74,10 @@ public interface Player {
    * <p>Listeners can choose to implement individual events (e.g. {@link
    * #onIsPlayingChanged(boolean)}) or {@link #onEvents(Player, Events)}, which is called after one
    * or more events occurred together.
+   *
+   * @deprecated Use {@link Player.Listener}.
    */
+  @Deprecated
   interface EventListener {
 
     /**
@@ -1040,7 +1043,9 @@ public interface Player {
    * the player does not have a {@link Looper}, then the listener will be called on the main thread.
    *
    * @param listener The listener to register.
+   * @deprecated Use {@link #addListener(Listener)} instead.
    */
+  @Deprecated
   void addListener(EventListener listener);
 
   /**
@@ -1055,7 +1060,9 @@ public interface Player {
    * no longer receive events from the player.
    *
    * @param listener The listener to unregister.
+   * @deprecated Use {@link #addListener(Listener)} instead.
    */
+  @Deprecated
   void removeListener(EventListener listener);
 
   /**

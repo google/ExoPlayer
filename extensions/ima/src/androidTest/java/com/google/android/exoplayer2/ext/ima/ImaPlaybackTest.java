@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
-import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline.Window;
@@ -186,7 +185,7 @@ public final class ImaPlaybackTest {
     }
   }
 
-  private static final class ImaHostedTest extends ExoHostedTest implements EventListener {
+  private static final class ImaHostedTest extends ExoHostedTest implements Player.Listener {
 
     private final Uri contentUri;
     private final DataSpec adTagDataSpec;

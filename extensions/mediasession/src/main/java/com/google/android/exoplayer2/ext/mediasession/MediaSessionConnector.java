@@ -1085,13 +1085,12 @@ public final class MediaSessionConnector {
     }
   }
 
-  private class ComponentListener extends MediaSessionCompat.Callback
-      implements Player.EventListener {
+  private class ComponentListener extends MediaSessionCompat.Callback implements Player.Listener {
 
     private int currentWindowIndex;
     private int currentWindowCount;
 
-    // Player.EventListener implementation.
+    // Player.Listener implementation.
 
     @Override
     public void onEvents(Player player, Player.Events events) {
