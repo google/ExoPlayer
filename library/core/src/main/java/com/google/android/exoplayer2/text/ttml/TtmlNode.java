@@ -409,17 +409,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (resolvedStyle != null) {
       TtmlRenderUtil.applyStylesToSpan(
           text, start, end, resolvedStyle, parent, globalStyles, verticalType);
-      if (resolvedStyle.getShearPercentage() != TtmlStyle.UNSPECIFIED_SHEAR && TAG_P.equals(tag)) {
-        // Shear style should only be applied to P nodes
-        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
-        // The spec doesn't specify the coordinate system to use for block shear
-        // however the spec shows examples of how different values are expected to be rendered.
-        // See: https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
-        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-fontShear
-        // This maps the shear percentage to shear angle in graphics coordinates
-        regionOutput.setShearDegrees((resolvedStyle.getShearPercentage() * -90) / 100);
+      if (TAG_P.equals(tag)) {
+        if (resolvedStyle.getShearPercentage() != TtmlStyle.UNSPECIFIED_SHEAR) {
+          // Shear style should only be applied to P nodes
+          // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
+          // The spec doesn't specify the coordinate system to use for block shear
+          // however the spec shows examples of how different values are expected to be rendered.
+          // See: https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
+          // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-fontShear
+          // This maps the shear percentage to shear angle in graphics coordinates
+          regionOutput.setShearDegrees((resolvedStyle.getShearPercentage() * -90) / 100);
+        }
+        if (resolvedStyle.getTextAlign() != null) {
+          regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
+        }
       }
-      regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
     }
   }
 

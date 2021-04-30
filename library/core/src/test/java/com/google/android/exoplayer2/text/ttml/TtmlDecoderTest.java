@@ -607,6 +607,14 @@ public final class TtmlDecoderTest {
     Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
     assertThat(seventhCue.text.toString()).isEqualTo("No textAlign property");
     assertThat(seventhCue.textAlignment).isNull();
+
+    Cue eighthCue = getOnlyCueAtTimeUs(subtitle, 80_000_000);
+    assertThat(eighthCue.text.toString()).isEqualTo("Ancestor start alignment");
+    assertThat(eighthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue ninthCue = getOnlyCueAtTimeUs(subtitle, 90_000_000);
+    assertThat(ninthCue.text.toString()).isEqualTo("Not a P node");
+    assertThat(ninthCue.textAlignment).isNull();
   }
 
   @Test
