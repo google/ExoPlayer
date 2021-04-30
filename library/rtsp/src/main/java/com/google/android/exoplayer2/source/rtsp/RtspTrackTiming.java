@@ -19,7 +19,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.source.rtsp.message.RtspHeaders;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 
@@ -29,7 +28,7 @@ import com.google.common.collect.ImmutableList;
  *
  * <p>The fields {@link #rtpTimestamp} and {@link #sequenceNumber} will not both be {@code null}.
  */
-public final class RtspTrackTiming {
+/* package */ final class RtspTrackTiming {
 
   /**
    * Parses the RTP-Info header into a list of {@link RtspTrackTiming RtspTrackTimings}.

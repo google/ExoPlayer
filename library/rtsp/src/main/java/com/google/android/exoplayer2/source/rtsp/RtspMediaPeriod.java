@@ -43,8 +43,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.PlaybackEventListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
-import com.google.android.exoplayer2.source.rtsp.rtp.RtpDataChannel;
-import com.google.android.exoplayer2.source.rtsp.rtp.RtpDataLoadable;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -61,7 +59,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link MediaPeriod} that loads an RTSP stream. */
-public final class RtspMediaPeriod implements MediaPeriod {
+/* package */ final class RtspMediaPeriod implements MediaPeriod {
 
   private static final String TAG = "RtspMediaPeriod";
   /** The maximum times to retry if the underlying data channel failed to bind. */
