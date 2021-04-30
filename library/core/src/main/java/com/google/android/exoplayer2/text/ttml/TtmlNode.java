@@ -72,6 +72,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_TEXT_EMPHASIS = "textEmphasis";
   public static final String ATTR_TTS_WRITING_MODE = "writingMode";
   public static final String ATTR_TTS_SHEAR = "shear";
+  public static final String ATTR_EBUTTS_MULTI_ROW_ALIGN = "multiRowAlign";
 
   // Values for ruby
   public static final String RUBY_CONTAINER = "container";
@@ -376,7 +377,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
-
     for (Map.Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
       String regionId = entry.getKey();
       int start = nodeStartsByRegion.containsKey(regionId) ? nodeStartsByRegion.get(regionId) : 0;
@@ -422,6 +422,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
         if (resolvedStyle.getTextAlign() != null) {
           regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
+        }
+        if (resolvedStyle.getMultiRowAlign() != null) {
+          regionOutput.setMultiRowAlignment(resolvedStyle.getMultiRowAlign());
         }
       }
     }
