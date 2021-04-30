@@ -15,16 +15,11 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-import static com.google.android.exoplayer2.source.rtsp.message.RtspRequest.METHOD_OPTIONS;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_OPTIONS;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.os.Handler;
 import android.os.Looper;
-import com.google.android.exoplayer2.source.rtsp.message.RtspHeaders;
-import com.google.android.exoplayer2.source.rtsp.message.RtspMessageChannel;
-import com.google.android.exoplayer2.source.rtsp.message.RtspMessageUtil;
-import com.google.android.exoplayer2.source.rtsp.message.RtspRequest;
-import com.google.android.exoplayer2.source.rtsp.message.RtspResponse;
 import com.google.android.exoplayer2.util.Util;
 import java.io.Closeable;
 import java.io.IOException;

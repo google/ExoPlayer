@@ -15,20 +15,18 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-import static com.google.android.exoplayer2.source.rtsp.sdp.MediaDescription.MEDIA_TYPE_AUDIO;
-import static com.google.android.exoplayer2.source.rtsp.sdp.MediaDescription.MEDIA_TYPE_VIDEO;
-import static com.google.android.exoplayer2.source.rtsp.sdp.MediaDescription.RTP_AVP_PROFILE;
-import static com.google.android.exoplayer2.source.rtsp.sdp.SessionDescription.ATTR_CONTROL;
-import static com.google.android.exoplayer2.source.rtsp.sdp.SessionDescription.ATTR_FMTP;
-import static com.google.android.exoplayer2.source.rtsp.sdp.SessionDescription.ATTR_RTPMAP;
+import static com.google.android.exoplayer2.source.rtsp.MediaDescription.MEDIA_TYPE_AUDIO;
+import static com.google.android.exoplayer2.source.rtsp.MediaDescription.MEDIA_TYPE_VIDEO;
+import static com.google.android.exoplayer2.source.rtsp.MediaDescription.RTP_AVP_PROFILE;
+import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_CONTROL;
+import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_FMTP;
+import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_RTPMAP;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AacUtil;
-import com.google.android.exoplayer2.source.rtsp.rtp.RtpPayloadFormat;
-import com.google.android.exoplayer2.source.rtsp.sdp.MediaDescription;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
