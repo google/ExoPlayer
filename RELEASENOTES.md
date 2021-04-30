@@ -116,6 +116,8 @@
     *   Fix lines overlapping when using `SubtitleView.VIEW_TYPE_WEB`.
     *   Parse SSA/ASS underline & strikethrough info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+    *   Ensure TTML `tts:textAlign` is correctly propagated from `<p>` nodes to
+        child nodes.
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
