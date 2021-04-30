@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class RtspMediaPeriod implements MediaPeriod {
 
   private static final String TAG = "RtspMediaPeriod";
+  /** The maximum times to retry if the underlying data channel failed to bind. */
+  private static final int PORT_BINDING_MAX_RETRY_COUNT = 3;
+
   private final Allocator allocator;
   private final Handler handler;
 
@@ -81,6 +85,7 @@ public final class RtspMediaPeriod implements MediaPeriod {
   private boolean released;
   private boolean prepared;
   private boolean trackSelected;
+  private int portBindingRetryCount;
 
   /**
    * Creates an RTSP media period.
@@ -426,6 +431,15 @@ public final class RtspMediaPeriod implements MediaPeriod {
       } else {
         if (error.getCause() instanceof SocketTimeoutException) {
           handleSocketTimeout(loadable);
+        } else if (error.getCause() instanceof BindException) {
+          // Allow for retry on RTP port open failure by catching BindException. Two ports are
+          // opened for each RTP stream, the first port number is auto assigned by the system, while
+          // the second is manually selected. It is thus possible that the second port fails to
+          // bind. Failing is more likely when running in a server-side testing environment, it is
+          // less likely on real devices.
+          if (portBindingRetryCount++ < PORT_BINDING_MAX_RETRY_COUNT) {
+            return Loader.RETRY;
+          }
         } else {
           playbackException =
               new RtspPlaybackException(
