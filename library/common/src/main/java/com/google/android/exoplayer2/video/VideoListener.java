@@ -16,8 +16,14 @@
 package com.google.android.exoplayer2.video;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Player;
 
-/** A listener for metadata corresponding to video being rendered. */
+/**
+ * A listener for metadata corresponding to video being rendered.
+ *
+ * @deprecated Use {@link Player.Listener}.
+ */
+@Deprecated
 public interface VideoListener {
 
   /**

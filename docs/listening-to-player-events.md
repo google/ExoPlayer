@@ -177,23 +177,14 @@ generic `onEvents` callback, for example to record media item change reasons
 with `onMediaItemTransition`, but only act once all state changes can be used
 together in `onEvents`.
 
-## Additional SimpleExoPlayer listeners ##
+## SimpleExoPlayer listeners ##
 
-When using `SimpleExoPlayer`, additional listeners can be registered with the
+When using `SimpleExoPlayer`, an additional listener can be registered with the
 player.
 
 * `addAnalyticsListener`: Listen to detailed events that may be useful for
   analytics and logging purposes. Please refer to the [analytics page][] for
   more details.
-* `addTextOutput`: Listen to changes in the subtitle or caption cues.
-* `addMetadataOutput`: Listen to timed metadata events, such as timed ID3 and
-  EMSG data.
-* `addVideoListener`: Listen to events related to video rendering that may be
-  useful for adjusting the UI (e.g., the aspect ratio of the `Surface` onto
-  which video is being rendered).
-* `addAudioListener`: Listen to events related to audio, such as when an audio
-  session ID changes, and when the player volume is changed.
-* `addDeviceListener`: Listen to events related to the state of the device.
 
 ExoPlayer's UI components, such as `StyledPlayerView`, will register themselves
 as listeners to events that they are interested in. Hence manual registration

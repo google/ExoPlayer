@@ -149,14 +149,18 @@ public interface ExoPlayer extends Player {
      * Adds a listener to receive audio events.
      *
      * @param listener The listener to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addAudioListener(AudioListener listener);
 
     /**
      * Removes a listener of audio events.
      *
      * @param listener The listener to unregister.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeAudioListener(AudioListener listener);
 
     /**
@@ -249,14 +253,18 @@ public interface ExoPlayer extends Player {
      * Adds a listener to receive video events.
      *
      * @param listener The listener to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addVideoListener(VideoListener listener);
 
     /**
      * Removes a listener of video events.
      *
      * @param listener The listener to unregister.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeVideoListener(VideoListener listener);
 
     /**
@@ -388,14 +396,18 @@ public interface ExoPlayer extends Player {
      * Registers an output to receive text events.
      *
      * @param listener The output to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addTextOutput(TextOutput listener);
 
     /**
      * Removes a text output.
      *
      * @param listener The output to remove.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeTextOutput(TextOutput listener);
 
     /** Returns the current {@link Cue Cues}. This list may be empty. */
@@ -409,24 +421,38 @@ public interface ExoPlayer extends Player {
      * Adds a {@link MetadataOutput} to receive metadata.
      *
      * @param output The output to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addMetadataOutput(MetadataOutput output);
 
     /**
      * Removes a {@link MetadataOutput}.
      *
      * @param output The output to remove.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeMetadataOutput(MetadataOutput output);
   }
 
   /** The device component of an {@link ExoPlayer}. */
   interface DeviceComponent {
 
-    /** Adds a listener to receive device events. */
+    /**
+     * Adds a listener to receive device events.
+     *
+     * @deprecated Use {@link #addListener(Listener)}.
+     */
+    @Deprecated
     void addDeviceListener(DeviceListener listener);
 
-    /** Removes a listener of device events. */
+    /**
+     * Removes a listener of device events.
+     *
+     * @deprecated Use {@link #removeListener(Listener)}.
+     */
+    @Deprecated
     void removeDeviceListener(DeviceListener listener);
 
     /** Gets the device information. */

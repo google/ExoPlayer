@@ -281,15 +281,15 @@ public class TestPlayerRunHelper {
   public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
-    VideoListener listener =
-        new VideoListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onRenderedFirstFrame() {
             receivedCallback.set(true);
-            player.removeVideoListener(this);
+            player.removeListener(this);
           }
         };
-    player.addVideoListener(listener);
+    player.addListener(listener);
     runMainLooperUntil(receivedCallback::get);
   }
 
