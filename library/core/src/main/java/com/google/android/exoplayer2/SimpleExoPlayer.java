@@ -2016,7 +2016,7 @@ public class SimpleExoPlayer extends BasePlayer
     // The constructor may be executed on a background thread. Wait with accessing the player from
     // the app thread until the constructor finished executing.
     constructorFinished.blockUninterruptible();
-    if (Looper.myLooper() != getApplicationLooper()) {
+    if (Thread.currentThread() != getApplicationLooper().getThread()) {
       String message =
           Util.formatInvariant(
               "Player is accessed on the wrong thread.\n"
