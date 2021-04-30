@@ -86,6 +86,7 @@ import java.lang.annotation.RetentionPolicy;
   @RubyType private int rubyType;
   @TextAnnotation.Position private int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
+  @Nullable private Layout.Alignment multiRowAlign;
   @OptionalBoolean private int textCombine;
   @Nullable private TextEmphasis textEmphasis;
   private float shearPercentage;
@@ -244,6 +245,9 @@ import java.lang.annotation.RetentionPolicy;
       if (textAlign == null && ancestor.textAlign != null) {
         textAlign = ancestor.textAlign;
       }
+      if (multiRowAlign == null && ancestor.multiRowAlign != null) {
+        multiRowAlign = ancestor.multiRowAlign;
+      }
       if (textCombine == UNSPECIFIED) {
         textCombine = ancestor.textCombine;
       }
@@ -305,6 +309,16 @@ import java.lang.annotation.RetentionPolicy;
 
   public TtmlStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
     this.textAlign = textAlign;
+    return this;
+  }
+
+  @Nullable
+  public Layout.Alignment getMultiRowAlign() {
+    return multiRowAlign;
+  }
+
+  public TtmlStyle setMultiRowAlign(@Nullable Layout.Alignment multiRowAlign) {
+    this.multiRowAlign = multiRowAlign;
     return this;
   }
 

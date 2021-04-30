@@ -302,11 +302,22 @@ import java.util.Map;
                   horizontalTranslatePercent,
                   verticalTranslatePercent,
                   getBlockShearTransformFunction(cue)))
-          .append(Util.formatInvariant("<span class='%s'>", DEFAULT_BACKGROUND_CSS_CLASS))
-          .append(htmlAndCss.html)
-          .append("</span>")
-          .append("</div>");
+          .append(Util.formatInvariant("<span class='%s'>", DEFAULT_BACKGROUND_CSS_CLASS));
+
+      if (cue.multiRowAlignment != null) {
+        html.append(
+                Util.formatInvariant(
+                    "<span style='display:inline-block; text-align:%s;'>",
+                    convertAlignmentToCss(cue.multiRowAlignment)))
+            .append(htmlAndCss.html)
+            .append("</span>");
+      } else {
+        html.append(htmlAndCss.html);
+      }
+
+      html.append("</span>").append("</div>");
     }
+
     html.append("</div></body></html>");
 
     StringBuilder htmlHead = new StringBuilder();
