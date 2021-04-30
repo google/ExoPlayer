@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
+import com.google.android.exoplayer2.source.rtsp.rtp.RtpDataChannel;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -131,6 +132,7 @@ public final class RtspMediaSource extends BaseMediaSource {
   }
 
   private final MediaItem mediaItem;
+  private final RtpDataChannel.Factory rtpDataChannelFactory;
   private @MonotonicNonNull RtspClient rtspClient;
 
   @Nullable private ImmutableList<RtspMediaTrack> rtspMediaTracks;
@@ -138,6 +140,7 @@ public final class RtspMediaSource extends BaseMediaSource {
 
   private RtspMediaSource(MediaItem mediaItem) {
     this.mediaItem = mediaItem;
+    rtpDataChannelFactory = RtpDataChannel.DEFAULT_FACTORY;
   }
 
   @Override
@@ -174,7 +177,8 @@ public final class RtspMediaSource extends BaseMediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
-    return new RtspMediaPeriod(allocator, checkNotNull(rtspMediaTracks), checkNotNull(rtspClient));
+    return new RtspMediaPeriod(
+        allocator, checkNotNull(rtspMediaTracks), checkNotNull(rtspClient), rtpDataChannelFactory);
   }
 
   @Override

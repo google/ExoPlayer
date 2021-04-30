@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaTrack;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
-import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -39,10 +38,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link Loader.Loadable} that sets up a sockets listening to incoming RTP traffic, carried by
  * UDP packets.
  *
- * <p>Uses a {@link UdpDataSource} to listen on incoming packets. The local UDP port is selected by
- * the runtime on opening; it also opens another {@link UdpDataSource} for RTCP on the RTP UDP port
+ * <p>Uses a {@link RtpDataChannel} to listen on incoming packets. The local UDP port is selected by
+ * the runtime on opening; it also opens another {@link RtpDataChannel} for RTCP on the RTP UDP port
  * number plus one one. Pass a listener via constructor to receive a callback when the local port is
- * opened. {@link #load} will throw an {@link IOException} if either of the two data sources fails
+ * opened. {@link #load} will throw an {@link IOException} if either of the two data channels fails
  * to open.
  *
  * <p>Received RTP packets' payloads will be extracted by an {@link RtpExtractor}, and will be
@@ -76,6 +75,7 @@ public final class RtpDataLoadable implements Loader.Loadable {
   private final EventListener eventListener;
   private final ExtractorOutput output;
   private final Handler playbackThreadHandler;
+  private final RtpDataChannel.Factory rtpDataChannelFactory;
 
   private @MonotonicNonNull RtpExtractor extractor;
 
@@ -92,17 +92,20 @@ public final class RtpDataLoadable implements Loader.Loadable {
    * @param rtspMediaTrack The {@link RtspMediaTrack} to load.
    * @param eventListener The {@link EventListener}.
    * @param output A {@link ExtractorOutput} instance to which the received and extracted data will
+   * @param rtpDataChannelFactory A {@link RtpDataChannel.Factory} for {@link RtpDataChannel}.
    */
   public RtpDataLoadable(
       int trackId,
       RtspMediaTrack rtspMediaTrack,
       EventListener eventListener,
-      ExtractorOutput output) {
+      ExtractorOutput output,
+      RtpDataChannel.Factory rtpDataChannelFactory) {
     this.trackId = trackId;
     this.rtspMediaTrack = rtspMediaTrack;
     this.eventListener = eventListener;
     this.output = output;
     this.playbackThreadHandler = Util.createHandlerForCurrentLooper();
+    this.rtpDataChannelFactory = rtpDataChannelFactory;
     pendingSeekPositionUs = C.TIME_UNSET;
   }
 
@@ -139,30 +142,30 @@ public final class RtpDataLoadable implements Loader.Loadable {
 
   @Override
   public void load() throws IOException {
-    @Nullable UdpDataSource firstDataSource = null;
-    @Nullable UdpDataSource secondDataSource = null;
+    @Nullable RtpDataChannel firstDataChannel = null;
+    @Nullable RtpDataChannel secondDataChannel = null;
 
     try {
-      // Open and set up the data sources.
+      // Open and set up the data channel.
       // From RFC3550 Section 11: "For UDP and similar protocols, RTP SHOULD use an even destination
       // port number and the corresponding RTCP stream SHOULD use the next higher (odd) destination
-      // port number". Some RTSP servers are strict about this rule.
-      // We open a data source first, and depending its port number, open the next data source with
-      // a port number that is either the higher or the lower.
-      firstDataSource = new UdpDataSource();
-      firstDataSource.open(new DataSpec(Uri.parse(RTP_BIND_ADDRESS)));
+      // port number". Some RTSP servers are strict about this rule. We open a data channel first,
+      // and depending its port number, open the next data channel with a port number that is either
+      // the higher or the lower.
+      firstDataChannel = rtpDataChannelFactory.createDataChannel();
+      firstDataChannel.open(new DataSpec(Uri.parse(RTP_BIND_ADDRESS)));
 
-      int firstPort = firstDataSource.getLocalPort();
+      int firstPort = firstDataChannel.getLocalPort();
       boolean isFirstPortNumberEven = (firstPort % 2 == 0);
       int secondPort = isFirstPortNumberEven ? firstPort + 1 : firstPort - 1;
 
       // RTCP always uses the immediate next port.
-      secondDataSource = new UdpDataSource();
-      secondDataSource.open(new DataSpec(Uri.parse(RTP_ANY_INCOMING_IPV4 + ":" + secondPort)));
+      secondDataChannel = rtpDataChannelFactory.createDataChannel();
+      secondDataChannel.open(new DataSpec(Uri.parse(RTP_ANY_INCOMING_IPV4 + ":" + secondPort)));
 
       // RTP data port is always the lower and even-numbered port.
-      UdpDataSource dataSource = isFirstPortNumberEven ? firstDataSource : secondDataSource;
-      int dataPort = dataSource.getLocalPort();
+      RtpDataChannel dataChannel = isFirstPortNumberEven ? firstDataChannel : secondDataChannel;
+      int dataPort = dataChannel.getLocalPort();
       int rtcpPort = dataPort + 1;
       String transport = Util.formatInvariant(DEFAULT_TRANSPORT_FORMAT, dataPort, rtcpPort);
       playbackThreadHandler.post(() -> eventListener.onTransportReady(transport));
@@ -170,7 +173,7 @@ public final class RtpDataLoadable implements Loader.Loadable {
       // Sets up the extractor.
       ExtractorInput extractorInput =
           new DefaultExtractorInput(
-              checkNotNull(dataSource), /* position= */ 0, /* length= */ C.LENGTH_UNSET);
+              checkNotNull(dataChannel), /* position= */ 0, /* length= */ C.LENGTH_UNSET);
       extractor = new RtpExtractor(rtspMediaTrack.payloadFormat, trackId);
       extractor.init(output);
 
@@ -183,8 +186,8 @@ public final class RtpDataLoadable implements Loader.Loadable {
         extractor.read(extractorInput, /* seekPosition= */ new PositionHolder());
       }
     } finally {
-      closeQuietly(firstDataSource);
-      closeQuietly(secondDataSource);
+      closeQuietly(firstDataChannel);
+      closeQuietly(secondDataChannel);
     }
   }
 
