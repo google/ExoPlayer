@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
 /** A fake player for testing content/ad playback. */
 /* package */ final class FakePlayer extends StubExoPlayer {
 
-  private final ListenerSet<EventListener> listeners;
+  private final ListenerSet<Listener> listeners;
   private final Timeline.Period period;
   private final Object windowUid = new Object();
   private final Object periodUid = new Object();
@@ -185,12 +185,12 @@ import com.google.android.exoplayer2.util.ListenerSet;
   }
 
   @Override
-  public void addListener(Player.EventListener listener) {
+  public void addListener(Player.Listener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(Player.EventListener listener) {
+  public void removeListener(Player.Listener listener) {
     listeners.remove(listener);
   }
 

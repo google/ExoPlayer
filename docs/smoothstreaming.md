@@ -59,14 +59,14 @@ player.prepare();
 
 You can retrieve the current manifest by calling `Player.getCurrentManifest`.
 For SmoothStreaming you should cast the returned object to `SsManifest`. The
-`onTimelineChanged` callback of `Player.EventListener` is also called whenever
+`onTimelineChanged` callback of `Player.Listener` is also called whenever
 the manifest is loaded. This will happen once for a on-demand content, and
 possibly many times for live content. The code snippet below shows how an app
 can do something whenever the manifest is loaded.
 
 ~~~
 player.addListener(
-    new Player.EventListener() {
+    new Player.Listener() {
       @Override
       public void onTimelineChanged(
           Timeline timeline, @Player.TimelineChangeReason int reason) {

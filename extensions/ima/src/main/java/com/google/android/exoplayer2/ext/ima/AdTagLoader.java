@@ -76,7 +76,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Handles loading and playback of a single ad tag. */
-/* package */ final class AdTagLoader implements Player.EventListener {
+/* package */ final class AdTagLoader implements Player.Listener {
 
   private static final String TAG = "AdTagLoader";
 

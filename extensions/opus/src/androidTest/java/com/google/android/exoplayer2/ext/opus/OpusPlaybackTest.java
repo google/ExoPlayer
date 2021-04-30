@@ -73,7 +73,7 @@ public class OpusPlaybackTest {
     }
   }
 
-  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
+  private static class TestPlaybackRunnable implements Player.Listener, Runnable {
 
     private final Context context;
     private final Uri uri;

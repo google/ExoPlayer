@@ -25,7 +25,7 @@ closer to the live edge again.
 
 ## Detecting and monitoring live playbacks ##
 
-Every time a live window is updated, registered `Player.EventListener` instances
+Every time a live window is updated, registered `Player.Listener` instances
 will receive an `onTimelineChanged` event. You can retrieve details about the
 current live playback by querying various `Player` and `Timeline.Window`
 methods, as listed below and shown in the following figure.
@@ -135,7 +135,7 @@ setting `minPlaybackSpeed` and `maxPlaybackSpeed` to `1.0f`.
 The playback position may fall behind the live window, for example if the player
 is paused or buffering for a long enough period of time. If this happens then
 playback will fail and a `BehindLiveWindowException` will be reported via
-`Player.EventListener.onPlayerError`. Application code may wish to handle such
+`Player.Listener.onPlayerError`. Application code may wish to handle such
 errors by resuming playback at the default position. The [PlayerActivity][] of
 the demo app exemplifies this approach.
 
