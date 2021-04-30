@@ -77,7 +77,7 @@ public class PlayerActivity extends AppCompatActivity
   protected StyledPlayerView playerView;
   protected LinearLayout debugRootView;
   protected TextView debugTextView;
-  protected SimpleExoPlayer player;
+  protected @Nullable SimpleExoPlayer player;
 
   private boolean isShowingTrackSelectionDialog;
   private Button selectTracksButton;

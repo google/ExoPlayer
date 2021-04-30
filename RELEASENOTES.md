@@ -30,7 +30,7 @@
         `ExoPlayer`.
     *   Add `getMediaMetadata` to `Player` interface.
     *   Add a `Listener` interface to receive all player events in a single
-        object.
+        object. Component Listeners have been deprecated in its favor.
     *   `Player.setPlaybackParameters` no longer accepts null, use
         `PlaybackParameters.DEFAULT` instead.
     *   Use an empty string instead of the URI if the media ID is not explicitly
