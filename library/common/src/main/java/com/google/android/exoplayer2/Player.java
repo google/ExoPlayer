@@ -954,10 +954,11 @@ public interface Player {
    * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
    * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
    * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
-   * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
-   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
-   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
+   * #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_CHANGE_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link #COMMAND_GET_VOLUME}, {@link
+   * #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link #COMMAND_SET_DEVICE_VOLUME},
+   * {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link #COMMAND_SET_VIDEO_SURFACE} or {@link
+   * #COMMAND_GET_TEXT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -975,6 +976,7 @@ public interface Player {
     COMMAND_GET_CURRENT_MEDIA_ITEM,
     COMMAND_GET_MEDIA_ITEMS,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_MEDIA_ITEMS_METADATA,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
     COMMAND_GET_VOLUME,
@@ -1012,24 +1014,26 @@ public interface Player {
   int COMMAND_GET_MEDIA_ITEMS = 12;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
   int COMMAND_GET_MEDIA_ITEMS_METADATA = 13;
+  /** Command to set the {@link MediaItem MediaItems} metadata. */
+  int COMMAND_SET_MEDIA_ITEMS_METADATA = 14;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 14;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 15;
   /** Command to get the player current {@link AudioAttributes}. */
-  int COMMAND_GET_AUDIO_ATTRIBUTES = 15;
+  int COMMAND_GET_AUDIO_ATTRIBUTES = 16;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 16;
+  int COMMAND_GET_VOLUME = 17;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 17;
+  int COMMAND_GET_DEVICE_VOLUME = 18;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 18;
+  int COMMAND_SET_VOLUME = 19;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 19;
+  int COMMAND_SET_DEVICE_VOLUME = 20;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 20;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 21;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 21;
+  int COMMAND_SET_VIDEO_SURFACE = 22;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 22;
+  int COMMAND_GET_TEXT = 23;
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
