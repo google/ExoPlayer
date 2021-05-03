@@ -26,30 +26,27 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** A class for rating expressed as a percentage. */
+/** A rating expressed as a percentage. */
 public final class PercentageRating extends Rating {
 
-  @RatingType private static final int TYPE = RATING_TYPE_PERCENTAGE;
-
   /**
-   * The percent value of this rating. Will be greater or equal to 0.0f, or {@link #RATING_UNSET} if
-   * it is unrated.
+   * The percent value of this rating. Will be within the range {@code [0f, 100f]}, or {@link
+   * #RATING_UNSET} if unrated.
    */
   public final float percent;
 
-  /** Creates a unrated PercentageRating instance. */
+  /** Creates a unrated instance. */
   public PercentageRating() {
     percent = RATING_UNSET;
   }
 
   /**
-   * Creates a PercentageRating instance with the given percentage. If {@code percent} is less than
-   * 0f or greater than 100f, it will throw IllegalArgumentException.
+   * Creates a rated instance with the given percentage.
    *
-   * @param percent the value of the rating
+   * @param percent The percentage value of the rating.
    */
   public PercentageRating(@FloatRange(from = 0, to = 100) float percent) {
-    checkArgument(percent >= 0.0f && percent <= 100.0f, "percent must be in the rage of [0, 100]");
+    checkArgument(percent >= 0.0f && percent <= 100.0f, "percent must be in the range of [0, 100]");
     this.percent = percent;
   }
 
@@ -71,12 +68,10 @@ public final class PercentageRating extends Rating {
     return percent == ((PercentageRating) obj).percent;
   }
 
-  @Override
-  public String toString() {
-    return "PercentageRating: " + (isRated() ? "percentage=" + percent : "unrated");
-  }
-
   // Bundleable implementation.
+
+  @RatingType private static final int TYPE = RATING_TYPE_PERCENTAGE;
+
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({FIELD_RATING_TYPE, FIELD_PERCENT})
@@ -92,6 +87,7 @@ public final class PercentageRating extends Rating {
     return bundle;
   }
 
+  /** Object that can restore a {@link PercentageRating} from a {@link Bundle}. */
   public static final Creator<PercentageRating> CREATOR = PercentageRating::fromBundle;
 
   private static PercentageRating fromBundle(Bundle bundle) {

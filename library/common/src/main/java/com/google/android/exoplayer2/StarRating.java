@@ -27,28 +27,24 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** A class for rating expressed as the number of stars. */
+/** A rating expressed as a fractional number of stars. */
 public final class StarRating extends Rating {
 
-  @RatingType private static final int TYPE = RATING_TYPE_STAR;
-
-  private static final int MAX_STARS_DEFAULT = 5;
-
-  /** The maximum number of stars for this rating. Must be a positive number. */
+  /** The maximum number of stars. Must be a positive number. */
   @IntRange(from = 1)
   public final int maxStars;
 
   /**
-   * The value of stars for this rating. Will range from 0.0f to {@link #maxStars}, or {@link
-   * #RATING_UNSET} if it is unrated.
+   * The fractional number of stars of this rating. Will range from {@code 0f} to {@link #maxStars},
+   * or {@link #RATING_UNSET} if unrated.
    */
   public final float starRating;
 
   /**
-   * Creates a unrated StarRating instance with {@code maxStars}. If {@code maxStars} is not a
-   * positive integer, it will throw IllegalArgumentException.
+   * Creates a unrated instance with {@code maxStars}. If {@code maxStars} is not a positive
+   * integer, it will throw an {@link IllegalArgumentException}.
    *
-   * @param maxStars a range of this star rating from 0.0f to {@code maxStars}
+   * @param maxStars The maximum number of stars this rating can have.
    */
   public StarRating(@IntRange(from = 1) int maxStars) {
     checkArgument(maxStars > 0, "maxStars must be a positive integer");
@@ -57,13 +53,14 @@ public final class StarRating extends Rating {
   }
 
   /**
-   * Creates a StarRating instance with {@code maxStars} and the given integer or fractional number
-   * of stars. Non-integer values can for instance be used to represent an average rating value,
-   * which might not be an integer number of stars. If {@code maxStars} is not a positive integer or
-   * {@code starRating} has invalid value, it will throw IllegalArgumentException.
+   * Creates a rated instance with {@code maxStars} and the given fractional number of stars.
+   * Non-integer values may be used to represent an average rating value. If {@code maxStars} is not
+   * a positive integer or {@code starRating} is out of range, it will throw an {@link
+   * IllegalArgumentException}.
    *
-   * @param maxStars the maximum number of stars which this rating can have.
-   * @param starRating a number ranging from 0.0f to {@code maxStars}
+   * @param maxStars The maximum number of stars this rating can have.
+   * @param starRating A fractional number of stars of this rating from {@code 0f} to {@code
+   *     maxStars}.
    */
   public StarRating(@IntRange(from = 1) int maxStars, @FloatRange(from = 0.0) float starRating) {
     checkArgument(maxStars > 0, "maxStars must be a positive integer");
@@ -92,14 +89,11 @@ public final class StarRating extends Rating {
     return maxStars == other.maxStars && starRating == other.starRating;
   }
 
-  @Override
-  public String toString() {
-    return "StarRating: maxStars="
-        + maxStars
-        + (isRated() ? ", starRating=" + starRating : ", unrated");
-  }
-
   // Bundleable implementation.
+
+  @RatingType private static final int TYPE = RATING_TYPE_STAR;
+  private static final int MAX_STARS_DEFAULT = 5;
+
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({FIELD_RATING_TYPE, FIELD_MAX_STARS, FIELD_STAR_RATING})
@@ -117,6 +111,7 @@ public final class StarRating extends Rating {
     return bundle;
   }
 
+  /** Object that can restore a {@link StarRating} from a {@link Bundle}. */
   public static final Creator<StarRating> CREATOR = StarRating::fromBundle;
 
   private static StarRating fromBundle(Bundle bundle) {

@@ -21,10 +21,22 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** An abstract class to encapsulate rating information used as content metadata. */
+/**
+ * A rating for media content. The style of a rating can be one of {@link HeartRating}, {@link
+ * PercentageRating}, {@link StarRating}, or {@link ThumbRating}.
+ */
 public abstract class Rating implements Bundleable {
 
+  /** A float value that denotes the rating is unset. */
   public static final float RATING_UNSET = -1.0f;
+
+  // Default package-private constructor to prevent extending Rating class outside this package.
+  /* package */ Rating() {}
+
+  /** Whether the rating exists or not. */
+  public abstract boolean isRated();
+
+  // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -35,28 +47,22 @@ public abstract class Rating implements Bundleable {
     RATING_TYPE_STAR,
     RATING_TYPE_THUMB
   })
-  protected @interface RatingType {}
+  /* package */ @interface RatingType {}
 
-  protected static final int RATING_TYPE_DEFAULT = -1;
-  protected static final int RATING_TYPE_HEART = 0;
-  protected static final int RATING_TYPE_PERCENTAGE = 1;
-  protected static final int RATING_TYPE_STAR = 2;
-  protected static final int RATING_TYPE_THUMB = 3;
+  /* package */ static final int RATING_TYPE_DEFAULT = -1;
+  /* package */ static final int RATING_TYPE_HEART = 0;
+  /* package */ static final int RATING_TYPE_PERCENTAGE = 1;
+  /* package */ static final int RATING_TYPE_STAR = 2;
+  /* package */ static final int RATING_TYPE_THUMB = 3;
 
-  // Default package-private constructor to prevent extending Rating class outside this package.
-  /* package */ Rating() {}
-
-  /** Whether rating exists or not. */
-  public abstract boolean isRated();
-
-  // Bundleable implementation.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({FIELD_RATING_TYPE})
   private @interface FieldNumber {}
 
-  protected static final int FIELD_RATING_TYPE = 0;
+  /* package */ static final int FIELD_RATING_TYPE = 0;
 
+  /** Object that can restore a {@link Rating} from a {@link Bundle}. */
   public static final Creator<Rating> CREATOR = Rating::fromBundle;
 
   private static Rating fromBundle(Bundle bundle) {
