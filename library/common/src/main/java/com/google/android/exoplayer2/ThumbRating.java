@@ -25,40 +25,38 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** A class for rating with a single degree of rating, "thumb up" vs "thumb down". */
+/** A rating expressed as "thumbs up" or "thumbs down". */
 public final class ThumbRating extends Rating {
 
-  @RatingType private static final int TYPE = RATING_TYPE_THUMB;
+  private final boolean rated;
 
-  private final boolean isRated;
+  /** Whether the rating is "thumbs up". */
+  public final boolean isThumbsUp;
 
-  /** Whether the rating has a thumb up or thumb down rating. */
-  public final boolean thumbUp;
-
-  /** Creates a unrated ThumbRating instance. */
+  /** Creates a unrated instance. */
   public ThumbRating() {
-    isRated = false;
-    thumbUp = false;
+    rated = false;
+    isThumbsUp = false;
   }
 
   /**
-   * Creates a ThumbRating instance.
+   * Creates a rated instance.
    *
-   * @param thumbIsUp true for a "thumb up" rating, false for "thumb down".
+   * @param isThumbsUp {@code true} for "thumbs up", {@code false} for "thumbs down".
    */
-  public ThumbRating(boolean thumbIsUp) {
-    isRated = true;
-    thumbUp = thumbIsUp;
+  public ThumbRating(boolean isThumbsUp) {
+    rated = true;
+    this.isThumbsUp = isThumbsUp;
   }
 
   @Override
   public boolean isRated() {
-    return isRated;
+    return rated;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(isRated, thumbUp);
+    return Objects.hashCode(rated, isThumbsUp);
   }
 
   @Override
@@ -67,42 +65,41 @@ public final class ThumbRating extends Rating {
       return false;
     }
     ThumbRating other = (ThumbRating) obj;
-    return thumbUp == other.thumbUp && isRated == other.isRated;
-  }
-
-  @Override
-  public String toString() {
-    return "ThumbRating: " + (isRated ? "isThumbUp=" + thumbUp : "unrated");
+    return isThumbsUp == other.isThumbsUp && rated == other.rated;
   }
 
   // Bundleable implementation.
+
+  @RatingType private static final int TYPE = RATING_TYPE_THUMB;
+
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FIELD_RATING_TYPE, FIELD_IS_RATED, FIELD_IS_THUMB_UP})
+  @IntDef({FIELD_RATING_TYPE, FIELD_RATED, FIELD_IS_THUMBS_UP})
   private @interface FieldNumber {}
 
-  private static final int FIELD_IS_RATED = 1;
-  private static final int FIELD_IS_THUMB_UP = 2;
+  private static final int FIELD_RATED = 1;
+  private static final int FIELD_IS_THUMBS_UP = 2;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putInt(keyForField(FIELD_RATING_TYPE), TYPE);
-    bundle.putBoolean(keyForField(FIELD_IS_RATED), isRated);
-    bundle.putBoolean(keyForField(FIELD_IS_THUMB_UP), thumbUp);
+    bundle.putBoolean(keyForField(FIELD_RATED), rated);
+    bundle.putBoolean(keyForField(FIELD_IS_THUMBS_UP), isThumbsUp);
     return bundle;
   }
 
+  /** Object that can restore a {@link ThumbRating} from a {@link Bundle}. */
   public static final Creator<ThumbRating> CREATOR = ThumbRating::fromBundle;
 
   private static ThumbRating fromBundle(Bundle bundle) {
     checkArgument(
         bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
             == TYPE);
-    boolean isRated = bundle.getBoolean(keyForField(FIELD_IS_RATED), /* defaultValue= */ false);
-    return isRated
+    boolean rated = bundle.getBoolean(keyForField(FIELD_RATED), /* defaultValue= */ false);
+    return rated
         ? new ThumbRating(
-            bundle.getBoolean(keyForField(FIELD_IS_THUMB_UP), /* defaultValue= */ false))
+            bundle.getBoolean(keyForField(FIELD_IS_THUMBS_UP), /* defaultValue= */ false))
         : new ThumbRating();
   }
 

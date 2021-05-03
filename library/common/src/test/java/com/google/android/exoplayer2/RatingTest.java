@@ -39,7 +39,7 @@ public class RatingTest {
     boolean hasHeart = true;
     HeartRating rating = new HeartRating(hasHeart);
     assertThat(rating.isRated()).isTrue();
-    assertThat(rating.hasHeart).isEqualTo(hasHeart);
+    assertThat(rating.isHeart).isEqualTo(hasHeart);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 
@@ -71,7 +71,7 @@ public class RatingTest {
     boolean isThumbUp = true;
     ThumbRating rating = new ThumbRating(isThumbUp);
     assertThat(rating.isRated()).isTrue();
-    assertThat(rating.thumbUp).isEqualTo(isThumbUp);
+    assertThat(rating.isThumbsUp).isEqualTo(isThumbUp);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 

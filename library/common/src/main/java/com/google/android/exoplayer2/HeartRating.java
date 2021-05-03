@@ -26,42 +26,40 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * A class for rating with a single degree of rating, "heart" vs "no heart". This can be used to
- * indicate the content referred to is a favorite (or not).
+ * A rating expressed as "heart" or "no heart". It can be used to indicate whether the content is a
+ * favorite.
  */
 public final class HeartRating extends Rating {
 
-  @RatingType private static final int TYPE = RATING_TYPE_HEART;
+  private final boolean rated;
 
-  private final boolean isRated;
+  /** Whether the rating is "heart". */
+  public final boolean isHeart;
 
-  /** Whether the rating has a heart rating or not. */
-  public final boolean hasHeart;
-
-  /** Creates a unrated HeartRating instance. */
+  /** Creates a unrated instance. */
   public HeartRating() {
-    isRated = false;
-    hasHeart = false;
+    rated = false;
+    isHeart = false;
   }
 
   /**
-   * Creates a HeartRating instance.
+   * Creates a rated instance.
    *
-   * @param hasHeart true for a "heart selected" rating, false for "heart unselected".
+   * @param isHeart {@code true} for "heart", {@code false} for "no heart".
    */
-  public HeartRating(boolean hasHeart) {
-    isRated = true;
-    this.hasHeart = hasHeart;
+  public HeartRating(boolean isHeart) {
+    rated = true;
+    this.isHeart = isHeart;
   }
 
   @Override
   public boolean isRated() {
-    return isRated;
+    return rated;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(isRated, hasHeart);
+    return Objects.hashCode(rated, isHeart);
   }
 
   @Override
@@ -70,42 +68,40 @@ public final class HeartRating extends Rating {
       return false;
     }
     HeartRating other = (HeartRating) obj;
-    return hasHeart == other.hasHeart && isRated == other.isRated;
-  }
-
-  @Override
-  public String toString() {
-    return "HeartRating: " + (isRated ? "hasHeart=" + hasHeart : "unrated");
+    return isHeart == other.isHeart && rated == other.rated;
   }
 
   // Bundleable implementation.
+
+  @RatingType private static final int TYPE = RATING_TYPE_HEART;
+
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FIELD_RATING_TYPE, FIELD_IS_RATED, FIELD_HAS_HEART})
+  @IntDef({FIELD_RATING_TYPE, FIELD_RATED, FIELD_IS_HEART})
   private @interface FieldNumber {}
 
-  private static final int FIELD_IS_RATED = 1;
-  private static final int FIELD_HAS_HEART = 2;
+  private static final int FIELD_RATED = 1;
+  private static final int FIELD_IS_HEART = 2;
 
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putInt(keyForField(FIELD_RATING_TYPE), TYPE);
-    bundle.putBoolean(keyForField(FIELD_IS_RATED), isRated);
-    bundle.putBoolean(keyForField(FIELD_HAS_HEART), hasHeart);
+    bundle.putBoolean(keyForField(FIELD_RATED), rated);
+    bundle.putBoolean(keyForField(FIELD_IS_HEART), isHeart);
     return bundle;
   }
 
+  /** Object that can restore a {@link HeartRating} from a {@link Bundle}. */
   public static final Creator<HeartRating> CREATOR = HeartRating::fromBundle;
 
   private static HeartRating fromBundle(Bundle bundle) {
     checkArgument(
         bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
             == TYPE);
-    boolean isRated = bundle.getBoolean(keyForField(FIELD_IS_RATED), /* defaultValue= */ false);
+    boolean isRated = bundle.getBoolean(keyForField(FIELD_RATED), /* defaultValue= */ false);
     return isRated
-        ? new HeartRating(
-            bundle.getBoolean(keyForField(FIELD_HAS_HEART), /* defaultValue= */ false))
+        ? new HeartRating(bundle.getBoolean(keyForField(FIELD_IS_HEART), /* defaultValue= */ false))
         : new HeartRating();
   }
 
