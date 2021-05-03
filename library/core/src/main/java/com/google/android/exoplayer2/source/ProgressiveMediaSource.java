@@ -318,7 +318,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       dataSource.addTransferListener(transferListener);
     }
     return new ProgressiveMediaPeriod(
-        playbackProperties.uri,
+        playbackProperties,
         dataSource,
         progressiveMediaExtractorFactory.createProgressiveMediaExtractor(),
         drmSessionManager,
@@ -327,7 +327,6 @@ public final class ProgressiveMediaSource extends BaseMediaSource
         createEventDispatcher(id),
         this,
         allocator,
-        playbackProperties.customCacheKey,
         continueLoadingCheckIntervalBytes);
   }
 

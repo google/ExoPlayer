@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -68,6 +69,7 @@ public final class HlsMediaPeriod
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
+  private final MediaItem.PlaybackProperties playbackProperties;
   @Nullable private final TransferListener mediaTransferListener;
   private final DrmSessionManager drmSessionManager;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
@@ -98,6 +100,7 @@ public final class HlsMediaPeriod
    * @param playlistTracker A tracker for HLS playlists.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for segments
    *     and keys.
+   * @param playbackProperties Playback data for the media item being played.
    * @param mediaTransferListener The transfer listener to inform of any media data transfers. May
    *     be null if no listener is available.
    * @param drmSessionManager The {@link DrmSessionManager} to acquire {@link DrmSession
@@ -114,6 +117,7 @@ public final class HlsMediaPeriod
       HlsExtractorFactory extractorFactory,
       HlsPlaylistTracker playlistTracker,
       HlsDataSourceFactory dataSourceFactory,
+      MediaItem.PlaybackProperties playbackProperties,
       @Nullable TransferListener mediaTransferListener,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
@@ -127,6 +131,7 @@ public final class HlsMediaPeriod
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
+    this.playbackProperties = playbackProperties;
     this.mediaTransferListener = mediaTransferListener;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
@@ -754,6 +759,7 @@ public final class HlsMediaPeriod
             extractorFactory,
             playlistTracker,
             playlistUrls,
+            playbackProperties,
             playlistFormats,
             dataSourceFactory,
             mediaTransferListener,

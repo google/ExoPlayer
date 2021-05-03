@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -470,6 +471,7 @@ public final class SsMediaSource extends BaseMediaSource
     SsMediaPeriod period =
         new SsMediaPeriod(
             manifest,
+            playbackProperties,
             chunkSourceFactory,
             mediaTransferListener,
             compositeSequenceableLoaderFactory,
@@ -667,7 +669,11 @@ public final class SsMediaSource extends BaseMediaSource
       return;
     }
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
-        manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
+        new DataSpec.Builder()
+            .setUri(manifestUri)
+            .setHttpRequestHeaders(playbackProperties.headers)
+            .build(),
+        C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs =
         manifestLoader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));

@@ -152,6 +152,18 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetHeaders_setsHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put("key1", "value1");
+    headers.put("key2", "value2");
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setHeaders(headers).build();
+
+    assertThat(mediaItem.playbackProperties.headers).isEqualTo(headers);
+  }
+
+  @Test
   public void builderSetStreamKeys_setsStreamKeys() {
     List<StreamKey> streamKeys = new ArrayList<>();
     streamKeys.add(new StreamKey(1, 0, 0));

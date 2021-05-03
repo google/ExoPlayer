@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -109,10 +110,14 @@ public final class ParsingLoadable<T> implements Loadable {
    * @param type See {@link #type}.
    * @param parser Parses the object from the response.
    */
-  public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<? extends T> parser) {
+  public ParsingLoadable(DataSource dataSource, Uri uri, int type,
+      Parser<? extends T> parser) {
     this(
         dataSource,
-        new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build(),
+        new DataSpec.Builder()
+            .setUri(uri)
+            .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+            .build(),
         type,
         parser);
   }

@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -198,6 +199,7 @@ public final class DashMediaPeriodTest {
     return new DashMediaPeriod(
         /* id= */ periodIndex,
         manifest,
+        mock(MediaItem.PlaybackProperties.class),
         periodIndex,
         mock(DashChunkSource.Factory.class),
         mock(TransferListener.class),

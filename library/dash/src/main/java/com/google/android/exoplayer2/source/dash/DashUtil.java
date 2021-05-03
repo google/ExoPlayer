@@ -38,7 +38,9 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /** Utility methods for DASH streams. */
 public final class DashUtil {
@@ -50,12 +52,14 @@ public final class DashUtil {
    * @param requestUri The {@link RangedUri} of the data to request.
    * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
    *     DataSpec.Builder#setFlags(int)}.
+   * @param headers Any headers to add to the {@link DataSpec}
    * @return The {@link DataSpec}.
    */
   public static DataSpec buildDataSpec(
-      Representation representation, RangedUri requestUri, int flags) {
+      Representation representation, RangedUri requestUri, Map<String, String> headers, int flags) {
     return new DataSpec.Builder()
         .setUri(requestUri.resolveUri(representation.baseUrl))
+        .setHttpRequestHeaders(headers)
         .setPosition(requestUri.start)
         .setLength(requestUri.length)
         .setKey(representation.getCacheKey())
@@ -196,7 +200,7 @@ public final class DashUtil {
       ChunkExtractor chunkExtractor,
       RangedUri requestUri)
       throws IOException {
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, /* flags= */ 0);
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, Collections.emptyMap(), /* flags= */ 0);
     InitializationChunk initializationChunk =
         new InitializationChunk(
             dataSource,

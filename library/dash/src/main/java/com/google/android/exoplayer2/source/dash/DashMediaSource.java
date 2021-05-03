@@ -59,6 +59,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -584,6 +585,7 @@ public final class DashMediaSource extends BaseMediaSource {
         new DashMediaPeriod(
             firstPeriodId + periodIndex,
             manifest,
+            mediaItem.playbackProperties,
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
@@ -1072,7 +1074,12 @@ public final class DashMediaSource extends BaseMediaSource {
     }
     manifestLoadPending = false;
     startLoading(
-        new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST, manifestParser),
+        new ParsingLoadable<>(dataSource,
+            new DataSpec.Builder()
+                .setUri(manifestUri)
+                .setHttpRequestHeaders(mediaItem.playbackProperties.headers)
+                .build(),
+            C.DATA_TYPE_MANIFEST, manifestParser),
         manifestCallback,
         loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MANIFEST));
   }

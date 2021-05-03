@@ -366,20 +366,20 @@ public final class HlsMediaSource extends BaseMediaSource
      */
     @Override
     public HlsMediaSource createMediaSource(MediaItem mediaItem) {
-      checkNotNull(mediaItem.playbackProperties);
+      MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
       HlsPlaylistParserFactory playlistParserFactory = this.playlistParserFactory;
       List<StreamKey> streamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty()
+          playbackProperties.streamKeys.isEmpty()
               ? this.streamKeys
-              : mediaItem.playbackProperties.streamKeys;
+              : playbackProperties.streamKeys;
       if (!streamKeys.isEmpty()) {
         playlistParserFactory =
             new FilteringHlsPlaylistParserFactory(playlistParserFactory, streamKeys);
       }
 
-      boolean needsTag = mediaItem.playbackProperties.tag == null && tag != null;
+      boolean needsTag = playbackProperties.tag == null && tag != null;
       boolean needsStreamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty() && !streamKeys.isEmpty();
+          playbackProperties.streamKeys.isEmpty() && !streamKeys.isEmpty();
       if (needsTag && needsStreamKeys) {
         mediaItem = mediaItem.buildUpon().setTag(tag).setStreamKeys(streamKeys).build();
       } else if (needsTag) {
@@ -395,7 +395,7 @@ public final class HlsMediaSource extends BaseMediaSource
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           playlistTrackerFactory.createTracker(
-              hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
+              hlsDataSourceFactory, playbackProperties, loadErrorHandlingPolicy, playlistParserFactory),
           elapsedRealTimeOffsetMs,
           allowChunklessPreparation,
           metadataType,
@@ -473,7 +473,7 @@ public final class HlsMediaSource extends BaseMediaSource
     drmSessionManager.prepare();
     MediaSourceEventListener.EventDispatcher eventDispatcher =
         createEventDispatcher(/* mediaPeriodId= */ null);
-    playlistTracker.start(playbackProperties.uri, eventDispatcher, /* listener= */ this);
+    playlistTracker.start(playbackProperties.uri, playbackProperties.headers, eventDispatcher, /* listener= */ this);
   }
 
   @Override
@@ -489,6 +489,7 @@ public final class HlsMediaSource extends BaseMediaSource
         extractorFactory,
         playlistTracker,
         dataSourceFactory,
+        playbackProperties,
         mediaTransferListener,
         drmSessionManager,
         drmEventDispatcher,
