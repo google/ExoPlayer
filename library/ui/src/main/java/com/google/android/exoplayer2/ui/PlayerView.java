@@ -65,8 +65,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
-import com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -420,11 +418,26 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           surfaceView = new TextureView(context);
           break;
         case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
-          surfaceView = new SphericalGLSurfaceView(context);
+          try {
+            Class<?> clazz =
+                Class.forName(
+                    "com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView");
+            surfaceView = (View) clazz.getConstructor(Context.class).newInstance(context);
+          } catch (Exception e) {
+            throw new IllegalStateException(
+                "spherical_gl_surface_view requires an ExoPlayer dependency", e);
+          }
           surfaceViewIgnoresVideoAspectRatio = true;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
-          surfaceView = new VideoDecoderGLSurfaceView(context);
+          try {
+            Class<?> clazz =
+                Class.forName("com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView");
+            surfaceView = (View) clazz.getConstructor(Context.class).newInstance(context);
+          } catch (Exception e) {
+            throw new IllegalStateException(
+                "video_decoder_gl_surface_view requires an ExoPlayer dependency", e);
+          }
           break;
         default:
           surfaceView = new SurfaceView(context);
@@ -1049,14 +1062,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to {@code
    *       surface_view}.
    *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.
-   *   <li>{@link SphericalGLSurfaceView} if {@code surface_type} is {@code
+   *   <li>{@code SphericalGLSurfaceView} if {@code surface_type} is {@code
    *       spherical_gl_surface_view}.
-   *   <li>{@link VideoDecoderGLSurfaceView} if {@code surface_type} is {@code
+   *   <li>{@code VideoDecoderGLSurfaceView} if {@code surface_type} is {@code
    *       video_decoder_gl_surface_view}.
    *   <li>{@code null} if {@code surface_type} is {@code none}.
    * </ul>
    *
-   * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalGLSurfaceView}, {@link
+   * @return The {@link SurfaceView}, {@link TextureView}, {@code SphericalGLSurfaceView}, {@code
    *     VideoDecoderGLSurfaceView} or {@code null}.
    */
   @Nullable
