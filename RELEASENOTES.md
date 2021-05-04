@@ -48,6 +48,9 @@
         visibility in order to allow Kotlin subclasses of
         `AdaptiveTrackSelection.Factory`
         ([#8830](https://github.com/google/ExoPlayer/issues/8830)).
+    *   Added a combined and structured metadata object (`MediaMetadata`) to
+        Player, accessible through `getMediaMetadata` or by listening to
+        `EventListener.onMediaMetadataChanged`.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.
@@ -64,8 +67,8 @@
     *   Allow fall back from DTS-HD to DTS when playing via passthrough.
 *   Video:
     *   Add `Player.getVideoSize()` to retrieve the current size of the video
-        stream. Add `Listener.onVideoSizeChanged(VideoSize)` and
-        deprecate `Listener.onVideoSizeChanged(int weight, int height...)`.
+        stream. Add `Listener.onVideoSizeChanged(VideoSize)` and deprecate
+        `Listener.onVideoSizeChanged(int weight, int height...)`.
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Downloads and caching:
@@ -118,11 +121,11 @@
         `dispatchPrepare`. Extend `DefaultControlDispatcher` to avoid having to
         implement the other `ControlDispatcher` methods.
     *   Remove `setRewindIncrementMs` and `setFastForwardIncrementMs` from UI
-        components. Use `setControlDispatcher` on the same components, passing
-        a `DefaultControlDispatcher` built using
-        `DefaultControlDispatcher(long, long)`.
+        components. Use `setControlDispatcher` on the same components, passing a
+        `DefaultControlDispatcher` built using `DefaultControlDispatcher(long,
+        long)`.
     *   Remove `PlayerNotificationManager` constructors and `createWith`
-        methods.  Use `PlayerNotificationManager.Builder` instead.
+        methods. Use `PlayerNotificationManager.Builder` instead.
     *   Remove `PlayerNotificationManager` `setUseNavigationActions` and
         `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
         `setUsePreviousAction`, `setUseNextActionInCompactView` and
