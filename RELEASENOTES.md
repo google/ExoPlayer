@@ -117,6 +117,16 @@
         `ControlDispatcher` that implements custom preparation logic in
         `dispatchPrepare`. Extend `DefaultControlDispatcher` to avoid having to
         implement the other `ControlDispatcher` methods.
+    *   Remove `setRewindIncrementMs` and `setFastForwardIncrementMs` from UI
+        components. Use `setControlDispatcher` on the same components, passing
+        a `DefaultControlDispatcher` built using
+        `DefaultControlDispatcher(long, long)`.
+    *   Remove `PlayerNotificationManager` constructors and `createWith`
+        methods.  Use `PlayerNotificationManager.Builder` instead.
+    *   Remove `PlayerNotificationManager` `setUseNavigationActions` and
+        `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
+        `setUsePreviousAction`, `setUseNextActionInCompactView` and
+        `setUsePreviousActionInCompactView` instead.
 *   DRM:
     *   Only dispatch DRM session acquire and release events once per period
         when playing content that uses the same encryption keys for both audio &

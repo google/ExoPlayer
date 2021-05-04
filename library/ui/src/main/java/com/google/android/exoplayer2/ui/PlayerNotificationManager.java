@@ -45,7 +45,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
@@ -660,152 +659,6 @@ public class PlayerNotificationManager {
   private boolean useChronometer;
   @Nullable private String groupKey;
 
-  /** @deprecated Use the {@link Builder} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter) {
-    return createWithNotificationChannel(
-        context,
-        channelId,
-        channelName,
-        /* channelDescription= */ 0,
-        notificationId,
-        mediaDescriptionAdapter);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      @StringRes int channelDescription,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter) {
-    NotificationUtil.createNotificationChannel(
-        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
-    return new PlayerNotificationManager(
-        context, channelId, notificationId, mediaDescriptionAdapter);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener) {
-    return createWithNotificationChannel(
-        context,
-        channelId,
-        channelName,
-        /* channelDescription= */ 0,
-        notificationId,
-        mediaDescriptionAdapter,
-        notificationListener);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      @StringRes int channelDescription,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener) {
-    NotificationUtil.createNotificationChannel(
-        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
-    return new PlayerNotificationManager(
-        context, channelId, notificationId, mediaDescriptionAdapter, notificationListener);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        /* notificationListener= */ null,
-        /* customActionReceiver */ null);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        notificationListener,
-        /* customActionReceiver= */ null);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable CustomActionReceiver customActionReceiver) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        /* notificationListener= */ null,
-        customActionReceiver);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener,
-      @Nullable CustomActionReceiver customActionReceiver) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        notificationListener,
-        customActionReceiver,
-        R.drawable.exo_notification_small_icon,
-        R.drawable.exo_notification_play,
-        R.drawable.exo_notification_pause,
-        R.drawable.exo_notification_stop,
-        R.drawable.exo_notification_rewind,
-        R.drawable.exo_notification_fastforward,
-        R.drawable.exo_notification_previous,
-        R.drawable.exo_notification_next,
-        null);
-  }
-
   private PlayerNotificationManager(
       Context context,
       String channelId,
@@ -927,32 +780,6 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public final void setFastForwardIncrementMs(long fastForwardMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
-      invalidate();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public final void setRewindIncrementMs(long rewindMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
-      invalidate();
-    }
-  }
-
-  /**
    * Sets whether the next action should be used.
    *
    * @param useNextAction Whether to use the next action.
@@ -974,18 +801,6 @@ public class PlayerNotificationManager {
       this.usePreviousAction = usePreviousAction;
       invalidate();
     }
-  }
-
-  /**
-   * Sets whether the navigation actions should be used.
-   *
-   * @param useNavigationActions Whether to use navigation actions.
-   * @deprecated Use {@link #setUseNextAction(boolean)} and {@link #setUsePreviousAction(boolean)}.
-   */
-  @Deprecated
-  public final void setUseNavigationActions(boolean useNavigationActions) {
-    setUseNextAction(useNavigationActions);
-    setUsePreviousAction(useNavigationActions);
   }
 
   /**
@@ -1014,22 +829,6 @@ public class PlayerNotificationManager {
       this.usePreviousActionInCompactView = usePreviousActionInCompactView;
       invalidate();
     }
-  }
-
-  /**
-   * If {@link #setUseNavigationActions useNavigationActions} is {@code true}, sets whether
-   * navigation actions should also be used in compact view. Has no effect if {@link
-   * #setUseNavigationActions useNavigationActions} is {@code false}.
-   *
-   * @param useNavigationActionsInCompactView Whether to use navigation actions in compact view.
-   * @deprecated Use {@link #setUseNextActionInCompactView(boolean)} and {@link
-   *     #setUsePreviousActionInCompactView(boolean)} instead.
-   */
-  @Deprecated
-  public final void setUseNavigationActionsInCompactView(
-      boolean useNavigationActionsInCompactView) {
-    setUseNextActionInCompactView(useNavigationActionsInCompactView);
-    setUsePreviousActionInCompactView(useNavigationActionsInCompactView);
   }
 
   /**
@@ -1141,8 +940,8 @@ public class PlayerNotificationManager {
    * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
    *
    * <p>To set the priority for API levels above 25, you can create your own {@link
-   * NotificationChannel} with a given importance level and pass the id of the channel to the {@link
-   * #PlayerNotificationManager(Context, String, int, MediaDescriptionAdapter) constructor}.
+   * NotificationChannel} with a given importance level and pass the id of the channel to {@link
+   * Builder#Builder(Context, int, String, MediaDescriptionAdapter)}.
    *
    * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
    *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link
