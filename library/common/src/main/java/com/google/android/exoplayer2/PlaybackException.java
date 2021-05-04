@@ -31,18 +31,148 @@ import java.lang.annotation.RetentionPolicy;
 public class PlaybackException extends Exception implements Bundleable {
 
   /**
-   * An error code identifying the source of the playback failure. Note that new types may be added
-   * in the future and error handling should handle unknown type values.
+   * Integer codes that identify causes of player errors. This list of errors may be extended in
+   * future versions, and {@link Player} implementations may define custom error codes.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({ERROR_CODE_UNKNOWN})
+  @IntDef(
+      open = true,
+      value = {
+        ERROR_CODE_UNSPECIFIED,
+        ERROR_CODE_REMOTE_ERROR,
+        ERROR_CODE_BEHIND_LIVE_WINDOW,
+        ERROR_CODE_IO_UNSPECIFIED,
+        ERROR_CODE_IO_NETWORK_UNAVAILABLE,
+        ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+        ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+        ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED,
+        ERROR_CODE_IO_BAD_HTTP_STATUS,
+        ERROR_CODE_IO_DNS_FAILED,
+        ERROR_CODE_IO_FILE_NOT_FOUND,
+        ERROR_CODE_IO_NO_PERMISSION,
+        ERROR_CODE_PARSING_MANIFEST_MALFORMED,
+        ERROR_CODE_PARSING_CONTAINER_MALFORMED,
+        ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
+        ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED,
+        ERROR_CODE_DECODER_INIT_FAILED,
+        ERROR_CODE_DECODING_FAILED,
+        ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES,
+        ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+        ERROR_CODE_AUDIO_TRACK_INIT_FAILED,
+        ERROR_CODE_AUDIO_TRACK_WRITE_FAILED,
+        ERROR_CODE_DRM_SCHEME_UNSUPPORTED,
+        ERROR_CODE_DRM_PROVISIONING_FAILED,
+        ERROR_CODE_DRM_CONTENT_ERROR,
+        ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED,
+        ERROR_CODE_DRM_DISALLOWED_OPERATION,
+        ERROR_CODE_DRM_SYSTEM_ERROR,
+        ERROR_CODE_DRM_DEVICE_REVOKED
+      })
   public @interface ErrorCode {}
 
-  public static final int ERROR_CODE_UNKNOWN = 0;
+  // Miscellaneous errors (1xxx).
+
+  /** Caused by an error whose cause could not be identified. */
+  public static final int ERROR_CODE_UNSPECIFIED = 1000;
+  /**
+   * Caused by an unidentified error in a remote Player, which is a Player that runs on a different
+   * host or process.
+   */
+  public static final int ERROR_CODE_REMOTE_ERROR = 1001;
+  /** Caused by the loading position falling behind the sliding window of available live content. */
+  public static final int ERROR_CODE_BEHIND_LIVE_WINDOW = 1002;
+
+  // Input/Output errors (2xxx).
+
+  /** Caused by an Input/Output error which could not be identified. */
+  public static final int ERROR_CODE_IO_UNSPECIFIED = 2000;
+  /** Caused by the lack of network connectivity while trying to access a network resource. */
+  public static final int ERROR_CODE_IO_NETWORK_UNAVAILABLE = 2001;
+  /** Caused by a failure while establishing a network connection. */
+  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_FAILED = 2002;
+  /** Caused by a network timeout, meaning the server is taking too long to fulfill a request. */
+  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT = 2003;
+  /** Caused by an existing connection being unexpectedly closed. */
+  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED = 2004;
+  /** Caused by an HTTP server returning an unexpected HTTP response status code. */
+  public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2005;
+  /** Caused by the player failing to resolve a hostname. */
+  public static final int ERROR_CODE_IO_DNS_FAILED = 2006;
+  /** Caused by a non-existent file. */
+  public static final int ERROR_CODE_IO_FILE_NOT_FOUND = 2007;
+  /**
+   * Caused by lack of permission to perform an IO operation. For example, lack of permission to
+   * access internet or external storage.
+   */
+  public static final int ERROR_CODE_IO_NO_PERMISSION = 2008;
+
+  // Content parsing errors (3xxx).
+
+  /**
+   * Caused by a parsing error associated to a media manifest. Examples of a media manifest are a
+   * DASH or a SmoothStreaming manifest, or an HLS playlist.
+   */
+  public static final int ERROR_CODE_PARSING_MANIFEST_MALFORMED = 3000;
+  /** Caused by a parsing error associated to a media container format bitstream. */
+  public static final int ERROR_CODE_PARSING_CONTAINER_MALFORMED = 3001;
+  /**
+   * Caused by attempting to extract a file with an unsupported media container format, or an
+   * unsupported media container feature.
+   */
+  public static final int ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED = 3002;
+  /**
+   * Caused by an unsupported feature in a media manifest. Examples of a media manifest are a DASH
+   * or a SmoothStreaming manifest, or an HLS playlist.
+   */
+  public static final int ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED = 3003;
+
+  // Decoding errors (4xxx).
+
+  /** Caused by a decoder initialization failure. */
+  public static final int ERROR_CODE_DECODER_INIT_FAILED = 4000;
+  /** Caused by a failure while trying to decode media samples. */
+  public static final int ERROR_CODE_DECODING_FAILED = 4001;
+  /** Caused by trying to decode content whose format exceeds the capabilities of the device. */
+  public static final int ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES = 4002;
+  /** Caused by trying to decode content whose format is not supported. */
+  public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 4003;
+
+  // AudioTrack errors (5xxx).
+
+  /** Caused by an AudioTrack initialization failure. */
+  public static final int ERROR_CODE_AUDIO_TRACK_INIT_FAILED = 5000;
+  /** Caused by an AudioTrack write operation failure. */
+  public static final int ERROR_CODE_AUDIO_TRACK_WRITE_FAILED = 5001;
+
+  // DRM errors (6xxx).
+
+  /**
+   * Caused by a chosen DRM protection scheme not being supported by the device. Examples of DRM
+   * protection schemes are ClearKey and Widevine.
+   */
+  public static final int ERROR_CODE_DRM_SCHEME_UNSUPPORTED = 6000;
+  /** Caused by a failure while provisioning the device. */
+  public static final int ERROR_CODE_DRM_PROVISIONING_FAILED = 6001;
+  /** Caused by attempting to play incompatible DRM-protected content. */
+  public static final int ERROR_CODE_DRM_CONTENT_ERROR = 6002;
+  /** Caused by a failure while trying to obtain a license. */
+  public static final int ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED = 6003;
+  /** Caused by an operation being disallowed by a license policy. */
+  public static final int ERROR_CODE_DRM_DISALLOWED_OPERATION = 6004;
+  /** Caused by an error in the DRM system. */
+  public static final int ERROR_CODE_DRM_SYSTEM_ERROR = 6005;
+  /** Caused by the device having revoked DRM privileges. */
+  public static final int ERROR_CODE_DRM_DEVICE_REVOKED = 6006;
+
+  /**
+   * Player implementations that want to surface custom errors can use error codes greater than this
+   * value, so as to avoid collision with other error codes defined in this class.
+   */
+  public static final int CUSTOM_ERROR_CODE_BASE = 1000000;
 
   /** An error code which identifies the source of the playback failure. */
-  @ErrorCode public final int errorCode;
+  public final int errorCode;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
@@ -50,12 +180,12 @@ public class PlaybackException extends Exception implements Bundleable {
   /**
    * Creates an instance.
    *
-   * @param errorCode An {@link ErrorCode} which identifies the cause of the error.
+   * @param errorCode A number which identifies the cause of the error. May be one of the {@link
+   *     ErrorCode ErrorCodes}.
    * @param cause See {@link #getCause()}.
    * @param message See {@link #getMessage()}.
    */
-  public PlaybackException(
-      @Nullable String message, @Nullable Throwable cause, @ErrorCode int errorCode) {
+  public PlaybackException(@Nullable String message, @Nullable Throwable cause, int errorCode) {
     this(message, cause, errorCode, Clock.DEFAULT.elapsedRealtime());
   }
 
@@ -111,8 +241,10 @@ public class PlaybackException extends Exception implements Bundleable {
    * @return The created instance.
    */
   protected static PlaybackException fromBundle(Bundle bundle) {
-    int type =
-        bundle.getInt(keyForField(FIELD_INT_ERROR_CODE), /* defaultValue= */ ERROR_CODE_UNKNOWN);
+    @ErrorCode
+    int errorCode =
+        bundle.getInt(
+            keyForField(FIELD_INT_ERROR_CODE), /* defaultValue= */ ERROR_CODE_UNSPECIFIED);
     long timestampMs =
         bundle.getLong(
             keyForField(FIELD_LONG_TIME_STAMP_MS),
@@ -140,7 +272,7 @@ public class PlaybackException extends Exception implements Bundleable {
         }
       }
     }
-    return new PlaybackException(message, cause, type, timestampMs);
+    return new PlaybackException(message, cause, errorCode, timestampMs);
   }
 
   /**
