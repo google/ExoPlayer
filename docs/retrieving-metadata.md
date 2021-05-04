@@ -4,14 +4,33 @@ title: Retrieving metadata
 
 ## During playback ##
 
-Media metadata can be retrieved during playback in multiple ways, depending on
-the exact needs. Possible options are to listen to `onTracksChanged`, to listen
-to `onStaticMetadataChanged` or to add a `MetadataOutput` to the player.
+The metadata of the media can be retrieved during playback in multiple ways. The
+most straightforward is to listen for the
+`Player.EventListener#onMediaMetadataChanged` event; this will provide a
+[`MediaMetadata`][] object for use, which has fields such as `trackTitle` and
+`albumArtist`. Alternatively, calling `Player#getMediaMetadata` returns the same
+object.
+
+~~~
+public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
+  if (mediaMetadata.trackTitle != null) {
+    handleTrackTitle(mediaMetadata.trackTitle);
+  }
+}
+
+~~~
+{: .language-java}
+
+If an application needs access to specific [`Metadata.Entry`][] objects, then it
+should listen for `Player#onStaticMetadataChanged` (for static metadata from the
+`Format`s) and/or add a `MetadataOutput` (for dynamic metadata delivered during
+playback) to the player. The return values of these callbacks are used to
+populate the `MediaMetadata`.
 
 ## Without playback ##
 
 If playback is not needed, it is more efficient to use the
-[`MetadataRetriever`][] to extract media metadata because it avoids having to
+[`MetadataRetriever`][] to extract the metadata because it avoids having to
 create and prepare a player.
 
 ~~~
@@ -65,5 +84,7 @@ for (int i = 0; i < trackGroups.length; i++) {
 ~~~
 {: .language-java}
 
+[`MediaMetadata`]: {{ site.exo_sdk }}/MediaMetadata.html
+[`Metadata.Entry`][]: {{ site.exo_sdk}}/metadata/Metadata.Entry.html
 [`MetadataRetriever`]: {{ site.exo_sdk }}/MetadataRetriever.html
 [`MotionPhotoMetadata`]: {{ site.exo_sdk }}/metadata/mp4/MotionPhotoMetadata.html
