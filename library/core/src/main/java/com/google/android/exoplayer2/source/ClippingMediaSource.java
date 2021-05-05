@@ -293,19 +293,6 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     refreshSourceInfo(clippingTimeline);
   }
 
-  @Override
-  protected long getMediaTimeForChildMediaTime(Void id, long mediaTimeMs) {
-    if (mediaTimeMs == C.TIME_UNSET) {
-      return C.TIME_UNSET;
-    }
-    long startMs = C.usToMs(startUs);
-    long clippedTimeMs = max(0, mediaTimeMs - startMs);
-    if (endUs != C.TIME_END_OF_SOURCE) {
-      clippedTimeMs = min(C.usToMs(endUs) - startMs, clippedTimeMs);
-    }
-    return clippedTimeMs;
-  }
-
   /**
    * Provides a clipped view of a specified timeline.
    */

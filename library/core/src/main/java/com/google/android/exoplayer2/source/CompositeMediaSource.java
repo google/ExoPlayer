@@ -184,12 +184,15 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   }
 
   /**
-   * Returns the media time in the composite source corresponding to the specified media time in a
-   * child source. The default implementation does not change the media time.
+   * Returns the media time in the {@link MediaPeriod} of the composite source corresponding to the
+   * specified media time in the {@link MediaPeriod} of the child source. The default implementation
+   * does not change the media time.
    *
    * @param id The unique id used to prepare the child source.
-   * @param mediaTimeMs A media time of the child source, in milliseconds.
-   * @return The corresponding media time in the composite source, in milliseconds.
+   * @param mediaTimeMs A media time in the {@link MediaPeriod} of the child source, in
+   *     milliseconds.
+   * @return The corresponding media time in the {@link MediaPeriod} of the composite source, in
+   *     milliseconds.
    */
   protected long getMediaTimeForChildMediaTime(@UnknownNull T id, long mediaTimeMs) {
     return mediaTimeMs;

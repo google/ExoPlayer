@@ -94,9 +94,9 @@ public interface MediaSourceEventListener {
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
    * The player may be able to recover from the error. Hence applications should <em>not</em>
    * implement this method to display a user visible error or initiate an application level retry.
-   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
-   * This method is called to provide the application with an opportunity to log the error if it
-   * wishes to do so.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param windowIndex The window index in the timeline of the media source this load belongs to.
    * @param mediaPeriodId The {@link MediaPeriodId} this load belongs to. Null if the load does not
