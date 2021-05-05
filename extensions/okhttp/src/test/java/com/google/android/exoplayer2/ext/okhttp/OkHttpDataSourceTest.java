@@ -32,9 +32,11 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link OkHttpDataSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class OkHttpDataSourceTest {
 
   /**
