@@ -29,9 +29,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ByteArrayUploadDataProvider}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class ByteArrayUploadDataProviderTest {
 
   private static final byte[] TEST_DATA = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
