@@ -73,9 +73,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Loader.ReleaseCallback,
         UpstreamFormatChangedListener {
 
-  /**
-   * Listener for information about the period.
-   */
+  /** Listener for information about the period. */
   interface Listener {
 
     /**
@@ -404,7 +402,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (largestQueuedTimestampUs == Long.MAX_VALUE) {
       largestQueuedTimestampUs = getLargestQueuedTimestampUs();
     }
-    return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
+    return largestQueuedTimestampUs == Long.MIN_VALUE
+        ? lastSeekPositionUs
         : largestQueuedTimestampUs;
   }
 
@@ -552,8 +551,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (durationUs == C.TIME_UNSET && seekMap != null) {
       boolean isSeekable = seekMap.isSeekable();
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
-      durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
-          : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
+      durationUs =
+          largestQueuedTimestampUs == Long.MIN_VALUE
+              ? 0
+              : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
       listener.onSourceInfoRefreshed(durationUs, isSeekable, isLive);
     }
     StatsDataSource dataSource = loadable.dataSource;
@@ -844,8 +845,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     retry.
    */
   private boolean configureRetry(ExtractingLoadable loadable, int currentExtractedSampleCount) {
-    if (length != C.LENGTH_UNSET
-        || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)) {
+    if (length != C.LENGTH_UNSET || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)) {
       // We're playing an on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
       extractedSamplesCountAtStartOfLoad = currentExtractedSampleCount;
@@ -957,7 +957,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public int skipData(long positionUs) {
       return ProgressiveMediaPeriod.this.skipData(track, positionUs);
     }
-
   }
 
   /** Loads the media stream and extracts sample data from it. */

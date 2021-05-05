@@ -55,5 +55,4 @@ public final class SinglePeriodAdTimeline extends ForwardingTimeline {
         adPlaybackState);
     return period;
   }
-
 }

@@ -53,8 +53,15 @@ public abstract class DataChunk extends Chunk {
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
       @Nullable byte[] data) {
-    super(dataSource, dataSpec, type, trackFormat, trackSelectionReason, trackSelectionData,
-        C.TIME_UNSET, C.TIME_UNSET);
+    super(
+        dataSource,
+        dataSpec,
+        type,
+        trackFormat,
+        trackSelectionReason,
+        trackSelectionData,
+        C.TIME_UNSET,
+        C.TIME_UNSET);
     this.data = data == null ? Util.EMPTY_BYTE_ARRAY : data;
   }
 

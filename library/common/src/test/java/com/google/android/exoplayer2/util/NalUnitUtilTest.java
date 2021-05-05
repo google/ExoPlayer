@@ -29,9 +29,10 @@ public final class NalUnitUtilTest {
 
   private static final int TEST_PARTIAL_NAL_POSITION = 4;
   private static final int TEST_NAL_POSITION = 10;
-  private static final byte[] SPS_TEST_DATA = createByteArray(0x00, 0x00, 0x01, 0x67, 0x4D, 0x40,
-      0x16, 0xEC, 0xA0, 0x50, 0x17, 0xFC, 0xB8, 0x08, 0x80, 0x00, 0x00, 0x03, 0x00, 0x80, 0x00,
-      0x00, 0x0F, 0x47, 0x8B, 0x16, 0xCB);
+  private static final byte[] SPS_TEST_DATA =
+      createByteArray(
+          0x00, 0x00, 0x01, 0x67, 0x4D, 0x40, 0x16, 0xEC, 0xA0, 0x50, 0x17, 0xFC, 0xB8, 0x08, 0x80,
+          0x00, 0x00, 0x03, 0x00, 0x80, 0x00, 0x00, 0x0F, 0x47, 0x8B, 0x16, 0xCB);
   private static final int SPS_TEST_DATA_OFFSET = 3;
 
   @Test
@@ -121,8 +122,8 @@ public final class NalUnitUtilTest {
 
   @Test
   public void parseSpsNalUnit() {
-    NalUnitUtil.SpsData data = NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET,
-        SPS_TEST_DATA.length);
+    NalUnitUtil.SpsData data =
+        NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET, SPS_TEST_DATA.length);
     assertThat(data.width).isEqualTo(640);
     assertThat(data.height).isEqualTo(360);
     assertThat(data.deltaPicOrderAlwaysZeroFlag).isFalse();

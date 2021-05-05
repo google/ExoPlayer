@@ -121,7 +121,5 @@ public class OpusPlaybackTest {
         Looper.myLooper().quit();
       }
     }
-
   }
-
 }

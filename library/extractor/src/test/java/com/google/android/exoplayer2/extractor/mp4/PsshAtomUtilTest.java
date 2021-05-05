@@ -34,7 +34,7 @@ public final class PsshAtomUtilTest {
 
   @Test
   public void buildPsshAtom() {
-    byte[] schemeData = new byte[]{0, 1, 2, 3, 4, 5};
+    byte[] schemeData = new byte[] {0, 1, 2, 3, 4, 5};
     byte[] psshAtom = PsshAtomUtil.buildPsshAtom(C.WIDEVINE_UUID, schemeData);
     // Read the PSSH atom back and assert its content is as expected.
     ParsableByteArray parsablePsshAtom = new ParsableByteArray(psshAtom);
@@ -50,5 +50,4 @@ public final class PsshAtomUtilTest {
     parsablePsshAtom.readBytes(psshSchemeData, 0, schemeData.length);
     assertThat(psshSchemeData).isEqualTo(schemeData);
   }
-
 }

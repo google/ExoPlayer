@@ -464,7 +464,6 @@ public final class VideoFrameReleaseHelper {
         updateDefaultDisplayRefreshRateParams();
       }
     }
-
   }
 
   /**
@@ -524,21 +523,17 @@ public final class VideoFrameReleaseHelper {
     @Override
     public boolean handleMessage(Message message) {
       switch (message.what) {
-        case CREATE_CHOREOGRAPHER: {
+        case CREATE_CHOREOGRAPHER:
           createChoreographerInstanceInternal();
           return true;
-        }
-        case MSG_ADD_OBSERVER: {
+        case MSG_ADD_OBSERVER:
           addObserverInternal();
           return true;
-        }
-        case MSG_REMOVE_OBSERVER: {
+        case MSG_REMOVE_OBSERVER:
           removeObserverInternal();
           return true;
-        }
-        default: {
+        default:
           return false;
-        }
       }
     }
 
@@ -560,6 +555,5 @@ public final class VideoFrameReleaseHelper {
         sampledVsyncTimeNs = C.TIME_UNSET;
       }
     }
-
   }
 }

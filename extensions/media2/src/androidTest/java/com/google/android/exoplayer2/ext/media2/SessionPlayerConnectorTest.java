@@ -168,10 +168,7 @@ public class SessionPlayerConnectorTest {
     SimpleExoPlayer simpleExoPlayer = null;
     SessionPlayerConnector playerConnector = null;
     try {
-      simpleExoPlayer =
-          new SimpleExoPlayer.Builder(context)
-              .setLooper(Looper.myLooper())
-              .build();
+      simpleExoPlayer = new SimpleExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
       playerConnector =
           new SessionPlayerConnector(simpleExoPlayer, new DefaultMediaItemConverter());
       playerConnector.setControlDispatcher(controlDispatcher);

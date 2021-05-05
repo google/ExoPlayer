@@ -147,5 +147,4 @@ public final class VorbisBitArrayTest {
     bitArray.readBit();
     assertThat(bitArray.getPosition()).isEqualTo(1);
   }
-
 }

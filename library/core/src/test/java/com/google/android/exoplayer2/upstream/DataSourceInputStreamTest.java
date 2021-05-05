@@ -59,8 +59,8 @@ public final class DataSourceInputStreamTest {
     byte[] readBytes = new byte[TEST_DATA.length];
     int totalBytesRead = 0;
     while (totalBytesRead < TEST_DATA.length) {
-      int bytesRead = inputStream.read(readBytes, totalBytesRead,
-          TEST_DATA.length - totalBytesRead);
+      int bytesRead =
+          inputStream.read(readBytes, totalBytesRead, TEST_DATA.length - totalBytesRead);
       assertThat(bytesRead).isGreaterThan(0);
       totalBytesRead += bytesRead;
       assertThat(inputStream.bytesRead()).isEqualTo(totalBytesRead);
@@ -96,12 +96,13 @@ public final class DataSourceInputStreamTest {
 
   private static DataSourceInputStream buildTestInputStream() {
     FakeDataSource fakeDataSource = new FakeDataSource();
-    fakeDataSource.getDataSet().newDefaultData()
+    fakeDataSource
+        .getDataSet()
+        .newDefaultData()
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 5))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 5, 10))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 10, 15))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 15, TEST_DATA.length));
     return new DataSourceInputStream(fakeDataSource, new DataSpec(Uri.EMPTY));
   }
-
 }

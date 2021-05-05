@@ -32,9 +32,7 @@ import java.util.Random;
  */
 public final class FakeAdaptiveDataSet extends FakeDataSet {
 
-  /**
-   * Factory for {@link FakeAdaptiveDataSet}s.
-   */
+  /** Factory for {@link FakeAdaptiveDataSet}s. */
   public static final class Factory {
 
     private final long chunkDurationUs;
@@ -67,7 +65,6 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
       return new FakeAdaptiveDataSet(
           trackGroup, mediaDurationUs, chunkDurationUs, bitratePercentStdDev, random);
     }
-
   }
 
   /** {@link MediaChunkIterator} for the chunks defined by a fake adaptive data set. */
@@ -122,13 +119,17 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
    * @param trackGroup The {@link TrackGroup} for which the data set is to be created.
    * @param mediaDurationUs The total duration of the fake data set in microseconds.
    * @param chunkDurationUs The chunk duration to use in microseconds.
-   * @param bitratePercentStdDev  The standard deviation used to generate the chunk sizes centered
+   * @param bitratePercentStdDev The standard deviation used to generate the chunk sizes centered
    *     around the average bitrate of the {@link Format}s in the {@link TrackGroup}. The standard
    *     deviation is given in percent (of the average size).
    * @param random A {@link Random} instance used to generate random chunk sizes.
    */
-  /* package */ FakeAdaptiveDataSet(TrackGroup trackGroup, long mediaDurationUs,
-      long chunkDurationUs, double bitratePercentStdDev, Random random) {
+  /* package */ FakeAdaptiveDataSet(
+      TrackGroup trackGroup,
+      long mediaDurationUs,
+      long chunkDurationUs,
+      double bitratePercentStdDev,
+      Random random) {
     this.chunkDurationUs = chunkDurationUs;
     long lastChunkDurationUs = mediaDurationUs % chunkDurationUs;
     int fullChunks = (int) (mediaDurationUs / chunkDurationUs);
@@ -147,8 +148,12 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
         newData.appendReadData((int) (avgChunkLength * bitrateFactors[j]));
       }
       if (lastChunkDurationUs > 0) {
-        int lastChunkLength = (int) (format.bitrate * bitrateFactors[bitrateFactors.length - 1]
-            * (mediaDurationUs % chunkDurationUs) / (8 * C.MICROS_PER_SECOND));
+        int lastChunkLength =
+            (int)
+                (format.bitrate
+                    * bitrateFactors[bitrateFactors.length - 1]
+                    * (mediaDurationUs % chunkDurationUs)
+                    / (8 * C.MICROS_PER_SECOND));
         newData.appendReadData(lastChunkLength);
       }
     }

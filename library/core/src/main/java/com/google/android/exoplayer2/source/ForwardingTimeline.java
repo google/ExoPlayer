@@ -33,14 +33,14 @@ public abstract class ForwardingTimeline extends Timeline {
   }
 
   @Override
-  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-      boolean shuffleModeEnabled) {
+  public int getNextWindowIndex(
+      int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     return timeline.getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
   }
 
   @Override
-  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-      boolean shuffleModeEnabled) {
+  public int getPreviousWindowIndex(
+      int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     return timeline.getPreviousWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
   }
 

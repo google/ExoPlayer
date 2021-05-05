@@ -79,12 +79,12 @@ public interface EbmlProcessor {
 
   /**
    * Called when the start of a master element is encountered.
-   * <p>
-   * Following events should be considered as taking place within this element until a matching call
-   * to {@link #endMasterElement(int)} is made.
-   * <p>
-   * Note that it is possible for another master element of the same element ID to be nested within
-   * itself.
+   *
+   * <p>Following events should be considered as taking place within this element until a matching
+   * call to {@link #endMasterElement(int)} is made.
+   *
+   * <p>Note that it is possible for another master element of the same element ID to be nested
+   * within itself.
    *
    * @param id The element ID.
    * @param contentPosition The position of the start of the element's content in the stream.

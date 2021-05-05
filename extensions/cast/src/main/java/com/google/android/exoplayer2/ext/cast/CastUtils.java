@@ -22,9 +22,7 @@ import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaTrack;
 
-/**
- * Utility methods for ExoPlayer/Cast integration.
- */
+/** Utility methods for ExoPlayer/Cast integration. */
 /* package */ final class CastUtils {
 
   /** The duration returned by {@link MediaInfo#getStreamDuration()} for live streams. */
@@ -103,8 +101,8 @@ import com.google.android.gms.cast.MediaTrack;
   }
 
   /**
-   * Creates a {@link Format} instance containing all information contained in the given
-   * {@link MediaTrack} object.
+   * Creates a {@link Format} instance containing all information contained in the given {@link
+   * MediaTrack} object.
    *
    * @param mediaTrack The {@link MediaTrack}.
    * @return The equivalent {@link Format}.
@@ -118,5 +116,4 @@ import com.google.android.gms.cast.MediaTrack;
   }
 
   private CastUtils() {}
-
 }

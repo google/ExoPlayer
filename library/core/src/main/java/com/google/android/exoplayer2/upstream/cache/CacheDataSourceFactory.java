@@ -109,5 +109,4 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
         eventListener,
         cacheKeyFactory);
   }
-
 }

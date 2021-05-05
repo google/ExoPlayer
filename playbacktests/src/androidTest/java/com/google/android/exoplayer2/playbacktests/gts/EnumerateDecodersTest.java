@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-
 import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;

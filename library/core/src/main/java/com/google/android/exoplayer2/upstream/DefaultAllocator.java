@@ -51,16 +51,16 @@ public final class DefaultAllocator implements Allocator {
 
   /**
    * Constructs an instance with some {@link Allocation}s created up front.
-   * <p>
-   * Note: {@link Allocation}s created up front will never be discarded by {@link #trim()}.
+   *
+   * <p>Note: {@link Allocation}s created up front will never be discarded by {@link #trim()}.
    *
    * @param trimOnReset Whether memory is freed when the allocator is reset. Should be true unless
    *     the allocator will be re-used by multiple player instances.
    * @param individualAllocationSize The length of each individual {@link Allocation}.
    * @param initialAllocationCount The number of allocations to create up front.
    */
-  public DefaultAllocator(boolean trimOnReset, int individualAllocationSize,
-      int initialAllocationCount) {
+  public DefaultAllocator(
+      boolean trimOnReset, int individualAllocationSize, int initialAllocationCount) {
     Assertions.checkArgument(individualAllocationSize > 0);
     Assertions.checkArgument(initialAllocationCount >= 0);
     this.trimOnReset = trimOnReset;
@@ -179,5 +179,4 @@ public final class DefaultAllocator implements Allocator {
   public int getIndividualAllocationLength() {
     return individualAllocationSize;
   }
-
 }

@@ -51,8 +51,8 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   /**
    * Creates an instance for a given {@link MediaSessionCompat}.
-   * <p>
-   * Equivalent to {@code TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)}.
+   *
+   * <p>Equivalent to {@code TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)}.
    *
    * @param mediaSession The {@link MediaSessionCompat}.
    */
@@ -62,10 +62,10 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   /**
    * Creates an instance for a given {@link MediaSessionCompat} and maximum queue size.
-   * <p>
-   * If the number of windows in the {@link Player}'s {@link Timeline} exceeds {@code maxQueueSize},
-   * the media session queue will correspond to {@code maxQueueSize} windows centered on the one
-   * currently being played.
+   *
+   * <p>If the number of windows in the {@link Player}'s {@link Timeline} exceeds {@code
+   * maxQueueSize}, the media session queue will correspond to {@code maxQueueSize} windows centered
+   * on the one currently being played.
    *
    * @param mediaSession The {@link MediaSessionCompat}.
    * @param maxQueueSize The maximum queue size.

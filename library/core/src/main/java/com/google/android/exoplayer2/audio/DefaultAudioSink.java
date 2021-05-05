@@ -73,7 +73,6 @@ public final class DefaultAudioSink implements AudioSink {
     private InvalidAudioTrackTimestampException(String message) {
       super(message);
     }
-
   }
 
   /**
@@ -301,8 +300,8 @@ public final class DefaultAudioSink implements AudioSink {
   /**
    * Whether to throw an {@link InvalidAudioTrackTimestampException} when a spurious timestamp is
    * reported from {@link AudioTrack#getTimestamp}.
-   * <p>
-   * The flag must be set before creating a player. Should be set to {@code true} for testing and
+   *
+   * <p>The flag must be set before creating a player. Should be set to {@code true} for testing and
    * debugging purposes only.
    */
   public static boolean failOnSpuriousAudioTimestamp = false;
@@ -876,8 +875,10 @@ public final class DefaultAudioSink implements AudioSink {
     int count = activeAudioProcessors.length;
     int index = count;
     while (index >= 0) {
-      ByteBuffer input = index > 0 ? outputBuffers[index - 1]
-          : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
+      ByteBuffer input =
+          index > 0
+              ? outputBuffers[index - 1]
+              : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
       if (index == count) {
         writeBuffer(input, avSyncPresentationTimeUs);
       } else {

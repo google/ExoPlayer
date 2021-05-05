@@ -74,7 +74,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
     this.sampleFormat = sampleFormat;
   }
 
-
   @Override
   public boolean isLoadCompleted() {
     return loadCompleted;

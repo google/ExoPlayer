@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import java.util.Arrays;
 
-/**
- * A {@link Timeline} for Cast media queues.
- */
+/** A {@link Timeline} for Cast media queues. */
 /* package */ final class CastTimeline extends Timeline {
 
   /** Holds {@link Timeline} related data for a Cast media item. */
@@ -190,5 +188,4 @@ import java.util.Arrays;
     result = 31 * result + Arrays.hashCode(isLive);
     return result;
   }
-
 }

@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Parses Script Data tags from an FLV stream and extracts metadata information.
- */
+/** Parses Script Data tags from an FLV stream and extracts metadata information. */
 /* package */ final class ScriptTagPayloadReader extends TagPayloadReader {
 
   private static final String NAME_METADATA = "onMetaData";

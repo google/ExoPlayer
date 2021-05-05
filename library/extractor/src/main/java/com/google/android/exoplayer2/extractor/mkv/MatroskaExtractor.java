@@ -91,8 +91,8 @@ public class MatroskaExtractor implements Extractor {
   public @interface Flags {}
   /**
    * Flag to disable seeking for cues.
-   * <p>
-   * Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
+   *
+   * <p>Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
    * position is specified in the seek head and if it's after the first cluster. Setting this flag
    * disables seeking to the cues element. If the cues element is after the first cluster then the
    * media is treated as being unseekable.
@@ -282,25 +282,21 @@ public class MatroskaExtractor implements Extractor {
         49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
         48, 58, 48, 48, 44, 48, 48, 48, 10
       };
-  /**
-   * The byte offset of the end timecode in {@link #SUBRIP_PREFIX}.
-   */
+  /** The byte offset of the end timecode in {@link #SUBRIP_PREFIX}. */
   private static final int SUBRIP_PREFIX_END_TIMECODE_OFFSET = 19;
   /**
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in a subrip timecode (milliseconds).
    */
   private static final long SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
-  /**
-   * The format of a subrip timecode.
-   */
+  /** The format of a subrip timecode. */
   private static final String SUBRIP_TIMECODE_FORMAT = "%02d:%02d:%02d,%03d";
 
-  /**
-   * Matroska specific format line for SSA subtitles.
-   */
-  private static final byte[] SSA_DIALOGUE_FORMAT = Util.getUtf8Bytes("Format: Start, End, "
-      + "ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
+  /** Matroska specific format line for SSA subtitles. */
+  private static final byte[] SSA_DIALOGUE_FORMAT =
+      Util.getUtf8Bytes(
+          "Format: Start, End, "
+              + "ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
   /**
    * A template for the prefix that must be added to each SSA sample.
    *
@@ -317,35 +313,23 @@ public class MatroskaExtractor implements Extractor {
         68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
         48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
       };
-  /**
-   * The byte offset of the end timecode in {@link #SSA_PREFIX}.
-   */
+  /** The byte offset of the end timecode in {@link #SSA_PREFIX}. */
   private static final int SSA_PREFIX_END_TIMECODE_OFFSET = 21;
   /**
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in an SSA timecode (1/100ths of a second).
    */
   private static final long SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR = 10_000;
-  /**
-   * The format of an SSA timecode.
-   */
+  /** The format of an SSA timecode. */
   private static final String SSA_TIMECODE_FORMAT = "%01d:%02d:%02d:%02d";
 
-  /**
-   * The length in bytes of a WAVEFORMATEX structure.
-   */
+  /** The length in bytes of a WAVEFORMATEX structure. */
   private static final int WAVE_FORMAT_SIZE = 18;
-  /**
-   * Format tag indicating a WAVEFORMATEXTENSIBLE structure.
-   */
+  /** Format tag indicating a WAVEFORMATEXTENSIBLE structure. */
   private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
-  /**
-   * Format tag for PCM.
-   */
+  /** Format tag for PCM. */
   private static final int WAVE_FORMAT_PCM = 1;
-  /**
-   * Sub format for PCM.
-   */
+  /** Sub format for PCM. */
   private static final UUID WAVE_SUBFORMAT_PCM = new UUID(0x0100000000001000L, 0x800000AA00389B71L);
 
   /** Some HTC devices signal rotation in track names. */
@@ -760,8 +744,10 @@ public class MatroskaExtractor implements Extractor {
           if (currentTrack.cryptoData == null) {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
-          currentTrack.drmInitData = new DrmInitData(new SchemeData(C.UUID_NIL,
-              MimeTypes.VIDEO_WEBM, currentTrack.cryptoData.encryptionKey));
+          currentTrack.drmInitData =
+              new DrmInitData(
+                  new SchemeData(
+                      C.UUID_NIL, MimeTypes.VIDEO_WEBM, currentTrack.cryptoData.encryptionKey));
         }
         break;
       case ID_CONTENT_ENCODINGS:
@@ -949,10 +935,10 @@ public class MatroskaExtractor implements Extractor {
           case 1:
             currentTrack.colorSpace = C.COLOR_SPACE_BT709;
             break;
-          case 4:  // BT.470M.
-          case 5:  // BT.470BG.
-          case 6:  // SMPTE 170M.
-          case 7:  // SMPTE 240M.
+          case 4: // BT.470M.
+          case 5: // BT.470BG.
+          case 6: // SMPTE 170M.
+          case 7: // SMPTE 240M.
             currentTrack.colorSpace = C.COLOR_SPACE_BT601;
             break;
           case 9:
@@ -965,9 +951,9 @@ public class MatroskaExtractor implements Extractor {
       case ID_COLOUR_TRANSFER:
         assertInTrackEntry(id);
         switch ((int) value) {
-          case 1:  // BT.709.
-          case 6:  // SMPTE 170M.
-          case 7:  // SMPTE 240M.
+          case 1: // BT.709.
+          case 6: // SMPTE 170M.
+          case 7: // SMPTE 240M.
             currentTrack.colorTransfer = C.COLOR_TRANSFER_SDR;
             break;
           case 16:
@@ -982,8 +968,8 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_COLOUR_RANGE:
         assertInTrackEntry(id);
-        switch((int) value) {
-          case 1:  // Broadcast range.
+        switch ((int) value) {
+          case 1: // Broadcast range.
             currentTrack.colorRange = C.COLOR_RANGE_LIMITED;
             break;
           case 2:
@@ -1591,8 +1577,10 @@ public class MatroskaExtractor implements Extractor {
       // number of samples in the current page. This definition holds good only for Ogg and
       // irrelevant for Matroska. So we always set this to -1 (the decoder will ignore this value if
       // we set it to -1). The android platform media extractor [2] does the same.
-      // [1] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
-      // [2] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
+      // [1]
+      // https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
+      // [2]
+      // https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
       vorbisNumPageSamples.setPosition(0);
       output.sampleData(vorbisNumPageSamples, 4);
       sampleBytesWritten += 4;
@@ -1735,9 +1723,12 @@ public class MatroskaExtractor implements Extractor {
    */
   private SeekMap buildSeekMap(
       @Nullable LongArray cueTimesUs, @Nullable LongArray cueClusterPositions) {
-    if (segmentContentPosition == C.POSITION_UNSET || durationUs == C.TIME_UNSET
-        || cueTimesUs == null || cueTimesUs.size() == 0
-        || cueClusterPositions == null || cueClusterPositions.size() != cueTimesUs.size()) {
+    if (segmentContentPosition == C.POSITION_UNSET
+        || durationUs == C.TIME_UNSET
+        || cueTimesUs == null
+        || cueTimesUs.size() == 0
+        || cueClusterPositions == null
+        || cueClusterPositions.size() != cueTimesUs.size()) {
       // Cues information is missing or incomplete.
       return new SeekMap.Unseekable(durationUs);
     }
@@ -1977,15 +1968,11 @@ public class MatroskaExtractor implements Extractor {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
     private static final int MAX_CHROMATICITY = 50_000; // Defined in CTA-861.3.
-    /**
-     * Default max content light level (CLL) that should be encoded into hdrStaticInfo.
-     */
-    private static final int DEFAULT_MAX_CLL = 1000;  // nits.
+    /** Default max content light level (CLL) that should be encoded into hdrStaticInfo. */
+    private static final int DEFAULT_MAX_CLL = 1000; // nits.
 
-    /**
-     * Default frame-average light level (FALL) that should be encoded into hdrStaticInfo.
-     */
-    private static final int DEFAULT_MAX_FALL = 200;  // nits.
+    /** Default frame-average light level (FALL) that should be encoded into hdrStaticInfo. */
+    private static final int DEFAULT_MAX_FALL = 200; // nits.
 
     // Common elements.
     public @MonotonicNonNull String name;
@@ -2012,15 +1999,11 @@ public class MatroskaExtractor implements Extractor {
     public float projectionPosePitch = 0f;
     public float projectionPoseRoll = 0f;
     public byte @MonotonicNonNull [] projectionData = null;
-    @C.StereoMode
-    public int stereoMode = Format.NO_VALUE;
+    @C.StereoMode public int stereoMode = Format.NO_VALUE;
     public boolean hasColorInfo = false;
-    @C.ColorSpace
-    public int colorSpace = Format.NO_VALUE;
-    @C.ColorTransfer
-    public int colorTransfer = Format.NO_VALUE;
-    @C.ColorRange
-    public int colorRange = Format.NO_VALUE;
+    @C.ColorSpace public int colorSpace = Format.NO_VALUE;
+    @C.ColorTransfer public int colorTransfer = Format.NO_VALUE;
+    @C.ColorRange public int colorRange = Format.NO_VALUE;
     public int maxContentLuminance = DEFAULT_MAX_CLL;
     public int maxFrameAverageLuminance = DEFAULT_MAX_FALL;
     public float primaryRChromaticityX = Format.NO_VALUE;
@@ -2167,8 +2150,12 @@ public class MatroskaExtractor implements Extractor {
             if (pcmEncoding == C.ENCODING_INVALID) {
               pcmEncoding = Format.NO_VALUE;
               mimeType = MimeTypes.AUDIO_UNKNOWN;
-              Log.w(TAG, "Unsupported PCM bit depth: " + audioBitDepth + ". Setting mimeType to "
-                  + mimeType);
+              Log.w(
+                  TAG,
+                  "Unsupported PCM bit depth: "
+                      + audioBitDepth
+                      + ". Setting mimeType to "
+                      + mimeType);
             }
           } else {
             mimeType = MimeTypes.AUDIO_UNKNOWN;
@@ -2362,21 +2349,25 @@ public class MatroskaExtractor implements Extractor {
     @Nullable
     private byte[] getHdrStaticInfo() {
       // Are all fields present.
-      if (primaryRChromaticityX == Format.NO_VALUE || primaryRChromaticityY == Format.NO_VALUE
-          || primaryGChromaticityX == Format.NO_VALUE || primaryGChromaticityY == Format.NO_VALUE
-          || primaryBChromaticityX == Format.NO_VALUE || primaryBChromaticityY == Format.NO_VALUE
+      if (primaryRChromaticityX == Format.NO_VALUE
+          || primaryRChromaticityY == Format.NO_VALUE
+          || primaryGChromaticityX == Format.NO_VALUE
+          || primaryGChromaticityY == Format.NO_VALUE
+          || primaryBChromaticityX == Format.NO_VALUE
+          || primaryBChromaticityY == Format.NO_VALUE
           || whitePointChromaticityX == Format.NO_VALUE
-          || whitePointChromaticityY == Format.NO_VALUE || maxMasteringLuminance == Format.NO_VALUE
+          || whitePointChromaticityY == Format.NO_VALUE
+          || maxMasteringLuminance == Format.NO_VALUE
           || minMasteringLuminance == Format.NO_VALUE) {
         return null;
       }
 
       byte[] hdrStaticInfoData = new byte[25];
       ByteBuffer hdrStaticInfo = ByteBuffer.wrap(hdrStaticInfoData).order(ByteOrder.LITTLE_ENDIAN);
-      hdrStaticInfo.put((byte) 0);  // Type.
+      hdrStaticInfo.put((byte) 0); // Type.
       hdrStaticInfo.putShort((short) ((primaryRChromaticityX * MAX_CHROMATICITY) + 0.5f));
       hdrStaticInfo.putShort((short) ((primaryRChromaticityY * MAX_CHROMATICITY) + 0.5f));
-      hdrStaticInfo.putShort((short) ((primaryGChromaticityX * MAX_CHROMATICITY)  + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryGChromaticityX * MAX_CHROMATICITY) + 0.5f));
       hdrStaticInfo.putShort((short) ((primaryGChromaticityY * MAX_CHROMATICITY) + 0.5f));
       hdrStaticInfo.putShort((short) ((primaryBChromaticityX * MAX_CHROMATICITY) + 0.5f));
       hdrStaticInfo.putShort((short) ((primaryBChromaticityY * MAX_CHROMATICITY) + 0.5f));
@@ -2525,5 +2516,4 @@ public class MatroskaExtractor implements Extractor {
       return codecPrivate;
     }
   }
-
 }

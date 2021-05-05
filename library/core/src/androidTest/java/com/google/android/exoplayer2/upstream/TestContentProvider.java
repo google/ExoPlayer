@@ -123,5 +123,4 @@ public final class TestContentProvider extends ContentProvider
   private static String getFileName(Uri uri) {
     return uri.getPath().replaceFirst("/", "");
   }
-
 }

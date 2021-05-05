@@ -59,8 +59,8 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
   public static final int TYPE_RENDERER = 1;
   /**
    * The error was an unexpected {@link RuntimeException}.
-   * <p>
-   * Call {@link #getUnexpectedException()} to retrieve the underlying cause.
+   *
+   * <p>Call {@link #getUnexpectedException()} to retrieve the underlying cause.
    */
   public static final int TYPE_UNEXPECTED = 2;
   /**

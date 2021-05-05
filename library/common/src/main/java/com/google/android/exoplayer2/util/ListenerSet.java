@@ -88,11 +88,7 @@ public final class ListenerSet<T> {
    *     during one {@link Looper} message queue iteration were handled by the listeners.
    */
   public ListenerSet(Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
-    this(
-        /* listeners= */ new CopyOnWriteArraySet<>(),
-        looper,
-        clock,
-        iterationFinishedEvent);
+    this(/* listeners= */ new CopyOnWriteArraySet<>(), looper, clock, iterationFinishedEvent);
   }
 
   private ListenerSet(

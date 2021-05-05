@@ -261,5 +261,4 @@ public interface VideoRendererEventListener {
       }
     }
   }
-
 }

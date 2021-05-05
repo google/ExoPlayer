@@ -46,5 +46,4 @@ public final class DefaultCastOptionsProvider implements OptionsProvider {
   public List<SessionProvider> getAdditionalSessionProviders(Context context) {
     return Collections.emptyList();
   }
-
 }

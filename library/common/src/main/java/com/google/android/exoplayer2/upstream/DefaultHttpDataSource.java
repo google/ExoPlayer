@@ -194,9 +194,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
   /** The default connection timeout, in milliseconds. */
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
-  /**
-   * The default read timeout, in milliseconds.
-   */
+  /** The default read timeout, in milliseconds. */
   public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
   private static final String TAG = "DefaultHttpDataSource";
@@ -325,9 +323,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     requestProperties.clear();
   }
 
-  /**
-   * Opens the source to read the specified data.
-   */
+  /** Opens the source to read the specified data. */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -411,8 +407,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
             HttpUtil.getContentLength(
                 connection.getHeaderField(HttpHeaders.CONTENT_LENGTH),
                 connection.getHeaderField(HttpHeaders.CONTENT_RANGE));
-        bytesToRead = contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip)
-            : C.LENGTH_UNSET;
+        bytesToRead =
+            contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip) : C.LENGTH_UNSET;
       }
     } else {
       // Gzip is enabled. If the server opts to use gzip then the content length in the response
@@ -481,9 +477,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
-  /**
-   * Establishes a connection, following redirects to do so where permitted.
-   */
+  /** Establishes a connection, following redirects to do so where permitted. */
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
     @HttpMethod int httpMethod = dataSpec.httpMethod;
@@ -675,11 +669,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
-   * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
-   * index {@code offset}.
-   * <p>
-   * This method blocks until at least one byte of data can be read, the end of the opened range is
-   * detected, or an exception is thrown.
+   * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at index
+   * {@code offset}.
+   *
+   * <p>This method blocks until at least one byte of data can be read, the end of the opened range
+   * is detected, or an exception is thrown.
    *
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
@@ -756,9 +750,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
   }
 
-  /**
-   * Closes the current connection quietly, if there is one.
-   */
+  /** Closes the current connection quietly, if there is one. */
   private void closeConnectionQuietly() {
     if (connection != null) {
       try {

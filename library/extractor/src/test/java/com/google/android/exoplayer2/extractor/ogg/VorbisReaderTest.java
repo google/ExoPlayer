@@ -62,8 +62,13 @@ public final class VorbisReaderTest {
     byte[] data =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), "media/binary/ogg/vorbis_header_pages");
-    ExtractorInput input = new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
-        .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
+    ExtractorInput input =
+        new FakeExtractorInput.Builder()
+            .setData(data)
+            .setSimulateIOErrors(true)
+            .setSimulateUnknownLength(true)
+            .setSimulatePartialReads(true)
+            .build();
 
     VorbisReader reader = new VorbisReader();
     VorbisReader.VorbisSetup vorbisSetup = readSetupHeaders(reader, input);
@@ -114,5 +119,4 @@ public final class VorbisReaderTest {
       }
     }
   }
-
 }

@@ -68,7 +68,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return new DefaultSsChunkSource(
           manifestLoaderErrorThrower, manifest, elementIndex, trackSelection, dataSource);
     }
-
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -112,9 +111,19 @@ public class DefaultSsChunkSource implements SsChunkSource {
               ? Assertions.checkNotNull(manifest.protectionElement).trackEncryptionBoxes
               : null;
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : 0;
-      Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
-          C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
-          trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
+      Track track =
+          new Track(
+              manifestTrackIndex,
+              streamElement.type,
+              streamElement.timescale,
+              C.TIME_UNSET,
+              manifest.durationUs,
+              format,
+              Track.TRANSFORMATION_NONE,
+              trackEncryptionBoxes,
+              nalUnitLengthFieldLength,
+              null,
+              null);
       FragmentedMp4Extractor extractor =
           new FragmentedMp4Extractor(
               FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
@@ -146,8 +155,9 @@ public class DefaultSsChunkSource implements SsChunkSource {
       // There's no overlap between the old and new elements because at least one is empty.
       currentManifestChunkOffset += currentElementChunkCount;
     } else {
-      long currentElementEndTimeUs = currentElement.getStartTimeUs(currentElementChunkCount - 1)
-          + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
+      long currentElementEndTimeUs =
+          currentElement.getStartTimeUs(currentElementChunkCount - 1)
+              + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
       long newElementStartTimeUs = newElement.getStartTimeUs(0);
       if (currentElementEndTimeUs <= newElementStartTimeUs) {
         // There's no overlap between the old and new elements.
@@ -325,8 +335,9 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
     StreamElement currentElement = manifest.streamElements[streamElementIndex];
     int lastChunkIndex = currentElement.chunkCount - 1;
-    long lastChunkEndTimeUs = currentElement.getStartTimeUs(lastChunkIndex)
-        + currentElement.getChunkDurationUs(lastChunkIndex);
+    long lastChunkEndTimeUs =
+        currentElement.getStartTimeUs(lastChunkIndex)
+            + currentElement.getChunkDurationUs(lastChunkIndex);
     return lastChunkEndTimeUs - playbackPositionUs;
   }
 

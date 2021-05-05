@@ -58,11 +58,9 @@ public final class UrlTemplate {
     return new UrlTemplate(urlPieces, identifiers, identifierFormatTags, identifierCount);
   }
 
-  /**
-   * Internal constructor. Use {@link #compile(String)} to build instances of this class.
-   */
-  private UrlTemplate(String[] urlPieces, int[] identifiers, String[] identifierFormatTags,
-      int identifierCount) {
+  /** Internal constructor. Use {@link #compile(String)} to build instances of this class. */
+  private UrlTemplate(
+      String[] urlPieces, int[] identifiers, String[] identifierFormatTags, int identifierCount) {
     this.urlPieces = urlPieces;
     this.identifiers = identifiers;
     this.identifierFormatTags = identifierFormatTags;
@@ -100,8 +98,8 @@ public final class UrlTemplate {
 
   /**
    * Parses {@code template}, placing the decomposed components into the provided arrays.
-   * <p>
-   * If the return value is N, {@code urlPieces} will contain (N+1) strings that must be
+   *
+   * <p>If the return value is N, {@code urlPieces} will contain (N+1) strings that must be
    * interleaved with N arguments in order to construct a url. The N identifiers that correspond to
    * the required arguments, together with the tags that define their required formatting, are
    * returned in {@code identifiers} and {@code identifierFormatTags} respectively.
@@ -113,8 +111,8 @@ public final class UrlTemplate {
    * @return The number of identifiers in the template url.
    * @throws IllegalArgumentException If the template string is malformed.
    */
-  private static int parseTemplate(String template, String[] urlPieces, int[] identifiers,
-      String[] identifierFormatTags) {
+  private static int parseTemplate(
+      String template, String[] urlPieces, int[] identifiers, String[] identifierFormatTags) {
     urlPieces[0] = "";
     int templateIndex = 0;
     int identifierCount = 0;
@@ -169,5 +167,4 @@ public final class UrlTemplate {
     }
     return identifierCount;
   }
-
 }

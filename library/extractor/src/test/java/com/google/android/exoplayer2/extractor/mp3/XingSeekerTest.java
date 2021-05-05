@@ -34,23 +34,18 @@ public final class XingSeekerTest {
 
   // Xing header/payload from http://storage.googleapis.com/exoplayer-test-media-0/play.mp3.
   private static final int XING_FRAME_HEADER_DATA = 0xFFFB3000;
-  private static final byte[] XING_FRAME_PAYLOAD = Util.getBytesFromHexString(
-      "00000007000008dd000e7919000205080a0d0f1214171a1c1e212426292c2e303336383b3d404245484a4c4f5254"
-      + "575a5c5e616466696b6e707376787a7d808285878a8c8f929496999c9ea1a4a6a8abaeb0b3b5b8babdc0c2c4c7"
-      + "cacccfd2d4d6d9dcdee1e3e6e8ebeef0f2f5f8fafd");
+  private static final byte[] XING_FRAME_PAYLOAD =
+      Util.getBytesFromHexString(
+          "00000007000008dd000e7919000205080a0d0f1214171a1c1e212426292c2e303336383b3d404245484a4c4f5254"
+              + "575a5c5e616466696b6e707376787a7d808285878a8c8f929496999c9ea1a4a6a8abaeb0b3b5b8babdc0c2c4c7"
+              + "cacccfd2d4d6d9dcdee1e3e6e8ebeef0f2f5f8fafd");
   private static final int XING_FRAME_POSITION = 157;
 
-  /**
-   * Data size, as encoded in {@link #XING_FRAME_PAYLOAD}.
-   */
+  /** Data size, as encoded in {@link #XING_FRAME_PAYLOAD}. */
   private static final int DATA_SIZE_BYTES = 948505;
-  /**
-   * Duration of the audio stream in microseconds, encoded in {@link #XING_FRAME_PAYLOAD}.
-   */
+  /** Duration of the audio stream in microseconds, encoded in {@link #XING_FRAME_PAYLOAD}. */
   private static final int STREAM_DURATION_US = 59271836;
-  /**
-   * The length of the stream in bytes.
-   */
+  /** The length of the stream in bytes. */
   private static final int STREAM_LENGTH = XING_FRAME_POSITION + DATA_SIZE_BYTES;
 
   private XingSeeker seeker;
@@ -61,10 +56,18 @@ public final class XingSeekerTest {
   public void setUp() throws Exception {
     MpegAudioUtil.Header xingFrameHeader = new MpegAudioUtil.Header();
     xingFrameHeader.setForHeaderData(XING_FRAME_HEADER_DATA);
-    seeker = XingSeeker.create(C.LENGTH_UNSET, XING_FRAME_POSITION, xingFrameHeader,
-        new ParsableByteArray(XING_FRAME_PAYLOAD));
-    seekerWithInputLength = XingSeeker.create(STREAM_LENGTH,
-        XING_FRAME_POSITION, xingFrameHeader, new ParsableByteArray(XING_FRAME_PAYLOAD));
+    seeker =
+        XingSeeker.create(
+            C.LENGTH_UNSET,
+            XING_FRAME_POSITION,
+            xingFrameHeader,
+            new ParsableByteArray(XING_FRAME_PAYLOAD));
+    seekerWithInputLength =
+        XingSeeker.create(
+            STREAM_LENGTH,
+            XING_FRAME_POSITION,
+            xingFrameHeader,
+            new ParsableByteArray(XING_FRAME_PAYLOAD));
     xingFrameSize = xingFrameHeader.frameSize;
   }
 
@@ -82,11 +85,8 @@ public final class XingSeekerTest {
 
   @Test
   public void getTimeUsAtEndOfStream() {
-    assertThat(seeker.getTimeUs(STREAM_LENGTH))
-        .isEqualTo(STREAM_DURATION_US);
-    assertThat(
-        seekerWithInputLength.getTimeUs(STREAM_LENGTH))
-        .isEqualTo(STREAM_DURATION_US);
+    assertThat(seeker.getTimeUs(STREAM_LENGTH)).isEqualTo(STREAM_DURATION_US);
+    assertThat(seekerWithInputLength.getTimeUs(STREAM_LENGTH)).isEqualTo(STREAM_DURATION_US);
   }
 
   @Test
@@ -125,5 +125,4 @@ public final class XingSeekerTest {
       assertThat(seekPoint.position).isEqualTo(position);
     }
   }
-
 }

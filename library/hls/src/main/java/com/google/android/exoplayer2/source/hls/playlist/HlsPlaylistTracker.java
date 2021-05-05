@@ -67,9 +67,7 @@ public interface HlsPlaylistTracker {
   /** Called on playlist loading events. */
   interface PlaylistEventListener {
 
-    /**
-     * Called a playlist changes.
-     */
+    /** Called a playlist changes. */
     void onPlaylistChanged();
 
     /**

@@ -341,7 +341,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     @Override
     public int compareTo(Long relativeStartTimeUs) {
       return this.relativeStartTimeUs > relativeStartTimeUs
-          ? 1 : (this.relativeStartTimeUs < relativeStartTimeUs ? -1 : 0);
+          ? 1
+          : (this.relativeStartTimeUs < relativeStartTimeUs ? -1 : 0);
     }
   }
 
@@ -388,13 +389,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final int PLAYLIST_TYPE_VOD = 1;
   public static final int PLAYLIST_TYPE_EVENT = 2;
 
-  /**
-   * The type of the playlist. See {@link PlaylistType}.
-   */
+  /** The type of the playlist. See {@link PlaylistType}. */
   @PlaylistType public final int playlistType;
-  /**
-   * The start offset in microseconds, as defined by #EXT-X-START.
-   */
+  /** The start offset in microseconds, as defined by #EXT-X-START. */
   public final long startOffsetUs;
   /**
    * If {@link #hasProgramDateTime} is true, contains the datetime as microseconds since epoch.
@@ -402,9 +399,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * playlist.
    */
   public final long startTimeUs;
-  /**
-   * Whether the playlist contains the #EXT-X-DISCONTINUITY-SEQUENCE tag.
-   */
+  /** Whether the playlist contains the #EXT-X-DISCONTINUITY-SEQUENCE tag. */
   public final boolean hasDiscontinuitySequence;
   /**
    * The discontinuity sequence number of the first media segment in the playlist, as defined by
@@ -416,13 +411,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * #EXT-X-MEDIA-SEQUENCE.
    */
   public final long mediaSequence;
-  /**
-   * The compatibility version, as defined by #EXT-X-VERSION.
-   */
+  /** The compatibility version, as defined by #EXT-X-VERSION. */
   public final int version;
-  /**
-   * The target duration in microseconds, as defined by #EXT-X-TARGETDURATION.
-   */
+  /** The target duration in microseconds, as defined by #EXT-X-TARGETDURATION. */
   public final long targetDurationUs;
   /**
    * The target duration for segment parts, as defined by #EXT-X-PART-INF, or {@link C#TIME_UNSET}
@@ -431,18 +422,14 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final long partTargetDurationUs;
   /** Whether the playlist contains the #EXT-X-ENDLIST tag. */
   public final boolean hasEndTag;
-  /**
-   * Whether the playlist contains a #EXT-X-PROGRAM-DATE-TIME tag.
-   */
+  /** Whether the playlist contains a #EXT-X-PROGRAM-DATE-TIME tag. */
   public final boolean hasProgramDateTime;
   /**
    * Contains the CDM protection schemes used by segments in this playlist. Does not contain any key
    * acquisition data. Null if none of the segments in the playlist is CDM-encrypted.
    */
   @Nullable public final DrmInitData protectionSchemes;
-  /**
-   * The list of segments in the playlist.
-   */
+  /** The list of segments in the playlist. */
   public final List<Segment> segments;
   /**
    * The list of parts at the end of the playlist for which the segment is not in the playlist yet.
@@ -519,8 +506,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     } else {
       durationUs = 0;
     }
-    this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
-        : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+    this.startOffsetUs =
+        startOffsetUs == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
     this.serverControl = serverControl;
   }
 
@@ -553,9 +542,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         || (partCount == otherPartCount && hasEndTag && !other.hasEndTag);
   }
 
-  /**
-   * Returns the result of adding the duration of the playlist to its start time.
-   */
+  /** Returns the result of adding the duration of the playlist to its start time. */
   public long getEndTimeUs() {
     return startTimeUs + durationUs;
   }
@@ -621,5 +608,4 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         serverControl,
         renditionReports);
   }
-
 }

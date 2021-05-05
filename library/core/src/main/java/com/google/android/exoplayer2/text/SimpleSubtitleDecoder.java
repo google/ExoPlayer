@@ -89,5 +89,4 @@ public abstract class SimpleSubtitleDecoder
    */
   protected abstract Subtitle decode(byte[] data, int size, boolean reset)
       throws SubtitleDecoderException;
-
 }

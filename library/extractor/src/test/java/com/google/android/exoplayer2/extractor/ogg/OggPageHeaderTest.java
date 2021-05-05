@@ -172,4 +172,3 @@ public final class OggPageHeaderTest {
     S get() throws E;
   }
 }
-

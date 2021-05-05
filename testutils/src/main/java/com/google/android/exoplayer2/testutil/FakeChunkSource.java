@@ -44,8 +44,8 @@ public class FakeChunkSource implements ChunkSource {
     protected final FakeAdaptiveDataSet.Factory dataSetFactory;
     protected final FakeDataSource.Factory dataSourceFactory;
 
-    public Factory(FakeAdaptiveDataSet.Factory dataSetFactory,
-        FakeDataSource.Factory dataSourceFactory) {
+    public Factory(
+        FakeAdaptiveDataSet.Factory dataSetFactory, FakeDataSource.Factory dataSourceFactory) {
       this.dataSetFactory = dataSetFactory;
       this.dataSourceFactory = dataSourceFactory;
     }
@@ -134,9 +134,18 @@ public class FakeChunkSource implements ChunkSource {
       DataSpec dataSpec =
           new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length);
       int trackType = MimeTypes.getTrackType(selectedFormat.sampleMimeType);
-      out.chunk = new SingleSampleMediaChunk(dataSource, dataSpec, selectedFormat,
-          trackSelection.getSelectionReason(), trackSelection.getSelectionData(), startTimeUs,
-          endTimeUs, chunkIndex, trackType, selectedFormat);
+      out.chunk =
+          new SingleSampleMediaChunk(
+              dataSource,
+              dataSpec,
+              selectedFormat,
+              trackSelection.getSelectionReason(),
+              trackSelection.getSelectionData(),
+              startTimeUs,
+              endTimeUs,
+              chunkIndex,
+              trackType,
+              selectedFormat);
     }
   }
 

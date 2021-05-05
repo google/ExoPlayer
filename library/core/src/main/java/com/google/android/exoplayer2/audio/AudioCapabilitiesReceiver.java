@@ -34,9 +34,7 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class AudioCapabilitiesReceiver {
 
-  /**
-   * Listener notified when audio capabilities change.
-   */
+  /** Listener notified when audio capabilities change. */
   public interface Listener {
 
     /**
@@ -45,7 +43,6 @@ public final class AudioCapabilitiesReceiver {
      * @param audioCapabilities The current audio capabilities for the device.
      */
     void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities);
-
   }
 
   private final Context context;
@@ -77,8 +74,8 @@ public final class AudioCapabilitiesReceiver {
 
   /**
    * Registers the receiver, meaning it will notify the listener when audio capability changes
-   * occur. The current audio capabilities will be returned. It is important to call
-   * {@link #unregister} when the receiver is no longer required.
+   * occur. The current audio capabilities will be returned. It is important to call {@link
+   * #unregister} when the receiver is no longer required.
    *
    * @return The current audio capabilities for the device.
    */
@@ -162,5 +159,4 @@ public final class AudioCapabilitiesReceiver {
       onNewAudioCapabilities(AudioCapabilities.getCapabilities(context));
     }
   }
-
 }

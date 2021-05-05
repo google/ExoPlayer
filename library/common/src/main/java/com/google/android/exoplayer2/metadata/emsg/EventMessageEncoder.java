@@ -69,5 +69,4 @@ public final class EventMessageEncoder {
     outputStream.writeByte((int) (value >>> 8) & 0xFF);
     outputStream.writeByte((int) value & 0xFF);
   }
-
 }

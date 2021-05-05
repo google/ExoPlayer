@@ -58,8 +58,10 @@ public final class GeobFrame extends Id3Frame {
       return false;
     }
     GeobFrame other = (GeobFrame) obj;
-    return Util.areEqual(mimeType, other.mimeType) && Util.areEqual(filename, other.filename)
-        && Util.areEqual(description, other.description) && Arrays.equals(data, other.data);
+    return Util.areEqual(mimeType, other.mimeType)
+        && Util.areEqual(filename, other.filename)
+        && Util.areEqual(description, other.description)
+        && Arrays.equals(data, other.data);
   }
 
   @Override
@@ -93,18 +95,17 @@ public final class GeobFrame extends Id3Frame {
     dest.writeByteArray(data);
   }
 
-  public static final Parcelable.Creator<GeobFrame> CREATOR = new Parcelable.Creator<GeobFrame>() {
+  public static final Parcelable.Creator<GeobFrame> CREATOR =
+      new Parcelable.Creator<GeobFrame>() {
 
-    @Override
-    public GeobFrame createFromParcel(Parcel in) {
-      return new GeobFrame(in);
-    }
+        @Override
+        public GeobFrame createFromParcel(Parcel in) {
+          return new GeobFrame(in);
+        }
 
-    @Override
-    public GeobFrame[] newArray(int size) {
-      return new GeobFrame[size];
-    }
-
-  };
-
+        @Override
+        public GeobFrame[] newArray(int size) {
+          return new GeobFrame[size];
+        }
+      };
 }

@@ -230,9 +230,7 @@ public interface ExtractorInput extends DataReader {
    */
   void advancePeekPosition(int length) throws IOException;
 
-  /**
-   * Resets the peek position to equal the current read position.
-   */
+  /** Resets the peek position to equal the current read position. */
   void resetPeekPosition();
 
   /**
@@ -266,5 +264,4 @@ public interface ExtractorInput extends DataReader {
    * @throws E The given {@link Throwable} object.
    */
   <E extends Throwable> void setRetryPosition(long position, E e) throws E;
-
 }

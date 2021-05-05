@@ -43,8 +43,7 @@ public class DefaultExtractorInputTest {
   @Test
   public void initialPosition() throws Exception {
     FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input =
-        new DefaultExtractorInput(testDataSource, 123, C.LENGTH_UNSET);
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 123, C.LENGTH_UNSET);
     assertThat(input.getPosition()).isEqualTo(123);
   }
 
@@ -608,7 +607,9 @@ public class DefaultExtractorInputTest {
 
   private static FakeDataSource buildDataSource() throws Exception {
     FakeDataSource testDataSource = new FakeDataSource();
-    testDataSource.getDataSet().newDefaultData()
+    testDataSource
+        .getDataSet()
+        .newDefaultData()
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 3))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
@@ -625,7 +626,9 @@ public class DefaultExtractorInputTest {
 
   private static FakeDataSource buildFailingDataSource() throws Exception {
     FakeDataSource testDataSource = new FakeDataSource();
-    testDataSource.getDataSet().newDefaultData()
+    testDataSource
+        .getDataSet()
+        .newDefaultData()
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 6))
         .appendReadError(new IOException())
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
@@ -637,5 +640,4 @@ public class DefaultExtractorInputTest {
     FakeDataSource testDataSource = buildDataSource();
     return new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
   }
-
 }

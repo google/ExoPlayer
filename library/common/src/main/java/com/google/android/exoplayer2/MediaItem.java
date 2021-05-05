@@ -559,9 +559,7 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
-    /**
-     * Returns a new {@link MediaItem} instance with the current builder values.
-     */
+    /** Returns a new {@link MediaItem} instance with the current builder values. */
     public MediaItem build() {
       checkState(drmLicenseUri == null || drmUuid != null);
       @Nullable PlaybackProperties playbackProperties = null;

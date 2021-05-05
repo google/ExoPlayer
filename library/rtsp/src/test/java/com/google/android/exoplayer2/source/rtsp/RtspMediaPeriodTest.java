@@ -39,6 +39,7 @@ public class RtspMediaPeriodTest {
             @Override
             public void onSessionTimelineUpdated(
                 RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {}
+
             @Override
             public void onSessionTimelineRequestFailed(String message, @Nullable Throwable cause) {}
           },

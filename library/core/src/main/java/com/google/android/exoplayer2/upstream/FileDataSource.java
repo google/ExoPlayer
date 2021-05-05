@@ -87,8 +87,8 @@ public final class FileDataSource extends BaseDataSource {
 
       this.file = openLocalFile(uri);
       file.seek(dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
-          : dataSpec.length;
+      bytesRemaining =
+          dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position : dataSpec.length;
       if (bytesRemaining < 0) {
         throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
       }

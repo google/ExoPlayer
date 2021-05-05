@@ -28,9 +28,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
-/**
- * Base class for subtitle parsers for CEA captions.
- */
+/** Base class for subtitle parsers for CEA captions. */
 /* package */ abstract class CeaDecoder implements SubtitleDecoder {
 
   private static final int NUM_INPUT_BUFFERS = 10;
@@ -154,14 +152,10 @@ import java.util.PriorityQueue;
     // Do nothing.
   }
 
-  /**
-   * Returns whether there is data available to create a new {@link Subtitle}.
-   */
+  /** Returns whether there is data available to create a new {@link Subtitle}. */
   protected abstract boolean isNewSubtitleDataAvailable();
 
-  /**
-   * Creates a {@link Subtitle} from the available data.
-   */
+  /** Creates a {@link Subtitle} from the available data. */
   protected abstract Subtitle createSubtitle();
 
   /**

@@ -31,9 +31,7 @@ import java.util.Arrays;
 /** Fake {@link Timeline} which can be setup to return custom {@link TimelineWindowDefinition}s. */
 public final class FakeTimeline extends Timeline {
 
-  /**
-   * Definition used to define a {@link FakeTimeline}.
-   */
+  /** Definition used to define a {@link FakeTimeline}. */
   public static final class TimelineWindowDefinition {
 
     /** Default window duration in microseconds. */
@@ -106,8 +104,8 @@ public final class FakeTimeline extends Timeline {
      * @param isDynamic Whether the window is dynamic.
      * @param durationUs The duration of the window in microseconds.
      */
-    public TimelineWindowDefinition(int periodCount, Object id, boolean isSeekable,
-        boolean isDynamic, long durationUs) {
+    public TimelineWindowDefinition(
+        int periodCount, Object id, boolean isSeekable, boolean isDynamic, long durationUs) {
       this(periodCount, id, isSeekable, isDynamic, durationUs, AdPlaybackState.NONE);
     }
 
@@ -449,5 +447,4 @@ public final class FakeTimeline extends Timeline {
     }
     return windowDefinitions;
   }
-
 }

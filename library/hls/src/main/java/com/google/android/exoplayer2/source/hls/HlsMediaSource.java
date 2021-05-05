@@ -515,8 +515,8 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
     SinglePeriodTimeline timeline;
-    long windowStartTimeMs = playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs)
-        : C.TIME_UNSET;
+    long windowStartTimeMs =
+        playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs) : C.TIME_UNSET;
     // For playlist types EVENT and VOD we know segments are never removed, so the presentation
     // started at the same time as the window. Otherwise, we don't know the presentation start time.
     long presentationStartTimeMs =

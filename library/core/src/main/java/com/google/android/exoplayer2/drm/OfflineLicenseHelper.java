@@ -133,10 +133,10 @@ public final class OfflineLicenseHelper {
       @Nullable Map<String, String> optionalKeyRequestParameters,
       DrmSessionEventListener.EventDispatcher eventDispatcher) {
     this(
-            new DefaultDrmSessionManager.Builder()
-                .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
-                .setKeyRequestParameters(optionalKeyRequestParameters)
-                .build(callback),
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
+            .setKeyRequestParameters(optionalKeyRequestParameters)
+            .build(callback),
         eventDispatcher);
   }
 
@@ -255,9 +255,7 @@ public final class OfflineLicenseHelper {
     return Assertions.checkNotNull(licenseDurationRemainingSec);
   }
 
-  /**
-   * Releases the helper. Should be called when the helper is no longer required.
-   */
+  /** Releases the helper. Should be called when the helper is no longer required. */
   public void release() {
     handlerThread.quit();
   }
@@ -288,5 +286,4 @@ public final class OfflineLicenseHelper {
     conditionVariable.block();
     return Assertions.checkNotNull(drmSession);
   }
-
 }

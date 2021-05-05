@@ -123,9 +123,7 @@ public final class AudioCapabilities {
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
-  /**
-   * Returns the maximum number of channels the device can play at the same time.
-   */
+  /** Returns the maximum number of channels the device can play at the same time. */
   public int getMaxChannelCount() {
     return maxChannelCount;
   }
@@ -150,8 +148,11 @@ public final class AudioCapabilities {
 
   @Override
   public String toString() {
-    return "AudioCapabilities[maxChannelCount=" + maxChannelCount
-        + ", supportedEncodings=" + Arrays.toString(supportedEncodings) + "]";
+    return "AudioCapabilities[maxChannelCount="
+        + maxChannelCount
+        + ", supportedEncodings="
+        + Arrays.toString(supportedEncodings)
+        + "]";
   }
 
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {

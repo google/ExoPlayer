@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.video.AvcConfig;
 
-/**
- * Parses video tags from an FLV stream and extracts H.264 nal units.
- */
+/** Parses video tags from an FLV stream and extracts H.264 nal units. */
 /* package */ final class VideoTagPayloadReader extends TagPayloadReader {
 
   // Video codec.
@@ -50,9 +48,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
   private boolean hasOutputKeyframe;
   private int frameType;
 
-  /**
-   * @param output A {@link TrackOutput} to which samples should be written.
-   */
+  /** @param output A {@link TrackOutput} to which samples should be written. */
   public VideoTagPayloadReader(TrackOutput output) {
     super(output);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
@@ -143,5 +139,4 @@ import com.google.android.exoplayer2.video.AvcConfig;
       return false;
     }
   }
-
 }

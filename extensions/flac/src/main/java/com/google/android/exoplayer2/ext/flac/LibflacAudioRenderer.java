@@ -67,10 +67,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
-    super(
-        eventHandler,
-        eventListener,
-        audioSink);
+    super(eventHandler, eventListener, audioSink);
   }
 
   @Override

@@ -40,10 +40,18 @@ public final class CommonEncryptionDrmTest {
   private static final String[] IDS_VIDEO = new String[] {"1", "2"};
 
   // Seeks help reproduce playback issues in certain devices.
-  private static final ActionSchedule ACTION_SCHEDULE_WITH_SEEKS = new ActionSchedule.Builder(TAG)
-      .waitForPlaybackState(Player.STATE_READY).delay(30000).seekAndWait(300000).delay(10000)
-      .seekAndWait(270000).delay(10000).seekAndWait(200000).delay(10000).seekAndWait(732000)
-      .build();
+  private static final ActionSchedule ACTION_SCHEDULE_WITH_SEEKS =
+      new ActionSchedule.Builder(TAG)
+          .waitForPlaybackState(Player.STATE_READY)
+          .delay(30000)
+          .seekAndWait(300000)
+          .delay(10000)
+          .seekAndWait(270000)
+          .delay(10000)
+          .seekAndWait(200000)
+          .delay(10000)
+          .seekAndWait(732000)
+          .build();
 
   @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
 

@@ -21,9 +21,7 @@ import java.util.List;
 /** Represents a set of interchangeable encoded versions of a media content component. */
 public class AdaptationSet {
 
-  /**
-   * Value of {@link #id} indicating no value is set.=
-   */
+  /** Value of {@link #id} indicating no value is set.= */
   public static final int ID_UNSET = -1;
 
   /**
@@ -33,19 +31,15 @@ public class AdaptationSet {
   public final int id;
 
   /**
-   * The type of the adaptation set. One of the {@link com.google.android.exoplayer2.C}
-   * {@code TRACK_TYPE_*} constants.
+   * The type of the adaptation set. One of the {@link com.google.android.exoplayer2.C} {@code
+   * TRACK_TYPE_*} constants.
    */
   public final int type;
 
-  /**
-   * {@link Representation}s in the adaptation set.
-   */
+  /** {@link Representation}s in the adaptation set. */
   public final List<Representation> representations;
 
-  /**
-   * Accessibility descriptors in the adaptation set.
-   */
+  /** Accessibility descriptors in the adaptation set. */
   public final List<Descriptor> accessibilityDescriptors;
 
   /** Essential properties in the adaptation set. */

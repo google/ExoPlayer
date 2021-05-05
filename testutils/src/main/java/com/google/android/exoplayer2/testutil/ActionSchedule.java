@@ -59,16 +59,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Schedules a sequence of {@link Action}s for execution during a test. */
 public final class ActionSchedule {
 
-  /**
-   * Callback to notify listener that the action schedule has finished.
-   */
+  /** Callback to notify listener that the action schedule has finished. */
   public interface Callback {
 
-    /**
-     * Called when action schedule finished executing all its actions.
-     */
+    /** Called when action schedule finished executing all its actions. */
     void onActionScheduleFinished();
-
   }
 
   private final ActionNode rootNode;
@@ -104,9 +99,7 @@ public final class ActionSchedule {
     rootNode.schedule(player, trackSelector, surface, mainHandler);
   }
 
-  /**
-   * A builder for {@link ActionSchedule} instances.
-   */
+  /** A builder for {@link ActionSchedule} instances. */
   public static final class Builder {
 
     private final String tag;
@@ -115,9 +108,7 @@ public final class ActionSchedule {
     private long currentDelayMs;
     private ActionNode previousNode;
 
-    /**
-     * @param tag A tag to use for logging.
-     */
+    /** @param tag A tag to use for logging. */
     public Builder(String tag) {
       this.tag = tag;
       rootNode = new ActionNode(new RootAction(tag), 0);
@@ -750,12 +741,9 @@ public final class ActionSchedule {
             repeatIntervalMs);
       }
     }
-
   }
 
-  /**
-   * A no-op root action.
-   */
+  /** A no-op root action. */
   private static final class RootAction extends Action {
 
     public RootAction(String tag) {
@@ -769,9 +757,7 @@ public final class ActionSchedule {
     }
   }
 
-  /**
-   * An action calling a specified {@link ActionSchedule.Callback}.
-   */
+  /** An action calling a specified {@link ActionSchedule.Callback}. */
   private static final class CallbackAction extends Action {
 
     @Nullable private Callback callback;
@@ -804,5 +790,4 @@ public final class ActionSchedule {
       // Not triggered.
     }
   }
-
 }

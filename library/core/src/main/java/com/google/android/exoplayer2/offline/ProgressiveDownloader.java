@@ -80,11 +80,7 @@ public final class ProgressiveDownloader implements Downloader {
     @SuppressWarnings("methodref.receiver.bound.invalid")
     CacheWriter.ProgressListener progressListener = this::onProgress;
     cacheWriter =
-        new CacheWriter(
-            dataSource,
-            dataSpec,
-            /* temporaryBuffer= */ null,
-            progressListener);
+        new CacheWriter(dataSource, dataSpec, /* temporaryBuffer= */ null, progressListener);
     priorityTaskManager = cacheDataSourceFactory.getUpstreamPriorityTaskManager();
   }
 

@@ -58,9 +58,7 @@ public final class Cue {
    */
   public static final int ANCHOR_TYPE_START = 0;
 
-  /**
-   * Anchors the middle of the cue box.
-   */
+  /** Anchors the middle of the cue box. */
   public static final int ANCHOR_TYPE_MIDDLE = 1;
 
   /**
@@ -78,14 +76,10 @@ public final class Cue {
   @IntDef({TYPE_UNSET, LINE_TYPE_FRACTION, LINE_TYPE_NUMBER})
   public @interface LineType {}
 
-  /**
-   * Value for {@link #lineType} when {@link #line} is a fractional position.
-   */
+  /** Value for {@link #lineType} when {@link #line} is a fractional position. */
   public static final int LINE_TYPE_FRACTION = 0;
 
-  /**
-   * Value for {@link #lineType} when {@link #line} is a line number.
-   */
+  /** Value for {@link #lineType} when {@link #line} is a line number. */
   public static final int LINE_TYPE_NUMBER = 1;
 
   /**
@@ -247,14 +241,10 @@ public final class Cue {
    */
   public final float bitmapHeight;
 
-  /**
-   * Specifies whether or not the {@link #windowColor} property is set.
-   */
+  /** Specifies whether or not the {@link #windowColor} property is set. */
   public final boolean windowColorSet;
 
-  /**
-   * The fill color of the window.
-   */
+  /** The fill color of the window. */
   public final int windowColor;
 
   /**

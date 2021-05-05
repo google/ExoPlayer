@@ -55,9 +55,7 @@ public final class ParsableNalUnitBitArray {
     assertValidOffset();
   }
 
-  /**
-   * Skips a single bit.
-   */
+  /** Skips a single bit. */
   public void skipBit() {
     if (++bitOffset == 8) {
       bitOffset = 0;
@@ -198,14 +196,16 @@ public final class ParsableNalUnitBitArray {
   }
 
   private boolean shouldSkipByte(int offset) {
-    return 2 <= offset && offset < byteLimit && data[offset] == (byte) 0x03
-        && data[offset - 2] == (byte) 0x00 && data[offset - 1] == (byte) 0x00;
+    return 2 <= offset
+        && offset < byteLimit
+        && data[offset] == (byte) 0x03
+        && data[offset - 2] == (byte) 0x00
+        && data[offset - 1] == (byte) 0x00;
   }
 
   private void assertValidOffset() {
     // It is fine for position to be at the end of the array, but no further.
-    Assertions.checkState(byteOffset >= 0
-        && (byteOffset < byteLimit || (byteOffset == byteLimit && bitOffset == 0)));
+    Assertions.checkState(
+        byteOffset >= 0 && (byteOffset < byteLimit || (byteOffset == byteLimit && bitOffset == 0)));
   }
-
 }

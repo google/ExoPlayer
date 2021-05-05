@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.ParserException;
 /** Thrown if the input format was not recognized. */
 public class UnrecognizedInputFormatException extends ParserException {
 
-  /**
-   * The {@link Uri} from which the unrecognized data was read.
-   */
+  /** The {@link Uri} from which the unrecognized data was read. */
   public final Uri uri;
 
   /**
@@ -34,5 +32,4 @@ public class UnrecognizedInputFormatException extends ParserException {
     super(message);
     this.uri = uri;
   }
-
 }

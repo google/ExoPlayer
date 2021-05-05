@@ -42,5 +42,4 @@ public final class RtmpDataSourceFactory implements DataSource.Factory {
     }
     return dataSource;
   }
-
 }

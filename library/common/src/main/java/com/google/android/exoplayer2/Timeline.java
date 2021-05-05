@@ -229,9 +229,7 @@ public abstract class Timeline implements Bundleable {
      */
     public long defaultPositionUs;
 
-    /**
-     * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long durationUs;
 
     /** The index of the first period that belongs to this window. */
@@ -312,16 +310,12 @@ public abstract class Timeline implements Bundleable {
       return defaultPositionUs;
     }
 
-    /**
-     * Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
       return C.usToMs(durationUs);
     }
 
-    /**
-     * Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationUs() {
       return durationUs;
     }
@@ -572,14 +566,10 @@ public abstract class Timeline implements Bundleable {
      */
     @Nullable public Object uid;
 
-    /**
-     * The index of the window to which this period belongs.
-     */
+    /** The index of the window to which this period belongs. */
     public int windowIndex;
 
-    /**
-     * The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long durationUs;
 
     /**
@@ -660,16 +650,12 @@ public abstract class Timeline implements Bundleable {
       return this;
     }
 
-    /**
-     * Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
       return C.usToMs(durationUs);
     }
 
-    /**
-     * Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationUs() {
       return durationUs;
     }
@@ -777,8 +763,8 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
-     * Returns the number of ads in the ad group at index {@code adGroupIndex}, or
-     * {@link C#LENGTH_UNSET} if not yet known.
+     * Returns the number of ads in the ad group at index {@code adGroupIndex}, or {@link
+     * C#LENGTH_UNSET} if not yet known.
      *
      * @param adGroupIndex The ad group index.
      * @return The number of ads in the ad group, or {@link C#LENGTH_UNSET} if not yet known.
@@ -788,8 +774,8 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
-     * Returns the duration of the ad at index {@code adIndexInAdGroup} in the ad group at
-     * {@code adGroupIndex}, in microseconds, or {@link C#TIME_UNSET} if not yet known.
+     * Returns the duration of the ad at index {@code adIndexInAdGroup} in the ad group at {@code
+     * adGroupIndex}, in microseconds, or {@link C#TIME_UNSET} if not yet known.
      *
      * @param adGroupIndex The ad group index.
      * @param adIndexInAdGroup The ad index in the ad group.
@@ -949,16 +935,12 @@ public abstract class Timeline implements Bundleable {
         }
       };
 
-  /**
-   * Returns whether the timeline is empty.
-   */
+  /** Returns whether the timeline is empty. */
   public final boolean isEmpty() {
     return getWindowCount() == 0;
   }
 
-  /**
-   * Returns the number of windows in the timeline.
-   */
+  /** Returns the number of windows in the timeline. */
   public abstract int getWindowCount();
 
   /**
@@ -974,13 +956,15 @@ public abstract class Timeline implements Bundleable {
       int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
       case Player.REPEAT_MODE_OFF:
-        return windowIndex == getLastWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
+        return windowIndex == getLastWindowIndex(shuffleModeEnabled)
+            ? C.INDEX_UNSET
             : windowIndex + 1;
       case Player.REPEAT_MODE_ONE:
         return windowIndex;
       case Player.REPEAT_MODE_ALL:
         return windowIndex == getLastWindowIndex(shuffleModeEnabled)
-            ? getFirstWindowIndex(shuffleModeEnabled) : windowIndex + 1;
+            ? getFirstWindowIndex(shuffleModeEnabled)
+            : windowIndex + 1;
       default:
         throw new IllegalStateException();
     }
@@ -999,13 +983,15 @@ public abstract class Timeline implements Bundleable {
       int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
       case Player.REPEAT_MODE_OFF:
-        return windowIndex == getFirstWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
+        return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
+            ? C.INDEX_UNSET
             : windowIndex - 1;
       case Player.REPEAT_MODE_ONE:
         return windowIndex;
       case Player.REPEAT_MODE_ALL:
         return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
-            ? getLastWindowIndex(shuffleModeEnabled) : windowIndex - 1;
+            ? getLastWindowIndex(shuffleModeEnabled)
+            : windowIndex - 1;
       default:
         throw new IllegalStateException();
     }
@@ -1064,9 +1050,7 @@ public abstract class Timeline implements Bundleable {
   public abstract Window getWindow(
       int windowIndex, Window window, long defaultPositionProjectionUs);
 
-  /**
-   * Returns the number of periods in the timeline.
-   */
+  /** Returns the number of periods in the timeline. */
   public abstract int getPeriodCount();
 
   /**

@@ -167,5 +167,4 @@ public final class ShuffleOrderTest {
       assertThat(newNextIndex).isEqualTo(expectedNextIndex);
     }
   }
-
 }

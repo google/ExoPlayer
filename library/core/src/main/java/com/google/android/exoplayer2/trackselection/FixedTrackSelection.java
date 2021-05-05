@@ -89,5 +89,4 @@ public final class FixedTrackSelection extends BaseTrackSelection {
   public Object getSelectionData() {
     return data;
   }
-
 }

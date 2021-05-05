@@ -201,8 +201,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     @NonNull
     public QueueItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-      TextView v = (TextView) LayoutInflater.from(parent.getContext())
-          .inflate(android.R.layout.simple_list_item_1, parent, false);
+      TextView v =
+          (TextView)
+              LayoutInflater.from(parent.getContext())
+                  .inflate(android.R.layout.simple_list_item_1, parent, false);
       return new QueueItemViewHolder(v);
     }
 
@@ -223,7 +225,6 @@ public class MainActivity extends AppCompatActivity
     public int getItemCount() {
       return playerManager.getMediaQueueSize();
     }
-
   }
 
   private class RecyclerViewCallback extends ItemTouchHelper.SimpleCallback {

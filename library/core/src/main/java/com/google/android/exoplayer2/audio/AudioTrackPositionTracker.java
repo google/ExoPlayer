@@ -409,8 +409,7 @@ import java.lang.reflect.Method;
    * @return Whether the audio track has any pending data to play out.
    */
   public boolean hasPendingData(long writtenFrames) {
-    return writtenFrames > getPlaybackHeadPosition()
-        || forceHasPendingData();
+    return writtenFrames > getPlaybackHeadPosition() || forceHasPendingData();
   }
 
   /**

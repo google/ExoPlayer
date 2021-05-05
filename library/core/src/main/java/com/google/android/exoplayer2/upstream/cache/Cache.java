@@ -41,9 +41,7 @@ import java.util.Set;
  */
 public interface Cache {
 
-  /**
-   * Listener of {@link Cache} events.
-   */
+  /** Listener of {@link Cache} events. */
   interface Listener {
 
     /**
@@ -77,9 +75,7 @@ public interface Cache {
     void onSpanTouched(Cache cache, CacheSpan oldSpan, CacheSpan newSpan);
   }
 
-  /**
-   * Thrown when an error is encountered when writing data.
-   */
+  /** Thrown when an error is encountered when writing data. */
   class CacheException extends IOException {
 
     public CacheException(String message) {
@@ -152,9 +148,7 @@ public interface Cache {
   /** Returns the cache keys of all of the resources that are at least partially cached. */
   Set<String> getKeys();
 
-  /**
-   * Returns the total disk space in bytes used by the cache.
-   */
+  /** Returns the total disk space in bytes used by the cache. */
   long getCacheSpace();
 
   /**

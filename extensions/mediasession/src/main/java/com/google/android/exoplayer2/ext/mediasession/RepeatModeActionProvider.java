@@ -33,8 +33,7 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
 
   private static final String ACTION_REPEAT_MODE = "ACTION_EXO_REPEAT_MODE";
 
-  @RepeatModeUtil.RepeatToggleModes
-  private final int repeatToggleModes;
+  @RepeatModeUtil.RepeatToggleModes private final int repeatToggleModes;
   private final CharSequence repeatAllDescription;
   private final CharSequence repeatOneDescription;
   private final CharSequence repeatOffDescription;
@@ -93,9 +92,9 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
         iconResourceId = R.drawable.exo_media_action_repeat_off;
         break;
     }
-    PlaybackStateCompat.CustomAction.Builder repeatBuilder = new PlaybackStateCompat.CustomAction
-        .Builder(ACTION_REPEAT_MODE, actionLabel, iconResourceId);
+    PlaybackStateCompat.CustomAction.Builder repeatBuilder =
+        new PlaybackStateCompat.CustomAction.Builder(
+            ACTION_REPEAT_MODE, actionLabel, iconResourceId);
     return repeatBuilder.build();
   }
-
 }

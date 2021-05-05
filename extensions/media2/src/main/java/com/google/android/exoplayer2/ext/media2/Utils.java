@@ -89,7 +89,6 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
     }
   }
 
-
   private Utils() {
     // Prevent instantiation.
   }

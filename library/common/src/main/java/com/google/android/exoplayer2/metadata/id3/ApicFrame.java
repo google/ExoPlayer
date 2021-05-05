@@ -59,7 +59,8 @@ public final class ApicFrame extends Id3Frame {
       return false;
     }
     ApicFrame other = (ApicFrame) obj;
-    return pictureType == other.pictureType && Util.areEqual(mimeType, other.mimeType)
+    return pictureType == other.pictureType
+        && Util.areEqual(mimeType, other.mimeType)
         && Util.areEqual(description, other.description)
         && Arrays.equals(pictureData, other.pictureData);
   }
@@ -89,18 +90,17 @@ public final class ApicFrame extends Id3Frame {
     dest.writeByteArray(pictureData);
   }
 
-  public static final Parcelable.Creator<ApicFrame> CREATOR = new Parcelable.Creator<ApicFrame>() {
+  public static final Parcelable.Creator<ApicFrame> CREATOR =
+      new Parcelable.Creator<ApicFrame>() {
 
-    @Override
-    public ApicFrame createFromParcel(Parcel in) {
-      return new ApicFrame(in);
-    }
+        @Override
+        public ApicFrame createFromParcel(Parcel in) {
+          return new ApicFrame(in);
+        }
 
-    @Override
-    public ApicFrame[] newArray(int size) {
-      return new ApicFrame[size];
-    }
-
-  };
-
+        @Override
+        public ApicFrame[] newArray(int size) {
+          return new ApicFrame[size];
+        }
+      };
 }

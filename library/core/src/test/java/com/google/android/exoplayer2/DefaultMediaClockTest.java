@@ -282,8 +282,9 @@ public class DefaultMediaClockTest {
 
   @Test
   public void rendererNotReady_shouldStillUseRendererClock() throws ExoPlaybackException {
-    MediaClockRenderer mediaClockRenderer = new MediaClockRenderer(/* isReady= */ false,
-        /* isEnded= */ false, /* hasReadStreamToEnd= */ false);
+    MediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(
+            /* isReady= */ false, /* isEnded= */ false, /* hasReadStreamToEnd= */ false);
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     // We're not advancing the renderer media clock. Thus, the clock should appear to be stopped.
@@ -293,8 +294,9 @@ public class DefaultMediaClockTest {
   @Test
   public void rendererNotReadyAndReadStreamToEnd_shouldFallbackToStandaloneClock()
       throws ExoPlaybackException {
-    MediaClockRenderer mediaClockRenderer = new MediaClockRenderer(/* isReady= */ false,
-        /* isEnded= */ false, /* hasReadStreamToEnd= */ true);
+    MediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(
+            /* isReady= */ false, /* isEnded= */ false, /* hasReadStreamToEnd= */ true);
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     assertClockIsRunning(/* isReadingAhead= */ false);
@@ -312,18 +314,17 @@ public class DefaultMediaClockTest {
   }
 
   @Test
-  public void rendererEnded_shouldFallbackToStandaloneClock()
-      throws ExoPlaybackException {
-    MediaClockRenderer mediaClockRenderer = new MediaClockRenderer(/* isReady= */ true,
-        /* isEnded= */ true, /* hasReadStreamToEnd= */ true);
+  public void rendererEnded_shouldFallbackToStandaloneClock() throws ExoPlaybackException {
+    MediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(
+            /* isReady= */ true, /* isEnded= */ true, /* hasReadStreamToEnd= */ true);
     mediaClock.start();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
-  public void staleDisableRendererClock_shouldNotThrow()
-      throws ExoPlaybackException {
+  public void staleDisableRendererClock_shouldNotThrow() throws ExoPlaybackException {
     MediaClockRenderer mediaClockRenderer = new MediaClockRenderer();
     mediaClockRenderer.positionUs = TEST_POSITION_US;
     mediaClock.onRendererDisabled(mediaClockRenderer);
@@ -332,8 +333,7 @@ public class DefaultMediaClockTest {
   }
 
   @Test
-  public void enableSameRendererClockTwice_shouldNotThrow()
-      throws ExoPlaybackException {
+  public void enableSameRendererClockTwice_shouldNotThrow() throws ExoPlaybackException {
     MediaClockRenderer mediaClockRenderer = new MediaClockRenderer();
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.onRendererEnabled(mediaClockRenderer);
@@ -343,8 +343,7 @@ public class DefaultMediaClockTest {
   }
 
   @Test
-  public void enableOtherRendererClock_shouldThrow()
-      throws ExoPlaybackException {
+  public void enableOtherRendererClock_shouldThrow() throws ExoPlaybackException {
     MediaClockRenderer mediaClockRenderer1 = new MediaClockRenderer();
     MediaClockRenderer mediaClockRenderer2 = new MediaClockRenderer();
     mediaClockRenderer1.positionUs = TEST_POSITION_US;
@@ -459,5 +458,4 @@ public class DefaultMediaClockTest {
       return isEnded;
     }
   }
-
 }

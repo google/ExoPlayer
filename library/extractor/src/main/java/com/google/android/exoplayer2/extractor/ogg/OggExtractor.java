@@ -114,5 +114,4 @@ public class OggExtractor implements Extractor {
     scratch.setPosition(0);
     return scratch;
   }
-
 }

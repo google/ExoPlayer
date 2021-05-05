@@ -34,5 +34,4 @@ public final class ExtractorTest {
     assertThat(C.RESULT_END_OF_INPUT != Extractor.RESULT_CONTINUE).isTrue();
     assertThat(C.RESULT_END_OF_INPUT != Extractor.RESULT_SEEK).isTrue();
   }
-
 }

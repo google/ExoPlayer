@@ -224,5 +224,4 @@ public final class Assertions {
       throw new IllegalStateException("Not in applications main thread");
     }
   }
-
 }

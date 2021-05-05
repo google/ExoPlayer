@@ -94,9 +94,7 @@ public abstract class DecoderAudioRenderer<
     REINITIALIZATION_STATE_WAIT_END_OF_STREAM
   })
   private @interface ReinitializationState {}
-  /**
-   * The decoder does not need to be re-initialized.
-   */
+  /** The decoder does not need to be re-initialized. */
   private static final int REINITIALIZATION_STATE_NONE = 0;
   /**
    * The input format has changed in a way that requires the decoder to be re-initialized, but we
@@ -153,11 +151,7 @@ public abstract class DecoderAudioRenderer<
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
-    this(
-        eventHandler,
-        eventListener,
-        /* audioCapabilities= */ null,
-        audioProcessors);
+    this(eventHandler, eventListener, /* audioCapabilities= */ null, audioProcessors);
   }
 
   /**
@@ -417,7 +411,8 @@ public abstract class DecoderAudioRenderer<
   }
 
   private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
-    if (decoder == null || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+    if (decoder == null
+        || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
         || inputStreamEnded) {
       // We need to reinitialize the decoder or the input stream has ended.
       return false;
@@ -621,7 +616,9 @@ public abstract class DecoderAudioRenderer<
       decoder = createDecoder(inputFormat, mediaCrypto);
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
+      eventDispatcher.decoderInitialized(
+          decoder.getName(),
+          codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
     } catch (DecoderException e) {

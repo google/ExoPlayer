@@ -88,9 +88,7 @@ public final class VarintReaderTest {
   public void readVarintEndOfInputAtStart() throws IOException {
     VarintReader reader = new VarintReader();
     // Build an input with no data.
-    ExtractorInput input = new FakeExtractorInput.Builder()
-        .setSimulateUnknownLength(true)
-        .build();
+    ExtractorInput input = new FakeExtractorInput.Builder().setSimulateUnknownLength(true).build();
     // End of input allowed.
     long result = reader.readUnsignedVarint(input, true, false, 8);
     assertThat(result).isEqualTo(RESULT_END_OF_INPUT);
@@ -106,10 +104,11 @@ public final class VarintReaderTest {
   @Test
   public void readVarintExceedsMaximumAllowedLength() throws IOException {
     VarintReader reader = new VarintReader();
-    ExtractorInput input = new FakeExtractorInput.Builder()
-        .setData(DATA_8_BYTE_0)
-        .setSimulateUnknownLength(true)
-        .build();
+    ExtractorInput input =
+        new FakeExtractorInput.Builder()
+            .setData(DATA_8_BYTE_0)
+            .setSimulateUnknownLength(true)
+            .build();
     long result = reader.readUnsignedVarint(input, false, true, 4);
     assertThat(result).isEqualTo(RESULT_MAX_LENGTH_EXCEEDED);
   }
@@ -191,10 +190,8 @@ public final class VarintReaderTest {
   private static void testReadVarint(
       VarintReader reader, boolean removeMask, byte[] data, int expectedLength, long expectedValue)
       throws IOException {
-    ExtractorInput input = new FakeExtractorInput.Builder()
-        .setData(data)
-        .setSimulateUnknownLength(true)
-        .build();
+    ExtractorInput input =
+        new FakeExtractorInput.Builder().setData(data).setSimulateUnknownLength(true).build();
     long result = reader.readUnsignedVarint(input, false, removeMask, 8);
     assertThat(input.getPosition()).isEqualTo(expectedLength);
     assertThat(result).isEqualTo(expectedValue);
@@ -203,12 +200,13 @@ public final class VarintReaderTest {
   private static void testReadVarintFlaky(
       VarintReader reader, boolean removeMask, byte[] data, int expectedLength, long expectedValue)
       throws IOException {
-    ExtractorInput input = new FakeExtractorInput.Builder()
-        .setData(data)
-        .setSimulateUnknownLength(true)
-        .setSimulateIOErrors(true)
-        .setSimulatePartialReads(true)
-        .build();
+    ExtractorInput input =
+        new FakeExtractorInput.Builder()
+            .setData(data)
+            .setSimulateUnknownLength(true)
+            .setSimulateIOErrors(true)
+            .setSimulatePartialReads(true)
+            .build();
     long result = -1;
     while (result == -1) {
       try {
@@ -224,5 +222,4 @@ public final class VarintReaderTest {
     assertThat(input.getPosition()).isEqualTo(expectedLength);
     assertThat(result).isEqualTo(expectedValue);
   }
-
 }

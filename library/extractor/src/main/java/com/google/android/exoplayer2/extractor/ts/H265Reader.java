@@ -76,9 +76,7 @@ public final class H265Reader implements ElementaryStreamReader {
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
-  /**
-   * @param seiReader An SEI reader for consuming closed caption channels.
-   */
+  /** @param seiReader An SEI reader for consuming closed caption channels. */
   public H265Reader(SeiReader seiReader) {
     this.seiReader = seiReader;
     prefixFlags = new boolean[3];
@@ -157,8 +155,11 @@ public final class H265Reader implements ElementaryStreamReader {
         // Indicate the end of the previous NAL unit. If the length to the start of the next unit
         // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
         // when notifying that the unit has ended.
-        endNalUnit(absolutePosition, bytesWrittenPastPosition,
-            lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
+        endNalUnit(
+            absolutePosition,
+            bytesWrittenPastPosition,
+            lengthToNalUnit < 0 ? -lengthToNalUnit : 0,
+            pesTimeUs);
         // Indicate the start of the next NAL unit.
         startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType, pesTimeUs);
         // Continue scanning the data.
@@ -371,9 +372,7 @@ public final class H265Reader implements ElementaryStreamReader {
         .build();
   }
 
-  /**
-   * Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4.
-   */
+  /** Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4. */
   private static void skipScalingList(ParsableNalUnitBitArray bitArray) {
     for (int sizeId = 0; sizeId < 4; sizeId++) {
       for (int matrixId = 0; matrixId < 6; matrixId += sizeId == 3 ? 3 : 1) {

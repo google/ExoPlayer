@@ -116,7 +116,7 @@ public final class WebvttCssStyle {
   }
 
   public void setTargetId(String targetId) {
-    this.targetId  = targetId;
+    this.targetId = targetId;
   }
 
   public void setTargetTagName(String targetTag) {
@@ -151,7 +151,9 @@ public final class WebvttCssStyle {
    */
   public int getSpecificityScore(
       @Nullable String id, @Nullable String tag, Set<String> classes, @Nullable String voice) {
-    if (targetId.isEmpty() && targetTag.isEmpty() && targetClasses.isEmpty()
+    if (targetId.isEmpty()
+        && targetTag.isEmpty()
+        && targetClasses.isEmpty()
         && targetVoice.isEmpty()) {
       // The selector is universal. It matches with the minimum score if and only if the given
       // element is a whole cue.
@@ -175,12 +177,12 @@ public final class WebvttCssStyle {
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
-  @StyleFlags public int getStyle() {
+  @StyleFlags
+  public int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
-    return (bold == ON ? STYLE_BOLD : STYLE_NORMAL)
-        | (italic == ON ? STYLE_ITALIC : STYLE_NORMAL);
+    return (bold == ON ? STYLE_BOLD : STYLE_NORMAL) | (italic == ON ? STYLE_ITALIC : STYLE_NORMAL);
   }
 
   public boolean isLinethrough() {
@@ -200,6 +202,7 @@ public final class WebvttCssStyle {
     this.underline = underline ? ON : OFF;
     return this;
   }
+
   public WebvttCssStyle setBold(boolean bold) {
     this.bold = bold ? ON : OFF;
     return this;
@@ -264,7 +267,8 @@ public final class WebvttCssStyle {
     return this;
   }
 
-  @FontSizeUnit public int getFontSizeUnit() {
+  @FontSizeUnit
+  public int getFontSizeUnit() {
     return fontSizeUnit;
   }
 
@@ -298,5 +302,4 @@ public final class WebvttCssStyle {
     }
     return target.equals(actual) ? currentScore + score : -1;
   }
-
 }

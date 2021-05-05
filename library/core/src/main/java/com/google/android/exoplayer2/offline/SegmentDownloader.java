@@ -469,11 +469,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       this.progressNotifier = progressNotifier;
       this.temporaryBuffer = temporaryBuffer;
       this.cacheWriter =
-          new CacheWriter(
-              dataSource,
-              segment.dataSpec,
-              temporaryBuffer,
-              progressNotifier);
+          new CacheWriter(dataSource, segment.dataSpec, temporaryBuffer, progressNotifier);
     }
 
     @Override

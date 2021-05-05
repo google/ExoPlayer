@@ -75,7 +75,6 @@ public class AsynchronousMediaCodecAdapterTest {
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(0);
   }
 
-
   @Test
   public void dequeueInputBufferIndex_withMediaCodecError_throwsException() throws Exception {
     // Set an error directly on the adapter (not through the looper).

@@ -139,14 +139,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
   private static final Pattern REGEX_FRAME_RATE = Pattern.compile("FRAME-RATE=([\\d\\.]+)\\b");
-  private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
-      + ":(\\d+)\\b");
+  private static final Pattern REGEX_TARGET_DURATION =
+      Pattern.compile(TAG_TARGET_DURATION + ":(\\d+)\\b");
   private static final Pattern REGEX_ATTR_DURATION = Pattern.compile("DURATION=([\\d\\.]+)\\b");
   private static final Pattern REGEX_PART_TARGET_DURATION =
       Pattern.compile("PART-TARGET=([\\d\\.]+)\\b");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
-  private static final Pattern REGEX_PLAYLIST_TYPE = Pattern.compile(TAG_PLAYLIST_TYPE
-      + ":(.+)\\b");
+  private static final Pattern REGEX_PLAYLIST_TYPE =
+      Pattern.compile(TAG_PLAYLIST_TYPE + ":(.+)\\b");
   private static final Pattern REGEX_CAN_SKIP_UNTIL =
       Pattern.compile("CAN-SKIP-UNTIL=([\\d\\.]+)\\b");
   private static final Pattern REGEX_CAN_SKIP_DATE_RANGES =
@@ -158,17 +158,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile("PART-HOLD-BACK=([\\d\\.]+)\\b");
   private static final Pattern REGEX_CAN_BLOCK_RELOAD =
       compileBooleanAttrPattern("CAN-BLOCK-RELOAD");
-  private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
-      + ":(\\d+)\\b");
-  private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
-      + ":([\\d\\.]+)\\b");
+  private static final Pattern REGEX_MEDIA_SEQUENCE =
+      Pattern.compile(TAG_MEDIA_SEQUENCE + ":(\\d+)\\b");
+  private static final Pattern REGEX_MEDIA_DURATION =
+      Pattern.compile(TAG_MEDIA_DURATION + ":([\\d\\.]+)\\b");
   private static final Pattern REGEX_MEDIA_TITLE =
       Pattern.compile(TAG_MEDIA_DURATION + ":[\\d\\.]+\\b,(.+)");
   private static final Pattern REGEX_LAST_MSN = Pattern.compile("LAST-MSN" + "=(\\d+)\\b");
   private static final Pattern REGEX_LAST_PART = Pattern.compile("LAST-PART" + "=(\\d+)\\b");
   private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=(-?[\\d\\.]+)\\b");
-  private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
-      + ":(\\d+(?:@\\d+)?)\\b");
+  private static final Pattern REGEX_BYTERANGE =
+      Pattern.compile(TAG_BYTERANGE + ":(\\d+(?:@\\d+)?)\\b");
   private static final Pattern REGEX_ATTR_BYTERANGE =
       Pattern.compile("BYTERANGE=\"(\\d+(?:@\\d+)?)\\b\"");
   private static final Pattern REGEX_BYTERANGE_START = Pattern.compile("BYTERANGE-START=(\\d+)\\b");
@@ -193,8 +193,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile("KEYFORMATVERSIONS=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
-  private static final Pattern REGEX_TYPE = Pattern.compile("TYPE=(" + TYPE_AUDIO + "|" + TYPE_VIDEO
-      + "|" + TYPE_SUBTITLES + "|" + TYPE_CLOSED_CAPTIONS + ")");
+  private static final Pattern REGEX_TYPE =
+      Pattern.compile(
+          "TYPE=("
+              + TYPE_AUDIO
+              + "|"
+              + TYPE_VIDEO
+              + "|"
+              + TYPE_SUBTITLES
+              + "|"
+              + TYPE_CLOSED_CAPTIONS
+              + ")");
   private static final Pattern REGEX_PRELOAD_HINT_TYPE =
       Pattern.compile("TYPE=(" + TYPE_PART + "|" + TYPE_MAP + ")");
   private static final Pattern REGEX_LANGUAGE = Pattern.compile("LANGUAGE=\"(.+?)\"");
@@ -245,8 +254,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     try {
       if (!checkPlaylistHeader(reader)) {
-        throw new UnrecognizedInputFormatException("Input does not start with the #EXTM3U header.",
-            uri);
+        throw new UnrecognizedInputFormatException(
+            "Input does not start with the #EXTM3U header.", uri);
       }
       while ((line = reader.readLine()) != null) {
         line = line.trim();

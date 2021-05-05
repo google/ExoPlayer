@@ -242,8 +242,8 @@ public final class CacheDataSink implements DataSink {
     FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
-        bufferedOutputStream = new ReusableBufferedOutputStream(underlyingFileOutputStream,
-            bufferSize);
+        bufferedOutputStream =
+            new ReusableBufferedOutputStream(underlyingFileOutputStream, bufferSize);
       } else {
         bufferedOutputStream.reset(underlyingFileOutputStream);
       }
@@ -275,5 +275,4 @@ public final class CacheDataSink implements DataSink {
       }
     }
   }
-
 }

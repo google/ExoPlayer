@@ -57,6 +57,7 @@ public class EventLogger implements AnalyticsListener {
   private static final String DEFAULT_TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
   private static final NumberFormat TIME_FORMAT;
+
   static {
     TIME_FORMAT = NumberFormat.getInstance(Locale.US);
     TIME_FORMAT.setMinimumFractionDigits(2);
@@ -667,8 +668,10 @@ public class EventLogger implements AnalyticsListener {
   @SuppressWarnings("ReferenceEquality")
   private static String getTrackStatusString(
       @Nullable TrackSelection selection, TrackGroup group, int trackIndex) {
-    return getTrackStatusString(selection != null && selection.getTrackGroup() == group
-        && selection.indexOf(trackIndex) != C.INDEX_UNSET);
+    return getTrackStatusString(
+        selection != null
+            && selection.getTrackGroup() == group
+            && selection.indexOf(trackIndex) != C.INDEX_UNSET);
   }
 
   private static String getTrackStatusString(boolean enabled) {

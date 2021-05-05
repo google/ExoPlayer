@@ -55,9 +55,7 @@ public class SlidingPercentile {
   private int totalWeight;
   private int recycledSampleCount;
 
-  /**
-   * @param maxWeight The maximum weight.
-   */
+  /** @param maxWeight The maximum weight. */
   public SlidingPercentile(int maxWeight) {
     this.maxWeight = maxWeight;
     recycledSamples = new Sample[MAX_RECYCLED_SAMPLES];
@@ -82,8 +80,8 @@ public class SlidingPercentile {
   public void addSample(int weight, float value) {
     ensureSortedByIndex();
 
-    Sample newSample = recycledSampleCount > 0 ? recycledSamples[--recycledSampleCount]
-        : new Sample();
+    Sample newSample =
+        recycledSampleCount > 0 ? recycledSamples[--recycledSampleCount] : new Sample();
     newSample.index = nextSampleIndex++;
     newSample.weight = weight;
     newSample.value = value;
@@ -127,9 +125,7 @@ public class SlidingPercentile {
     return samples.isEmpty() ? Float.NaN : samples.get(samples.size() - 1).value;
   }
 
-  /**
-   * Sorts the samples by index.
-   */
+  /** Sorts the samples by index. */
   private void ensureSortedByIndex() {
     if (currentSortOrder != SORT_ORDER_BY_INDEX) {
       Collections.sort(samples, INDEX_COMPARATOR);
@@ -137,9 +133,7 @@ public class SlidingPercentile {
     }
   }
 
-  /**
-   * Sorts the samples by value.
-   */
+  /** Sorts the samples by value. */
   private void ensureSortedByValue() {
     if (currentSortOrder != SORT_ORDER_BY_VALUE) {
       Collections.sort(samples, VALUE_COMPARATOR);
@@ -152,7 +146,5 @@ public class SlidingPercentile {
     public int index;
     public int weight;
     public float value;
-
   }
-
 }

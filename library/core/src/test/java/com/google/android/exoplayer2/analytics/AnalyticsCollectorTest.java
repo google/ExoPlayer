@@ -1348,11 +1348,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(contentBeforeMidroll);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(
-            contentBeforeMidroll,
-            contentBeforeMidroll,
-            midrollAd,
-            midrollAd)
+        .containsExactly(contentBeforeMidroll, contentBeforeMidroll, midrollAd, midrollAd)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll);

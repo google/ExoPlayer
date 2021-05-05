@@ -29,12 +29,13 @@ public final class ChapterTocFrameTest {
   @Test
   public void parcelable() {
     String[] children = new String[] {"child0", "child1"};
-    Id3Frame[] subFrames = new Id3Frame[] {
-        new TextInformationFrame("TIT2", null, "title"),
-        new UrlLinkFrame("WXXX", "description", "url")
-    };
-    ChapterTocFrame chapterTocFrameToParcel = new ChapterTocFrame("id", false, true, children,
-        subFrames);
+    Id3Frame[] subFrames =
+        new Id3Frame[] {
+          new TextInformationFrame("TIT2", null, "title"),
+          new UrlLinkFrame("WXXX", "description", "url")
+        };
+    ChapterTocFrame chapterTocFrameToParcel =
+        new ChapterTocFrame("id", false, true, children, subFrames);
 
     Parcel parcel = Parcel.obtain();
     chapterTocFrameToParcel.writeToParcel(parcel, 0);
@@ -45,5 +46,4 @@ public final class ChapterTocFrameTest {
 
     parcel.recycle();
   }
-
 }

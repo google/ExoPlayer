@@ -71,7 +71,6 @@ public final class AmrExtractorParameterizedTest {
         simulationConfig);
   }
 
-
   private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory(boolean withSeeking) {
     return () -> {
       if (!withSeeking) {

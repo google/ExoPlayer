@@ -78,20 +78,15 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     }
   }
 
-  /**
-   * Thrown if a required field is missing.
-   */
+  /** Thrown if a required field is missing. */
   public static class MissingFieldException extends ParserException {
 
     public MissingFieldException(String fieldName) {
       super("Missing required field: " + fieldName);
     }
-
   }
 
-  /**
-   * A base class for parsers that parse components of a smooth streaming manifest.
-   */
+  /** A base class for parsers that parse components of a smooth streaming manifest. */
   private abstract static class ElementParser {
 
     private final String baseUri;
@@ -224,23 +219,17 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       // Do nothing.
     }
 
-    /**
-     * @param xmlParser The underlying {@link XmlPullParser}
-     */
+    /** @param xmlParser The underlying {@link XmlPullParser} */
     protected void parseText(XmlPullParser xmlParser) {
       // Do nothing.
     }
 
-    /**
-     * @param xmlParser The underlying {@link XmlPullParser}
-     */
+    /** @param xmlParser The underlying {@link XmlPullParser} */
     protected void parseEndTag(XmlPullParser xmlParser) {
       // Do nothing.
     }
 
-    /**
-     * @param parsedChild A parsed child object.
-     */
+    /** @param parsedChild A parsed child object. */
     protected void addChild(Object parsedChild) {
       // Do nothing.
     }
@@ -320,7 +309,6 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         return defaultValue;
       }
     }
-
   }
 
   private static class SmoothStreamingMediaParser extends ElementParser {
@@ -380,8 +368,10 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       StreamElement[] streamElementArray = new StreamElement[streamElements.size()];
       streamElements.toArray(streamElementArray);
       if (protectionElement != null) {
-        DrmInitData drmInitData = new DrmInitData(new SchemeData(protectionElement.uuid,
-            MimeTypes.VIDEO_MP4, protectionElement.data));
+        DrmInitData drmInitData =
+            new DrmInitData(
+                new SchemeData(
+                    protectionElement.uuid, MimeTypes.VIDEO_MP4, protectionElement.data));
         for (StreamElement streamElement : streamElementArray) {
           int type = streamElement.type;
           if (type == C.TRACK_TYPE_VIDEO || type == C.TRACK_TYPE_AUDIO) {
@@ -392,10 +382,17 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
           }
         }
       }
-      return new SsManifest(majorVersion, minorVersion, timescale, duration, dvrWindowLength,
-          lookAheadCount, isLive, protectionElement, streamElementArray);
+      return new SsManifest(
+          majorVersion,
+          minorVersion,
+          timescale,
+          duration,
+          dvrWindowLength,
+          lookAheadCount,
+          isLive,
+          protectionElement,
+          streamElementArray);
     }
-
   }
 
   private static class ProtectionParser extends ElementParser {
@@ -633,10 +630,22 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     public Object build() {
       Format[] formatArray = new Format[formats.size()];
       formats.toArray(formatArray);
-      return new StreamElement(baseUri, url, type, subType, timescale, name, maxWidth, maxHeight,
-          displayWidth, displayHeight, language, formatArray, startTimes, lastChunkDuration);
+      return new StreamElement(
+          baseUri,
+          url,
+          type,
+          subType,
+          timescale,
+          name,
+          maxWidth,
+          maxHeight,
+          displayWidth,
+          displayHeight,
+          language,
+          formatArray,
+          startTimes,
+          lastChunkDuration);
     }
-
   }
 
   private static class QualityLevelParser extends ElementParser {
@@ -669,8 +678,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       @Nullable String sampleMimeType = fourCCToMimeType(parseRequiredString(parser, KEY_FOUR_CC));
       int type = (Integer) getNormalizedAttribute(KEY_TYPE);
       if (type == C.TRACK_TYPE_VIDEO) {
-        List<byte[]> codecSpecificData = buildCodecSpecificData(
-            parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
+        List<byte[]> codecSpecificData =
+            buildCodecSpecificData(parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
         formatBuilder
             .setContainerMimeType(MimeTypes.VIDEO_MP4)
             .setWidth(parseRequiredInt(parser, KEY_MAX_WIDTH))
@@ -683,8 +692,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         }
         int channelCount = parseRequiredInt(parser, KEY_CHANNELS);
         int sampleRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
-        List<byte[]> codecSpecificData = buildCodecSpecificData(
-            parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
+        List<byte[]> codecSpecificData =
+            buildCodecSpecificData(parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
         if (codecSpecificData.isEmpty() && MimeTypes.AUDIO_AAC.equals(sampleMimeType)) {
           codecSpecificData =
               Collections.singletonList(
@@ -746,11 +755,15 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
 
     @Nullable
     private static String fourCCToMimeType(String fourCC) {
-      if (fourCC.equalsIgnoreCase("H264") || fourCC.equalsIgnoreCase("X264")
-          || fourCC.equalsIgnoreCase("AVC1") || fourCC.equalsIgnoreCase("DAVC")) {
+      if (fourCC.equalsIgnoreCase("H264")
+          || fourCC.equalsIgnoreCase("X264")
+          || fourCC.equalsIgnoreCase("AVC1")
+          || fourCC.equalsIgnoreCase("DAVC")) {
         return MimeTypes.VIDEO_H264;
-      } else if (fourCC.equalsIgnoreCase("AAC") || fourCC.equalsIgnoreCase("AACL")
-          || fourCC.equalsIgnoreCase("AACH") || fourCC.equalsIgnoreCase("AACP")) {
+      } else if (fourCC.equalsIgnoreCase("AAC")
+          || fourCC.equalsIgnoreCase("AACL")
+          || fourCC.equalsIgnoreCase("AACH")
+          || fourCC.equalsIgnoreCase("AACP")) {
         return MimeTypes.AUDIO_AAC;
       } else if (fourCC.equalsIgnoreCase("TTML") || fourCC.equalsIgnoreCase("DFXP")) {
         return MimeTypes.APPLICATION_TTML;
@@ -769,7 +782,5 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       }
       return null;
     }
-
   }
-
 }

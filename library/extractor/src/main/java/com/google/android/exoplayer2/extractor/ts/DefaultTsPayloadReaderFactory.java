@@ -117,11 +117,11 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    * @param flags A combination of {@code FLAG_*} values that control the behavior of the created
    *     readers.
    * @param closedCaptionFormats {@link Format}s to be exposed by payload readers for streams with
-   *     embedded closed captions when no caption service descriptors are provided. If
-   *     {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, {@code closedCaptionFormats} overrides
-   *     any descriptor information. If not set, and {@code closedCaptionFormats} is empty, a
-   *     closed caption track with {@link Format#accessibilityChannel} {@link Format#NO_VALUE} will
-   *     be exposed.
+   *     embedded closed captions when no caption service descriptors are provided. If {@link
+   *     #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, {@code closedCaptionFormats} overrides any
+   *     descriptor information. If not set, and {@code closedCaptionFormats} is empty, a closed
+   *     caption track with {@link Format#accessibilityChannel} {@link Format#NO_VALUE} will be
+   *     exposed.
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags, List<Format> closedCaptionFormats) {
     this.flags = flags;
@@ -142,10 +142,12 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         return new PesReader(new MpegAudioReader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_AAC_ADTS:
         return isSet(FLAG_IGNORE_AAC_STREAM)
-            ? null : new PesReader(new AdtsReader(false, esInfo.language));
+            ? null
+            : new PesReader(new AdtsReader(false, esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_AAC_LATM:
         return isSet(FLAG_IGNORE_AAC_STREAM)
-            ? null : new PesReader(new LatmReader(esInfo.language));
+            ? null
+            : new PesReader(new LatmReader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_AC3:
       case TsExtractor.TS_STREAM_TYPE_E_AC3:
         return new PesReader(new Ac3Reader(esInfo.language));
@@ -163,9 +165,13 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_H263:
         return new PesReader(new H263Reader(buildUserDataReader(esInfo)));
       case TsExtractor.TS_STREAM_TYPE_H264:
-        return isSet(FLAG_IGNORE_H264_STREAM) ? null
-            : new PesReader(new H264Reader(buildSeiReader(esInfo),
-                isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES), isSet(FLAG_DETECT_ACCESS_UNITS)));
+        return isSet(FLAG_IGNORE_H264_STREAM)
+            ? null
+            : new PesReader(
+                new H264Reader(
+                    buildSeiReader(esInfo),
+                    isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES),
+                    isSet(FLAG_DETECT_ACCESS_UNITS)));
       case TsExtractor.TS_STREAM_TYPE_H265:
         return new PesReader(new H265Reader(buildSeiReader(esInfo)));
       case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:
@@ -175,8 +181,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_ID3:
         return new PesReader(new Id3Reader());
       case TsExtractor.TS_STREAM_TYPE_DVBSUBS:
-        return new PesReader(
-            new DvbSubtitleReader(esInfo.dvbSubtitleInfos));
+        return new PesReader(new DvbSubtitleReader(esInfo.dvbSubtitleInfos));
       case TsExtractor.TS_STREAM_TYPE_AIT:
         return new SectionReader(new PassthroughSectionPayloadReader(MimeTypes.APPLICATION_AIT));
       default:

@@ -31,8 +31,10 @@ public final class WebvttCueParserTest {
 
   @Test
   public void parseStrictValidClassesAndTrailingTokens() throws Exception {
-    Spanned text = parseCueText("<v.first.loud Esme>"
-        + "This <u.style1.style2 some stuff>is</u> text with <b.foo><i.bar>html</i></b> tags");
+    Spanned text =
+        parseCueText(
+            "<v.first.loud Esme>This <u.style1.style2 some stuff>is</u> text with"
+                + " <b.foo><i.bar>html</i></b> tags");
 
     assertThat(text.toString()).isEqualTo("This is text with html tags");
     assertThat(text).hasUnderlineSpanBetween("This ".length(), "This is".length());
@@ -42,8 +44,10 @@ public final class WebvttCueParserTest {
 
   @Test
   public void parseStrictValidUnsupportedTagsStrippedOut() throws Exception {
-    Spanned text = parseCueText("<v.first.loud Esme>This <unsupported>is</unsupported> text with "
-        + "<notsupp><invalid>html</invalid></notsupp> tags");
+    Spanned text =
+        parseCueText(
+            "<v.first.loud Esme>This <unsupported>is</unsupported> text with "
+                + "<notsupp><invalid>html</invalid></notsupp> tags");
 
     assertThat(text.toString()).isEqualTo("This is text with html tags");
     assertThat(text).hasNoSpans();
@@ -92,8 +96,8 @@ public final class WebvttCueParserTest {
 
   @Test
   public void parseWellFormedUnclosedEndAtCueEnd() throws Exception {
-    Spanned text = parseCueText("An <u some trailing stuff>unclosed u tag with "
-        + "<i>italic</i> inside");
+    Spanned text =
+        parseCueText("An <u some trailing stuff>unclosed u tag with " + "<i>italic</i> inside");
 
     assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
     assertThat(text)
@@ -201,11 +205,13 @@ public final class WebvttCueParserTest {
 
   @Test
   public void parseMonkey() throws Exception {
-    Spanned text = parseCueText("< u>An unclosed u tag with <<<<< i>italic</u></u></u></u    >"
-        + "</i><u><u> inside");
+    Spanned text =
+        parseCueText(
+            "< u>An unclosed u tag with <<<<< i>italic</u></u></u></u    >" + "</i><u><u> inside");
     assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
-    text = parseCueText(">>>>>>>>>An unclosed u tag with <<<<< italic</u></u></u>"
-        + "</u  ></i><u><u> inside");
+    text =
+        parseCueText(
+            ">>>>>>>>>An unclosed u tag with <<<<< italic</u></u></u>" + "</u  ></i><u><u> inside");
     assertThat(text.toString()).isEqualTo(">>>>>>>>>An unclosed u tag with  inside");
   }
 

@@ -59,9 +59,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     /** The reason clipping failed. */
     public final @Reason int reason;
 
-    /**
-     * @param reason The reason clipping failed.
-     */
+    /** @param reason The reason clipping failed. */
     public IllegalClippingException(@Reason int reason) {
       super("Illegal clipping: " + getReasonDescription(reason));
       this.reason = reason;
@@ -293,9 +291,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     refreshSourceInfo(clippingTimeline);
   }
 
-  /**
-   * Provides a clipped view of a specified timeline.
-   */
+  /** Provides a clipped view of a specified timeline. */
   private static final class ClippingTimeline extends ForwardingTimeline {
 
     private final long startUs;

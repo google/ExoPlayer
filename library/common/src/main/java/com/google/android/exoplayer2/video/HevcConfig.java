@@ -64,7 +64,11 @@ public final class HevcConfig {
         int numberOfNalUnits = data.readUnsignedShort();
         for (int j = 0; j < numberOfNalUnits; j++) {
           int nalUnitLength = data.readUnsignedShort();
-          System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
+          System.arraycopy(
+              NalUnitUtil.NAL_START_CODE,
+              0,
+              buffer,
+              bufferPosition,
               NalUnitUtil.NAL_START_CODE.length);
           bufferPosition += NalUnitUtil.NAL_START_CODE.length;
           System.arraycopy(
@@ -116,5 +120,4 @@ public final class HevcConfig {
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.codecs = codecs;
   }
-
 }

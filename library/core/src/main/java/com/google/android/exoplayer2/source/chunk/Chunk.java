@@ -57,8 +57,8 @@ public abstract class Chunk implements Loadable {
    */
   @Nullable public final Object trackSelectionData;
   /**
-   * The start time of the media contained by the chunk, or {@link C#TIME_UNSET} if the data
-   * being loaded does not contain media samples.
+   * The start time of the media contained by the chunk, or {@link C#TIME_UNSET} if the data being
+   * loaded does not contain media samples.
    */
   public final long startTimeUs;
   /**
@@ -99,9 +99,7 @@ public abstract class Chunk implements Loadable {
     loadTaskId = LoadEventInfo.getNewId();
   }
 
-  /**
-   * Returns the duration of the chunk in microseconds.
-   */
+  /** Returns the duration of the chunk in microseconds. */
   public final long getDurationUs() {
     return endTimeUs - startTimeUs;
   }

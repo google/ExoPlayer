@@ -27,15 +27,11 @@ import org.chromium.net.CronetEngine;
 @Deprecated
 public final class CronetDataSourceFactory extends BaseFactory {
 
-  /**
-   * The default connection timeout, in milliseconds.
-   */
+  /** The default connection timeout, in milliseconds. */
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS;
 
-  /**
-   * The default read timeout, in milliseconds.
-   */
+  /** The default read timeout, in milliseconds. */
   public static final int DEFAULT_READ_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
 
@@ -338,8 +334,8 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   @Override
-  protected HttpDataSource createDataSourceInternal(HttpDataSource.RequestProperties
-      defaultRequestProperties) {
+  protected HttpDataSource createDataSourceInternal(
+      HttpDataSource.RequestProperties defaultRequestProperties) {
     @Nullable CronetEngine cronetEngine = cronetEngineWrapper.getCronetEngine();
     if (cronetEngine == null) {
       return fallbackFactory.createDataSource();
@@ -357,5 +353,4 @@ public final class CronetDataSourceFactory extends BaseFactory {
     }
     return dataSource;
   }
-
 }

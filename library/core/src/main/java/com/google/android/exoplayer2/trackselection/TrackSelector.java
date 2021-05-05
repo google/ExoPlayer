@@ -85,9 +85,7 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public abstract class TrackSelector {
 
-  /**
-   * Notified when selections previously made by a {@link TrackSelector} are no longer valid.
-   */
+  /** Notified when selections previously made by a {@link TrackSelector} are no longer valid. */
   public interface InvalidationListener {
 
     /**
@@ -95,7 +93,6 @@ public abstract class TrackSelector {
      * longer valid. May be called from any thread.
      */
     void onTrackSelectionsInvalidated();
-
   }
 
   @Nullable private InvalidationListener listener;

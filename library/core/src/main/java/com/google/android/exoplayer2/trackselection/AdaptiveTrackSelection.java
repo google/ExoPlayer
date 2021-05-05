@@ -421,8 +421,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           Util.getPlayoutDurationForMediaDuration(mediaDurationBeforeThisChunkUs, playbackSpeed);
       if (playoutDurationBeforeThisChunkUs >= minDurationToRetainAfterDiscardUs
           && format.bitrate < idealFormat.bitrate
-          && format.height != Format.NO_VALUE && format.height < 720
-          && format.width != Format.NO_VALUE && format.width < 1280
+          && format.height != Format.NO_VALUE
+          && format.height < 720
+          && format.width != Format.NO_VALUE
+          && format.width < 1280
           && format.height < idealFormat.height) {
         return i;
       }
@@ -493,8 +495,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   private long minDurationForQualityIncreaseUs(long availableDurationUs) {
-    boolean isAvailableDurationTooShort = availableDurationUs != C.TIME_UNSET
-        && availableDurationUs <= minDurationForQualityIncreaseUs;
+    boolean isAvailableDurationTooShort =
+        availableDurationUs != C.TIME_UNSET
+            && availableDurationUs <= minDurationForQualityIncreaseUs;
     return isAvailableDurationTooShort
         ? (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease)
         : minDurationForQualityIncreaseUs;

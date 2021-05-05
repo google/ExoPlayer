@@ -32,7 +32,9 @@ public interface SectionPayloadReader {
    * @param idGenerator A {@link PesReader.TrackIdGenerator} that generates unique track ids for the
    *     {@link TrackOutput}s.
    */
-  void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+  void init(
+      TimestampAdjuster timestampAdjuster,
+      ExtractorOutput extractorOutput,
       TrackIdGenerator idGenerator);
 
   /**
@@ -43,5 +45,4 @@ public interface SectionPayloadReader {
    *     Otherwise, all bytes belonging to the table section are included.
    */
   void consume(ParsableByteArray sectionData);
-
 }

@@ -681,8 +681,8 @@ public final class Format implements Parcelable {
    */
   public final int maxInputSize;
   /**
-   * Initialization data that must be provided to the decoder. Will not be null, but may be empty
-   * if initialization data is not required.
+   * Initialization data that must be provided to the decoder. Will not be null, but may be empty if
+   * initialization data is not required.
    */
   public final List<byte[]> initializationData;
   /** DRM initialization data if the stream is protected, or null otherwise. */
@@ -697,17 +697,11 @@ public final class Format implements Parcelable {
 
   // Video specific.
 
-  /**
-   * The width of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable.
-   */
+  /** The width of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int width;
-  /**
-   * The height of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable.
-   */
+  /** The height of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int height;
-  /**
-   * The frame rate in frames per second, or {@link #NO_VALUE} if unknown or not applicable.
-   */
+  /** The frame rate in frames per second, or {@link #NO_VALUE} if unknown or not applicable. */
   public final float frameRate;
   /**
    * The clockwise rotation that should be applied to the video for it to be rendered in the correct
@@ -729,13 +723,9 @@ public final class Format implements Parcelable {
 
   // Audio specific.
 
-  /**
-   * The number of audio channels, or {@link #NO_VALUE} if unknown or not applicable.
-   */
+  /** The number of audio channels, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int channelCount;
-  /**
-   * The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable.
-   */
+  /** The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int sampleRate;
   /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
   @C.PcmEncoding public final int pcmEncoding;
@@ -1549,17 +1539,17 @@ public final class Format implements Parcelable {
     dest.writeInt(accessibilityChannel);
   }
 
-  public static final Creator<Format> CREATOR = new Creator<Format>() {
+  public static final Creator<Format> CREATOR =
+      new Creator<Format>() {
 
-    @Override
-    public Format createFromParcel(Parcel in) {
-      return new Format(in);
-    }
+        @Override
+        public Format createFromParcel(Parcel in) {
+          return new Format(in);
+        }
 
-    @Override
-    public Format[] newArray(int size) {
-      return new Format[size];
-    }
-
-  };
+        @Override
+        public Format[] newArray(int size) {
+          return new Format[size];
+        }
+      };
 }

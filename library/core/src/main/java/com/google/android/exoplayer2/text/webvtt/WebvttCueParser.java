@@ -111,8 +111,8 @@ public final class WebvttCueParser {
    */
   private static final int TEXT_ALIGNMENT_RIGHT = 5;
 
-  public static final Pattern CUE_HEADER_PATTERN = Pattern
-      .compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
+  public static final Pattern CUE_HEADER_PATTERN =
+      Pattern.compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
   private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
 
   private static final char CHAR_LESS_THAN = '<';
@@ -257,8 +257,8 @@ public final class WebvttCueParser {
           boolean isClosingTag = markup.charAt(ltPos + 1) == CHAR_SLASH;
           pos = findEndOfTag(markup, ltPos + 1);
           boolean isVoidTag = markup.charAt(pos - 2) == CHAR_SLASH;
-          String fullTagExpression = markup.substring(ltPos + (isClosingTag ? 2 : 1),
-              isVoidTag ? pos - 2 : pos - 1);
+          String fullTagExpression =
+              markup.substring(ltPos + (isClosingTag ? 2 : 1), isVoidTag ? pos - 2 : pos - 1);
           if (fullTagExpression.trim().isEmpty()) {
             continue;
           }
@@ -535,14 +535,12 @@ public final class WebvttCueParser {
     int start = startTag.position;
     int end = text.length();
 
-    switch(startTag.name) {
+    switch (startTag.name) {
       case TAG_BOLD:
-        text.setSpan(new StyleSpan(STYLE_BOLD), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new StyleSpan(STYLE_BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_ITALIC:
-        text.setSpan(new StyleSpan(STYLE_ITALIC), start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new StyleSpan(STYLE_ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_RUBY:
         applyRubySpans(text, cueId, startTag, nestedElements, styles);
@@ -658,8 +656,8 @@ public final class WebvttCueParser {
     }
   }
 
-  private static void applyStyleToText(SpannableStringBuilder spannedText, WebvttCssStyle style,
-      int start, int end) {
+  private static void applyStyleToText(
+      SpannableStringBuilder spannedText, WebvttCssStyle style, int start, int end) {
     if (style == null) {
       return;
     }
@@ -924,7 +922,6 @@ public final class WebvttCueParser {
     public int compareTo(StyleMatch another) {
       return Integer.compare(this.score, another.score);
     }
-
   }
 
   private static final class StartTag {
@@ -968,7 +965,6 @@ public final class WebvttCueParser {
           /* voice= */ "",
           /* classes= */ Collections.emptySet());
     }
-
   }
 
   /** Information about a complete element (i.e. start tag and end position). */

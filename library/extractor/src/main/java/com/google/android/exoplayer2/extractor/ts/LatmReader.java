@@ -73,9 +73,7 @@ public final class LatmReader implements ElementaryStreamReader {
   private int channelCount;
   @Nullable private String codecs;
 
-  /**
-   * @param language Track language.
-   */
+  /** @param language Track language. */
   public LatmReader(@Nullable String language) {
     this.language = language;
     sampleDataBuffer = new ParsableByteArray(INITIAL_BUFFER_SIZE);
@@ -319,5 +317,4 @@ public final class LatmReader implements ElementaryStreamReader {
     int bytesForValue = data.readBits(2);
     return data.readBits((bytesForValue + 1) * 8);
   }
-
 }

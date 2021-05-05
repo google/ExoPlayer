@@ -196,5 +196,4 @@ public class AesFlushingCipherTest {
     int differingByteCount = getDifferingByteCount(reference, data, originalOffset);
     assertThat(differingByteCount).isEqualTo(0);
   }
-
 }

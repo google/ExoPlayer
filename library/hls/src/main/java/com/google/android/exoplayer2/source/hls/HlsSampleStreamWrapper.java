@@ -84,15 +84,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
- * {@link SampleStream}s from which the loaded media can be consumed.
+ * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides {@link
+ * SampleStream}s from which the loaded media can be consumed.
  */
-/* package */ final class HlsSampleStreamWrapper implements Loader.Callback<Chunk>,
-    Loader.ReleaseCallback, SequenceableLoader, ExtractorOutput, UpstreamFormatChangedListener {
+/* package */ final class HlsSampleStreamWrapper
+    implements Loader.Callback<Chunk>,
+        Loader.ReleaseCallback,
+        SequenceableLoader,
+        ExtractorOutput,
+        UpstreamFormatChangedListener {
 
-  /**
-   * A callback to be notified of events.
-   */
+  /** A callback to be notified of events. */
   public interface Callback extends SequenceableLoader.Callback<HlsSampleStreamWrapper> {
 
     /**
@@ -664,8 +666,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } else {
       long bufferedPositionUs = lastSeekPositionUs;
       HlsMediaChunk lastMediaChunk = getLastMediaChunk();
-      HlsMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
-          : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
+      HlsMediaChunk lastCompletedMediaChunk =
+          lastMediaChunk.isLoadCompleted()
+              ? lastMediaChunk
+              : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
         bufferedPositionUs = max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
       }

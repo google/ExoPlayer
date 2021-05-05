@@ -53,5 +53,4 @@ public interface Subtitle {
    * @return A list of cues that should be displayed, possibly empty.
    */
   List<Cue> getCues(long timeUs);
-
 }

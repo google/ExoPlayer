@@ -33,9 +33,7 @@ import java.util.Map;
 /** An HTTP {@link DataSource}. */
 public interface HttpDataSource extends DataSource {
 
-  /**
-   * A factory for {@link HttpDataSource} instances.
-   */
+  /** A factory for {@link HttpDataSource} instances. */
   interface Factory extends DataSource.Factory {
 
     @Override
@@ -61,9 +59,9 @@ public interface HttpDataSource extends DataSource {
   }
 
   /**
-   * Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers
-   * in a thread safe way to avoid the potential of creating snapshots of an inconsistent or
-   * unintended state.
+   * Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers in
+   * a thread safe way to avoid the potential of creating snapshots of an inconsistent or unintended
+   * state.
    */
   final class RequestProperties {
 
@@ -119,9 +117,7 @@ public interface HttpDataSource extends DataSource {
       requestProperties.remove(name);
     }
 
-    /**
-     * Clears all request properties.
-     */
+    /** Clears all request properties. */
     public synchronized void clear() {
       requestPropertiesSnapshot = null;
       requestProperties.clear();
@@ -191,9 +187,7 @@ public interface HttpDataSource extends DataSource {
             && !contentType.contains("xml");
       };
 
-  /**
-   * Thrown when an error is encountered when trying to read from a {@link HttpDataSource}.
-   */
+  /** Thrown when an error is encountered when trying to read from a {@link HttpDataSource}. */
   class HttpDataSourceException extends IOException {
 
     @Documented
@@ -207,9 +201,7 @@ public interface HttpDataSource extends DataSource {
 
     @Type public final int type;
 
-    /**
-     * The {@link DataSpec} associated with the current connection.
-     */
+    /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;
 
     public HttpDataSourceException(DataSpec dataSpec, @Type int type) {
@@ -230,8 +222,8 @@ public interface HttpDataSource extends DataSource {
       this.type = type;
     }
 
-    public HttpDataSourceException(String message, IOException cause, DataSpec dataSpec,
-        @Type int type) {
+    public HttpDataSourceException(
+        String message, IOException cause, DataSpec dataSpec, @Type int type) {
       super(message, cause);
       this.dataSpec = dataSpec;
       this.type = type;
@@ -256,9 +248,7 @@ public interface HttpDataSource extends DataSource {
     }
   }
 
-  /**
-   * Thrown when the content type is invalid.
-   */
+  /** Thrown when the content type is invalid. */
   final class InvalidContentTypeException extends HttpDataSourceException {
 
     public final String contentType;
@@ -274,17 +264,13 @@ public interface HttpDataSource extends DataSource {
    */
   final class InvalidResponseCodeException extends HttpDataSourceException {
 
-    /**
-     * The response code that was outside of the 2xx range.
-     */
+    /** The response code that was outside of the 2xx range. */
     public final int responseCode;
 
     /** The http status message. */
     @Nullable public final String responseMessage;
 
-    /**
-     * An unmodifiable map of the response header fields and values.
-     */
+    /** An unmodifiable map of the response header fields and values. */
     public final Map<String, List<String>> headerFields;
 
     /** The response body. */
@@ -333,7 +319,6 @@ public interface HttpDataSource extends DataSource {
       this.headerFields = headerFields;
       this.responseBody = responseBody;
     }
-
   }
 
   /**
@@ -373,9 +358,7 @@ public interface HttpDataSource extends DataSource {
    */
   void clearRequestProperty(String name);
 
-  /**
-   * Clears all request headers that were set by {@link #setRequestProperty(String, String)}.
-   */
+  /** Clears all request headers that were set by {@link #setRequestProperty(String, String)}. */
   void clearAllRequestProperties();
 
   /**

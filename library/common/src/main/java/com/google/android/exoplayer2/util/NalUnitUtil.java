@@ -24,9 +24,7 @@ public final class NalUnitUtil {
 
   private static final String TAG = "NalUnitUtil";
 
-  /**
-   * Holds data parsed from a sequence parameter set NAL unit.
-   */
+  /** Holds data parsed from a sequence parameter set NAL unit. */
   public static final class SpsData {
 
     public final int profileIdc;
@@ -71,25 +69,23 @@ public final class NalUnitUtil {
       this.picOrderCntLsbLength = picOrderCntLsbLength;
       this.deltaPicOrderAlwaysZeroFlag = deltaPicOrderAlwaysZeroFlag;
     }
-
   }
 
-  /**
-   * Holds data parsed from a picture parameter set NAL unit.
-   */
+  /** Holds data parsed from a picture parameter set NAL unit. */
   public static final class PpsData {
 
     public final int picParameterSetId;
     public final int seqParameterSetId;
     public final boolean bottomFieldPicOrderInFramePresentFlag;
 
-    public PpsData(int picParameterSetId, int seqParameterSetId,
+    public PpsData(
+        int picParameterSetId,
+        int seqParameterSetId,
         boolean bottomFieldPicOrderInFramePresentFlag) {
       this.picParameterSetId = picParameterSetId;
       this.seqParameterSetId = seqParameterSetId;
       this.bottomFieldPicOrderInFramePresentFlag = bottomFieldPicOrderInFramePresentFlag;
     }
-
   }
 
   /** Four initial bytes that must prefix NAL units for decoding. */
@@ -98,25 +94,26 @@ public final class NalUnitUtil {
   /** Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs. */
   public static final int EXTENDED_SAR = 0xFF;
   /** Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs. */
-  public static final float[] ASPECT_RATIO_IDC_VALUES = new float[] {
-    1f /* Unspecified. Assume square */,
-    1f,
-    12f / 11f,
-    10f / 11f,
-    16f / 11f,
-    40f / 33f,
-    24f / 11f,
-    20f / 11f,
-    32f / 11f,
-    80f / 33f,
-    18f / 11f,
-    15f / 11f,
-    64f / 33f,
-    160f / 99f,
-    4f / 3f,
-    3f / 2f,
-    2f
-  };
+  public static final float[] ASPECT_RATIO_IDC_VALUES =
+      new float[] {
+        1f /* Unspecified. Assume square */,
+        1f,
+        12f / 11f,
+        10f / 11f,
+        16f / 11f,
+        40f / 33f,
+        24f / 11f,
+        20f / 11f,
+        32f / 11f,
+        80f / 33f,
+        18f / 11f,
+        15f / 11f,
+        64f / 33f,
+        160f / 99f,
+        4f / 3f,
+        3f / 2f,
+        2f
+      };
 
   private static final int H264_NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
   private static final int H264_NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
@@ -131,10 +128,10 @@ public final class NalUnitUtil {
   private static int[] scratchEscapePositions = new int[10];
 
   /**
-   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
-   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
-   * <p>
-   * Executions of this method are mutually exclusive, so it should not be called with very large
+   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with [0,
+   * 0]. The unescaped data is returned in-place, with the return value indicating its length.
+   *
+   * <p>Executions of this method are mutually exclusive, so it should not be called with very large
    * buffers.
    *
    * @param data The data to unescape.
@@ -150,8 +147,8 @@ public final class NalUnitUtil {
         if (position < limit) {
           if (scratchEscapePositions.length <= scratchEscapeCount) {
             // Grow scratchEscapePositions to hold a larger number of positions.
-            scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
-                scratchEscapePositions.length * 2);
+            scratchEscapePositions =
+                Arrays.copyOf(scratchEscapePositions, scratchEscapePositions.length * 2);
           }
           scratchEscapePositions[scratchEscapeCount++] = position;
           position += 3;
@@ -180,9 +177,9 @@ public final class NalUnitUtil {
   /**
    * Discards data from the buffer up to the first SPS, where {@code data.position()} is interpreted
    * as the length of the buffer.
-   * <p>
-   * When the method returns, {@code data.position()} will contain the new length of the buffer. If
-   * the buffer is not empty it is guaranteed to start with an SPS.
+   *
+   * <p>When the method returns, {@code data.position()} will contain the new length of the buffer.
+   * If the buffer is not empty it is guaranteed to start with an SPS.
    *
    * @param data Buffer containing start code delimited NAL units.
    */
@@ -225,9 +222,9 @@ public final class NalUnitUtil {
    */
   public static boolean isNalUnitSei(@Nullable String mimeType, byte nalUnitHeaderFirstByte) {
     return (MimeTypes.VIDEO_H264.equals(mimeType)
-        && (nalUnitHeaderFirstByte & 0x1F) == H264_NAL_UNIT_TYPE_SEI)
+            && (nalUnitHeaderFirstByte & 0x1F) == H264_NAL_UNIT_TYPE_SEI)
         || (MimeTypes.VIDEO_H265.equals(mimeType)
-        && ((nalUnitHeaderFirstByte & 0x7E) >> 1) == H265_NAL_UNIT_TYPE_PREFIX_SEI);
+            && ((nalUnitHeaderFirstByte & 0x7E) >> 1) == H265_NAL_UNIT_TYPE_PREFIX_SEI);
   }
 
   /**
@@ -273,9 +270,16 @@ public final class NalUnitUtil {
 
     int chromaFormatIdc = 1; // Default is 4:2:0
     boolean separateColorPlaneFlag = false;
-    if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244
-        || profileIdc == 44 || profileIdc == 83 || profileIdc == 86 || profileIdc == 118
-        || profileIdc == 128 || profileIdc == 138) {
+    if (profileIdc == 100
+        || profileIdc == 110
+        || profileIdc == 122
+        || profileIdc == 244
+        || profileIdc == 44
+        || profileIdc == 83
+        || profileIdc == 86
+        || profileIdc == 118
+        || profileIdc == 128
+        || profileIdc == 138) {
       chromaFormatIdc = data.readUnsignedExpGolombCodedInt();
       if (chromaFormatIdc == 3) {
         separateColorPlaneFlag = data.readBit();
@@ -403,16 +407,16 @@ public final class NalUnitUtil {
 
   /**
    * Finds the first NAL unit in {@code data}.
-   * <p>
-   * If {@code prefixFlags} is null then the first three bytes of a NAL unit must be entirely
+   *
+   * <p>If {@code prefixFlags} is null then the first three bytes of a NAL unit must be entirely
    * contained within the part of the array being searched in order for it to be found.
-   * <p>
-   * When {@code prefixFlags} is non-null, this method supports finding NAL units whose first four
-   * bytes span {@code data} arrays passed to successive calls. To use this feature, pass the same
-   * {@code prefixFlags} parameter to successive calls. State maintained in this parameter enables
-   * the detection of such NAL units. Note that when using this feature, the return value may be 3,
-   * 2 or 1 less than {@code startOffset}, to indicate a NAL unit starting 3, 2 or 1 bytes before
-   * the first byte in the current array.
+   *
+   * <p>When {@code prefixFlags} is non-null, this method supports finding NAL units whose first
+   * four bytes span {@code data} arrays passed to successive calls. To use this feature, pass the
+   * same {@code prefixFlags} parameter to successive calls. State maintained in this parameter
+   * enables the detection of such NAL units. Note that when using this feature, the return value
+   * may be 3, 2 or 1 less than {@code startOffset}, to indicate a NAL unit starting 3, 2 or 1 bytes
+   * before the first byte in the current array.
    *
    * @param data The data to search.
    * @param startOffset The offset (inclusive) in the data to start the search.
@@ -422,8 +426,8 @@ public final class NalUnitUtil {
    *     must be at least 3 elements long.
    * @return The offset of the NAL unit, or {@code endOffset} if a NAL unit was not found.
    */
-  public static int findNalUnit(byte[] data, int startOffset, int endOffset,
-      boolean[] prefixFlags) {
+  public static int findNalUnit(
+      byte[] data, int startOffset, int endOffset, boolean[] prefixFlags) {
     int length = endOffset - startOffset;
 
     Assertions.checkState(length >= 0);
@@ -515,5 +519,4 @@ public final class NalUnitUtil {
   private NalUnitUtil() {
     // Prevent instantiation.
   }
-
 }

@@ -39,5 +39,4 @@ public final class EventMessageTest {
     // Assert equals.
     assertThat(fromParcelEventMessage).isEqualTo(eventMessage);
   }
-
 }
