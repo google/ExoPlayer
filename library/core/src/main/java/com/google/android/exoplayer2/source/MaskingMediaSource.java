@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -400,8 +401,9 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           /* uid= */ setIds ? MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID : null,
           /* windowIndex= */ 0,
           /* durationUs = */ C.TIME_UNSET,
-          /* positionInWindowUs= */ 0);
-      period.isPlaceholder = true;
+          /* positionInWindowUs= */ 0,
+          /* adPlaybackState= */ AdPlaybackState.NONE,
+          /* isPlaceholder= */ true);
       return period;
     }
 

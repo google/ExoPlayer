@@ -623,7 +623,14 @@ public abstract class Timeline implements Bundleable {
         int windowIndex,
         long durationUs,
         long positionInWindowUs) {
-      return set(id, uid, windowIndex, durationUs, positionInWindowUs, AdPlaybackState.NONE);
+      return set(
+          id,
+          uid,
+          windowIndex,
+          durationUs,
+          positionInWindowUs,
+          AdPlaybackState.NONE,
+          /* isPlaceholder= */ false);
     }
 
     /**
@@ -641,6 +648,8 @@ public abstract class Timeline implements Bundleable {
      *     period is not within the window.
      * @param adPlaybackState The state of the period's ads, or {@link AdPlaybackState#NONE} if
      *     there are no ads.
+     * @param isPlaceholder Whether this period contains placeholder information because the real
+     *     information has yet to be loaded.
      * @return This period, for convenience.
      */
     public Period set(
@@ -649,14 +658,15 @@ public abstract class Timeline implements Bundleable {
         int windowIndex,
         long durationUs,
         long positionInWindowUs,
-        AdPlaybackState adPlaybackState) {
+        AdPlaybackState adPlaybackState,
+        boolean isPlaceholder) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
       this.adPlaybackState = adPlaybackState;
-      this.isPlaceholder = false;
+      this.isPlaceholder = isPlaceholder;
       return this;
     }
 
@@ -904,8 +914,8 @@ public abstract class Timeline implements Bundleable {
           windowIndex,
           durationUs,
           positionInWindowUs,
-          adPlaybackState);
-      period.isPlaceholder = isPlaceholder;
+          adPlaybackState,
+          isPlaceholder);
       return period;
     }
 
@@ -1485,8 +1495,14 @@ public abstract class Timeline implements Bundleable {
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
       Period p = periods.get(periodIndex);
-      period.set(p.id, p.uid, p.windowIndex, p.durationUs, p.positionInWindowUs, p.adPlaybackState);
-      period.isPlaceholder = p.isPlaceholder;
+      period.set(
+          p.id,
+          p.uid,
+          p.windowIndex,
+          p.durationUs,
+          p.positionInWindowUs,
+          p.adPlaybackState,
+          p.isPlaceholder);
       return period;
     }
 
