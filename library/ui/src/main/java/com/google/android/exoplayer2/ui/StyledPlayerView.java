@@ -49,6 +49,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Timeline;
@@ -58,11 +59,12 @@ import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -1301,11 +1303,20 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       closeShutter();
     }
 
-    if (TrackSelectionUtil.hasTrackOfType(player.getCurrentTrackSelections(), C.TRACK_TYPE_VIDEO)) {
-      // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
-      // onRenderedFirstFrame().
-      hideArtwork();
-      return;
+    TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
+    for (int i = 0; i < trackSelections.length; i++) {
+      @Nullable TrackSelection trackSelection = trackSelections.get(i);
+      if (trackSelection != null) {
+        for (int j = 0; j < trackSelection.length(); j++) {
+          Format format = trackSelection.getFormat(j);
+          if (MimeTypes.getTrackType(format.sampleMimeType) == C.TRACK_TYPE_VIDEO) {
+            // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
+            // in onRenderedFirstFrame().
+            hideArtwork();
+            return;
+          }
+        }
+      }
     }
 
     // Video disabled so the shutter must be closed.
