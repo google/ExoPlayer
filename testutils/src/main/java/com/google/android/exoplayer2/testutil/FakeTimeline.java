@@ -414,8 +414,8 @@ public final class FakeTimeline extends Timeline {
         windowIndex,
         periodDurationUs,
         positionInWindowUs,
-        windowDefinition.adPlaybackState);
-    period.isPlaceholder = windowDefinition.isPlaceholder;
+        windowDefinition.adPlaybackState,
+        windowDefinition.isPlaceholder);
     return period;
   }
 
