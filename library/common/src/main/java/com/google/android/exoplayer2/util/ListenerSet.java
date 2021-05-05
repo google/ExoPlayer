@@ -201,9 +201,12 @@ public final class ListenerSet<T, E extends MutableFlags> {
       // Recursive call to flush. Let the outer call handle the flush queue.
       return;
     }
+    
+    Runnable event;
     while (!flushingEvents.isEmpty()) {
       flushingEvents.peekFirst().run();
       flushingEvents.removeFirst();
+       event.run();
     }
   }
 
