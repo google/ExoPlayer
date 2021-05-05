@@ -115,37 +115,37 @@ public class PlaybackException extends Exception implements Bundleable {
    * Caused by a parsing error associated to a media manifest. Examples of a media manifest are a
    * DASH or a SmoothStreaming manifest, or an HLS playlist.
    */
-  public static final int ERROR_CODE_PARSING_MANIFEST_MALFORMED = 3000;
+  public static final int ERROR_CODE_PARSING_MANIFEST_MALFORMED = 3001;
   /** Caused by a parsing error associated to a media container format bitstream. */
-  public static final int ERROR_CODE_PARSING_CONTAINER_MALFORMED = 3001;
+  public static final int ERROR_CODE_PARSING_CONTAINER_MALFORMED = 3002;
   /**
    * Caused by attempting to extract a file with an unsupported media container format, or an
    * unsupported media container feature.
    */
-  public static final int ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED = 3002;
+  public static final int ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED = 3003;
   /**
    * Caused by an unsupported feature in a media manifest. Examples of a media manifest are a DASH
    * or a SmoothStreaming manifest, or an HLS playlist.
    */
-  public static final int ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED = 3003;
+  public static final int ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED = 3004;
 
   // Decoding errors (4xxx).
 
   /** Caused by a decoder initialization failure. */
-  public static final int ERROR_CODE_DECODER_INIT_FAILED = 4000;
+  public static final int ERROR_CODE_DECODER_INIT_FAILED = 4001;
   /** Caused by a failure while trying to decode media samples. */
-  public static final int ERROR_CODE_DECODING_FAILED = 4001;
+  public static final int ERROR_CODE_DECODING_FAILED = 4002;
   /** Caused by trying to decode content whose format exceeds the capabilities of the device. */
-  public static final int ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES = 4002;
+  public static final int ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES = 4003;
   /** Caused by trying to decode content whose format is not supported. */
-  public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 4003;
+  public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 4004;
 
   // AudioTrack errors (5xxx).
 
   /** Caused by an AudioTrack initialization failure. */
-  public static final int ERROR_CODE_AUDIO_TRACK_INIT_FAILED = 5000;
+  public static final int ERROR_CODE_AUDIO_TRACK_INIT_FAILED = 5001;
   /** Caused by an AudioTrack write operation failure. */
-  public static final int ERROR_CODE_AUDIO_TRACK_WRITE_FAILED = 5001;
+  public static final int ERROR_CODE_AUDIO_TRACK_WRITE_FAILED = 5002;
 
   // DRM errors (6xxx).
 
@@ -153,19 +153,19 @@ public class PlaybackException extends Exception implements Bundleable {
    * Caused by a chosen DRM protection scheme not being supported by the device. Examples of DRM
    * protection schemes are ClearKey and Widevine.
    */
-  public static final int ERROR_CODE_DRM_SCHEME_UNSUPPORTED = 6000;
+  public static final int ERROR_CODE_DRM_SCHEME_UNSUPPORTED = 6001;
   /** Caused by a failure while provisioning the device. */
-  public static final int ERROR_CODE_DRM_PROVISIONING_FAILED = 6001;
+  public static final int ERROR_CODE_DRM_PROVISIONING_FAILED = 6002;
   /** Caused by attempting to play incompatible DRM-protected content. */
-  public static final int ERROR_CODE_DRM_CONTENT_ERROR = 6002;
+  public static final int ERROR_CODE_DRM_CONTENT_ERROR = 6003;
   /** Caused by a failure while trying to obtain a license. */
-  public static final int ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED = 6003;
+  public static final int ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED = 6004;
   /** Caused by an operation being disallowed by a license policy. */
-  public static final int ERROR_CODE_DRM_DISALLOWED_OPERATION = 6004;
+  public static final int ERROR_CODE_DRM_DISALLOWED_OPERATION = 6005;
   /** Caused by an error in the DRM system. */
-  public static final int ERROR_CODE_DRM_SYSTEM_ERROR = 6005;
+  public static final int ERROR_CODE_DRM_SYSTEM_ERROR = 6006;
   /** Caused by the device having revoked DRM privileges. */
-  public static final int ERROR_CODE_DRM_DEVICE_REVOKED = 6006;
+  public static final int ERROR_CODE_DRM_DEVICE_REVOKED = 6007;
 
   /**
    * Player implementations that want to surface custom errors can use error codes greater than this
