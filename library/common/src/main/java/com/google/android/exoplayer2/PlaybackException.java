@@ -31,8 +31,10 @@ import java.lang.annotation.RetentionPolicy;
 public class PlaybackException extends Exception implements Bundleable {
 
   /**
-   * Integer codes that identify causes of player errors. This list of errors may be extended in
-   * future versions, and {@link Player} implementations may define custom error codes.
+   * Codes that identify causes of player errors.
+   *
+   * <p>This list of errors may be extended in future versions, and {@link Player} implementations
+   * may define custom error codes.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -171,8 +173,8 @@ public class PlaybackException extends Exception implements Bundleable {
    */
   public static final int CUSTOM_ERROR_CODE_BASE = 1000000;
 
-  /** An error code which identifies the source of the playback failure. */
-  public final int errorCode;
+  /** An error code which identifies the cause of the playback failure. */
+  @ErrorCode public final int errorCode;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
@@ -185,7 +187,8 @@ public class PlaybackException extends Exception implements Bundleable {
    * @param cause See {@link #getCause()}.
    * @param message See {@link #getMessage()}.
    */
-  public PlaybackException(@Nullable String message, @Nullable Throwable cause, int errorCode) {
+  public PlaybackException(
+      @Nullable String message, @Nullable Throwable cause, @ErrorCode int errorCode) {
     this(message, cause, errorCode, Clock.DEFAULT.elapsedRealtime());
   }
 
