@@ -130,6 +130,7 @@
         `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
         `setUsePreviousAction`, `setUseNextActionInCompactView` and
         `setUsePreviousActionInCompactView` instead.
+    *   Remove `Format.create` methods. Use `Format.Builder` instead.
 *   DRM:
     *   Only dispatch DRM session acquire and release events once per period
         when playing content that uses the same encryption keys for both audio &
