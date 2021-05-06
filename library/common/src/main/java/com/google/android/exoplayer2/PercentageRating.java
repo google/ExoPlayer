@@ -29,11 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 /** A rating expressed as a percentage. */
 public final class PercentageRating extends Rating {
 
-  /**
-   * The percent value of this rating. Will be within the range {@code [0f, 100f]}, or {@link
-   * #RATING_UNSET} if unrated.
-   */
-  public final float percent;
+  private final float percent;
 
   /** Creates a unrated instance. */
   public PercentageRating() {
@@ -53,6 +49,14 @@ public final class PercentageRating extends Rating {
   @Override
   public boolean isRated() {
     return percent != RATING_UNSET;
+  }
+
+  /**
+   * Returns the percent value of this rating. Will be within the range {@code [0f, 100f]}, or
+   * {@link #RATING_UNSET} if unrated.
+   */
+  public float getPercent() {
+    return percent;
   }
 
   @Override

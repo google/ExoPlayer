@@ -39,7 +39,7 @@ public class RatingTest {
     boolean hasHeart = true;
     HeartRating rating = new HeartRating(hasHeart);
     assertThat(rating.isRated()).isTrue();
-    assertThat(rating.isHeart).isEqualTo(hasHeart);
+    assertThat(rating.isHeart()).isEqualTo(hasHeart);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 
@@ -55,7 +55,7 @@ public class RatingTest {
     float percentage = 20.5f;
     PercentageRating rating = new PercentageRating(percentage);
     assertThat(rating.isRated()).isTrue();
-    assertThat(rating.percent).isEqualTo(percentage);
+    assertThat(rating.getPercent()).isEqualTo(percentage);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 
@@ -71,7 +71,7 @@ public class RatingTest {
     boolean isThumbUp = true;
     ThumbRating rating = new ThumbRating(isThumbUp);
     assertThat(rating.isRated()).isTrue();
-    assertThat(rating.isThumbsUp).isEqualTo(isThumbUp);
+    assertThat(rating.isThumbsUp()).isEqualTo(isThumbUp);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 
@@ -80,7 +80,7 @@ public class RatingTest {
     int maxStars = 5;
     StarRating rating = new StarRating(maxStars);
     assertThat(rating.isRated()).isFalse();
-    assertThat(rating.maxStars).isEqualTo(maxStars);
+    assertThat(rating.getMaxStars()).isEqualTo(maxStars);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 
@@ -90,8 +90,8 @@ public class RatingTest {
     float starRating = 3.1f;
     StarRating rating = new StarRating(maxStars, starRating);
     assertThat(rating.isRated()).isTrue();
-    assertThat(rating.maxStars).isEqualTo(maxStars);
-    assertThat(rating.starRating).isEqualTo(starRating);
+    assertThat(rating.getMaxStars()).isEqualTo(maxStars);
+    assertThat(rating.getStarRating()).isEqualTo(starRating);
     assertThat(roundTripViaBundle(rating)).isEqualTo(rating);
   }
 
