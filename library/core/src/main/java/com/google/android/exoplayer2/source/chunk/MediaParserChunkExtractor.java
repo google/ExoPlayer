@@ -26,7 +26,6 @@ import static com.google.android.exoplayer2.source.mediaparser.MediaParserUtil.P
 import android.annotation.SuppressLint;
 import android.media.MediaFormat;
 import android.media.MediaParser;
-import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -41,6 +40,7 @@ import com.google.android.exoplayer2.source.mediaparser.InputReaderAdapterV30;
 import com.google.android.exoplayer2.source.mediaparser.MediaParserUtil;
 import com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.ArrayList;

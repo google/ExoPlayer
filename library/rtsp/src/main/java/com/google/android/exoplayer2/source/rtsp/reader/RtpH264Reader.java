@@ -18,13 +18,13 @@ package com.google.android.exoplayer2.source.rtsp.reader;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.rtsp.RtpPacket;
 import com.google.android.exoplayer2.source.rtsp.RtpPayloadFormat;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
