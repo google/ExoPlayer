@@ -41,6 +41,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -567,7 +568,7 @@ public interface Player {
    *
    * <p>Instances are immutable.
    */
-  final class Commands {
+  final class Commands implements Bundleable {
 
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
@@ -684,6 +685,46 @@ public interface Player {
     @Override
     public int hashCode() {
       return flags.hashCode();
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FIELD_COMMANDS})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_COMMANDS = 0;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      ArrayList<Integer> commandsBundle = new ArrayList<>();
+      for (int i = 0; i < flags.size(); i++) {
+        commandsBundle.add(flags.get(i));
+      }
+      bundle.putIntegerArrayList(keyForField(FIELD_COMMANDS), commandsBundle);
+      return bundle;
+    }
+
+    /** Object that can restore {@link Commands} from a {@link Bundle}. */
+    public static final Creator<Commands> CREATOR = Commands::fromBundle;
+
+    private static Commands fromBundle(Bundle bundle) {
+      @Nullable
+      ArrayList<Integer> commands = bundle.getIntegerArrayList(keyForField(FIELD_COMMANDS));
+      if (commands == null) {
+        return Commands.EMPTY;
+      }
+      Builder builder = new Builder();
+      for (int i = 0; i < commands.size(); i++) {
+        builder.add(commands.get(i));
+      }
+      return builder.build();
+    }
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
