@@ -111,8 +111,6 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
    */
   /* package */ final boolean isRecoverable;
 
-  @Nullable private final Throwable cause;
-
   /**
    * Creates an instance of type {@link #TYPE_SOURCE}.
    *
@@ -282,8 +280,8 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
       boolean isRecoverable) {
     super(message, cause);
     Assertions.checkArgument(!isRecoverable || type == TYPE_RENDERER);
+    Assertions.checkArgument(cause != null || type == TYPE_REMOTE);
     this.type = type;
-    this.cause = cause;
     this.rendererName = rendererName;
     this.rendererIndex = rendererIndex;
     this.rendererFormat = rendererFormat;
@@ -300,7 +298,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
    */
   public IOException getSourceException() {
     Assertions.checkState(type == TYPE_SOURCE);
-    return (IOException) Assertions.checkNotNull(cause);
+    return (IOException) Assertions.checkNotNull(getCause());
   }
 
   /**
@@ -310,7 +308,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
    */
   public Exception getRendererException() {
     Assertions.checkState(type == TYPE_RENDERER);
-    return (Exception) Assertions.checkNotNull(cause);
+    return (Exception) Assertions.checkNotNull(getCause());
   }
 
   /**
@@ -320,7 +318,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
    */
   public RuntimeException getUnexpectedException() {
     Assertions.checkState(type == TYPE_UNEXPECTED);
-    return (RuntimeException) Assertions.checkNotNull(cause);
+    return (RuntimeException) Assertions.checkNotNull(getCause());
   }
 
   /**
@@ -333,7 +331,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
   /* package */ ExoPlaybackException copyWithMediaPeriodId(@Nullable MediaPeriodId mediaPeriodId) {
     return new ExoPlaybackException(
         Util.castNonNull(getMessage()),
-        cause,
+        getCause(),
         type,
         rendererName,
         rendererIndex,
@@ -427,6 +425,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
     bundle.putInt(keyForField(FIELD_RENDERER_FORMAT_SUPPORT), rendererFormatSupport);
     bundle.putLong(keyForField(FIELD_TIME_STAMP_MS), timestampMs);
     bundle.putBoolean(keyForField(FIELD_IS_RECOVERABLE), isRecoverable);
+    @Nullable Throwable cause = getCause();
     if (cause != null) {
       bundle.putString(keyForField(FIELD_CAUSE_CLASS_NAME), cause.getClass().getName());
       bundle.putString(keyForField(FIELD_CAUSE_MESSAGE), cause.getMessage());
