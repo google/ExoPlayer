@@ -9357,6 +9357,130 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void repeatMode_windowTransition_callsOnPositionDiscontinuityAndOnMediaItemTransition()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    FakeMediaSource secondMediaSource =
+        new FakeMediaSource(
+            new FakeTimeline(
+                new TimelineWindowDefinition(
+                    /* periodCount= */ 1,
+                    /* id= */ 2,
+                    /* isSeekable= */ true,
+                    /* isDynamic= */ false,
+                    /* durationUs= */ 20 * C.MICROS_PER_SECOND)));
+    player.addListener(listener);
+    player.setMediaSource(
+        new FakeMediaSource(
+            new FakeTimeline(
+                new TimelineWindowDefinition(
+                    /* periodCount= */ 1,
+                    /* id= */ 1,
+                    /* isSeekable= */ true,
+                    /* isDynamic= */ false,
+                    /* durationUs= */ 10 * C.MICROS_PER_SECOND))));
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    player.setRepeatMode(Player.REPEAT_MODE_ALL);
+    player.play();
+    TestPlayerRunHelper.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    player.addMediaSource(secondMediaSource);
+    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ C.TIME_UNSET);
+    player.play();
+    TestPlayerRunHelper.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    player.setRepeatMode(Player.REPEAT_MODE_OFF);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    InOrder inOrder = inOrder(listener);
+    // Expect media item transition for repeat mode ONE to be attributed to
+    // DISCONTINUITY_REASON_REPEAT.
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    Player.PositionInfo oldPositionInfo = oldPosition.getValue();
+    Player.PositionInfo newPositionInfo = newPosition.getValue();
+    assertThat(oldPositionInfo.periodUid).isEqualTo(newPositionInfo.periodUid);
+    assertThat(oldPositionInfo.periodIndex).isEqualTo(newPositionInfo.periodIndex);
+    assertThat(oldPositionInfo.windowIndex).isEqualTo(newPositionInfo.windowIndex);
+    assertThat(oldPositionInfo.windowUid).isEqualTo(newPositionInfo.windowUid);
+    assertThat(oldPositionInfo.positionMs).isEqualTo(10_000);
+    assertThat(oldPositionInfo.contentPositionMs).isEqualTo(10_000);
+    assertThat(newPositionInfo.positionMs).isEqualTo(0);
+    assertThat(newPositionInfo.contentPositionMs).isEqualTo(0);
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT));
+    // Expect media item transition for repeat mode ALL with a single item to be attributed to
+    // DISCONTINUITY_REASON_REPEAT.
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    oldPositionInfo = oldPosition.getValue();
+    newPositionInfo = newPosition.getValue();
+    assertThat(oldPositionInfo.periodUid).isEqualTo(newPositionInfo.periodUid);
+    assertThat(oldPositionInfo.periodIndex).isEqualTo(newPositionInfo.periodIndex);
+    assertThat(oldPositionInfo.windowIndex).isEqualTo(newPositionInfo.windowIndex);
+    assertThat(oldPositionInfo.windowUid).isEqualTo(newPositionInfo.windowUid);
+    assertThat(oldPositionInfo.positionMs).isEqualTo(10_000);
+    assertThat(oldPositionInfo.contentPositionMs).isEqualTo(10_000);
+    assertThat(newPositionInfo.positionMs).isEqualTo(0);
+    assertThat(newPositionInfo.contentPositionMs).isEqualTo(0);
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT));
+    // Expect media item transition for repeat mode ALL with more than one item which is attributed
+    // to DISCONTINUITY_REASON_AUTO_TRANSITION not DISCONTINUITY_REASON_REPEAT.
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    oldPositionInfo = oldPosition.getValue();
+    newPositionInfo = newPosition.getValue();
+    assertThat(oldPositionInfo.windowIndex).isEqualTo(1);
+    assertThat(oldPositionInfo.windowUid).isNotEqualTo(newPositionInfo.windowUid);
+    assertThat(oldPositionInfo.positionMs).isEqualTo(20_000);
+    assertThat(oldPositionInfo.contentPositionMs).isEqualTo(20_000);
+    assertThat(newPositionInfo.positionMs).isEqualTo(0);
+    assertThat(newPositionInfo.windowIndex).isEqualTo(0);
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    // Last auto transition from window 0 to window 1 not caused by repeat mode.
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    // No more callbacks called.
+    inOrder
+        .verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder.verify(listener, never()).onMediaItemTransition(any(), anyInt());
+    player.release();
+  }
+
+  @Test
   public void play_withPreMidAndPostRollAd_callsOnDiscontinuityCorrectly() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     Player.Listener listener = mock(Player.Listener.class);
@@ -9637,98 +9761,145 @@ public final class ExoPlayerTest {
         ArgumentCaptor.forClass(Player.PositionInfo.class);
     ArgumentCaptor<Player.PositionInfo> newPosition =
         ArgumentCaptor.forClass(Player.PositionInfo.class);
-    verify(listener, never())
-        .onPositionDiscontinuity(
-            any(), any(), not(eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION)));
-    verify(listener, times(6))
+    Window window = new Window();
+    InOrder inOrder = Mockito.inOrder(listener);
+    // from first to second window
+    inOrder
+        .verify(listener)
         .onPositionDiscontinuity(
             oldPosition.capture(),
             newPosition.capture(),
             eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
-    // from first to second window
-    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
-    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    Window window = new Window();
-    assertThat(oldPositions.get(0).windowUid)
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    assertThat(oldPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(0, window).uid);
-    assertThat(newPositions.get(0).windowUid)
+    assertThat(oldPosition.getValue().windowIndex).isEqualTo(0);
+    assertThat(oldPosition.getValue().positionMs).isEqualTo(10_000);
+    assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(10_000);
+    assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(1, window).uid);
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
-    assertThat(oldPositions.get(0).positionMs).isEqualTo(10_000);
-    assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(10_000);
-    assertThat(oldPositions.get(0).adGroupIndex).isEqualTo(-1);
-    assertThat(oldPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(1);
-    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
-    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(0).adGroupIndex).isEqualTo(-1);
-    assertThat(newPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPosition.getValue().windowIndex).isEqualTo(1);
+    assertThat(newPosition.getValue().positionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(newPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
     // from second window to third
-    assertThat(oldPositions.get(1).windowUid)
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    assertThat(oldPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(1, window).uid);
-    assertThat(newPositions.get(1).windowUid)
+    assertThat(newPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(2, window).uid);
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(1);
-    assertThat(oldPositions.get(1).positionMs).isEqualTo(15_000);
-    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(15_000);
-    assertThat(oldPositions.get(1).adGroupIndex).isEqualTo(-1);
-    assertThat(oldPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(2);
-    assertThat(newPositions.get(1).positionMs).isEqualTo(0);
-    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(1).adGroupIndex).isEqualTo(-1);
-    assertThat(newPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(oldPosition.getValue().windowIndex).isEqualTo(1);
+    assertThat(oldPosition.getValue().positionMs).isEqualTo(15_000);
+    assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(15_000);
+    assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(newPosition.getValue().positionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(newPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
     // from third window content to post roll ad
-    assertThat(oldPositions.get(2).windowIndex).isEqualTo(2);
-    assertThat(oldPositions.get(2).windowUid).isEqualTo(newPositions.get(2).windowUid);
-    assertThat(oldPositions.get(2).positionMs).isEqualTo(20_000);
-    assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(20_000);
-    assertThat(oldPositions.get(2).adGroupIndex).isEqualTo(-1);
-    assertThat(oldPositions.get(2).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(2).windowIndex).isEqualTo(2);
-    assertThat(newPositions.get(2).positionMs).isEqualTo(0);
-    assertThat(newPositions.get(2).contentPositionMs).isEqualTo(20_000);
-    assertThat(newPositions.get(2).adGroupIndex).isEqualTo(0);
-    assertThat(newPositions.get(2).adIndexInAdGroup).isEqualTo(0);
+    @Nullable Object lastNewWindowUid = newPosition.getValue().windowUid;
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    assertThat(oldPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
+    assertThat(oldPosition.getValue().positionMs).isEqualTo(20_000);
+    assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(20_000);
+    assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(newPosition.getValue().positionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().contentPositionMs).isEqualTo(20_000);
+    assertThat(newPosition.getValue().adGroupIndex).isEqualTo(0);
+    assertThat(newPosition.getValue().adIndexInAdGroup).isEqualTo(0);
     // from third window post roll to third window content end
-    assertThat(oldPositions.get(3).windowUid).isEqualTo(newPositions.get(2).windowUid);
-    assertThat(oldPositions.get(3).windowIndex).isEqualTo(2);
-    assertThat(oldPositions.get(3).positionMs).isEqualTo(5_000);
-    assertThat(oldPositions.get(3).contentPositionMs).isEqualTo(20_000);
-    assertThat(oldPositions.get(3).adGroupIndex).isEqualTo(0);
-    assertThat(oldPositions.get(3).adIndexInAdGroup).isEqualTo(0);
-    assertThat(newPositions.get(3).windowUid).isEqualTo(oldPositions.get(3).windowUid);
-    assertThat(newPositions.get(3).windowIndex).isEqualTo(2);
-    assertThat(newPositions.get(3).positionMs).isEqualTo(19_999);
-    assertThat(newPositions.get(3).contentPositionMs).isEqualTo(19_999);
-    assertThat(newPositions.get(3).adGroupIndex).isEqualTo(-1);
-    assertThat(newPositions.get(3).adIndexInAdGroup).isEqualTo(-1);
+    lastNewWindowUid = newPosition.getValue().windowUid;
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
+    assertThat(oldPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(oldPosition.getValue().positionMs).isEqualTo(5_000);
+    assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(20_000);
+    assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(0);
+    assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPosition.getValue().windowUid).isEqualTo(oldPosition.getValue().windowUid);
+    assertThat(newPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(newPosition.getValue().positionMs).isEqualTo(19_999);
+    assertThat(newPosition.getValue().contentPositionMs).isEqualTo(19_999);
+    assertThat(newPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(newPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
     // from third window content end to fourth window pre roll ad
-    assertThat(oldPositions.get(4).windowUid).isEqualTo(newPositions.get(3).windowUid);
-    assertThat(oldPositions.get(4).windowIndex).isEqualTo(2);
-    assertThat(oldPositions.get(4).positionMs).isEqualTo(20_000);
-    assertThat(oldPositions.get(4).contentPositionMs).isEqualTo(20_000);
-    assertThat(oldPositions.get(4).adGroupIndex).isEqualTo(-1);
-    assertThat(oldPositions.get(4).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(4).windowUid).isNotEqualTo(oldPositions.get(4).windowUid);
-    assertThat(newPositions.get(4).windowIndex).isEqualTo(3);
-    assertThat(newPositions.get(4).positionMs).isEqualTo(0);
-    assertThat(newPositions.get(4).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(4).adGroupIndex).isEqualTo(0);
-    assertThat(newPositions.get(4).adIndexInAdGroup).isEqualTo(0);
+    lastNewWindowUid = newPosition.getValue().windowUid;
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(listener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
+    assertThat(oldPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(oldPosition.getValue().positionMs).isEqualTo(20_000);
+    assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(20_000);
+    assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPosition.getValue().windowUid).isNotEqualTo(oldPosition.getValue().windowUid);
+    assertThat(newPosition.getValue().windowIndex).isEqualTo(3);
+    assertThat(newPosition.getValue().positionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().adGroupIndex).isEqualTo(0);
+    assertThat(newPosition.getValue().adIndexInAdGroup).isEqualTo(0);
     // from fourth window pre roll ad to fourth window content
-    assertThat(oldPositions.get(5).windowUid).isEqualTo(newPositions.get(4).windowUid);
-    assertThat(oldPositions.get(5).windowIndex).isEqualTo(3);
-    assertThat(oldPositions.get(5).positionMs).isEqualTo(5_000);
-    assertThat(oldPositions.get(5).contentPositionMs).isEqualTo(0);
-    assertThat(oldPositions.get(5).adGroupIndex).isEqualTo(0);
-    assertThat(oldPositions.get(5).adIndexInAdGroup).isEqualTo(0);
-    assertThat(newPositions.get(5).windowUid).isEqualTo(oldPositions.get(5).windowUid);
-    assertThat(newPositions.get(5).windowIndex).isEqualTo(3);
-    assertThat(newPositions.get(5).positionMs).isEqualTo(0);
-    assertThat(newPositions.get(5).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(5).adGroupIndex).isEqualTo(-1);
-    assertThat(newPositions.get(5).adIndexInAdGroup).isEqualTo(-1);
+    lastNewWindowUid = newPosition.getValue().windowUid;
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
+    assertThat(oldPosition.getValue().windowIndex).isEqualTo(3);
+    assertThat(oldPosition.getValue().positionMs).isEqualTo(5_000);
+    assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(0);
+    assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(0);
+    assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPosition.getValue().windowUid).isEqualTo(oldPosition.getValue().windowUid);
+    assertThat(newPosition.getValue().windowIndex).isEqualTo(3);
+    assertThat(newPosition.getValue().positionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
+    assertThat(newPosition.getValue().adGroupIndex).isEqualTo(-1);
+    assertThat(newPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
+    inOrder
+        .verify(listener, never())
+        .onPositionDiscontinuity(
+            any(), any(), not(eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION)));
+    inOrder
+        .verify(listener, never())
+        .onMediaItemTransition(any(), not(eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO)));
     player.release();
   }
 

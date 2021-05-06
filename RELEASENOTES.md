@@ -51,6 +51,8 @@
     *   Added a combined and structured metadata object (`MediaMetadata`) to
         Player, accessible through `getMediaMetadata` or by listening to
         `EventListener.onMediaMetadataChanged`.
+    *   Fix bug when transitions from content to ad periods called
+        `onMediaItemTransition` by mistake.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.
