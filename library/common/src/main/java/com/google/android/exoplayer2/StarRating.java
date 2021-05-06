@@ -30,15 +30,10 @@ import java.lang.annotation.RetentionPolicy;
 /** A rating expressed as a fractional number of stars. */
 public final class StarRating extends Rating {
 
-  /** The maximum number of stars. Must be a positive number. */
   @IntRange(from = 1)
-  public final int maxStars;
+  private final int maxStars;
 
-  /**
-   * The fractional number of stars of this rating. Will range from {@code 0f} to {@link #maxStars},
-   * or {@link #RATING_UNSET} if unrated.
-   */
-  public final float starRating;
+  private final float starRating;
 
   /**
    * Creates a unrated instance with {@code maxStars}. If {@code maxStars} is not a positive
@@ -73,6 +68,20 @@ public final class StarRating extends Rating {
   @Override
   public boolean isRated() {
     return starRating != RATING_UNSET;
+  }
+
+  /** Returns the maximum number of stars. Must be a positive number. */
+  @IntRange(from = 1)
+  public int getMaxStars() {
+    return maxStars;
+  }
+
+  /**
+   * Returns the fractional number of stars of this rating. Will range from {@code 0f} to {@link
+   * #maxStars}, or {@link #RATING_UNSET} if unrated.
+   */
+  public float getStarRating() {
+    return starRating;
   }
 
   @Override

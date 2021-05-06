@@ -29,9 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 public final class ThumbRating extends Rating {
 
   private final boolean rated;
-
-  /** Whether the rating is "thumbs up". */
-  public final boolean isThumbsUp;
+  private final boolean isThumbsUp;
 
   /** Creates a unrated instance. */
   public ThumbRating() {
@@ -52,6 +50,11 @@ public final class ThumbRating extends Rating {
   @Override
   public boolean isRated() {
     return rated;
+  }
+
+  /** Returns whether the rating is "thumbs up". */
+  public boolean isThumbsUp() {
+    return isThumbsUp;
   }
 
   @Override

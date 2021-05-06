@@ -32,9 +32,7 @@ import java.lang.annotation.RetentionPolicy;
 public final class HeartRating extends Rating {
 
   private final boolean rated;
-
-  /** Whether the rating is "heart". */
-  public final boolean isHeart;
+  private final boolean isHeart;
 
   /** Creates a unrated instance. */
   public HeartRating() {
@@ -55,6 +53,11 @@ public final class HeartRating extends Rating {
   @Override
   public boolean isRated() {
     return rated;
+  }
+
+  /** Returns whether the rating is "heart". */
+  public boolean isHeart() {
+    return isHeart;
   }
 
   @Override
