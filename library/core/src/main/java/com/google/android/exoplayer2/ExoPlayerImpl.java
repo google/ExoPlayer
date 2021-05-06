@@ -1462,7 +1462,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     int newWindowIndex =
         newTimeline.getPeriodByUid(playbackInfo.periodId.periodUid, period).windowIndex;
     Object newWindowUid = newTimeline.getWindow(newWindowIndex, window).uid;
-    int firstPeriodIndexInNewWindow = window.firstPeriodIndex;
     if (!oldWindowUid.equals(newWindowUid)) {
       @Player.MediaItemTransitionReason int transitionReason;
       if (positionDiscontinuity
@@ -1480,8 +1479,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       return new Pair<>(/* isTransitioning */ true, transitionReason);
     } else if (positionDiscontinuity
         && positionDiscontinuityReason == DISCONTINUITY_REASON_AUTO_TRANSITION
-        && newTimeline.getIndexOfPeriod(playbackInfo.periodId.periodUid)
-            == firstPeriodIndexInNewWindow) {
+        && oldPlaybackInfo.periodId.windowSequenceNumber
+            < playbackInfo.periodId.windowSequenceNumber) {
       return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_REPEAT);
     }
     return new Pair<>(/* isTransitioning */ false, /* mediaItemTransitionReason */ C.INDEX_UNSET);
