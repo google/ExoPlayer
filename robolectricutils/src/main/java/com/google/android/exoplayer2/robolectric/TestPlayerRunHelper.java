@@ -58,8 +58,8 @@ public class TestPlayerRunHelper {
       return;
     }
     AtomicBoolean receivedExpectedState = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPlaybackStateChanged(int state) {
             if (state == expectedState) {
@@ -88,8 +88,8 @@ public class TestPlayerRunHelper {
       return;
     }
     AtomicBoolean receivedExpectedPlayWhenReady = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
             if (playWhenReady == expectedPlayWhenReady) {
@@ -118,8 +118,8 @@ public class TestPlayerRunHelper {
       return;
     }
     AtomicBoolean receivedExpectedTimeline = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onTimelineChanged(Timeline timeline, int reason) {
             if (expectedTimeline.equals(timeline)) {
@@ -143,8 +143,8 @@ public class TestPlayerRunHelper {
   public static Timeline runUntilTimelineChanged(Player player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<Timeline> receivedTimeline = new AtomicReference<>();
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onTimelineChanged(Timeline timeline, int reason) {
             receivedTimeline.set(timeline);
@@ -158,7 +158,7 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}
+   * Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}
    * callback with the specified {@link Player.DiscontinuityReason} occurred.
    *
    * @param player The {@link Player}.
@@ -170,8 +170,8 @@ public class TestPlayerRunHelper {
       Player player, @Player.DiscontinuityReason int expectedReason) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPositionDiscontinuity(
               Player.PositionInfo oldPosition, Player.PositionInfo newPosition, int reason) {
@@ -196,8 +196,8 @@ public class TestPlayerRunHelper {
   public static ExoPlaybackException runUntilError(Player player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<ExoPlaybackException> receivedError = new AtomicReference<>();
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPlayerError(ExoPlaybackException error) {
             receivedError.set(error);
@@ -281,15 +281,15 @@ public class TestPlayerRunHelper {
   public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
-    VideoListener listener =
-        new VideoListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onRenderedFirstFrame() {
             receivedCallback.set(true);
-            player.removeVideoListener(this);
+            player.removeListener(this);
           }
         };
-    player.addVideoListener(listener);
+    player.addListener(listener);
     runMainLooperUntil(receivedCallback::get);
   }
 

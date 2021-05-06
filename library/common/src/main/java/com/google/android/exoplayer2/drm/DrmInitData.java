@@ -29,9 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Initialization data for one or more DRM schemes.
- */
+/** Initialization data for one or more DRM schemes. */
 public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
 
   /**

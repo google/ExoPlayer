@@ -23,9 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Text information ID3 frame.
- */
+/** Text information ID3 frame. */
 public final class TextInformationFrame extends Id3Frame {
 
   @Nullable public final String description;
@@ -48,7 +46,19 @@ public final class TextInformationFrame extends Id3Frame {
     switch (id) {
       case "TT2":
       case "TIT2":
-        builder.setTitle(value);
+        builder.setTrackTitle(value);
+        break;
+      case "TP1":
+      case "TPE1":
+        builder.setTrackArtist(value);
+        break;
+      case "TP2":
+      case "TPE2":
+        builder.setAlbumArtist(value);
+        break;
+      case "TAL":
+      case "TALB":
+        builder.setAlbumTitle(value);
         break;
       default:
         break;
@@ -64,7 +74,8 @@ public final class TextInformationFrame extends Id3Frame {
       return false;
     }
     TextInformationFrame other = (TextInformationFrame) obj;
-    return id.equals(other.id) && Util.areEqual(description, other.description)
+    return Util.areEqual(id, other.id)
+        && Util.areEqual(description, other.description)
         && Util.areEqual(value, other.value);
   }
 
@@ -103,7 +114,5 @@ public final class TextInformationFrame extends Id3Frame {
         public TextInformationFrame[] newArray(int size) {
           return new TextInformationFrame[size];
         }
-
       };
-
 }

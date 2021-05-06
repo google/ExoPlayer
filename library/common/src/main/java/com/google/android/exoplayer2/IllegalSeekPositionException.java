@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2;
 
 /**
- * Thrown when an attempt is made to seek to a position that does not exist in the player's
- * {@link Timeline}.
+ * Thrown when an attempt is made to seek to a position that does not exist in the player's {@link
+ * Timeline}.
  */
 public final class IllegalSeekPositionException extends IllegalStateException {
 

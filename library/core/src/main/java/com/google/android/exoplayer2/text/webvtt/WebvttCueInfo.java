@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-
 import com.google.android.exoplayer2.text.Cue;
 
 /** A representation of a WebVTT cue. */

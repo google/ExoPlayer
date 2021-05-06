@@ -22,9 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Url link ID3 frame.
- */
+/** Url link ID3 frame. */
 public final class UrlLinkFrame extends Id3Frame {
 
   @Nullable public final String description;

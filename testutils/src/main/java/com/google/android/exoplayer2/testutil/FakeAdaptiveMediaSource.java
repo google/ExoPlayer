@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Fake {@link MediaSource} that provides a given timeline. Creating the period returns a
- * {@link FakeAdaptiveMediaPeriod} from the given {@link TrackGroupArray}.
+ * Fake {@link MediaSource} that provides a given timeline. Creating the period returns a {@link
+ * FakeAdaptiveMediaPeriod} from the given {@link TrackGroupArray}.
  */
 public class FakeAdaptiveMediaSource extends FakeMediaSource {
 

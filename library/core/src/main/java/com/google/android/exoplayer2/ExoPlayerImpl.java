@@ -25,6 +25,10 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
@@ -48,6 +52,7 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,6 +103,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private ShuffleOrder shuffleOrder;
   private boolean pauseAtEndOfMediaItems;
   private Commands availableCommands;
+  private MediaMetadata mediaMetadata;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -188,13 +194,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
         new Commands.Builder()
             .addAll(
                 COMMAND_PLAY_PAUSE,
-                COMMAND_PREPARE_STOP_RELEASE,
+                COMMAND_PREPARE_STOP,
                 COMMAND_SET_SPEED_AND_PITCH,
                 COMMAND_SET_SHUFFLE_MODE,
                 COMMAND_SET_REPEAT_MODE,
                 COMMAND_GET_CURRENT_MEDIA_ITEM,
                 COMMAND_GET_MEDIA_ITEMS,
                 COMMAND_GET_MEDIA_ITEMS_METADATA,
+                COMMAND_SET_MEDIA_ITEMS_METADATA,
                 COMMAND_CHANGE_MEDIA_ITEMS)
             .addAll(additionalPermanentAvailableCommands)
             .build();
@@ -204,6 +211,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .add(COMMAND_SEEK_TO_DEFAULT_POSITION)
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
+    mediaMetadata = MediaMetadata.EMPTY;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -336,8 +344,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public boolean isCommandAvailable(@Command int command) {
-    return availableCommands.contains(command);
+  public Commands getAvailableCommands() {
+    return availableCommands;
   }
 
   @Override
@@ -979,8 +987,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public MediaMetadata getMediaMetadata() {
-    // Unsupported operation.
-    return MediaMetadata.EMPTY;
+    return mediaMetadata;
+  }
+
+  public void onMetadata(Metadata metadata) {
+    MediaMetadata newMediaMetadata =
+        mediaMetadata.buildUpon().populateFromMetadata(metadata).build();
+    if (newMediaMetadata.equals(mediaMetadata)) {
+      return;
+    }
+    mediaMetadata = newMediaMetadata;
+    listeners.sendEvent(
+        EVENT_MEDIA_METADATA_CHANGED, listener -> listener.onMediaMetadataChanged(mediaMetadata));
   }
 
   @Override
@@ -1002,6 +1020,48 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public float getVolume() {
     return 1;
+  }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurface() {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurface(@Nullable Surface surface) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurface(@Nullable Surface surface) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoTextureView(@Nullable TextureView textureView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoTextureView(@Nullable TextureView textureView) {}
+
+  /** This method is not supported and returns {@link VideoSize#UNKNOWN}. */
+  @Override
+  public VideoSize getVideoSize() {
+    return VideoSize.UNKNOWN;
   }
 
   /** This method is not supported and returns an empty list. */
@@ -1154,6 +1214,24 @@ import java.util.concurrent.CopyOnWriteArraySet;
             !previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline));
     boolean mediaItemTransitioned = mediaItemTransitionInfo.first;
     int mediaItemTransitionReason = mediaItemTransitionInfo.second;
+    MediaMetadata newMediaMetadata = mediaMetadata;
+    @Nullable MediaItem mediaItem = null;
+    if (mediaItemTransitioned) {
+      if (!newPlaybackInfo.timeline.isEmpty()) {
+        int windowIndex =
+            newPlaybackInfo.timeline.getPeriodByUid(newPlaybackInfo.periodId.periodUid, period)
+                .windowIndex;
+        mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
+      }
+      mediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
+    }
+    if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
+      newMediaMetadata =
+          newMediaMetadata.buildUpon().populateFromMetadata(newPlaybackInfo.staticMetadata).build();
+    }
+    boolean metadataChanged = !newMediaMetadata.equals(mediaMetadata);
+    mediaMetadata = newMediaMetadata;
+
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
@@ -1182,18 +1260,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
           });
     }
     if (mediaItemTransitioned) {
-      @Nullable final MediaItem mediaItem;
-      if (!newPlaybackInfo.timeline.isEmpty()) {
-        int windowIndex =
-            newPlaybackInfo.timeline.getPeriodByUid(newPlaybackInfo.periodId.periodUid, period)
-                .windowIndex;
-        mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
-      } else {
-        mediaItem = null;
-      }
+      @Nullable final MediaItem finalMediaItem = mediaItem;
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
-          listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
+          listener -> listener.onMediaItemTransition(finalMediaItem, mediaItemTransitionReason));
     }
     if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError
         && newPlaybackInfo.playbackError != null) {
@@ -1213,6 +1283,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
       listeners.queueEvent(
           Player.EVENT_STATIC_METADATA_CHANGED,
           listener -> listener.onStaticMetadataChanged(newPlaybackInfo.staticMetadata));
+    }
+    if (metadataChanged) {
+      final MediaMetadata finalMediaMetadata = mediaMetadata;
+      listeners.queueEvent(
+          Player.EVENT_MEDIA_METADATA_CHANGED,
+          listener -> listener.onMediaMetadataChanged(finalMediaMetadata));
     }
     if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
       listeners.queueEvent(

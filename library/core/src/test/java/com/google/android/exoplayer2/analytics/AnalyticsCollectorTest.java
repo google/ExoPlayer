@@ -113,6 +113,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -1040,7 +1041,7 @@ public final class AnalyticsCollectorTest {
                   @Override
                   public void run(SimpleExoPlayer player) {
                     player.addListener(
-                        new Player.EventListener() {
+                        new Player.Listener() {
                           @Override
                           public void onPositionDiscontinuity(
                               Player.PositionInfo oldPosition,
@@ -1504,9 +1505,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED))
         .containsExactly(period0, period1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED))
-        .containsExactly(period0, period1)
-        .inOrder();
+    // The pre-fetched key load for period1 might complete before the blocking key load for period0,
+    // so we can't assert the order:
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0, period1);
     // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
     // thread has been quit during clean-up.
     assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
@@ -1769,6 +1770,8 @@ public final class AnalyticsCollectorTest {
         .onRenderedFirstFrame(individualRenderedFirstFrameEventTimes.capture(), any(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualVideoSizeChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoSizeChanged(individualVideoSizeChangedEventTimes.capture(), any());
     verify(listener, atLeastOnce())
         .onVideoSizeChanged(
             individualVideoSizeChangedEventTimes.capture(),
@@ -2314,12 +2317,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onVideoSizeChanged(
-        EventTime eventTime,
-        int width,
-        int height,
-        int unappliedRotationDegrees,
-        float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_SIZE_CHANGED, eventTime));
     }
 

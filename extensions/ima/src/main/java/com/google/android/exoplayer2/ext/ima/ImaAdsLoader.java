@@ -85,7 +85,7 @@ import java.util.Set;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
+public final class ImaAdsLoader implements Player.Listener, AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -601,7 +601,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
         .handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
   @Override
   public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {

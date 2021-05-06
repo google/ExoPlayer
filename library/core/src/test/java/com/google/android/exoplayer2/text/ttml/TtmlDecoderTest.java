@@ -65,6 +65,7 @@ public final class TtmlDecoderTest {
   private static final String BITMAP_UNSUPPORTED_REGION_FILE =
       "media/ttml/bitmap_unsupported_region.xml";
   private static final String TEXT_ALIGN_FILE = "media/ttml/text_align.xml";
+  private static final String MULTI_ROW_ALIGN_FILE = "media/ttml/multi_row_align.xml";
   private static final String VERTICAL_TEXT_FILE = "media/ttml/vertical_text.xml";
   private static final String TEXT_COMBINE_FILE = "media/ttml/text_combine.xml";
   private static final String RUBIES_FILE = "media/ttml/rubies.xml";
@@ -607,6 +608,40 @@ public final class TtmlDecoderTest {
     Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
     assertThat(seventhCue.text.toString()).isEqualTo("No textAlign property");
     assertThat(seventhCue.textAlignment).isNull();
+
+    Cue eighthCue = getOnlyCueAtTimeUs(subtitle, 80_000_000);
+    assertThat(eighthCue.text.toString()).isEqualTo("Ancestor start alignment");
+    assertThat(eighthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue ninthCue = getOnlyCueAtTimeUs(subtitle, 90_000_000);
+    assertThat(ninthCue.text.toString()).isEqualTo("Not a P node");
+    assertThat(ninthCue.textAlignment).isNull();
+  }
+
+  @Test
+  public void multiRowAlign() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(MULTI_ROW_ALIGN_FILE);
+
+    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
+
+    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.multiRowAlignment).isNull();
+
+    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.multiRowAlignment).isNull();
   }
 
   @Test

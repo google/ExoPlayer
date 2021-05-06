@@ -116,6 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   new MediaCodecAdapter.Configuration(
                       createPlaceholderMediaCodecInfo(),
                       mediaFormat,
+                      format,
                       /* surface= */ null,
                       /* crypto= */ null,
                       /* flags= */ 0));
@@ -151,6 +152,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   new MediaCodecAdapter.Configuration(
                       createPlaceholderMediaCodecInfo(),
                       mediaFormat,
+                      format,
                       /* surface= */ null,
                       /* crypto= */ null,
                       /* flags= */ MediaCodec.CONFIGURE_FLAG_ENCODE));

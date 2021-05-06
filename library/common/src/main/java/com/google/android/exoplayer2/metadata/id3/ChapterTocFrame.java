@@ -22,9 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * Chapter table of contents ID3 frame.
- */
+/** Chapter table of contents ID3 frame. */
 public final class ChapterTocFrame extends Id3Frame {
 
   public static final String ID = "CTOC";

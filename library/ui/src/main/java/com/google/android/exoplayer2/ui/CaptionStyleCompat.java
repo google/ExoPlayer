@@ -27,9 +27,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * A compatibility wrapper for {@link CaptionStyle}.
- */
+/** A compatibility wrapper for {@link CaptionStyle}. */
 public final class CaptionStyleCompat {
 
   /**

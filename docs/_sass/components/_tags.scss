@@ -1,0 +1,24 @@
+.site-tags {
+  .tag-button {
+    @include clickable($text-color-3, $main-color-3, default, default, $text-color-2,$main-color-2, $text-color-2,$main-color-2);
+    & > .tag-button__count {
+      display: inline-block;
+      margin-left: map-get($spacers, 1);
+      font-size: map-get($base, font-size-xs);
+      line-height: 1;
+      vertical-align: top;
+    }
+  }
+  .tag-button-1 {
+    @include clickable($text-color-1, rgba($main-color-1, .4), default, default, $text-color-2,$main-color-2, $text-color-2,$main-color-2);
+  }
+  .tag-button-2 {
+    @include clickable($text-color-1, rgba($main-color-1, .55), default, default, $text-color-2,$main-color-2, $text-color-2,$main-color-2);
+  }
+  .tag-button-3 {
+    @include clickable($text-color-1, rgba($main-color-1, .7), default, default, $text-color-2,$main-color-2, $text-color-2,$main-color-2);
+  }
+  .tag-button-4 {
+    @include clickable($text-color-1, rgba($main-color-1, .9), default, default, $text-color-2,$main-color-2, $text-color-2,$main-color-2);
+  }
+}

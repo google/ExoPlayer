@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Holder for gapless playback information.
- */
+/** Holder for gapless playback information. */
 public final class GaplessInfoHolder {
 
   private static final String GAPLESS_DOMAIN = "com.apple.iTunes";

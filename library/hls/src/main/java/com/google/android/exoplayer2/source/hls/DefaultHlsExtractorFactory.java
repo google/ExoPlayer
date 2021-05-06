@@ -43,9 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Default {@link HlsExtractorFactory} implementation.
- */
+/** Default {@link HlsExtractorFactory} implementation. */
 public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
   // Extractors order is optimized according to

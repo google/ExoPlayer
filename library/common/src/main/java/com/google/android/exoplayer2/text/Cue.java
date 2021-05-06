@@ -140,6 +140,12 @@ public final class Cue {
   /** The alignment of the cue text within the cue box, or null if the alignment is undefined. */
   @Nullable public final Alignment textAlignment;
 
+  /**
+   * The alignment of multiple lines of text relative to the longest line, or null if the alignment
+   * is undefined.
+   */
+  @Nullable public final Alignment multiRowAlignment;
+
   /** The cue image, or null if this is a text cue. */
   @Nullable public final Bitmap bitmap;
 
@@ -364,6 +370,7 @@ public final class Cue {
     this(
         text,
         textAlignment,
+        /* multiRowAlignment= */ null,
         /* bitmap= */ null,
         line,
         lineType,
@@ -410,6 +417,7 @@ public final class Cue {
     this(
         text,
         textAlignment,
+        /* multiRowAlignment= */ null,
         /* bitmap= */ null,
         line,
         lineType,
@@ -429,6 +437,7 @@ public final class Cue {
   private Cue(
       @Nullable CharSequence text,
       @Nullable Alignment textAlignment,
+      @Nullable Alignment multiRowAlignment,
       @Nullable Bitmap bitmap,
       float line,
       @LineType int lineType,
@@ -451,6 +460,7 @@ public final class Cue {
     }
     this.text = text;
     this.textAlignment = textAlignment;
+    this.multiRowAlignment = multiRowAlignment;
     this.bitmap = bitmap;
     this.line = line;
     this.lineType = lineType;
@@ -477,6 +487,7 @@ public final class Cue {
     @Nullable private CharSequence text;
     @Nullable private Bitmap bitmap;
     @Nullable private Alignment textAlignment;
+    @Nullable private Alignment multiRowAlignment;
     private float line;
     @LineType private int lineType;
     @AnchorType private int lineAnchor;
@@ -495,6 +506,7 @@ public final class Cue {
       text = null;
       bitmap = null;
       textAlignment = null;
+      multiRowAlignment = null;
       line = DIMEN_UNSET;
       lineType = TYPE_UNSET;
       lineAnchor = TYPE_UNSET;
@@ -513,6 +525,7 @@ public final class Cue {
       text = cue.text;
       bitmap = cue.bitmap;
       textAlignment = cue.textAlignment;
+      multiRowAlignment = cue.multiRowAlignment;
       line = cue.line;
       lineType = cue.lineType;
       lineAnchor = cue.lineAnchor;
@@ -590,6 +603,18 @@ public final class Cue {
     @Nullable
     public Alignment getTextAlignment() {
       return textAlignment;
+    }
+
+    /**
+     * Sets the multi-row alignment of the cue.
+     *
+     * <p>Passing null means the alignment is undefined.
+     *
+     * @see Cue#multiRowAlignment
+     */
+    public Builder setMultiRowAlignment(@Nullable Layout.Alignment multiRowAlignment) {
+      this.multiRowAlignment = multiRowAlignment;
+      return this;
     }
 
     /**
@@ -827,6 +852,7 @@ public final class Cue {
       return new Cue(
           text,
           textAlignment,
+          multiRowAlignment,
           bitmap,
           line,
           lineType,

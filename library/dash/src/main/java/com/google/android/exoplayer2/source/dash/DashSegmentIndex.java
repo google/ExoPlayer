@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source.dash;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
-/**
- * Indexes the segments within a media stream.
- */
+/** Indexes the segments within a media stream. */
 public interface DashSegmentIndex {
 
   int INDEX_UNBOUNDED = -1;
@@ -89,7 +87,7 @@ public interface DashSegmentIndex {
    *     C#TIME_UNSET} if the period's duration is not yet known.
    * @return The number of segments in the index, or {@link #INDEX_UNBOUNDED}.
    */
-  int getSegmentCount(long periodDurationUs);
+  long getSegmentCount(long periodDurationUs);
 
   /**
    * Returns the number of available segments in the index.
@@ -99,7 +97,7 @@ public interface DashSegmentIndex {
    * @param nowUnixTimeUs The current time in milliseconds since the Unix epoch.
    * @return The number of available segments in the index.
    */
-  int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs);
+  long getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs);
 
   /**
    * Returns the time, in microseconds, at which a new segment becomes available, or {@link

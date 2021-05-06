@@ -205,7 +205,8 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     }
   }
 
-  private @Nullable Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
+  @Nullable
+  private Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
     return manifestPublishTimeToExpiryTimeUs.ceilingEntry(publishTimeMs);
   }
 

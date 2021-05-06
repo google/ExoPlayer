@@ -96,9 +96,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
-/**
- * Miscellaneous utility methods.
- */
+/** Miscellaneous utility methods. */
 public final class Util {
 
   /**
@@ -1802,6 +1800,11 @@ public final class Util {
    */
   @ContentType
   public static int inferContentType(Uri uri) {
+    @Nullable String scheme = uri.getScheme();
+    if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
+      return C.TYPE_RTSP;
+    }
+
     @Nullable String path = uri.getPath();
     return path == null ? C.TYPE_OTHER : inferContentType(path);
   }
@@ -1854,6 +1857,8 @@ public final class Util {
         return C.TYPE_HLS;
       case MimeTypes.APPLICATION_SS:
         return C.TYPE_SS;
+      case MimeTypes.APPLICATION_RTSP:
+        return C.TYPE_RTSP;
       default:
         return C.TYPE_OTHER;
     }

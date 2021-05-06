@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-/**
- * Utility methods for handling PSSH atoms.
- */
+/** Utility methods for handling PSSH atoms. */
 public final class PsshAtomUtil {
 
   private static final String TAG = "PsshAtomUtil";

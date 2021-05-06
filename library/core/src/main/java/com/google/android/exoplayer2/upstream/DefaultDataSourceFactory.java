@@ -20,8 +20,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 
 /**
- * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to
- * {@link DefaultHttpDataSource}s for non-file/asset/content URIs.
+ * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to {@link
+ * DefaultHttpDataSource}s for non-file/asset/content URIs.
  */
 public final class DefaultDataSourceFactory implements Factory {
 

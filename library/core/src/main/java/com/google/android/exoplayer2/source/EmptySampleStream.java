@@ -19,9 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
-/**
- * An empty {@link SampleStream}.
- */
+/** An empty {@link SampleStream}. */
 public final class EmptySampleStream implements SampleStream {
 
   @Override

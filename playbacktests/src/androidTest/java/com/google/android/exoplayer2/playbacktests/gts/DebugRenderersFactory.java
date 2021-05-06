@@ -133,12 +133,6 @@ import java.util.ArrayList;
     @Override
     protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
         MediaCodecInfo codecInfo, Format format, MediaCrypto crypto, float operatingRate) {
-      // If the codec is being initialized whilst the renderer is started, default behavior is to
-      // render the first frame (i.e. the keyframe before the current position), then drop frames up
-      // to the current playback position. For test runs that place a maximum limit on the number of
-      // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
-      // frames up to the current playback position [Internal: b/66494991].
-      skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
       return super.getMediaCodecConfiguration(codecInfo, format, crypto, operatingRate);
     }
 
@@ -146,13 +140,23 @@ import java.util.ArrayList;
     protected void resetCodecStateForFlush() {
       super.resetCodecStateForFlush();
       clearTimestamps();
-
-      if (inputFormatChangeTimesUs != null) {
-        inputFormatChangeTimesUs.clear();
-      }
-      inputFormatChanged = false;
+      // Check if there is a format change on the input side still pending propagation to the
+      // output.
+      inputFormatChanged = !inputFormatChangeTimesUs.isEmpty();
+      inputFormatChangeTimesUs.clear();
       outputMediaFormatChanged = false;
-      currentMediaFormat = null;
+    }
+
+    @Override
+    protected void onCodecInitialized(
+        String name, long initializedTimestampMs, long initializationDurationMs) {
+      // If the codec was initialized whilst the renderer is started, default behavior is to
+      // render the first frame (i.e. the keyframe before the current position), then drop frames up
+      // to the current playback position. For test runs that place a maximum limit on the number of
+      // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
+      // frames up to the current playback position [Internal: b/66494991].
+      skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
+      super.onCodecInitialized(name, initializedTimestampMs, initializationDurationMs);
     }
 
     @Override

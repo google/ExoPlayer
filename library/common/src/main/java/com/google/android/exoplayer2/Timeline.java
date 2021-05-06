@@ -752,9 +752,10 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
-     * Returns the index of the ad group at or before {@code positionUs} in the period, if that ad
-     * group is unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code
-     * positionUs} has no ads remaining to be played, or if there is no such ad group.
+     * Returns the index of the ad group at or before {@code positionUs} in the period that should
+     * be played before the content at {@code positionUs}. Returns {@link C#INDEX_UNSET} if the ad
+     * group at or before {@code positionUs} has no ads remaining to be played, or if there is no
+     * such ad group.
      *
      * @param positionUs The period position at or before which to find an ad group, in
      *     microseconds.
@@ -766,7 +767,7 @@ public abstract class Timeline implements Bundleable {
 
     /**
      * Returns the index of the next ad group after {@code positionUs} in the period that has ads
-     * remaining to be played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
+     * that should be played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
      *
      * @param positionUs The period position after which to find an ad group, in microseconds.
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.

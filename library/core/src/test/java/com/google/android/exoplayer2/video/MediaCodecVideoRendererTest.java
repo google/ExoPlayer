@@ -19,10 +19,8 @@ import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSample
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.format;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,12 +49,13 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -200,10 +199,11 @@ public class MediaCodecVideoRendererTest {
 
     verify(eventListener)
         .onVideoSizeChanged(
-            VIDEO_H264.width,
-            VIDEO_H264.height,
-            VIDEO_H264.rotationDegrees,
-            VIDEO_H264.pixelWidthHeightRatio);
+            new VideoSize(
+                VIDEO_H264.width,
+                VIDEO_H264.height,
+                VIDEO_H264.rotationDegrees,
+                VIDEO_H264.pixelWidthHeightRatio));
   }
 
   @Test
@@ -256,11 +256,13 @@ public class MediaCodecVideoRendererTest {
     } while (!mediaCodecVideoRenderer.isEnded());
     shadowOf(testMainLooper).idle();
 
-    InOrder orderVerifier = inOrder(eventListener);
-    orderVerifier.verify(eventListener).onVideoSizeChanged(anyInt(), anyInt(), anyInt(), eq(1f));
-    orderVerifier.verify(eventListener).onVideoSizeChanged(anyInt(), anyInt(), anyInt(), eq(2f));
-    orderVerifier.verify(eventListener).onVideoSizeChanged(anyInt(), anyInt(), anyInt(), eq(3f));
-    orderVerifier.verifyNoMoreInteractions();
+    ArgumentCaptor<VideoSize> videoSizesCaptor = ArgumentCaptor.forClass(VideoSize.class);
+    verify(eventListener, times(3)).onVideoSizeChanged(videoSizesCaptor.capture());
+    assertThat(
+            videoSizesCaptor.getAllValues().stream()
+                .map(videoSize -> videoSize.pixelWidthHeightRatio)
+                .collect(Collectors.toList()))
+        .containsExactly(1f, 2f, 3f);
   }
 
   @Test

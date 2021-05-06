@@ -37,9 +37,7 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Extracts data from WAV byte streams.
- */
+/** Extracts data from WAV byte streams. */
 public final class WavExtractor implements Extractor {
 
   /**

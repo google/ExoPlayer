@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import androidx.annotation.Nullable;
 import java.io.IOException;
 
-/**
- * Used to specify reason of a DataSource error.
- */
+/** Used to specify reason of a DataSource error. */
 public final class DataSourceException extends IOException {
 
   /**

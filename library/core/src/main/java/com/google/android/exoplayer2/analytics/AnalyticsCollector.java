@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -51,6 +52,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,7 +66,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * Data collector that forwards analytics events to {@link AnalyticsListener AnalyticsListeners}.
  */
 public class AnalyticsCollector
-    implements Player.EventListener,
+    implements Player.Listener,
         AudioRendererEventListener,
         VideoRendererEventListener,
         MediaSourceEventListener,
@@ -429,16 +431,22 @@ public class AnalyticsCollector
         });
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   @Override
-  public final void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+  public final void onVideoSizeChanged(VideoSize videoSize) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_VIDEO_SIZE_CHANGED,
-        listener ->
-            listener.onVideoSizeChanged(
-                eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
+        listener -> {
+          listener.onVideoSizeChanged(eventTime, videoSize);
+          listener.onVideoSizeChanged(
+              eventTime,
+              videoSize.width,
+              videoSize.height,
+              videoSize.unappliedRotationDegrees,
+              videoSize.pixelWidthHeightRatio);
+        });
   }
 
   @Override
@@ -730,6 +738,15 @@ public class AnalyticsCollector
         eventTime,
         AnalyticsListener.EVENT_PLAYBACK_PARAMETERS_CHANGED,
         listener -> listener.onPlaybackParametersChanged(eventTime, playbackParameters));
+  }
+
+  @Override
+  public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_MEDIA_METADATA_CHANGED,
+        listener -> listener.onMediaMetadataChanged(eventTime, mediaMetadata));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.

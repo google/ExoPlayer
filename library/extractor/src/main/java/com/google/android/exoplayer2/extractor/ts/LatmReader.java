@@ -33,9 +33,7 @@ import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses and extracts samples from an AAC/LATM elementary stream.
- */
+/** Parses and extracts samples from an AAC/LATM elementary stream. */
 public final class LatmReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC_1 = 0;

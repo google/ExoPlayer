@@ -35,9 +35,8 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
-import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -67,146 +66,6 @@ import java.util.List;
  */
 public interface Player {
 
-  /** The video component of a {@link Player}. */
-  interface VideoComponent {
-
-    /**
-     * Sets the {@link C.VideoScalingMode}.
-     *
-     * @param videoScalingMode The {@link C.VideoScalingMode}.
-     */
-    void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
-
-    /** Returns the {@link C.VideoScalingMode}. */
-    @C.VideoScalingMode
-    int getVideoScalingMode();
-
-    /**
-     * Adds a listener to receive video events.
-     *
-     * @param listener The listener to register.
-     */
-    void addVideoListener(VideoListener listener);
-
-    /**
-     * Removes a listener of video events.
-     *
-     * @param listener The listener to unregister.
-     */
-    void removeVideoListener(VideoListener listener);
-
-    /**
-     * Sets a listener to receive video frame metadata events.
-     *
-     * <p>This method is intended to be called by the same component that sets the {@link Surface}
-     * onto which video will be rendered. If using ExoPlayer's standard UI components, this method
-     * should not be called directly from application code.
-     *
-     * @param listener The listener.
-     */
-    void setVideoFrameMetadataListener(VideoFrameMetadataListener listener);
-
-    /**
-     * Clears the listener which receives video frame metadata events if it matches the one passed.
-     * Else does nothing.
-     *
-     * @param listener The listener to clear.
-     */
-    void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
-
-    /**
-     * Sets a listener of camera motion events.
-     *
-     * @param listener The listener.
-     */
-    void setCameraMotionListener(CameraMotionListener listener);
-
-    /**
-     * Clears the listener which receives camera motion events if it matches the one passed. Else
-     * does nothing.
-     *
-     * @param listener The listener to clear.
-     */
-    void clearCameraMotionListener(CameraMotionListener listener);
-
-    /**
-     * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
-     * currently set on the player.
-     */
-    void clearVideoSurface();
-
-    /**
-     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
-     * Else does nothing.
-     *
-     * @param surface The surface to clear.
-     */
-    void clearVideoSurface(@Nullable Surface surface);
-
-    /**
-     * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
-     * tracking the lifecycle of the surface, and must clear the surface by calling {@code
-     * setVideoSurface(null)} if the surface is destroyed.
-     *
-     * <p>If the surface is held by a {@link SurfaceView}, {@link TextureView} or {@link
-     * SurfaceHolder} then it's recommended to use {@link #setVideoSurfaceView(SurfaceView)}, {@link
-     * #setVideoTextureView(TextureView)} or {@link #setVideoSurfaceHolder(SurfaceHolder)} rather
-     * than this method, since passing the holder allows the player to track the lifecycle of the
-     * surface automatically.
-     *
-     * @param surface The {@link Surface}.
-     */
-    void setVideoSurface(@Nullable Surface surface);
-
-    /**
-     * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
-     * rendered. The player will track the lifecycle of the surface automatically.
-     *
-     * @param surfaceHolder The surface holder.
-     */
-    void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
-
-    /**
-     * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
-     * rendered if it matches the one passed. Else does nothing.
-     *
-     * @param surfaceHolder The surface holder to clear.
-     */
-    void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
-
-    /**
-     * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
-     * lifecycle of the surface automatically.
-     *
-     * @param surfaceView The surface view.
-     */
-    void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
-
-    /**
-     * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one
-     * passed. Else does nothing.
-     *
-     * @param surfaceView The texture view to clear.
-     */
-    void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
-
-    /**
-     * Sets the {@link TextureView} onto which video will be rendered. The player will track the
-     * lifecycle of the surface automatically.
-     *
-     * @param textureView The texture view.
-     */
-    void setVideoTextureView(@Nullable TextureView textureView);
-
-    /**
-     * Clears the {@link TextureView} onto which video is being rendered if it matches the one
-     * passed. Else does nothing.
-     *
-     * @param textureView The texture view to clear.
-     */
-    void clearVideoTextureView(@Nullable TextureView textureView);
-  }
-
   /**
    * Listener of changes in player state.
    *
@@ -215,7 +74,10 @@ public interface Player {
    * <p>Listeners can choose to implement individual events (e.g. {@link
    * #onIsPlayingChanged(boolean)}) or {@link #onEvents(Player, Events)}, which is called after one
    * or more events occurred together.
+   *
+   * @deprecated Use {@link Player.Listener}.
    */
+  @Deprecated
   interface EventListener {
 
     /**
@@ -291,6 +153,20 @@ public interface Player {
      * @param metadataList The static metadata.
      */
     default void onStaticMetadataChanged(List<Metadata> metadataList) {}
+
+    /**
+     * Called when the combined {@link MediaMetadata} changes.
+     *
+     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
+     * and the static and dynamic metadata sourced from {@link
+     * EventListener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param mediaMetadata The combined {@link MediaMetadata}.
+     */
+    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
      * Called when the player starts or stops loading the source.
@@ -1030,7 +906,8 @@ public interface Player {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
-    EVENT_AVAILABLE_COMMANDS_CHANGED
+    EVENT_AVAILABLE_COMMANDS_CHANGED,
+    EVENT_MEDIA_METADATA_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1066,25 +943,28 @@ public interface Player {
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;
   /** {@link #isCommandAvailable(int)} changed for at least one {@link Command}. */
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
+  /** {@link #getMediaMetadata()} changed. */
+  int EVENT_MEDIA_METADATA_CHANGED = 15;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
-   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
+   * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
    * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
    * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
    * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
-   * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
-   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
-   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
+   * #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_CHANGE_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link #COMMAND_GET_VOLUME}, {@link
+   * #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link #COMMAND_SET_DEVICE_VOLUME},
+   * {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link #COMMAND_SET_VIDEO_SURFACE} or {@link
+   * #COMMAND_GET_TEXT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     COMMAND_PLAY_PAUSE,
-    COMMAND_PREPARE_STOP_RELEASE,
+    COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
     COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
@@ -1096,6 +976,7 @@ public interface Player {
     COMMAND_GET_CURRENT_MEDIA_ITEM,
     COMMAND_GET_MEDIA_ITEMS,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_MEDIA_ITEMS_METADATA,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
     COMMAND_GET_VOLUME,
@@ -1110,7 +991,7 @@ public interface Player {
   /** Command to start, pause or resume playback. */
   int COMMAND_PLAY_PAUSE = 1;
   /** Command to prepare the player, stop playback or release the player. */
-  int COMMAND_PREPARE_STOP_RELEASE = 2;
+  int COMMAND_PREPARE_STOP = 2;
   /** Command to seek to the default position of the current window. */
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
   /** Command to seek anywhere into the current window. */
@@ -1133,28 +1014,26 @@ public interface Player {
   int COMMAND_GET_MEDIA_ITEMS = 12;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
   int COMMAND_GET_MEDIA_ITEMS_METADATA = 13;
+  /** Command to set the {@link MediaItem MediaItems} metadata. */
+  int COMMAND_SET_MEDIA_ITEMS_METADATA = 14;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 14;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 15;
   /** Command to get the player current {@link AudioAttributes}. */
-  int COMMAND_GET_AUDIO_ATTRIBUTES = 15;
+  int COMMAND_GET_AUDIO_ATTRIBUTES = 16;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 16;
+  int COMMAND_GET_VOLUME = 17;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 17;
+  int COMMAND_GET_DEVICE_VOLUME = 18;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 18;
+  int COMMAND_SET_VOLUME = 19;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 19;
+  int COMMAND_SET_DEVICE_VOLUME = 20;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 20;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 21;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 21;
+  int COMMAND_SET_VIDEO_SURFACE = 22;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 22;
-
-  /** Returns the component of this player for video output, or null if video is not supported. */
-  @Nullable
-  VideoComponent getVideoComponent();
+  int COMMAND_GET_TEXT = 23;
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
@@ -1168,7 +1047,9 @@ public interface Player {
    * the player does not have a {@link Looper}, then the listener will be called on the main thread.
    *
    * @param listener The listener to register.
+   * @deprecated Use {@link #addListener(Listener)} instead.
    */
+  @Deprecated
   void addListener(EventListener listener);
 
   /**
@@ -1183,7 +1064,9 @@ public interface Player {
    * no longer receive events from the player.
    *
    * @param listener The listener to unregister.
+   * @deprecated Use {@link #addListener(Listener)} instead.
    */
+  @Deprecated
   void removeListener(EventListener listener);
 
   /**
@@ -1341,6 +1224,25 @@ public interface Player {
    * @see EventListener#onAvailableCommandsChanged(Commands)
    */
   boolean isCommandAvailable(@Command int command);
+
+  /**
+   * Returns the player's currently available {@link Commands}.
+   *
+   * <p>The returned {@link Commands} are not updated when available commands change. Use {@link
+   * EventListener#onAvailableCommandsChanged(Commands)} to get an update when the available
+   * commands change.
+   *
+   * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
+   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor generate
+   * a {@link #getPlayerError()} player error}.
+   *
+   * <p>{@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}
+   * are unavailable if there is no such {@link MediaItem}.
+   *
+   * @return The currently available {@link Commands}.
+   * @see EventListener#onAvailableCommandsChanged
+   */
+  Commands getAvailableCommands();
 
   /** Prepares the player. */
   void prepare();
@@ -1829,6 +1731,93 @@ public interface Player {
    * @return The linear gain applied to all audio channels.
    */
   float getVolume();
+
+  /**
+   * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
+   * currently set on the player.
+   */
+  void clearVideoSurface();
+
+  /**
+   * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param surface The surface to clear.
+   */
+  void clearVideoSurface(@Nullable Surface surface);
+
+  /**
+   * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
+   * tracking the lifecycle of the surface, and must clear the surface by calling {@code
+   * setVideoSurface(null)} if the surface is destroyed.
+   *
+   * <p>If the surface is held by a {@link SurfaceView}, {@link TextureView} or {@link
+   * SurfaceHolder} then it's recommended to use {@link #setVideoSurfaceView(SurfaceView)}, {@link
+   * #setVideoTextureView(TextureView)} or {@link #setVideoSurfaceHolder(SurfaceHolder)} rather than
+   * this method, since passing the holder allows the player to track the lifecycle of the surface
+   * automatically.
+   *
+   * @param surface The {@link Surface}.
+   */
+  void setVideoSurface(@Nullable Surface surface);
+
+  /**
+   * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
+   * rendered. The player will track the lifecycle of the surface automatically.
+   *
+   * @param surfaceHolder The surface holder.
+   */
+  void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
+
+  /**
+   * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
+   * rendered if it matches the one passed. Else does nothing.
+   *
+   * @param surfaceHolder The surface holder to clear.
+   */
+  void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
+
+  /**
+   * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
+   * lifecycle of the surface automatically.
+   *
+   * @param surfaceView The surface view.
+   */
+  void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
+
+  /**
+   * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param surfaceView The texture view to clear.
+   */
+  void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
+
+  /**
+   * Sets the {@link TextureView} onto which video will be rendered. The player will track the
+   * lifecycle of the surface automatically.
+   *
+   * @param textureView The texture view.
+   */
+  void setVideoTextureView(@Nullable TextureView textureView);
+
+  /**
+   * Clears the {@link TextureView} onto which video is being rendered if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param textureView The texture view to clear.
+   */
+  void clearVideoTextureView(@Nullable TextureView textureView);
+
+  /**
+   * Gets the size of the video.
+   *
+   * <p>The video's width and height are {@code 0} if there is no video or its size has not been
+   * determined yet.
+   *
+   * @see Listener#onVideoSizeChanged(int, int, int, float)
+   */
+  VideoSize getVideoSize();
 
   /** Returns the current {@link Cue Cues}. This list may be empty. */
   List<Cue> getCurrentCues();

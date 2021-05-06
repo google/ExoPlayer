@@ -22,7 +22,6 @@ import android.media.MediaCodec.CodecException;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
-import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
@@ -108,21 +107,9 @@ public interface VideoRendererEventListener {
    * Called before a frame is rendered for the first time since setting the surface, and each time
    * there's a change in the size, rotation or pixel aspect ratio of the video being rendered.
    *
-   * @param width The video width in pixels.
-   * @param height The video height in pixels.
-   * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
-   *     rotation in degrees that the application should apply for the video for it to be rendered
-   *     in the correct orientation. This value will always be zero on API levels 21 and above,
-   *     since the renderer will apply all necessary rotations internally. On earlier API levels
-   *     this is not possible. Applications that use {@link TextureView} can apply the rotation by
-   *     calling {@link TextureView#setTransform}. Applications that do not expect to encounter
-   *     rotated videos can safely ignore this parameter.
-   * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case of
-   *     square pixels this will be equal to 1.0. Different values are indicative of anamorphic
-   *     content.
+   * @param videoSize The new size of the video.
    */
-  default void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
+  default void onVideoSizeChanged(VideoSize videoSize) {}
 
   /**
    * Called when a frame is rendered for the first time since setting the output, or since the
@@ -232,18 +219,10 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /** Invokes {@link VideoRendererEventListener#onVideoSizeChanged(int, int, int, float)}. */
-    public void videoSizeChanged(
-        int width,
-        int height,
-        final int unappliedRotationDegrees,
-        final float pixelWidthHeightRatio) {
+    /** Invokes {@link VideoRendererEventListener#onVideoSizeChanged(VideoSize)}. */
+    public void videoSizeChanged(VideoSize videoSize) {
       if (handler != null) {
-        handler.post(
-            () ->
-                castNonNull(listener)
-                    .onVideoSizeChanged(
-                        width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
+        handler.post(() -> castNonNull(listener).onVideoSizeChanged(videoSize));
       }
     }
 

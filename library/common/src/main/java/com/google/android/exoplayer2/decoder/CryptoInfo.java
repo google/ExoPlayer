@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}.
- */
+/** Compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}. */
 public final class CryptoInfo {
 
   /**
@@ -119,12 +117,6 @@ public final class CryptoInfo {
    */
   public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfo() {
     return frameworkCryptoInfo;
-  }
-
-  /** @deprecated Use {@link #getFrameworkCryptoInfo()}. */
-  @Deprecated
-  public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
-    return getFrameworkCryptoInfo();
   }
 
   /**

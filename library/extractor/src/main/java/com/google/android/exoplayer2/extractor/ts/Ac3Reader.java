@@ -36,9 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
- */
+/** Parses a continuous (E-)AC-3 byte stream and extracts individual samples. */
 public final class Ac3Reader implements ElementaryStreamReader {
 
   @Documented

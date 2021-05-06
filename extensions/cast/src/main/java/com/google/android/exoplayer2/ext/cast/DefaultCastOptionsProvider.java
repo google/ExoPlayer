@@ -22,9 +22,7 @@ import com.google.android.gms.cast.framework.SessionProvider;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A convenience {@link OptionsProvider} to target the default cast receiver app.
- */
+/** A convenience {@link OptionsProvider} to target the default cast receiver app. */
 public final class DefaultCastOptionsProvider implements OptionsProvider {
 
   /**

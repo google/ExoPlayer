@@ -29,9 +29,7 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses PES packet data and extracts samples.
- */
+/** Parses PES packet data and extracts samples. */
 public final class PesReader implements TsPayloadReader {
 
   private static final String TAG = "PesReader";

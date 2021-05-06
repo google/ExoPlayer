@@ -36,9 +36,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses a continuous H.265 byte stream and extracts individual frames.
- */
+/** Parses a continuous H.265 byte stream and extracts individual frames. */
 public final class H265Reader implements ElementaryStreamReader {
 
   private static final String TAG = "H265Reader";

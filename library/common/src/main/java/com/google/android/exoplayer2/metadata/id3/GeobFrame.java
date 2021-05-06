@@ -23,9 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * GEOB (General Encapsulated Object) ID3 frame.
- */
+/** GEOB (General Encapsulated Object) ID3 frame. */
 public final class GeobFrame extends Id3Frame {
 
   public static final String ID = "GEOB";

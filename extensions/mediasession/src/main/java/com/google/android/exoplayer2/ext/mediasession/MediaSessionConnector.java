@@ -552,32 +552,6 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setRewindIncrementMs(int rewindMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
-      invalidateMediaSessionPlaybackState();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setFastForwardIncrementMs(int fastForwardMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
-      invalidateMediaSessionPlaybackState();
-    }
-  }
-
-  /**
    * Sets the optional {@link ErrorMessageProvider}.
    *
    * @param errorMessageProvider The error message provider.
@@ -1085,13 +1059,12 @@ public final class MediaSessionConnector {
     }
   }
 
-  private class ComponentListener extends MediaSessionCompat.Callback
-      implements Player.EventListener {
+  private class ComponentListener extends MediaSessionCompat.Callback implements Player.Listener {
 
     private int currentWindowIndex;
     private int currentWindowCount;
 
-    // Player.EventListener implementation.
+    // Player.Listener implementation.
 
     @Override
     public void onEvents(Player player, Player.Events events) {

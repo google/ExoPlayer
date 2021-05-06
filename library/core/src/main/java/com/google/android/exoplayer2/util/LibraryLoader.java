@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.util;
 
 import java.util.Arrays;
 
-/**
- * Configurable loader for native libraries.
- */
+/** Configurable loader for native libraries. */
 public final class LibraryLoader {
 
   private static final String TAG = "LibraryLoader";

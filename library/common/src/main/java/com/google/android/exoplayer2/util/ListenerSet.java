@@ -155,6 +155,11 @@ public final class ListenerSet<T> {
     }
   }
 
+  /** Returns the number of added listeners. */
+  public int size() {
+    return listeners.size();
+  }
+
   /**
    * Adds an event that is sent to the listeners when {@link #flushEvents} is called.
    *

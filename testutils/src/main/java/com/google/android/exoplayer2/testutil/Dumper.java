@@ -20,9 +20,7 @@ import com.google.android.exoplayer2.C;
 import java.util.Arrays;
 import java.util.Locale;
 
-/**
- * Helper utility to dump field values.
- */
+/** Helper utility to dump field values. */
 public final class Dumper {
 
   /**

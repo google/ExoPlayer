@@ -380,9 +380,9 @@ public final class AdPlaybackState implements Bundleable {
   }
 
   /**
-   * Returns the index of the ad group at or before {@code positionUs}, if that ad group is
-   * unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code positionUs} has no
-   * ads remaining to be played, or if there is no such ad group.
+   * Returns the index of the ad group at or before {@code positionUs} that should be played before
+   * the content at {@code positionUs}. Returns {@link C#INDEX_UNSET} if the ad group at or before
+   * {@code positionUs} has no ads remaining to be played, or if there is no such ad group.
    *
    * @param positionUs The period position at or before which to find an ad group, in microseconds,
    *     or {@link C#TIME_END_OF_SOURCE} for the end of the stream (in which case the index of any
@@ -402,8 +402,8 @@ public final class AdPlaybackState implements Bundleable {
   }
 
   /**
-   * Returns the index of the next ad group after {@code positionUs} that has ads remaining to be
-   * played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
+   * Returns the index of the next ad group after {@code positionUs} that should be played. Returns
+   * {@link C#INDEX_UNSET} if there is no such ad group.
    *
    * @param positionUs The period position after which to find an ad group, in microseconds, or
    *     {@link C#TIME_END_OF_SOURCE} for the end of the stream (in which case there can be no ad
@@ -421,8 +421,8 @@ public final class AdPlaybackState implements Bundleable {
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
     int index = 0;
     while (index < adGroupTimesUs.length
-        && adGroupTimesUs[index] != C.TIME_END_OF_SOURCE
-        && (positionUs >= adGroupTimesUs[index] || !adGroups[index].hasUnplayedAds())) {
+        && ((adGroupTimesUs[index] != C.TIME_END_OF_SOURCE && adGroupTimesUs[index] <= positionUs)
+            || !adGroups[index].hasUnplayedAds())) {
       index++;
     }
     return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;

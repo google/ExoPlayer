@@ -30,9 +30,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * A {@link SimpleSubtitleDecoder} for SubRip.
- */
+/** A {@link SimpleSubtitleDecoder} for SubRip. */
 public final class SubripDecoder extends SimpleSubtitleDecoder {
 
   // Fractional positions for use when alignment tags are present.

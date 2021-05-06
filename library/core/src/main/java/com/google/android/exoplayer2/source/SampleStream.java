@@ -25,9 +25,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * A stream of media samples (and associated format information).
- */
+/** A stream of media samples (and associated format information). */
 public interface SampleStream {
 
   /**

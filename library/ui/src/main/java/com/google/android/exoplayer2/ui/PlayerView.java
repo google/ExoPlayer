@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -46,9 +47,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Timeline;
@@ -61,13 +60,10 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
-import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -260,7 +256,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
-  // LINT.IfChange
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
    * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
@@ -281,15 +276,12 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * buffering} state.
    */
   public static final int SHOW_BUFFERING_ALWAYS = 2;
-  // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
-  // LINT.IfChange
   private static final int SURFACE_TYPE_NONE = 0;
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
   private static final int SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW = 3;
   private static final int SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW = 4;
-  // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   private final ComponentListener componentListener;
   @Nullable private final AspectRatioFrameLayout contentFrame;
@@ -425,11 +417,26 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           surfaceView = new TextureView(context);
           break;
         case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
-          surfaceView = new SphericalGLSurfaceView(context);
+          try {
+            Class<?> clazz =
+                Class.forName(
+                    "com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView");
+            surfaceView = (View) clazz.getConstructor(Context.class).newInstance(context);
+          } catch (Exception e) {
+            throw new IllegalStateException(
+                "spherical_gl_surface_view requires an ExoPlayer dependency", e);
+          }
           surfaceViewIgnoresVideoAspectRatio = true;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
-          surfaceView = new VideoDecoderGLSurfaceView(context);
+          try {
+            Class<?> clazz =
+                Class.forName("com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView");
+            surfaceView = (View) clazz.getConstructor(Context.class).newInstance(context);
+          } catch (Exception e) {
+            throw new IllegalStateException(
+                "video_decoder_gl_surface_view requires an ExoPlayer dependency", e);
+          }
           break;
         default:
           surfaceView = new SurfaceView(context);
@@ -563,14 +570,11 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
       oldPlayer.removeListener(componentListener);
-      @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
-      if (oldVideoComponent != null) {
+      if (oldPlayer.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
         if (surfaceView instanceof TextureView) {
-          oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalGLSurfaceView) {
-          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
+          oldPlayer.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SurfaceView) {
-          oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
+          oldPlayer.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
       }
     }
@@ -585,16 +589,12 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     updateErrorMessage();
     updateForCurrentTrackSelections(/* isNewPlayer= */ true);
     if (player != null) {
-      @Nullable Player.VideoComponent newVideoComponent = player.getVideoComponent();
-      if (newVideoComponent != null) {
+      if (player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
         if (surfaceView instanceof TextureView) {
-          newVideoComponent.setVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalGLSurfaceView) {
-          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
+          player.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SurfaceView) {
-          newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
+          player.setVideoSurfaceView((SurfaceView) surfaceView);
         }
-        newVideoComponent.addVideoListener(componentListener);
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
         subtitleView.setCues(player.getCurrentCues());
@@ -925,21 +925,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The view calls {@link
-   *     ControlDispatcher#dispatchPrepare(Player)} instead of {@link
-   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that the view
-   *     uses by default, calls {@link Player#prepare()}. If you wish to customize this behaviour,
-   *     you can provide a custom implementation of {@link
-   *     ControlDispatcher#dispatchPrepare(Player)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    Assertions.checkStateNotNull(controller);
-    controller.setPlaybackPreparer(playbackPreparer);
-  }
-
-  /**
    * Sets the {@link ControlDispatcher}.
    *
    * @param controlDispatcher The {@link ControlDispatcher}.
@@ -987,28 +972,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   public void setShowNextButton(boolean showNextButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowNextButton(showNextButton);
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setRewindIncrementMs(int rewindMs) {
-    Assertions.checkStateNotNull(controller);
-    controller.setRewindIncrementMs(rewindMs);
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setFastForwardIncrementMs(int fastForwardMs) {
-    Assertions.checkStateNotNull(controller);
-    controller.setFastForwardIncrementMs(fastForwardMs);
   }
 
   /**
@@ -1076,14 +1039,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to {@code
    *       surface_view}.
    *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.
-   *   <li>{@link SphericalGLSurfaceView} if {@code surface_type} is {@code
+   *   <li>{@code SphericalGLSurfaceView} if {@code surface_type} is {@code
    *       spherical_gl_surface_view}.
-   *   <li>{@link VideoDecoderGLSurfaceView} if {@code surface_type} is {@code
+   *   <li>{@code VideoDecoderGLSurfaceView} if {@code surface_type} is {@code
    *       video_decoder_gl_surface_view}.
    *   <li>{@code null} if {@code surface_type} is {@code none}.
    * </ul>
    *
-   * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalGLSurfaceView}, {@link
+   * @return The {@link SurfaceView}, {@link TextureView}, {@code SphericalGLSurfaceView}, {@code
    *     VideoDecoderGLSurfaceView} or {@code null}.
    */
   @Nullable
@@ -1486,7 +1449,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
   private final class ComponentListener
       implements Player.Listener,
-          VideoListener,
           OnLayoutChangeListener,
           OnClickListener,
           PlayerControlView.VisibilityListener {

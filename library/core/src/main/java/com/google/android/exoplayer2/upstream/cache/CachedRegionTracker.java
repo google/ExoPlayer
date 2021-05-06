@@ -25,8 +25,8 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 /**
- * Utility class for efficiently tracking regions of data that are stored in a {@link Cache}
- * for a given cache key.
+ * Utility class for efficiently tracking regions of data that are stored in a {@link Cache} for a
+ * given cache key.
  */
 public final class CachedRegionTracker implements Cache.Listener {
 

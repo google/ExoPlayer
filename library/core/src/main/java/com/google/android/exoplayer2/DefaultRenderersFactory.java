@@ -44,9 +44,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-/**
- * Default {@link RenderersFactory} implementation.
- */
+/** Default {@link RenderersFactory} implementation. */
 public class DefaultRenderersFactory implements RenderersFactory {
 
   /**
@@ -392,7 +390,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
@@ -400,7 +397,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
               int.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
@@ -419,7 +415,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
@@ -427,7 +422,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
               int.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
@@ -446,7 +440,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegVideoRenderer");
       Constructor<?> constructor =
@@ -455,7 +448,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
               int.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
@@ -521,14 +513,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
               com.google.android.exoplayer2.audio.AudioSink.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
@@ -542,14 +532,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
               com.google.android.exoplayer2.audio.AudioSink.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
@@ -563,7 +551,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
       Constructor<?> constructor =
@@ -571,7 +558,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
               com.google.android.exoplayer2.audio.AudioSink.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);

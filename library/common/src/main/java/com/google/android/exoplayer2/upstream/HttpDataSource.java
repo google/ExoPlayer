@@ -30,9 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * An HTTP {@link DataSource}.
- */
+/** An HTTP {@link DataSource}. */
 public interface HttpDataSource extends DataSource {
 
   /**

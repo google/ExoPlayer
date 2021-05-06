@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * Stores color info.
- */
+/** Stores color info. */
 public final class ColorInfo implements Parcelable {
 
   /**

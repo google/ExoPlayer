@@ -1,0 +1,15 @@
+<figure>
+  <center>
+    <img src="{{ site.baseurl }}{{ include.url }}" alt="{{ include.caption }}"
+      {% if include.width %}
+        width="{{ include.width }}"
+      {% endif %}
+      {% if include.height %}
+        height="{{ include.height }}"
+      {% endif %}
+    />
+    <figcaption>
+      <strong>Figure {{ include.index }}.</strong> {{ include.caption }}
+    </figcaption>
+  </center>
+</figure>

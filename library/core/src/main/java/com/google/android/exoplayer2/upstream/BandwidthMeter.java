@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Provides estimates of the currently available bandwidth.
- */
+/** Provides estimates of the currently available bandwidth. */
 public interface BandwidthMeter {
 
   /**

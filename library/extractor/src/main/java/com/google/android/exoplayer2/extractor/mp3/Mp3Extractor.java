@@ -48,9 +48,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Extracts data from the MP3 container format.
- */
+/** Extracts data from the MP3 container format. */
 public final class Mp3Extractor implements Extractor {
 
   /** Factory for {@link Mp3Extractor} instances. */

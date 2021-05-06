@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -42,6 +43,7 @@ import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -49,6 +51,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -166,6 +169,7 @@ public interface AnalyticsListener {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_MEDIA_METADATA_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -242,6 +246,8 @@ public interface AnalyticsListener {
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** {@link Player#getMediaMetadata()} changed. */
+  int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -641,6 +647,19 @@ public interface AnalyticsListener {
   default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
 
   /**
+   * Called when the combined {@link MediaMetadata} changes.
+   *
+   * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
+   * and the static and dynamic metadata sourced from {@link
+   * Player.EventListener#onStaticMetadataChanged(List)} and {@link
+   * MetadataOutput#onMetadata(Metadata)}.
+   *
+   * @param eventTime The event time.
+   * @param mediaMetadata The combined {@link MediaMetadata}.
+   */
+  default void onMediaMetadataChanged(EventTime eventTime, MediaMetadata mediaMetadata) {}
+
+  /**
    * Called when a media source started loading data.
    *
    * @param eventTime The event time.
@@ -1032,14 +1051,12 @@ public interface AnalyticsListener {
    * there's a change in the size or pixel aspect ratio of the video being rendered.
    *
    * @param eventTime The event time.
-   * @param width The width of the video.
-   * @param height The height of the video.
-   * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
-   *     rotation in degrees that the application should apply for the video for it to be rendered
-   *     in the correct orientation. This value will always be zero on API levels 21 and above,
-   *     since the renderer will apply all necessary rotations internally.
-   * @param pixelWidthHeightRatio The width to height ratio of each pixel.
+   * @param videoSize The new size of the video.
    */
+  default void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {}
+
+  /** @deprecated Implement {@link #onVideoSizeChanged(EventTime eventTime, VideoSize)} instead. */
+  @Deprecated
   default void onVideoSizeChanged(
       EventTime eventTime,
       int width,

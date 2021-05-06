@@ -29,9 +29,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses a continuous DTS byte stream and extracts individual samples.
- */
+/** Parses a continuous DTS byte stream and extracts individual samples. */
 public final class DtsReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;

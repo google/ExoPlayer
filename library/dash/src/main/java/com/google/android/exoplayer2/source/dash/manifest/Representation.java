@@ -26,9 +26,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegm
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A DASH representation.
- */
+/** A DASH representation. */
 public abstract class Representation {
 
   /**
@@ -352,12 +350,12 @@ public abstract class Representation {
     }
 
     @Override
-    public int getSegmentCount(long periodDurationUs) {
+    public long getSegmentCount(long periodDurationUs) {
       return segmentBase.getSegmentCount(periodDurationUs);
     }
 
     @Override
-    public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
+    public long getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
       return segmentBase.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
     }
 

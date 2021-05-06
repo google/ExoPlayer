@@ -18,9 +18,7 @@ package com.google.android.exoplayer2;
 import android.os.Build;
 import java.util.HashSet;
 
-/**
- * Information about the ExoPlayer library.
- */
+/** Information about the ExoPlayer library. */
 public final class ExoPlayerLibraryInfo {
 
   /**

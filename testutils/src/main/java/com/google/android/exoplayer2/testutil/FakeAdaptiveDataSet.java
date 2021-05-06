@@ -27,8 +27,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.Random;
 
 /**
- * Fake data set emulating the data of an adaptive media source.
- * It provides chunk data for all {@link Format}s in the given {@link TrackGroup}.
+ * Fake data set emulating the data of an adaptive media source. It provides chunk data for all
+ * {@link Format}s in the given {@link TrackGroup}.
  */
 public final class FakeAdaptiveDataSet extends FakeDataSet {
 

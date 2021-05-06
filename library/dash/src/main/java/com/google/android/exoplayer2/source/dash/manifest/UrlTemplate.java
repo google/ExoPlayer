@@ -19,8 +19,8 @@ import java.util.Locale;
 
 /**
  * A template from which URLs can be built.
- * <p>
- * URLs are built according to the substitution rules defined in ISO/IEC 23009-1:2014 5.3.9.4.4.
+ *
+ * <p>URLs are built according to the substitution rules defined in ISO/IEC 23009-1:2014 5.3.9.4.4.
  */
 public final class UrlTemplate {
 

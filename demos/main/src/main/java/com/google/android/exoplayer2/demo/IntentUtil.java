@@ -90,8 +90,8 @@ public class IntentUtil {
       MediaItem mediaItem = mediaItems.get(0);
       MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
       intent.setAction(ACTION_VIEW).setData(mediaItem.playbackProperties.uri);
-      if (mediaItem.mediaMetadata.title != null) {
-        intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
+      if (mediaItem.mediaMetadata.trackTitle != null) {
+        intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.trackTitle);
       }
       addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
       addClippingPropertiesToIntent(
@@ -106,8 +106,8 @@ public class IntentUtil {
         addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "_" + i);
         addClippingPropertiesToIntent(
             mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "_" + i);
-        if (mediaItem.mediaMetadata.title != null) {
-          intent.putExtra(TITLE_EXTRA + ("_" + i), mediaItem.mediaMetadata.title);
+        if (mediaItem.mediaMetadata.trackTitle != null) {
+          intent.putExtra(TITLE_EXTRA + ("_" + i), mediaItem.mediaMetadata.trackTitle);
         }
       }
     }
@@ -121,7 +121,7 @@ public class IntentUtil {
         new MediaItem.Builder()
             .setUri(uri)
             .setMimeType(mimeType)
-            .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
+            .setMediaMetadata(new MediaMetadata.Builder().setTrackTitle(title).build())
             .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
             .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
             .setClipStartPositionMs(

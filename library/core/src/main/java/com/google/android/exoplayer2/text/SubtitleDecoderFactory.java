@@ -29,9 +29,7 @@ import com.google.android.exoplayer2.text.webvtt.Mp4WebvttDecoder;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 
-/**
- * A factory for {@link SubtitleDecoder} instances.
- */
+/** A factory for {@link SubtitleDecoder} instances. */
 public interface SubtitleDecoderFactory {
 
   /**

@@ -35,9 +35,7 @@ import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Extracts data from the FLV container format.
- */
+/** Extracts data from the FLV container format. */
 public final class FlvExtractor implements Extractor {
 
   /** Factory for {@link FlvExtractor} instances. */

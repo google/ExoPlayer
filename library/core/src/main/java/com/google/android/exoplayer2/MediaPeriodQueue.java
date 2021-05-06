@@ -706,10 +706,10 @@ import com.google.common.collect.ImmutableList;
             currentPeriodId.windowSequenceNumber);
       }
     } else {
-      // Play the next ad group if it's available.
-      int nextAdGroupIndex = period.getAdGroupIndexForPositionUs(mediaPeriodInfo.endPositionUs);
-      if (nextAdGroupIndex == C.INDEX_UNSET) {
-        // The next ad group can't be played. Play content from the previous end position instead.
+      // Play the next ad group if it's still available.
+      int adIndexInAdGroup = period.getFirstAdIndexToPlay(currentPeriodId.nextAdGroupIndex);
+      if (adIndexInAdGroup == period.getAdCountInAdGroup(currentPeriodId.nextAdGroupIndex)) {
+        // The next ad group has no ads left to play. Play content from the end position instead.
         return getMediaPeriodInfoForContent(
             timeline,
             currentPeriodId.periodUid,
@@ -717,11 +717,10 @@ import com.google.common.collect.ImmutableList;
             /* requestedContentPositionUs= */ mediaPeriodInfo.durationUs,
             currentPeriodId.windowSequenceNumber);
       }
-      int adIndexInAdGroup = period.getFirstAdIndexToPlay(nextAdGroupIndex);
       return getMediaPeriodInfoForAd(
           timeline,
           currentPeriodId.periodUid,
-          nextAdGroupIndex,
+          currentPeriodId.nextAdGroupIndex,
           adIndexInAdGroup,
           /* contentPositionUs= */ mediaPeriodInfo.durationUs,
           currentPeriodId.windowSequenceNumber);

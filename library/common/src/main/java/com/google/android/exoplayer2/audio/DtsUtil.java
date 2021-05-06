@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-/**
- * Utility methods for parsing DTS frames.
- */
+/** Utility methods for parsing DTS frames. */
 public final class DtsUtil {
 
   /**

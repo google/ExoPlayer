@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * A descriptor, as defined by ISO 23009-1, 2nd edition, 5.8.2.
- */
+/** A descriptor, as defined by ISO 23009-1, 2nd edition, 5.8.2. */
 public final class Descriptor {
 
   /** The scheme URI. */

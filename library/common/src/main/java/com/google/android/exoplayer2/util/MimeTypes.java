@@ -25,9 +25,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Defines common MIME types and helper methods.
- */
+/** Defines common MIME types and helper methods. */
 public final class MimeTypes {
 
   public static final String BASE_TYPE_VIDEO = "video";
@@ -114,6 +112,7 @@ public final class MimeTypes {
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
   public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
+  public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
 
   public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
 

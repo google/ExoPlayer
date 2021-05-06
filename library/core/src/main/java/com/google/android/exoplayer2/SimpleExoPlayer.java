@@ -15,12 +15,23 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_ATTRIBUTES;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_SESSION_ID;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_AUX_EFFECT_INFO;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
@@ -65,7 +76,9 @@ import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,7 +92,7 @@ import java.util.concurrent.TimeoutException;
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
         ExoPlayer.AudioComponent,
-        Player.VideoComponent,
+        ExoPlayer.VideoComponent,
         ExoPlayer.TextComponent,
         ExoPlayer.MetadataComponent,
         ExoPlayer.DeviceComponent {
@@ -576,9 +589,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   private static final String TAG = "SimpleExoPlayer";
-  private static final String WRONG_THREAD_ERROR_MESSAGE =
-      "Player is accessed on the wrong thread. See "
-          + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread";
 
   protected final Renderer[] renderers;
 
@@ -586,6 +596,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final Context applicationContext;
   private final ExoPlayerImpl player;
   private final ComponentListener componentListener;
+  private final FrameMetadataListener frameMetadataListener;
   private final CopyOnWriteArraySet<VideoListener> videoListeners;
   private final CopyOnWriteArraySet<AudioListener> audioListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
@@ -605,6 +616,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private Object videoOutput;
   @Nullable private Surface ownedSurface;
   @Nullable private SurfaceHolder surfaceHolder;
+  @Nullable private SphericalGLSurfaceView sphericalGLSurfaceView;
   private boolean surfaceHolderSurfaceIsVideoOutput;
   @Nullable private TextureView textureView;
   @C.VideoScalingMode private int videoScalingMode;
@@ -625,7 +637,7 @@ public class SimpleExoPlayer extends BasePlayer
   private boolean isPriorityTaskManagerRegistered;
   private boolean playerReleased;
   private DeviceInfo deviceInfo;
-  private MediaMetadata currentMediaMetadata;
+  private VideoSize videoSize;
 
   /** @deprecated Use the {@link Builder} and pass it to {@link #SimpleExoPlayer(Builder)}. */
   @Deprecated
@@ -664,6 +676,7 @@ public class SimpleExoPlayer extends BasePlayer
       skipSilenceEnabled = builder.skipSilenceEnabled;
       detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
       componentListener = new ComponentListener();
+      frameMetadataListener = new FrameMetadataListener();
       videoListeners = new CopyOnWriteArraySet<>();
       audioListeners = new CopyOnWriteArraySet<>();
       textOutputs = new CopyOnWriteArraySet<>();
@@ -737,14 +750,17 @@ public class SimpleExoPlayer extends BasePlayer
       wifiLockManager = new WifiLockManager(builder.context);
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
-      currentMediaMetadata = MediaMetadata.EMPTY;
+      videoSize = VideoSize.UNKNOWN;
 
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-      sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
-      sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+      sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
+      sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
       sendRendererMessage(
-          C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
+          C.TRACK_TYPE_VIDEO, MSG_SET_VIDEO_FRAME_METADATA_LISTENER, frameMetadataListener);
+      sendRendererMessage(
+          C.TRACK_TYPE_CAMERA_MOTION, MSG_SET_CAMERA_MOTION_LISTENER, frameMetadataListener);
     } finally {
       constructorFinished.open();
     }
@@ -804,13 +820,18 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
     verifyApplicationThread();
     this.videoScalingMode = videoScalingMode;
-    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
+    sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
   }
 
   @Override
   @C.VideoScalingMode
   public int getVideoScalingMode() {
     return videoScalingMode;
+  }
+
+  @Override
+  public VideoSize getVideoSize() {
+    return videoSize;
   }
 
   @Override
@@ -874,19 +895,18 @@ public class SimpleExoPlayer extends BasePlayer
     if (surfaceView instanceof VideoDecoderOutputBufferRenderer) {
       removeSurfaceCallbacks();
       setVideoOutputInternal(surfaceView);
-      // Although we won't use the surface directly as the video output, still use the holder to
-      // query the surface size, to be informed in changes to the size via componentListener, and
-      // for equality checking in clearVideoSurfaceHolder.
-      surfaceHolderSurfaceIsVideoOutput = false;
-      surfaceHolder = surfaceView.getHolder();
-      surfaceHolder.addCallback(componentListener);
-      Surface surface = surfaceHolder.getSurface();
-      if (surface != null && surface.isValid()) {
-        Rect surfaceSize = surfaceHolder.getSurfaceFrame();
-        maybeNotifySurfaceSizeChanged(surfaceSize.width(), surfaceSize.height());
-      } else {
-        maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
-      }
+      setNonVideoOutputSurfaceHolderInternal(surfaceView.getHolder());
+    } else if (surfaceView instanceof SphericalGLSurfaceView) {
+      removeSurfaceCallbacks();
+      sphericalGLSurfaceView = (SphericalGLSurfaceView) surfaceView;
+      player
+          .createMessage(frameMetadataListener)
+          .setType(FrameMetadataListener.MSG_SET_SPHERICAL_SURFACE_VIEW)
+          .setPayload(sphericalGLSurfaceView)
+          .send();
+      sphericalGLSurfaceView.addVideoSurfaceListener(componentListener);
+      setVideoOutputInternal(sphericalGLSurfaceView.getVideoSurface());
+      setNonVideoOutputSurfaceHolderInternal(surfaceView.getHolder());
     } else {
       setVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
     }
@@ -964,7 +984,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
       analyticsCollector.onAudioAttributesChanged(audioAttributes);
       for (AudioListener audioListener : audioListeners) {
@@ -1003,8 +1023,8 @@ public class SimpleExoPlayer extends BasePlayer
       initializeKeepSessionIdAudioTrack(audioSessionId);
     }
     this.audioSessionId = audioSessionId;
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+    sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     analyticsCollector.onAudioSessionIdChanged(audioSessionId);
     for (AudioListener audioListener : audioListeners) {
       audioListener.onAudioSessionIdChanged(audioSessionId);
@@ -1019,7 +1039,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
     verifyApplicationThread();
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUX_EFFECT_INFO, auxEffectInfo);
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUX_EFFECT_INFO, auxEffectInfo);
   }
 
   @Override
@@ -1059,8 +1079,7 @@ public class SimpleExoPlayer extends BasePlayer
       return;
     }
     this.skipSilenceEnabled = skipSilenceEnabled;
-    sendRendererMessage(
-        C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
     notifySkipSilenceEnabledChanged();
   }
 
@@ -1173,8 +1192,11 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
     verifyApplicationThread();
     videoFrameMetadataListener = listener;
-    sendRendererMessage(
-        C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER, listener);
+    player
+        .createMessage(frameMetadataListener)
+        .setType(FrameMetadataListener.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
+        .setPayload(listener)
+        .send();
   }
 
   @Override
@@ -1183,16 +1205,22 @@ public class SimpleExoPlayer extends BasePlayer
     if (videoFrameMetadataListener != listener) {
       return;
     }
-    sendRendererMessage(
-        C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER, /* payload= */ null);
+    player
+        .createMessage(frameMetadataListener)
+        .setType(FrameMetadataListener.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
+        .setPayload(null)
+        .send();
   }
 
   @Override
   public void setCameraMotionListener(CameraMotionListener listener) {
     verifyApplicationThread();
     cameraMotionListener = listener;
-    sendRendererMessage(
-        C.TRACK_TYPE_CAMERA_MOTION, Renderer.MSG_SET_CAMERA_MOTION_LISTENER, listener);
+    player
+        .createMessage(frameMetadataListener)
+        .setType(FrameMetadataListener.MSG_SET_CAMERA_MOTION_LISTENER)
+        .setPayload(listener)
+        .send();
   }
 
   @Override
@@ -1201,8 +1229,11 @@ public class SimpleExoPlayer extends BasePlayer
     if (cameraMotionListener != listener) {
       return;
     }
-    sendRendererMessage(
-        C.TRACK_TYPE_CAMERA_MOTION, Renderer.MSG_SET_CAMERA_MOTION_LISTENER, /* payload= */ null);
+    player
+        .createMessage(frameMetadataListener)
+        .setType(FrameMetadataListener.MSG_SET_CAMERA_MOTION_LISTENER)
+        .setPayload(null)
+        .send();
   }
 
   @Override
@@ -1321,9 +1352,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public boolean isCommandAvailable(@Command int command) {
+  public Commands getAvailableCommands() {
     verifyApplicationThread();
-    return player.isCommandAvailable(command);
+    return player.getAvailableCommands();
   }
 
   @Override
@@ -1631,7 +1662,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public MediaMetadata getMediaMetadata() {
-    return currentMediaMetadata;
+    return player.getMediaMetadata();
   }
 
   @Override
@@ -1821,7 +1852,10 @@ public class SimpleExoPlayer extends BasePlayer
    * <p>The default is {@code true} and this method will be removed in the future.
    *
    * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
+   * @deprecated Disabling the enforcement can result in hard-to-detect bugs. Do not use this method
+   *     except to ease the transition while wrong thread access problems are fixed.
    */
+  @Deprecated
   public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
@@ -1829,6 +1863,15 @@ public class SimpleExoPlayer extends BasePlayer
   // Internal methods.
 
   private void removeSurfaceCallbacks() {
+    if (sphericalGLSurfaceView != null) {
+      player
+          .createMessage(frameMetadataListener)
+          .setType(FrameMetadataListener.MSG_SET_SPHERICAL_SURFACE_VIEW)
+          .setPayload(null)
+          .send();
+      sphericalGLSurfaceView.removeVideoSurfaceListener(componentListener);
+      sphericalGLSurfaceView = null;
+    }
     if (textureView != null) {
       if (textureView.getSurfaceTextureListener() != componentListener) {
         Log.w(TAG, "SurfaceTextureListener already unset or replaced.");
@@ -1858,7 +1901,7 @@ public class SimpleExoPlayer extends BasePlayer
         messages.add(
             player
                 .createMessage(renderer)
-                .setType(Renderer.MSG_SET_VIDEO_OUTPUT)
+                .setType(MSG_SET_VIDEO_OUTPUT)
                 .setPayload(videoOutput)
                 .send());
       }
@@ -1888,6 +1931,30 @@ public class SimpleExoPlayer extends BasePlayer
     this.videoOutput = videoOutput;
   }
 
+  /**
+   * Sets the holder of the surface that will be displayed to the user, but which should
+   * <em>not</em> be the output for video renderers. This case occurs when video frames need to be
+   * rendered to an intermediate surface (which is not the one held by the provided holder).
+   *
+   * @param nonVideoOutputSurfaceHolder The holder of the surface that will eventually be displayed
+   *     to the user.
+   */
+  private void setNonVideoOutputSurfaceHolderInternal(SurfaceHolder nonVideoOutputSurfaceHolder) {
+    // Although we won't use the view's surface directly as the video output, still use the holder
+    // to query the surface size, to be informed in changes to the size via componentListener, and
+    // for equality checking in clearVideoSurfaceHolder.
+    surfaceHolderSurfaceIsVideoOutput = false;
+    surfaceHolder = nonVideoOutputSurfaceHolder;
+    surfaceHolder.addCallback(componentListener);
+    Surface surface = surfaceHolder.getSurface();
+    if (surface != null && surface.isValid()) {
+      Rect surfaceSize = surfaceHolder.getSurfaceFrame();
+      maybeNotifySurfaceSizeChanged(surfaceSize.width(), surfaceSize.height());
+    } else {
+      maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
+    }
+  }
+
   private void maybeNotifySurfaceSizeChanged(int width, int height) {
     if (width != surfaceWidth || height != surfaceHeight) {
       surfaceWidth = width;
@@ -1901,7 +1968,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void sendVolumeToRenderers() {
     float scaledVolume = audioVolume * audioFocusManager.getVolumeMultiplier();
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_VOLUME, scaledVolume);
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_VOLUME, scaledVolume);
   }
 
   @SuppressWarnings("SuspiciousMethodCalls")
@@ -1949,14 +2016,18 @@ public class SimpleExoPlayer extends BasePlayer
     // The constructor may be executed on a background thread. Wait with accessing the player from
     // the app thread until the constructor finished executing.
     constructorFinished.blockUninterruptible();
-    if (Looper.myLooper() != getApplicationLooper()) {
+    if (Thread.currentThread() != getApplicationLooper().getThread()) {
+      String message =
+          Util.formatInvariant(
+              "Player is accessed on the wrong thread.\n"
+                  + "Current thread: '%s'\n"
+                  + "Expected thread: '%s'\n"
+                  + "See https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+              Thread.currentThread().getName(), getApplicationLooper().getThread().getName());
       if (throwsWhenUsingWrongThread) {
-        throw new IllegalStateException(WRONG_THREAD_ERROR_MESSAGE);
+        throw new IllegalStateException(message);
       }
-      Log.w(
-          TAG,
-          WRONG_THREAD_ERROR_MESSAGE,
-          hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
+      Log.w(TAG, message, hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
     }
   }
@@ -2023,6 +2094,7 @@ public class SimpleExoPlayer extends BasePlayer
           MetadataOutput,
           SurfaceHolder.Callback,
           TextureView.SurfaceTextureListener,
+          SphericalGLSurfaceView.VideoSurfaceListener,
           AudioFocusManager.PlayerControl,
           AudioBecomingNoisyManager.EventListener,
           StreamVolumeManager.Listener,
@@ -2057,13 +2129,16 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onVideoSizeChanged(
-        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      analyticsCollector.onVideoSizeChanged(
-          width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+    public void onVideoSizeChanged(VideoSize videoSize) {
+      SimpleExoPlayer.this.videoSize = videoSize;
+      analyticsCollector.onVideoSizeChanged(videoSize);
       for (VideoListener videoListener : videoListeners) {
+        videoListener.onVideoSizeChanged(videoSize);
         videoListener.onVideoSizeChanged(
-            width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+            videoSize.width,
+            videoSize.height,
+            videoSize.unappliedRotationDegrees,
+            videoSize.pixelWidthHeightRatio);
       }
     }
 
@@ -2177,6 +2252,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onMetadata(Metadata metadata) {
       analyticsCollector.onMetadata(metadata);
+      player.onMetadata(metadata);
       for (MetadataOutput metadataOutput : metadataOutputs) {
         metadataOutput.onMetadata(metadata);
       }
@@ -2227,6 +2303,18 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
       // Do nothing.
+    }
+
+    // SphericalGLSurfaceView.VideoSurfaceListener
+
+    @Override
+    public void onVideoSurfaceCreated(Surface surface) {
+      setVideoOutputInternal(surface);
+    }
+
+    @Override
+    public void onVideoSurfaceDestroyed(Surface surface) {
+      setVideoOutputInternal(/* videoOutput= */ null);
     }
 
     // AudioFocusManager.PlayerControl implementation
@@ -2289,12 +2377,6 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onMediaItemTransition(
-        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
-      currentMediaMetadata = mediaItem == null ? MediaMetadata.EMPTY : mediaItem.mediaMetadata;
-    }
-
-    @Override
     public void onPlaybackStateChanged(@State int playbackState) {
       updateWakeAndWifiLock();
     }
@@ -2310,6 +2392,86 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
       updateWakeAndWifiLock();
+    }
+  }
+
+  /** Listeners that are called on the playback thread. */
+  private static final class FrameMetadataListener
+      implements VideoFrameMetadataListener, CameraMotionListener, PlayerMessage.Target {
+
+    public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER =
+        Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
+    public static final int MSG_SET_CAMERA_MOTION_LISTENER =
+        Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
+    public static final int MSG_SET_SPHERICAL_SURFACE_VIEW = Renderer.MSG_CUSTOM_BASE;
+
+    @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
+    @Nullable private CameraMotionListener cameraMotionListener;
+    @Nullable private VideoFrameMetadataListener internalVideoFrameMetadataListener;
+    @Nullable private CameraMotionListener internalCameraMotionListener;
+
+    @Override
+    public void handleMessage(int messageType, @Nullable Object payload) {
+      switch (messageType) {
+        case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
+          videoFrameMetadataListener = (VideoFrameMetadataListener) payload;
+          break;
+        case MSG_SET_CAMERA_MOTION_LISTENER:
+          cameraMotionListener = (CameraMotionListener) payload;
+          break;
+        case MSG_SET_SPHERICAL_SURFACE_VIEW:
+          SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) payload;
+          if (surfaceView == null) {
+            internalVideoFrameMetadataListener = null;
+            internalCameraMotionListener = null;
+          } else {
+            internalVideoFrameMetadataListener = surfaceView.getVideoFrameMetadataListener();
+            internalCameraMotionListener = surfaceView.getCameraMotionListener();
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    // VideoFrameMetadataListener
+
+    @Override
+    public void onVideoFrameAboutToBeRendered(
+        long presentationTimeUs,
+        long releaseTimeNs,
+        Format format,
+        @Nullable MediaFormat mediaFormat) {
+      if (internalVideoFrameMetadataListener != null) {
+        internalVideoFrameMetadataListener.onVideoFrameAboutToBeRendered(
+            presentationTimeUs, releaseTimeNs, format, mediaFormat);
+      }
+      if (videoFrameMetadataListener != null) {
+        videoFrameMetadataListener.onVideoFrameAboutToBeRendered(
+            presentationTimeUs, releaseTimeNs, format, mediaFormat);
+      }
+    }
+
+    // CameraMotionListener
+
+    @Override
+    public void onCameraMotion(long timeUs, float[] rotation) {
+      if (internalCameraMotionListener != null) {
+        internalCameraMotionListener.onCameraMotion(timeUs, rotation);
+      }
+      if (cameraMotionListener != null) {
+        cameraMotionListener.onCameraMotion(timeUs, rotation);
+      }
+    }
+
+    @Override
+    public void onCameraMotionReset() {
+      if (internalCameraMotionListener != null) {
+        internalCameraMotionListener.onCameraMotionReset();
+      }
+      if (cameraMotionListener != null) {
+        cameraMotionListener.onCameraMotionReset();
+      }
     }
   }
 }

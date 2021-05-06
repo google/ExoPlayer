@@ -18,6 +18,10 @@ package com.google.android.exoplayer2;
 import android.content.Context;
 import android.media.AudioTrack;
 import android.os.Looper;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
@@ -48,6 +52,10 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.video.VideoSize;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
 
 /**
@@ -141,14 +149,18 @@ public interface ExoPlayer extends Player {
      * Adds a listener to receive audio events.
      *
      * @param listener The listener to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addAudioListener(AudioListener listener);
 
     /**
      * Removes a listener of audio events.
      *
      * @param listener The listener to unregister.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeAudioListener(AudioListener listener);
 
     /**
@@ -223,6 +235,160 @@ public interface ExoPlayer extends Player {
     boolean getSkipSilenceEnabled();
   }
 
+  /** The video component of an {@link ExoPlayer}. */
+  interface VideoComponent {
+
+    /**
+     * Sets the {@link C.VideoScalingMode}.
+     *
+     * @param videoScalingMode The {@link C.VideoScalingMode}.
+     */
+    void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
+
+    /** Returns the {@link C.VideoScalingMode}. */
+    @C.VideoScalingMode
+    int getVideoScalingMode();
+
+    /**
+     * Adds a listener to receive video events.
+     *
+     * @param listener The listener to register.
+     * @deprecated Use {@link #addListener(Listener)}.
+     */
+    @Deprecated
+    void addVideoListener(VideoListener listener);
+
+    /**
+     * Removes a listener of video events.
+     *
+     * @param listener The listener to unregister.
+     * @deprecated Use {@link #removeListener(Listener)}.
+     */
+    @Deprecated
+    void removeVideoListener(VideoListener listener);
+
+    /**
+     * Sets a listener to receive video frame metadata events.
+     *
+     * <p>This method is intended to be called by the same component that sets the {@link Surface}
+     * onto which video will be rendered. If using ExoPlayer's standard UI components, this method
+     * should not be called directly from application code.
+     *
+     * @param listener The listener.
+     */
+    void setVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+    /**
+     * Clears the listener which receives video frame metadata events if it matches the one passed.
+     * Else does nothing.
+     *
+     * @param listener The listener to clear.
+     */
+    void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+    /**
+     * Sets a listener of camera motion events.
+     *
+     * @param listener The listener.
+     */
+    void setCameraMotionListener(CameraMotionListener listener);
+
+    /**
+     * Clears the listener which receives camera motion events if it matches the one passed. Else
+     * does nothing.
+     *
+     * @param listener The listener to clear.
+     */
+    void clearCameraMotionListener(CameraMotionListener listener);
+
+    /**
+     * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
+     * currently set on the player.
+     */
+    void clearVideoSurface();
+
+    /**
+     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
+     * Else does nothing.
+     *
+     * @param surface The surface to clear.
+     */
+    void clearVideoSurface(@Nullable Surface surface);
+
+    /**
+     * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
+     * tracking the lifecycle of the surface, and must clear the surface by calling {@code
+     * setVideoSurface(null)} if the surface is destroyed.
+     *
+     * <p>If the surface is held by a {@link SurfaceView}, {@link TextureView} or {@link
+     * SurfaceHolder} then it's recommended to use {@link #setVideoSurfaceView(SurfaceView)}, {@link
+     * #setVideoTextureView(TextureView)} or {@link #setVideoSurfaceHolder(SurfaceHolder)} rather
+     * than this method, since passing the holder allows the player to track the lifecycle of the
+     * surface automatically.
+     *
+     * @param surface The {@link Surface}.
+     */
+    void setVideoSurface(@Nullable Surface surface);
+
+    /**
+     * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
+     * rendered. The player will track the lifecycle of the surface automatically.
+     *
+     * @param surfaceHolder The surface holder.
+     */
+    void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
+
+    /**
+     * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
+     * rendered if it matches the one passed. Else does nothing.
+     *
+     * @param surfaceHolder The surface holder to clear.
+     */
+    void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
+
+    /**
+     * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
+     * lifecycle of the surface automatically.
+     *
+     * @param surfaceView The surface view.
+     */
+    void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
+
+    /**
+     * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one
+     * passed. Else does nothing.
+     *
+     * @param surfaceView The texture view to clear.
+     */
+    void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
+
+    /**
+     * Sets the {@link TextureView} onto which video will be rendered. The player will track the
+     * lifecycle of the surface automatically.
+     *
+     * @param textureView The texture view.
+     */
+    void setVideoTextureView(@Nullable TextureView textureView);
+
+    /**
+     * Clears the {@link TextureView} onto which video is being rendered if it matches the one
+     * passed. Else does nothing.
+     *
+     * @param textureView The texture view to clear.
+     */
+    void clearVideoTextureView(@Nullable TextureView textureView);
+
+    /**
+     * Gets the size of the video.
+     *
+     * <p>The width and height of size could be 0 if there is no video or the size has not been
+     * determined yet.
+     *
+     * @see Listener#onVideoSizeChanged(int, int, int, float)
+     */
+    VideoSize getVideoSize();
+  }
+
   /** The text component of an {@link ExoPlayer}. */
   interface TextComponent {
 
@@ -230,14 +396,18 @@ public interface ExoPlayer extends Player {
      * Registers an output to receive text events.
      *
      * @param listener The output to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addTextOutput(TextOutput listener);
 
     /**
      * Removes a text output.
      *
      * @param listener The output to remove.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeTextOutput(TextOutput listener);
 
     /** Returns the current {@link Cue Cues}. This list may be empty. */
@@ -251,24 +421,38 @@ public interface ExoPlayer extends Player {
      * Adds a {@link MetadataOutput} to receive metadata.
      *
      * @param output The output to register.
+     * @deprecated Use {@link #addListener(Listener)}.
      */
+    @Deprecated
     void addMetadataOutput(MetadataOutput output);
 
     /**
      * Removes a {@link MetadataOutput}.
      *
      * @param output The output to remove.
+     * @deprecated Use {@link #removeListener(Listener)}.
      */
+    @Deprecated
     void removeMetadataOutput(MetadataOutput output);
   }
 
   /** The device component of an {@link ExoPlayer}. */
   interface DeviceComponent {
 
-    /** Adds a listener to receive device events. */
+    /**
+     * Adds a listener to receive device events.
+     *
+     * @deprecated Use {@link #addListener(Listener)}.
+     */
+    @Deprecated
     void addDeviceListener(DeviceListener listener);
 
-    /** Removes a listener of device events. */
+    /**
+     * Removes a listener of device events.
+     *
+     * @deprecated Use {@link #removeListener(Listener)}.
+     */
+    @Deprecated
     void removeDeviceListener(DeviceListener listener);
 
     /** Gets the device information. */
@@ -650,6 +834,10 @@ public interface ExoPlayer extends Player {
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
   AudioComponent getAudioComponent();
+
+  /** Returns the component of this player for video output, or null if video is not supported. */
+  @Nullable
+  VideoComponent getVideoComponent();
 
   /** Returns the component of this player for text output, or null if text is not supported. */
   @Nullable

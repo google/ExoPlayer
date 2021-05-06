@@ -25,9 +25,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * A {@link FrameLayout} that resizes itself to match a specified aspect ratio.
- */
+/** A {@link FrameLayout} that resizes itself to match a specified aspect ratio. */
 public final class AspectRatioFrameLayout extends FrameLayout {
 
   /** Listener to be notified about changes of the aspect ratios of this view. */
@@ -46,7 +44,6 @@ public final class AspectRatioFrameLayout extends FrameLayout {
         float targetAspectRatio, float naturalAspectRatio, boolean aspectRatioMismatch);
   }
 
-  // LINT.IfChange
   /**
    * Resize modes for {@link AspectRatioFrameLayout}. One of {@link #RESIZE_MODE_FIT}, {@link
    * #RESIZE_MODE_FIXED_WIDTH}, {@link #RESIZE_MODE_FIXED_HEIGHT}, {@link #RESIZE_MODE_FILL} or
@@ -83,7 +80,6 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * Either the width or height is increased to obtain the desired aspect ratio.
    */
   public static final int RESIZE_MODE_ZOOM = 4;
-  // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   /**
    * The {@link FrameLayout} will not resize itself if the fractional difference between its natural

@@ -1,0 +1,16 @@
+[Script Info]
+Title: SSA/ASS Test
+Original Script: Abel
+Script Type: V4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name               ,Underline
+Style: WithUnderline       ,-1
+Style: WithoutUnderline    ,0
+
+[Events]
+Format:   Start     ,End       ,Style              ,Text
+Dialogue: 0:00:01.00,0:00:03.00,WithUnderline      ,First line with Underline.
+Dialogue: 0:00:05.00,0:00:07.00,WithoutUnderline   ,Second line without Underline.

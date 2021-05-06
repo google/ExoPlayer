@@ -263,10 +263,8 @@ public final class DefaultDataSource implements DataSource {
   private DataSource getRtmpDataSource() {
     if (rtmpDataSource == null) {
       try {
-        // LINT.IfChange
         Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.rtmp.RtmpDataSource");
         rtmpDataSource = (DataSource) clazz.getConstructor().newInstance();
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
         addListenersToDataSource(rtmpDataSource);
       } catch (ClassNotFoundException e) {
         // Expected if the app was built without the RTMP extension.

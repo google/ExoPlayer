@@ -45,14 +45,12 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.NotificationUtil;
@@ -259,25 +257,6 @@ public class PlayerNotificationManager {
 
   /** A listener for changes to the notification. */
   public interface NotificationListener {
-
-    /**
-     * Called after the notification has been started.
-     *
-     * @param notificationId The id with which the notification has been posted.
-     * @param notification The {@link Notification}.
-     * @deprecated Use {@link #onNotificationPosted(int, Notification, boolean)} instead.
-     */
-    @Deprecated
-    default void onNotificationStarted(int notificationId, Notification notification) {}
-
-    /**
-     * Called after the notification has been cancelled.
-     *
-     * @param notificationId The id of the notification which has been cancelled.
-     * @deprecated Use {@link #onNotificationCancelled(int, boolean)}.
-     */
-    @Deprecated
-    default void onNotificationCancelled(int notificationId) {}
 
     /**
      * Called after the notification has been cancelled.
@@ -644,6 +623,7 @@ public class PlayerNotificationManager {
   private final String channelId;
   private final int notificationId;
   private final MediaDescriptionAdapter mediaDescriptionAdapter;
+  @Nullable private final NotificationListener notificationListener;
   @Nullable private final CustomActionReceiver customActionReceiver;
   private final Handler mainHandler;
   private final NotificationManagerCompat notificationManager;
@@ -659,11 +639,9 @@ public class PlayerNotificationManager {
   @Nullable private NotificationCompat.Builder builder;
   @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
-  @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
-  @Nullable private NotificationListener notificationListener;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
   private boolean usePreviousAction;
   private boolean useNextAction;
@@ -680,152 +658,6 @@ public class PlayerNotificationManager {
   @Priority private int priority;
   private boolean useChronometer;
   @Nullable private String groupKey;
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter) {
-    return createWithNotificationChannel(
-        context,
-        channelId,
-        channelName,
-        /* channelDescription= */ 0,
-        notificationId,
-        mediaDescriptionAdapter);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      @StringRes int channelDescription,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter) {
-    NotificationUtil.createNotificationChannel(
-        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
-    return new PlayerNotificationManager(
-        context, channelId, notificationId, mediaDescriptionAdapter);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener) {
-    return createWithNotificationChannel(
-        context,
-        channelId,
-        channelName,
-        /* channelDescription= */ 0,
-        notificationId,
-        mediaDescriptionAdapter,
-        notificationListener);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public static PlayerNotificationManager createWithNotificationChannel(
-      Context context,
-      String channelId,
-      @StringRes int channelName,
-      @StringRes int channelDescription,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener) {
-    NotificationUtil.createNotificationChannel(
-        context, channelId, channelName, channelDescription, NotificationUtil.IMPORTANCE_LOW);
-    return new PlayerNotificationManager(
-        context, channelId, notificationId, mediaDescriptionAdapter, notificationListener);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        /* notificationListener= */ null,
-        /* customActionReceiver */ null);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        notificationListener,
-        /* customActionReceiver= */ null);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable CustomActionReceiver customActionReceiver) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        /* notificationListener= */ null,
-        customActionReceiver);
-  }
-
-  /** @deprecated Use the {@link Builder} instead. */
-  @Deprecated
-  public PlayerNotificationManager(
-      Context context,
-      String channelId,
-      int notificationId,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
-      @Nullable NotificationListener notificationListener,
-      @Nullable CustomActionReceiver customActionReceiver) {
-    this(
-        context,
-        channelId,
-        notificationId,
-        mediaDescriptionAdapter,
-        notificationListener,
-        customActionReceiver,
-        R.drawable.exo_notification_small_icon,
-        R.drawable.exo_notification_play,
-        R.drawable.exo_notification_pause,
-        R.drawable.exo_notification_stop,
-        R.drawable.exo_notification_rewind,
-        R.drawable.exo_notification_fastforward,
-        R.drawable.exo_notification_previous,
-        R.drawable.exo_notification_next,
-        null);
-  }
 
   private PlayerNotificationManager(
       Context context,
@@ -936,21 +768,6 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The manager calls
-   *     {@link ControlDispatcher#dispatchPrepare(Player)} instead of {@link
-   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that this manager
-   *     uses by default, calls {@link Player#prepare()}. If you wish to intercept or customize this
-   *     behaviour, you can provide a custom implementation of {@link
-   *     ControlDispatcher#dispatchPrepare(Player)} and pass it to {@link
-   *     #setControlDispatcher(ControlDispatcher)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    this.playbackPreparer = playbackPreparer;
-  }
-
-  /**
    * Sets the {@link ControlDispatcher}.
    *
    * @param controlDispatcher The {@link ControlDispatcher}.
@@ -958,47 +775,6 @@ public class PlayerNotificationManager {
   public final void setControlDispatcher(ControlDispatcher controlDispatcher) {
     if (this.controlDispatcher != controlDispatcher) {
       this.controlDispatcher = controlDispatcher;
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets the {@link NotificationListener}.
-   *
-   * <p>Please note that you should call this method before you call {@link #setPlayer(Player)} or
-   * you may not get the {@link NotificationListener#onNotificationStarted(int, Notification)}
-   * called on your listener.
-   *
-   * @param notificationListener The {@link NotificationListener}.
-   * @deprecated Pass the notification listener to the constructor instead.
-   */
-  @Deprecated
-  public final void setNotificationListener(NotificationListener notificationListener) {
-    this.notificationListener = notificationListener;
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public final void setFastForwardIncrementMs(long fastForwardMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
-      invalidate();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public final void setRewindIncrementMs(long rewindMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
       invalidate();
     }
   }
@@ -1028,18 +804,6 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets whether the navigation actions should be used.
-   *
-   * @param useNavigationActions Whether to use navigation actions.
-   * @deprecated Use {@link #setUseNextAction(boolean)} and {@link #setUsePreviousAction(boolean)}.
-   */
-  @Deprecated
-  public final void setUseNavigationActions(boolean useNavigationActions) {
-    setUseNextAction(useNavigationActions);
-    setUsePreviousAction(useNavigationActions);
-  }
-
-  /**
    * If {@link #setUseNextAction useNextAction} is {@code true}, sets whether the next action should
    * also be used in compact view. Has no effect if {@link #setUseNextAction useNextAction} is
    * {@code false}.
@@ -1065,22 +829,6 @@ public class PlayerNotificationManager {
       this.usePreviousActionInCompactView = usePreviousActionInCompactView;
       invalidate();
     }
-  }
-
-  /**
-   * If {@link #setUseNavigationActions useNavigationActions} is {@code true}, sets whether
-   * navigation actions should also be used in compact view. Has no effect if {@link
-   * #setUseNavigationActions useNavigationActions} is {@code false}.
-   *
-   * @param useNavigationActionsInCompactView Whether to use navigation actions in compact view.
-   * @deprecated Use {@link #setUseNextActionInCompactView(boolean)} and {@link
-   *     #setUsePreviousActionInCompactView(boolean)} instead.
-   */
-  @Deprecated
-  public final void setUseNavigationActionsInCompactView(
-      boolean useNavigationActionsInCompactView) {
-    setUseNextActionInCompactView(useNavigationActionsInCompactView);
-    setUsePreviousActionInCompactView(useNavigationActionsInCompactView);
   }
 
   /**
@@ -1192,8 +940,8 @@ public class PlayerNotificationManager {
    * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
    *
    * <p>To set the priority for API levels above 25, you can create your own {@link
-   * NotificationChannel} with a given importance level and pass the id of the channel to the {@link
-   * #PlayerNotificationManager(Context, String, int, MediaDescriptionAdapter) constructor}.
+   * NotificationChannel} with a given importance level and pass the id of the channel to {@link
+   * Builder#Builder(Context, int, String, MediaDescriptionAdapter)}.
    *
    * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
    *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link
@@ -1290,8 +1038,6 @@ public class PlayerNotificationManager {
     }
   }
 
-  // We're calling a deprecated listener method that we still want to notify.
-  @SuppressWarnings("deprecation")
   private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
@@ -1303,22 +1049,16 @@ public class PlayerNotificationManager {
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
       context.registerReceiver(notificationBroadcastReceiver, intentFilter);
-      if (notificationListener != null) {
-        notificationListener.onNotificationStarted(notificationId, notification);
-      }
     }
-    @Nullable NotificationListener listener = notificationListener;
-    if (listener != null) {
+    if (notificationListener != null) {
       // Always pass true for ongoing with the first notification to tell a service to go into
       // foreground even when paused.
-      listener.onNotificationPosted(
+      notificationListener.onNotificationPosted(
           notificationId, notification, ongoing || !isNotificationStarted);
     }
     isNotificationStarted = true;
   }
 
-  // We're calling a deprecated listener method that we still want to notify.
-  @SuppressWarnings("deprecation")
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
       isNotificationStarted = false;
@@ -1327,7 +1067,6 @@ public class PlayerNotificationManager {
       context.unregisterReceiver(notificationBroadcastReceiver);
       if (notificationListener != null) {
         notificationListener.onNotificationCancelled(notificationId, dismissedByUser);
-        notificationListener.onNotificationCancelled(notificationId);
       }
     }
   }
@@ -1682,11 +1421,7 @@ public class PlayerNotificationManager {
       String action = intent.getAction();
       if (ACTION_PLAY.equals(action)) {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
-          if (playbackPreparer != null) {
-            playbackPreparer.preparePlayback();
-          } else {
-            controlDispatcher.dispatchPrepare(player);
-          }
+          controlDispatcher.dispatchPrepare(player);
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }

@@ -21,9 +21,7 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/**
- * Builds {@link Renderer} instances for use by a {@link SimpleExoPlayer}.
- */
+/** Builds {@link Renderer} instances for use by a {@link SimpleExoPlayer}. */
 public interface RenderersFactory {
 
   /**

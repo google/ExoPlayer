@@ -19,6 +19,10 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
 import android.os.Looper;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.BasePlayer;
@@ -44,6 +48,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -85,13 +90,14 @@ public final class CastPlayer extends BasePlayer {
       new Commands.Builder()
           .addAll(
               COMMAND_PLAY_PAUSE,
-              COMMAND_PREPARE_STOP_RELEASE,
+              COMMAND_PREPARE_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_MEDIA_ITEM,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
               COMMAND_GET_MEDIA_ITEMS,
               COMMAND_GET_MEDIA_ITEMS_METADATA,
+              COMMAND_SET_MEDIA_ITEMS_METADATA,
               COMMAND_CHANGE_MEDIA_ITEMS)
           .build();
 
@@ -180,67 +186,6 @@ public final class CastPlayer extends BasePlayer {
     updateInternalStateAndNotifyIfChanged();
   }
 
-  // Media Queue manipulation methods.
-
-  /** @deprecated Use {@link #setMediaItems(List, int, long)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
-    return setMediaItemsInternal(
-        new MediaQueueItem[] {item}, /* startWindowIndex= */ 0, positionMs, repeatMode.value);
-  }
-
-  /**
-   * @deprecated Use {@link #setMediaItems(List, int, long)} and {@link #setRepeatMode(int)}
-   *     instead.
-   */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> loadItems(
-      MediaQueueItem[] items, int startIndex, long positionMs, @RepeatMode int repeatMode) {
-    return setMediaItemsInternal(items, startIndex, positionMs, repeatMode);
-  }
-
-  /** @deprecated Use {@link #addMediaItems(List)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> addItems(MediaQueueItem... items) {
-    return addMediaItemsInternal(items, MediaQueueItem.INVALID_ITEM_ID);
-  }
-
-  /** @deprecated Use {@link #addMediaItems(int, List)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> addItems(int periodId, MediaQueueItem... items) {
-    if (periodId == MediaQueueItem.INVALID_ITEM_ID
-        || currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
-      return addMediaItemsInternal(items, periodId);
-    }
-    return null;
-  }
-
-  /** @deprecated Use {@link #removeMediaItem(int)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> removeItem(int periodId) {
-    if (currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
-      return removeMediaItemsInternal(new int[] {periodId});
-    }
-    return null;
-  }
-
-  /** @deprecated Use {@link #moveMediaItem(int, int)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> moveItem(int periodId, int newIndex) {
-    Assertions.checkArgument(newIndex >= 0 && newIndex < currentTimeline.getWindowCount());
-    int fromIndex = currentTimeline.getIndexOfPeriod(periodId);
-    if (fromIndex != C.INDEX_UNSET && fromIndex != newIndex) {
-      return moveMediaItemsInternal(new int[] {periodId}, fromIndex, newIndex);
-    }
-    return null;
-  }
-
   /**
    * Returns the item that corresponds to the period with the given id, or null if no media queue or
    * period with id {@code periodId} exist.
@@ -275,12 +220,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   // Player implementation.
-
-  @Override
-  @Nullable
-  public VideoComponent getVideoComponent() {
-    return null;
-  }
 
   @Override
   public Looper getApplicationLooper() {
@@ -369,8 +308,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public boolean isCommandAvailable(@Command int command) {
-    return availableCommands.contains(command);
+  public Commands getAvailableCommands() {
+    return availableCommands;
   }
 
   @Override
@@ -651,6 +590,47 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public float getVolume() {
     return 1;
+  }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurface() {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurface(@Nullable Surface surface) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurface(@Nullable Surface surface) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVideoTextureView(@Nullable TextureView textureView) {}
+  /** This method is not supported and does nothing. */
+  @Override
+  public void clearVideoTextureView(@Nullable TextureView textureView) {}
+
+  /** This method is not supported and returns {@link VideoSize#UNKNOWN}. */
+  @Override
+  public VideoSize getVideoSize() {
+    return VideoSize.UNKNOWN;
   }
 
   /** This method is not supported and returns an empty list. */

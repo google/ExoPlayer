@@ -24,14 +24,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link DataSource} that can be used as part of a task registered with a
- * {@link PriorityTaskManager}.
- * <p>
- * Calls to {@link #open(DataSpec)} and {@link #read(byte[], int, int)} are allowed to proceed only
- * if there are no higher priority tasks registered to the {@link PriorityTaskManager}. If there
- * exists a higher priority task then {@link PriorityTaskManager.PriorityTooLowException} is thrown.
- * <p>
- * Instances of this class are intended to be used as parts of (possibly larger) tasks that are
+ * A {@link DataSource} that can be used as part of a task registered with a {@link
+ * PriorityTaskManager}.
+ *
+ * <p>Calls to {@link #open(DataSpec)} and {@link #read(byte[], int, int)} are allowed to proceed
+ * only if there are no higher priority tasks registered to the {@link PriorityTaskManager}. If
+ * there exists a higher priority task then {@link PriorityTaskManager.PriorityTooLowException} is
+ * thrown.
+ *
+ * <p>Instances of this class are intended to be used as parts of (possibly larger) tasks that are
  * registered with the {@link PriorityTaskManager}, and hence do <em>not</em> register as tasks
  * themselves.
  */

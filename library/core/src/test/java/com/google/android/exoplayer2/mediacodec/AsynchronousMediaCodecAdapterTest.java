@@ -24,6 +24,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.HandlerThread;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.Format;
 import java.lang.reflect.Constructor;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +46,7 @@ public class AsynchronousMediaCodecAdapterTest {
         new MediaCodecAdapter.Configuration(
             codecInfo,
             createMediaFormat("format"),
+            /* format= */ new Format.Builder().build(),
             /* surface= */ null,
             /* crypto= */ null,
             /* flags= */ 0);

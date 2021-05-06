@@ -36,9 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Manages the background loading of {@link Loadable}s.
- */
+/** Manages the background loading of {@link Loadable}s. */
 public final class Loader implements LoaderErrorThrower {
 
   /**

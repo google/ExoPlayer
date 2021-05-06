@@ -1,0 +1,12 @@
+@mixin link-colors($clr, $hover-clr: default, $active-clr: default, $focus-clr: null, $theme: default, $ignore-path: false) {
+  @include plain() {
+    text-decoration: none;
+  }
+  @include hover() {
+    text-decoration: underline;
+  }
+  @include active() {
+    text-decoration: none;
+  }
+  @include clickable($clr, null, $hover-clr, null, $active-clr, null, $focus-clr, null, $theme, $ignore-path);
+}

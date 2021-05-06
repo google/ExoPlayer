@@ -21,9 +21,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Defines the capabilities of a {@link Renderer}.
- */
+/** Defines the capabilities of a {@link Renderer}. */
 public interface RendererCapabilities {
 
   /** @deprecated Use {@link C.FormatSupport} instead. */

@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import java.util.List;
 
-/**
- * Receives text output.
- */
+/** Receives text output. */
 public interface TextOutput {
 
   /**

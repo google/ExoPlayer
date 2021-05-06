@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
-import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
@@ -676,10 +676,11 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     // Ensure we read up to bytesRemaining, in case this was a Range request with finite end, but
     // the server does not support Range requests and transmitted the entire resource.
     int bytesRead =
-        Ints.min(
-            bytesRemaining != C.LENGTH_UNSET ? (int) bytesRemaining : Integer.MAX_VALUE,
-            readBuffer.remaining(),
-            readLength);
+        (int)
+            Longs.min(
+                bytesRemaining != C.LENGTH_UNSET ? bytesRemaining : Long.MAX_VALUE,
+                readBuffer.remaining(),
+                readLength);
 
     readBuffer.get(buffer, offset, bytesRead);
 

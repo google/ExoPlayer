@@ -19,7 +19,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
-import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
@@ -65,14 +64,6 @@ import java.util.concurrent.Executor;
  */
 public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
 
-  /** @deprecated Use {@link #HlsDownloader(MediaItem, CacheDataSource.Factory)} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public HlsDownloader(
-      Uri playlistUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    this(playlistUri, streamKeys, cacheDataSourceFactory, Runnable::run);
-  }
-
   /**
    * Creates a new instance.
    *
@@ -82,21 +73,6 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    */
   public HlsDownloader(MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
     this(mediaItem, cacheDataSourceFactory, Runnable::run);
-  }
-
-  /**
-   * @deprecated Use {@link #HlsDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
-   */
-  @Deprecated
-  public HlsDownloader(
-      Uri playlistUri,
-      List<StreamKey> streamKeys,
-      CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    this(
-        new MediaItem.Builder().setUri(playlistUri).setStreamKeys(streamKeys).build(),
-        cacheDataSourceFactory,
-        executor);
   }
 
   /**

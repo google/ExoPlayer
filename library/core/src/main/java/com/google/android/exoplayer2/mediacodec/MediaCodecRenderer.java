@@ -81,9 +81,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * An abstract renderer that uses {@link MediaCodec} to decode samples for rendering.
- */
+/** An abstract renderer that uses {@link MediaCodec} to decode samples for rendering. */
 public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Thrown when a failure occurs instantiating a decoder. */
@@ -420,7 +418,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
     bypassBatchBuffer.data.order(ByteOrder.nativeOrder());
     resetCodecStateForRelease();
-    linearBlockMode = false;
   }
 
   /**
@@ -974,6 +971,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     mediaCryptoRequiresSecureDecoder = false;
+    linearBlockMode = false;
   }
 
   protected MediaCodecDecoderException createDecoderException(

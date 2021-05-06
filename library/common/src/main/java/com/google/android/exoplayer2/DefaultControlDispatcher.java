@@ -29,9 +29,8 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   private static final int MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
   private final Timeline.Window window;
-
-  private long rewindIncrementMs;
-  private long fastForwardIncrementMs;
+  private final long rewindIncrementMs;
+  private final long fastForwardIncrementMs;
 
   /** Creates an instance. */
   public DefaultControlDispatcher() {
@@ -166,24 +165,6 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   /** Returns the fast forward increment in milliseconds. */
   public long getFastForwardIncrementMs() {
     return fastForwardIncrementMs;
-  }
-
-  /**
-   * @deprecated Create a new instance instead and pass the new instance to the UI component. This
-   *     makes sure the UI gets updated and is in sync with the new values.
-   */
-  @Deprecated
-  public void setRewindIncrementMs(long rewindMs) {
-    this.rewindIncrementMs = rewindMs;
-  }
-
-  /**
-   * @deprecated Create a new instance instead and pass the new instance to the UI component. This
-   *     makes sure the UI gets updated and is in sync with the new values.
-   */
-  @Deprecated
-  public void setFastForwardIncrementMs(long fastForwardMs) {
-    this.fastForwardIncrementMs = fastForwardMs;
   }
 
   // Internal methods.

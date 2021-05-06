@@ -20,8 +20,8 @@ import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
 /**
- * An implementation of {@link DashSegmentIndex} that wraps a {@link ChunkIndex} parsed from a
- * media stream.
+ * An implementation of {@link DashSegmentIndex} that wraps a {@link ChunkIndex} parsed from a media
+ * stream.
  */
 public final class DashWrappingSegmentIndex implements DashSegmentIndex {
 
@@ -48,12 +48,12 @@ public final class DashWrappingSegmentIndex implements DashSegmentIndex {
   }
 
   @Override
-  public int getSegmentCount(long periodDurationUs) {
+  public long getSegmentCount(long periodDurationUs) {
     return chunkIndex.length;
   }
 
   @Override
-  public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
+  public long getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
     return chunkIndex.length;
   }
 

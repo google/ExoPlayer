@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import java.io.IOException;
 
-/**
- * Conditionally throws errors affecting a {@link Loader}.
- */
+/** Conditionally throws errors affecting a {@link Loader}. */
 public interface LoaderErrorThrower {
 
   /**

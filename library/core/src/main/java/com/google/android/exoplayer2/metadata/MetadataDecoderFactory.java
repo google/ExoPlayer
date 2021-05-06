@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.scte35.SpliceInfoDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 
-/**
- * A factory for {@link MetadataDecoder} instances.
- */
+/** A factory for {@link MetadataDecoder} instances. */
 public interface MetadataDecoderFactory {
 
   /**

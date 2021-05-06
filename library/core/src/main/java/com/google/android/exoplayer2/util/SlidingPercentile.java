@@ -24,10 +24,10 @@ import java.util.Comparator;
  * configured. Once the total weight of the values reaches the maximum weight, the oldest value is
  * reduced in weight until it reaches zero and is removed. This maintains a constant total weight,
  * equal to the maximum allowed, at the steady state.
- * <p>
- * This class can be used for bandwidth estimation based on a sliding window of past transfer rate
- * observations. This is an alternative to sliding mean and exponential averaging which suffer from
- * susceptibility to outliers and slow adaptation to step functions.
+ *
+ * <p>This class can be used for bandwidth estimation based on a sliding window of past transfer
+ * rate observations. This is an alternative to sliding mean and exponential averaging which suffer
+ * from susceptibility to outliers and slow adaptation to step functions.
  *
  * @see <a href="http://en.wikipedia.org/wiki/Moving_average">Wiki: Moving average</a>
  * @see <a href="http://en.wikipedia.org/wiki/Selection_algorithm">Wiki: Selection algorithm</a>

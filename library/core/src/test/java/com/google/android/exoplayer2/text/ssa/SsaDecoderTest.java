@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 public final class SsaDecoderTest {
 
   private static final String EMPTY = "media/ssa/empty";
+  private static final String EMPTY_STYLE_LINE = "media/ssa/empty_style_line";
   private static final String TYPICAL = "media/ssa/typical";
   private static final String TYPICAL_HEADER_ONLY = "media/ssa/typical_header";
   private static final String TYPICAL_DIALOGUE_ONLY = "media/ssa/typical_dialogue";
@@ -50,6 +51,8 @@ public final class SsaDecoderTest {
   private static final String STYLE_COLORS = "media/ssa/style_colors";
   private static final String STYLE_FONT_SIZE = "media/ssa/style_font_size";
   private static final String STYLE_BOLD_ITALIC = "media/ssa/style_bold_italic";
+  private static final String STYLE_UNDERLINE = "media/ssa/style_underline";
+  private static final String STYLE_STRIKEOUT = "media/ssa/style_strikeout";
 
   @Test
   public void decodeEmpty() throws IOException {
@@ -58,7 +61,27 @@ public final class SsaDecoderTest {
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
-    assertThat(subtitle.getCues(0).isEmpty()).isTrue();
+  }
+
+  @Test
+  public void decodeEmptyStyleLine() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_STYLE_LINE);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, /* reset= */ false);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
+    Cue cue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    SpannedSubject.assertThat((Spanned) cue.text).hasNoSpans();
+    assertThat(cue.textSize).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.textSizeType).isEqualTo(Cue.TYPE_UNSET);
+    assertThat(cue.textAlignment).isNull();
+    assertThat(cue.positionAnchor).isEqualTo(Cue.TYPE_UNSET);
+    assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.lineAnchor).isEqualTo(Cue.TYPE_UNSET);
+    assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
   }
 
   @Test
@@ -354,6 +377,39 @@ public final class SsaDecoderTest {
     Spanned thirdCueText =
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4))).text;
     SpannedSubject.assertThat(thirdCueText).hasBoldItalicSpanBetween(0, thirdCueText.length());
+  }
+
+  @Test
+  public void decodeUnderline() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_UNDERLINE);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+
+    Spanned firstCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
+    SpannedSubject.assertThat(firstCueText).hasUnderlineSpanBetween(0, firstCueText.length());
+    Spanned secondCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
+    SpannedSubject.assertThat(secondCueText).hasNoUnderlineSpanBetween(0, secondCueText.length());
+  }
+
+  @Test
+  public void decodeStrikeout() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_STRIKEOUT);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+
+    Spanned firstCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
+    SpannedSubject.assertThat(firstCueText).hasStrikethroughSpanBetween(0, firstCueText.length());
+    Spanned secondCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
+    SpannedSubject.assertThat(secondCueText)
+        .hasNoStrikethroughSpanBetween(0, secondCueText.length());
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {

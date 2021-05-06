@@ -31,9 +31,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
-/**
- * Defines constants used by the library.
- */
+/** Defines constants used by the library. */
 @SuppressWarnings("InlinedApi")
 public final class C {
 
@@ -537,7 +535,6 @@ public final class C {
   /** Indicates that a buffer should be decoded but not rendered. */
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
-  // LINT.IfChange
   /**
    * Video decoder output modes. Possible modes are {@link #VIDEO_OUTPUT_MODE_NONE}, {@link
    * #VIDEO_OUTPUT_MODE_YUV} and {@link #VIDEO_OUTPUT_MODE_SURFACE_YUV}.
@@ -552,10 +549,6 @@ public final class C {
   public static final int VIDEO_OUTPUT_MODE_YUV = 0;
   /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
   public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
-  // LINT.ThenChange(
-  //     ../../../../../../../../../../../media/libraries/decoder_av1/src/main/jni/gav1_jni.cc,
-  //     ../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
-  // )
 
   /**
    * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
@@ -609,11 +602,11 @@ public final class C {
 
   /**
    * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
-   * #TYPE_HLS} or {@link #TYPE_OTHER}.
+   * #TYPE_HLS}, {@link #TYPE_RTSP} or {@link #TYPE_OTHER}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
+  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
   public @interface ContentType {}
   /**
    * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
@@ -627,11 +620,13 @@ public final class C {
    * Value returned by {@link Util#inferContentType(String)} for HLS manifests.
    */
   public static final int TYPE_HLS = 2;
+  /** Value returned by {@link Util#inferContentType(String)} for RTSP. */
+  public static final int TYPE_RTSP = 3;
   /**
    * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
-   * Smooth Streaming manifests.
+   * Smooth Streaming manifests, or RTSP URIs.
    */
-  public static final int TYPE_OTHER = 3;
+  public static final int TYPE_OTHER = 4;
 
   /**
    * A return value for methods where the end of an input was encountered.

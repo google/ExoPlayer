@@ -63,14 +63,6 @@ public final class NotificationUtil {
   /** @see NotificationManager#IMPORTANCE_HIGH */
   public static final int IMPORTANCE_HIGH = NotificationManager.IMPORTANCE_HIGH;
 
-  /** @deprecated Use {@link #createNotificationChannel(Context, String, int, int, int)}. */
-  @Deprecated
-  public static void createNotificationChannel(
-      Context context, String id, @StringRes int nameResourceId, @Importance int importance) {
-    createNotificationChannel(
-        context, id, nameResourceId, /* descriptionResourceId= */ 0, importance);
-  }
-
   /**
    * Creates a notification channel that notifications can be posted to. See {@link
    * NotificationChannel} and {@link
