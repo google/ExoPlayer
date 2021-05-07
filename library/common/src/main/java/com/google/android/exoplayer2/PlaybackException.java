@@ -204,8 +204,25 @@ public class PlaybackException extends Exception implements Bundleable {
 
   // Bundleable implementation.
 
+  /**
+   * Identifiers for fields in a {@link Bundle} which represents a playback exception. Subclasses
+   * may use {@link #FIELD_CUSTOM_ID_BASE} to generate more keys using {@link #keyForField(int)}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        FIELD_INT_ERROR_CODE,
+        FIELD_LONG_TIMESTAMP_MS,
+        FIELD_STRING_MESSAGE,
+        FIELD_STRING_CAUSE_CLASS_NAME,
+        FIELD_STRING_CAUSE_MESSAGE,
+      })
+  protected @interface FieldNumber {}
+
   private static final int FIELD_INT_ERROR_CODE = 0;
-  private static final int FIELD_LONG_TIME_STAMP_MS = 1;
+  private static final int FIELD_LONG_TIMESTAMP_MS = 1;
   private static final int FIELD_STRING_MESSAGE = 2;
   private static final int FIELD_STRING_CAUSE_CLASS_NAME = 3;
   private static final int FIELD_STRING_CAUSE_MESSAGE = 4;
@@ -227,7 +244,7 @@ public class PlaybackException extends Exception implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putInt(keyForField(FIELD_INT_ERROR_CODE), errorCode);
-    bundle.putLong(keyForField(FIELD_LONG_TIME_STAMP_MS), timestampMs);
+    bundle.putLong(keyForField(FIELD_LONG_TIMESTAMP_MS), timestampMs);
     bundle.putString(keyForField(FIELD_STRING_MESSAGE), getMessage());
     @Nullable Throwable cause = getCause();
     if (cause != null) {
@@ -250,7 +267,7 @@ public class PlaybackException extends Exception implements Bundleable {
             keyForField(FIELD_INT_ERROR_CODE), /* defaultValue= */ ERROR_CODE_UNSPECIFIED);
     long timestampMs =
         bundle.getLong(
-            keyForField(FIELD_LONG_TIME_STAMP_MS),
+            keyForField(FIELD_LONG_TIMESTAMP_MS),
             /* defaultValue= */ SystemClock.elapsedRealtime());
     @Nullable String message = bundle.getString(keyForField(FIELD_STRING_MESSAGE));
     @Nullable String causeClassName = bundle.getString(keyForField(FIELD_STRING_CAUSE_CLASS_NAME));
@@ -279,10 +296,10 @@ public class PlaybackException extends Exception implements Bundleable {
   }
 
   /**
-   * Converts the given {@code field} to a string which can be used as a field key when implementing
-   * {@link #toBundle()} and {@link Bundleable.Creator}.
+   * Converts the given {@link FieldNumber} to a string which can be used as a field key when
+   * implementing {@link #toBundle()} and {@link Bundleable.Creator}.
    */
-  protected static String keyForField(int field) {
+  protected static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
   }
 
