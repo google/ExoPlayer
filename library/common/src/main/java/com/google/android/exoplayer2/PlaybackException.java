@@ -192,7 +192,20 @@ public class PlaybackException extends Exception implements Bundleable {
     this(message, cause, errorCode, Clock.DEFAULT.elapsedRealtime());
   }
 
-  private PlaybackException(
+  /** Creates a new instance using the fields obtained from the given {@link Bundle}. */
+  protected PlaybackException(Bundle bundle) {
+    this(
+        /* message= */ bundle.getString(keyForField(FIELD_STRING_MESSAGE)),
+        /* cause= */ getCauseFromBundle(bundle),
+        /* errorCode= */ bundle.getInt(
+            keyForField(FIELD_INT_ERROR_CODE), /* defaultValue= */ ERROR_CODE_UNSPECIFIED),
+        /* timestampMs= */ bundle.getLong(
+            keyForField(FIELD_LONG_TIMESTAMP_MS),
+            /* defaultValue= */ SystemClock.elapsedRealtime()));
+  }
+
+  /** Creates a new instance using the given values. */
+  protected PlaybackException(
       @Nullable String message,
       @Nullable Throwable cause,
       @ErrorCode int errorCode,
@@ -227,9 +240,6 @@ public class PlaybackException extends Exception implements Bundleable {
   private static final int FIELD_STRING_CAUSE_CLASS_NAME = 3;
   private static final int FIELD_STRING_CAUSE_MESSAGE = 4;
 
-  /** Object that can restore {@link PlaybackException} from a {@link Bundle}. */
-  public static final Creator<PlaybackException> CREATOR = PlaybackException::fromBundle;
-
   /**
    * Defines a minimum field id value for subclasses to use when implementing {@link #toBundle()}
    * and {@link Bundleable.Creator}.
@@ -238,6 +248,9 @@ public class PlaybackException extends Exception implements Bundleable {
    * offset on this constant and passing the result to {@link #keyForField(int)}.
    */
   protected static final int FIELD_CUSTOM_ID_BASE = 1000;
+
+  /** Object that can create a {@link PlaybackException} from a {@link Bundle}. */
+  public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
 
   @CallSuper
   @Override
@@ -255,21 +268,28 @@ public class PlaybackException extends Exception implements Bundleable {
   }
 
   /**
-   * Creates and returns a new instance using the field data in the given {@link Bundle}.
-   *
-   * @param bundle The {@link Bundle} from which to obtain the returned instance's contents.
-   * @return The created instance.
+   * Converts the given {@link FieldNumber} to a string which can be used as a field key when
+   * implementing {@link #toBundle()} and {@link Bundleable.Creator}.
    */
-  protected static PlaybackException fromBundle(Bundle bundle) {
-    @ErrorCode
-    int errorCode =
-        bundle.getInt(
-            keyForField(FIELD_INT_ERROR_CODE), /* defaultValue= */ ERROR_CODE_UNSPECIFIED);
-    long timestampMs =
-        bundle.getLong(
-            keyForField(FIELD_LONG_TIMESTAMP_MS),
-            /* defaultValue= */ SystemClock.elapsedRealtime());
-    @Nullable String message = bundle.getString(keyForField(FIELD_STRING_MESSAGE));
+  protected static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  // Creates a new {@link Throwable} with possibly {@code null} message.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static Throwable createThrowable(Class<?> clazz, @Nullable String message)
+      throws Exception {
+    return (Throwable) clazz.getConstructor(String.class).newInstance(message);
+  }
+
+  // Creates a new {@link RemoteException} with possibly {@code null} message.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static RemoteException createRemoteException(@Nullable String message) {
+    return new RemoteException(message);
+  }
+
+  @Nullable
+  private static Throwable getCauseFromBundle(Bundle bundle) {
     @Nullable String causeClassName = bundle.getString(keyForField(FIELD_STRING_CAUSE_CLASS_NAME));
     @Nullable String causeMessage = bundle.getString(keyForField(FIELD_STRING_CAUSE_MESSAGE));
     @Nullable Throwable cause = null;
@@ -292,27 +312,6 @@ public class PlaybackException extends Exception implements Bundleable {
         }
       }
     }
-    return new PlaybackException(message, cause, errorCode, timestampMs);
-  }
-
-  /**
-   * Converts the given {@link FieldNumber} to a string which can be used as a field key when
-   * implementing {@link #toBundle()} and {@link Bundleable.Creator}.
-   */
-  protected static String keyForField(@FieldNumber int field) {
-    return Integer.toString(field, Character.MAX_RADIX);
-  }
-
-  // Creates a new {@link Throwable} with possibly {@code null} message.
-  @SuppressWarnings("nullness:argument.type.incompatible")
-  private static Throwable createThrowable(Class<?> clazz, @Nullable String message)
-      throws Exception {
-    return (Throwable) clazz.getConstructor(String.class).newInstance(message);
-  }
-
-  // Creates a new {@link RemoteException} with possibly {@code null} message.
-  @SuppressWarnings("nullness:argument.type.incompatible")
-  private static RemoteException createRemoteException(@Nullable String message) {
-    return new RemoteException(message);
+    return cause;
   }
 }
