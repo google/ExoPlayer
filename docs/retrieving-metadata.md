@@ -7,14 +7,14 @@ title: Retrieving metadata
 The metadata of the media can be retrieved during playback in multiple ways. The
 most straightforward is to listen for the
 `Player.EventListener#onMediaMetadataChanged` event; this will provide a
-[`MediaMetadata`][] object for use, which has fields such as `trackTitle` and
+[`MediaMetadata`][] object for use, which has fields such as `title` and
 `albumArtist`. Alternatively, calling `Player#getMediaMetadata` returns the same
 object.
 
 ~~~
 public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
-  if (mediaMetadata.trackTitle != null) {
-    handleTrackTitle(mediaMetadata.trackTitle);
+  if (mediaMetadata.title != null) {
+    handleTitle(mediaMetadata.title);
   }
 }
 

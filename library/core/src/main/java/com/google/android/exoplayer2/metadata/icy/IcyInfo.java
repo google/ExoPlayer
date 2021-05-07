@@ -56,7 +56,7 @@ public final class IcyInfo implements Metadata.Entry {
   @Override
   public void populateMediaMetadata(MediaMetadata.Builder builder) {
     if (title != null) {
-      builder.setTrackTitle(title);
+      builder.setTitle(title);
     }
   }
 

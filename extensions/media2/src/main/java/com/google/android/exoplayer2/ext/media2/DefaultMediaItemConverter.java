@@ -123,14 +123,14 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
    * MediaItem ExoPlayer MediaItem}.
    */
   protected androidx.media2.common.MediaMetadata getMetadata(MediaItem exoPlayerMediaItem) {
-    @Nullable String title = exoPlayerMediaItem.mediaMetadata.title;
+    @Nullable CharSequence title = exoPlayerMediaItem.mediaMetadata.title;
 
     androidx.media2.common.MediaMetadata.Builder metadataBuilder =
         new androidx.media2.common.MediaMetadata.Builder()
             .putString(METADATA_KEY_MEDIA_ID, exoPlayerMediaItem.mediaId);
     if (title != null) {
-      metadataBuilder.putString(METADATA_KEY_TITLE, title);
-      metadataBuilder.putString(METADATA_KEY_DISPLAY_TITLE, title);
+      metadataBuilder.putString(METADATA_KEY_TITLE, title.toString());
+      metadataBuilder.putString(METADATA_KEY_DISPLAY_TITLE, title.toString());
     }
     return metadataBuilder.build();
   }
