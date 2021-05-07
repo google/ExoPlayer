@@ -53,6 +53,7 @@
         `EventListener.onMediaMetadataChanged`.
     *   Fix bug when transitions from content to ad periods called
         `onMediaItemTransition` by mistake.
+    *   Deprecate `ExoPlayer.Builder`. Use `SimpleExoPlayer.Builder` instead.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.

@@ -60,7 +60,7 @@ import java.util.List;
 
 /**
  * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from {@link
- * SimpleExoPlayer.Builder} or {@link ExoPlayer.Builder}.
+ * SimpleExoPlayer.Builder}.
  *
  * <h3>Player components</h3>
  *
@@ -73,11 +73,11 @@ import java.util.List;
  * <ul>
  *   <li><b>{@link MediaSource MediaSources}</b> that define the media to be played, load the media,
  *       and from which the loaded media can be read. MediaSources are created from {@link MediaItem
- *       MediaItems} by the {@link MediaSourceFactory} injected in the {@link
- *       Builder#setMediaSourceFactory Builder}, or can be added directly by methods like {@link
- *       #setMediaSource(MediaSource)}. The library provides a {@link DefaultMediaSourceFactory} for
- *       progressive media files, DASH, SmoothStreaming and HLS, including functionality for
- *       side-loading subtitle files and clipping media.
+ *       MediaItems} by the {@link MediaSourceFactory} injected into the player {@link
+ *       SimpleExoPlayer.Builder#setMediaSourceFactory Builder}, or can be added directly by methods
+ *       like {@link #setMediaSource(MediaSource)}. The library provides a {@link
+ *       DefaultMediaSourceFactory} for progressive media files, DASH, SmoothStreaming and HLS,
+ *       which also includes functionality for side-loading subtitle files and clipping media.
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A
@@ -523,7 +523,10 @@ public interface ExoPlayer extends Player {
    * A builder for {@link ExoPlayer} instances.
    *
    * <p>See {@link #Builder(Context, Renderer...)} for the list of default values.
+   *
+   * @deprecated Use {@link SimpleExoPlayer.Builder} instead.
    */
+  @Deprecated
   final class Builder {
 
     private final Renderer[] renderers;

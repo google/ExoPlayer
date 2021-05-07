@@ -59,9 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/**
- * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
- */
+/** An {@link ExoPlayer} implementation. */
 /* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
 
   private static final String TAG = "ExoPlayerImpl";
