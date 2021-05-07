@@ -36,8 +36,8 @@ public final class MediaMetadata implements Bundleable {
   /** A builder for {@link MediaMetadata} instances. */
   public static final class Builder {
 
-    @Nullable private CharSequence trackTitle;
-    @Nullable private CharSequence trackArtist;
+    @Nullable private CharSequence title;
+    @Nullable private CharSequence artist;
     @Nullable private CharSequence albumTitle;
     @Nullable private CharSequence albumArtist;
     @Nullable private CharSequence displayTitle;
@@ -50,32 +50,26 @@ public final class MediaMetadata implements Bundleable {
     public Builder() {}
 
     private Builder(MediaMetadata mediaMetadata) {
-      this.trackTitle = mediaMetadata.trackTitle;
-      this.trackArtist = mediaMetadata.trackArtist;
+      this.title = mediaMetadata.title;
+      this.artist = mediaMetadata.artist;
       this.albumTitle = mediaMetadata.albumTitle;
       this.albumArtist = mediaMetadata.albumArtist;
       this.displayTitle = mediaMetadata.displayTitle;
       this.subtitle = mediaMetadata.subtitle;
+      this.description = mediaMetadata.description;
       this.mediaUri = mediaMetadata.mediaUri;
       this.userRating = mediaMetadata.userRating;
       this.overallRating = mediaMetadata.overallRating;
     }
 
-    /** @deprecated Use {@link #setTrackTitle(CharSequence)} instead. */
-    @Deprecated
-    public Builder setTitle(@Nullable String title) {
-      this.trackTitle = title;
-      return this;
-    }
-
     /** Sets the optional track title. */
-    public Builder setTrackTitle(@Nullable CharSequence trackTitle) {
-      this.trackTitle = trackTitle;
+    public Builder setTitle(@Nullable CharSequence title) {
+      this.title = title;
       return this;
     }
 
-    public Builder setTrackArtist(@Nullable CharSequence trackArtist) {
-      this.trackArtist = trackArtist;
+    public Builder setArtist(@Nullable CharSequence artist) {
+      this.artist = artist;
       return this;
     }
 
@@ -166,11 +160,8 @@ public final class MediaMetadata implements Bundleable {
   /** Empty {@link MediaMetadata}. */
   public static final MediaMetadata EMPTY = new MediaMetadata.Builder().build();
 
-  /** @deprecated Use {@link #trackTitle} instead. */
-  @Deprecated @Nullable public final String title;
-
-  @Nullable public final CharSequence trackTitle;
-  @Nullable public final CharSequence trackArtist;
+  @Nullable public final CharSequence title;
+  @Nullable public final CharSequence artist;
   @Nullable public final CharSequence albumTitle;
   @Nullable public final CharSequence albumArtist;
   @Nullable public final CharSequence displayTitle;
@@ -181,9 +172,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Rating overallRating;
 
   private MediaMetadata(Builder builder) {
-    this.title = builder.trackTitle != null ? builder.trackTitle.toString() : null;
-    this.trackTitle = builder.trackTitle;
-    this.trackArtist = builder.trackArtist;
+    this.title = builder.title;
+    this.artist = builder.artist;
     this.albumTitle = builder.albumTitle;
     this.albumArtist = builder.albumArtist;
     this.displayTitle = builder.displayTitle;
@@ -208,8 +198,8 @@ public final class MediaMetadata implements Bundleable {
       return false;
     }
     MediaMetadata that = (MediaMetadata) obj;
-    return Util.areEqual(trackTitle, that.trackTitle)
-        && Util.areEqual(trackArtist, that.trackArtist)
+    return Util.areEqual(title, that.title)
+        && Util.areEqual(artist, that.artist)
         && Util.areEqual(albumTitle, that.albumTitle)
         && Util.areEqual(albumArtist, that.albumArtist)
         && Util.areEqual(displayTitle, that.displayTitle)
@@ -223,8 +213,8 @@ public final class MediaMetadata implements Bundleable {
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        trackTitle,
-        trackArtist,
+        title,
+        artist,
         albumTitle,
         albumArtist,
         displayTitle,
@@ -240,8 +230,8 @@ public final class MediaMetadata implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    FIELD_TRACK_TITLE,
-    FIELD_TRACK_ARTIST,
+    FIELD_TITLE,
+    FIELD_ARTIST,
     FIELD_ALBUM_TITLE,
     FIELD_ALBUM_ARTIST,
     FIELD_DISPLAY_TITLE,
@@ -253,8 +243,8 @@ public final class MediaMetadata implements Bundleable {
   })
   private @interface FieldNumber {}
 
-  private static final int FIELD_TRACK_TITLE = 0;
-  private static final int FIELD_TRACK_ARTIST = 1;
+  private static final int FIELD_TITLE = 0;
+  private static final int FIELD_ARTIST = 1;
   private static final int FIELD_ALBUM_TITLE = 2;
   private static final int FIELD_ALBUM_ARTIST = 3;
   private static final int FIELD_DISPLAY_TITLE = 4;
@@ -267,8 +257,8 @@ public final class MediaMetadata implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putCharSequence(keyForField(FIELD_TRACK_TITLE), trackTitle);
-    bundle.putCharSequence(keyForField(FIELD_TRACK_ARTIST), trackArtist);
+    bundle.putCharSequence(keyForField(FIELD_TITLE), title);
+    bundle.putCharSequence(keyForField(FIELD_ARTIST), artist);
     bundle.putCharSequence(keyForField(FIELD_ALBUM_TITLE), albumTitle);
     bundle.putCharSequence(keyForField(FIELD_ALBUM_ARTIST), albumArtist);
     bundle.putCharSequence(keyForField(FIELD_DISPLAY_TITLE), displayTitle);
@@ -292,8 +282,8 @@ public final class MediaMetadata implements Bundleable {
   private static MediaMetadata fromBundle(Bundle bundle) {
     Builder builder = new Builder();
     builder
-        .setTrackTitle(bundle.getCharSequence(keyForField(FIELD_TRACK_TITLE)))
-        .setTrackArtist(bundle.getCharSequence(keyForField(FIELD_TRACK_ARTIST)))
+        .setTitle(bundle.getCharSequence(keyForField(FIELD_TITLE)))
+        .setArtist(bundle.getCharSequence(keyForField(FIELD_ARTIST)))
         .setAlbumTitle(bundle.getCharSequence(keyForField(FIELD_ALBUM_TITLE)))
         .setAlbumArtist(bundle.getCharSequence(keyForField(FIELD_ALBUM_ARTIST)))
         .setDisplayTitle(bundle.getCharSequence(keyForField(FIELD_DISPLAY_TITLE)))

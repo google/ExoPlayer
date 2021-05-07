@@ -364,7 +364,7 @@ public class DownloadTracker {
     private DownloadRequest buildDownloadRequest() {
       return downloadHelper
           .getDownloadRequest(
-              Util.getUtf8Bytes(checkNotNull(mediaItem.mediaMetadata.trackTitle.toString())))
+              Util.getUtf8Bytes(checkNotNull(mediaItem.mediaMetadata.title.toString())))
           .copyWithKeySetId(keySetId);
     }
   }

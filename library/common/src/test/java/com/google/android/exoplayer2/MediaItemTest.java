@@ -299,7 +299,7 @@ public class MediaItemTest {
 
   @Test
   public void builderSetMediaMetadata_setsMetadata() {
-    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTrackTitle("title").build();
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
 
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setMediaMetadata(mediaMetadata).build();
@@ -368,7 +368,7 @@ public class MediaItemTest {
             .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
             .setDrmKeySetId(new byte[] {1, 2, 3})
             .setMediaId("mediaId")
-            .setMediaMetadata(new MediaMetadata.Builder().setTrackTitle("title").build())
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
             .setMimeType(MimeTypes.APPLICATION_MP4)
             .setUri(URI_STRING)
             .setStreamKeys(Collections.singletonList(new StreamKey(1, 0, 0)))
@@ -404,7 +404,7 @@ public class MediaItemTest {
             .setLiveMaxOffsetMs(4_444)
             .setLiveMinPlaybackSpeed(.9f)
             .setLiveMaxPlaybackSpeed(1.1f)
-            .setMediaMetadata(new MediaMetadata.Builder().setTrackTitle("title").build())
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
             .setClipStartPositionMs(100)
             .setClipEndPositionMs(1_000)
             .setClipRelativeToDefaultPosition(true)
