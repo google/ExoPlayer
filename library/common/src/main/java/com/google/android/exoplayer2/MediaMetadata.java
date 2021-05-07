@@ -62,52 +62,65 @@ public final class MediaMetadata implements Bundleable {
       this.overallRating = mediaMetadata.overallRating;
     }
 
-    /** Sets the optional track title. */
+    /** Sets the title. */
     public Builder setTitle(@Nullable CharSequence title) {
       this.title = title;
       return this;
     }
 
+    /** Sets the artist. */
     public Builder setArtist(@Nullable CharSequence artist) {
       this.artist = artist;
       return this;
     }
 
+    /** Sets the album title. */
     public Builder setAlbumTitle(@Nullable CharSequence albumTitle) {
       this.albumTitle = albumTitle;
       return this;
     }
 
+    /** Sets the album artist. */
     public Builder setAlbumArtist(@Nullable CharSequence albumArtist) {
       this.albumArtist = albumArtist;
       return this;
     }
 
+    /** Sets the display title. */
     public Builder setDisplayTitle(@Nullable CharSequence displayTitle) {
       this.displayTitle = displayTitle;
       return this;
     }
 
+    /**
+     * Sets the subtitle.
+     *
+     * <p>This is the secondary title of the media, unrelated to closed captions.
+     */
     public Builder setSubtitle(@Nullable CharSequence subtitle) {
       this.subtitle = subtitle;
       return this;
     }
 
+    /** Sets the description. */
     public Builder setDescription(@Nullable CharSequence description) {
       this.description = description;
       return this;
     }
 
+    /** Sets the media {@link Uri}. */
     public Builder setMediaUri(@Nullable Uri mediaUri) {
       this.mediaUri = mediaUri;
       return this;
     }
 
+    /** Sets the user {@link Rating}. */
     public Builder setUserRating(@Nullable Rating userRating) {
       this.userRating = userRating;
       return this;
     }
 
+    /** Sets the overall {@link Rating}. */
     public Builder setOverallRating(@Nullable Rating overallRating) {
       this.overallRating = overallRating;
       return this;
@@ -160,15 +173,29 @@ public final class MediaMetadata implements Bundleable {
   /** Empty {@link MediaMetadata}. */
   public static final MediaMetadata EMPTY = new MediaMetadata.Builder().build();
 
+  /** Optional title. */
   @Nullable public final CharSequence title;
+  /** Optional artist. */
   @Nullable public final CharSequence artist;
+  /** Optional album title. */
   @Nullable public final CharSequence albumTitle;
+  /** Optional album artist. */
   @Nullable public final CharSequence albumArtist;
+  /** Optional display title. */
   @Nullable public final CharSequence displayTitle;
+  /**
+   * Optional subtitle.
+   *
+   * <p>This is the secondary title of the media, unrelated to closed captions.
+   */
   @Nullable public final CharSequence subtitle;
+  /** Optional description. */
   @Nullable public final CharSequence description;
+  /** Optional media {@link Uri}. */
   @Nullable public final Uri mediaUri;
+  /** Optional user {@link Rating}. */
   @Nullable public final Rating userRating;
+  /** Optional overall {@link Rating}. */
   @Nullable public final Rating overallRating;
 
   private MediaMetadata(Builder builder) {
