@@ -616,7 +616,7 @@ public interface ExoPlayer extends Player {
     /**
      * Set a limit on the time a call to {@link ExoPlayer#setForegroundMode} can spend. If a call to
      * {@link ExoPlayer#setForegroundMode} takes more than {@code timeoutMs} milliseconds to
-     * complete, the player will raise an error via {@link Player.EventListener#onPlayerError}.
+     * complete, the player will raise an error via {@link Player.Listener#onPlayerError}.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      *
@@ -742,7 +742,7 @@ public interface ExoPlayer extends Player {
      *
      * <p>If a call to {@link #release} or {@link #setForegroundMode} takes more than {@code
      * timeoutMs} to complete, the player will report an error via {@link
-     * Player.EventListener#onPlayerError}.
+     * Player.Listener#onPlayerError}.
      *
      * @param releaseTimeoutMs The release timeout, in milliseconds.
      * @return This builder.
@@ -759,7 +759,7 @@ public interface ExoPlayer extends Player {
      *
      * <p>This means the player will pause at the end of each window in the current {@link
      * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
-     * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+     * Player.Listener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
      * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
      *
      * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
@@ -1060,7 +1060,7 @@ public interface ExoPlayer extends Player {
    *
    * <p>This means the player will pause at the end of each window in the current {@link
    * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
-   * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+   * Player.Listener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
    * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
    *
    * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.

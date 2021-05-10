@@ -159,8 +159,8 @@ public interface Player {
      * Called when the combined {@link MediaMetadata} changes.
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata sourced from {@link
-     * EventListener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
+     * and the static and dynamic metadata sourced from {@link #onStaticMetadataChanged(List)} and
+     * {@link MetadataOutput#onMetadata(Metadata)}.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -926,7 +926,7 @@ public interface Player {
   int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 3;
 
   /**
-   * Events that can be reported via {@link EventListener#onEvents(Player, Events)}.
+   * Events that can be reported via {@link Listener#onEvents(Player, Events)}.
    *
    * <p>One of the {@link Player}{@code .EVENT_*} flags.
    */
@@ -976,8 +976,8 @@ public interface Player {
   /** {@link #getPlayerError()} changed. */
   int EVENT_PLAYER_ERROR = 11;
   /**
-   * A position discontinuity occurred. See {@link
-   * EventListener#onPositionDiscontinuity(PositionInfo, PositionInfo, int)}.
+   * A position discontinuity occurred. See {@link Listener#onPositionDiscontinuity(PositionInfo,
+   * PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = 12;
   /** {@link #getPlaybackParameters()} changed. */
@@ -1088,7 +1088,7 @@ public interface Player {
    * the player does not have a {@link Looper}, then the listener will be called on the main thread.
    *
    * @param listener The listener to register.
-   * @deprecated Use {@link #addListener(Listener)} instead.
+   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
    */
   @Deprecated
   void addListener(EventListener listener);
@@ -1105,7 +1105,7 @@ public interface Player {
    * no longer receive events from the player.
    *
    * @param listener The listener to unregister.
-   * @deprecated Use {@link #addListener(Listener)} instead.
+   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
    */
   @Deprecated
   void removeListener(EventListener listener);
@@ -1262,7 +1262,7 @@ public interface Player {
    *
    * @param command A {@link Command}.
    * @return Whether the {@link Command} is available.
-   * @see EventListener#onAvailableCommandsChanged(Commands)
+   * @see Listener#onAvailableCommandsChanged(Commands)
    */
   boolean isCommandAvailable(@Command int command);
 
@@ -1270,8 +1270,8 @@ public interface Player {
    * Returns the player's currently available {@link Commands}.
    *
    * <p>The returned {@link Commands} are not updated when available commands change. Use {@link
-   * EventListener#onAvailableCommandsChanged(Commands)} to get an update when the available
-   * commands change.
+   * Listener#onAvailableCommandsChanged(Commands)} to get an update when the available commands
+   * change.
    *
    * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
    * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor generate
@@ -1281,7 +1281,7 @@ public interface Player {
    * are unavailable if there is no such {@link MediaItem}.
    *
    * @return The currently available {@link Commands}.
-   * @see EventListener#onAvailableCommandsChanged
+   * @see Listener#onAvailableCommandsChanged
    */
   Commands getAvailableCommands();
 
@@ -1292,7 +1292,7 @@ public interface Player {
    * Returns the current {@link State playback state} of the player.
    *
    * @return The current {@link State playback state}.
-   * @see EventListener#onPlaybackStateChanged(int)
+   * @see Listener#onPlaybackStateChanged(int)
    */
   @State
   int getPlaybackState();
@@ -1302,7 +1302,7 @@ public interface Player {
    * true}, or {@link #PLAYBACK_SUPPRESSION_REASON_NONE} if playback is not suppressed.
    *
    * @return The current {@link PlaybackSuppressionReason playback suppression reason}.
-   * @see EventListener#onPlaybackSuppressionReasonChanged(int)
+   * @see Listener#onPlaybackSuppressionReasonChanged(int)
    */
   @PlaybackSuppressionReason
   int getPlaybackSuppressionReason();
@@ -1319,20 +1319,20 @@ public interface Player {
    * </ul>
    *
    * @return Whether the player is playing.
-   * @see EventListener#onIsPlayingChanged(boolean)
+   * @see Listener#onIsPlayingChanged(boolean)
    */
   boolean isPlaying();
 
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
-   * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
-   * failure. It can be queried using this method until the player is re-prepared.
+   * reported via {@link Listener#onPlayerError(ExoPlaybackException)} at the time of failure. It
+   * can be queried using this method until the player is re-prepared.
    *
    * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
    * {@link #STATE_IDLE}.
    *
    * @return The error, or {@code null}.
-   * @see EventListener#onPlayerError(ExoPlaybackException)
+   * @see Listener#onPlayerError(ExoPlaybackException)
    */
   @Nullable
   ExoPlaybackException getPlayerError();
@@ -1364,7 +1364,7 @@ public interface Player {
    * Whether playback will proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
    *
    * @return Whether playback will proceed when ready.
-   * @see EventListener#onPlayWhenReadyChanged(boolean, int)
+   * @see Listener#onPlayWhenReadyChanged(boolean, int)
    */
   boolean getPlayWhenReady();
 
@@ -1379,7 +1379,7 @@ public interface Player {
    * Returns the current {@link RepeatMode} used for playback.
    *
    * @return The current repeat mode.
-   * @see EventListener#onRepeatModeChanged(int)
+   * @see Listener#onRepeatModeChanged(int)
    */
   @RepeatMode
   int getRepeatMode();
@@ -1394,7 +1394,7 @@ public interface Player {
   /**
    * Returns whether shuffling of windows is enabled.
    *
-   * @see EventListener#onShuffleModeEnabledChanged(boolean)
+   * @see Listener#onShuffleModeEnabledChanged(boolean)
    */
   boolean getShuffleModeEnabled();
 
@@ -1402,7 +1402,7 @@ public interface Player {
    * Whether the player is currently loading the source.
    *
    * @return Whether the player is currently loading the source.
-   * @see EventListener#onIsLoadingChanged(boolean)
+   * @see Listener#onIsLoadingChanged(boolean)
    */
   boolean isLoading();
 
@@ -1490,8 +1490,8 @@ public interface Player {
    * player to the default, which means there is no speed or pitch adjustment.
    *
    * <p>Playback parameters changes may cause the player to buffer. {@link
-   * EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the
-   * currently active playback parameters change.
+   * Listener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the currently
+   * active playback parameters change.
    *
    * @param playbackParameters The playback parameters.
    */
@@ -1511,7 +1511,7 @@ public interface Player {
   /**
    * Returns the currently active playback parameters.
    *
-   * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)
+   * @see Listener#onPlaybackParametersChanged(PlaybackParameters)
    */
   PlaybackParameters getPlaybackParameters();
 
@@ -1545,7 +1545,7 @@ public interface Player {
   /**
    * Returns the available track groups.
    *
-   * @see EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
    */
   TrackGroupArray getCurrentTrackGroups();
 
@@ -1556,7 +1556,7 @@ public interface Player {
    * components, wishes to report a TrackSelection for each of them, and has one or more renderer
    * components that is not assigned any selected tracks.
    *
-   * @see EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
    */
   TrackSelectionArray getCurrentTrackSelections();
 
@@ -1571,7 +1571,7 @@ public interface Player {
    * <p>This metadata is considered static in that it comes from the tracks' declared Formats,
    * rather than being timed (or dynamic) metadata, which is represented within a metadata track.
    *
-   * @see EventListener#onStaticMetadataChanged(List)
+   * @see Listener#onStaticMetadataChanged(List)
    */
   List<Metadata> getCurrentStaticMetadata();
 
@@ -1580,8 +1580,8 @@ public interface Player {
    * supported.
    *
    * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata sourced from {@link EventListener#onStaticMetadataChanged(List)}
-   * and {@link MetadataOutput#onMetadata(Metadata)}.
+   * static and dynamic metadata sourced from {@link Listener#onStaticMetadataChanged(List)} and
+   * {@link MetadataOutput#onMetadata(Metadata)}.
    */
   MediaMetadata getMediaMetadata();
 
@@ -1594,7 +1594,7 @@ public interface Player {
   /**
    * Returns the current {@link Timeline}. Never null, but may be empty.
    *
-   * @see EventListener#onTimelineChanged(Timeline, int)
+   * @see Listener#onTimelineChanged(Timeline, int)
    */
   Timeline getCurrentTimeline();
 
@@ -1642,7 +1642,7 @@ public interface Player {
    * Returns the media item of the current window in the timeline. May be null if the timeline is
    * empty.
    *
-   * @see EventListener#onMediaItemTransition(MediaItem, int)
+   * @see Listener#onMediaItemTransition(MediaItem, int)
    */
   @Nullable
   MediaItem getCurrentMediaItem();
@@ -1856,7 +1856,7 @@ public interface Player {
    * <p>The video's width and height are {@code 0} if there is no video or its size has not been
    * determined yet.
    *
-   * @see Listener#onVideoSizeChanged(int, int, int, float)
+   * @see Listener#onVideoSizeChanged(VideoSize)
    */
   VideoSize getVideoSize();
 
