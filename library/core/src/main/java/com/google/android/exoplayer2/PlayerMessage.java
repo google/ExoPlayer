@@ -246,7 +246,7 @@ public final class PlayerMessage {
   /**
    * Sends the message. If the target throws an {@link ExoPlaybackException} then it is propagated
    * out of the player as an error using {@link
-   * Player.EventListener#onPlayerError(ExoPlaybackException)}.
+   * Player.Listener#onPlayerError(ExoPlaybackException)}.
    *
    * @return This message.
    * @throws IllegalStateException If this message has already been sent.

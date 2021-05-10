@@ -242,7 +242,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /**
    * Set a limit on the time a call to {@link #setForegroundMode} can spend. If a call to {@link
    * #setForegroundMode} takes more than {@code timeoutMs} milliseconds to complete, the player will
-   * raise an error via {@link Player.EventListener#onPlayerError}.
+   * raise an error via {@link Player.Listener#onPlayerError}.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the player is used.

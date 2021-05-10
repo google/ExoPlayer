@@ -426,7 +426,7 @@ public final class CastPlayer extends BasePlayer {
     return playWhenReady.value;
   }
 
-  // We still call EventListener#onSeekProcessed() for backwards compatibility with listeners that
+  // We still call Listener#onSeekProcessed() for backwards compatibility with listeners that
   // don't implement onPositionDiscontinuity().
   @SuppressWarnings("deprecation")
   @Override
@@ -848,7 +848,7 @@ public final class CastPlayer extends BasePlayer {
   }
 
   /**
-   * Updates the timeline and notifies {@link Player.EventListener event listeners} if required.
+   * Updates the timeline and notifies {@link Player.Listener event listeners} if required.
    *
    * @return Whether the timeline change has caused a change of the period currently being played.
    */
@@ -1351,7 +1351,7 @@ public final class CastPlayer extends BasePlayer {
 
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
 
-    // We still call EventListener#onSeekProcessed() for backwards compatibility with listeners that
+    // We still call Listener#onSeekProcessed() for backwards compatibility with listeners that
     // don't implement onPositionDiscontinuity().
     @SuppressWarnings("deprecation")
     @Override

@@ -241,7 +241,7 @@ public interface AnalyticsListener {
   int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
   /**
    * A position discontinuity occurred. See {@link
-   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}.
+   * Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
@@ -651,8 +651,7 @@ public interface AnalyticsListener {
    *
    * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
    * and the static and dynamic metadata sourced from {@link
-   * Player.EventListener#onStaticMetadataChanged(List)} and {@link
-   * MetadataOutput#onMetadata(Metadata)}.
+   * Player.Listener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
    *
    * @param eventTime The event time.
    * @param mediaMetadata The combined {@link MediaMetadata}.
@@ -695,9 +694,9 @@ public interface AnalyticsListener {
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
    * The player may be able to recover from the error. Hence applications should <em>not</em>
    * implement this method to display a user visible error or initiate an application level retry.
-   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
-   * This method is called to provide the application with an opportunity to log the error if it
-   * wishes to do so.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
@@ -890,9 +889,9 @@ public interface AnalyticsListener {
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
    * The player may be able to recover from the error. Hence applications should <em>not</em>
    * implement this method to display a user visible error or initiate an application level retry.
-   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
-   * This method is called to provide the application with an opportunity to log the error if it
-   * wishes to do so.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param audioSinkError The error that occurred. Typically an {@link
@@ -907,9 +906,9 @@ public interface AnalyticsListener {
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
    * The player may be able to recover from the error. Hence applications should <em>not</em>
    * implement this method to display a user visible error or initiate an application level retry.
-   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
-   * This method is called to provide the application with an opportunity to log the error if it
-   * wishes to do so.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param audioCodecError The error. Typically a {@link CodecException} if the renderer uses
@@ -1025,9 +1024,9 @@ public interface AnalyticsListener {
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
    * The player may be able to recover from the error. Hence applications should <em>not</em>
    * implement this method to display a user visible error or initiate an application level retry.
-   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
-   * This method is called to provide the application with an opportunity to log the error if it
-   * wishes to do so.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param videoCodecError The error. Typically a {@link CodecException} if the renderer uses
@@ -1100,9 +1099,9 @@ public interface AnalyticsListener {
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
    * The player may be able to recover from the error. Hence applications should <em>not</em>
    * implement this method to display a user visible error or initiate an application level retry.
-   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
-   * This method is called to provide the application with an opportunity to log the error if it
-   * wishes to do so.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param error The error.
