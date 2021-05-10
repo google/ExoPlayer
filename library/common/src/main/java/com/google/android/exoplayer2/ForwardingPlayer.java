@@ -426,9 +426,8 @@ public class ForwardingPlayer extends BasePlayer {
   }
 
   /**
-   * Wraps a {@link Listener} and intercepts {@link EventListener#onAvailableCommandsChanged} in
-   * order to filter disabled commands. All other operations are forwarded to the wrapped {@link
-   * Listener}.
+   * Wraps a {@link Listener} and intercepts {@link Listener#onAvailableCommandsChanged} in order to
+   * filter disabled commands. All other operations are forwarded to the wrapped {@link Listener}.
    */
   private static class ForwardingListener implements Listener {
     private final ForwardingPlayer player;

@@ -117,12 +117,12 @@ public interface AudioSink {
      * The player may be able to recover from the error (for example by recreating the AudioTrack,
      * possibly with different settings) and continue. Hence applications should <em>not</em>
      * implement this method to display a user visible error or initiate an application level retry
-     * ({@link Player.EventListener#onPlayerError} is the appropriate place to implement such
-     * behavior). This method is called to provide the application with an opportunity to log the
-     * error if it wishes to do so.
+     * ({@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior).
+     * This method is called to provide the application with an opportunity to log the error if it
+     * wishes to do so.
      *
      * <p>Fatal errors that cannot be recovered will be reported wrapped in a {@link
-     * ExoPlaybackException} by {@link Player.EventListener#onPlayerError(ExoPlaybackException)}.
+     * ExoPlaybackException} by {@link Player.Listener#onPlayerError(ExoPlaybackException)}.
      *
      * @param audioSinkError The error that occurred. Typically an {@link InitializationException},
      *     a {@link WriteException}, or an {@link UnexpectedDiscontinuityException}.
