@@ -177,19 +177,12 @@ generic `onEvents` callback, for example to record media item change reasons
 with `onMediaItemTransition`, but only act once all state changes can be used
 together in `onEvents`.
 
-## SimpleExoPlayer listeners ##
+## Using AnalyticsListener ##
 
-When using `SimpleExoPlayer`, an additional listener can be registered with the
-player.
-
-* `addAnalyticsListener`: Listen to detailed events that may be useful for
-  analytics and logging purposes. Please refer to the [analytics page][] for
-  more details.
-
-ExoPlayer's UI components, such as `StyledPlayerView`, will register themselves
-as listeners to events that they are interested in. Hence manual registration
-using the methods above is only useful for applications that implement their own
-player UI, or need to listen to events for some other purpose.
+When using `SimpleExoPlayer`, an `AnalyticsListener` can be registered with the
+player by calling `addAnalyticsListener`. `AnalyticsListener` implementations
+are able to listen to detailed events that may be useful for analytics and
+logging purposes. Please refer to the [analytics page][] for more details.
 
 ### Using EventLogger ###
 

@@ -98,12 +98,9 @@ to prevent build errors.
 
 ## Creating the player ##
 
-You can create an `ExoPlayer` instance using `SimpleExoPlayer.Builder` or
-`ExoPlayer.Builder`. The builders provide a range of customization options for
-creating `ExoPlayer` instances. For the vast majority of use cases
-`SimpleExoPlayer.Builder` should be used. This builder returns
-`SimpleExoPlayer`, which extends `ExoPlayer` to add additional high level player
-functionality. The code below is an example of creating a `SimpleExoPlayer`.
+You can create an `ExoPlayer` instance using `SimpleExoPlayer.Builder`, which
+provides a range of customization options. The code below is the simplest
+example of creating an instance.
 
 ~~~
 SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
@@ -224,9 +221,9 @@ on the player. Some of the most commonly used methods are listed below.
 * `setShuffleModeEnabled` controls playlist shuffling.
 * `setPlaybackParameters` adjusts playback speed and audio pitch.
 
-If the player is bound to a `PlayerView` or `PlayerControlView`, then user
-interaction with these components will cause corresponding methods on the player
-to be invoked.
+If the player is bound to a `StyledPlayerView` or `StyledPlayerControlView`,
+then user interaction with these components will cause corresponding methods on
+the player to be invoked.
 
 ## Releasing the player ##
 
