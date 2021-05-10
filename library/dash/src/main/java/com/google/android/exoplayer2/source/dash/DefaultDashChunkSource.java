@@ -818,6 +818,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowPeriodTimeUs) {
+      if (segmentIndex.isExplicit()) {
+        // We don't support segment availability for explicit indices. Hence, also assume all
+        // segments in explicit indices are always available at full network speed even if they
+        // end in the future.
+        return true;
+      }
       return nowPeriodTimeUs == C.TIME_UNSET || getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
     }
   }
