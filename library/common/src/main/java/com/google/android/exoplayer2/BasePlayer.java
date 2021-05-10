@@ -86,14 +86,6 @@ public abstract class BasePlayer implements Player {
     return getAvailableCommands().contains(command);
   }
 
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Override
-  @Nullable
-  public final ExoPlaybackException getPlaybackError() {
-    return getPlayerError();
-  }
-
   @Override
   public final void play() {
     setPlayWhenReady(true);
@@ -178,24 +170,6 @@ public abstract class BasePlayer implements Player {
         ? C.INDEX_UNSET
         : timeline.getPreviousWindowIndex(
             getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
-  }
-
-  /**
-   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
-   *     instead.
-   */
-  @Deprecated
-  @Override
-  @Nullable
-  public final Object getCurrentTag() {
-    Timeline timeline = getCurrentTimeline();
-    if (timeline.isEmpty()) {
-      return null;
-    }
-    @Nullable
-    MediaItem.PlaybackProperties playbackProperties =
-        timeline.getWindow(getCurrentWindowIndex(), window).mediaItem.playbackProperties;
-    return playbackProperties != null ? playbackProperties.tag : null;
   }
 
   @Override

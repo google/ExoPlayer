@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released)
 
 *   Remove deprecated symbols:
+    *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
+    *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
+        `MediaIteam.PlaybackProperties.tag` instead.
     *   Remove `PlaybackPreparer`. UI components that previously had
         `setPlaybackPreparer` methods will now call `Player.prepare` by default.
         If this behavior is sufficient, use of `PlaybackPreparer` can be removed

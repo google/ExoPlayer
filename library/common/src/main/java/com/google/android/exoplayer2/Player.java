@@ -1337,11 +1337,6 @@ public interface Player {
   @Nullable
   ExoPlaybackException getPlayerError();
 
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Nullable
-  ExoPlaybackException getPlaybackError();
-
   /**
    * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to
    * {@code setPlayWhenReady(true)}.
@@ -1629,14 +1624,6 @@ public interface Player {
    * details.
    */
   int getPreviousWindowIndex();
-
-  /**
-   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
-   *     instead.
-   */
-  @Deprecated
-  @Nullable
-  Object getCurrentTag();
 
   /**
    * Returns the media item of the current window in the timeline. May be null if the timeline is
