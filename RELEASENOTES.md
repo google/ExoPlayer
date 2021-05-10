@@ -2,118 +2,7 @@
 
 ### dev-v2 (not yet released)
 
-*   Core Library:
-    *   Move `Player` components to `ExoPlayer`. For example
-        `Player.VideoComponent` is now `ExoPlayer.VideoComponent`.
-    *   The most used methods of `Player`'s audio/video/text/metadata components
-        have been added to `Player`. Support can be queried using
-        `Player.isCommandAvailable` instead of testing for component nullness.
-    *   Add position info of the old and the new position as arguments to
-        `EventListener.onPositionDiscontinuity`. Add the new reasons
-        `DISCONTINUITY_REASON_SKIP` and `DISCONTINUITY_REASON_REMOVE` and rename
-        `DISCONTINUITY_REASON_PERIOD_TRANSITION` to
-        `DISCONTINUITY_REASON_AUTO_TRANSITION`. Remove
-        `DISCONTINUITY_REASON_AD_INSERTION` for which
-        `DISCONTINUITY_REASON_AUTO_TRANSITION` is used instead. Deprecate the
-        `onPositionDiscontinuity(int)` callback
-        ([#6163](https://github.com/google/ExoPlayer/issues/6163),
-        [#4768](https://github.com/google/ExoPlayer/issues/4768)).
-    *   Add methods `Player.getAvailableCommands`, `PLayer.isCommandAvailable`
-        and `EventListener.onAvailableCommandsChanged` to query the commands
-        that can be executed on the player.
-    *   `AdsLoader.AdViewProvider` and `AdsLoader.OverlayInfo` have been renamed
-        `com.google.android.exoplayer2.ui.AdViewProvider` and
-        `com.google.android.exoplayer2.ui.AdOverlayInfo` respectively.
-    *   `CaptionStyleCompat` has been moved to the
-        `com.google.android.exoplayer2.ui` package.
-    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
-        `ExoPlayer`.
-    *   Add `getMediaMetadata` to `Player` interface.
-    *   Add a `Listener` interface to receive all player events in a single
-        object. Component Listeners and `EventListener` have been deprecated in
-        its favor.
-    *   `Player.setPlaybackParameters` no longer accepts null, use
-        `PlaybackParameters.DEFAULT` instead.
-    *   Use an empty string instead of the URI if the media ID is not explicitly
-        set with `MediaItem.Builder.setMediaId(String)`.
-    *   Remove `MediaCodecRenderer.configureCodec()` and add
-        `MediaCodecRenderer.getMediaCodecConfiguration()`. The new method is
-        called just before the `MediaCodec` is created and returns the
-        parameters needed to create and configure the `MediaCodec` instance.
-        Applications can override `MediaCodecRenderer.onCodecInitialized()` to
-        get notified after MediaCodec is initialized, or they can inject a
-        custom `MediaCodecAdapter.Factory` if they want to control how the
-        `MediaCodec` is configured.
-    *   Promote `AdaptiveTrackSelection.AdaptationCheckpoint` to `public`
-        visibility in order to allow Kotlin subclasses of
-        `AdaptiveTrackSelection.Factory`
-        ([#8830](https://github.com/google/ExoPlayer/issues/8830)).
-    *   Added a combined and structured metadata object (`MediaMetadata`) to
-        Player, accessible through `getMediaMetadata` or by listening to
-        `EventListener.onMediaMetadataChanged`.
-    *   Fix bug when transitions from content to ad periods called
-        `onMediaItemTransition` by mistake.
-    *   Deprecate `ExoPlayer.Builder`. Use `SimpleExoPlayer.Builder` instead.
-*   UI:
-    *   Add builder for `PlayerNotificationManager`.
-    *   Add group setting to `PlayerNotificationManager`.
-    *   Remove `setUseSensorRotation` from `PlayerView` and `StyledPlayerView`.
-        Instead, cast the view returned by `getVideoSurfaceView` to
-        `SphericalGLSurfaceView`, and then call `setUseSensorRotation` on the
-        `SphericalGLSurfaceView` directly.
-*   Audio:
-    *   Report unexpected discontinuities in
-        `AnalyticsListener.onAudioSinkError`
-        ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
-    *   Allow forcing offload for gapless content even if gapless playback is
-        not supported.
-    *   Allow fall back from DTS-HD to DTS when playing via passthrough.
-*   Video:
-    *   Add `Player.getVideoSize()` to retrieve the current size of the video
-        stream. Add `Listener.onVideoSizeChanged(VideoSize)` and deprecate
-        `Listener.onVideoSizeChanged(int weight, int height...)`.
-*   Analytics:
-    *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
-*   Downloads and caching:
-    *   Fix `CacheWriter` to correctly handle cases where the request `DataSpec`
-        extends beyond the end of the underlying resource. Caching will now
-        succeed in this case, with data up to the end of the resource being
-        cached. This behaviour is enabled by default, and so the
-        `allowShortContent` parameter has been removed
-        ([#7326](https://github.com/google/ExoPlayer/issues/7326)).
-    *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
-        which it cannot be assumed that data was successfully written to the
-        cache.
-*   Library restructuring:
-    *   `DebugTextViewHelper` moved from `ui` package to `util` package.
 *   Remove deprecated symbols:
-    *   Remove `ExoPlayerFactory`. Use `SimpleExoPlayer.Builder` instead.
-    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
-        instead.
-    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
-        instead.
-    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
-        module instead.
-    *   Remove `DefaultMediaSourceEventListener`. Use `MediaSourceEventListener`
-        instead.
-    *   Remove `ExtractorMediaSource`. Use `ProgressiveMediaSource` instead.
-    *   Remove `NotificationUtil.createNotificationChannel(Context, String, int,
-        int)`. Use `createNotificationChannel(Context, String, int, int, int)`
-        instead.
-    *   Remove `PlayerNotificationManager.NotificationListener`
-        `onNotificationStarted(int, Notification)` and
-        `onNotificationCancelled(int)`. Use `onNotificationPosted(int,
-        Notification, boolean)` and `onNotificationCancelled(int, boolean)`
-        instead.
-    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
-        `PlayerNotificationManager.Builder.setNotificationListener` instead.
-    *   Remove `DashManifest` constructor. Use the remaining constructor with
-        `programInformation` and `serviceDescription` set to `null` instead.
-    *   Remove `CryptoInfo.getFrameworkCryptoInfoV16`. Use
-        `CryptoInfo.getFrameworkCryptoInfo` instead.
-    *   Remove `CastPlayer` specific playlist manipulation methods. Use
-        `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
-        instead.
     *   Remove `PlaybackPreparer`. UI components that previously had
         `setPlaybackPreparer` methods will now call `Player.prepare` by default.
         If this behavior is sufficient, use of `PlaybackPreparer` can be removed
@@ -129,48 +18,161 @@
         long)`.
     *   Remove `PlayerNotificationManager` constructors and `createWith`
         methods. Use `PlayerNotificationManager.Builder` instead.
+    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
+        `PlayerNotificationManager.Builder.setNotificationListener` instead.
     *   Remove `PlayerNotificationManager` `setUseNavigationActions` and
         `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
         `setUsePreviousAction`, `setUseNextActionInCompactView` and
         `setUsePreviousActionInCompactView` instead.
     *   Remove `Format.create` methods. Use `Format.Builder` instead.
+    *   Remove `CastPlayer` specific playlist manipulation methods. Use
+        `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
+        instead.
+
+### 2.14.0 (2021-05-13)
+
+*   Core Library:
+    *   Move `Player` components to `ExoPlayer`. For example
+        `Player.VideoComponent` is now `ExoPlayer.VideoComponent`.
+    *   The most used methods of `Player`'s audio, video, text and metadata
+        components have been added directly to `Player`.
+    *   Add `Player.getAvailableCommands`, `Player.isCommandAvailable` and
+        `Listener.onAvailableCommandsChanged` to query which commands
+        that can be executed on the player.
+    *   Add a `Player.Listener` interface to receive all player events.
+        Component listeners and `EventListener` have been deprecated.
+    *   Add `Player.getMediaMetadata`, which returns a combined and structured
+        `MediaMetadata` object. Changes to metadata are reported to
+        `Listener.onMediaMetadataChanged`.
+    *   `Player.setPlaybackParameters` no longer accepts null, use
+        `PlaybackParameters.DEFAULT` instead.
+    *   Report information about the old and the new playback positions to
+        `Listener.onPositionDiscontinuity`. Add `DISCONTINUITY_REASON_SKIP`
+        and `DISCONTINUITY_REASON_REMOVE` as discontinuity reasons, and rename
+        `DISCONTINUITY_REASON_PERIOD_TRANSITION` to
+        `DISCONTINUITY_REASON_AUTO_TRANSITION`. Remove
+        `DISCONTINUITY_REASON_AD_INSERTION`, for which
+        `DISCONTINUITY_REASON_AUTO_TRANSITION` is used instead
+        ([#6163](https://github.com/google/ExoPlayer/issues/6163),
+        [#4768](https://github.com/google/ExoPlayer/issues/4768)).
+    *   Deprecate `ExoPlayer.Builder`. Use `SimpleExoPlayer.Builder` instead.
+    *   Move `Player.getRendererCount` and `Player.getRendererType` to
+        `ExoPlayer`.
+    *   Use an empty string instead of the URI if the media ID is not explicitly
+        set with `MediaItem.Builder.setMediaId(String)`.
+    *   Remove `MediaCodecRenderer.configureCodec()` and add
+        `MediaCodecRenderer.getMediaCodecConfiguration()`. The new method is
+        called just before the `MediaCodec` is created and returns the
+        parameters needed to create and configure the `MediaCodec` instance.
+        Applications can override `MediaCodecRenderer.onCodecInitialized()` to
+        be notified after a `MediaCodec` is initialized, or they can inject a
+        custom `MediaCodecAdapter.Factory` if they want to control how the
+        `MediaCodec` is configured.
+    *   Promote `AdaptiveTrackSelection.AdaptationCheckpoint` to `public`
+        visibility to allow Kotlin subclasses of
+        `AdaptiveTrackSelection.Factory`
+        ([#8830](https://github.com/google/ExoPlayer/issues/8830)).
+    *   Fix bug when transitions from content to ad periods called
+        `onMediaItemTransition` by mistake.
+    *   `AdsLoader.AdViewProvider` and `AdsLoader.OverlayInfo` have been renamed
+        `com.google.android.exoplayer2.ui.AdViewProvider` and
+        `com.google.android.exoplayer2.ui.AdOverlayInfo` respectively.
+    *   `CaptionStyleCompat` has been moved to the
+        `com.google.android.exoplayer2.ui` package.
+    *   `DebugTextViewHelper` has been moved from the `ui` package to the `util`
+        package.
+*   RTSP:
+    *   Initial support for RTSP playbacks
+        ([#55](https://github.com/google/ExoPlayer/issues/55)).
+*   Downloads and caching:
+    *   Fix `CacheWriter` to correctly handle cases where the request `DataSpec`
+        extends beyond the end of the underlying resource. Caching will now
+        succeed in this case, with data up to the end of the resource being
+        cached. This behaviour is enabled by default, and so the
+        `allowShortContent` parameter has been removed
+        ([#7326](https://github.com/google/ExoPlayer/issues/7326)).
+    *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
+        which it cannot be assumed that data was successfully written to the
+        cache.
 *   DRM:
-    *   Only dispatch DRM session acquire and release events once per period
-        when playing content that uses the same encryption keys for both audio &
-        video tracks (previously separate acquire and release events were
-        dispatched for each track in each period).
-    *   Include the session state in DRM session-acquired listener methods.
     *   Prepare DRM sessions (and fetch keys) ahead of the playback position
         ([#4133](https://github.com/google/ExoPlayer/issues/4133)).
+    *   Only dispatch DRM session acquire and release events once per period
+        when playing content that uses the same encryption keys for both audio &
+        video tracks. Previously, separate acquire and release events were
+        dispatched for each track in each period.
+    *   Include the session state in DRM session-acquired listener methods.
+*   UI:
+    *   Add `PlayerNotificationManager.Builder`, with the ability to
+        specify which group the notification should belong to.
+    *   Remove `setUseSensorRotation` from `PlayerView` and `StyledPlayerView`.
+        Instead, cast the view returned by `getVideoSurfaceView` to
+        `SphericalGLSurfaceView`, and then call `setUseSensorRotation` on the
+        `SphericalGLSurfaceView` directly.
+*   Analytics:
+    *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
+*   Video:
+    *   Add `Player.getVideoSize()` to retrieve the current size of the video
+        stream. Add `Listener.onVideoSizeChanged(VideoSize)` and deprecate
+        `Listener.onVideoSizeChanged(int, int, int, float)`.
+*   Audio:
+    *   Report unexpected audio discontinuities to
+        `AnalyticsListener.onAudioSinkError`
+        ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
+    *   Allow forcing offload for gapless content even if gapless playback is
+        not supported.
+    *   Allow fall back from DTS-HD to DTS when playing via passthrough.
 *   Text:
-    *   Fix lines overlapping when using `SubtitleView.VIEW_TYPE_WEB`.
+    *   Fix overlapping lines when using `SubtitleView.VIEW_TYPE_WEB`.
     *   Parse SSA/ASS underline & strikethrough info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
     *   Ensure TTML `tts:textAlign` is correctly propagated from `<p>` nodes to
         child nodes.
     *   Support TTML `ebutts:multiRowAlign` attributes.
-*   MediaSession extension: Remove dependency to core module and rely on common
-    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
-    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
+*   Allow the use of Android platform extractors through
+    [MediaParser](https://developer.android.com/reference/android/media/MediaParser).
+    Only supported on API 30+.
+    *   You can use platform extractors for progressive media by passing
+        `MediaParserExtractorAdapter.FACTORY` when creating a
+        `ProgressiveMediaSource.Factory`.
+    *   You can use platform extractors for HLS by passing
+        `MediaParserHlsMediaChunkExtractor.FACTORY` when creating a
+        `HlsMediaSource.Factory`.
+    *   You can use platform extractors for DASH by passing a
+        `DefaultDashChunkSource` that uses `MediaParserChunkExtractor.FACTORY`
+        when creating a `DashMediaSource.Factory`.
 *   Cast extension:
     *   Trigger `onMediaItemTransition` event for all reasons except
         `MEDIA_ITEM_TRANSITION_REASON_REPEAT`.
-*   Allow the use of platform extractors through
-    [MediaParser](https://developer.android.com/reference/android/media/MediaParser).
-    Only supported on API 30+.
-    *   You can use it for progressive media by passing a
-        `MediaParserExtractorAdapter.FACTORY` when creating the
-        `ProgressiveMediaSource.Factory`.
-    *   You can use it for HLS by passing a
-        `MediaParserHlsMediaChunkExtractor.FACTORY` when creating the
-        `HlsMediaSource.Factory`.
-    *   You can use it for DASH by passing a `DefaultDashChunkSource` which
-        depends on `MediaParserChunkExtractor.FACTORY` when creating the
-        `DashMediaSource.Factory`.
-    *   We don't currently support using platform extractors with
-        SmoothStreaming.
-*   RTSP
-    *   Release the initial version of ExoPlayer's RTSP support.
+*   MediaSession extension:
+    *   Remove dependency on `exoplayer-core`, relying only `exoplayer-common`
+        instead. To achieve this, `TimelineQueueEditor` uses a new
+        `MediaDescriptionConverter` interface, and no longer relies on
+        `ConcatenatingMediaSource`.
+*   Remove deprecated symbols:
+    *   Remove `ExoPlayerFactory`. Use `SimpleExoPlayer.Builder` instead.
+    *   Remove `Player.DefaultEventListener`. Use `Player.Listener` instead.
+    *   Remove `ExtractorMediaSource`. Use `ProgressiveMediaSource` instead.
+    *   Remove `DefaultMediaSourceEventListener`. Use `MediaSourceEventListener`
+        instead.
+    *   Remove `DashManifest` constructor. Use the remaining constructor with
+        `programInformation` and `serviceDescription` set to `null` instead.
+    *   Remove `CryptoInfo.getFrameworkCryptoInfoV16`. Use
+        `CryptoInfo.getFrameworkCryptoInfo` instead.
+    *   Remove `NotificationUtil.createNotificationChannel(Context, String, int,
+        int)`. Use `createNotificationChannel(Context, String, int, int, int)`
+        instead.
+    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
+        `PlayerNotificationManager.Builder.setNotificationListener` instead.
+    *   Remove `PlayerNotificationManager.NotificationListener`
+        `onNotificationStarted(int, Notification)` and
+        `onNotificationCancelled(int)`. Use `onNotificationPosted(int,
+        Notification, boolean)` and `onNotificationCancelled(int, boolean)`
+        instead.
+    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
+        instead.
+    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
+        module instead.
 
 ### 2.13.3 (2021-04-14)
 
