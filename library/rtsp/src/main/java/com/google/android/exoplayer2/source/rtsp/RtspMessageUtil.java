@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_TEARD
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_UNSET;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -71,6 +72,10 @@ import java.util.regex.Pattern;
 
   // Status line pattern, see RFC2326 Section 7.1.
   private static final Pattern STATUS_LINE_PATTERN = Pattern.compile("RTSP/1\\.0 (\\d+) (.+)");
+
+  // Content length header pattern, see RFC2326 Section 12.14.
+  private static final Pattern CONTENT_LENGTH_HEADER_PATTERN =
+      Pattern.compile("Content-Length:\\s?(\\d+)", CASE_INSENSITIVE);
 
   // Session header pattern, see RFC2326 Section 12.37.
   private static final Pattern SESSION_HEADER_PATTERN =
@@ -258,6 +263,31 @@ import java.util.regex.Pattern;
 
     String messageBody = Joiner.on("\r\n").join(lines.subList(messageBodyOffset + 1, lines.size()));
     return new RtspRequest(requestUri, method, headers, messageBody);
+  }
+
+  /** Returns whether the line is a valid RTSP start line. */
+  public static boolean isRtspStartLine(String line) {
+    return REQUEST_LINE_PATTERN.matcher(line).matches()
+        || STATUS_LINE_PATTERN.matcher(line).matches();
+  }
+
+  /**
+   * Returns the length in bytes if the line contains a Content-Length header, otherwise {@link
+   * C#LENGTH_UNSET}.
+   *
+   * @throws ParserException If Content-Length cannot be parsed to an integer.
+   */
+  public static long parseContentLengthHeader(String line) throws ParserException {
+    try {
+      Matcher matcher = CONTENT_LENGTH_HEADER_PATTERN.matcher(line);
+      if (matcher.find()) {
+        return Long.parseLong(checkNotNull(matcher.group(1)));
+      } else {
+        return C.LENGTH_UNSET;
+      }
+    } catch (NumberFormatException e) {
+      throw new ParserException(e);
+    }
   }
 
   /**

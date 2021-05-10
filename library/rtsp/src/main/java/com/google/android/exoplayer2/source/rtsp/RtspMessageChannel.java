@@ -15,23 +15,31 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import static com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.isRtspStartLine;
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import java.io.BufferedReader;
+import com.google.common.collect.ImmutableList;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -42,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class RtspMessageChannel implements Closeable {
 
   private static final String TAG = "RtspMessageChannel";
-  private static final boolean LOG_RTSP_MESSAGES = false;
+  private static final boolean LOG_RTSP_MESSAGES = true;
 
   /** A listener for received RTSP messages and possible failures. */
   public interface MessageListener {
@@ -53,6 +61,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param message The non-empty list of received lines, with line terminators removed.
      */
     void onRtspMessageReceived(List<String> message);
+
+    /**
+     * Called when interleaved binary data is received on RTSP.
+     *
+     * @param data The received binary data. The byte array will not be reused by {@link
+     *     RtspMessageChannel}, and will always be full.
+     * @param channel The channel on which the data is received.
+     */
+    default void onInterleavedBinaryDataReceived(byte[] data, int channel) {}
 
     /**
      * Called when failed to send an RTSP message.
@@ -87,7 +104,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull Sender sender;
   private @MonotonicNonNull Socket socket;
 
-  private boolean closed;
+  private volatile boolean closed;
 
   /**
    * Constructs a new instance.
@@ -135,17 +152,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @Override
   public void close() throws IOException {
-    if (sender != null) {
-      sender.close();
+    // TODO(internal b/172331505) Make sure most resources are closed before throwing, and close()
+    // can be called again to close the resources that are still open.
+    if (closed) {
+      return;
     }
-    receiverLoader.release();
+    try {
+      if (sender != null) {
+        sender.close();
+      }
+      receiverLoader.release();
+      messageListenerHandler.removeCallbacksAndMessages(/* token= */ null);
 
-    if (socket != null) {
-      socket.close();
+      if (socket != null) {
+        socket.close();
+      }
+    } finally {
+      closed = true;
     }
-
-    messageListenerHandler.removeCallbacksAndMessages(/* token= */ null);
-    closed = true;
   }
 
   /**
@@ -159,6 +183,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private static void logMessage(List<String> rtspMessage) {
+    // TODO(b/172331505) Remove before release.
     if (LOG_RTSP_MESSAGES) {
       Log.d(TAG, Joiner.on('\n').join(rtspMessage));
     }
@@ -224,8 +249,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** A {@link Loadable} for receiving RTSP responses. */
   private final class Receiver implements Loadable {
-    private final BufferedReader inputStreamReader;
 
+    /** ASCII dollar encapsulates the RTP packets in interleaved mode (RFC2326 Section 10.12). */
+    private static final byte RTSP_INTERLEAVED_MESSAGE_MARKER = '$';
+
+    private final DataInputStream dataInputStream;
+    private final RtspMessageBuilder messageBuilder;
     private volatile boolean loadCanceled;
 
     /**
@@ -236,7 +265,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      *     InputStream}.
      */
     public Receiver(InputStream inputStream) {
-      inputStreamReader = new BufferedReader(new InputStreamReader(inputStream, Charsets.UTF_8));
+      dataInputStream = new DataInputStream(inputStream);
+      messageBuilder = new RtspMessageBuilder();
     }
 
     @Override
@@ -246,26 +276,66 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void load() throws IOException {
-      List<String> messageLines = new ArrayList<>();
       while (!loadCanceled) {
-        String line;
-        while (inputStreamReader.ready() && (line = inputStreamReader.readLine()) != null) {
-          messageLines.add(line);
-        }
-
-        if (!messageLines.isEmpty()) {
-          List<String> message = new ArrayList<>(messageLines);
-          logMessage(message);
-          messageListenerHandler.post(
-              () -> {
-                if (!closed) {
-                  messageListener.onRtspMessageReceived(message);
-                }
-              });
-          // Resets for the next response.
-          messageLines.clear();
+        // TODO(internal b/172331505) Use a buffered read.
+        byte firstByte = dataInputStream.readByte();
+        if (firstByte == RTSP_INTERLEAVED_MESSAGE_MARKER) {
+          handleInterleavedBinaryData();
+        } else {
+          handleRtspMessage(firstByte);
         }
       }
+    }
+
+    /** Handles an entire RTSP message. */
+    private void handleRtspMessage(byte firstByte) throws IOException {
+      @Nullable
+      ImmutableList<String> messageLines = messageBuilder.addLine(handleRtspMessageLine(firstByte));
+      while (messageLines == null) {
+        messageLines = messageBuilder.addLine(handleRtspMessageLine(dataInputStream.readByte()));
+      }
+
+      logMessage(messageLines);
+      ImmutableList<String> messageLinesToPost = ImmutableList.copyOf(messageLines);
+      messageListenerHandler.post(
+          () -> {
+            if (!closed) {
+              messageListener.onRtspMessageReceived(messageLinesToPost);
+            }
+          });
+    }
+
+    /** Returns the byte representation of a complete RTSP line, with CRLF line terminator. */
+    private byte[] handleRtspMessageLine(byte firstByte) throws IOException {
+      ByteArrayOutputStream messageByteStream = new ByteArrayOutputStream();
+
+      byte[] peekedBytes = new byte[2];
+      peekedBytes[0] = firstByte;
+      peekedBytes[1] = dataInputStream.readByte();
+      messageByteStream.write(peekedBytes);
+
+      while (peekedBytes[0] != Ascii.CR || peekedBytes[1] != Ascii.LF) {
+        // Shift the CRLF buffer.
+        peekedBytes[0] = peekedBytes[1];
+        peekedBytes[1] = dataInputStream.readByte();
+        messageByteStream.write(peekedBytes[1]);
+      }
+
+      return messageByteStream.toByteArray();
+    }
+
+    private void handleInterleavedBinaryData() throws IOException {
+      int channel = dataInputStream.readUnsignedByte();
+      int size = dataInputStream.readUnsignedShort();
+      byte[] data = new byte[size];
+      dataInputStream.readFully(data, /* off= */ 0, size);
+
+      messageListenerHandler.post(
+          () -> {
+            if (!closed) {
+              messageListener.onInterleavedBinaryDataReceived(data, channel);
+            }
+          });
     }
   }
 
@@ -286,6 +356,95 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int errorCount) {
       messageListener.onReceivingFailed(error);
       return Loader.DONT_RETRY;
+    }
+  }
+  /** Processes RTSP messages line-by-line. */
+  private static final class RtspMessageBuilder {
+
+    @IntDef({STATE_READING_FIRST_LINE, STATE_READING_RTSP_HEADER, STATE_READING_RTSP_BODY})
+    @interface ReadingState {}
+
+    private static final int STATE_READING_FIRST_LINE = 1;
+    private static final int STATE_READING_RTSP_HEADER = 2;
+    private static final int STATE_READING_RTSP_BODY = 3;
+
+    private final List<String> messageLines;
+
+    @ReadingState private int state;
+    private long messageBodyLength;
+    private long receivedMessageBodyLength;
+
+    /** Creates a new instance. */
+    public RtspMessageBuilder() {
+      messageLines = new ArrayList<>();
+      state = STATE_READING_FIRST_LINE;
+    }
+
+    /**
+     * Add a line to the builder.
+     *
+     * @param lineBytes The complete RTSP message line in UTF-8 byte array, including CRLF.
+     * @return A list of completed RTSP message lines, without the CRLF line terminators; or {@code
+     *     null} if the message is not yet complete.
+     */
+    @Nullable
+    public ImmutableList<String> addLine(byte[] lineBytes) throws ParserException {
+      // Trim CRLF.
+      checkArgument(
+          lineBytes.length >= 2
+              && lineBytes[lineBytes.length - 2] == Ascii.CR
+              && lineBytes[lineBytes.length - 1] == Ascii.LF);
+      String line =
+          new String(
+              lineBytes, /* offset= */ 0, /* length= */ lineBytes.length - 2, Charsets.UTF_8);
+      messageLines.add(line);
+
+      switch (state) {
+        case STATE_READING_FIRST_LINE:
+          if (isRtspStartLine(line)) {
+            state = STATE_READING_RTSP_HEADER;
+          }
+          break;
+
+        case STATE_READING_RTSP_HEADER:
+          // Check if the line contains RTSP Content-Length header.
+          long contentLength = RtspMessageUtil.parseContentLengthHeader(line);
+          if (contentLength != C.LENGTH_UNSET) {
+            messageBodyLength = contentLength;
+          }
+
+          if (line.isEmpty()) {
+            // An empty line signals the end of the header section.
+            if (messageBodyLength > 0) {
+              state = STATE_READING_RTSP_BODY;
+            } else {
+              ImmutableList<String> linesToReturn = ImmutableList.copyOf(messageLines);
+              reset();
+              return linesToReturn;
+            }
+          }
+          break;
+
+        case STATE_READING_RTSP_BODY:
+          receivedMessageBodyLength += lineBytes.length;
+          if (receivedMessageBodyLength >= messageBodyLength) {
+            ImmutableList<String> linesToReturn = ImmutableList.copyOf(messageLines);
+            reset();
+            return linesToReturn;
+          }
+          break;
+
+        default:
+          throw new IllegalStateException();
+      }
+      return null;
+    }
+
+    private void reset() {
+      messageLines.clear();
+      state = STATE_READING_FIRST_LINE;
+      messageBodyLength = 0;
+      receivedMessageBodyLength = 0;
     }
   }
 }

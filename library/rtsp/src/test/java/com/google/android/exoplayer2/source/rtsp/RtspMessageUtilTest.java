@@ -363,4 +363,28 @@ public final class RtspMessageUtilTest {
     assertThat(RtspMessageUtil.removeUserInfo(uri))
         .isEqualTo(Uri.parse("rtsp://foo.bar:5050/foo.mkv"));
   }
+
+  @Test
+  public void parseContentLengthHeader_withContentLengthOver31Bits_succeeds() throws Exception {
+    String line = "Content-Length: 1000000000000000";
+    long contentLength = RtspMessageUtil.parseContentLengthHeader(line);
+    assertThat(contentLength).isEqualTo(1000000000000000L);
+  }
+
+  @Test
+  public void isRtspStartLine_onValidRequestLine_succeeds() {
+    assertThat(RtspMessageUtil.isRtspStartLine("OPTIONS rtsp://localhost/test RTSP/1.0")).isTrue();
+  }
+
+  @Test
+  public void isRtspStartLine_onValidResponseLine_succeeds() {
+    assertThat(RtspMessageUtil.isRtspStartLine("RTSP/1.0 456 Header Field Not Valid for Resource"))
+        .isTrue();
+  }
+
+  @Test
+  public void isRtspStartLine_onValidHeaderLine_succeeds() {
+    assertThat(RtspMessageUtil.isRtspStartLine("Transport: RTP/AVP;unicast;client_port=1000-1001"))
+        .isFalse();
+  }
 }
