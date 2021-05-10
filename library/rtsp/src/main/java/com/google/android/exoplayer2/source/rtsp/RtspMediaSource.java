@@ -58,22 +58,29 @@ public final class RtspMediaSource extends BaseMediaSource {
    */
   public static final class Factory implements MediaSourceFactory {
 
-    /** @deprecated Not supported. */
-    @Deprecated
+    /** Does nothing. {@link RtspMediaSource} does not support DRM. */
     @Override
     public Factory setDrmSessionManagerProvider(
         @Nullable DrmSessionManagerProvider drmSessionManager) {
       return this;
     }
 
-    /** @deprecated Not supported. */
+    /**
+     * Does nothing. {@link RtspMediaSource} does not support DRM.
+     *
+     * @deprecated {@link RtspMediaSource} does not support DRM.
+     */
     @Deprecated
     @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
       return this;
     }
 
-    /** @deprecated Not supported. */
+    /**
+     * Does nothing. {@link RtspMediaSource} does not support DRM.
+     *
+     * @deprecated {@link RtspMediaSource} does not support DRM.
+     */
     @Deprecated
     @Override
     public Factory setDrmHttpDataSourceFactory(
@@ -81,18 +88,22 @@ public final class RtspMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /** @deprecated Not supported. */
+    /**
+     * Does nothing. {@link RtspMediaSource} does not support DRM.
+     *
+     * @deprecated {@link RtspMediaSource} does not support DRM.
+     */
     @Deprecated
     @Override
     public Factory setDrmUserAgent(@Nullable String userAgent) {
       return this;
     }
 
-    /** @deprecated Not supported. */
-    @Deprecated
+    /** Does nothing. {@link RtspMediaSource} does not support error handling policies. */
     @Override
     public Factory setLoadErrorHandlingPolicy(
         @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      // TODO(internal b/172331505): Implement support.
       return this;
     }
 
