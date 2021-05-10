@@ -1369,7 +1369,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     MediaPeriodId mediaPeriodId = playbackInfo.periodId;
     long startPositionUs = playbackInfo.positionUs;
     long requestedContentPositionUs =
-        shouldUseRequestedContentPosition(playbackInfo, period)
+        playbackInfo.periodId.isAd() || isUsingPlaceholderPeriod(playbackInfo, period)
             ? playbackInfo.requestedContentPositionUs
             : playbackInfo.positionUs;
     boolean resetTrackInfo = false;
@@ -2475,10 +2475,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     MediaPeriodId oldPeriodId = playbackInfo.periodId;
     Object newPeriodUid = oldPeriodId.periodUid;
-    boolean shouldUseRequestedContentPosition =
-        shouldUseRequestedContentPosition(playbackInfo, period);
+    boolean isUsingPlaceholderPeriod = isUsingPlaceholderPeriod(playbackInfo, period);
     long oldContentPositionUs =
-        shouldUseRequestedContentPosition
+        playbackInfo.periodId.isAd() || isUsingPlaceholderPeriod
             ? playbackInfo.requestedContentPositionUs
             : playbackInfo.positionUs;
     long newContentPositionUs = oldContentPositionUs;
@@ -2541,28 +2540,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
         startAtDefaultPositionWindowIndex =
             timeline.getPeriodByUid(subsequentPeriodUid, period).windowIndex;
       }
-    } else if (shouldUseRequestedContentPosition) {
-      // We previously requested a content position, but haven't used it yet. Re-resolve the
-      // requested window position to the period uid and position in case they changed.
-      if (oldContentPositionUs == C.TIME_UNSET) {
-        startAtDefaultPositionWindowIndex =
-            timeline.getPeriodByUid(newPeriodUid, period).windowIndex;
-      } else {
-        playbackInfo.timeline.getPeriodByUid(oldPeriodId.periodUid, period);
-        if (playbackInfo.timeline.getWindow(period.windowIndex, window).firstPeriodIndex
-            == playbackInfo.timeline.getIndexOfPeriod(oldPeriodId.periodUid)) {
-          // Only need to resolve the first period in a window because subsequent periods must start
-          // at position 0 and don't need to be resolved.
-          long windowPositionUs = oldContentPositionUs + period.getPositionInWindowUs();
-          int windowIndex = timeline.getPeriodByUid(newPeriodUid, period).windowIndex;
-          Pair<Object, Long> periodPosition =
-              timeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
-          newPeriodUid = periodPosition.first;
-          newContentPositionUs = periodPosition.second;
-        }
-        // Use an explicitly requested content position as new target live offset.
-        setTargetLiveOffset = true;
+    } else if (oldContentPositionUs == C.TIME_UNSET) {
+      // The content was requested to start from its default position and we haven't used the
+      // resolved position yet. Re-resolve in case the default position changed.
+      startAtDefaultPositionWindowIndex = timeline.getPeriodByUid(newPeriodUid, period).windowIndex;
+    } else if (isUsingPlaceholderPeriod) {
+      // We previously requested a content position for a placeholder period, but haven't used it
+      // yet. Re-resolve the requested window position to the period position in case it changed.
+      playbackInfo.timeline.getPeriodByUid(oldPeriodId.periodUid, period);
+      if (playbackInfo.timeline.getWindow(period.windowIndex, window).firstPeriodIndex
+          == playbackInfo.timeline.getIndexOfPeriod(oldPeriodId.periodUid)) {
+        // Only need to resolve the first period in a window because subsequent periods must start
+        // at position 0 and don't need to be resolved.
+        long windowPositionUs = oldContentPositionUs + period.getPositionInWindowUs();
+        int windowIndex = timeline.getPeriodByUid(newPeriodUid, period).windowIndex;
+        Pair<Object, Long> periodPosition =
+            timeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
+        newPeriodUid = periodPosition.first;
+        newContentPositionUs = periodPosition.second;
       }
+      // Use an explicitly requested content position as new target live offset.
+      setTargetLiveOffset = true;
     }
 
     // Set period uid for default positions and resolve position for ad resolution.
@@ -2618,15 +2616,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
         setTargetLiveOffset);
   }
 
-  private static boolean shouldUseRequestedContentPosition(
+  private static boolean isUsingPlaceholderPeriod(
       PlaybackInfo playbackInfo, Timeline.Period period) {
-    // Only use the actual position as content position if it's not an ad and we already have
-    // prepared media information. Otherwise use the requested position.
     MediaPeriodId periodId = playbackInfo.periodId;
     Timeline timeline = playbackInfo.timeline;
-    return periodId.isAd()
-        || timeline.isEmpty()
-        || timeline.getPeriodByUid(periodId.periodUid, period).isPlaceholder;
+    return timeline.isEmpty() || timeline.getPeriodByUid(periodId.periodUid, period).isPlaceholder;
   }
 
   /**

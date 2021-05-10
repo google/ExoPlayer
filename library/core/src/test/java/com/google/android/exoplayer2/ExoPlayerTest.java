@@ -42,6 +42,7 @@ import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainL
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfWindow;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
+import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPositionDiscontinuity;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilReceiveOffloadSchedulingEnabledNewState;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilSleepingForOffload;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilTimelineChanged;
@@ -2731,8 +2732,7 @@ public final class ExoPlayerTest {
     player.play();
 
     // When the ad finishes, the player position should be at or after the requested seek position.
-    TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     assertThat(player.getCurrentPosition()).isAtLeast(seekPositionMs);
   }
 
@@ -3389,6 +3389,55 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
 
     assertThat(contentStartPositionMs.get()).isAtLeast(5_000L);
+  }
+
+  @Test
+  public void adInMovingLiveWindow_keepsContentPosition() throws Exception {
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */ 42_000_004_000_000L);
+    Timeline liveTimeline1 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10_000_000,
+                /* defaultPositionUs= */ 3_000_000,
+                /* windowOffsetInFirstPeriodUs= */ 42_000_000_000_000L,
+                adPlaybackState));
+    Timeline liveTimeline2 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10_000_000,
+                /* defaultPositionUs= */ 3_000_000,
+                /* windowOffsetInFirstPeriodUs= */ 42_000_002_000_000L,
+                adPlaybackState));
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(liveTimeline1);
+
+    player.setMediaSource(fakeMediaSource);
+    player.prepare();
+    player.play();
+    // Wait until the ad is playing.
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    long contentPositionBeforeLiveWindowUpdateMs = player.getContentPosition();
+    fakeMediaSource.setNewSourceInfo(liveTimeline2);
+    runUntilTimelineChanged(player);
+    long contentPositionAfterLiveWindowUpdateMs = player.getContentPosition();
+    player.release();
+
+    assertThat(contentPositionBeforeLiveWindowUpdateMs).isEqualTo(4000);
+    assertThat(contentPositionAfterLiveWindowUpdateMs).isEqualTo(2000);
   }
 
   @Test
@@ -7595,8 +7644,7 @@ public final class ExoPlayerTest {
     // Update media with a non-zero default start position and window offset.
     firstMediaSource.setNewSourceInfo(timelineWithOffsets);
     // Wait until player transitions to second source (which also has non-zero offsets).
-    TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     assertThat(player.getCurrentWindowIndex()).isEqualTo(1);
     player.release();
 
