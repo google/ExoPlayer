@@ -70,6 +70,7 @@ modules individually.
 * `exoplayer-core`: Core functionality (required).
 * `exoplayer-dash`: Support for DASH content.
 * `exoplayer-hls`: Support for HLS content.
+* `exoplayer-rtsp`: Support for RTSP content.
 * `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
 * `exoplayer-transformer`: Media transformation functionality.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
