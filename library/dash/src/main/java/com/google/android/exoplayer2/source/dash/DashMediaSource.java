@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.dash;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -537,17 +536,6 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   // MediaSource implementation.
-
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return castNonNull(mediaItem.playbackProperties).tag;
-  }
 
   @Override
   public MediaItem getMediaItem() {

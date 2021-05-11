@@ -179,20 +179,6 @@ public class FakeMediaSource extends BaseMediaSource {
     return timeline;
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    if (timeline == null || timeline.isEmpty()) {
-      return null;
-    }
-    return timeline.getWindow(0, new Timeline.Window()).tag;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     if (timeline == null || timeline.isEmpty()) {

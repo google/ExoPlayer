@@ -186,17 +186,6 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     window = new Timeline.Window();
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return mediaSource.getTag();
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaSource.getMediaItem();

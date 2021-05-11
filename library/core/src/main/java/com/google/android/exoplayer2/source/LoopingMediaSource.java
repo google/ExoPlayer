@@ -72,17 +72,6 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
     mediaPeriodToChildMediaPeriodId = new HashMap<>();
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return maskingMediaSource.getTag();
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return maskingMediaSource.getMediaItem();

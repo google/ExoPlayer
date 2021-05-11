@@ -8,7 +8,7 @@
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
-        `MediaIteam.PlaybackProperties.tag` instead.
+        `MediaItem.PlaybackProperties.tag` instead.
     *   Remove `PlaybackPreparer`. UI components that previously had
         `setPlaybackPreparer` methods will now call `Player.prepare` by default.
         If this behavior is sufficient, use of `PlaybackPreparer` can be removed
@@ -33,6 +33,8 @@
     *   Remove `Format.create` methods. Use `Format.Builder` instead.
     *   Remove `Timeline.getWindow(int, Window, boolean)`. Use
         `Timeline.getWindow(int, Window)` instead, which will always set tags.
+    *   Remove `MediaSource.getTag`. Use `MediaSource.getMediaItem` and
+        `MediaItem.PlaybackProperties.tag` instead.
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.

@@ -154,17 +154,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     clippedMediaPeriods = MultimapBuilder.hashKeys().arrayListValues().build();
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return mediaSources.length > 0 ? mediaSources[0].getTag() : null;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaSources.length > 0 ? mediaSources[0].getMediaItem() : EMPTY_MEDIA_ITEM;

@@ -21,7 +21,6 @@ import static org.junit.Assert.fail;
 import static org.robolectric.annotation.LooperMode.Mode.PAUSED;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -136,35 +135,6 @@ public final class DashMediaSourceTest {
     assertThat(dashMediaItem.playbackProperties).isNotNull();
     assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
     assertThat(dashMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factoryCreateMediaSource_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(tag).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(new Object());
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility

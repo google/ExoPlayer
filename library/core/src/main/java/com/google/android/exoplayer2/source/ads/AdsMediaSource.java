@@ -174,17 +174,6 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     adsLoader.setSupportedContentTypes(adMediaSourceFactory.getSupportedTypes());
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return contentMediaSource.getTag();
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return contentMediaSource.getMediaItem();

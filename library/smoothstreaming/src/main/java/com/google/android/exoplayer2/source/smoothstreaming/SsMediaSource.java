@@ -424,17 +424,6 @@ public final class SsMediaSource extends BaseMediaSource
 
   // MediaSource implementation.
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return playbackProperties.tag;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaItem;
