@@ -84,4 +84,16 @@ public final class Mp4ExtractorTest {
     ExtractorAsserts.assertBehavior(
         Mp4Extractor::new, "media/mp4/sample_opus.mp4", simulationConfig);
   }
+
+  @Test
+  public void mp4SampleWithMha1Track() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_mpegh_mha1.mp4", simulationConfig);
+  }
+
+  @Test
+  public void mp4SampleWithMhm1Track() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_mpegh_mhm1.mp4", simulationConfig);
+  }
 }

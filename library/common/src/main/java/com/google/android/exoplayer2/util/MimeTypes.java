@@ -62,6 +62,8 @@ public final class MimeTypes {
   public static final String AUDIO_MPEG = BASE_TYPE_AUDIO + "/mpeg";
   public static final String AUDIO_MPEG_L1 = BASE_TYPE_AUDIO + "/mpeg-L1";
   public static final String AUDIO_MPEG_L2 = BASE_TYPE_AUDIO + "/mpeg-L2";
+  public static final String AUDIO_MPEGH_MHA1 = BASE_TYPE_AUDIO + "/mha1";
+  public static final String AUDIO_MPEGH_MHM1 = BASE_TYPE_AUDIO + "/mhm1";
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
   public static final String AUDIO_ALAW = BASE_TYPE_AUDIO + "/g711-alaw";
   public static final String AUDIO_MLAW = BASE_TYPE_AUDIO + "/g711-mlaw";
@@ -365,6 +367,10 @@ public final class MimeTypes {
         }
       }
       return mimeType == null ? MimeTypes.AUDIO_AAC : mimeType;
+    } else if (codec.startsWith("mha1")) {
+      return MimeTypes.AUDIO_MPEGH_MHA1;
+    } else if (codec.startsWith("mhm1")) {
+      return MimeTypes.AUDIO_MPEGH_MHM1;
     } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
       return MimeTypes.AUDIO_AC3;
     } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
