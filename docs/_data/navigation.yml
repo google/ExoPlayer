@@ -59,6 +59,8 @@ en:
         url:    smoothstreaming.html
       - title:  Progressive
         url:    progressive.html
+      - title:  RTSP
+        url:    rtsp.html
   - title:      Advanced topics
     children:
       - title:  Digital rights management
