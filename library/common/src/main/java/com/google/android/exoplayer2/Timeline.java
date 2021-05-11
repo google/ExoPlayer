@@ -1042,12 +1042,6 @@ public abstract class Timeline implements Bundleable {
     return getWindow(windowIndex, window, /* defaultPositionProjectionUs= */ 0);
   }
 
-  /** @deprecated Use {@link #getWindow(int, Window)} instead. Tags will always be set. */
-  @Deprecated
-  public final Window getWindow(int windowIndex, Window window, boolean setTag) {
-    return getWindow(windowIndex, window, /* defaultPositionProjectionUs= */ 0);
-  }
-
   /**
    * Populates a {@link Window} with data for the window at the specified index.
    *

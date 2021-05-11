@@ -28,6 +28,8 @@
         `setUsePreviousAction`, `setUseNextActionInCompactView` and
         `setUsePreviousActionInCompactView` instead.
     *   Remove `Format.create` methods. Use `Format.Builder` instead.
+    *   Remove `Timeline.getWindow(int, Window, boolean)`. Use
+        `Timeline.getWindow(int, Window)` instead, which will always set tags.
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
