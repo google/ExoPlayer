@@ -760,40 +760,6 @@ public final class Format implements Parcelable {
 
   /** @deprecated Use {@link Format.Builder}. */
   @Deprecated
-  public static Format createVideoContainerFormat(
-      @Nullable String id,
-      @Nullable String label,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      @Nullable Metadata metadata,
-      int bitrate,
-      int width,
-      int height,
-      float frameRate,
-      @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags,
-      @C.RoleFlags int roleFlags) {
-    return new Builder()
-        .setId(id)
-        .setLabel(label)
-        .setSelectionFlags(selectionFlags)
-        .setRoleFlags(roleFlags)
-        .setAverageBitrate(bitrate)
-        .setPeakBitrate(bitrate)
-        .setCodecs(codecs)
-        .setMetadata(metadata)
-        .setContainerMimeType(containerMimeType)
-        .setSampleMimeType(sampleMimeType)
-        .setInitializationData(initializationData)
-        .setWidth(width)
-        .setHeight(height)
-        .setFrameRate(frameRate)
-        .build();
-  }
-
-  /** @deprecated Use {@link Format.Builder}. */
-  @Deprecated
   public static Format createVideoSampleFormat(
       @Nullable String id,
       @Nullable String sampleMimeType,
@@ -849,44 +815,6 @@ public final class Format implements Parcelable {
         .setFrameRate(frameRate)
         .setRotationDegrees(rotationDegrees)
         .setPixelWidthHeightRatio(pixelWidthHeightRatio)
-        .build();
-  }
-
-  /** @deprecated Use {@link Format.Builder}. */
-  @Deprecated
-  public static Format createVideoSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      int maxInputSize,
-      int width,
-      int height,
-      float frameRate,
-      @Nullable List<byte[]> initializationData,
-      int rotationDegrees,
-      float pixelWidthHeightRatio,
-      @Nullable byte[] projectionData,
-      @C.StereoMode int stereoMode,
-      @Nullable ColorInfo colorInfo,
-      @Nullable DrmInitData drmInitData) {
-    return new Builder()
-        .setId(id)
-        .setAverageBitrate(bitrate)
-        .setPeakBitrate(bitrate)
-        .setCodecs(codecs)
-        .setSampleMimeType(sampleMimeType)
-        .setMaxInputSize(maxInputSize)
-        .setInitializationData(initializationData)
-        .setDrmInitData(drmInitData)
-        .setWidth(width)
-        .setHeight(height)
-        .setFrameRate(frameRate)
-        .setRotationDegrees(rotationDegrees)
-        .setPixelWidthHeightRatio(pixelWidthHeightRatio)
-        .setProjectionData(projectionData)
-        .setStereoMode(stereoMode)
-        .setColorInfo(colorInfo)
         .build();
   }
 
@@ -894,40 +822,6 @@ public final class Format implements Parcelable {
 
   /** @deprecated Use {@link Format.Builder}. */
   @Deprecated
-  public static Format createAudioContainerFormat(
-      @Nullable String id,
-      @Nullable String label,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      @Nullable Metadata metadata,
-      int bitrate,
-      int channelCount,
-      int sampleRate,
-      @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags,
-      @C.RoleFlags int roleFlags,
-      @Nullable String language) {
-    return new Builder()
-        .setId(id)
-        .setLabel(label)
-        .setLanguage(language)
-        .setSelectionFlags(selectionFlags)
-        .setRoleFlags(roleFlags)
-        .setAverageBitrate(bitrate)
-        .setPeakBitrate(bitrate)
-        .setCodecs(codecs)
-        .setMetadata(metadata)
-        .setContainerMimeType(containerMimeType)
-        .setSampleMimeType(sampleMimeType)
-        .setInitializationData(initializationData)
-        .setChannelCount(channelCount)
-        .setSampleRate(sampleRate)
-        .build();
-  }
-
-  /** @deprecated Use {@link Format.Builder}. */
-  @Deprecated
   public static Format createAudioSampleFormat(
       @Nullable String id,
       @Nullable String sampleMimeType,
@@ -985,44 +879,6 @@ public final class Format implements Parcelable {
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
         .setPcmEncoding(pcmEncoding)
-        .build();
-  }
-
-  /** @deprecated Use {@link Format.Builder}. */
-  @Deprecated
-  public static Format createAudioSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      int maxInputSize,
-      int channelCount,
-      int sampleRate,
-      @C.PcmEncoding int pcmEncoding,
-      int encoderDelay,
-      int encoderPadding,
-      @Nullable List<byte[]> initializationData,
-      @Nullable DrmInitData drmInitData,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
-      @Nullable Metadata metadata) {
-    return new Builder()
-        .setId(id)
-        .setLanguage(language)
-        .setSelectionFlags(selectionFlags)
-        .setAverageBitrate(bitrate)
-        .setPeakBitrate(bitrate)
-        .setCodecs(codecs)
-        .setMetadata(metadata)
-        .setSampleMimeType(sampleMimeType)
-        .setMaxInputSize(maxInputSize)
-        .setInitializationData(initializationData)
-        .setDrmInitData(drmInitData)
-        .setChannelCount(channelCount)
-        .setSampleRate(sampleRate)
-        .setPcmEncoding(pcmEncoding)
-        .setEncoderDelay(encoderDelay)
-        .setEncoderPadding(encoderPadding)
         .build();
   }
 
