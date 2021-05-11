@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.ads;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.common.collect.ObjectArrays.concat;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -315,7 +316,7 @@ public final class AdPlaybackState implements Bundleable {
       new AdPlaybackState(
           /* adsId= */ null,
           /* adGroupTimesUs= */ new long[0],
-          /* adGroups= */ null,
+          /* adGroups= */ new AdGroup[0],
           /* adResumePositionUs= */ 0L,
           /* contentDurationUs= */ C.TIME_UNSET);
 
@@ -353,7 +354,7 @@ public final class AdPlaybackState implements Bundleable {
     this(
         adsId,
         adGroupTimesUs,
-        /* adGroups= */ null,
+        createEmptyAdGroups(adGroupTimesUs.length),
         /* adResumePositionUs= */ 0,
         /* contentDurationUs= */ C.TIME_UNSET);
   }
@@ -361,21 +362,15 @@ public final class AdPlaybackState implements Bundleable {
   private AdPlaybackState(
       @Nullable Object adsId,
       long[] adGroupTimesUs,
-      @Nullable AdGroup[] adGroups,
+      AdGroup[] adGroups,
       long adResumePositionUs,
       long contentDurationUs) {
-    checkArgument(adGroups == null || adGroups.length == adGroupTimesUs.length);
+    checkArgument(adGroups.length == adGroupTimesUs.length);
     this.adsId = adsId;
     this.adGroupTimesUs = adGroupTimesUs;
     this.adResumePositionUs = adResumePositionUs;
     this.contentDurationUs = contentDurationUs;
     adGroupCount = adGroupTimesUs.length;
-    if (adGroups == null) {
-      adGroups = new AdGroup[adGroupCount];
-      for (int i = 0; i < adGroupCount; i++) {
-        adGroups[i] = new AdGroup();
-      }
-    }
     this.adGroups = adGroups;
   }
 
@@ -438,6 +433,30 @@ public final class AdPlaybackState implements Bundleable {
       return false;
     }
     return adGroup.states[adIndexInAdGroup] == AdPlaybackState.AD_STATE_ERROR;
+  }
+
+  /**
+   * Returns an instance with the specified ad group times.
+   *
+   * <p>If the number of ad groups differs, ad groups are either removed or empty ad groups are
+   * added.
+   *
+   * @param adGroupTimesUs The new ad group times, in microseconds.
+   * @return The updated ad playback state.
+   */
+  @CheckResult
+  public AdPlaybackState withAdGroupTimesUs(long[] adGroupTimesUs) {
+    AdGroup[] adGroups =
+        adGroupTimesUs.length < adGroupCount
+            ? Util.nullSafeArrayCopy(this.adGroups, adGroupTimesUs.length)
+            : adGroupTimesUs.length == adGroupCount
+                ? this.adGroups
+                : concat(
+                    this.adGroups,
+                    createEmptyAdGroups(adGroupTimesUs.length - adGroupCount),
+                    AdGroup.class);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /**
@@ -679,12 +698,15 @@ public final class AdPlaybackState implements Bundleable {
 
   private static AdPlaybackState fromBundle(Bundle bundle) {
     @Nullable long[] adGroupTimesUs = bundle.getLongArray(keyForField(FIELD_AD_GROUP_TIMES_US));
+    if (adGroupTimesUs == null) {
+      adGroupTimesUs = new long[0];
+    }
     @Nullable
     ArrayList<Bundle> adGroupBundleList =
         bundle.getParcelableArrayList(keyForField(FIELD_AD_GROUPS));
     @Nullable AdGroup[] adGroups;
     if (adGroupBundleList == null) {
-      adGroups = null;
+      adGroups = createEmptyAdGroups(adGroupTimesUs.length);
     } else {
       adGroups = new AdGroup[adGroupBundleList.size()];
       for (int i = 0; i < adGroupBundleList.size(); i++) {
@@ -696,14 +718,18 @@ public final class AdPlaybackState implements Bundleable {
     long contentDurationUs =
         bundle.getLong(keyForField(FIELD_CONTENT_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
     return new AdPlaybackState(
-        /* adsId= */ null,
-        adGroupTimesUs == null ? new long[0] : adGroupTimesUs,
-        adGroups,
-        adResumePositionUs,
-        contentDurationUs);
+        /* adsId= */ null, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  private static AdGroup[] createEmptyAdGroups(int count) {
+    AdGroup[] adGroups = new AdGroup[count];
+    for (int i = 0; i < count; i++) {
+      adGroups[i] = new AdGroup();
+    }
+    return adGroups;
   }
 }

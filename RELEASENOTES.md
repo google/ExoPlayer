@@ -33,6 +33,9 @@
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
+*   Ad playback:
+    *   Support changing ad break positions in the player logic
+        ([#5067](https://github.com/google/ExoPlayer/issues/5067).
 
 ### 2.14.0 (2021-05-13)
 

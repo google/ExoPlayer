@@ -1799,6 +1799,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           // Update the new playing media period info if it already exists.
           if (periodHolder.info.id.equals(newPeriodId)) {
             periodHolder.info = queue.getUpdatedMediaPeriodInfo(timeline, periodHolder.info);
+            periodHolder.updateClipping();
           }
           periodHolder = periodHolder.getNext();
         }
@@ -2127,12 +2128,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Renderer renderer = renderers[i];
       SampleStream sampleStream = readingPeriodHolder.sampleStreams[i];
       if (renderer.getStream() != sampleStream
-          || (sampleStream != null && !renderer.hasReadStreamToEnd())) {
+          || (sampleStream != null
+              && !renderer.hasReadStreamToEnd()
+              && !hasFinishedReadingClippedContent(renderer, readingPeriodHolder))) {
         // The current reading period is still being read by at least one renderer.
         return false;
       }
     }
     return true;
+  }
+
+  private boolean hasFinishedReadingClippedContent(Renderer renderer, MediaPeriodHolder reading) {
+    MediaPeriodHolder nextPeriod = reading.getNext();
+    // We can advance the reading period early once the clipped content has been read beyond its
+    // clipped end time because we know there won't be any further samples. This shortcut is helpful
+    // in case the clipped end time was reduced and renderers already read beyond the new end time.
+    // But wait until the next period is actually prepared to allow a seamless transition.
+    return reading.info.id.nextAdGroupIndex != C.INDEX_UNSET
+        && nextPeriod.prepared
+        && renderer.getReadingPositionUs() >= nextPeriod.getStartPositionRendererTime();
   }
 
   private void setAllRendererStreamsFinal(long streamEndPositionUs) {
@@ -2587,12 +2601,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Drop update if we keep playing the same content (MediaPeriod.periodUid are identical) and
     // the only change is that MediaPeriodId.nextAdGroupIndex increased. This postpones a potential
     // discontinuity until we reach the former next ad group position.
-    boolean oldAndNewPeriodIdAreSame =
+    boolean onlyNextAdGroupIndexIncreased =
         oldPeriodId.periodUid.equals(newPeriodUid)
             && !oldPeriodId.isAd()
             && !periodIdWithAds.isAd()
             && earliestCuePointIsUnchangedOrLater;
-    MediaPeriodId newPeriodId = oldAndNewPeriodIdAreSame ? oldPeriodId : periodIdWithAds;
+    MediaPeriodId newPeriodId = onlyNextAdGroupIndexIncreased ? oldPeriodId : periodIdWithAds;
 
     long periodPositionUs = contentPositionForAdResolutionUs;
     if (newPeriodId.isAd()) {

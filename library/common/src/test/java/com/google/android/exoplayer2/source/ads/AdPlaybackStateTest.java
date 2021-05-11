@@ -73,6 +73,38 @@ public class AdPlaybackStateTest {
   }
 
   @Test
+  public void withAdGroupTimesUs_removingGroups_keepsRemainingGroups() {
+    AdPlaybackState state =
+        new AdPlaybackState(TEST_ADS_ID, new long[] {0, C.msToUs(10_000)})
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2)
+            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1, TEST_URI);
+
+    state = state.withAdGroupTimesUs(new long[] {C.msToUs(3_000)});
+
+    assertThat(state.adGroupCount).isEqualTo(1);
+    assertThat(state.adGroups[0].count).isEqualTo(2);
+    assertThat(state.adGroups[0].uris[1]).isSameInstanceAs(TEST_URI);
+  }
+
+  @Test
+  public void withAdGroupTimesUs_addingGroups_keepsExistingGroups() {
+    AdPlaybackState state =
+        new AdPlaybackState(TEST_ADS_ID, new long[] {0, C.msToUs(10_000)})
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2)
+            .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)
+            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1, TEST_URI)
+            .withSkippedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0);
+
+    state = state.withAdGroupTimesUs(new long[] {0, C.msToUs(3_000), C.msToUs(20_000)});
+
+    assertThat(state.adGroupCount).isEqualTo(3);
+    assertThat(state.adGroups[0].count).isEqualTo(2);
+    assertThat(state.adGroups[0].uris[1]).isSameInstanceAs(TEST_URI);
+    assertThat(state.adGroups[1].states[0]).isEqualTo(AdPlaybackState.AD_STATE_SKIPPED);
+    assertThat(state.adGroups[2].count).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
   public void getFirstAdIndexToPlayIsZero() {
     state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);

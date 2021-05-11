@@ -351,6 +351,7 @@ import com.google.common.collect.ImmutableList;
       if (!areDurationsCompatible(oldPeriodInfo.durationUs, newPeriodInfo.durationUs)) {
         // The period duration changed. Remove all subsequent periods and check whether we read
         // beyond the new duration.
+        periodHolder.updateClipping();
         long newDurationInRendererTime =
             newPeriodInfo.durationUs == C.TIME_UNSET
                 ? Long.MAX_VALUE
@@ -384,17 +385,21 @@ import com.google.common.collect.ImmutableList;
     boolean isLastInWindow = isLastInWindow(timeline, id);
     boolean isLastInTimeline = isLastInTimeline(timeline, id, isLastInPeriod);
     timeline.getPeriodByUid(info.id.periodUid, period);
+    long endPositionUs =
+        id.isAd() || id.nextAdGroupIndex == C.INDEX_UNSET
+            ? C.TIME_UNSET
+            : period.getAdGroupTimeUs(id.nextAdGroupIndex);
     long durationUs =
         id.isAd()
             ? period.getAdDurationUs(id.adGroupIndex, id.adIndexInAdGroup)
-            : (info.endPositionUs == C.TIME_UNSET || info.endPositionUs == C.TIME_END_OF_SOURCE
+            : (endPositionUs == C.TIME_UNSET || endPositionUs == C.TIME_END_OF_SOURCE
                 ? period.getDurationUs()
-                : info.endPositionUs);
+                : endPositionUs);
     return new MediaPeriodInfo(
         id,
         info.startPositionUs,
         info.requestedContentPositionUs,
-        info.endPositionUs,
+        endPositionUs,
         durationUs,
         isLastInPeriod,
         isLastInWindow,

@@ -307,6 +307,31 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
+      updateQueuedPeriods_withDurationChangeInPlayingContent_handlesChangeAndRemovesPeriodsAfterChangedPeriod() {
+    setupAdTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US);
+    setAdGroupLoaded(/* adGroupIndex= */ 0);
+    enqueueNext(); // Content before first ad.
+    enqueueNext(); // First ad.
+    enqueueNext(); // Content between ads.
+
+    // Change position of first ad (= change duration of playing content before first ad).
+    updateAdPlaybackStateAndTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US - 2000);
+    setAdGroupLoaded(/* adGroupIndex= */ 0);
+    long maxRendererReadPositionUs = FIRST_AD_START_TIME_US - 3000;
+    boolean changeHandled =
+        mediaPeriodQueue.updateQueuedPeriods(
+            playbackInfo.timeline, /* rendererPositionUs= */ 0, maxRendererReadPositionUs);
+
+    assertThat(changeHandled).isTrue();
+    assertThat(getQueueLength()).isEqualTo(1);
+    assertThat(mediaPeriodQueue.getPlayingPeriod().info.endPositionUs)
+        .isEqualTo(FIRST_AD_START_TIME_US - 2000);
+    assertThat(mediaPeriodQueue.getPlayingPeriod().info.durationUs)
+        .isEqualTo(FIRST_AD_START_TIME_US - 2000);
+  }
+
+  @Test
+  public void
       updateQueuedPeriods_withDurationChangeAfterReadingPeriod_handlesChangeAndRemovesPeriodsAfterChangedPeriod() {
     setupAdTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
