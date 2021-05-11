@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+*   Extractors:
+    *   Add support for MPEG-H 3D Audio in MP4 extractors
+        ([#8860](https://github.com/google/ExoPlayer/pull/8860)).
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and

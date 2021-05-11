@@ -962,6 +962,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_twos
           || childAtomType == Atom.TYPE__mp2
           || childAtomType == Atom.TYPE__mp3
+          || childAtomType == Atom.TYPE_mha1
+          || childAtomType == Atom.TYPE_mhm1
           || childAtomType == Atom.TYPE_alac
           || childAtomType == Atom.TYPE_alaw
           || childAtomType == Atom.TYPE_ulaw
@@ -1348,6 +1350,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
     } else if (atomType == Atom.TYPE__mp2 || atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
+    } else if (atomType == Atom.TYPE_mha1) {
+      mimeType = MimeTypes.AUDIO_MPEGH_MHA1;
+    } else if (atomType == Atom.TYPE_mhm1) {
+      mimeType = MimeTypes.AUDIO_MPEGH_MHM1;
     } else if (atomType == Atom.TYPE_alac) {
       mimeType = MimeTypes.AUDIO_ALAC;
     } else if (atomType == Atom.TYPE_alaw) {
@@ -1366,7 +1372,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int childAtomSize = parent.readInt();
       Assertions.checkState(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_esds || (isQuickTime && childAtomType == Atom.TYPE_wave)) {
+      if (childAtomType == Atom.TYPE_mhaC) {
+        // See ISO_IEC_23008-3;2019 MHADecoderConfigurationRecord
+        // The header consists of: size (4), boxtype 'mhaC' (4), configurationVersion (1),
+        // mpegh3daProfileLevelIndication (1), referenceChannelLayout (1), mpegh3daConfigLength (2).
+        int mhacHeaderSize = 13;
+        int childAtomBodySize = childAtomSize - mhacHeaderSize;
+        byte[] initializationDataBytes = new byte[childAtomBodySize];
+        parent.setPosition(childPosition + mhacHeaderSize);
+        parent.readBytes(initializationDataBytes, 0, childAtomBodySize);
+        initializationData = ImmutableList.of(initializationDataBytes);
+      } else if (childAtomType == Atom.TYPE_esds
+          || (isQuickTime && childAtomType == Atom.TYPE_wave)) {
         int esdsAtomPosition =
             childAtomType == Atom.TYPE_esds
                 ? childPosition
