@@ -220,6 +220,9 @@ public class PlaybackException extends Exception implements Bundleable {
   /**
    * Identifiers for fields in a {@link Bundle} which represents a playback exception. Subclasses
    * may use {@link #FIELD_CUSTOM_ID_BASE} to generate more keys using {@link #keyForField(int)}.
+   *
+   * <p>Note: Changes to the Bundleable implementation must be backwards compatible, so as to avoid
+   * breaking communication across different Bundleable implementation versions.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
