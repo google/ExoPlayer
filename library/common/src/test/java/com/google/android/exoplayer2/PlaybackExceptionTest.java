@@ -40,10 +40,10 @@ public class PlaybackExceptionTest {
   // TODO: Add test for backwards compatibility.
 
   private static void assertPlaybackExceptionsAreEqual(PlaybackException a, PlaybackException b) {
-    assertThat(a.getMessage()).isEqualTo(b.getMessage());
+    assertThat(a).hasMessageThat().isEqualTo(b.getMessage());
     assertThat(a.errorCode).isEqualTo(b.errorCode);
     assertThat(a.timestampMs).isEqualTo(b.timestampMs);
     assertThat(a.getCause().getClass()).isSameInstanceAs(b.getCause().getClass());
-    assertThat(a.getCause().getMessage()).isEqualTo(b.getCause().getMessage());
+    assertThat(a).hasCauseThat().hasMessageThat().isEqualTo(b.getCause().getMessage());
   }
 }
