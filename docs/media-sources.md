@@ -15,6 +15,7 @@ instances of the following content `MediaSource` implementations:
 * `SsMediaSource` for [SmoothStreaming][].
 * `HlsMediaSource` for [HLS][].
 * `ProgressiveMediaSource` for [regular media files][].
+* `RtspMediaSource` for [RTSP][].
 
 `DefaultMediaSourceFactory` can also create more complex media sources depending
 on the properties of the corresponding media items. This is described in more

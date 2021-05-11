@@ -41,6 +41,10 @@ and HDR video playback.
 
 {% include_relative _page_fragments/supported-formats-progressive.md %}
 
+## RTSP ##
+
+{% include_relative _page_fragments/supported-formats-rtsp.md %}
+
 ## Sample formats ##
 
 By default ExoPlayer uses Android's platform decoders. Hence the supported
