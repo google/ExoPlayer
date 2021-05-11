@@ -92,6 +92,8 @@ public final class FileDataSource extends BaseDataSource {
       if (bytesRemaining < 0) {
         throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
       }
+    } catch (FileDataSourceException e) {
+      throw e;
     } catch (IOException e) {
       throw new FileDataSourceException(e);
     }
