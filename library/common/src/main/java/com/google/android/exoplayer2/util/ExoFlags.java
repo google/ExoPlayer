@@ -100,6 +100,48 @@ public final class ExoFlags {
     }
 
     /**
+     * Removes a flag.
+     *
+     * @param flag A flag.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder remove(int flag) {
+      checkState(!buildCalled);
+      flags.delete(flag);
+      return this;
+    }
+
+    /**
+     * Removes a flag if the provided condition is true. Does nothing otherwise.
+     *
+     * @param flag A flag.
+     * @param condition A condition.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder removeIf(int flag, boolean condition) {
+      if (condition) {
+        return remove(flag);
+      }
+      return this;
+    }
+
+    /**
+     * Removes flags.
+     *
+     * @param flags The flags to remove.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder removeAll(int... flags) {
+      for (int flag : flags) {
+        remove(flag);
+      }
+      return this;
+    }
+
+    /**
      * Builds an {@link ExoFlags} instance.
      *
      * @throws IllegalStateException If this method has already been called.

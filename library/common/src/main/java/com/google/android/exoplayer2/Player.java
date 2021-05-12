@@ -597,6 +597,11 @@ public interface Player {
         flagsBuilder = new ExoFlags.Builder();
       }
 
+      private Builder(Commands commands) {
+        flagsBuilder = new ExoFlags.Builder();
+        flagsBuilder.addAll(commands.flags);
+      }
+
       /**
        * Adds a {@link Command}.
        *
@@ -647,6 +652,43 @@ public interface Player {
       }
 
       /**
+       * Removes a {@link Command}.
+       *
+       * @param command A {@link Command}.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder remove(@Command int command) {
+        flagsBuilder.remove(command);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command} if the provided condition is true. Does nothing otherwise.
+       *
+       * @param command A {@link Command}.
+       * @param condition A condition.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeIf(@Command int command, boolean condition) {
+        flagsBuilder.removeIf(command, condition);
+        return this;
+      }
+
+      /**
+       * Removes {@link Command commands}.
+       *
+       * @param commands The {@link Command commands} to remove.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeAll(@Command int... commands) {
+        flagsBuilder.removeAll(commands);
+        return this;
+      }
+
+      /**
        * Builds a {@link Commands} instance.
        *
        * @throws IllegalStateException If this method has already been called.
@@ -663,6 +705,11 @@ public interface Player {
 
     private Commands(ExoFlags flags) {
       this.flags = flags;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     /** Returns whether the set of commands contains the specified {@link Command}. */
