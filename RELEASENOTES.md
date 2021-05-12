@@ -41,6 +41,9 @@
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
+*   HLS
+    *   Use the PRECISE attribute in EXT-X-START to select the default start
+        position.
 
 ### 2.14.0 (2021-05-13)
 
