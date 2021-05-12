@@ -25,6 +25,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,6 +47,8 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Uri mediaUri;
     @Nullable private Rating userRating;
     @Nullable private Rating overallRating;
+    @Nullable private byte[] artworkData;
+    @Nullable private Uri artworkUri;
 
     public Builder() {}
 
@@ -60,6 +63,8 @@ public final class MediaMetadata implements Bundleable {
       this.mediaUri = mediaMetadata.mediaUri;
       this.userRating = mediaMetadata.userRating;
       this.overallRating = mediaMetadata.overallRating;
+      this.artworkData = mediaMetadata.artworkData;
+      this.artworkUri = mediaMetadata.artworkUri;
     }
 
     /** Sets the title. */
@@ -123,6 +128,18 @@ public final class MediaMetadata implements Bundleable {
     /** Sets the overall {@link Rating}. */
     public Builder setOverallRating(@Nullable Rating overallRating) {
       this.overallRating = overallRating;
+      return this;
+    }
+
+    /** Sets the artwork data as a compressed byte array. */
+    public Builder setArtworkData(@Nullable byte[] artworkData) {
+      this.artworkData = artworkData == null ? null : artworkData.clone();
+      return this;
+    }
+
+    /** Sets the artwork {@link Uri}. */
+    public Builder setArtworkUri(@Nullable Uri artworkUri) {
+      this.artworkUri = artworkUri;
       return this;
     }
 
@@ -197,6 +214,10 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Rating userRating;
   /** Optional overall {@link Rating}. */
   @Nullable public final Rating overallRating;
+  /** Optional artwork data as a compressed byte array. */
+  @Nullable public final byte[] artworkData;
+  /** Optional artwork {@link Uri}. */
+  @Nullable public final Uri artworkUri;
 
   private MediaMetadata(Builder builder) {
     this.title = builder.title;
@@ -209,6 +230,8 @@ public final class MediaMetadata implements Bundleable {
     this.mediaUri = builder.mediaUri;
     this.userRating = builder.userRating;
     this.overallRating = builder.overallRating;
+    this.artworkData = builder.artworkData;
+    this.artworkUri = builder.artworkUri;
   }
 
   /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
@@ -234,7 +257,9 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(description, that.description)
         && Util.areEqual(mediaUri, that.mediaUri)
         && Util.areEqual(userRating, that.userRating)
-        && Util.areEqual(overallRating, that.overallRating);
+        && Util.areEqual(overallRating, that.overallRating)
+        && Arrays.equals(artworkData, that.artworkData)
+        && Util.areEqual(artworkUri, that.artworkUri);
   }
 
   @Override
@@ -249,7 +274,9 @@ public final class MediaMetadata implements Bundleable {
         description,
         mediaUri,
         userRating,
-        overallRating);
+        overallRating,
+        Arrays.hashCode(artworkData),
+        artworkUri);
   }
 
   // Bundleable implementation.
@@ -267,6 +294,8 @@ public final class MediaMetadata implements Bundleable {
     FIELD_MEDIA_URI,
     FIELD_USER_RATING,
     FIELD_OVERALL_RATING,
+    FIELD_ARTWORK_DATA,
+    FIELD_ARTWORK_URI
   })
   private @interface FieldNumber {}
 
@@ -280,6 +309,8 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_MEDIA_URI = 7;
   private static final int FIELD_USER_RATING = 8;
   private static final int FIELD_OVERALL_RATING = 9;
+  private static final int FIELD_ARTWORK_DATA = 10;
+  private static final int FIELD_ARTWORK_URI = 11;
 
   @Override
   public Bundle toBundle() {
@@ -292,6 +323,8 @@ public final class MediaMetadata implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_SUBTITLE), subtitle);
     bundle.putCharSequence(keyForField(FIELD_DESCRIPTION), description);
     bundle.putParcelable(keyForField(FIELD_MEDIA_URI), mediaUri);
+    bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
+    bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
 
     if (userRating != null) {
       bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
@@ -316,7 +349,9 @@ public final class MediaMetadata implements Bundleable {
         .setDisplayTitle(bundle.getCharSequence(keyForField(FIELD_DISPLAY_TITLE)))
         .setSubtitle(bundle.getCharSequence(keyForField(FIELD_SUBTITLE)))
         .setDescription(bundle.getCharSequence(keyForField(FIELD_DESCRIPTION)))
-        .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)));
+        .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
+        .setArtworkData(bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)))
+        .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)));
 
     if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {
       @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_USER_RATING));
@@ -327,7 +362,7 @@ public final class MediaMetadata implements Bundleable {
     if (bundle.containsKey(keyForField(FIELD_OVERALL_RATING))) {
       @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_OVERALL_RATING));
       if (fieldBundle != null) {
-        builder.setUserRating(Rating.CREATOR.fromBundle(fieldBundle));
+        builder.setOverallRating(Rating.CREATOR.fromBundle(fieldBundle));
       }
     }
 
