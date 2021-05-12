@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/decoder/DecoderCounters.html" target="_top">Frames</a></li>
-<li><a href="DecoderCounters.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/decoder/package-summary.html">com.google.android.exoplayer2.decoder</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.decoder</a></div>
 <h2 title="Class DecoderCounters" class="title">Class DecoderCounters</h2>
 </div>
 <div class="contentContainer">
@@ -136,7 +135,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p>Counters should be written from the playback thread only. Counters may be read from any
  thread. To ensure that the counter values are made visible across threads, users of this class
- should invoke <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#ensureUpdated--"><code>ensureUpdated()</code></a> prior to reading and after writing.</div>
+ should invoke <a href="#ensureUpdated()"><code>ensureUpdated()</code></a> prior to reading and after writing.</div>
 </li>
 </ul>
 </div>
@@ -144,12 +143,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -158,77 +158,77 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#decoderInitCount">decoderInitCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderInitCount">decoderInitCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of times a decoder has been initialized.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#decoderReleaseCount">decoderReleaseCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderReleaseCount">decoderReleaseCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of times a decoder has been released.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#droppedBufferCount">droppedBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedBufferCount">droppedBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of dropped buffers.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#droppedToKeyframeCount">droppedToKeyframeCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedToKeyframeCount">droppedToKeyframeCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of times all buffers to a keyframe were dropped.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#inputBufferCount">inputBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputBufferCount">inputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of queued input buffers.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#maxConsecutiveDroppedBufferCount">maxConsecutiveDroppedBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxConsecutiveDroppedBufferCount">maxConsecutiveDroppedBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#renderedOutputBufferCount">renderedOutputBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderedOutputBufferCount">renderedOutputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of rendered output buffers.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#skippedInputBufferCount">skippedInputBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedInputBufferCount">skippedInputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of skipped input buffers.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#skippedOutputBufferCount">skippedOutputBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedOutputBufferCount">skippedOutputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of skipped output buffers.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#totalVideoFrameProcessingOffsetUs">totalVideoFrameProcessingOffsetUs</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFrameProcessingOffsetUs">totalVideoFrameProcessingOffsetUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The sum of the video frame processing offsets in microseconds.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#videoFrameProcessingOffsetCount">videoFrameProcessingOffsetCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoFrameProcessingOffsetCount">videoFrameProcessingOffsetCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of video frame processing offsets added.</div>
 </td>
@@ -236,32 +236,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#DecoderCounters--">DecoderCounters</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DecoderCounters</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -270,36 +274,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#addVideoFrameProcessingOffset-long-">addVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;processingOffsetUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addVideoFrameProcessingOffset(long)">addVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;processingOffsetUs)</code></th>
 <td class="colLast">
-<div class="block">Adds a video frame processing offset to <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
- increases <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.</div>
+<div class="block">Adds a video frame processing offset to <a href="#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
+ increases <a href="#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#ensureUpdated--">ensureUpdated</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ensureUpdated()">ensureUpdated</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Should be called to ensure counter values are made visible across threads.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#merge-com.google.android.exoplayer2.decoder.DecoderCounters-">merge</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#merge(com.google.android.exoplayer2.decoder.DecoderCounters)">merge</a></span>&#8203;(<a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</code></th>
 <td class="colLast">
 <div class="block">Merges the counts from <code>other</code> into this instance.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -307,12 +312,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="decoderInitCount">
+<a id="decoderInitCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -322,7 +328,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The number of times a decoder has been initialized.</div>
 </li>
 </ul>
-<a name="decoderReleaseCount">
+<a id="decoderReleaseCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -332,7 +338,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The number of times a decoder has been released.</div>
 </li>
 </ul>
-<a name="inputBufferCount">
+<a id="inputBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -342,7 +348,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The number of queued input buffers.</div>
 </li>
 </ul>
-<a name="skippedInputBufferCount">
+<a id="skippedInputBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -354,7 +360,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  A skipped input buffer is an input buffer that was deliberately not sent to the decoder.</div>
 </li>
 </ul>
-<a name="renderedOutputBufferCount">
+<a id="renderedOutputBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -364,7 +370,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The number of rendered output buffers.</div>
 </li>
 </ul>
-<a name="skippedOutputBufferCount">
+<a id="skippedOutputBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -376,7 +382,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  A skipped output buffer is an output buffer that was deliberately not rendered.</div>
 </li>
 </ul>
-<a name="droppedBufferCount">
+<a id="droppedBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -389,7 +395,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  dropped because it could not be rendered in time.</div>
 </li>
 </ul>
-<a name="maxConsecutiveDroppedBufferCount">
+<a id="maxConsecutiveDroppedBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -401,7 +407,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  Skipped output buffers are ignored for the purposes of calculating this value.</div>
 </li>
 </ul>
-<a name="droppedToKeyframeCount">
+<a id="droppedToKeyframeCount">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -415,7 +421,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  dropped from the source to advance to the keyframe.</div>
 </li>
 </ul>
-<a name="totalVideoFrameProcessingOffsetUs">
+<a id="totalVideoFrameProcessingOffsetUs">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -430,11 +436,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  indicates that the frame wasn't available until after the time at which it should have been
  rendered.
 
- <p>Note: Use <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#addVideoFrameProcessingOffset-long-"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
+ <p>Note: Use <a href="#addVideoFrameProcessingOffset(long)"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
  updating it directly.</div>
 </li>
 </ul>
-<a name="videoFrameProcessingOffsetCount">
+<a id="videoFrameProcessingOffsetCount">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -443,19 +449,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;int videoFrameProcessingOffsetCount</pre>
 <div class="block">The number of video frame processing offsets added.
 
- <p>Note: Use <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#addVideoFrameProcessingOffset-long-"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
+ <p>Note: Use <a href="#addVideoFrameProcessingOffset(long)"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
  updating it directly.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DecoderCounters--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -466,47 +474,49 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="ensureUpdated--">
+<a id="ensureUpdated()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>ensureUpdated</h4>
-<pre>public&nbsp;void&nbsp;ensureUpdated()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;ensureUpdated()</pre>
 <div class="block">Should be called to ensure counter values are made visible across threads. The playback thread
  should call this method after updating the counter values. Any other thread should call this
  method before reading the counters.</div>
 </li>
 </ul>
-<a name="merge-com.google.android.exoplayer2.decoder.DecoderCounters-">
+<a id="merge(com.google.android.exoplayer2.decoder.DecoderCounters)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>merge</h4>
-<pre>public&nbsp;void&nbsp;merge&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;merge&#8203;(<a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</pre>
 <div class="block">Merges the counts from <code>other</code> into this instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>other</code> - The <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> to merge into this instance.</dd>
+<dd><code>other</code> - The <a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> to merge into this instance.</dd>
 </dl>
 </li>
 </ul>
-<a name="addVideoFrameProcessingOffset-long-">
+<a id="addVideoFrameProcessingOffset(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>addVideoFrameProcessingOffset</h4>
-<pre>public&nbsp;void&nbsp;addVideoFrameProcessingOffset&#8203;(long&nbsp;processingOffsetUs)</pre>
-<div class="block">Adds a video frame processing offset to <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
- increases <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.
+<pre class="methodSignature">public&nbsp;void&nbsp;addVideoFrameProcessingOffset&#8203;(long&nbsp;processingOffsetUs)</pre>
+<div class="block">Adds a video frame processing offset to <a href="#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
+ increases <a href="#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.
 
  <p>Convenience method to ensure both fields are updated when adding a single offset.</div>
 <dl>
@@ -517,21 +527,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -541,16 +555,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/decoder/DecoderCounters.html" target="_top">Frames</a></li>
-<li><a href="DecoderCounters.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -582,9 +588,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

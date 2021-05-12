@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var data = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/Loader.Loadable.html" target="_top">Frames</a></li>
-<li><a href="Loader.Loadable.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream</a></div>
 <h2 title="Interface Loader.Loadable" class="title">Interface Loader.Loadable</h2>
 </div>
 <div class="contentContainer">
@@ -123,15 +122,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">ContainerMediaChunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/chunk/DataChunk.html" title="class in com.google.android.exoplayer2.source.chunk">DataChunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaChunk.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/chunk/InitializationChunk.html" title="class in com.google.android.exoplayer2.source.chunk">InitializationChunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">SingleSampleMediaChunk</a></code></dd>
+<dd><code><a href="../source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></code>, <code><a href="../source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code>, <code><a href="../source/chunk/ContainerMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">ContainerMediaChunk</a></code>, <code><a href="../source/chunk/DataChunk.html" title="class in com.google.android.exoplayer2.source.chunk">DataChunk</a></code>, <code><a href="../testutil/FakeMediaChunk.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunk</a></code>, <code><a href="../source/chunk/InitializationChunk.html" title="class in com.google.android.exoplayer2.source.chunk">InitializationChunk</a></code>, <code><a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></code>, <code><a href="ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a></code>, <code><a href="../source/chunk/SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">SingleSampleMediaChunk</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream">Loader</a></dd>
+<dd><a href="Loader.html" title="class in com.google.android.exoplayer2.upstream">Loader</a></dd>
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">Loader.Loadable</span></pre>
-<div class="block">An object that can be loaded using a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
+<div class="block">An object that can be loaded using a <a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -139,12 +138,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -153,14 +153,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#cancelLoad--">cancelLoad</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancelLoad()">cancelLoad</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Cancels the load.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--">load</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load()">load</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 </td>
@@ -168,6 +168,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -175,42 +176,43 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="cancelLoad--">
+<a id="cancelLoad()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>cancelLoad</h4>
-<pre>void&nbsp;cancelLoad()</pre>
+<pre class="methodSignature">void&nbsp;cancelLoad()</pre>
 <div class="block">Cancels the load.
 
- <p>Loadable implementations should ensure that a currently executing <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>load()</code></a> call
- will exit reasonably quickly after this method is called. The <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>load()</code></a> call may exit
+ <p>Loadable implementations should ensure that a currently executing <a href="#load()"><code>load()</code></a> call
+ will exit reasonably quickly after this method is called. The <a href="#load()"><code>load()</code></a> call may exit
  either by returning or by throwing an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>.
 
- <p>If there is a currently executing <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>load()</code></a> call, then the thread on which that call
+ <p>If there is a currently executing <a href="#load()"><code>load()</code></a> call, then the thread on which that call
  is being made will be interrupted immediately after the call to this method. Hence
  implementations do not need to (and should not attempt to) interrupt the loading thread
  themselves.
 
  <p>Although the loading thread will be interrupted, Loadable implementations should not use
- the interrupted status of the loading thread in <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>load()</code></a> to determine whether the load
+ the interrupted status of the loading thread in <a href="#load()"><code>load()</code></a> to determine whether the load
  has been canceled. This approach is not robust [Internal ref: b/79223737]. Instead,
  implementations should use their own flag to signal cancelation (for example, using <a href="https://developer.android.com/reference/java/util/concurrent/atomic/AtomicBoolean.html" title="class or interface in java.util.concurrent.atomic" class="externalLink" target="_top"><code>AtomicBoolean</code></a>).</div>
 </li>
 </ul>
-<a name="load--">
+<a id="load()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>load</h4>
-<pre>void&nbsp;load()
+<pre class="methodSignature">void&nbsp;load()
    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 <dl>
@@ -221,21 +223,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -245,16 +251,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/Loader.Loadable.html" target="_top">Frames</a></li>
-<li><a href="Loader.Loadable.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -286,9 +284,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

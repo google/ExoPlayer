@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../index.html?com/google/android/exoplayer2/SeekParameters.html" target="_top">Frames</a></li>
-<li><a href="SeekParameters.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
 <h2 title="Class SeekParameters" class="title">Class SeekParameters</h2>
 </div>
 <div class="contentContainer">
@@ -134,10 +133,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">Parameters that apply to seeking.
 
- <p>The predefined <a href="../../../../com/google/android/exoplayer2/SeekParameters.html#EXACT"><code>EXACT</code></a>, <a href="../../../../com/google/android/exoplayer2/SeekParameters.html#CLOSEST_SYNC"><code>CLOSEST_SYNC</code></a>, <a href="../../../../com/google/android/exoplayer2/SeekParameters.html#PREVIOUS_SYNC"><code>PREVIOUS_SYNC</code></a> and <a href="../../../../com/google/android/exoplayer2/SeekParameters.html#NEXT_SYNC"><code>NEXT_SYNC</code></a> parameters are suitable for most use cases. Seeking to sync points is typically
+ <p>The predefined <a href="#EXACT"><code>EXACT</code></a>, <a href="#CLOSEST_SYNC"><code>CLOSEST_SYNC</code></a>, <a href="#PREVIOUS_SYNC"><code>PREVIOUS_SYNC</code></a> and <a href="#NEXT_SYNC"><code>NEXT_SYNC</code></a> parameters are suitable for most use cases. Seeking to sync points is typically
  faster but less accurate than exact seeking.
 
- <p>In the general case, an instance specifies a maximum tolerance before (<a href="../../../../com/google/android/exoplayer2/SeekParameters.html#toleranceBeforeUs"><code>toleranceBeforeUs</code></a>) and after (<a href="../../../../com/google/android/exoplayer2/SeekParameters.html#toleranceAfterUs"><code>toleranceAfterUs</code></a>) a requested seek position (<code>x</code>).
+ <p>In the general case, an instance specifies a maximum tolerance before (<a href="#toleranceBeforeUs"><code>toleranceBeforeUs</code></a>) and after (<a href="#toleranceAfterUs"><code>toleranceAfterUs</code></a>) a requested seek position (<code>x</code>).
  If one or more sync points falls within the window <code>[x - toleranceBeforeUs, x +
  toleranceAfterUs]</code> then the seek will be performed to the sync point within the window that's
  closest to <code>x</code>. If no sync point falls within the window then the seek will be performed to
@@ -150,12 +149,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -163,43 +163,43 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#CLOSEST_SYNC">CLOSEST_SYNC</a></span></code></th>
+<td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CLOSEST_SYNC">CLOSEST_SYNC</a></span></code></th>
 <td class="colLast">
 <div class="block">Parameters for seeking to the closest sync point.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#DEFAULT">DEFAULT</a></span></code></th>
+<td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT">DEFAULT</a></span></code></th>
 <td class="colLast">
 <div class="block">Default parameters.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#EXACT">EXACT</a></span></code></th>
+<td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXACT">EXACT</a></span></code></th>
 <td class="colLast">
 <div class="block">Parameters for exact seeking.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#NEXT_SYNC">NEXT_SYNC</a></span></code></th>
+<td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NEXT_SYNC">NEXT_SYNC</a></span></code></th>
 <td class="colLast">
 <div class="block">Parameters for seeking to the sync point immediately after a requested seek position.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#PREVIOUS_SYNC">PREVIOUS_SYNC</a></span></code></th>
+<td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PREVIOUS_SYNC">PREVIOUS_SYNC</a></span></code></th>
 <td class="colLast">
 <div class="block">Parameters for seeking to the sync point immediately before a requested seek position.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#toleranceAfterUs">toleranceAfterUs</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toleranceAfterUs">toleranceAfterUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The maximum time that the actual position seeked to may exceed the requested seek position, in
  microseconds.</div>
@@ -207,7 +207,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#toleranceBeforeUs">toleranceBeforeUs</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toleranceBeforeUs">toleranceBeforeUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The maximum time that the actual position seeked to may precede the requested seek position, in
  microseconds.</div>
@@ -216,33 +216,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#SeekParameters-long-long-">SeekParameters</a></span>&#8203;(long&nbsp;toleranceBeforeUs,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">SeekParameters</a></span>&#8203;(long&nbsp;toleranceBeforeUs,
               long&nbsp;toleranceAfterUs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -251,17 +255,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#equals-java.lang.Object-">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#hashCode--">hashCode</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SeekParameters.html#resolveSeekPositionUs-long-long-long-">resolveSeekPositionUs</a></span>&#8203;(long&nbsp;positionUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolveSeekPositionUs(long,long,long)">resolveSeekPositionUs</a></span>&#8203;(long&nbsp;positionUs,
                      long&nbsp;firstSyncUs,
                      long&nbsp;secondSyncUs)</code></th>
 <td class="colLast">
@@ -271,14 +275,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -286,62 +291,63 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="EXACT">
+<a id="EXACT">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>EXACT</h4>
-<pre>public static final&nbsp;<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> EXACT</pre>
+<pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> EXACT</pre>
 <div class="block">Parameters for exact seeking.</div>
 </li>
 </ul>
-<a name="CLOSEST_SYNC">
+<a id="CLOSEST_SYNC">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>CLOSEST_SYNC</h4>
-<pre>public static final&nbsp;<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> CLOSEST_SYNC</pre>
+<pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> CLOSEST_SYNC</pre>
 <div class="block">Parameters for seeking to the closest sync point.</div>
 </li>
 </ul>
-<a name="PREVIOUS_SYNC">
+<a id="PREVIOUS_SYNC">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>PREVIOUS_SYNC</h4>
-<pre>public static final&nbsp;<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> PREVIOUS_SYNC</pre>
+<pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> PREVIOUS_SYNC</pre>
 <div class="block">Parameters for seeking to the sync point immediately before a requested seek position.</div>
 </li>
 </ul>
-<a name="NEXT_SYNC">
+<a id="NEXT_SYNC">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>NEXT_SYNC</h4>
-<pre>public static final&nbsp;<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> NEXT_SYNC</pre>
+<pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> NEXT_SYNC</pre>
 <div class="block">Parameters for seeking to the sync point immediately after a requested seek position.</div>
 </li>
 </ul>
-<a name="DEFAULT">
+<a id="DEFAULT">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT</h4>
-<pre>public static final&nbsp;<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> DEFAULT</pre>
+<pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> DEFAULT</pre>
 <div class="block">Default parameters.</div>
 </li>
 </ul>
-<a name="toleranceBeforeUs">
+<a id="toleranceBeforeUs">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -352,7 +358,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  microseconds.</div>
 </li>
 </ul>
-<a name="toleranceAfterUs">
+<a id="toleranceAfterUs">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -365,13 +371,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SeekParameters-long-long-">
+<a id="&lt;init&gt;(long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -390,19 +398,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="resolveSeekPositionUs-long-long-long-">
+<a id="resolveSeekPositionUs(long,long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>resolveSeekPositionUs</h4>
-<pre>public&nbsp;long&nbsp;resolveSeekPositionUs&#8203;(long&nbsp;positionUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;resolveSeekPositionUs&#8203;(long&nbsp;positionUs,
                                   long&nbsp;firstSyncUs,
                                   long&nbsp;secondSyncUs)</pre>
 <div class="block">Resolves a seek based on the parameters, given the requested seek position and two candidate
@@ -418,50 +428,54 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="equals-java.lang.Object-">
+<a id="equals(java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
+<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="hashCode--">
+<a id="hashCode()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>hashCode</h4>
-<pre>public&nbsp;int&nbsp;hashCode()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -471,16 +485,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../index.html?com/google/android/exoplayer2/SeekParameters.html" target="_top">Frames</a></li>
-<li><a href="SeekParameters.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -512,9 +518,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

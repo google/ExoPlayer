@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42,"i16":42};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42,"i16":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/DefaultLivePlaybackSpeedControl.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../index.html?com/google/android/exoplayer2/DefaultControlDispatcher.html" target="_top">Frames</a></li>
-<li><a href="DefaultControlDispatcher.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
 <h2 title="Class DefaultControlDispatcher" class="title">Class DefaultControlDispatcher</h2>
 </div>
 <div class="contentContainer">
@@ -131,13 +130,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">DefaultControlDispatcher</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></pre>
-<div class="block">Default <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+implements <a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></pre>
+<div class="block">Default <a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -145,12 +144,13 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -159,14 +159,14 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DEFAULT_FAST_FORWARD_MS">DEFAULT_FAST_FORWARD_MS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_FAST_FORWARD_MS">DEFAULT_FAST_FORWARD_MS</a></span></code></th>
 <td class="colLast">
 <div class="block">The default fast forward increment, in milliseconds.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DEFAULT_REWIND_MS">DEFAULT_REWIND_MS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_REWIND_MS">DEFAULT_REWIND_MS</a></span></code></th>
 <td class="colLast">
 <div class="block">The default rewind increment, in milliseconds.</div>
 </td>
@@ -174,26 +174,28 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher--">DefaultControlDispatcher</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultControlDispatcher</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-">DefaultControlDispatcher</a></span>&#8203;(long&nbsp;fastForwardIncrementMs,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">DefaultControlDispatcher</a></span>&#8203;(long&nbsp;fastForwardIncrementMs,
                         long&nbsp;rewindIncrementMs)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance with the given increments.</div>
@@ -202,13 +204,15 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -217,119 +221,119 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchFastForward-com.google.android.exoplayer2.Player-">dispatchFastForward</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchFastForward(com.google.android.exoplayer2.Player)">dispatchFastForward</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Dispatches a fast forward operation.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchNext-com.google.android.exoplayer2.Player-">dispatchNext</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchNext(com.google.android.exoplayer2.Player)">dispatchNext</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#next--"><code>Player.next()</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#next()"><code>Player.next()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-">dispatchPrepare</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchPrepare(com.google.android.exoplayer2.Player)">dispatchPrepare</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#prepare()"><code>Player.prepare()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchPrevious-com.google.android.exoplayer2.Player-">dispatchPrevious</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchPrevious(com.google.android.exoplayer2.Player)">dispatchPrevious</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#previous()"><code>Player.previous()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchRewind-com.google.android.exoplayer2.Player-">dispatchRewind</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchRewind(com.google.android.exoplayer2.Player)">dispatchRewind</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Dispatches a rewind operation.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchSeekTo-com.google.android.exoplayer2.Player-int-long-">dispatchSeekTo</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSeekTo(com.google.android.exoplayer2.Player,int,long)">dispatchSeekTo</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               int&nbsp;windowIndex,
               long&nbsp;positionMs)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-"><code>Player.seekTo(int, long)</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchSetPlaybackParameters-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.PlaybackParameters-">dispatchSetPlaybackParameters</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                             <a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">dispatchSetPlaybackParameters</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                             <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">dispatchSetPlayWhenReady</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">dispatchSetPlayWhenReady</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                         boolean&nbsp;playWhenReady)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">dispatchSetRepeatMode</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">dispatchSetRepeatMode</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      int&nbsp;repeatMode)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-"><code>Player.setRepeatMode(int)</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">dispatchSetShuffleModeEnabled</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">dispatchSetShuffleModeEnabled</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">dispatchStop</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchStop(com.google.android.exoplayer2.Player,boolean)">dispatchStop</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
             boolean&nbsp;reset)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#stop()"><code>Player.stop()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#getFastForwardIncrementMs--">getFastForwardIncrementMs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFastForwardIncrementMs()">getFastForwardIncrementMs</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the fast forward increment in milliseconds.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#getRewindIncrementMs--">getRewindIncrementMs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRewindIncrementMs()">getRewindIncrementMs</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the rewind increment in milliseconds.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#isFastForwardEnabled--">isFastForwardEnabled</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFastForwardEnabled()">isFastForwardEnabled</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#isRewindEnabled--">isRewindEnabled</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isRewindEnabled()">isRewindEnabled</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#setFastForwardIncrementMs-long-">setFastForwardIncrementMs</a></span>&#8203;(long&nbsp;fastForwardMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFastForwardIncrementMs(long)">setFastForwardIncrementMs</a></span>&#8203;(long&nbsp;fastForwardMs)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component.</div>
@@ -338,7 +342,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#setRewindIncrementMs-long-">setRewindIncrementMs</a></span>&#8203;(long&nbsp;rewindMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRewindIncrementMs(long)">setRewindIncrementMs</a></span>&#8203;(long&nbsp;rewindMs)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component.</div>
@@ -347,14 +351,15 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -362,12 +367,13 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_FAST_FORWARD_MS">
+<a id="DEFAULT_FAST_FORWARD_MS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -381,7 +387,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </dl>
 </li>
 </ul>
-<a name="DEFAULT_REWIND_MS">
+<a id="DEFAULT_REWIND_MS">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -397,13 +403,15 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultControlDispatcher--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -413,7 +421,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 <div class="block">Creates an instance.</div>
 </li>
 </ul>
-<a name="DefaultControlDispatcher-long-long-">
+<a id="&lt;init&gt;(long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -433,294 +441,296 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="dispatchPrepare-com.google.android.exoplayer2.Player-">
+<a id="dispatchPrepare(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchPrepare</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchPrepare&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> operation.</div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchPrepare&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#prepare()"><code>Player.prepare()</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-">dispatchPrepare</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)">dispatchPrepare</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">
+<a id="dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchSetPlayWhenReady</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchSetPlayWhenReady&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetPlayWhenReady&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                         boolean&nbsp;playWhenReady)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">dispatchSetPlayWhenReady</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">dispatchSetPlayWhenReady</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>playWhenReady</code> - Whether playback should proceed when ready.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchSeekTo-com.google.android.exoplayer2.Player-int-long-">
+<a id="dispatchSeekTo(com.google.android.exoplayer2.Player,int,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchSeekTo</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchSeekTo&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSeekTo&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                               int&nbsp;windowIndex,
                               long&nbsp;positionMs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSeekTo-com.google.android.exoplayer2.Player-int-long-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-"><code>Player.seekTo(int, long)</code></a> operation.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSeekTo(com.google.android.exoplayer2.Player,int,long)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSeekTo-com.google.android.exoplayer2.Player-int-long-">dispatchSeekTo</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchSeekTo(com.google.android.exoplayer2.Player,int,long)">dispatchSeekTo</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>windowIndex</code> - The index of the window.</dd>
-<dd><code>positionMs</code> - The seek position in the specified window, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to seek to
+<dd><code>positionMs</code> - The seek position in the specified window, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to seek to
      the window's default position.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchPrevious-com.google.android.exoplayer2.Player-">
+<a id="dispatchPrevious(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchPrevious</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchPrevious&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrevious-com.google.android.exoplayer2.Player-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> operation.</div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchPrevious&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchPrevious(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#previous()"><code>Player.previous()</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrevious-com.google.android.exoplayer2.Player-">dispatchPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchPrevious(com.google.android.exoplayer2.Player)">dispatchPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchNext-com.google.android.exoplayer2.Player-">
+<a id="dispatchNext(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchNext</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchNext&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchNext-com.google.android.exoplayer2.Player-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#next--"><code>Player.next()</code></a> operation.</div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchNext&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchNext(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#next()"><code>Player.next()</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchNext-com.google.android.exoplayer2.Player-">dispatchNext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchNext(com.google.android.exoplayer2.Player)">dispatchNext</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchRewind-com.google.android.exoplayer2.Player-">
+<a id="dispatchRewind(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchRewind</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchRewind&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchRewind-com.google.android.exoplayer2.Player-">ControlDispatcher</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchRewind&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchRewind(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a rewind operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchRewind-com.google.android.exoplayer2.Player-">dispatchRewind</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchRewind(com.google.android.exoplayer2.Player)">dispatchRewind</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchFastForward-com.google.android.exoplayer2.Player-">
+<a id="dispatchFastForward(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchFastForward</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchFastForward&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchFastForward-com.google.android.exoplayer2.Player-">ControlDispatcher</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchFastForward&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchFastForward(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a fast forward operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchFastForward-com.google.android.exoplayer2.Player-">dispatchFastForward</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchFastForward(com.google.android.exoplayer2.Player)">dispatchFastForward</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">
+<a id="dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchSetRepeatMode</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchSetRepeatMode&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                                     <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetRepeatMode&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                     <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                      int&nbsp;repeatMode)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-"><code>Player.setRepeatMode(int)</code></a> operation.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">dispatchSetRepeatMode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">dispatchSetRepeatMode</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>repeatMode</code> - The repeat mode.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">
+<a id="dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchSetShuffleModeEnabled</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchSetShuffleModeEnabled&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetShuffleModeEnabled&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                              boolean&nbsp;shuffleModeEnabled)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">dispatchSetShuffleModeEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">dispatchSetShuffleModeEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>shuffleModeEnabled</code> - Whether shuffling is enabled.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchStop-com.google.android.exoplayer2.Player-boolean-">
+<a id="dispatchStop(com.google.android.exoplayer2.Player,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchStop</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchStop&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchStop&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                             boolean&nbsp;reset)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> operation.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchStop(com.google.android.exoplayer2.Player,boolean)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#stop()"><code>Player.stop()</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">dispatchStop</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchStop(com.google.android.exoplayer2.Player,boolean)">dispatchStop</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>reset</code> - Whether the player should be reset.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="dispatchSetPlaybackParameters-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.PlaybackParameters-">
+<a id="dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dispatchSetPlaybackParameters</h4>
-<pre>public&nbsp;boolean&nbsp;dispatchSetPlaybackParameters&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                                             <a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetPlaybackParameters-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.PlaybackParameters-">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetPlaybackParameters&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                             <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetPlaybackParameters-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.PlaybackParameters-">dispatchSetPlaybackParameters</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">dispatchSetPlaybackParameters</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>playbackParameters</code> - The playback parameters.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
 </li>
 </ul>
-<a name="isRewindEnabled--">
+<a id="isRewindEnabled()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isRewindEnabled</h4>
-<pre>public&nbsp;boolean&nbsp;isRewindEnabled()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isRewindEnabled--">ControlDispatcher</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isRewindEnabled()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#isRewindEnabled()">ControlDispatcher</a></code></span></div>
 <div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isRewindEnabled--">isRewindEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#isRewindEnabled()">isRewindEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="isFastForwardEnabled--">
+<a id="isFastForwardEnabled()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isFastForwardEnabled</h4>
-<pre>public&nbsp;boolean&nbsp;isFastForwardEnabled()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isFastForwardEnabled--">ControlDispatcher</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isFastForwardEnabled()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#isFastForwardEnabled()">ControlDispatcher</a></code></span></div>
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isFastForwardEnabled--">isFastForwardEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dd><code><a href="ControlDispatcher.html#isFastForwardEnabled()">isFastForwardEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getRewindIncrementMs--">
+<a id="getRewindIncrementMs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getRewindIncrementMs</h4>
-<pre>public&nbsp;long&nbsp;getRewindIncrementMs()</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;getRewindIncrementMs()</pre>
 <div class="block">Returns the rewind increment in milliseconds.</div>
 </li>
 </ul>
-<a name="getFastForwardIncrementMs--">
+<a id="getFastForwardIncrementMs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFastForwardIncrementMs</h4>
-<pre>public&nbsp;long&nbsp;getFastForwardIncrementMs()</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;getFastForwardIncrementMs()</pre>
 <div class="block">Returns the fast forward increment in milliseconds.</div>
 </li>
 </ul>
-<a name="setRewindIncrementMs-long-">
+<a id="setRewindIncrementMs(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRewindIncrementMs</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;setRewindIncrementMs&#8203;(long&nbsp;rewindMs)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component. This
@@ -728,13 +738,13 @@ public&nbsp;void&nbsp;setRewindIncrementMs&#8203;(long&nbsp;rewindMs)</pre>
 </div>
 </li>
 </ul>
-<a name="setFastForwardIncrementMs-long-">
+<a id="setFastForwardIncrementMs(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>setFastForwardIncrementMs</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component. This
@@ -744,21 +754,25 @@ public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)<
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -768,16 +782,8 @@ public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)<
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/DefaultLivePlaybackSpeedControl.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../index.html?com/google/android/exoplayer2/DefaultControlDispatcher.html" target="_top">Frames</a></li>
-<li><a href="DefaultControlDispatcher.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -809,9 +815,11 @@ public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)<
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

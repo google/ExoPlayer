@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6};
+var data = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DataSource.Factory.html" target="_top">Frames</a></li>
-<li><a href="DataSource.Factory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream</a></div>
 <h2 title="Interface DataSource.Factory" class="title">Interface DataSource.Factory</h2>
 </div>
 <div class="contentContainer">
@@ -123,19 +122,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a></code></dd>
+<dd><code><a href="HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSourceFactory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/FakeDataSource.Factory.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">FileDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/PriorityDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSourceFactory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/ResolvingDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">ResolvingDataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/rtmp/RtmpDataSourceFactory.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSourceFactory</a></code></dd>
+<dd><code><a href="cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a></code>, <code><a href="cache/CacheDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSourceFactory</a></code>, <code><a href="../ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code>, <code><a href="../ext/cronet/CronetDataSourceFactory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSourceFactory</a></code>, <code><a href="DefaultDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSourceFactory</a></code>, <code><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code>, <code><a href="DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSourceFactory</a></code>, <code><a href="../testutil/FakeDataSource.Factory.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSource.Factory</a></code>, <code><a href="FileDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource.Factory</a></code>, <code><a href="FileDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">FileDataSourceFactory</a></code>, <code><a href="HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></code>, <code><a href="../ext/okhttp/OkHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource.Factory</a></code>, <code><a href="../ext/okhttp/OkHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSourceFactory</a></code>, <code><a href="PriorityDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSourceFactory</a></code>, <code><a href="ResolvingDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">ResolvingDataSource.Factory</a></code>, <code><a href="../ext/rtmp/RtmpDataSourceFactory.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSourceFactory</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing interface:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dd>
+<dd><a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dd>
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">DataSource.Factory</span></pre>
-<div class="block">A factory for <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</div>
+<div class="block">A factory for <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</div>
 </li>
 </ul>
 </div>
@@ -143,12 +142,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -156,15 +156,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html#createDataSource--">createDataSource</a></span>()</code></th>
+<td class="colFirst"><code><a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDataSource()">createDataSource</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
+<div class="block">Creates a <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -172,38 +173,43 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createDataSource--">
+<a id="createDataSource()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createDataSource</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;createDataSource()</pre>
-<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
+<pre class="methodSignature"><a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;createDataSource()</pre>
+<div class="block">Creates a <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -213,16 +219,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DataSource.Factory.html" target="_top">Frames</a></li>
-<li><a href="DataSource.Factory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -254,9 +252,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/MutableFlags.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/MimeTypes.html" target="_top">Frames</a></li>
-<li><a href="MimeTypes.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
 <h2 title="Class MimeTypes" class="title">Class MimeTypes</h2>
 </div>
 <div class="contentContainer">
@@ -140,12 +139,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,419 +154,426 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_AIT">APPLICATION_AIT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_AIT">APPLICATION_AIT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_CAMERA_MOTION">APPLICATION_CAMERA_MOTION</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_CAMERA_MOTION">APPLICATION_CAMERA_MOTION</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_CEA608">APPLICATION_CEA608</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_CEA608">APPLICATION_CEA608</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_CEA708">APPLICATION_CEA708</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_CEA708">APPLICATION_CEA708</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_DVBSUBS">APPLICATION_DVBSUBS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_DVBSUBS">APPLICATION_DVBSUBS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_EMSG">APPLICATION_EMSG</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_EMSG">APPLICATION_EMSG</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_EXIF">APPLICATION_EXIF</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_EXIF">APPLICATION_EXIF</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_ICY">APPLICATION_ICY</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_ICY">APPLICATION_ICY</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_ID3">APPLICATION_ID3</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_ID3">APPLICATION_ID3</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_M3U8">APPLICATION_M3U8</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_M3U8">APPLICATION_M3U8</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_MATROSKA">APPLICATION_MATROSKA</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_MATROSKA">APPLICATION_MATROSKA</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_MP4">APPLICATION_MP4</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_MP4">APPLICATION_MP4</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_MP4CEA608">APPLICATION_MP4CEA608</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_MP4CEA608">APPLICATION_MP4CEA608</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_MP4VTT">APPLICATION_MP4VTT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_MP4VTT">APPLICATION_MP4VTT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_MPD">APPLICATION_MPD</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_MPD">APPLICATION_MPD</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_PGS">APPLICATION_PGS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_PGS">APPLICATION_PGS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_RAWCC">APPLICATION_RAWCC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_RAWCC">APPLICATION_RAWCC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_SCTE35">APPLICATION_SCTE35</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_RTSP">APPLICATION_RTSP</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_SS">APPLICATION_SS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_SCTE35">APPLICATION_SCTE35</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_SUBRIP">APPLICATION_SUBRIP</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_SS">APPLICATION_SS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_TTML">APPLICATION_TTML</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_SUBRIP">APPLICATION_SUBRIP</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_TX3G">APPLICATION_TX3G</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_TTML">APPLICATION_TTML</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_VOBSUB">APPLICATION_VOBSUB</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_TX3G">APPLICATION_TX3G</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_WEBM">APPLICATION_WEBM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_VOBSUB">APPLICATION_VOBSUB</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_AAC">AUDIO_AAC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APPLICATION_WEBM">APPLICATION_WEBM</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_AC3">AUDIO_AC3</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_AAC">AUDIO_AAC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_AC4">AUDIO_AC4</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_AC3">AUDIO_AC3</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_ALAC">AUDIO_ALAC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_AC4">AUDIO_AC4</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_ALAW">AUDIO_ALAW</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_ALAC">AUDIO_ALAC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_AMR">AUDIO_AMR</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_ALAW">AUDIO_ALAW</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_AMR_NB">AUDIO_AMR_NB</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_AMR">AUDIO_AMR</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_AMR_WB">AUDIO_AMR_WB</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_AMR_NB">AUDIO_AMR_NB</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_DTS">AUDIO_DTS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_AMR_WB">AUDIO_AMR_WB</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_DTS_EXPRESS">AUDIO_DTS_EXPRESS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_DTS">AUDIO_DTS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_DTS_HD">AUDIO_DTS_HD</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_DTS_EXPRESS">AUDIO_DTS_EXPRESS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_E_AC3">AUDIO_E_AC3</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_DTS_HD">AUDIO_DTS_HD</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_E_AC3_JOC">AUDIO_E_AC3_JOC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_E_AC3">AUDIO_E_AC3</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_FLAC">AUDIO_FLAC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_E_AC3_JOC">AUDIO_E_AC3_JOC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MATROSKA">AUDIO_MATROSKA</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_FLAC">AUDIO_FLAC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MLAW">AUDIO_MLAW</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MATROSKA">AUDIO_MATROSKA</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MP4">AUDIO_MP4</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MLAW">AUDIO_MLAW</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MPEG">AUDIO_MPEG</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MP4">AUDIO_MP4</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MPEG_L1">AUDIO_MPEG_L1</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MPEG">AUDIO_MPEG</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MPEG_L2">AUDIO_MPEG_L2</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MPEG_L1">AUDIO_MPEG_L1</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MSGSM">AUDIO_MSGSM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MPEG_L2">AUDIO_MPEG_L2</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_OGG">AUDIO_OGG</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_MSGSM">AUDIO_MSGSM</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_OPUS">AUDIO_OPUS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OGG">AUDIO_OGG</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_RAW">AUDIO_RAW</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OPUS">AUDIO_OPUS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_TRUEHD">AUDIO_TRUEHD</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_RAW">AUDIO_RAW</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_UNKNOWN">AUDIO_UNKNOWN</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_TRUEHD">AUDIO_TRUEHD</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_VORBIS">AUDIO_VORBIS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_UNKNOWN">AUDIO_UNKNOWN</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_WAV">AUDIO_WAV</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_VORBIS">AUDIO_VORBIS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_WEBM">AUDIO_WEBM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_WAV">AUDIO_WAV</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#BASE_TYPE_APPLICATION">BASE_TYPE_APPLICATION</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_WEBM">AUDIO_WEBM</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#BASE_TYPE_AUDIO">BASE_TYPE_AUDIO</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BASE_TYPE_APPLICATION">BASE_TYPE_APPLICATION</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#BASE_TYPE_IMAGE">BASE_TYPE_IMAGE</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BASE_TYPE_AUDIO">BASE_TYPE_AUDIO</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#BASE_TYPE_TEXT">BASE_TYPE_TEXT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BASE_TYPE_IMAGE">BASE_TYPE_IMAGE</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#BASE_TYPE_VIDEO">BASE_TYPE_VIDEO</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BASE_TYPE_TEXT">BASE_TYPE_TEXT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#IMAGE_JPEG">IMAGE_JPEG</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BASE_TYPE_VIDEO">BASE_TYPE_VIDEO</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#TEXT_SSA">TEXT_SSA</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#IMAGE_JPEG">IMAGE_JPEG</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#TEXT_VTT">TEXT_VTT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TEXT_SSA">TEXT_SSA</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_AV1">VIDEO_AV1</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TEXT_VTT">TEXT_VTT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_DIVX">VIDEO_DIVX</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_AV1">VIDEO_AV1</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_DOLBY_VISION">VIDEO_DOLBY_VISION</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_DIVX">VIDEO_DIVX</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_FLV">VIDEO_FLV</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_DOLBY_VISION">VIDEO_DOLBY_VISION</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_H263">VIDEO_H263</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_FLV">VIDEO_FLV</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_H264">VIDEO_H264</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_H263">VIDEO_H263</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_H265">VIDEO_H265</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_H264">VIDEO_H264</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MATROSKA">VIDEO_MATROSKA</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_H265">VIDEO_H265</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MP2T">VIDEO_MP2T</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_MATROSKA">VIDEO_MATROSKA</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MP4">VIDEO_MP4</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_MP2T">VIDEO_MP2T</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MP4V">VIDEO_MP4V</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_MP4">VIDEO_MP4</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MPEG">VIDEO_MPEG</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_MP4V">VIDEO_MP4V</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MPEG2">VIDEO_MPEG2</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_MPEG">VIDEO_MPEG</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_OGG">VIDEO_OGG</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_MPEG2">VIDEO_MPEG2</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_PS">VIDEO_PS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_OGG">VIDEO_OGG</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_UNKNOWN">VIDEO_UNKNOWN</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_PS">VIDEO_PS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_VC1">VIDEO_VC1</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_UNKNOWN">VIDEO_UNKNOWN</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_VP8">VIDEO_VP8</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_VC1">VIDEO_VC1</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_VP9">VIDEO_VP9</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_VP8">VIDEO_VP8</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_WEBM">VIDEO_WEBM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_VP9">VIDEO_VP9</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_WEBM">VIDEO_WEBM</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -575,17 +582,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#allSamplesAreSyncSamples-java.lang.String-java.lang.String-">allSamplesAreSyncSamples</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allSamplesAreSyncSamples(java.lang.String,java.lang.String)">allSamplesAreSyncSamples</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
 <div class="block">Returns true if it is known that all samples in a stream of the given MIME type and codec are
- guaranteed to be sync samples (i.e., <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> is guaranteed to be set on
+ guaranteed to be sync samples (i.e., <a href="../C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> is guaranteed to be set on
  every sample).</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#containsCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">containsCodecsCorrespondingToMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsCodecsCorrespondingToMimeType(java.lang.String,java.lang.String)">containsCodecsCorrespondingToMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given <code>codecs</code> string contains a codec which corresponds to the given
@@ -594,14 +601,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getAudioMediaMimeType-java.lang.String-">getAudioMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioMediaMimeType(java.lang.String)">getAudioMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
 <td class="colLast">
 <div class="block">Returns the first audio MIME type derived from an RFC 6381 codecs string.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">getCodecsCorrespondingToMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCodecsCorrespondingToMimeType(java.lang.String,java.lang.String)">getCodecsCorrespondingToMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns a subsequence of <code>codecs</code> containing the codec strings that correspond to the
@@ -610,17 +617,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getEncoding-java.lang.String-java.lang.String-">getEncoding</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEncoding(java.lang.String,java.lang.String)">getEncoding</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> constant corresponding to the specified audio MIME type and RFC
- 6381 codec string, or <a href="../../../../../com/google/android/exoplayer2/C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the corresponding <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> cannot
+<div class="block">Returns the <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> constant corresponding to the specified audio MIME type and RFC
+ 6381 codec string, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the corresponding <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> cannot
  be determined.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getMediaMimeType-java.lang.String-">getMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaMimeType(java.lang.String)">getMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
 <div class="block">Returns the MIME type corresponding to an RFC 6381 codec string, or <code>null</code> if it could
  not be determined.</div>
@@ -628,7 +635,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getMimeTypeFromMp4ObjectType-int-">getMimeTypeFromMp4ObjectType</a></span>&#8203;(int&nbsp;objectType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMimeTypeFromMp4ObjectType(int)">getMimeTypeFromMp4ObjectType</a></span>&#8203;(int&nbsp;objectType)</code></th>
 <td class="colLast">
 <div class="block">Returns the MIME type corresponding to an MP4 object type identifier, as defined in RFC 6381
  and https://mp4ra.org/#/object_types.</div>
@@ -636,50 +643,50 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getTextMediaMimeType-java.lang.String-">getTextMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTextMediaMimeType(java.lang.String)">getTextMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
 <td class="colLast">
 <div class="block">Returns the first text MIME type derived from an RFC 6381 codecs string.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getTrackType-java.lang.String-">getTrackType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType(java.lang.String)">getTrackType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constant corresponding to a specified MIME type, or
- <a href="../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it could not be determined.</div>
+<div class="block">Returns the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constant corresponding to a specified MIME type, or
+ <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it could not be determined.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getTrackTypeOfCodec-java.lang.String-">getTrackTypeOfCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackTypeOfCodec(java.lang.String)">getTrackTypeOfCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
 <div class="block">Equivalent to <code>getTrackType(getMediaMimeType(codec))</code>.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getVideoMediaMimeType-java.lang.String-">getVideoMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoMediaMimeType(java.lang.String)">getVideoMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
 <td class="colLast">
 <div class="block">Returns the first video MIME type derived from an RFC 6381 codecs string.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isAudio-java.lang.String-">isAudio</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAudio(java.lang.String)">isAudio</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given string is an audio MIME type.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isMatroska-java.lang.String-">isMatroska</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isMatroska(java.lang.String)">isMatroska</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given <code>mimeType</code> is a Matroska MIME type, including WebM.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isText-java.lang.String-">isText</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isText(java.lang.String)">isText</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given string is a text MIME type, including known text types that use
  &quot;application&quot; as their base type.</div>
@@ -687,21 +694,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isVideo-java.lang.String-">isVideo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isVideo(java.lang.String)">isVideo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given string is a video MIME type.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#normalizeMimeType-java.lang.String-">normalizeMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#normalizeMimeType(java.lang.String)">normalizeMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Normalizes the MIME type provided so that equivalent MIME types are uniquely represented.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#registerCustomMimeType-java.lang.String-java.lang.String-int-">registerCustomMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerCustomMimeType(java.lang.String,java.lang.String,int)">registerCustomMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecPrefix,
                       int&nbsp;trackType)</code></th>
 <td class="colLast">
@@ -710,14 +717,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -725,12 +733,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="BASE_TYPE_VIDEO">
+<a id="BASE_TYPE_VIDEO">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -743,7 +752,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="BASE_TYPE_AUDIO">
+<a id="BASE_TYPE_AUDIO">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -756,7 +765,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="BASE_TYPE_TEXT">
+<a id="BASE_TYPE_TEXT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -769,7 +778,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="BASE_TYPE_IMAGE">
+<a id="BASE_TYPE_IMAGE">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -782,7 +791,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="BASE_TYPE_APPLICATION">
+<a id="BASE_TYPE_APPLICATION">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -795,7 +804,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_MP4">
+<a id="VIDEO_MP4">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -808,7 +817,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_MATROSKA">
+<a id="VIDEO_MATROSKA">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -821,7 +830,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_WEBM">
+<a id="VIDEO_WEBM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -834,7 +843,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_H263">
+<a id="VIDEO_H263">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -847,7 +856,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_H264">
+<a id="VIDEO_H264">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -860,7 +869,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_H265">
+<a id="VIDEO_H265">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -873,7 +882,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_VP8">
+<a id="VIDEO_VP8">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -886,7 +895,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_VP9">
+<a id="VIDEO_VP9">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -899,7 +908,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_AV1">
+<a id="VIDEO_AV1">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -912,7 +921,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_MP2T">
+<a id="VIDEO_MP2T">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -925,7 +934,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_MP4V">
+<a id="VIDEO_MP4V">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -938,7 +947,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_MPEG">
+<a id="VIDEO_MPEG">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -951,7 +960,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_PS">
+<a id="VIDEO_PS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -964,7 +973,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_MPEG2">
+<a id="VIDEO_MPEG2">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -977,7 +986,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_VC1">
+<a id="VIDEO_VC1">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -990,7 +999,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_DIVX">
+<a id="VIDEO_DIVX">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1003,7 +1012,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_FLV">
+<a id="VIDEO_FLV">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1016,7 +1025,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_DOLBY_VISION">
+<a id="VIDEO_DOLBY_VISION">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1029,7 +1038,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_OGG">
+<a id="VIDEO_OGG">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1042,7 +1051,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="VIDEO_UNKNOWN">
+<a id="VIDEO_UNKNOWN">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1055,7 +1064,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MP4">
+<a id="AUDIO_MP4">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1068,7 +1077,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_AAC">
+<a id="AUDIO_AAC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1081,7 +1090,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MATROSKA">
+<a id="AUDIO_MATROSKA">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1094,7 +1103,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_WEBM">
+<a id="AUDIO_WEBM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1107,7 +1116,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MPEG">
+<a id="AUDIO_MPEG">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1120,7 +1129,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MPEG_L1">
+<a id="AUDIO_MPEG_L1">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1133,7 +1142,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MPEG_L2">
+<a id="AUDIO_MPEG_L2">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1146,7 +1155,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_RAW">
+<a id="AUDIO_RAW">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1159,7 +1168,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_ALAW">
+<a id="AUDIO_ALAW">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1172,7 +1181,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MLAW">
+<a id="AUDIO_MLAW">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1185,7 +1194,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_AC3">
+<a id="AUDIO_AC3">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1198,7 +1207,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_E_AC3">
+<a id="AUDIO_E_AC3">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1211,7 +1220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_E_AC3_JOC">
+<a id="AUDIO_E_AC3_JOC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1224,7 +1233,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_AC4">
+<a id="AUDIO_AC4">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1237,7 +1246,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_TRUEHD">
+<a id="AUDIO_TRUEHD">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1250,7 +1259,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_DTS">
+<a id="AUDIO_DTS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1263,7 +1272,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_DTS_HD">
+<a id="AUDIO_DTS_HD">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1276,7 +1285,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_DTS_EXPRESS">
+<a id="AUDIO_DTS_EXPRESS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1289,7 +1298,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_VORBIS">
+<a id="AUDIO_VORBIS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1302,7 +1311,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OPUS">
+<a id="AUDIO_OPUS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1315,7 +1324,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_AMR">
+<a id="AUDIO_AMR">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1328,7 +1337,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_AMR_NB">
+<a id="AUDIO_AMR_NB">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1341,7 +1350,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_AMR_WB">
+<a id="AUDIO_AMR_WB">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1354,7 +1363,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_FLAC">
+<a id="AUDIO_FLAC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1367,7 +1376,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_ALAC">
+<a id="AUDIO_ALAC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1380,7 +1389,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_MSGSM">
+<a id="AUDIO_MSGSM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1393,7 +1402,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OGG">
+<a id="AUDIO_OGG">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1406,7 +1415,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_WAV">
+<a id="AUDIO_WAV">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1419,7 +1428,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_UNKNOWN">
+<a id="AUDIO_UNKNOWN">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1432,7 +1441,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TEXT_VTT">
+<a id="TEXT_VTT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1445,7 +1454,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TEXT_SSA">
+<a id="TEXT_SSA">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1458,7 +1467,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_MP4">
+<a id="APPLICATION_MP4">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1471,7 +1480,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_WEBM">
+<a id="APPLICATION_WEBM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1484,7 +1493,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_MATROSKA">
+<a id="APPLICATION_MATROSKA">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1497,7 +1506,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_MPD">
+<a id="APPLICATION_MPD">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1510,7 +1519,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_M3U8">
+<a id="APPLICATION_M3U8">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1523,7 +1532,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_SS">
+<a id="APPLICATION_SS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1536,7 +1545,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_ID3">
+<a id="APPLICATION_ID3">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1549,7 +1558,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_CEA608">
+<a id="APPLICATION_CEA608">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1562,7 +1571,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_CEA708">
+<a id="APPLICATION_CEA708">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1575,7 +1584,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_SUBRIP">
+<a id="APPLICATION_SUBRIP">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1588,7 +1597,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_TTML">
+<a id="APPLICATION_TTML">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1601,7 +1610,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_TX3G">
+<a id="APPLICATION_TX3G">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1614,7 +1623,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_MP4VTT">
+<a id="APPLICATION_MP4VTT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1627,7 +1636,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_MP4CEA608">
+<a id="APPLICATION_MP4CEA608">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1640,7 +1649,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_RAWCC">
+<a id="APPLICATION_RAWCC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1653,7 +1662,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_VOBSUB">
+<a id="APPLICATION_VOBSUB">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1666,7 +1675,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_PGS">
+<a id="APPLICATION_PGS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1679,7 +1688,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_SCTE35">
+<a id="APPLICATION_SCTE35">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1692,7 +1701,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_CAMERA_MOTION">
+<a id="APPLICATION_CAMERA_MOTION">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1705,7 +1714,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_EMSG">
+<a id="APPLICATION_EMSG">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1718,7 +1727,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_DVBSUBS">
+<a id="APPLICATION_DVBSUBS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1731,7 +1740,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_EXIF">
+<a id="APPLICATION_EXIF">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1744,7 +1753,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_ICY">
+<a id="APPLICATION_ICY">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1757,7 +1766,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="APPLICATION_AIT">
+<a id="APPLICATION_AIT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1770,7 +1779,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="IMAGE_JPEG">
+<a id="APPLICATION_RTSP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>APPLICATION_RTSP</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> APPLICATION_RTSP</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.MimeTypes.APPLICATION_RTSP">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="IMAGE_JPEG">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -1785,19 +1807,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="registerCustomMimeType-java.lang.String-java.lang.String-int-">
+<a id="registerCustomMimeType(java.lang.String,java.lang.String,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>registerCustomMimeType</h4>
-<pre>public static&nbsp;void&nbsp;registerCustomMimeType&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+<pre class="methodSignature">public static&nbsp;void&nbsp;registerCustomMimeType&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecPrefix,
                                           int&nbsp;trackType)</pre>
 <div class="block">Registers a custom MIME type. Most applications do not need to call this method, as handling of
@@ -1807,57 +1831,57 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The custom MIME type to register.</dd>
 <dd><code>codecPrefix</code> - The RFC 6381 codec string prefix associated with the MIME type.</dd>
-<dd><code>trackType</code> - The <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constant associated with the MIME type.
+<dd><code>trackType</code> - The <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constant associated with the MIME type.
      This value is ignored if the top-level type of <code>mimeType</code> is audio, video or text.</dd>
 </dl>
 </li>
 </ul>
-<a name="isAudio-java.lang.String-">
+<a id="isAudio(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isAudio</h4>
-<pre>public static&nbsp;boolean&nbsp;isAudio&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isAudio&#8203;(@Nullable
                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns whether the given string is an audio MIME type.</div>
 </li>
 </ul>
-<a name="isVideo-java.lang.String-">
+<a id="isVideo(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isVideo</h4>
-<pre>public static&nbsp;boolean&nbsp;isVideo&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isVideo&#8203;(@Nullable
                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns whether the given string is a video MIME type.</div>
 </li>
 </ul>
-<a name="isText-java.lang.String-">
+<a id="isText(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isText</h4>
-<pre>public static&nbsp;boolean&nbsp;isText&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isText&#8203;(@Nullable
                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns whether the given string is a text MIME type, including known text types that use
  &quot;application&quot; as their base type.</div>
 </li>
 </ul>
-<a name="allSamplesAreSyncSamples-java.lang.String-java.lang.String-">
+<a id="allSamplesAreSyncSamples(java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allSamplesAreSyncSamples</h4>
-<pre>public static&nbsp;boolean&nbsp;allSamplesAreSyncSamples&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;allSamplesAreSyncSamples&#8203;(@Nullable
                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                                                @Nullable
                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
 <div class="block">Returns true if it is known that all samples in a stream of the given MIME type and codec are
- guaranteed to be sync samples (i.e., <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> is guaranteed to be set on
+ guaranteed to be sync samples (i.e., <a href="../C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> is guaranteed to be set on
  every sample).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1868,13 +1892,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="getVideoMediaMimeType-java.lang.String-">
+<a id="getVideoMediaMimeType(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getVideoMediaMimeType</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getVideoMediaMimeType&#8203;(@Nullable
                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</pre>
 <div class="block">Returns the first video MIME type derived from an RFC 6381 codecs string.</div>
@@ -1886,13 +1910,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="containsCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">
+<a id="containsCodecsCorrespondingToMimeType(java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>containsCodecsCorrespondingToMimeType</h4>
-<pre>public static&nbsp;boolean&nbsp;containsCodecsCorrespondingToMimeType&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;containsCodecsCorrespondingToMimeType&#8203;(@Nullable
                                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns whether the given <code>codecs</code> string contains a codec which corresponds to the given
@@ -1907,13 +1931,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="getCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">
+<a id="getCodecsCorrespondingToMimeType(java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getCodecsCorrespondingToMimeType</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getCodecsCorrespondingToMimeType&#8203;(@Nullable
                                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                                                       @Nullable
@@ -1932,13 +1956,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="getAudioMediaMimeType-java.lang.String-">
+<a id="getAudioMediaMimeType(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getAudioMediaMimeType</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getAudioMediaMimeType&#8203;(@Nullable
                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</pre>
 <div class="block">Returns the first audio MIME type derived from an RFC 6381 codecs string.</div>
@@ -1950,13 +1974,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="getTextMediaMimeType-java.lang.String-">
+<a id="getTextMediaMimeType(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTextMediaMimeType</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getTextMediaMimeType&#8203;(@Nullable
                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</pre>
 <div class="block">Returns the first text MIME type derived from an RFC 6381 codecs string.</div>
@@ -1968,13 +1992,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="getMediaMimeType-java.lang.String-">
+<a id="getMediaMimeType(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getMediaMimeType</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getMediaMimeType&#8203;(@Nullable
                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
 <div class="block">Returns the MIME type corresponding to an RFC 6381 codec string, or <code>null</code> if it could
@@ -1987,13 +2011,13 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="getMimeTypeFromMp4ObjectType-int-">
+<a id="getMimeTypeFromMp4ObjectType(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getMimeTypeFromMp4ObjectType</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getMimeTypeFromMp4ObjectType&#8203;(int&nbsp;objectType)</pre>
 <div class="block">Returns the MIME type corresponding to an MP4 object type identifier, as defined in RFC 6381
  and https://mp4ra.org/#/object_types.</div>
@@ -2005,71 +2029,71 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="getTrackType-java.lang.String-">
+<a id="getTrackType(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackType</h4>
-<pre>public static&nbsp;int&nbsp;getTrackType&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;int&nbsp;getTrackType&#8203;(@Nullable
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constant corresponding to a specified MIME type, or
- <a href="../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it could not be determined.</div>
+<div class="block">Returns the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constant corresponding to a specified MIME type, or
+ <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it could not be determined.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - A MIME type.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The corresponding <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it
+<dd>The corresponding <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code>, or <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it
      could not be determined.</dd>
 </dl>
 </li>
 </ul>
-<a name="getEncoding-java.lang.String-java.lang.String-">
+<a id="getEncoding(java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getEncoding</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@Encoding</a>
+<pre class="methodSignature"><a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2">@Encoding</a>
 public static&nbsp;int&nbsp;getEncoding&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                               @Nullable
                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> constant corresponding to the specified audio MIME type and RFC
- 6381 codec string, or <a href="../../../../../com/google/android/exoplayer2/C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the corresponding <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> cannot
+<div class="block">Returns the <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> constant corresponding to the specified audio MIME type and RFC
+ 6381 codec string, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the corresponding <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a> cannot
  be determined.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - A MIME type.</dd>
 <dd><code>codec</code> - An RFC 6381 codec string, or <code>null</code> if unknown or not applicable.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The corresponding <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a>, or <a href="../../../../../com/google/android/exoplayer2/C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a>.</dd>
+<dd>The corresponding <a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2"><code>C.Encoding</code></a>, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="getTrackTypeOfCodec-java.lang.String-">
+<a id="getTrackTypeOfCodec(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackTypeOfCodec</h4>
-<pre>public static&nbsp;int&nbsp;getTrackTypeOfCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
+<pre class="methodSignature">public static&nbsp;int&nbsp;getTrackTypeOfCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</pre>
 <div class="block">Equivalent to <code>getTrackType(getMediaMimeType(codec))</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>codec</code> - An RFC 6381 codec string.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The corresponding <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it
+<dd>The corresponding <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code>, or <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it
      could not be determined.</dd>
 </dl>
 </li>
 </ul>
-<a name="normalizeMimeType-java.lang.String-">
+<a id="normalizeMimeType(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>normalizeMimeType</h4>
-<pre>public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;normalizeMimeType&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;normalizeMimeType&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Normalizes the MIME type provided so that equivalent MIME types are uniquely represented.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2079,34 +2103,38 @@ public static&nbsp;int&nbsp;getEncoding&#8203;(<a href="https://developer.androi
 </dl>
 </li>
 </ul>
-<a name="isMatroska-java.lang.String-">
+<a id="isMatroska(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isMatroska</h4>
-<pre>public static&nbsp;boolean&nbsp;isMatroska&#8203;(@Nullable
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isMatroska&#8203;(@Nullable
                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns whether the given <code>mimeType</code> is a Matroska MIME type, including WebM.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -2116,16 +2144,8 @@ public static&nbsp;int&nbsp;getEncoding&#8203;(<a href="https://developer.androi
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/MutableFlags.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/MimeTypes.html" target="_top">Frames</a></li>
-<li><a href="MimeTypes.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -2157,9 +2177,11 @@ public static&nbsp;int&nbsp;getEncoding&#8203;(<a href="https://developer.androi
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

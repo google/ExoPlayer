@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/AacUtil.html" target="_top">Frames</a></li>
-<li><a href="AacUtil.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
 <h2 title="Class AacUtil" class="title">Class AacUtil</h2>
 </div>
 <div class="contentContainer">
@@ -140,12 +139,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,14 +154,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">AacUtil.AacAudioObjectType</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">AacUtil.AacAudioObjectType</a></span></code></th>
 <td class="colLast">
 <div class="block">Valid AAC Audio object types.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></span></code></th>
 <td class="colLast">
 <div class="block">Holds sample format information for AAC audio.</div>
 </td>
@@ -169,13 +169,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -184,107 +186,109 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_ELD_MAX_RATE_BYTES_PER_SECOND">AAC_ELD_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_ELD_MAX_RATE_BYTES_PER_SECOND">AAC_ELD_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum rate for an AAC ELD audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_HE_AUDIO_SAMPLE_COUNT">AAC_HE_AUDIO_SAMPLE_COUNT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_HE_AUDIO_SAMPLE_COUNT">AAC_HE_AUDIO_SAMPLE_COUNT</a></span></code></th>
 <td class="colLast">
 <div class="block">Number of raw audio samples that are produced per channel when decoding an AAC HE access unit.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND">AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND">AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum rate for an AAC HE V1 audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND">AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND">AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum rate for an AAC HE V2 audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_LC_AUDIO_SAMPLE_COUNT">AAC_LC_AUDIO_SAMPLE_COUNT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_LC_AUDIO_SAMPLE_COUNT">AAC_LC_AUDIO_SAMPLE_COUNT</a></span></code></th>
 <td class="colLast">
 <div class="block">Number of raw audio samples that are produced per channel when decoding an AAC LC access unit.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_LC_MAX_RATE_BYTES_PER_SECOND">AAC_LC_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_LC_MAX_RATE_BYTES_PER_SECOND">AAC_LC_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum rate for an AAC LC audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_LD_AUDIO_SAMPLE_COUNT">AAC_LD_AUDIO_SAMPLE_COUNT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_LD_AUDIO_SAMPLE_COUNT">AAC_LD_AUDIO_SAMPLE_COUNT</a></span></code></th>
 <td class="colLast">
 <div class="block">Number of raw audio samples that are produced per channel when decoding an AAC LD access unit.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_XHE_AUDIO_SAMPLE_COUNT">AAC_XHE_AUDIO_SAMPLE_COUNT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_XHE_AUDIO_SAMPLE_COUNT">AAC_XHE_AUDIO_SAMPLE_COUNT</a></span></code></th>
 <td class="colLast">
 <div class="block">Number of raw audio samples that are produced per channel when decoding an AAC XHE access unit.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AAC_XHE_MAX_RATE_BYTES_PER_SECOND">AAC_XHE_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AAC_XHE_MAX_RATE_BYTES_PER_SECOND">AAC_XHE_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum rate for an AAC XHE audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AUDIO_OBJECT_TYPE_AAC_ELD">AUDIO_OBJECT_TYPE_AAC_ELD</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OBJECT_TYPE_AAC_ELD">AUDIO_OBJECT_TYPE_AAC_ELD</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AUDIO_OBJECT_TYPE_AAC_ER_BSAC">AUDIO_OBJECT_TYPE_AAC_ER_BSAC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OBJECT_TYPE_AAC_ER_BSAC">AUDIO_OBJECT_TYPE_AAC_ER_BSAC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AUDIO_OBJECT_TYPE_AAC_LC">AUDIO_OBJECT_TYPE_AAC_LC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OBJECT_TYPE_AAC_LC">AUDIO_OBJECT_TYPE_AAC_LC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AUDIO_OBJECT_TYPE_AAC_PS">AUDIO_OBJECT_TYPE_AAC_PS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OBJECT_TYPE_AAC_PS">AUDIO_OBJECT_TYPE_AAC_PS</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AUDIO_OBJECT_TYPE_AAC_SBR">AUDIO_OBJECT_TYPE_AAC_SBR</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OBJECT_TYPE_AAC_SBR">AUDIO_OBJECT_TYPE_AAC_SBR</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#AUDIO_OBJECT_TYPE_AAC_XHE">AUDIO_OBJECT_TYPE_AAC_XHE</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_OBJECT_TYPE_AAC_XHE">AUDIO_OBJECT_TYPE_AAC_XHE</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -293,7 +297,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#buildAacLcAudioSpecificConfig-int-int-">buildAacLcAudioSpecificConfig</a></span>&#8203;(int&nbsp;sampleRate,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAacLcAudioSpecificConfig(int,int)">buildAacLcAudioSpecificConfig</a></span>&#8203;(int&nbsp;sampleRate,
                              int&nbsp;channelCount)</code></th>
 <td class="colLast">
 <div class="block">Builds a simple AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
@@ -301,7 +305,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#buildAudioSpecificConfig-int-int-int-">buildAudioSpecificConfig</a></span>&#8203;(int&nbsp;audioObjectType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAudioSpecificConfig(int,int,int)">buildAudioSpecificConfig</a></span>&#8203;(int&nbsp;audioObjectType,
                         int&nbsp;sampleRateIndex,
                         int&nbsp;channelConfig)</code></th>
 <td class="colLast">
@@ -310,21 +314,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#getEncodingForAudioObjectType-int-">getEncodingForAudioObjectType</a></span>&#8203;(int&nbsp;audioObjectType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEncodingForAudioObjectType(int)">getEncodingForAudioObjectType</a></span>&#8203;(int&nbsp;audioObjectType)</code></th>
 <td class="colLast">
 <div class="block">Returns the encoding for a given AAC audio object type.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#parseAudioSpecificConfig-byte:A-">parseAudioSpecificConfig</a></span>&#8203;(byte[]&nbsp;audioSpecificConfig)</code></th>
+<td class="colFirst"><code>static <a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAudioSpecificConfig(byte%5B%5D)">parseAudioSpecificConfig</a></span>&#8203;(byte[]&nbsp;audioSpecificConfig)</code></th>
 <td class="colLast">
 <div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html#parseAudioSpecificConfig-com.google.android.exoplayer2.util.ParsableBitArray-boolean-">parseAudioSpecificConfig</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
+<td class="colFirst"><code>static <a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAudioSpecificConfig(com.google.android.exoplayer2.util.ParsableBitArray,boolean)">parseAudioSpecificConfig</a></span>&#8203;(<a href="../util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
                         boolean&nbsp;forceReadToEnd)</code></th>
 <td class="colLast">
 <div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
@@ -332,14 +336,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -347,12 +352,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="AAC_LC_AUDIO_SAMPLE_COUNT">
+<a id="AAC_LC_AUDIO_SAMPLE_COUNT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -366,7 +372,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_XHE_AUDIO_SAMPLE_COUNT">
+<a id="AAC_XHE_AUDIO_SAMPLE_COUNT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -380,7 +386,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_HE_AUDIO_SAMPLE_COUNT">
+<a id="AAC_HE_AUDIO_SAMPLE_COUNT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -394,7 +400,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_LD_AUDIO_SAMPLE_COUNT">
+<a id="AAC_LD_AUDIO_SAMPLE_COUNT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -408,7 +414,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_LC_MAX_RATE_BYTES_PER_SECOND">
+<a id="AAC_LC_MAX_RATE_BYTES_PER_SECOND">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -422,7 +428,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND">
+<a id="AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -436,7 +442,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND">
+<a id="AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -450,7 +456,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_XHE_MAX_RATE_BYTES_PER_SECOND">
+<a id="AAC_XHE_MAX_RATE_BYTES_PER_SECOND">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -467,7 +473,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AAC_ELD_MAX_RATE_BYTES_PER_SECOND">
+<a id="AAC_ELD_MAX_RATE_BYTES_PER_SECOND">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -483,7 +489,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OBJECT_TYPE_AAC_LC">
+<a id="AUDIO_OBJECT_TYPE_AAC_LC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -496,7 +502,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OBJECT_TYPE_AAC_SBR">
+<a id="AUDIO_OBJECT_TYPE_AAC_SBR">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -509,7 +515,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OBJECT_TYPE_AAC_ER_BSAC">
+<a id="AUDIO_OBJECT_TYPE_AAC_ER_BSAC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -522,7 +528,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OBJECT_TYPE_AAC_ELD">
+<a id="AUDIO_OBJECT_TYPE_AAC_ELD">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -535,7 +541,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OBJECT_TYPE_AAC_PS">
+<a id="AUDIO_OBJECT_TYPE_AAC_PS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -548,7 +554,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="AUDIO_OBJECT_TYPE_AAC_XHE">
+<a id="AUDIO_OBJECT_TYPE_AAC_XHE">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -563,20 +569,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="parseAudioSpecificConfig-byte:A-">
+<a id="parseAudioSpecificConfig(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>parseAudioSpecificConfig</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a>&nbsp;parseAudioSpecificConfig&#8203;(byte[]&nbsp;audioSpecificConfig)
-                                               throws <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<pre class="methodSignature">public static&nbsp;<a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a>&nbsp;parseAudioSpecificConfig&#8203;(byte[]&nbsp;audioSpecificConfig)
+                                               throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -584,42 +592,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The parsed configuration.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the AudioSpecificConfig cannot be parsed because it is invalid or
+<dd><code><a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the AudioSpecificConfig cannot be parsed because it is invalid or
      unsupported.</dd>
 </dl>
 </li>
 </ul>
-<a name="parseAudioSpecificConfig-com.google.android.exoplayer2.util.ParsableBitArray-boolean-">
+<a id="parseAudioSpecificConfig(com.google.android.exoplayer2.util.ParsableBitArray,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>parseAudioSpecificConfig</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a>&nbsp;parseAudioSpecificConfig&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
+<pre class="methodSignature">public static&nbsp;<a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a>&nbsp;parseAudioSpecificConfig&#8203;(<a href="../util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
                                                       boolean&nbsp;forceReadToEnd)
-                                               throws <a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+                                               throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bitArray</code> - A <a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableBitArray</code></a> containing the AudioSpecificConfig to parse. The
+<dd><code>bitArray</code> - A <a href="../util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableBitArray</code></a> containing the AudioSpecificConfig to parse. The
      position is advanced to the end of the AudioSpecificConfig.</dd>
 <dd><code>forceReadToEnd</code> - Whether the entire AudioSpecificConfig should be read. Required for
      knowing the length of the configuration payload.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The parsed configuration.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the AudioSpecificConfig cannot be parsed because it is invalid or
+<dd><code><a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the AudioSpecificConfig cannot be parsed because it is invalid or
      unsupported.</dd>
 </dl>
 </li>
 </ul>
-<a name="buildAacLcAudioSpecificConfig-int-int-">
+<a id="buildAacLcAudioSpecificConfig(int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildAacLcAudioSpecificConfig</h4>
-<pre>public static&nbsp;byte[]&nbsp;buildAacLcAudioSpecificConfig&#8203;(int&nbsp;sampleRate,
+<pre class="methodSignature">public static&nbsp;byte[]&nbsp;buildAacLcAudioSpecificConfig&#8203;(int&nbsp;sampleRate,
                                                    int&nbsp;channelCount)</pre>
 <div class="block">Builds a simple AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 <dl>
@@ -631,13 +639,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="buildAudioSpecificConfig-int-int-int-">
+<a id="buildAudioSpecificConfig(int,int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildAudioSpecificConfig</h4>
-<pre>public static&nbsp;byte[]&nbsp;buildAudioSpecificConfig&#8203;(int&nbsp;audioObjectType,
+<pre class="methodSignature">public static&nbsp;byte[]&nbsp;buildAudioSpecificConfig&#8203;(int&nbsp;audioObjectType,
                                               int&nbsp;sampleRateIndex,
                                               int&nbsp;channelConfig)</pre>
 <div class="block">Builds a simple AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
@@ -651,35 +659,39 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="getEncodingForAudioObjectType-int-">
+<a id="getEncodingForAudioObjectType(int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getEncodingForAudioObjectType</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@Encoding</a>
-public static&nbsp;int&nbsp;getEncodingForAudioObjectType&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">@AacAudioObjectType</a>
+<pre class="methodSignature"><a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2">@Encoding</a>
+public static&nbsp;int&nbsp;getEncodingForAudioObjectType&#8203;(<a href="AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">@AacAudioObjectType</a>
                                                 int&nbsp;audioObjectType)</pre>
 <div class="block">Returns the encoding for a given AAC audio object type.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -689,16 +701,8 @@ public static&nbsp;int&nbsp;getEncodingForAudioObjectType&#8203;(<a href="../../
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/AacUtil.html" target="_top">Frames</a></li>
-<li><a href="AacUtil.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -730,9 +734,11 @@ public static&nbsp;int&nbsp;getEncodingForAudioObjectType&#8203;(<a href="../../
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

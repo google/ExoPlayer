@@ -12,7 +12,6 @@ com.google.android.exoplayer2.ext.ffmpeg
 com.google.android.exoplayer2.ext.flac
 com.google.android.exoplayer2.ext.gvr
 com.google.android.exoplayer2.ext.ima
-com.google.android.exoplayer2.ext.jobdispatcher
 com.google.android.exoplayer2.ext.leanback
 com.google.android.exoplayer2.ext.media2
 com.google.android.exoplayer2.ext.mediasession
@@ -55,6 +54,8 @@ com.google.android.exoplayer2.source.hls
 com.google.android.exoplayer2.source.hls.offline
 com.google.android.exoplayer2.source.hls.playlist
 com.google.android.exoplayer2.source.mediaparser
+com.google.android.exoplayer2.source.rtsp
+com.google.android.exoplayer2.source.rtsp.reader
 com.google.android.exoplayer2.source.smoothstreaming
 com.google.android.exoplayer2.source.smoothstreaming.manifest
 com.google.android.exoplayer2.source.smoothstreaming.offline
@@ -73,7 +74,6 @@ com.google.android.exoplayer2.text.webvtt
 com.google.android.exoplayer2.trackselection
 com.google.android.exoplayer2.transformer
 com.google.android.exoplayer2.ui
-com.google.android.exoplayer2.ui.spherical
 com.google.android.exoplayer2.upstream
 com.google.android.exoplayer2.upstream.cache
 com.google.android.exoplayer2.upstream.crypto

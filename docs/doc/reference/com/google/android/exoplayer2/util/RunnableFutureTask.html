@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/ReusableBufferedOutputStream.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/SlidingPercentile.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/RunnableFutureTask.html" target="_top">Frames</a></li>
-<li><a href="RunnableFutureTask.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,17 +108,20 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
-<h2 title="Class RunnableFutureTask" class="title">Class RunnableFutureTask&lt;R,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
+<h2 title="Class RunnableFutureTask" class="title">Class RunnableFutureTask&lt;R,&#8203;E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.util.RunnableFutureTask&lt;R,E&gt;</li>
+<li>com.google.android.exoplayer2.util.RunnableFutureTask&lt;R,&#8203;E&gt;</li>
 </ul>
 </li>
 </ul>
@@ -139,7 +138,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink">Runnable</a></code>, <code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;R&gt;</code>, <code><a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink" target="_top">RunnableFuture</a>&lt;R&gt;</code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">RunnableFutureTask&lt;R,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</span>
+<pre>public abstract class <span class="typeNameLabel">RunnableFutureTask&lt;R,&#8203;E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">RunnableFuture</a>&lt;R&gt;</pre>
 <div class="block">A <a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top"><code>RunnableFuture</code></a> that supports additional uninterruptible operations to query whether
@@ -151,12 +150,13 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier</th>
@@ -165,19 +165,21 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#RunnableFutureTask--">RunnableFutureTask</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">RunnableFutureTask</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -186,73 +188,74 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#blockUntilFinished--">blockUntilFinished</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilFinished()">blockUntilFinished</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Blocks until the task has finished, or has been canceled without having been started.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#blockUntilStarted--">blockUntilStarted</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilStarted()">blockUntilStarted</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Blocks until the task has started, or has been canceled without having been started.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#cancel-boolean-">cancel</a></span>&#8203;(boolean&nbsp;interruptIfRunning)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancel(boolean)">cancel</a></span>&#8203;(boolean&nbsp;interruptIfRunning)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#cancelWork--">cancelWork</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancelWork()">cancelWork</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Cancels any work being done by <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#doWork--"><code>doWork()</code></a>.</div>
+<div class="block">Cancels any work being done by <a href="#doWork()"><code>doWork()</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>protected abstract <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#doWork--">doWork</a></span>()</code></th>
+<td class="colFirst"><code>protected abstract <a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doWork()">doWork</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Performs the work or computation.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#get--">get</a></span>()</code></th>
+<td class="colFirst"><code><a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get()">get</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#get-long-java.util.concurrent.TimeUnit-">get</a></span>&#8203;(long&nbsp;timeout,
+<td class="colFirst"><code><a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(long,java.util.concurrent.TimeUnit)">get</a></span>&#8203;(long&nbsp;timeout,
    <a href="https://developer.android.com/reference/java/util/concurrent/TimeUnit.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeUnit</a>&nbsp;unit)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#isCancelled--">isCancelled</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCancelled()">isCancelled</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#isDone--">isDone</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isDone()">isDone</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#run--">run</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#run()">run</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -260,12 +263,13 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="RunnableFutureTask--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -276,64 +280,66 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="blockUntilStarted--">
+<a id="blockUntilStarted()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilStarted</h4>
-<pre>public final&nbsp;void&nbsp;blockUntilStarted()</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;blockUntilStarted()</pre>
 <div class="block">Blocks until the task has started, or has been canceled without having been started.</div>
 </li>
 </ul>
-<a name="blockUntilFinished--">
+<a id="blockUntilFinished()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilFinished</h4>
-<pre>public final&nbsp;void&nbsp;blockUntilFinished()</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;blockUntilFinished()</pre>
 <div class="block">Blocks until the task has finished, or has been canceled without having been started.</div>
 </li>
 </ul>
-<a name="get--">
+<a id="get()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;get()
+<pre class="methodSignature">public final&nbsp;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;get()
             throws <a href="https://developer.android.com/reference/java/util/concurrent/ExecutionException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">ExecutionException</a>,
                    <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#get--" title="class or interface in java.util.concurrent" class="externalLink">get</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#get()" title="class or interface in java.util.concurrent" class="externalLink">get</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/ExecutionException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">ExecutionException</a></code></dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="get-long-java.util.concurrent.TimeUnit-">
+<a id="get(long,java.util.concurrent.TimeUnit)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;get&#8203;(long&nbsp;timeout,
+<pre class="methodSignature">public final&nbsp;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;get&#8203;(long&nbsp;timeout,
                    <a href="https://developer.android.com/reference/java/util/concurrent/TimeUnit.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeUnit</a>&nbsp;unit)
             throws <a href="https://developer.android.com/reference/java/util/concurrent/ExecutionException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">ExecutionException</a>,
                    <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a>,
                    <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#get-long-java.util.concurrent.TimeUnit-" title="class or interface in java.util.concurrent" class="externalLink">get</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#get(long,java.util.concurrent.TimeUnit)" title="class or interface in java.util.concurrent" class="externalLink">get</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/ExecutionException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">ExecutionException</a></code></dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></code></dd>
@@ -341,86 +347,86 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </dl>
 </li>
 </ul>
-<a name="cancel-boolean-">
+<a id="cancel(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>cancel</h4>
-<pre>public final&nbsp;boolean&nbsp;cancel&#8203;(boolean&nbsp;interruptIfRunning)</pre>
+<pre class="methodSignature">public final&nbsp;boolean&nbsp;cancel&#8203;(boolean&nbsp;interruptIfRunning)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#cancel-boolean-" title="class or interface in java.util.concurrent" class="externalLink">cancel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#cancel(boolean)" title="class or interface in java.util.concurrent" class="externalLink">cancel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a name="isDone--">
+<a id="isDone()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isDone</h4>
-<pre>public final&nbsp;boolean&nbsp;isDone()</pre>
+<pre class="methodSignature">public final&nbsp;boolean&nbsp;isDone()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#isDone--" title="class or interface in java.util.concurrent" class="externalLink">isDone</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#isDone()" title="class or interface in java.util.concurrent" class="externalLink">isDone</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a name="isCancelled--">
+<a id="isCancelled()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isCancelled</h4>
-<pre>public final&nbsp;boolean&nbsp;isCancelled()</pre>
+<pre class="methodSignature">public final&nbsp;boolean&nbsp;isCancelled()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#isCancelled--" title="class or interface in java.util.concurrent" class="externalLink">isCancelled</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#isCancelled()" title="class or interface in java.util.concurrent" class="externalLink">isCancelled</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a name="run--">
+<a id="run()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>run</h4>
-<pre>public final&nbsp;void&nbsp;run()</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;run()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html#run--" title="class or interface in java.lang" class="externalLink">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html#run()" title="class or interface in java.lang" class="externalLink">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html#run--" title="class or interface in java.util.concurrent" class="externalLink">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">RunnableFuture</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html#run()" title="class or interface in java.util.concurrent" class="externalLink">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">RunnableFuture</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a name="doWork--">
+<a id="doWork()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>doWork</h4>
-<pre>protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;doWork()
-                     throws <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
+<pre class="methodSignature">protected abstract&nbsp;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;doWork()
+                     throws <a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
 <div class="block">Performs the work or computation.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The computed result.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a></code> - If an error occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></code></dd>
+<dd><code><a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a></code> - If an error occurred.</dd>
+<dd><code><a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="cancelWork--">
+<a id="cancelWork()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>cancelWork</h4>
-<pre>protected&nbsp;void&nbsp;cancelWork()</pre>
-<div class="block">Cancels any work being done by <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#doWork--"><code>doWork()</code></a>. If <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html#doWork--"><code>doWork()</code></a> is currently executing
+<pre class="methodSignature">protected&nbsp;void&nbsp;cancelWork()</pre>
+<div class="block">Cancels any work being done by <a href="#doWork()"><code>doWork()</code></a>. If <a href="#doWork()"><code>doWork()</code></a> is currently executing
  then the thread on which it's executing may be interrupted immediately after this method
  returns.
 
@@ -429,21 +435,25 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -453,16 +463,8 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/ReusableBufferedOutputStream.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/SlidingPercentile.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/RunnableFutureTask.html" target="_top">Frames</a></li>
-<li><a href="RunnableFutureTask.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -494,9 +496,11 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

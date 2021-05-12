@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,21 +25,25 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li>Class</li>
 <li class="navBarCell1Rev">Tree</li>
@@ -49,16 +53,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/scheduler/package-tree.html">Prev</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/ads/package-tree.html">Next</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/package-tree.html" target="_top">Frames</a></li>
-<li><a href="package-tree.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -81,7 +77,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -91,6 +87,9 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
+<main role="main">
 <div class="header">
 <h1 class="title">Hierarchy For Package com.google.android.exoplayer2.source</h1>
 <span class="packageHierarchyLabel">Package Hierarchies:</span>
@@ -99,61 +98,61 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="contentContainer">
+<section role="region">
 <h2 title="Class Hierarchy">Class Hierarchy</h2>
 <ul>
 <li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink" target="_top">Object</span></a>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">BaseMediaSource</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>)
+<li class="circle">com.google.android.exoplayer2.source.<a href="BaseMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">BaseMediaSource</span></a> (implements com.google.android.exoplayer2.source.<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>)
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">CompositeMediaSource</span></a>&lt;T&gt;
+<li class="circle">com.google.android.exoplayer2.source.<a href="CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">CompositeMediaSource</span></a>&lt;T&gt;
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ConcatenatingMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ExtractorMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">LoopingMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MergingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MergingMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ClippingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ConcatenatingMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">LoopingMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MaskingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MergingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MergingMediaSource</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ProgressiveMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SilenceMediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SingleSampleMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ProgressiveMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SilenceMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SilenceMediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SingleSampleMediaSource</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaPeriod</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoader.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">CompositeSequenceableLoader</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultCompositeSequenceableLoaderFactory</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultMediaSourceEventListener</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultMediaSourceFactory</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/EmptySampleStream.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">EmptySampleStream</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ExtractorMediaSource.Factory</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">LoadEventInfo</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaPeriod</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaLoadData</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaPeriodId</span></a>
+<li class="circle">com.google.android.exoplayer2.source.<a href="BundledExtractorsAdapter.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">BundledExtractorsAdapter</span></a> (implements com.google.android.exoplayer2.source.<a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaPeriod</span></a> (implements com.google.android.exoplayer2.source.<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, com.google.android.exoplayer2.source.<a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="CompositeSequenceableLoader.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">CompositeSequenceableLoader</span></a> (implements com.google.android.exoplayer2.source.<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultCompositeSequenceableLoaderFactory</span></a> (implements com.google.android.exoplayer2.source.<a href="CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultMediaSourceFactory</span></a> (implements com.google.android.exoplayer2.source.<a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="EmptySampleStream.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">EmptySampleStream</span></a> (implements com.google.android.exoplayer2.source.<a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">LoadEventInfo</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MaskingMediaPeriod.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaPeriod</span></a> (implements com.google.android.exoplayer2.source.<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, com.google.android.exoplayer2.source.<a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaLoadData</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaParserExtractorAdapter.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaParserExtractorAdapter</span></a> (implements com.google.android.exoplayer2.source.<a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaPeriodId</span></a>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSource.MediaPeriodId</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSource.MediaPeriodId</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSourceEventListener.EventDispatcher</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ProgressiveMediaSource.Factory</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleQueue</span></a> (implements com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ShuffleOrder.DefaultShuffleOrder</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ShuffleOrder.UnshuffledShuffleOrder</span></a> (implements com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SilenceMediaSource.Factory</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SingleSampleMediaSource.Factory</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSourceEventListener.EventDispatcher</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ProgressiveMediaSource.Factory</span></a> (implements com.google.android.exoplayer2.source.<a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SampleQueue.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleQueue</span></a> (implements com.google.android.exoplayer2.extractor.<a href="../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ShuffleOrder.DefaultShuffleOrder</span></a> (implements com.google.android.exoplayer2.source.<a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ShuffleOrder.UnshuffledShuffleOrder</span></a> (implements com.google.android.exoplayer2.source.<a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SilenceMediaSource.Factory</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SingleSampleMediaSource.Factory</span></a></li>
 <li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Throwable</span></a> (implements java.io.<a href="https://developer.android.com/reference/java/io/Serializable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a>)
 <ul>
 <li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink" target="_top">Exception</span></a>
 <ul>
 <li class="circle">java.io.<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><span class="typeNameLink" target="_top">IOException</span></a>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/BehindLiveWindowException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">BehindLiveWindowException</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.IllegalClippingException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaSource.IllegalClippingException</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MergingMediaSource.IllegalMergeException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MergingMediaSource.IllegalMergeException</span></a></li>
-<li class="circle">com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">ParserException</span></a>
+<li class="circle">com.google.android.exoplayer2.source.<a href="BehindLiveWindowException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">BehindLiveWindowException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ClippingMediaSource.IllegalClippingException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaSource.IllegalClippingException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MergingMediaSource.IllegalMergeException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MergingMediaSource.IllegalMergeException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.<a href="../ParserException.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">ParserException</span></a>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/UnrecognizedInputFormatException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">UnrecognizedInputFormatException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="UnrecognizedInputFormatException.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">UnrecognizedInputFormatException</span></a></li>
 </ul>
 </li>
 </ul>
@@ -162,59 +161,69 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Timeline</span></a>
+<li class="circle">com.google.android.exoplayer2.<a href="../Timeline.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Timeline</span></a> (implements com.google.android.exoplayer2.<a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>)
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ForwardingTimeline</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaSource.PlaceholderTimeline.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaSource.PlaceholderTimeline</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SinglePeriodTimeline</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">ForwardingTimeline</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MaskingMediaSource.PlaceholderTimeline.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaSource.PlaceholderTimeline</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SinglePeriodTimeline.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">SinglePeriodTimeline</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">TrackGroup</span></a> (implements android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">TrackGroupArray</span></a> (implements android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">TrackGroup</span></a> (implements android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">TrackGroupArray</span></a> (implements android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a>)</li>
 </ul>
 </li>
 </ul>
+</section>
+<section role="region">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">CompositeSequenceableLoaderFactory</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultMediaSourceFactory.AdsLoaderProvider</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">ExtractorMediaSource.EventListener</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaPeriod.PrepareListener</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSource</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSource.MediaSourceCaller</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSourceEventListener</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSourceFactory</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleQueue.UpstreamFormatChangedListener</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleStream</span></a></li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SequenceableLoader</span></a>
+<li class="circle">com.google.android.exoplayer2.source.<a href="CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">CompositeSequenceableLoaderFactory</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="DefaultMediaSourceFactory.AdsLoaderProvider.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">DefaultMediaSourceFactory.AdsLoaderProvider</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MaskingMediaPeriod.PrepareListener</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSource</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSource.MediaSourceCaller</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSourceEventListener</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaSourceFactory</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">ProgressiveMediaExtractor</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">ProgressiveMediaExtractor.Factory</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleQueue.UpstreamFormatChangedListener</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleStream</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SequenceableLoader</span></a>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaPeriod</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaPeriod</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SequenceableLoader.Callback</span></a>&lt;T&gt;
+<li class="circle">com.google.android.exoplayer2.source.<a href="SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">SequenceableLoader.Callback</span></a>&lt;T&gt;
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaPeriod.Callback</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">MediaPeriod.Callback</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">ShuffleOrder</span></a></li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">ShuffleOrder</span></a></li>
 </ul>
+</section>
+<section role="region">
 <h2 title="Annotation Type Hierarchy">Annotation Type Hierarchy</h2>
 <ul>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.IllegalClippingException.Reason.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaSource.IllegalClippingException.Reason</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MergingMediaSource.IllegalMergeException.Reason.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">MergingMediaSource.IllegalMergeException.Reason</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
-<li class="circle">com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleStream.ReadDataResult</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="ClippingMediaSource.IllegalClippingException.Reason.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">ClippingMediaSource.IllegalClippingException.Reason</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="MergingMediaSource.IllegalMergeException.Reason.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">MergingMediaSource.IllegalMergeException.Reason</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleStream.ReadDataResult</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.source.<a href="SampleStream.ReadFlags.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">SampleStream.ReadFlags</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
 </ul>
+</section>
 </div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li>Class</li>
 <li class="navBarCell1Rev">Tree</li>
@@ -224,16 +233,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/scheduler/package-tree.html">Prev</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/ads/package-tree.html">Next</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/package-tree.html" target="_top">Frames</a></li>
-<li><a href="package-tree.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -250,9 +251,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

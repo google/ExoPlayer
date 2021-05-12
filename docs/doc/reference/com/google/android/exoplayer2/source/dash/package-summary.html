@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,21 +25,25 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -49,16 +53,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -81,7 +77,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -91,13 +87,16 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
+<main role="main">
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.source.dash</h1>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
 <li class="blockList">
-<table class="typeSummary" summary="Interface Summary table, listing interfaces, and an explanation">
+<table class="typeSummary">
 <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Interface</th>
@@ -105,25 +104,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></th>
+<th class="colFirst" scope="row"><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></th>
 <td class="colLast">
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkSource</code></a> for DASH streams.</div>
+<div class="block">A <a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkSource</code></a> for DASH streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></th>
+<th class="colFirst" scope="row"><a href="DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>s.</div>
+<div class="block">Factory for <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>s.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></th>
+<th class="colFirst" scope="row"><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></th>
 <td class="colLast">
 <div class="block">Indexes the segments within a media stream.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerEmsgCallback.html" title="interface in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerEmsgCallback</a></th>
+<th class="colFirst" scope="row"><a href="PlayerEmsgHandler.PlayerEmsgCallback.html" title="interface in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerEmsgCallback</a></th>
 <td class="colLast">
 <div class="block">Callbacks for player emsg events encountered during DASH live stream.</div>
 </td>
@@ -132,7 +131,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Class Summary table, listing classes, and an explanation">
+<table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -140,54 +139,54 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></th>
+<th class="colFirst" scope="row"><a href="DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></th>
 <td class="colLast">
-<div class="block">A DASH <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
+<div class="block">A DASH <a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></th>
+<th class="colFirst" scope="row"><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>s.</div>
+<div class="block">Factory for <a href="DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>s.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashUtil.html" title="class in com.google.android.exoplayer2.source.dash">DashUtil</a></th>
+<th class="colFirst" scope="row"><a href="DashUtil.html" title="class in com.google.android.exoplayer2.source.dash">DashUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for DASH streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html" title="class in com.google.android.exoplayer2.source.dash">DashWrappingSegmentIndex</a></th>
+<th class="colFirst" scope="row"><a href="DashWrappingSegmentIndex.html" title="class in com.google.android.exoplayer2.source.dash">DashWrappingSegmentIndex</a></th>
 <td class="colLast">
-<div class="block">An implementation of <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashSegmentIndex</code></a> that wraps a <a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> parsed from a
- media stream.</div>
+<div class="block">An implementation of <a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashSegmentIndex</code></a> that wraps a <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> parsed from a media
+ stream.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource</a></th>
+<th class="colFirst" scope="row"><a href="DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource</a></th>
 <td class="colLast">
-<div class="block">A default <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a> implementation.</div>
+<div class="block">A default <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a> implementation.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.Factory</a></th>
+<th class="colFirst" scope="row"><a href="DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.Factory</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a></th>
+<th class="colFirst" scope="row"><a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a></th>
 <td class="colLast">
-<div class="block">Holds information about a snapshot of a single <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+<div class="block">Holds information about a snapshot of a single <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></th>
+<th class="colFirst" scope="row"><a href="DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></th>
 <td class="colLast">
-<div class="block"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a> wrapping a <a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash"><code>DefaultDashChunkSource.RepresentationHolder</code></a>.</div>
+<div class="block"><a href="../chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a> wrapping a <a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash"><code>DefaultDashChunkSource.RepresentationHolder</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler</a></th>
+<th class="colFirst" scope="row"><a href="PlayerEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler</a></th>
 <td class="colLast">
 <div class="block">Handles all emsg messages from all media tracks for the player.</div>
 </td>
@@ -196,7 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Exception Summary table, listing exceptions, and an explanation">
+<table class="typeSummary">
 <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Exception</th>
@@ -204,7 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashManifestStaleException.html" title="class in com.google.android.exoplayer2.source.dash">DashManifestStaleException</a></th>
+<th class="colFirst" scope="row"><a href="DashManifestStaleException.html" title="class in com.google.android.exoplayer2.source.dash">DashManifestStaleException</a></th>
 <td class="colLast">
 <div class="block">Thrown when a live playback's manifest is stale and a new manifest could not be loaded.</div>
 </td>
@@ -214,16 +213,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -233,16 +235,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -259,9 +253,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

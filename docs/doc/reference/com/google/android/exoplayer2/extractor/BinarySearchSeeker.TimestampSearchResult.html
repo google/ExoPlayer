@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9};
+var data = {"i0":9,"i1":9,"i2":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html" title="interface in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" target="_top">Frames</a></li>
-<li><a href="BinarySearchSeeker.TimestampSearchResult.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/package-summary.html">com.google.android.exoplayer2.extractor</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor</a></div>
 <h2 title="Class BinarySearchSeeker.TimestampSearchResult" class="title">Class BinarySearchSeeker.TimestampSearchResult</h2>
 </div>
 <div class="contentContainer">
@@ -131,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></dd>
+<dd><a href="BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">BinarySearchSeeker.TimestampSearchResult</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Represents possible search results for <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-"><code>BinarySearchSeeker.TimestampSeeker.searchForTimestamp(ExtractorInput, long)</code></a>.</div>
+<div class="block">Represents possible search results for <a href="BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp(com.google.android.exoplayer2.extractor.ExtractorInput,long)"><code>BinarySearchSeeker.TimestampSeeker.searchForTimestamp(ExtractorInput, long)</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -144,12 +143,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -157,34 +157,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#NO_TIMESTAMP_IN_RANGE_RESULT">NO_TIMESTAMP_IN_RANGE_RESULT</a></span></code></th>
+<td class="colFirst"><code>static <a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NO_TIMESTAMP_IN_RANGE_RESULT">NO_TIMESTAMP_IN_RANGE_RESULT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_NO_TIMESTAMP">TYPE_NO_TIMESTAMP</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_NO_TIMESTAMP">TYPE_NO_TIMESTAMP</a></span></code></th>
 <td class="colLast">
 <div class="block">The search didn't find any timestamps.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_POSITION_OVERESTIMATED">TYPE_POSITION_OVERESTIMATED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_POSITION_OVERESTIMATED">TYPE_POSITION_OVERESTIMATED</a></span></code></th>
 <td class="colLast">
 <div class="block">The search found only timestamps larger than the target timestamp.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_POSITION_UNDERESTIMATED">TYPE_POSITION_UNDERESTIMATED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_POSITION_UNDERESTIMATED">TYPE_POSITION_UNDERESTIMATED</a></span></code></th>
 <td class="colLast">
 <div class="block">The search found only timestamps smaller than the target timestamp.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_TARGET_TIMESTAMP_FOUND">TYPE_TARGET_TIMESTAMP_FOUND</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_TARGET_TIMESTAMP_FOUND">TYPE_TARGET_TIMESTAMP_FOUND</a></span></code></th>
 <td class="colLast">
 <div class="block">The search found a timestamp that it deems close enough to the given target.</div>
 </td>
@@ -192,13 +192,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -206,43 +208,44 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#overestimatedResult-long-long-">overestimatedResult</a></span>&#8203;(long&nbsp;newCeilingTimestamp,
+<td class="colFirst"><code>static <a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#overestimatedResult(long,long)">overestimatedResult</a></span>&#8203;(long&nbsp;newCeilingTimestamp,
                    long&nbsp;newCeilingBytePosition)</code></th>
 <td class="colLast">
 <div class="block">Returns a result to signal that the current position in the input stream overestimates the
- true position of the target frame, and the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
- <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s ceiling timestamp and byte position using the given values.</div>
+ true position of the target frame, and the <a href="BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
+ <a href="BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s ceiling timestamp and byte position using the given values.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#targetFoundResult-long-">targetFoundResult</a></span>&#8203;(long&nbsp;resultBytePosition)</code></th>
+<td class="colFirst"><code>static <a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetFoundResult(long)">targetFoundResult</a></span>&#8203;(long&nbsp;resultBytePosition)</code></th>
 <td class="colLast">
 <div class="block">Returns a result to signal that the target timestamp has been found at <code>
  resultBytePosition</code>, and the seek operation can stop.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#underestimatedResult-long-long-">underestimatedResult</a></span>&#8203;(long&nbsp;newFloorTimestamp,
+<td class="colFirst"><code>static <a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#underestimatedResult(long,long)">underestimatedResult</a></span>&#8203;(long&nbsp;newFloorTimestamp,
                     long&nbsp;newCeilingBytePosition)</code></th>
 <td class="colLast">
 <div class="block">Returns a result to signal that the current position in the input stream underestimates the
- true position of the target frame, and the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
- <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s floor timestamp and byte position using the given values.</div>
+ true position of the target frame, and the <a href="BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
+ <a href="BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s floor timestamp and byte position using the given values.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -250,12 +253,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="TYPE_TARGET_TIMESTAMP_FOUND">
+<a id="TYPE_TARGET_TIMESTAMP_FOUND">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -269,7 +273,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_POSITION_OVERESTIMATED">
+<a id="TYPE_POSITION_OVERESTIMATED">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -283,7 +287,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_POSITION_UNDERESTIMATED">
+<a id="TYPE_POSITION_UNDERESTIMATED">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -297,7 +301,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_NO_TIMESTAMP">
+<a id="TYPE_NO_TIMESTAMP">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -311,77 +315,83 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="NO_TIMESTAMP_IN_RANGE_RESULT">
+<a id="NO_TIMESTAMP_IN_RANGE_RESULT">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>NO_TIMESTAMP_IN_RANGE_RESULT</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a> NO_TIMESTAMP_IN_RANGE_RESULT</pre>
+<pre>public static final&nbsp;<a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a> NO_TIMESTAMP_IN_RANGE_RESULT</pre>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="overestimatedResult-long-long-">
+<a id="overestimatedResult(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>overestimatedResult</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;overestimatedResult&#8203;(long&nbsp;newCeilingTimestamp,
+<pre class="methodSignature">public static&nbsp;<a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;overestimatedResult&#8203;(long&nbsp;newCeilingTimestamp,
                                                                            long&nbsp;newCeilingBytePosition)</pre>
 <div class="block">Returns a result to signal that the current position in the input stream overestimates the
- true position of the target frame, and the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
- <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s ceiling timestamp and byte position using the given values.</div>
+ true position of the target frame, and the <a href="BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
+ <a href="BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s ceiling timestamp and byte position using the given values.</div>
 </li>
 </ul>
-<a name="underestimatedResult-long-long-">
+<a id="underestimatedResult(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>underestimatedResult</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;underestimatedResult&#8203;(long&nbsp;newFloorTimestamp,
+<pre class="methodSignature">public static&nbsp;<a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;underestimatedResult&#8203;(long&nbsp;newFloorTimestamp,
                                                                             long&nbsp;newCeilingBytePosition)</pre>
 <div class="block">Returns a result to signal that the current position in the input stream underestimates the
- true position of the target frame, and the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
- <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s floor timestamp and byte position using the given values.</div>
+ true position of the target frame, and the <a href="BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a> should modify its
+ <a href="BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekOperationParams</code></a>'s floor timestamp and byte position using the given values.</div>
 </li>
 </ul>
-<a name="targetFoundResult-long-">
+<a id="targetFoundResult(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>targetFoundResult</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;targetFoundResult&#8203;(long&nbsp;resultBytePosition)</pre>
+<pre class="methodSignature">public static&nbsp;<a href="BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;targetFoundResult&#8203;(long&nbsp;resultBytePosition)</pre>
 <div class="block">Returns a result to signal that the target timestamp has been found at <code>
  resultBytePosition</code>, and the seek operation can stop.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -391,16 +401,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html" title="interface in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" target="_top">Frames</a></li>
-<li><a href="BinarySearchSeeker.TimestampSearchResult.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -432,9 +434,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

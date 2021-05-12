@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" target="_top">Frames</a></li>
-<li><a href="ActionSchedule.Builder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Class ActionSchedule.Builder" class="title">Class ActionSchedule.Builder</h2>
 </div>
 <div class="contentContainer">
@@ -131,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a></dd>
+<dd><a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">ActionSchedule.Builder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> instances.</div>
+<div class="block">A builder for <a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> instances.</div>
 </li>
 </ul>
 </div>
@@ -144,31 +143,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#Builder-java.lang.String-">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -176,93 +178,93 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#addMediaSources-com.google.android.exoplayer2.source.MediaSource...-">addMediaSources</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addMediaSources(com.google.android.exoplayer2.source.MediaSource...)">addMediaSources</a></span>&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
 <td class="colLast">
 <div class="block">Schedules a add media items action to be executed.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#apply-com.google.android.exoplayer2.testutil.Action-">apply</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#apply(com.google.android.exoplayer2.testutil.Action)">apply</a></span>&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action)</code></th>
 <td class="colLast">
 <div class="block">Schedules an action.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#build--">build</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Builds the schedule.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#clearMediaItems--">clearMediaItems</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearMediaItems()">clearMediaItems</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a clear media items action to be created.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#clearVideoSurface--">clearVideoSurface</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoSurface()">clearVideoSurface</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a clear video surface action.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#delay-long-">delay</a></span>&#8203;(long&nbsp;delayMs)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#delay(long)">delay</a></span>&#8203;(long&nbsp;delayMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay between executing any previous actions and any subsequent ones.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#disableRenderer-int-">disableRenderer</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disableRenderer(int)">disableRenderer</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Schedules a renderer disable action.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#enableRenderer-int-">enableRenderer</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableRenderer(int)">enableRenderer</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Schedules a renderer enable action.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#executeRunnable-java.lang.Runnable-">executeRunnable</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#executeRunnable(java.lang.Runnable)">executeRunnable</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</code></th>
 <td class="colLast">
 <div class="block">Schedules a <a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Runnable</code></a>.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#moveMediaItem-int-int-">moveMediaItem</a></span>&#8203;(int&nbsp;currentIndex,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveMediaItem(int,int)">moveMediaItem</a></span>&#8203;(int&nbsp;currentIndex,
              int&nbsp;newIndex)</code></th>
 <td class="colLast">
 <div class="block">Schedules a move media item action to be executed.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#pause--">pause</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pause()">pause</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a pause action.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#play--">play</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#play()">play</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a play action.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#playUntilPosition-int-long-">playUntilPosition</a></span>&#8203;(int&nbsp;windowIndex,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilPosition(int,long)">playUntilPosition</a></span>&#8203;(int&nbsp;windowIndex,
                  long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a play action, waits until the player reaches the specified position, and pauses
@@ -270,54 +272,54 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#playUntilStartOfWindow-int-">playUntilStartOfWindow</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilStartOfWindow(int)">playUntilStartOfWindow</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
 <td class="colLast">
 <div class="block">Schedules a play action, waits until the player reaches the start of the specified window,
  and pauses the player again.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#prepare--">prepare</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepare()">prepare</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a prepare action to be executed.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#removeMediaItem-int-">removeMediaItem</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeMediaItem(int)">removeMediaItem</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Schedules a remove media item action to be executed.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#removeMediaItems-int-int-">removeMediaItems</a></span>&#8203;(int&nbsp;fromIndex,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeMediaItems(int,int)">removeMediaItems</a></span>&#8203;(int&nbsp;fromIndex,
                 int&nbsp;toIndex)</code></th>
 <td class="colLast">
 <div class="block">Schedules a remove media items action to be executed.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#repeat-com.google.android.exoplayer2.testutil.Action-long-">repeat</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#repeat(com.google.android.exoplayer2.testutil.Action,long)">repeat</a></span>&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action,
       long&nbsp;intervalMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules an action repeatedly.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#seek-int-long-">seek</a></span>&#8203;(int&nbsp;windowIndex,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(int,long)">seek</a></span>&#8203;(int&nbsp;windowIndex,
     long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a seek action.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#seek-int-long-boolean-">seek</a></span>&#8203;(int&nbsp;windowIndex,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(int,long,boolean)">seek</a></span>&#8203;(int&nbsp;windowIndex,
     long&nbsp;positionMs,
     boolean&nbsp;catchIllegalSeekException)</code></th>
 <td class="colLast">
@@ -325,186 +327,186 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i20" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#seek-long-">seek</a></span>&#8203;(long&nbsp;positionMs)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long)">seek</a></span>&#8203;(long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a seek action.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#seekAndWait-long-">seekAndWait</a></span>&#8203;(long&nbsp;positionMs)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekAndWait(long)">seekAndWait</a></span>&#8203;(long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a seek action and waits until playback resumes after the seek.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#sendMessage-com.google.android.exoplayer2.PlayerMessage.Target-int-long-">sendMessage</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,int,long)">sendMessage</a></span>&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
            int&nbsp;windowIndex,
            long&nbsp;positionMs)</code></th>
 <td class="colLast">
-<div class="block">Schedules sending a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
+<div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#sendMessage-com.google.android.exoplayer2.PlayerMessage.Target-int-long-boolean-">sendMessage</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,int,long,boolean)">sendMessage</a></span>&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
            int&nbsp;windowIndex,
            long&nbsp;positionMs,
            boolean&nbsp;deleteAfterDelivery)</code></th>
 <td class="colLast">
-<div class="block">Schedules to send a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
+<div class="block">Schedules to send a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#sendMessage-com.google.android.exoplayer2.PlayerMessage.Target-long-">sendMessage</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,long)">sendMessage</a></span>&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
            long&nbsp;positionMs)</code></th>
 <td class="colLast">
-<div class="block">Schedules sending a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
+<div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-boolean-">setAudioAttributes</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">setAudioAttributes</a></span>&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
                   boolean&nbsp;handleAudioFocus)</code></th>
 <td class="colLast">
 <div class="block">Schedules application of audio attributes.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setMediaSources-boolean-com.google.android.exoplayer2.source.MediaSource...-">setMediaSources</a></span>&#8203;(boolean&nbsp;resetPosition,
-               <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSources(boolean,com.google.android.exoplayer2.source.MediaSource...)">setMediaSources</a></span>&#8203;(boolean&nbsp;resetPosition,
+               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
 <td class="colLast">
 <div class="block">Schedules a set media items action to be executed.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setMediaSources-int-long-com.google.android.exoplayer2.source.MediaSource...-">setMediaSources</a></span>&#8203;(int&nbsp;windowIndex,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSources(int,long,com.google.android.exoplayer2.source.MediaSource...)">setMediaSources</a></span>&#8203;(int&nbsp;windowIndex,
                long&nbsp;positionMs,
-               <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
+               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
 <td class="colLast">
 <div class="block">Schedules a set media items action to be executed.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setMediaSources-com.google.android.exoplayer2.source.MediaSource...-">setMediaSources</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSources(com.google.android.exoplayer2.source.MediaSource...)">setMediaSources</a></span>&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
 <td class="colLast">
 <div class="block">Schedules a set media items action to be executed.</div>
 </td>
 </tr>
 <tr id="i29" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a></span>&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
 <div class="block">Schedules a playback parameters setting action.</div>
 </td>
 </tr>
 <tr id="i30" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setRepeatMode-int-">setRepeatMode</a></span>&#8203;(int&nbsp;repeatMode)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatMode(int)">setRepeatMode</a></span>&#8203;(int&nbsp;repeatMode)</code></th>
 <td class="colLast">
 <div class="block">Schedules a repeat mode setting action.</div>
 </td>
 </tr>
 <tr id="i31" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShuffleModeEnabled(boolean)">setShuffleModeEnabled</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Schedules a shuffle setting action to be executed.</div>
 </td>
 </tr>
 <tr id="i32" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-">setShuffleOrder</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShuffleOrder(com.google.android.exoplayer2.source.ShuffleOrder)">setShuffleOrder</a></span>&#8203;(<a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</code></th>
 <td class="colLast">
 <div class="block">Schedules a set shuffle order action to be executed.</div>
 </td>
 </tr>
 <tr id="i33" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#setVideoSurface--">setVideoSurface</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurface()">setVideoSurface</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a set video surface action.</div>
 </td>
 </tr>
 <tr id="i34" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#stop--">stop</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a stop action.</div>
 </td>
 </tr>
 <tr id="i35" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#stop-boolean-">stop</a></span>&#8203;(boolean&nbsp;reset)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop(boolean)">stop</a></span>&#8203;(boolean&nbsp;reset)</code></th>
 <td class="colLast">
 <div class="block">Schedules a stop action.</div>
 </td>
 </tr>
 <tr id="i36" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#throwPlaybackException-com.google.android.exoplayer2.ExoPlaybackException-">throwPlaybackException</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;exception)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#throwPlaybackException(com.google.android.exoplayer2.ExoPlaybackException)">throwPlaybackException</a></span>&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;exception)</code></th>
 <td class="colLast">
 <div class="block">Schedules to throw a playback exception on the playback thread.</div>
 </td>
 </tr>
 <tr id="i37" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForIsLoading-boolean-">waitForIsLoading</a></span>&#8203;(boolean&nbsp;targetIsLoading)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForIsLoading(boolean)">waitForIsLoading</a></span>&#8203;(boolean&nbsp;targetIsLoading)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until <code>player.isLoading()</code> changes to the specified value.</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForMessage-com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget-">waitForMessage</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget</a>&nbsp;playerTarget)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForMessage(com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget)">waitForMessage</a></span>&#8203;(<a href="ActionSchedule.PlayerTarget.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget</a>&nbsp;playerTarget)</code></th>
 <td class="colLast">
-<div class="block">Schedules a delay until a message arrives at the <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
+<div class="block">Schedules a delay until a message arrives at the <a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
 </td>
 </tr>
 <tr id="i39" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForPendingPlayerCommands--">waitForPendingPlayerCommands</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForPendingPlayerCommands()">waitForPendingPlayerCommands</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until all pending player commands have been handled.</div>
 </td>
 </tr>
 <tr id="i40" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForPlaybackState-int-">waitForPlaybackState</a></span>&#8203;(int&nbsp;targetPlaybackState)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForPlaybackState(int)">waitForPlaybackState</a></span>&#8203;(int&nbsp;targetPlaybackState)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until the playback state changed to the specified state.</div>
 </td>
 </tr>
 <tr id="i41" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForPlayWhenReady-boolean-">waitForPlayWhenReady</a></span>&#8203;(boolean&nbsp;targetPlayWhenReady)</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForPlayWhenReady(boolean)">waitForPlayWhenReady</a></span>&#8203;(boolean&nbsp;targetPlayWhenReady)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until playWhenReady has the specified value.</div>
 </td>
 </tr>
 <tr id="i42" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForPositionDiscontinuity--">waitForPositionDiscontinuity</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForPositionDiscontinuity()">waitForPositionDiscontinuity</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until the next position discontinuity.</div>
 </td>
 </tr>
 <tr id="i43" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForTimelineChanged--">waitForTimelineChanged</a></span>()</code></th>
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForTimelineChanged()">waitForTimelineChanged</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until any timeline change.</div>
 </td>
 </tr>
 <tr id="i44" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html#waitForTimelineChanged-com.google.android.exoplayer2.Timeline-int-">waitForTimelineChanged</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
+<td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForTimelineChanged(com.google.android.exoplayer2.Timeline,int)">waitForTimelineChanged</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                       int&nbsp;expectedReason)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until the timeline changed to a specified expected timeline.</div>
@@ -512,14 +514,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -527,12 +530,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Builder-java.lang.String-">
+<a id="&lt;init&gt;(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -547,19 +551,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="delay-long-">
+<a id="delay(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>delay</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;delay&#8203;(long&nbsp;delayMs)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;delay&#8203;(long&nbsp;delayMs)</pre>
 <div class="block">Schedules a delay between executing any previous actions and any subsequent ones.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -569,13 +575,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="apply-com.google.android.exoplayer2.testutil.Action-">
+<a id="apply(com.google.android.exoplayer2.testutil.Action)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>apply</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;apply&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;apply&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action)</pre>
 <div class="block">Schedules an action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -585,13 +591,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="repeat-com.google.android.exoplayer2.testutil.Action-long-">
+<a id="repeat(com.google.android.exoplayer2.testutil.Action,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>repeat</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;repeat&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;repeat&#8203;(<a href="Action.html" title="class in com.google.android.exoplayer2.testutil">Action</a>&nbsp;action,
                                      long&nbsp;intervalMs)</pre>
 <div class="block">Schedules an action repeatedly.</div>
 <dl>
@@ -603,13 +609,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="seek-long-">
+<a id="seek(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(long&nbsp;positionMs)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(long&nbsp;positionMs)</pre>
 <div class="block">Schedules a seek action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -619,13 +625,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="seek-int-long-">
+<a id="seek(int,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;windowIndex,
                                    long&nbsp;positionMs)</pre>
 <div class="block">Schedules a seek action.</div>
 <dl>
@@ -637,13 +643,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="seek-int-long-boolean-">
+<a id="seek(int,long,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;windowIndex,
                                    long&nbsp;positionMs,
                                    boolean&nbsp;catchIllegalSeekException)</pre>
 <div class="block">Schedules a seek action to be executed.</div>
@@ -657,13 +663,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="seekAndWait-long-">
+<a id="seekAndWait(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>seekAndWait</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seekAndWait&#8203;(long&nbsp;positionMs)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seekAndWait&#8203;(long&nbsp;positionMs)</pre>
 <div class="block">Schedules a seek action and waits until playback resumes after the seek.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -673,13 +679,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForPendingPlayerCommands--">
+<a id="waitForPendingPlayerCommands()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPendingPlayerCommands</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPendingPlayerCommands()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPendingPlayerCommands()</pre>
 <div class="block">Schedules a delay until all pending player commands have been handled.
 
  <p>A command is considered as having been handled if it arrived on the playback thread and
@@ -690,13 +696,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">
+<a id="setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setPlaybackParameters&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block">Schedules a playback parameters setting action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -704,17 +710,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a></dd>
+<dd><a href="../Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="stop--">
+<a id="stop()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop()</pre>
 <div class="block">Schedules a stop action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -722,13 +728,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="stop-boolean-">
+<a id="stop(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <div class="block">Schedules a stop action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -738,13 +744,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="play--">
+<a id="play()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>play</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;play()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;play()</pre>
 <div class="block">Schedules a play action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -752,13 +758,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="playUntilPosition-int-long-">
+<a id="playUntilPosition(int,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>playUntilPosition</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilPosition&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilPosition&#8203;(int&nbsp;windowIndex,
                                                 long&nbsp;positionMs)</pre>
 <div class="block">Schedules a play action, waits until the player reaches the specified position, and pauses
  the player again.</div>
@@ -771,13 +777,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="playUntilStartOfWindow-int-">
+<a id="playUntilStartOfWindow(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>playUntilStartOfWindow</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilStartOfWindow&#8203;(int&nbsp;windowIndex)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilStartOfWindow&#8203;(int&nbsp;windowIndex)</pre>
 <div class="block">Schedules a play action, waits until the player reaches the start of the specified window,
  and pauses the player again.</div>
 <dl>
@@ -788,13 +794,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="pause--">
+<a id="pause()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>pause</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;pause()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;pause()</pre>
 <div class="block">Schedules a pause action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -802,13 +808,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="enableRenderer-int-">
+<a id="enableRenderer(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>enableRenderer</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;enableRenderer&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;enableRenderer&#8203;(int&nbsp;index)</pre>
 <div class="block">Schedules a renderer enable action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -816,13 +822,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="disableRenderer-int-">
+<a id="disableRenderer(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>disableRenderer</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;disableRenderer&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;disableRenderer&#8203;(int&nbsp;index)</pre>
 <div class="block">Schedules a renderer disable action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -830,13 +836,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="clearVideoSurface--">
+<a id="clearVideoSurface()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearVideoSurface</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearVideoSurface()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearVideoSurface()</pre>
 <div class="block">Schedules a clear video surface action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -844,13 +850,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setVideoSurface--">
+<a id="setVideoSurface()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoSurface</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setVideoSurface()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setVideoSurface()</pre>
 <div class="block">Schedules a set video surface action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -858,13 +864,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-boolean-">
+<a id="setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioAttributes</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
                                                  boolean&nbsp;handleAudioFocus)</pre>
 <div class="block">Schedules application of audio attributes.</div>
 <dl>
@@ -873,36 +879,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setMediaSources-int-long-com.google.android.exoplayer2.source.MediaSource...-">
+<a id="setMediaSources(int,long,com.google.android.exoplayer2.source.MediaSource...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;windowIndex,
                                               long&nbsp;positionMs,
-                                              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
+                                              <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window index to start playback from or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the
+<dd><code>windowIndex</code> - The window index to start playback from or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the
      playback position should not be reset.</dd>
-<dd><code>positionMs</code> - The position in milliseconds from where playback should start. If <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is passed the default position is used. In any case, if <code>windowIndex</code>
-     is set to <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> the position is not reset at all and this parameter is
+<dd><code>positionMs</code> - The position in milliseconds from where playback should start. If <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is passed the default position is used. In any case, if <code>windowIndex</code>
+     is set to <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> the position is not reset at all and this parameter is
      ignored.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a name="setMediaSources-boolean-com.google.android.exoplayer2.source.MediaSource...-">
+<a id="setMediaSources(boolean,com.google.android.exoplayer2.source.MediaSource...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(boolean&nbsp;resetPosition,
-                                              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(boolean&nbsp;resetPosition,
+                                              <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -912,13 +918,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setMediaSources-com.google.android.exoplayer2.source.MediaSource...-">
+<a id="setMediaSources(com.google.android.exoplayer2.source.MediaSource...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -928,13 +934,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="addMediaSources-com.google.android.exoplayer2.source.MediaSource...-">
+<a id="addMediaSources(com.google.android.exoplayer2.source.MediaSource...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaSources</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;addMediaSources&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;addMediaSources&#8203;(<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
 <div class="block">Schedules a add media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -944,13 +950,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="moveMediaItem-int-int-">
+<a id="moveMediaItem(int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>moveMediaItem</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;moveMediaItem&#8203;(int&nbsp;currentIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;moveMediaItem&#8203;(int&nbsp;currentIndex,
                                             int&nbsp;newIndex)</pre>
 <div class="block">Schedules a move media item action to be executed.</div>
 <dl>
@@ -962,13 +968,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="removeMediaItem-int-">
+<a id="removeMediaItem(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>removeMediaItem</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItem&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItem&#8203;(int&nbsp;index)</pre>
 <div class="block">Schedules a remove media item action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -978,13 +984,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="removeMediaItems-int-int-">
+<a id="removeMediaItems(int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>removeMediaItems</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItems&#8203;(int&nbsp;fromIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;removeMediaItems&#8203;(int&nbsp;fromIndex,
                                                int&nbsp;toIndex)</pre>
 <div class="block">Schedules a remove media items action to be executed.</div>
 <dl>
@@ -996,13 +1002,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="prepare--">
+<a id="prepare()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepare</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;prepare()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;prepare()</pre>
 <div class="block">Schedules a prepare action to be executed.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1010,13 +1016,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="clearMediaItems--">
+<a id="clearMediaItems()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearMediaItems</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearMediaItems()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;clearMediaItems()</pre>
 <div class="block">Schedules a clear media items action to be created.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1024,13 +1030,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setRepeatMode-int-">
+<a id="setRepeatMode(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatMode</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setRepeatMode&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setRepeatMode&#8203;(<a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                             int&nbsp;repeatMode)</pre>
 <div class="block">Schedules a repeat mode setting action.</div>
 <dl>
@@ -1039,13 +1045,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-">
+<a id="setShuffleOrder(com.google.android.exoplayer2.source.ShuffleOrder)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setShuffleOrder</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleOrder&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleOrder&#8203;(<a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
 <div class="block">Schedules a set shuffle order action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1055,13 +1061,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setShuffleModeEnabled-boolean-">
+<a id="setShuffleModeEnabled(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setShuffleModeEnabled</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleModeEnabled&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setShuffleModeEnabled&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
 <div class="block">Schedules a shuffle setting action to be executed.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1069,15 +1075,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="sendMessage-com.google.android.exoplayer2.PlayerMessage.Target-long-">
+<a id="sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sendMessage</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                                           long&nbsp;positionMs)</pre>
-<div class="block">Schedules sending a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
+<div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionMs</code> - The position in the current window at which the message should be sent, in
@@ -1087,16 +1093,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="sendMessage-com.google.android.exoplayer2.PlayerMessage.Target-int-long-">
+<a id="sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,int,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sendMessage</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                                           int&nbsp;windowIndex,
                                           long&nbsp;positionMs)</pre>
-<div class="block">Schedules sending a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
+<div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A message target.</dd>
@@ -1107,17 +1113,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="sendMessage-com.google.android.exoplayer2.PlayerMessage.Target-int-long-boolean-">
+<a id="sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,int,long,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sendMessage</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                                           int&nbsp;windowIndex,
                                           long&nbsp;positionMs,
                                           boolean&nbsp;deleteAfterDelivery)</pre>
-<div class="block">Schedules to send a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
+<div class="block">Schedules to send a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A message target.</dd>
@@ -1129,13 +1135,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForTimelineChanged--">
+<a id="waitForTimelineChanged()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForTimelineChanged</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged()</pre>
 <div class="block">Schedules a delay until any timeline change.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1143,14 +1149,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForTimelineChanged-com.google.android.exoplayer2.Timeline-int-">
+<a id="waitForTimelineChanged(com.google.android.exoplayer2.Timeline,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForTimelineChanged</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
-                                                     <a href="../../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
+                                                     <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
                                                      int&nbsp;expectedReason)</pre>
 <div class="block">Schedules a delay until the timeline changed to a specified expected timeline.</div>
 <dl>
@@ -1162,13 +1168,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForPositionDiscontinuity--">
+<a id="waitForPositionDiscontinuity()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPositionDiscontinuity</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPositionDiscontinuity()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPositionDiscontinuity()</pre>
 <div class="block">Schedules a delay until the next position discontinuity.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1176,13 +1182,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForPlayWhenReady-boolean-">
+<a id="waitForPlayWhenReady(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPlayWhenReady</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlayWhenReady&#8203;(boolean&nbsp;targetPlayWhenReady)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlayWhenReady&#8203;(boolean&nbsp;targetPlayWhenReady)</pre>
 <div class="block">Schedules a delay until playWhenReady has the specified value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1192,13 +1198,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForPlaybackState-int-">
+<a id="waitForPlaybackState(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPlaybackState</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlaybackState&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlaybackState&#8203;(<a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
                                                    int&nbsp;targetPlaybackState)</pre>
 <div class="block">Schedules a delay until the playback state changed to the specified state.</div>
 <dl>
@@ -1209,13 +1215,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForIsLoading-boolean-">
+<a id="waitForIsLoading(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForIsLoading</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForIsLoading&#8203;(boolean&nbsp;targetIsLoading)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForIsLoading&#8203;(boolean&nbsp;targetIsLoading)</pre>
 <div class="block">Schedules a delay until <code>player.isLoading()</code> changes to the specified value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1225,14 +1231,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="waitForMessage-com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget-">
+<a id="waitForMessage(com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForMessage</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForMessage&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget</a>&nbsp;playerTarget)</pre>
-<div class="block">Schedules a delay until a message arrives at the <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForMessage&#8203;(<a href="ActionSchedule.PlayerTarget.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget</a>&nbsp;playerTarget)</pre>
+<div class="block">Schedules a delay until a message arrives at the <a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playerTarget</code> - The target to observe.</dd>
@@ -1241,13 +1247,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="executeRunnable-java.lang.Runnable-">
+<a id="executeRunnable(java.lang.Runnable)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>executeRunnable</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;executeRunnable&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;executeRunnable&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</pre>
 <div class="block">Schedules a <a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Runnable</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1255,13 +1261,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="throwPlaybackException-com.google.android.exoplayer2.ExoPlaybackException-">
+<a id="throwPlaybackException(com.google.android.exoplayer2.ExoPlaybackException)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>throwPlaybackException</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;throwPlaybackException&#8203;(<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;exception)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;throwPlaybackException&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;exception)</pre>
 <div class="block">Schedules to throw a playback exception on the playback thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1271,33 +1277,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="build--">
+<a id="build()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a>&nbsp;build()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a>&nbsp;build()</pre>
 <div class="block">Builds the schedule.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -1307,16 +1317,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ActionSchedule.Builder.html" target="_top">Frames</a></li>
-<li><a href="ActionSchedule.Builder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -1348,9 +1350,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

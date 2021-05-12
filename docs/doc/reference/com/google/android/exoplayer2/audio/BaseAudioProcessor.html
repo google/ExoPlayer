@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/BaseAudioProcessor.html" target="_top">Frames</a></li>
-<li><a href="BaseAudioProcessor.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -90,7 +86,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
 <h2 title="Class BaseAudioProcessor" class="title">Class BaseAudioProcessor</h2>
 </div>
 <div class="contentContainer">
@@ -131,18 +130,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></code></dd>
+<dd><code><a href="SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></code>, <code><a href="TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></code></dd>
 </dl>
 <hr>
 <pre>public abstract class <span class="typeNameLabel">BaseAudioProcessor</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></pre>
+implements <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></pre>
 <div class="block">Base class for audio processors that keep an output buffer and an internal buffer that is reused
- whenever input is queued. Subclasses should override <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onConfigure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-"><code>onConfigure(AudioFormat)</code></a> to return
+ whenever input is queued. Subclasses should override <a href="#onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)"><code>onConfigure(AudioFormat)</code></a> to return
  the output audio format for the processor if it's active.</div>
 </li>
 </ul>
@@ -151,27 +150,30 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.audio.AudioProcessor">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.audio.AudioProcessor">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></h3>
+<code><a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>, <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -179,55 +181,59 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#inputAudioFormat">inputAudioFormat</a></span></code></th>
+<td class="colFirst"><code>protected <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputAudioFormat">inputAudioFormat</a></span></code></th>
 <td class="colLast">
 <div class="block">The current input audio format.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#outputAudioFormat">outputAudioFormat</a></span></code></th>
+<td class="colFirst"><code>protected <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#outputAudioFormat">outputAudioFormat</a></span></code></th>
 <td class="colLast">
 <div class="block">The current output audio format.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.audio.AudioProcessor">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.audio.AudioProcessor">
 <!--   -->
 </a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#EMPTY_BUFFER">EMPTY_BUFFER</a></code></li>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></h3>
+<code><a href="AudioProcessor.html#EMPTY_BUFFER">EMPTY_BUFFER</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#BaseAudioProcessor--">BaseAudioProcessor</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">BaseAudioProcessor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -235,86 +241,86 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">configure</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
+<td class="colFirst"><code><a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">configure</a></span>&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
 <td class="colLast">
 <div class="block">Configures the processor to process input audio with the specified format.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#flush--">flush</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Clears any buffered data and pending output.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#getOutput--">getOutput</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutput()">getOutput</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a buffer containing processed output data between its position and limit.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#hasPendingOutput--">hasPendingOutput</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPendingOutput()">hasPendingOutput</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the current output buffer has any data remaining.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#isActive--">isActive</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isActive()">isActive</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#isEnded--">isEnded</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether this processor will return no more output from <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--"><code>AudioProcessor.getOutput()</code></a> until it
- has been <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
+<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until it
+ has been <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onConfigure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">onConfigure</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
+<td class="colFirst"><code>protected <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">onConfigure</a></span>&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
 <td class="colLast">
 <div class="block">Called when the processor is configured for a new input format.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onFlush--">onFlush</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFlush()">onFlush</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onQueueEndOfStream--">onQueueEndOfStream</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onQueueEndOfStream()">onQueueEndOfStream</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onReset--">onReset</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the processor is reset.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#queueEndOfStream--">queueEndOfStream</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueEndOfStream()">queueEndOfStream</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Queues an end of stream signal.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#replaceOutputBuffer-int-">replaceOutputBuffer</a></span>&#8203;(int&nbsp;count)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceOutputBuffer(int)">replaceOutputBuffer</a></span>&#8203;(int&nbsp;count)</code></th>
 <td class="colLast">
 <div class="block">Replaces the current output buffer with a buffer of at least <code>count</code> bytes and returns
  it.</div>
@@ -322,28 +328,29 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#reset--">reset</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.audio.AudioProcessor">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueInput-java.nio.ByteBuffer-">queueInput</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.audio.AudioProcessor">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></h3>
+<code><a href="AudioProcessor.html#queueInput(java.nio.ByteBuffer)">queueInput</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -351,40 +358,43 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="inputAudioFormat">
+<a id="inputAudioFormat">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>inputAudioFormat</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> inputAudioFormat</pre>
+<pre>protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> inputAudioFormat</pre>
 <div class="block">The current input audio format.</div>
 </li>
 </ul>
-<a name="outputAudioFormat">
+<a id="outputAudioFormat">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>outputAudioFormat</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> outputAudioFormat</pre>
+<pre>protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> outputAudioFormat</pre>
 <div class="block">The current output audio format.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="BaseAudioProcessor--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -395,227 +405,233 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">
+<a id="configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
-                                           throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">AudioProcessor</a></code></span></div>
+<pre class="methodSignature">public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+                                           throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">AudioProcessor</a></code></span></div>
 <div class="block">Configures the processor to process input audio with the specified format. After calling this
- method, call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--"><code>AudioProcessor.isActive()</code></a> to determine whether the audio processor is active. Returns
+ method, call <a href="AudioProcessor.html#isActive()"><code>AudioProcessor.isActive()</code></a> to determine whether the audio processor is active. Returns
  the configured output audio format if this instance is active.
 
- <p>After calling this method, it is necessary to <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>AudioProcessor.flush()</code></a> the processor to apply the
+ <p>After calling this method, it is necessary to <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> the processor to apply the
  new configuration. Before applying the new configuration, it is safe to queue input and get
- output in the old input/output formats. Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueEndOfStream--"><code>AudioProcessor.queueEndOfStream()</code></a> when no more input
+ output in the old input/output formats. Call <a href="AudioProcessor.html#queueEndOfStream()"><code>AudioProcessor.queueEndOfStream()</code></a> when no more input
  will be supplied in the old input format.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">configure</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">configure</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputAudioFormat</code> - The format of audio that will be queued after the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>AudioProcessor.flush()</code></a>.</dd>
+<dd><code>inputAudioFormat</code> - The format of audio that will be queued after the next call to <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The configured output audio format if this instance is <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--"><code>active</code></a>.</dd>
+<dd>The configured output audio format if this instance is <a href="AudioProcessor.html#isActive()"><code>active</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code> - Thrown if the specified format can't be handled as input.</dd>
+<dd><code><a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code> - Thrown if the specified format can't be handled as input.</dd>
 </dl>
 </li>
 </ul>
-<a name="isActive--">
+<a id="isActive()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isActive</h4>
-<pre>public&nbsp;boolean&nbsp;isActive()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--">AudioProcessor</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isActive()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#isActive()">AudioProcessor</a></code></span></div>
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isActive--">isActive</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#isActive()">isActive</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="queueEndOfStream--">
+<a id="queueEndOfStream()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>queueEndOfStream</h4>
-<pre>public final&nbsp;void&nbsp;queueEndOfStream()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueEndOfStream--">AudioProcessor</a></code></span></div>
+<pre class="methodSignature">public final&nbsp;void&nbsp;queueEndOfStream()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#queueEndOfStream()">AudioProcessor</a></code></span></div>
 <div class="block">Queues an end of stream signal. After this method has been called,
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueInput-java.nio.ByteBuffer-"><code>AudioProcessor.queueInput(ByteBuffer)</code></a> may not be called until after the next call to
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>AudioProcessor.flush()</code></a>. Calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--"><code>AudioProcessor.getOutput()</code></a> will return any remaining output data. Multiple
- calls may be required to read all of the remaining output data. <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isEnded--"><code>AudioProcessor.isEnded()</code></a> will return
+ <a href="AudioProcessor.html#queueInput(java.nio.ByteBuffer)"><code>AudioProcessor.queueInput(ByteBuffer)</code></a> may not be called until after the next call to
+ <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>. Calling <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> will return any remaining output data. Multiple
+ calls may be required to read all of the remaining output data. <a href="AudioProcessor.html#isEnded()"><code>AudioProcessor.isEnded()</code></a> will return
  <code>true</code> once all remaining output data has been read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#queueEndOfStream--">queueEndOfStream</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#queueEndOfStream()">queueEndOfStream</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getOutput--">
+<a id="getOutput()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getOutput</h4>
-<pre>@CallSuper
+<pre class="methodSignature">@CallSuper
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getOutput()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--">AudioProcessor</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#getOutput()">AudioProcessor</a></code></span></div>
 <div class="block">Returns a buffer containing processed output data between its position and limit. The buffer
  will always be a direct byte buffer with native byte order. Calling this method invalidates any
  previously returned buffer. The buffer will be empty if no output is available.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--">getOutput</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#getOutput()">getOutput</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A buffer containing processed output data between its position and limit.</dd>
 </dl>
 </li>
 </ul>
-<a name="isEnded--">
+<a id="isEnded()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isEnded</h4>
-<pre>@CallSuper
+<pre class="methodSignature">@CallSuper
 public&nbsp;boolean&nbsp;isEnded()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isEnded--">AudioProcessor</a></code></span></div>
-<div class="block">Returns whether this processor will return no more output from <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#getOutput--"><code>AudioProcessor.getOutput()</code></a> until it
- has been <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#isEnded()">AudioProcessor</a></code></span></div>
+<div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until it
+ has been <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#isEnded--">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#isEnded()">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="flush--">
+<a id="flush()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>flush</h4>
-<pre>public final&nbsp;void&nbsp;flush()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--">AudioProcessor</a></code></span></div>
+<pre class="methodSignature">public final&nbsp;void&nbsp;flush()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#flush()">AudioProcessor</a></code></span></div>
 <div class="block">Clears any buffered data and pending output. If the audio processor is active, also prepares
  the audio processor to receive a new stream of input in the last configured (pending) format.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--">flush</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#flush()">flush</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="reset--">
+<a id="reset()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public final&nbsp;void&nbsp;reset()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#reset--">AudioProcessor</a></code></span></div>
+<pre class="methodSignature">public final&nbsp;void&nbsp;reset()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#reset()">AudioProcessor</a></code></span></div>
 <div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#reset--">reset</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
+<dd><code><a href="AudioProcessor.html#reset()">reset</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="replaceOutputBuffer-int-">
+<a id="replaceOutputBuffer(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>replaceOutputBuffer</h4>
-<pre>protected final&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;replaceOutputBuffer&#8203;(int&nbsp;count)</pre>
+<pre class="methodSignature">protected final&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;replaceOutputBuffer&#8203;(int&nbsp;count)</pre>
 <div class="block">Replaces the current output buffer with a buffer of at least <code>count</code> bytes and returns
- it. Callers should write to the returned buffer then <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#flip--" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.flip()</code></a> it so it can be
- read via <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#getOutput--"><code>getOutput()</code></a>.</div>
+ it. Callers should write to the returned buffer then <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#flip()" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.flip()</code></a> it so it can be
+ read via <a href="#getOutput()"><code>getOutput()</code></a>.</div>
 </li>
 </ul>
-<a name="hasPendingOutput--">
+<a id="hasPendingOutput()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>hasPendingOutput</h4>
-<pre>protected final&nbsp;boolean&nbsp;hasPendingOutput()</pre>
+<pre class="methodSignature">protected final&nbsp;boolean&nbsp;hasPendingOutput()</pre>
 <div class="block">Returns whether the current output buffer has any data remaining.</div>
 </li>
 </ul>
-<a name="onConfigure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">
+<a id="onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onConfigure</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;onConfigure&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
-                                          throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
+<pre class="methodSignature">protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;onConfigure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
+                                          throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
 <div class="block">Called when the processor is configured for a new input format.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code></dd>
+<dd><code><a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="onQueueEndOfStream--">
+<a id="onQueueEndOfStream()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onQueueEndOfStream</h4>
-<pre>protected&nbsp;void&nbsp;onQueueEndOfStream()</pre>
+<pre class="methodSignature">protected&nbsp;void&nbsp;onQueueEndOfStream()</pre>
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 </li>
 </ul>
-<a name="onFlush--">
+<a id="onFlush()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onFlush</h4>
-<pre>protected&nbsp;void&nbsp;onFlush()</pre>
+<pre class="methodSignature">protected&nbsp;void&nbsp;onFlush()</pre>
 <div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
 </li>
 </ul>
-<a name="onReset--">
+<a id="onReset()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onReset</h4>
-<pre>protected&nbsp;void&nbsp;onReset()</pre>
+<pre class="methodSignature">protected&nbsp;void&nbsp;onReset()</pre>
 <div class="block">Called when the processor is reset.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -625,16 +641,8 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/BaseAudioProcessor.html" target="_top">Frames</a></li>
-<li><a href="BaseAudioProcessor.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -654,7 +662,7 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -666,9 +674,11 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

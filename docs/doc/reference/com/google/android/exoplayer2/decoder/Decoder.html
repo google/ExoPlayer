@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/decoder/Decoder.html" target="_top">Frames</a></li>
-<li><a href="Decoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,10 +108,13 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/decoder/package-summary.html">com.google.android.exoplayer2.decoder</a></div>
-<h2 title="Interface Decoder" class="title">Interface Decoder&lt;I,O,E extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.decoder</a></div>
+<h2 title="Interface Decoder" class="title">Interface Decoder&lt;I,&#8203;O,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -129,14 +128,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></code></dd>
+<dd><code><a href="../text/SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/text/cea/Cea608Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea608Decoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/cea/Cea708Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea708Decoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/dvb/DvbDecoder.html" title="class in com.google.android.exoplayer2.text.dvb">DvbDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/flac/FlacDecoder.html" title="class in com.google.android.exoplayer2.ext.flac">FlacDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/av1/Gav1Decoder.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1Decoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/webvtt/Mp4WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">Mp4WebvttDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/opus/OpusDecoder.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/pgs/PgsDecoder.html" title="class in com.google.android.exoplayer2.text.pgs">PgsDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/ssa/SsaDecoder.html" title="class in com.google.android.exoplayer2.text.ssa">SsaDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/subrip/SubripDecoder.html" title="class in com.google.android.exoplayer2.text.subrip">SubripDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/ttml/TtmlDecoder.html" title="class in com.google.android.exoplayer2.text.ttml">TtmlDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/tx3g/Tx3gDecoder.html" title="class in com.google.android.exoplayer2.text.tx3g">Tx3gDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/ext/vp9/VpxDecoder.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/text/webvtt/WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttDecoder</a></code></dd>
+<dd><code><a href="../text/cea/Cea608Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea608Decoder</a></code>, <code><a href="../text/cea/Cea708Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea708Decoder</a></code>, <code><a href="../text/dvb/DvbDecoder.html" title="class in com.google.android.exoplayer2.text.dvb">DvbDecoder</a></code>, <code><a href="../ext/flac/FlacDecoder.html" title="class in com.google.android.exoplayer2.ext.flac">FlacDecoder</a></code>, <code><a href="../ext/av1/Gav1Decoder.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1Decoder</a></code>, <code><a href="../text/webvtt/Mp4WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">Mp4WebvttDecoder</a></code>, <code><a href="../ext/opus/OpusDecoder.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoder</a></code>, <code><a href="../text/pgs/PgsDecoder.html" title="class in com.google.android.exoplayer2.text.pgs">PgsDecoder</a></code>, <code><a href="SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a></code>, <code><a href="../text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code>, <code><a href="../text/ssa/SsaDecoder.html" title="class in com.google.android.exoplayer2.text.ssa">SsaDecoder</a></code>, <code><a href="../text/subrip/SubripDecoder.html" title="class in com.google.android.exoplayer2.text.subrip">SubripDecoder</a></code>, <code><a href="../text/ttml/TtmlDecoder.html" title="class in com.google.android.exoplayer2.text.ttml">TtmlDecoder</a></code>, <code><a href="../text/tx3g/Tx3gDecoder.html" title="class in com.google.android.exoplayer2.text.tx3g">Tx3gDecoder</a></code>, <code><a href="../ext/vp9/VpxDecoder.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoder</a></code>, <code><a href="../text/webvtt/WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">Decoder&lt;I,O,E extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span></pre>
+<pre>public interface <span class="typeNameLabel">Decoder&lt;I,&#8203;O,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span></pre>
 <div class="block">A media decoder.</div>
 </li>
 </ul>
@@ -145,12 +144,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -158,43 +158,43 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">I</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#dequeueInputBuffer--">dequeueInputBuffer</a></span>()</code></th>
+<td class="colFirst"><code><a href="Decoder.html" title="type parameter in Decoder">I</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueInputBuffer()">dequeueInputBuffer</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">O</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#dequeueOutputBuffer--">dequeueOutputBuffer</a></span>()</code></th>
+<td class="colFirst"><code><a href="Decoder.html" title="type parameter in Decoder">O</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueOutputBuffer()">dequeueOutputBuffer</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#flush--">flush</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Flushes the decoder.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#getName--">getName</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the name of the decoder.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#queueInputBuffer-I-">queueInputBuffer</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBuffer(I)">queueInputBuffer</a></span>&#8203;(<a href="Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
 <div class="block">Queues an input buffer to the decoder.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html#release--">release</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the decoder.</div>
 </td>
@@ -202,6 +202,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -209,18 +210,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getName--">
+<a id="getName()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getName</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
 <div class="block">Returns the name of the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -228,102 +230,106 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="dequeueInputBuffer--">
+<a id="dequeueInputBuffer()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dequeueInputBuffer</h4>
-<pre>@Nullable
-<a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">I</a>&nbsp;dequeueInputBuffer()
-              throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<pre class="methodSignature">@Nullable
+<a href="Decoder.html" title="type parameter in Decoder">I</a>&nbsp;dequeueInputBuffer()
+              throws <a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The input buffer, which will have been cleared, or null if a buffer isn't available.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a></code> - If a decoder error has occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
+<dd><code><a href="Decoder.html" title="type parameter in Decoder">E</a></code> - If a decoder error has occurred.</dd>
+<dd><code><a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="queueInputBuffer-java.lang.Object-">
+<a id="queueInputBuffer(java.lang.Object)">
 <!--   -->
-</a><a name="queueInputBuffer-I-">
+</a><a id="queueInputBuffer(I)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>queueInputBuffer</h4>
-<pre>void&nbsp;queueInputBuffer&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)
-               throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<pre class="methodSignature">void&nbsp;queueInputBuffer&#8203;(<a href="Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)
+               throws <a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Queues an input buffer to the decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a></code> - If a decoder error has occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
+<dd><code><a href="Decoder.html" title="type parameter in Decoder">E</a></code> - If a decoder error has occurred.</dd>
+<dd><code><a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="dequeueOutputBuffer--">
+<a id="dequeueOutputBuffer()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>dequeueOutputBuffer</h4>
-<pre>@Nullable
-<a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">O</a>&nbsp;dequeueOutputBuffer()
-               throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<pre class="methodSignature">@Nullable
+<a href="Decoder.html" title="type parameter in Decoder">O</a>&nbsp;dequeueOutputBuffer()
+               throws <a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The output buffer, or null if an output buffer isn't available.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a></code> - If a decoder error has occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
+<dd><code><a href="Decoder.html" title="type parameter in Decoder">E</a></code> - If a decoder error has occurred.</dd>
+<dd><code><a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="flush--">
+<a id="flush()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>flush</h4>
-<pre>void&nbsp;flush()</pre>
+<pre class="methodSignature">void&nbsp;flush()</pre>
 <div class="block">Flushes the decoder. Ownership of dequeued input buffers is returned to the decoder. The caller
  is still responsible for releasing any dequeued output buffers.</div>
 </li>
 </ul>
-<a name="release--">
+<a id="release()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>release</h4>
-<pre>void&nbsp;release()</pre>
+<pre class="methodSignature">void&nbsp;release()</pre>
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -333,16 +339,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/decoder/Decoder.html" target="_top">Frames</a></li>
-<li><a href="Decoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -374,9 +372,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

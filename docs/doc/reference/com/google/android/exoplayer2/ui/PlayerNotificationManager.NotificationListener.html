@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":50,"i1":18,"i2":18,"i3":50};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":18,"i1":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.Priority.html" title="annotation in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" target="_top">Frames</a></li>
-<li><a href="PlayerNotificationManager.NotificationListener.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/package-summary.html">com.google.android.exoplayer2.ui</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ui</a></div>
 <h2 title="Interface PlayerNotificationManager.NotificationListener" class="title">Interface PlayerNotificationManager.NotificationListener</h2>
 </div>
 <div class="contentContainer">
@@ -123,7 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dd>
+<dd><a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dd>
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">PlayerNotificationManager.NotificationListener</span></pre>
@@ -135,13 +134,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -149,43 +149,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-">onNotificationCancelled</a></span>&#8203;(int&nbsp;notificationId)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-"><code>onNotificationCancelled(int, boolean)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-">onNotificationCancelled</a></span>&#8203;(int&nbsp;notificationId,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onNotificationCancelled(int,boolean)">onNotificationCancelled</a></span>&#8203;(int&nbsp;notificationId,
                        boolean&nbsp;dismissedByUser)</code></th>
 <td class="colLast">
 <div class="block">Called after the notification has been cancelled.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-">onNotificationPosted</a></span>&#8203;(int&nbsp;notificationId,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onNotificationPosted(int,android.app.Notification,boolean)">onNotificationPosted</a></span>&#8203;(int&nbsp;notificationId,
                     <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a>&nbsp;notification,
                     boolean&nbsp;ongoing)</code></th>
 <td class="colLast">
 <div class="block">Called each time after the notification has been posted.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationStarted-int-android.app.Notification-">onNotificationStarted</a></span>&#8203;(int&nbsp;notificationId,
-                     <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a>&nbsp;notification)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-"><code>onNotificationPosted(int, Notification, boolean)</code></a> instead.</div>
-</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -193,56 +175,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="onNotificationStarted-int-android.app.Notification-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onNotificationStarted</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onNotificationStarted&#8203;(int&nbsp;notificationId,
-                                   <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a>&nbsp;notification)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-"><code>onNotificationPosted(int, Notification, boolean)</code></a> instead.</div>
-</div>
-<div class="block">Called after the notification has been started.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>notificationId</code> - The id with which the notification has been posted.</dd>
-<dd><code>notification</code> - The <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Notification</code></a>.</dd>
-</dl>
-</li>
-</ul>
-<a name="onNotificationCancelled-int-">
+<a id="onNotificationCancelled(int,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onNotificationCancelled</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-"><code>onNotificationCancelled(int, boolean)</code></a>.</div>
-</div>
-<div class="block">Called after the notification has been cancelled.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>notificationId</code> - The id of the notification which has been cancelled.</dd>
-</dl>
-</li>
-</ul>
-<a name="onNotificationCancelled-int-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onNotificationCancelled</h4>
-<pre>default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId,
+<pre class="methodSignature">default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId,
                                      boolean&nbsp;dismissedByUser)</pre>
 <div class="block">Called after the notification has been cancelled.</div>
 <dl>
@@ -253,13 +198,13 @@ default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId)</
 </dl>
 </li>
 </ul>
-<a name="onNotificationPosted-int-android.app.Notification-boolean-">
+<a id="onNotificationPosted(int,android.app.Notification,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onNotificationPosted</h4>
-<pre>default&nbsp;void&nbsp;onNotificationPosted&#8203;(int&nbsp;notificationId,
+<pre class="methodSignature">default&nbsp;void&nbsp;onNotificationPosted&#8203;(int&nbsp;notificationId,
                                   <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a>&nbsp;notification,
                                   boolean&nbsp;ongoing)</pre>
 <div class="block">Called each time after the notification has been posted.
@@ -276,21 +221,25 @@ default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId)</
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -300,16 +249,8 @@ default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId)</
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.Priority.html" title="annotation in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" target="_top">Frames</a></li>
-<li><a href="PlayerNotificationManager.NotificationListener.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -341,9 +282,11 @@ default&nbsp;void&nbsp;onNotificationCancelled&#8203;(int&nbsp;notificationId)</
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

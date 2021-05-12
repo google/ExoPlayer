@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,21 +25,25 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -49,16 +53,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/analytics/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/database/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -81,7 +77,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -91,13 +87,16 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
+<main role="main">
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.audio</h1>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
 <li class="blockList">
-<table class="typeSummary" summary="Interface Summary table, listing interfaces, and an explanation">
+<table class="typeSummary">
 <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Interface</th>
@@ -105,51 +104,51 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilitiesReceiver.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioCapabilitiesReceiver.Listener</a></th>
+<th class="colFirst" scope="row"><a href="AudioCapabilitiesReceiver.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioCapabilitiesReceiver.Listener</a></th>
 <td class="colLast">
 <div class="block">Listener notified when audio capabilities change.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a></th>
-<td class="colLast">
-<div class="block">A listener for changes in audio configuration.</div>
+<th class="colFirst" scope="row"><a href="AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2"><code>Player.Listener</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></th>
+<th class="colFirst" scope="row"><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></th>
 <td class="colLast">
 <div class="block">Interface for audio processors, which take audio data as input and transform it, potentially
  modifying its channel count, encoding and/or sample rate.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a></th>
+<th class="colFirst" scope="row"><a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a></th>
 <td class="colLast">
-<div class="block">Listener of audio <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events.</div>
+<div class="block">Listener of audio <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></th>
+<th class="colFirst" scope="row"><a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></th>
 <td class="colLast">
 <div class="block">A sink that consumes audio data.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a></th>
+<th class="colFirst" scope="row"><a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a></th>
 <td class="colLast">
 <div class="block">Listener for audio sink events.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></th>
+<th class="colFirst" scope="row"><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></th>
 <td class="colLast">
 <div class="block">Provides a chain of audio processors, which are used for any user-defined processing and
  applying playback parameters (if supported).</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a></th>
+<th class="colFirst" scope="row"><a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a></th>
 <td class="colLast">
 <div class="block">A sink for audio buffers handled by the audio processor.</div>
 </td>
@@ -158,7 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Class Summary table, listing classes, and an explanation">
+<table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -166,173 +165,173 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html" title="class in com.google.android.exoplayer2.audio">AacUtil</a></th>
+<th class="colFirst" scope="row"><a href="AacUtil.html" title="class in com.google.android.exoplayer2.audio">AacUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for handling AAC audio streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></th>
+<th class="colFirst" scope="row"><a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></th>
 <td class="colLast">
 <div class="block">Holds sample format information for AAC audio.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html" title="class in com.google.android.exoplayer2.audio">Ac3Util</a></th>
+<th class="colFirst" scope="row"><a href="Ac3Util.html" title="class in com.google.android.exoplayer2.audio">Ac3Util</a></th>
 <td class="colLast">
 <div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></th>
+<th class="colFirst" scope="row"><a href="Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></th>
 <td class="colLast">
 <div class="block">Holds sample format information as presented by a syncframe header.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/Ac4Util.html" title="class in com.google.android.exoplayer2.audio">Ac4Util</a></th>
+<th class="colFirst" scope="row"><a href="Ac4Util.html" title="class in com.google.android.exoplayer2.audio">Ac4Util</a></th>
 <td class="colLast">
 <div class="block">Utility methods for parsing AC-4 frames, which are access units in AC-4 bitstreams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/Ac4Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac4Util.SyncFrameInfo</a></th>
+<th class="colFirst" scope="row"><a href="Ac4Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac4Util.SyncFrameInfo</a></th>
 <td class="colLast">
 <div class="block">Holds sample format information as presented by a syncframe header.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></th>
+<th class="colFirst" scope="row"><a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></th>
 <td class="colLast">
 <div class="block">Attributes for audio playback, which configure the underlying platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a></th>
+<th class="colFirst" scope="row"><a href="AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes.Builder</a></th>
 <td class="colLast">
-<div class="block">Builder for <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+<div class="block">Builder for <a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a></th>
+<th class="colFirst" scope="row"><a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a></th>
 <td class="colLast">
 <div class="block">Represents the set of audio formats that a device is capable of playing.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilitiesReceiver.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilitiesReceiver</a></th>
+<th class="colFirst" scope="row"><a href="AudioCapabilitiesReceiver.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilitiesReceiver</a></th>
 <td class="colLast">
 <div class="block">Receives broadcast events indicating changes to the device's audio capabilities, notifying a
- <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilitiesReceiver.Listener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioCapabilitiesReceiver.Listener</code></a> when audio capability changes occur.</div>
+ <a href="AudioCapabilitiesReceiver.Listener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioCapabilitiesReceiver.Listener</code></a> when audio capability changes occur.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></th>
+<th class="colFirst" scope="row"><a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></th>
 <td class="colLast">
 <div class="block">PCM audio format that may be handled by an audio processor.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></th>
+<th class="colFirst" scope="row"><a href="AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></th>
 <td class="colLast">
-<div class="block">Dispatches events to an <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
+<div class="block">Dispatches events to an <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a></th>
+<th class="colFirst" scope="row"><a href="AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a></th>
 <td class="colLast">
 <div class="block">Represents auxiliary effect information, which can be used to attach an auxiliary effect to an
  underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">BaseAudioProcessor</a></th>
+<th class="colFirst" scope="row"><a href="BaseAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">BaseAudioProcessor</a></th>
 <td class="colLast">
 <div class="block">Base class for audio processors that keep an output buffer and an internal buffer that is reused
  whenever input is queued.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,? extends <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,? extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</th>
+<th class="colFirst" scope="row"><a href="DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</th>
 <td class="colLast">
-<div class="block">Decodes and renders audio using a <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
+<div class="block">Decodes and renders audio using a <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></th>
+<th class="colFirst" scope="row"><a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></th>
 <td class="colLast">
 <div class="block">Plays audio data.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></th>
+<th class="colFirst" scope="row"><a href="DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></th>
 <td class="colLast">
 <div class="block">The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
- processors followed by <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SilenceSkippingAudioProcessor</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>.</div>
+ processors followed by <a href="SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SilenceSkippingAudioProcessor</code></a> and <a href="SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/DtsUtil.html" title="class in com.google.android.exoplayer2.audio">DtsUtil</a></th>
+<th class="colFirst" scope="row"><a href="DtsUtil.html" title="class in com.google.android.exoplayer2.audio">DtsUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for parsing DTS frames.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></th>
+<th class="colFirst" scope="row"><a href="ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></th>
 <td class="colLast">
-<div class="block">An overridable <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> implementation forwarding all methods to another sink.</div>
+<div class="block">An overridable <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> implementation forwarding all methods to another sink.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></th>
+<th class="colFirst" scope="row"><a href="MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></th>
 <td class="colLast">
-<div class="block">Decodes and renders audio using <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> and an <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio" target="_top"><code>AudioSink</code></a>.</div>
+<div class="block">Decodes and renders audio using <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> and an <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio" target="_top"><code>AudioSink</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/MpegAudioUtil.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil</a></th>
+<th class="colFirst" scope="row"><a href="MpegAudioUtil.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for handling MPEG audio streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/MpegAudioUtil.Header.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil.Header</a></th>
+<th class="colFirst" scope="row"><a href="MpegAudioUtil.Header.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil.Header</a></th>
 <td class="colLast">
 <div class="block">Stores the metadata for an MPEG audio frame.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/OpusUtil.html" title="class in com.google.android.exoplayer2.audio">OpusUtil</a></th>
+<th class="colFirst" scope="row"><a href="OpusUtil.html" title="class in com.google.android.exoplayer2.audio">OpusUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for handling Opus audio streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></th>
+<th class="colFirst" scope="row"><a href="SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></th>
 <td class="colLast">
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that skips silence in the input stream.</div>
+<div class="block">An <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that skips silence in the input stream.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a></th>
+<th class="colFirst" scope="row"><a href="SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a></th>
 <td class="colLast">
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that uses the Sonic library to modify audio speed/pitch/sample rate.</div>
+<div class="block">An <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that uses the Sonic library to modify audio speed/pitch/sample rate.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></th>
+<th class="colFirst" scope="row"><a href="TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></th>
 <td class="colLast">
 <div class="block">Audio processor that outputs its input unmodified and also outputs its input to a given sink.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor.WavFileAudioBufferSink</a></th>
+<th class="colFirst" scope="row"><a href="TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor.WavFileAudioBufferSink</a></th>
 <td class="colLast">
 <div class="block">A sink for audio buffers that writes output audio as .wav files with a given path prefix.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html" title="class in com.google.android.exoplayer2.audio">WavUtil</a></th>
+<th class="colFirst" scope="row"><a href="WavUtil.html" title="class in com.google.android.exoplayer2.audio">WavUtil</a></th>
 <td class="colLast">
 <div class="block">Utilities for handling WAVE files.</div>
 </td>
@@ -341,7 +340,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Exception Summary table, listing exceptions, and an explanation">
+<table class="typeSummary">
 <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Exception</th>
@@ -349,40 +348,46 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></th>
+<th class="colFirst" scope="row"><a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></th>
 <td class="colLast">
 <div class="block">Exception thrown when a processor can't be configured for a given input audio format.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></th>
+<th class="colFirst" scope="row"><a href="AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></th>
 <td class="colLast">
 <div class="block">Thrown when a failure occurs configuring the sink.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a></th>
+<th class="colFirst" scope="row"><a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a></th>
 <td class="colLast">
 <div class="block">Thrown when a failure occurs initializing the sink.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></th>
+<th class="colFirst" scope="row"><a href="AudioSink.UnexpectedDiscontinuityException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.UnexpectedDiscontinuityException</a></th>
+<td class="colLast">
+<div class="block">Thrown when the sink encounters an unexpected timestamp discontinuity.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></th>
 <td class="colLast">
 <div class="block">Thrown when a failure occurs writing to the sink.</div>
 </td>
 </tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></th>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></th>
 <td class="colLast">
-<div class="block">Thrown when the audio track has provided a spurious timestamp, if <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>DefaultAudioSink.failOnSpuriousAudioTimestamp</code></a> is set.</div>
+<div class="block">Thrown when the audio track has provided a spurious timestamp, if <a href="DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>DefaultAudioSink.failOnSpuriousAudioTimestamp</code></a> is set.</div>
 </td>
 </tr>
 </tbody>
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<table class="typeSummary">
 <caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Annotation Type</th>
@@ -390,21 +395,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">AacUtil.AacAudioObjectType</a></th>
+<th class="colFirst" scope="row"><a href="AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">AacUtil.AacAudioObjectType</a></th>
 <td class="colLast">
 <div class="block">Valid AAC Audio object types.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.StreamType.html" title="annotation in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo.StreamType</a></th>
+<th class="colFirst" scope="row"><a href="Ac3Util.SyncFrameInfo.StreamType.html" title="annotation in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo.StreamType</a></th>
 <td class="colLast">
 <div class="block">AC3 stream types.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">AudioSink.SinkFormatSupport</a></th>
+<th class="colFirst" scope="row"><a href="AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">AudioSink.SinkFormatSupport</a></th>
 <td class="colLast">
 <div class="block">The level of support the sink provides for a format.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DefaultAudioSink.OffloadMode.html" title="annotation in com.google.android.exoplayer2.audio">DefaultAudioSink.OffloadMode</a></th>
+<td class="colLast">
+<div class="block">Audio offload mode configuration.</div>
 </td>
 </tr>
 </tbody>
@@ -412,16 +423,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -431,16 +445,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/analytics/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/database/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -457,9 +463,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

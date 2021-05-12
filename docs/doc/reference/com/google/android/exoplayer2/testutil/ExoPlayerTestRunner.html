@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" target="_top">Frames</a></li>
-<li><a href="ExoPlayerTestRunner.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Class ExoPlayerTestRunner" class="title">Class ExoPlayerTestRunner</h2>
 </div>
 <div class="contentContainer">
@@ -131,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.Callback</a></code></dd>
+<dd><code><a href="../audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a></code>, <code><a href="../device/DeviceListener.html" title="interface in com.google.android.exoplayer2.device">DeviceListener</a></code>, <code><a href="../metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a></code>, <code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code>, <code><a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></code>, <code><a href="ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.Callback</a></code>, <code><a href="../text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a></code>, <code><a href="../video/VideoListener.html" title="interface in com.google.android.exoplayer2.video">VideoListener</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">ExoPlayerTestRunner</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.Callback</a></pre>
+implements <a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>, <a href="ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.Callback</a></pre>
 <div class="block">Helper class to run an ExoPlayer test.</div>
 </li>
 </ul>
@@ -145,12 +144,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -159,21 +159,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></span></code></th>
 <td class="colLast">
-<div class="block">Builder to set-up a <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a>.</div>
+<div class="block">Builder to set-up a <a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a>.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -181,29 +183,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#AUDIO_FORMAT">AUDIO_FORMAT</a></span></code></th>
+<td class="colFirst"><code>static <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AUDIO_FORMAT">AUDIO_FORMAT</a></span></code></th>
 <td class="colLast">
-<div class="block">A generic audio <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
+<div class="block">A generic audio <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#VIDEO_FORMAT">VIDEO_FORMAT</a></span></code></th>
+<td class="colFirst"><code>static <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_FORMAT">VIDEO_FORMAT</a></span></code></th>
 <td class="colLast">
-<div class="block">A generic video <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
+<div class="block">A generic video <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -212,126 +216,129 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertMediaItemsTransitionedSame-com.google.android.exoplayer2.MediaItem...-">assertMediaItemsTransitionedSame</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>...&nbsp;mediaItems)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertMediaItemsTransitionedSame(com.google.android.exoplayer2.MediaItem...)">assertMediaItemsTransitionedSame</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>...&nbsp;mediaItems)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the media items reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided media
+<div class="block">Asserts that the media items reported by <a href="../Player.EventListener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided media
  items.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertMediaItemsTransitionReasonsEqual-java.lang.Integer...-">assertMediaItemsTransitionReasonsEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertMediaItemsTransitionReasonsEqual(java.lang.Integer...)">assertMediaItemsTransitionReasonsEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the media item transition reasons reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided
- reasons.</div>
+<div class="block">Asserts that the media item transition reasons reported by <a href="../Player.EventListener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided reasons.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertNoPositionDiscontinuities--">assertNoPositionDiscontinuities</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertNoPositionDiscontinuities()">assertNoPositionDiscontinuities</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Asserts that <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a> was not called.</div>
+<div class="block">Asserts that <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo,
+ Player.PositionInfo, int)</code></a> was not called.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertPlaybackStatesEqual-java.lang.Integer...-">assertPlaybackStatesEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;states)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertPlaybackStatesEqual(java.lang.Integer...)">assertPlaybackStatesEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;states)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the playback states reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a> are equal to the provided playback states.</div>
+<div class="block">Asserts that the playback states reported by <a href="../Player.EventListener.html#onPlaybackStateChanged(int)"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a> are equal to the provided playback states.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertPlayedPeriodIndices-java.lang.Integer...-">assertPlayedPeriodIndices</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;periodIndices)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertPlayedPeriodIndices(java.lang.Integer...)">assertPlayedPeriodIndices</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;periodIndices)</code></th>
 <td class="colLast">
 <div class="block">Asserts that the indices of played periods is equal to the provided list of periods.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertPositionDiscontinuityReasonsEqual-java.lang.Integer...-">assertPositionDiscontinuityReasonsEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;discontinuityReasons)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertPositionDiscontinuityReasonsEqual(java.lang.Integer...)">assertPositionDiscontinuityReasonsEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;discontinuityReasons)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the discontinuity reasons reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a> are equal to the provided values.</div>
+<div class="block">Asserts that the discontinuity reasons reported by <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a> are
+ equal to the provided values.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertTimelineChangeReasonsEqual-java.lang.Integer...-">assertTimelineChangeReasonsEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertTimelineChangeReasonsEqual(java.lang.Integer...)">assertTimelineChangeReasonsEqual</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the timeline change reasons reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> are equal to the provided timeline
- change reasons.</div>
+<div class="block">Asserts that the timeline change reasons reported by <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> are equal to the provided timeline change
+ reasons.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertTimelinesSame-com.google.android.exoplayer2.Timeline...-">assertTimelinesSame</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>...&nbsp;timelines)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertTimelinesSame(com.google.android.exoplayer2.Timeline...)">assertTimelinesSame</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>...&nbsp;timelines)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the timelines reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline,
- int)</code></a> are the same to the provided timelines.</div>
+<div class="block">Asserts that the timelines reported by <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a>
+ are the same to the provided timelines.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#assertTrackGroupsEqual-com.google.android.exoplayer2.source.TrackGroupArray-">assertTrackGroupsEqual</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertTrackGroupsEqual(com.google.android.exoplayer2.source.TrackGroupArray)">assertTrackGroupsEqual</a></span>&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray)</code></th>
 <td class="colLast">
-<div class="block">Asserts that the last track group array reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a> is equal to the
- provided track group array.</div>
+<div class="block">Asserts that the last track group array reported by <a href="../Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a> is equal to the provided
+ track group array.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#blockUntilActionScheduleFinished-long-">blockUntilActionScheduleFinished</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
+<td class="colFirst"><code><a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilActionScheduleFinished(long)">blockUntilActionScheduleFinished</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Blocks the current thread until the action schedule finished.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#blockUntilEnded-long-">blockUntilEnded</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
+<td class="colFirst"><code><a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilEnded(long)">blockUntilEnded</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Blocks the current thread until the test runner finishes.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onActionScheduleFinished--">onActionScheduleFinished</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onActionScheduleFinished()">onActionScheduleFinished</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when action schedule finished executing all its actions.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-">onMediaItemTransition</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)">onMediaItemTransition</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                      int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Called when playback transitions to a media item or starts repeating a media item according
- to the current <a href="../../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--"><code>repeat mode</code></a>.</div>
+ to the current <a href="../Player.html#getRepeatMode()"><code>repeat mode</code></a>.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onPlaybackStateChanged-int-">onPlaybackStateChanged</a></span>&#8203;(int&nbsp;playbackState)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackStateChanged(int)">onPlaybackStateChanged</a></span>&#8203;(int&nbsp;playbackState)</code></th>
 <td class="colLast">
-<div class="block">Called when the value returned from <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
+<div class="block">Called when the value returned from <a href="../Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> changes.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">onPlayerError</a></span>&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</code></th>
 <td class="colLast">
 <div class="block">Called when an error occurs.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></span>&#8203;(int&nbsp;reason)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)">onPositionDiscontinuity</a></span>&#8203;(<a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;oldPosition,
+                       <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;newPosition,
+                       int&nbsp;reason)</code></th>
 <td class="colLast">
-<div class="block">Called when a position discontinuity occurs without a change to the timeline.</div>
+<div class="block">Called when a position discontinuity occurs.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)">onTimelineChanged</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Called when the timeline has been refreshed.</div>
@@ -339,43 +346,72 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">onTracksChanged</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
-               <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)">onTracksChanged</a></span>&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
+               <a href="../trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections)</code></th>
 <td class="colLast">
 <div class="block">Called when the available or selected tracks change.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#start--">start</a></span>()</code></th>
+<td class="colFirst"><code><a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Starts the test runner on its own thread.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#start-boolean-">start</a></span>&#8203;(boolean&nbsp;doPrepare)</code></th>
+<td class="colFirst"><code><a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(boolean)">start</a></span>&#8203;(boolean&nbsp;doPrepare)</code></th>
 <td class="colLast">
 <div class="block">Starts the test runner on its own thread.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Player.EventListener">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.audio.AudioListener">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-">onEvents</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onExperimentalOffloadSchedulingEnabledChanged-boolean-">onExperimentalOffloadSchedulingEnabledChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onExperimentalSleepingForOffloadChanged-boolean-">onExperimentalSleepingForOffloadChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-">onIsLoadingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsPlayingChanged-boolean-">onIsPlayingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onLoadingChanged-boolean-">onLoadingChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.PlaybackParameters-">onPlaybackParametersChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-">onPlaybackSuppressionReasonChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-">onPlayerStateChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-">onPlayWhenReadyChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onRepeatModeChanged-int-">onRepeatModeChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onSeekProcessed--">onSeekProcessed</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onShuffleModeEnabledChanged-boolean-">onShuffleModeEnabledChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onStaticMetadataChanged-java.util.List-">onStaticMetadataChanged</a>, <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a></h3>
+<code><a href="../audio/AudioListener.html#onAudioAttributesChanged(com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a>, <a href="../audio/AudioListener.html#onAudioSessionIdChanged(int)">onAudioSessionIdChanged</a>, <a href="../audio/AudioListener.html#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a>, <a href="../audio/AudioListener.html#onVolumeChanged(float)">onVolumeChanged</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.device.DeviceListener">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.device.<a href="../device/DeviceListener.html" title="interface in com.google.android.exoplayer2.device">DeviceListener</a></h3>
+<code><a href="../device/DeviceListener.html#onDeviceInfoChanged(com.google.android.exoplayer2.device.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../device/DeviceListener.html#onDeviceVolumeChanged(int,boolean)">onDeviceVolumeChanged</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.Player.EventListener">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></h3>
+<code><a href="../Player.EventListener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)">onEvents</a>, <a href="../Player.EventListener.html#onIsLoadingChanged(boolean)">onIsLoadingChanged</a>, <a href="../Player.EventListener.html#onIsPlayingChanged(boolean)">onIsPlayingChanged</a>, <a href="../Player.EventListener.html#onLoadingChanged(boolean)">onLoadingChanged</a>, <a href="../Player.EventListener.html#onMediaMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../Player.EventListener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a>, <a href="../Player.EventListener.html#onPlaybackSuppressionReasonChanged(int)">onPlaybackSuppressionReasonChanged</a>, <a href="../Player.EventListener.html#onPlayerStateChanged(boolean,int)">onPlayerStateChanged</a>, <a href="../Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)">onPlayWhenReadyChanged</a>, <a href="../Player.EventListener.html#onPositionDiscontinuity(int)">onPositionDiscontinuity</a>, <a href="../Player.EventListener.html#onRepeatModeChanged(int)">onRepeatModeChanged</a>, <a href="../Player.EventListener.html#onSeekProcessed()">onSeekProcessed</a>, <a href="../Player.EventListener.html#onShuffleModeEnabledChanged(boolean)">onShuffleModeEnabledChanged</a>, <a href="../Player.EventListener.html#onStaticMetadataChanged(java.util.List)">onStaticMetadataChanged</a>, <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,java.lang.Object,int)">onTimelineChanged</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.Player.Listener">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></h3>
+<code><a href="../Player.Listener.html#onCues(java.util.List)">onCues</a>, <a href="../Player.Listener.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.video.VideoListener">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.video.<a href="../video/VideoListener.html" title="interface in com.google.android.exoplayer2.video">VideoListener</a></h3>
+<code><a href="../video/VideoListener.html#onRenderedFirstFrame()">onRenderedFirstFrame</a>, <a href="../video/VideoListener.html#onSurfaceSizeChanged(int,int)">onSurfaceSizeChanged</a>, <a href="../video/VideoListener.html#onVideoSizeChanged(int,int,int,float)">onVideoSizeChanged</a>, <a href="../video/VideoListener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -383,46 +419,49 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="VIDEO_FORMAT">
+<a id="VIDEO_FORMAT">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>VIDEO_FORMAT</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> VIDEO_FORMAT</pre>
-<div class="block">A generic video <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
+<pre>public static final&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> VIDEO_FORMAT</pre>
+<div class="block">A generic video <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
 </li>
 </ul>
-<a name="AUDIO_FORMAT">
+<a id="AUDIO_FORMAT">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AUDIO_FORMAT</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> AUDIO_FORMAT</pre>
-<div class="block">A generic audio <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
+<pre>public static final&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> AUDIO_FORMAT</pre>
+<div class="block">A generic audio <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up a <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="start--">
+<a id="start()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start()</pre>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start()</pre>
 <div class="block">Starts the test runner on its own thread. This will trigger the creation of the player, the
  listener registration, the start of the action schedule, the initial set of media items and the
  preparation of the player.</div>
@@ -432,13 +471,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </dl>
 </li>
 </ul>
-<a name="start-boolean-">
+<a id="start(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start&#8203;(boolean&nbsp;doPrepare)</pre>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;start&#8203;(boolean&nbsp;doPrepare)</pre>
 <div class="block">Starts the test runner on its own thread. This will trigger the creation of the player, the
  listener registration, the start of the action schedule and the initial set of media items.</div>
 <dl>
@@ -449,17 +488,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </dl>
 </li>
 </ul>
-<a name="blockUntilEnded-long-">
+<a id="blockUntilEnded(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilEnded</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilEnded&#8203;(long&nbsp;timeoutMs)
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilEnded&#8203;(long&nbsp;timeoutMs)
                                     throws <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
 <div class="block">Blocks the current thread until the test runner finishes. A test is deemed to be finished when
- the playback state transitioned to <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a> or <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> for
- the specified number of times. The test also finishes when an <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> is
+ the playback state transitioned to <a href="../Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a> or <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> for
+ the specified number of times. The test also finishes when an <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> is
  thrown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -472,17 +511,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </dl>
 </li>
 </ul>
-<a name="blockUntilActionScheduleFinished-long-">
+<a id="blockUntilActionScheduleFinished(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilActionScheduleFinished</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilActionScheduleFinished&#8203;(long&nbsp;timeoutMs)
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;blockUntilActionScheduleFinished&#8203;(long&nbsp;timeoutMs)
                                                      throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a>,
                                                             <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
 <div class="block">Blocks the current thread until the action schedule finished. This does not release the test
- runner and the test must still call <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#blockUntilEnded-long-"><code>blockUntilEnded(long)</code></a>.</div>
+ runner and the test must still call <a href="#blockUntilEnded(long)"><code>blockUntilEnded(long)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeoutMs</code> - The maximum time to wait for the action schedule to finish.</dd>
@@ -494,119 +533,120 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </dl>
 </li>
 </ul>
-<a name="assertTimelinesSame-com.google.android.exoplayer2.Timeline...-">
+<a id="assertTimelinesSame(com.google.android.exoplayer2.Timeline...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertTimelinesSame</h4>
-<pre>public&nbsp;void&nbsp;assertTimelinesSame&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>...&nbsp;timelines)</pre>
-<div class="block">Asserts that the timelines reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline,
- int)</code></a> are the same to the provided timelines. This assert differs from testing equality by not
+<pre class="methodSignature">public&nbsp;void&nbsp;assertTimelinesSame&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>...&nbsp;timelines)</pre>
+<div class="block">Asserts that the timelines reported by <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a>
+ are the same to the provided timelines. This assert differs from testing equality by not
  comparing period ids which may be different due to id mapping of child source period ids.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timelines</code> - A list of expected <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>s.</dd>
+<dd><code>timelines</code> - A list of expected <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>s.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertTimelineChangeReasonsEqual-java.lang.Integer...-">
+<a id="assertTimelineChangeReasonsEqual(java.lang.Integer...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertTimelineChangeReasonsEqual</h4>
-<pre>public&nbsp;void&nbsp;assertTimelineChangeReasonsEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</pre>
-<div class="block">Asserts that the timeline change reasons reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> are equal to the provided timeline
- change reasons.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertTimelineChangeReasonsEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</pre>
+<div class="block">Asserts that the timeline change reasons reported by <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> are equal to the provided timeline change
+ reasons.</div>
 </li>
 </ul>
-<a name="assertMediaItemsTransitionedSame-com.google.android.exoplayer2.MediaItem...-">
+<a id="assertMediaItemsTransitionedSame(com.google.android.exoplayer2.MediaItem...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertMediaItemsTransitionedSame</h4>
-<pre>public&nbsp;void&nbsp;assertMediaItemsTransitionedSame&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>...&nbsp;mediaItems)</pre>
-<div class="block">Asserts that the media items reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided media
+<pre class="methodSignature">public&nbsp;void&nbsp;assertMediaItemsTransitionedSame&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>...&nbsp;mediaItems)</pre>
+<div class="block">Asserts that the media items reported by <a href="../Player.EventListener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided media
  items.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItems</code> - A list of expected <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>media items</code></a>.</dd>
+<dd><code>mediaItems</code> - A list of expected <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>media items</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertMediaItemsTransitionReasonsEqual-java.lang.Integer...-">
+<a id="assertMediaItemsTransitionReasonsEqual(java.lang.Integer...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertMediaItemsTransitionReasonsEqual</h4>
-<pre>public&nbsp;void&nbsp;assertMediaItemsTransitionReasonsEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</pre>
-<div class="block">Asserts that the media item transition reasons reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided
- reasons.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertMediaItemsTransitionReasonsEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;reasons)</pre>
+<div class="block">Asserts that the media item transition reasons reported by <a href="../Player.EventListener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)"><code>Player.EventListener.onMediaItemTransition(MediaItem, int)</code></a> are the same as the provided reasons.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>reasons</code> - A list of expected transition reasons.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertPlaybackStatesEqual-java.lang.Integer...-">
+<a id="assertPlaybackStatesEqual(java.lang.Integer...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertPlaybackStatesEqual</h4>
-<pre>public&nbsp;void&nbsp;assertPlaybackStatesEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;states)</pre>
-<div class="block">Asserts that the playback states reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a> are equal to the provided playback states.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertPlaybackStatesEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;states)</pre>
+<div class="block">Asserts that the playback states reported by <a href="../Player.EventListener.html#onPlaybackStateChanged(int)"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a> are equal to the provided playback states.</div>
 </li>
 </ul>
-<a name="assertTrackGroupsEqual-com.google.android.exoplayer2.source.TrackGroupArray-">
+<a id="assertTrackGroupsEqual(com.google.android.exoplayer2.source.TrackGroupArray)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertTrackGroupsEqual</h4>
-<pre>public&nbsp;void&nbsp;assertTrackGroupsEqual&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray)</pre>
-<div class="block">Asserts that the last track group array reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a> is equal to the
- provided track group array.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertTrackGroupsEqual&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray)</pre>
+<div class="block">Asserts that the last track group array reported by <a href="../Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a> is equal to the provided
+ track group array.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>trackGroupArray</code> - The expected <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</dd>
+<dd><code>trackGroupArray</code> - The expected <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertNoPositionDiscontinuities--">
+<a id="assertNoPositionDiscontinuities()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertNoPositionDiscontinuities</h4>
-<pre>public&nbsp;void&nbsp;assertNoPositionDiscontinuities()</pre>
-<div class="block">Asserts that <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a> was not called.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertNoPositionDiscontinuities()</pre>
+<div class="block">Asserts that <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo,
+ Player.PositionInfo, int)</code></a> was not called.</div>
 </li>
 </ul>
-<a name="assertPositionDiscontinuityReasonsEqual-java.lang.Integer...-">
+<a id="assertPositionDiscontinuityReasonsEqual(java.lang.Integer...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertPositionDiscontinuityReasonsEqual</h4>
-<pre>public&nbsp;void&nbsp;assertPositionDiscontinuityReasonsEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;discontinuityReasons)</pre>
-<div class="block">Asserts that the discontinuity reasons reported by <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a> are equal to the provided values.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertPositionDiscontinuityReasonsEqual&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;discontinuityReasons)</pre>
+<div class="block">Asserts that the discontinuity reasons reported by <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a> are
+ equal to the provided values.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>discontinuityReasons</code> - The expected discontinuity reasons.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertPlayedPeriodIndices-java.lang.Integer...-">
+<a id="assertPlayedPeriodIndices(java.lang.Integer...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>assertPlayedPeriodIndices</h4>
-<pre>public&nbsp;void&nbsp;assertPlayedPeriodIndices&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;periodIndices)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;assertPlayedPeriodIndices&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>...&nbsp;periodIndices)</pre>
 <div class="block">Asserts that the indices of played periods is equal to the provided list of periods. A period
  is considered to be played if it was the current period after a position discontinuity or a
  media source preparation. When the same period is repeated automatically due to enabled repeat
@@ -617,187 +657,192 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </dl>
 </li>
 </ul>
-<a name="onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">
+<a id="onTimelineChanged(com.google.android.exoplayer2.Timeline,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onTimelineChanged</h4>
-<pre>public&nbsp;void&nbsp;onTimelineChanged&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                              <a href="../../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
+<pre class="methodSignature">public&nbsp;void&nbsp;onTimelineChanged&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                              <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
                               int&nbsp;reason)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">Player.EventListener</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)">Player.EventListener</a></code></span></div>
 <div class="block">Called when the timeline has been refreshed.
 
- <p>Note that if the timeline has changed then a position discontinuity may also have
- occurred. For example, the current period index may have changed as a result of periods being
- added or removed from the timeline. This will <em>not</em> be reported via a separate call to
- <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a>.
+ <p>Note that the current window or period index may change as a result of a timeline change.
+ If playback can't continue smoothly because of this timeline change, a separate <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(PositionInfo, PositionInfo, int)</code></a> callback will be triggered.
 
- <p><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
+ <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)">onTimelineChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeline</code> - The latest timeline. Never null, but may be empty.</dd>
-<dd><code>reason</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.TimelineChangeReason</code></a> responsible for this timeline change.</dd>
+<dd><code>reason</code> - The <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.TimelineChangeReason</code></a> responsible for this timeline change.</dd>
 </dl>
 </li>
 </ul>
-<a name="onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-">
+<a id="onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onMediaItemTransition</h4>
-<pre>public&nbsp;void&nbsp;onMediaItemTransition&#8203;(@Nullable
-                                  <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
-                                  <a href="../../../../../com/google/android/exoplayer2/Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2">@MediaItemTransitionReason</a>
+<pre class="methodSignature">public&nbsp;void&nbsp;onMediaItemTransition&#8203;(@Nullable
+                                  <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                                  <a href="../Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2">@MediaItemTransitionReason</a>
                                   int&nbsp;reason)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-">Player.EventListener</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)">Player.EventListener</a></code></span></div>
 <div class="block">Called when playback transitions to a media item or starts repeating a media item according
- to the current <a href="../../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--"><code>repeat mode</code></a>.
+ to the current <a href="../Player.html#getRepeatMode()"><code>repeat mode</code></a>.
 
  <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
  consequence of a playlist change.
 
- <p><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
+ <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-">onMediaItemTransition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,int)">onMediaItemTransition</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaItem</code> - The <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. May be null if the playlist becomes empty.</dd>
+<dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. May be null if the playlist becomes empty.</dd>
 <dd><code>reason</code> - The reason for the transition.</dd>
 </dl>
 </li>
 </ul>
-<a name="onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">
+<a id="onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onTracksChanged</h4>
-<pre>public&nbsp;void&nbsp;onTracksChanged&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
-                            <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">Player.EventListener</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;onTracksChanged&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
+                            <a href="../trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)">Player.EventListener</a></code></span></div>
 <div class="block">Called when the available or selected tracks change.
 
- <p><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
+ <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">onTracksChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)">onTracksChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackGroups</code> - The available tracks. Never null, but may be of length zero.</dd>
-<dd><code>trackSelections</code> - The track selections for each renderer. Never null and always of
-     length <a href="../../../../../com/google/android/exoplayer2/Player.html#getRendererCount--"><code>Player.getRendererCount()</code></a>, but may contain null elements.</dd>
+<dd><code>trackSelections</code> - The selected tracks. Never null, but may contain null elements. A
+     concrete implementation may include null elements if it has a fixed number of renderer
+     components, wishes to report a TrackSelection for each of them, and has one or more
+     renderer components that is not assigned any selected tracks.</dd>
 </dl>
 </li>
 </ul>
-<a name="onPlaybackStateChanged-int-">
+<a id="onPlaybackStateChanged(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlaybackStateChanged</h4>
-<pre>public&nbsp;void&nbsp;onPlaybackStateChanged&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
+<pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackStateChanged&#8203;(<a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
                                    int&nbsp;playbackState)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-">Player.EventListener</a></code></span></div>
-<div class="block">Called when the value returned from <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onPlaybackStateChanged(int)">Player.EventListener</a></code></span></div>
+<div class="block">Called when the value returned from <a href="../Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> changes.
 
- <p><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
+ <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-">onPlaybackStateChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onPlaybackStateChanged(int)">onPlaybackStateChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackState</code> - The new playback <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>state</code></a>.</dd>
+<dd><code>playbackState</code> - The new playback <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2"><code>state</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">
+<a id="onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlayerError</h4>
-<pre>public&nbsp;void&nbsp;onPlayerError&#8203;(<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">Player.EventListener</a></code></span></div>
-<div class="block">Called when an error occurs. The playback state will transition to <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a>
- immediately after this method is called. The player instance can still be used, and <a href="../../../../../com/google/android/exoplayer2/Player.html#release--"><code>Player.release()</code></a> must still be called on the player should it no longer be required.
+<pre class="methodSignature">public&nbsp;void&nbsp;onPlayerError&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">Player.EventListener</a></code></span></div>
+<div class="block">Called when an error occurs. The playback state will transition to <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a>
+ immediately after this method is called. The player instance can still be used, and <a href="../Player.html#release()"><code>Player.release()</code></a> must still be called on the player should it no longer be required.
 
- <p><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
+ <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>error</code> - The error.</dd>
 </dl>
 </li>
 </ul>
-<a name="onPositionDiscontinuity-int-">
+<a id="onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPositionDiscontinuity</h4>
-<pre>public&nbsp;void&nbsp;onPositionDiscontinuity&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
+<pre class="methodSignature">public&nbsp;void&nbsp;onPositionDiscontinuity&#8203;(<a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;oldPosition,
+                                    <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;newPosition,
+                                    <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
                                     int&nbsp;reason)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">Player.EventListener</a></code></span></div>
-<div class="block">Called when a position discontinuity occurs without a change to the timeline. A position
- discontinuity occurs when the current window or period index changes (as a result of playback
- transitioning from one period in the timeline to the next), or when the playback position
- jumps within the period currently being played (as a result of a seek being performed, or
- when the source introduces a discontinuity internally).
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)">Player.EventListener</a></code></span></div>
+<div class="block">Called when a position discontinuity occurs.
 
- <p>When a position discontinuity occurs as a result of a change to the timeline this method
- is <em>not</em> called. <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> is called in this case.
+ <p>A position discontinuity occurs when the playing period changes, the playback position
+ jumps within the period currently being played, or when the playing period has been skipped
+ or removed.
 
- <p><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onEvents-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.Player.Events-"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
+ <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
  other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)">onPositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>reason</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a> responsible for the discontinuity.</dd>
+<dd><code>oldPosition</code> - The position before the discontinuity.</dd>
+<dd><code>newPosition</code> - The position after the discontinuity.</dd>
+<dd><code>reason</code> - The <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a> responsible for the discontinuity.</dd>
 </dl>
 </li>
 </ul>
-<a name="onActionScheduleFinished--">
+<a id="onActionScheduleFinished()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onActionScheduleFinished</h4>
-<pre>public&nbsp;void&nbsp;onActionScheduleFinished()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html#onActionScheduleFinished--">ActionSchedule.Callback</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;onActionScheduleFinished()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ActionSchedule.Callback.html#onActionScheduleFinished()">ActionSchedule.Callback</a></code></span></div>
 <div class="block">Called when action schedule finished executing all its actions.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html#onActionScheduleFinished--">onActionScheduleFinished</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.Callback</a></code></dd>
+<dd><code><a href="ActionSchedule.Callback.html#onActionScheduleFinished()">onActionScheduleFinished</a></code>&nbsp;in interface&nbsp;<code><a href="ActionSchedule.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.Callback</a></code></dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -807,16 +852,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" target="_top">Frames</a></li>
-<li><a href="ExoPlayerTestRunner.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -848,9 +885,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

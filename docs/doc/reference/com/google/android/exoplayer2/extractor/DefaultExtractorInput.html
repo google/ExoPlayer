@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/ConstantBitrateSeekMap.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/DefaultExtractorInput.html" target="_top">Frames</a></li>
-<li><a href="DefaultExtractorInput.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/package-summary.html">com.google.android.exoplayer2.extractor</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor</a></div>
 <h2 title="Class DefaultExtractorInput" class="title">Class DefaultExtractorInput</h2>
 </div>
 <div class="contentContainer">
@@ -131,13 +130,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
+<dd><code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code>, <code><a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">DefaultExtractorInput</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></pre>
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</div>
+implements <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></pre>
+<div class="block">An <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -145,19 +144,20 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#DefaultExtractorInput-com.google.android.exoplayer2.upstream.DataReader-long-long-">DefaultExtractorInput</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataReader,long,long)">DefaultExtractorInput</a></span>&#8203;(<a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
                      long&nbsp;position,
                      long&nbsp;length)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -165,13 +165,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -180,14 +182,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#advancePeekPosition-int-">advancePeekPosition</a></span>&#8203;(int&nbsp;length)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#advancePeekPosition(int)">advancePeekPosition</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Advances the peek position by <code>length</code> bytes.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#advancePeekPosition-int-boolean-">advancePeekPosition</a></span>&#8203;(int&nbsp;length,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#advancePeekPosition(int,boolean)">advancePeekPosition</a></span>&#8203;(int&nbsp;length,
                    boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
 <div class="block">Advances the peek position by <code>length</code> bytes.</div>
@@ -195,28 +197,28 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#getLength--">getLength</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLength()">getLength</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the length of the source stream, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</div>
+<div class="block">Returns the length of the source stream, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#getPeekPosition--">getPeekPosition</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeekPosition()">getPeekPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the current peek position (byte offset) in the stream.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#getPosition--">getPosition</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the current read position (byte offset) in the stream.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#peek-byte:A-int-int-">peek</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peek(byte%5B%5D,int,int)">peek</a></span>&#8203;(byte[]&nbsp;target,
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
@@ -225,27 +227,27 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#peekFully-byte:A-int-int-">peekFully</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekFully(byte%5B%5D,int,int)">peekFully</a></span>&#8203;(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length)</code></th>
 <td class="colLast">
-<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>peekFully(target, offset, length,
+<div class="block">Equivalent to <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>peekFully(target, offset, length,
  false)</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#peekFully-byte:A-int-int-boolean-">peekFully</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekFully(byte%5B%5D,int,int,boolean)">peekFully</a></span>&#8203;(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
+<div class="block">Like <a href="ExtractorInput.html#peek(byte%5B%5D,int,int)"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#read-byte:A-int-int-">read</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;target,
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
@@ -254,34 +256,34 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#readFully-byte:A-int-int-">readFully</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readFully(byte%5B%5D,int,int)">readFully</a></span>&#8203;(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length)</code></th>
 <td class="colLast">
-<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>readFully(target, offset, length,
+<div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>readFully(target, offset, length,
  false)</code></a>.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#readFully-byte:A-int-int-boolean-">readFully</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readFully(byte%5B%5D,int,int,boolean)">readFully</a></span>&#8203;(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
+<div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#resetPeekPosition--">resetPeekPosition</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetPeekPosition()">resetPeekPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Resets the peek position to equal the current read position.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>&lt;E extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&gt;<br>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#setRetryPosition-long-E-">setRetryPosition</a></span>&#8203;(long&nbsp;position,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRetryPosition(long,E)">setRetryPosition</a></span>&#8203;(long&nbsp;position,
                 E&nbsp;e)</code></th>
 <td class="colLast">
 <div class="block">Called when reading fails and the required retry position is different from the last position.</div>
@@ -289,36 +291,37 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#skip-int-">skip</a></span>&#8203;(int&nbsp;length)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skip(int)">skip</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
+<div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#skipFully-int-">skipFully</a></span>&#8203;(int&nbsp;length)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipFully(int)">skipFully</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
+<div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#skipFully-int-boolean-">skipFully</a></span>&#8203;(int&nbsp;length,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipFully(int,boolean)">skipFully</a></span>&#8203;(int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
+<div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -326,83 +329,86 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultExtractorInput-com.google.android.exoplayer2.upstream.DataReader-long-long-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataReader,long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultExtractorInput</h4>
-<pre>public&nbsp;DefaultExtractorInput&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
+<pre>public&nbsp;DefaultExtractorInput&#8203;(<a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
                              long&nbsp;position,
                              long&nbsp;length)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataReader</code> - The wrapped <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</dd>
+<dd><code>dataReader</code> - The wrapped <a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</dd>
 <dd><code>position</code> - The initial position in the stream.</dd>
-<dd><code>length</code> - The length of the stream, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</dd>
+<dd><code>length</code> - The length of the stream, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="read-byte:A-int-int-">
+<a id="read(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;target,
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-">ExtractorInput</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#read(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes from the input and resets the peek position.
 
  <p>This method blocks until at least one byte of data can be read, the end of the input is
  detected, or an exception is thrown.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
+<dd><code><a href="../upstream/DataReader.html#read(byte%5B%5D,int,int)">read</a></code>&nbsp;in interface&nbsp;<code><a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#read(byte%5B%5D,int,int)">read</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
 <dd><code>length</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
+<dd>The number of bytes read, or <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
 </dl>
 </li>
 </ul>
-<a name="readFully-byte:A-int-int-boolean-">
+<a id="readFully(byte[],int,int,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readFully</h4>
-<pre>public&nbsp;boolean&nbsp;readFully&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;readFully&#8203;(byte[]&nbsp;target,
                          int&nbsp;offset,
                          int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)">ExtractorInput</a></code></span></div>
+<div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-">readFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)">readFully</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
@@ -422,22 +428,22 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="readFully-byte:A-int-int-">
+<a id="readFully(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readFully</h4>
-<pre>public&nbsp;void&nbsp;readFully&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;void&nbsp;readFully&#8203;(byte[]&nbsp;target,
                       int&nbsp;offset,
                       int&nbsp;length)
                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-">ExtractorInput</a></code></span></div>
-<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>readFully(target, offset, length,
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
+<div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>readFully(target, offset, length,
  false)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-">readFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)">readFully</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
@@ -448,42 +454,42 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="skip-int-">
+<a id="skip(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>skip</h4>
-<pre>public&nbsp;int&nbsp;skip&#8203;(int&nbsp;length)
+<pre class="methodSignature">public&nbsp;int&nbsp;skip&#8203;(int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skip-int-">ExtractorInput</a></code></span></div>
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#skip(int)">ExtractorInput</a></code></span></div>
+<div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skip-int-">skip</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#skip(int)">skip</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - The maximum number of bytes to skip from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes skipped, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
+<dd>The number of bytes skipped, or <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
 </dl>
 </li>
 </ul>
-<a name="skipFully-int-boolean-">
+<a id="skipFully(int,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>skipFully</h4>
-<pre>public&nbsp;boolean&nbsp;skipFully&#8203;(int&nbsp;length,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;skipFully&#8203;(int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#skipFully(int,boolean)">ExtractorInput</a></code></span></div>
+<div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-boolean-">skipFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#skipFully(int,boolean)">skipFully</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - The number of bytes to skip from the input.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input having skipped no data is
@@ -501,21 +507,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="skipFully-int-">
+<a id="skipFully(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>skipFully</h4>
-<pre>public&nbsp;void&nbsp;skipFully&#8203;(int&nbsp;length)
+<pre class="methodSignature">public&nbsp;void&nbsp;skipFully&#8203;(int&nbsp;length)
                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-">ExtractorInput</a></code></span></div>
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#skipFully(int)">ExtractorInput</a></code></span></div>
+<div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.
 
  <p>Encountering the end of input is always considered an error, and will result in an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> being thrown.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-">skipFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#skipFully(int)">skipFully</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - The number of bytes to skip from the input.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -524,56 +530,56 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="peek-byte:A-int-int-">
+<a id="peek(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>peek</h4>
-<pre>public&nbsp;int&nbsp;peek&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;int&nbsp;peek&#8203;(byte[]&nbsp;target,
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-">ExtractorInput</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#peek(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
 <div class="block">Peeks up to <code>length</code> bytes from the peek position. The current read position is left
  unchanged.
 
  <p>This method blocks until at least one byte of data can be peeked, the end of the input is
  detected, or an exception is thrown.
 
- <p>Calling <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
+ <p>Calling <a href="ExtractorInput.html#resetPeekPosition()"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
  position, so the caller can peek the same data again. Reading or skipping also resets the peek
  position.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-">peek</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#peek(byte%5B%5D,int,int)">peek</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
 <dd><code>length</code> - The maximum number of bytes to peek from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes peeked, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
+<dd>The number of bytes peeked, or <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs peeking from the input.</dd>
 </dl>
 </li>
 </ul>
-<a name="peekFully-byte:A-int-int-boolean-">
+<a id="peekFully(byte[],int,int,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>peekFully</h4>
-<pre>public&nbsp;boolean&nbsp;peekFully&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;peekFully&#8203;(byte[]&nbsp;target,
                          int&nbsp;offset,
                          int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)">ExtractorInput</a></code></span></div>
+<div class="block">Like <a href="ExtractorInput.html#peek(byte%5B%5D,int,int)"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-">peekFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)">peekFully</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
@@ -593,22 +599,22 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="peekFully-byte:A-int-int-">
+<a id="peekFully(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>peekFully</h4>
-<pre>public&nbsp;void&nbsp;peekFully&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;void&nbsp;peekFully&#8203;(byte[]&nbsp;target,
                       int&nbsp;offset,
                       int&nbsp;length)
                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-">ExtractorInput</a></code></span></div>
-<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>peekFully(target, offset, length,
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
+<div class="block">Equivalent to <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>peekFully(target, offset, length,
  false)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-">peekFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int)">peekFully</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
@@ -619,21 +625,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="advancePeekPosition-int-boolean-">
+<a id="advancePeekPosition(int,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>advancePeekPosition</h4>
-<pre>public&nbsp;boolean&nbsp;advancePeekPosition&#8203;(int&nbsp;length,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;advancePeekPosition&#8203;(int&nbsp;length,
                                    boolean&nbsp;allowEndOfInput)
                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>ExtractorInput.peekFully(byte[], int, int,
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#advancePeekPosition(int,boolean)">ExtractorInput</a></code></span></div>
+<div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.peekFully(byte[], int, int,
  boolean)</code></a> except the data is skipped instead of read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-boolean-">advancePeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#advancePeekPosition(int,boolean)">advancePeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - The number of bytes by which to advance the peek position.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input before advancing is allowed,
@@ -651,20 +657,20 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="advancePeekPosition-int-">
+<a id="advancePeekPosition(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>advancePeekPosition</h4>
-<pre>public&nbsp;void&nbsp;advancePeekPosition&#8203;(int&nbsp;length)
+<pre class="methodSignature">public&nbsp;void&nbsp;advancePeekPosition&#8203;(int&nbsp;length)
                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-">ExtractorInput</a></code></span></div>
-<div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-"><code>ExtractorInput.peekFully(byte[], int, int)</code></a>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#advancePeekPosition(int)">ExtractorInput</a></code></span></div>
+<div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int)"><code>ExtractorInput.peekFully(byte[], int, int)</code></a>
  except the data is skipped instead of read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-">advancePeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#advancePeekPosition(int)">advancePeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - The number of bytes to peek from the input.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -673,89 +679,89 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="resetPeekPosition--">
+<a id="resetPeekPosition()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>resetPeekPosition</h4>
-<pre>public&nbsp;void&nbsp;resetPeekPosition()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--">ExtractorInput</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;resetPeekPosition()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#resetPeekPosition()">ExtractorInput</a></code></span></div>
 <div class="block">Resets the peek position to equal the current read position.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--">resetPeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#resetPeekPosition()">resetPeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getPeekPosition--">
+<a id="getPeekPosition()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPeekPosition</h4>
-<pre>public&nbsp;long&nbsp;getPeekPosition()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getPeekPosition--">ExtractorInput</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getPeekPosition()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#getPeekPosition()">ExtractorInput</a></code></span></div>
 <div class="block">Returns the current peek position (byte offset) in the stream.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getPeekPosition--">getPeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#getPeekPosition()">getPeekPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The peek position (byte offset) in the stream.</dd>
 </dl>
 </li>
 </ul>
-<a name="getPosition--">
+<a id="getPosition()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPosition</h4>
-<pre>public&nbsp;long&nbsp;getPosition()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getPosition--">ExtractorInput</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getPosition()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#getPosition()">ExtractorInput</a></code></span></div>
 <div class="block">Returns the current read position (byte offset) in the stream.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getPosition--">getPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#getPosition()">getPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The read position (byte offset) in the stream.</dd>
 </dl>
 </li>
 </ul>
-<a name="getLength--">
+<a id="getLength()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getLength</h4>
-<pre>public&nbsp;long&nbsp;getLength()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getLength--">ExtractorInput</a></code></span></div>
-<div class="block">Returns the length of the source stream, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getLength()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#getLength()">ExtractorInput</a></code></span></div>
+<div class="block">Returns the length of the source stream, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getLength--">getLength</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#getLength()">getLength</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The length of the source stream, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</dd>
+<dd>The length of the source stream, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="setRetryPosition-long-java.lang.Throwable-">
+<a id="setRetryPosition(long,java.lang.Throwable)">
 <!--   -->
-</a><a name="setRetryPosition-long-E-">
+</a><a id="setRetryPosition(long,E)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>setRetryPosition</h4>
-<pre>public&nbsp;&lt;E extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&gt;&nbsp;void&nbsp;setRetryPosition&#8203;(long&nbsp;position,
+<pre class="methodSignature">public&nbsp;&lt;E extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&gt;&nbsp;void&nbsp;setRetryPosition&#8203;(long&nbsp;position,
                                                    E&nbsp;e)
                                             throws E extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#setRetryPosition-long-E-">ExtractorInput</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#setRetryPosition(long,E)">ExtractorInput</a></code></span></div>
 <div class="block">Called when reading fails and the required retry position is different from the last position.
  After setting the retry position it throws the given <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#setRetryPosition-long-E-">setRetryPosition</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dd><code><a href="ExtractorInput.html#setRetryPosition(long,E)">setRetryPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
 <dd><code>E</code> - Type of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a> to be thrown.</dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -769,21 +775,25 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -793,16 +803,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/ConstantBitrateSeekMap.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/DefaultExtractorInput.html" target="_top">Frames</a></li>
-<li><a href="DefaultExtractorInput.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -834,9 +836,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>
