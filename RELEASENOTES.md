@@ -45,6 +45,8 @@
 *   HLS
     *   Use the PRECISE attribute in EXT-X-START to select the default start
         position.
+*   PlayerNotificationManager:
+    *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support Android 12.
 
 ### 2.14.0 (2021-05-13)
 
