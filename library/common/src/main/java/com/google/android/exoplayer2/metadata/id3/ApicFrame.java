@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -48,6 +49,11 @@ public final class ApicFrame extends Id3Frame {
     description = in.readString();
     pictureType = in.readInt();
     pictureData = castNonNull(in.createByteArray());
+  }
+
+  @Override
+  public void populateMediaMetadata(MediaMetadata.Builder builder) {
+    builder.setArtworkData(pictureData);
   }
 
   @Override
