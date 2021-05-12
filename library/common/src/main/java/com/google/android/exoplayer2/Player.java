@@ -404,6 +404,23 @@ public interface Player {
     public int get(int index) {
       return flags.get(index);
     }
+
+    @Override
+    public int hashCode() {
+      return flags.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Events)) {
+        return false;
+      }
+      Events other = (Events) obj;
+      return flags.equals(other.flags);
+    }
   }
 
   /** Position info describing a playback position involved in a discontinuity. */
