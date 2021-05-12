@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var data = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageEncoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html" target="_top">Frames</a></li>
-<li><a href="EventMessageDecoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/package-summary.html">com.google.android.exoplayer2.metadata.emsg</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.metadata.emsg</a></div>
 <h2 title="Class EventMessageDecoder" class="title">Class EventMessageDecoder</h2>
 </div>
 <div class="contentContainer">
@@ -122,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">com.google.android.exoplayer2.metadata.SimpleMetadataDecoder</a></li>
+<li><a href="../SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">com.google.android.exoplayer2.metadata.SimpleMetadataDecoder</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.metadata.emsg.EventMessageDecoder</li>
@@ -136,12 +135,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></code></dd>
+<dd><code><a href="../MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">EventMessageDecoder</span>
-extends <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></pre>
-<div class="block">Decodes data encoded by <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageEncoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageEncoder</code></a>.</div>
+extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></pre>
+<div class="block">Decodes data encoded by <a href="EventMessageEncoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageEncoder</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -149,31 +148,34 @@ extends <a href="../../../../../../com/google/android/exoplayer2/metadata/Simple
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html#EventMessageDecoder--">EventMessageDecoder</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">EventMessageDecoder</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -181,36 +183,37 @@ extends <a href="../../../../../../com/google/android/exoplayer2/metadata/Simple
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">decode</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
+<td class="colFirst"><code>protected <a href="../Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">decode</a></span>&#8203;(<a href="../MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
       <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
-<div class="block">Called by <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
- performed, except in the case that <a href="../../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
+<div class="block">Called by <a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
+ performed, except in the case that <a href="../../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html#decode-com.google.android.exoplayer2.util.ParsableByteArray-">decode</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;emsgData)</code></th>
+<td class="colFirst"><code><a href="EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.util.ParsableByteArray)">decode</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;emsgData)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.metadata.SimpleMetadataDecoder">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.metadata.<a href="../SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></h3>
+<code><a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)">decode</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.metadata.SimpleMetadataDecoder">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.metadata.<a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">decode</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -218,12 +221,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/metadata/Simple
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="EventMessageDecoder--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -234,62 +238,68 @@ extends <a href="../../../../../../com/google/android/exoplayer2/metadata/Simple
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">
+<a id="decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>decode</h4>
-<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode&#8203;(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
+<pre class="methodSignature">protected&nbsp;<a href="../Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode&#8203;(<a href="../MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
                           <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">SimpleMetadataDecoder</a></code></span></div>
-<div class="block">Called by <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
- performed, except in the case that <a href="../../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">SimpleMetadataDecoder</a></code></span></div>
+<div class="block">Called by <a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
+ performed, except in the case that <a href="../../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></code></dd>
+<dd><code><a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer to decode.</dd>
-<dd><code>buffer</code> - The input buffer's <a href="../../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data buffer</code></a>, for convenience.
-     Validation by <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-"><code>SimpleMetadataDecoder.decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)</code></a> guarantees that <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#hasArray--" title="class or interface in java.nio" class="externalLink"><code>ByteBuffer.hasArray()</code></a>, <a href="https://developer.android.com/reference/java/nio/Buffer.html?is-external=true#position--" title="class or interface in java.nio" class="externalLink"><code>Buffer.position()</code></a> and <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html?is-external=true#arrayOffset--" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.arrayOffset()</code></a> are <code>true</code>, <code>0</code> and
+<dd><code>buffer</code> - The input buffer's <a href="../../decoder/DecoderInputBuffer.html#data"><code>data buffer</code></a>, for convenience.
+     Validation by <a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>SimpleMetadataDecoder.decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)</code></a> guarantees that <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#hasArray()" title="class or interface in java.nio" class="externalLink"><code>ByteBuffer.hasArray()</code></a>, <a href="https://developer.android.com/reference/java/nio/Buffer.html?is-external=true#position()" title="class or interface in java.nio" class="externalLink"><code>Buffer.position()</code></a> and <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html?is-external=true#arrayOffset()" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.arrayOffset()</code></a> are <code>true</code>, <code>0</code> and
      <code>0</code> respectively.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The decoded metadata object, or <code>null</code> if the metadata could not be decoded.</dd>
 </dl>
 </li>
 </ul>
-<a name="decode-com.google.android.exoplayer2.util.ParsableByteArray-">
+<a id="decode(com.google.android.exoplayer2.util.ParsableByteArray)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>decode</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;decode&#8203;(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;emsgData)</pre>
+<pre class="methodSignature">public&nbsp;<a href="EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;decode&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;emsgData)</pre>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -299,16 +309,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/metadata/Simple
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageEncoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html" target="_top">Frames</a></li>
-<li><a href="EventMessageDecoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -340,9 +342,11 @@ extends <a href="../../../../../../com/google/android/exoplayer2/metadata/Simple
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

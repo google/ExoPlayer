@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":42,"i13":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":42,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" target="_top">Frames</a></li>
-<li><a href="CronetDataSource.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/cronet/package-summary.html">com.google.android.exoplayer2.ext.cronet</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ext.cronet</a></div>
 <h2 title="Class CronetDataSource" class="title">Class CronetDataSource</h2>
 </div>
 <div class="contentContainer">
@@ -122,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.BaseDataSource</a></li>
+<li><a href="../../upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.BaseDataSource</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.ext.cronet.CronetDataSource</li>
@@ -136,16 +135,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code>, <code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code>, <code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code>, <code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code>, <code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">CronetDataSource</span>
-extends <a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></pre>
+extends <a href="../../upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a>
+implements <a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></pre>
 <div class="block">DataSource without intermediate buffer based on Cronet API set using UrlRequest.
 
  <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
- priority) the <code>dataSpec</code>, <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>setRequestProperty(java.lang.String, java.lang.String)</code></a> and the default parameters used to
+ priority) the <code>dataSpec</code>, <a href="#setRequestProperty(java.lang.String,java.lang.String)"><code>setRequestProperty(java.lang.String, java.lang.String)</code></a> and the default parameters used to
  construct the instance.</div>
 </li>
 </ul>
@@ -154,12 +153,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -168,35 +168,37 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></span></code></th>
 <td class="colLast">
-<div class="block"><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> instances.</div>
+<div class="block"><a href="../../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> instances.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.OpenException.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.OpenException</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CronetDataSource.OpenException.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.OpenException</a></span></code></th>
 <td class="colLast">
-<div class="block">Thrown when an error is encountered when trying to open a <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a>.</div>
+<div class="block">Thrown when an error is encountered when trying to open a <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.CleartextNotPermittedException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.CleartextNotPermittedException</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.InvalidContentTypeException</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.InvalidResponseCodeException</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a></code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></h3>
+<code><a href="../../upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a>, <a href="../../upstream/HttpDataSource.CleartextNotPermittedException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.CleartextNotPermittedException</a>, <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a>, <a href="../../upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.InvalidContentTypeException</a>, <a href="../../upstream/HttpDataSource.InvalidResponseCodeException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.InvalidResponseCodeException</a>, <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -205,125 +207,129 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS">DEFAULT_CONNECT_TIMEOUT_MILLIS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_CONNECT_TIMEOUT_MILLIS">DEFAULT_CONNECT_TIMEOUT_MILLIS</a></span></code></th>
 <td class="colLast">
 <div class="block">The default connection timeout, in milliseconds.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS">DEFAULT_READ_TIMEOUT_MILLIS</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_READ_TIMEOUT_MILLIS">DEFAULT_READ_TIMEOUT_MILLIS</a></span></code></th>
 <td class="colLast">
 <div class="block">The default read timeout, in milliseconds.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource">
 <!--   -->
 </a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#REJECT_PAYWALL_TYPES">REJECT_PAYWALL_TYPES</a></code></li>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></h3>
+<code><a href="../../upstream/HttpDataSource.html#REJECT_PAYWALL_TYPES">REJECT_PAYWALL_TYPES</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
+                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
+                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                 boolean&nbsp;handleSetCookieRequests)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
+                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
+                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                 boolean&nbsp;handleSetCookieRequests)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -332,76 +338,76 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected org.chromium.net.UrlRequest.Builder</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#buildRequestBuilder-com.google.android.exoplayer2.upstream.DataSpec-">buildRequestBuilder</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildRequestBuilder(com.google.android.exoplayer2.upstream.DataSpec)">buildRequestBuilder</a></span>&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#clearAllRequestProperties--">clearAllRequestProperties</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearAllRequestProperties()">clearAllRequestProperties</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Clears all request headers that were set by <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>HttpDataSource.setRequestProperty(String, String)</code></a>.</div>
+<div class="block">Clears all request headers that were set by <a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)"><code>HttpDataSource.setRequestProperty(String, String)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#clearRequestProperty-java.lang.String-">clearRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearRequestProperty(java.lang.String)">clearRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
 <div class="block">Clears the value of a request header.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#close--">close</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Closes the source.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected org.chromium.net.UrlRequest</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getCurrentUrlRequest--">getCurrentUrlRequest</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentUrlRequest()">getCurrentUrlRequest</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns current <code>UrlRequest</code>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected org.chromium.net.UrlResponseInfo</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getCurrentUrlResponseInfo--">getCurrentUrlResponseInfo</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentUrlResponseInfo()">getCurrentUrlResponseInfo</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns current <code>UrlResponseInfo</code>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getResponseCode--">getResponseCode</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseCode()">getResponseCode</a></span>()</code></th>
 <td class="colLast">
-<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
+<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code></th>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders()">getResponseHeaders</a></span>()</code></th>
 <td class="colLast">
-<div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
+<div class="block">When the source is open, returns the response headers associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getUri--">getUri</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri()">getUri</a></span>()</code></th>
 <td class="colLast">
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></span>&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#read-byte:A-int-int-">read</a></span>&#8203;(byte[]&nbsp;buffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;readLength)</code></th>
 <td class="colLast">
@@ -410,7 +416,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#read-java.nio.ByteBuffer-">read</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(java.nio.ByteBuffer)">read</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
 <div class="block">Reads up to <code>buffer.remaining()</code> bytes of data and stores them into <code>buffer</code>,
  starting at <code>buffer.position()</code>.</div>
@@ -418,14 +424,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">setRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRequestProperty(java.lang.String,java.lang.String)">setRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
 <div class="block">Sets the value of a request header.</div>
@@ -433,28 +439,29 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.upstream.BaseDataSource">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.BaseDataSource">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-">addTransferListener</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#bytesTransferred-int-">bytesTransferred</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#transferEnded--">transferEnded</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#transferInitializing-com.google.android.exoplayer2.upstream.DataSpec-">transferInitializing</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html#transferStarted-com.google.android.exoplayer2.upstream.DataSpec-">transferStarted</a></code></li>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="../../upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a></h3>
+<code><a href="../../upstream/BaseDataSource.html#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">addTransferListener</a>, <a href="../../upstream/BaseDataSource.html#bytesTransferred(int)">bytesTransferred</a>, <a href="../../upstream/BaseDataSource.html#transferEnded()">transferEnded</a>, <a href="../../upstream/BaseDataSource.html#transferInitializing(com.google.android.exoplayer2.upstream.DataSpec)">transferInitializing</a>, <a href="../../upstream/BaseDataSource.html#transferStarted(com.google.android.exoplayer2.upstream.DataSpec)">transferStarted</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.upstream.DataSource">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-">addTransferListener</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.DataSource">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></h3>
+<code><a href="../../upstream/DataSource.html#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">addTransferListener</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -462,12 +469,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_CONNECT_TIMEOUT_MILLIS">
+<a id="DEFAULT_CONNECT_TIMEOUT_MILLIS">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -481,7 +489,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </dl>
 </li>
 </ul>
-<a name="DEFAULT_READ_TIMEOUT_MILLIS">
+<a id="DEFAULT_READ_TIMEOUT_MILLIS">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -497,13 +505,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-">
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -513,11 +523,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                         <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -530,13 +540,13 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
                         int&nbsp;readTimeoutMs,
                         boolean&nbsp;resetTimeoutOnRedirects,
                         @Nullable
-                        <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
+                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -549,14 +559,14 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
                         int&nbsp;readTimeoutMs,
                         boolean&nbsp;resetTimeoutOnRedirects,
                         @Nullable
-                        <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
+                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                         boolean&nbsp;handleSetCookieRequests)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-">
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -568,11 +578,11 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
                         @Nullable
                         <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -587,13 +597,13 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
                         int&nbsp;readTimeoutMs,
                         boolean&nbsp;resetTimeoutOnRedirects,
                         @Nullable
-                        <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
+                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -608,33 +618,35 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
                         int&nbsp;readTimeoutMs,
                         boolean&nbsp;resetTimeoutOnRedirects,
                         @Nullable
-                        <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
+                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                         boolean&nbsp;handleSetCookieRequests)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setContentTypePredicate-com.google.common.base.Predicate-">
+<a id="setContentTypePredicate(com.google.common.base.Predicate)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentTypePredicate</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
                                     <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
- <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</div>
+ <a href="../../upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>, or <code>null</code> to clear a
@@ -642,205 +654,205 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 </dl>
 </li>
 </ul>
-<a name="setRequestProperty-java.lang.String-java.lang.String-">
+<a id="setRequestProperty(java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRequestProperty</h4>
-<pre>public&nbsp;void&nbsp;setRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+<pre class="methodSignature">public&nbsp;void&nbsp;setRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">HttpDataSource</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)">HttpDataSource</a></code></span></div>
 <div class="block">Sets the value of a request header. The value will be used for subsequent connections
  established by the source.
 
- <p>Note: If the same header is set as a default parameter in the <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>, then the
+ <p>Note: If the same header is set as a default parameter in the <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>, then the
  header value set with this method should be preferred when connecting with the data source. See
- <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>.</div>
+ <a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-">setRequestProperty</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)">setRequestProperty</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>name</code> - The name of the header field.</dd>
 <dd><code>value</code> - The value of the field.</dd>
 </dl>
 </li>
 </ul>
-<a name="clearRequestProperty-java.lang.String-">
+<a id="clearRequestProperty(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearRequestProperty</h4>
-<pre>public&nbsp;void&nbsp;clearRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#clearRequestProperty-java.lang.String-">HttpDataSource</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;clearRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#clearRequestProperty(java.lang.String)">HttpDataSource</a></code></span></div>
 <div class="block">Clears the value of a request header. The change will apply to subsequent connections
  established by the source.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#clearRequestProperty-java.lang.String-">clearRequestProperty</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#clearRequestProperty(java.lang.String)">clearRequestProperty</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>name</code> - The name of the header field.</dd>
 </dl>
 </li>
 </ul>
-<a name="clearAllRequestProperties--">
+<a id="clearAllRequestProperties()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearAllRequestProperties</h4>
-<pre>public&nbsp;void&nbsp;clearAllRequestProperties()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#clearAllRequestProperties--">HttpDataSource</a></code></span></div>
-<div class="block">Clears all request headers that were set by <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>HttpDataSource.setRequestProperty(String, String)</code></a>.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;clearAllRequestProperties()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#clearAllRequestProperties()">HttpDataSource</a></code></span></div>
+<div class="block">Clears all request headers that were set by <a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)"><code>HttpDataSource.setRequestProperty(String, String)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#clearAllRequestProperties--">clearAllRequestProperties</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#clearAllRequestProperties()">clearAllRequestProperties</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getResponseCode--">
+<a id="getResponseCode()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getResponseCode</h4>
-<pre>public&nbsp;int&nbsp;getResponseCode()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseCode--">HttpDataSource</a></code></span></div>
-<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. Otherwise, returns a negative value.</div>
+<pre class="methodSignature">public&nbsp;int&nbsp;getResponseCode()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#getResponseCode()">HttpDataSource</a></code></span></div>
+<div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. Otherwise, returns a negative value.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseCode--">getResponseCode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#getResponseCode()">getResponseCode</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getResponseHeaders--">
+<a id="getResponseHeaders()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getResponseHeaders</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">DataSource</a></code></span></div>
-<div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#getResponseHeaders()">DataSource</a></code></span></div>
+<div class="block">When the source is open, returns the response headers associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call. Otherwise, returns an empty map.
 
  <p>Key look-up in the returned map is case-insensitive.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../upstream/DataSource.html#getResponseHeaders()">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#getResponseHeaders()">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getUri--">
+<a id="getUri()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getUri</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;getUri()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">DataSource</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#getUri()">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read. The returned
- <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> will be identical to the one passed <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(DataSpec)</code></a> in the <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSpec</code></a>
+ <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> will be identical to the one passed <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> in the <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSpec</code></a>
  unless redirection has occurred. If redirection has occurred, the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> after redirection
  is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">getUri</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../upstream/DataSource.html#getUri()">getUri</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read, or null if the source is not open.</dd>
 </dl>
 </li>
 </ul>
-<a name="open-com.google.android.exoplayer2.upstream.DataSpec-">
+<a id="open(com.google.android.exoplayer2.upstream.DataSpec)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>open</h4>
-<pre>public&nbsp;long&nbsp;open&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
-          throws <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">HttpDataSource</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;open&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
+          throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)">HttpDataSource</a></code></span></div>
 <div class="block">Opens the source to read the specified data.
 
- <p>Note: <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations are advised to set request headers passed via
- (in order of decreasing priority) the <code>dataSpec</code>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>HttpDataSource.setRequestProperty(java.lang.String, java.lang.String)</code></a> and the
- default parameters set in the <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>.</div>
+ <p>Note: <a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations are advised to set request headers passed via
+ (in order of decreasing priority) the <code>dataSpec</code>, <a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)"><code>HttpDataSource.setRequestProperty(java.lang.String, java.lang.String)</code></a> and the
+ default parameters set in the <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes that can be read from the opened source. For unbounded requests
-     (i.e. requests where <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>DataSpec.length</code></a> equals <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>) this value
-     is the resolved length of the request, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if the length is still
+     (i.e., requests where <a href="../../upstream/DataSpec.html#length"><code>DataSpec.length</code></a> equals <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>) this value is
+     the resolved length of the request, or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if the length is still
      unresolved. For all other requests, the value returned will be equal to the request's
-     <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>DataSpec.length</code></a>.</dd>
+     <a href="../../upstream/DataSpec.html#length"><code>DataSpec.length</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="read-byte:A-int-int-">
+<a id="read(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
+<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
                 int&nbsp;offset,
                 int&nbsp;readLength)
-         throws <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">DataReader</a></code></span></div>
+         throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
 
  <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
- the end of the opened range has been reached, then <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
+ the end of the opened range has been reached, then <a href="../../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
  Otherwise, the call will block until at least one byte of data has been read and the number of
  bytes read is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
+<dd><code><a href="../../upstream/DataReader.html#read(byte%5B%5D,int,int)">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#read(byte%5B%5D,int,int)">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
 <dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
+<dd>The number of bytes read, or <a href="../../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
      may be less than <code>length</code> because the end of the input (or available data) was
      reached, the method was interrupted, or the operation was aborted early for another reason.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="read-java.nio.ByteBuffer-">
+<a id="read(java.nio.ByteBuffer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;int&nbsp;read&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)
-         throws <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)
+         throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
 <div class="block">Reads up to <code>buffer.remaining()</code> bytes of data and stores them into <code>buffer</code>,
  starting at <code>buffer.position()</code>. Advances the position of the buffer by the number of
  bytes read and returns this length.
 
- <p>If there is an error, a <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.HttpDataSourceException</code></a> is thrown and the contents of <code>
+ <p>If there is an error, a <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.HttpDataSourceException</code></a> is thrown and the contents of <code>
  buffer</code> should be ignored. If the exception has error code <code>
  HttpDataSourceException.TYPE_READ</code>, note that Cronet may continue writing into <code>buffer</code>
  after the method has returned. Thus the caller should not attempt to reuse the buffer.
 
  <p>If <code>buffer.remaining()</code> is zero then 0 is returned. Otherwise, if no data is available
- because the end of the opened range has been reached, then <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is
+ because the end of the opened range has been reached, then <a href="../../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is
  returned. Otherwise, the call will block until at least one byte of data has been read and the
  number of bytes read is returned.
 
@@ -851,63 +863,60 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <dd><code>buffer</code> - The ByteBuffer into which the read data should be stored. Must be a direct
      ByteBuffer.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
+<dd>The number of bytes read, or <a href="../../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
      because the end of the opened range has been reached.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code> - If an error occurs reading from the source.</dd>
+<dd><code><a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code> - If an error occurs reading from the source.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>buffer</code> is not a direct ByteBuffer.</dd>
 </dl>
 </li>
 </ul>
-<a name="close--">
+<a id="close()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;close()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--">DataSource</a></code></span></div>
-<div class="block">Closes the source.
- <p>
- Note: This method must be called even if the corresponding call to <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(DataSpec)</code></a>
- threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a>. See <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-" target="_top"><code>DataSource.open(DataSpec)</code></a> for more details.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;close()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#close()">DataSource</a></code></span></div>
+<div class="block">Closes the source. This method must be called even if the corresponding call to <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../upstream/DataSource.html#close()">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#close--">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
+<dd><code><a href="../../upstream/HttpDataSource.html#close()">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getCurrentUrlRequest--">
+<a id="getCurrentUrlRequest()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentUrlRequest</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 protected&nbsp;org.chromium.net.UrlRequest&nbsp;getCurrentUrlRequest()</pre>
 <div class="block">Returns current <code>UrlRequest</code>. May be null if the data source is not opened.</div>
 </li>
 </ul>
-<a name="getCurrentUrlResponseInfo--">
+<a id="getCurrentUrlResponseInfo()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentUrlResponseInfo</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 protected&nbsp;org.chromium.net.UrlResponseInfo&nbsp;getCurrentUrlResponseInfo()</pre>
 <div class="block">Returns current <code>UrlResponseInfo</code>. May be null if the data source is not opened.</div>
 </li>
 </ul>
-<a name="buildRequestBuilder-com.google.android.exoplayer2.upstream.DataSpec-">
+<a id="buildRequestBuilder(com.google.android.exoplayer2.upstream.DataSpec)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>buildRequestBuilder</h4>
-<pre>protected&nbsp;org.chromium.net.UrlRequest.Builder&nbsp;buildRequestBuilder&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
+<pre class="methodSignature">protected&nbsp;org.chromium.net.UrlRequest.Builder&nbsp;buildRequestBuilder&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
                                                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -917,21 +926,25 @@ protected&nbsp;org.chromium.net.UrlResponseInfo&nbsp;getCurrentUrlResponseInfo()
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -941,16 +954,8 @@ protected&nbsp;org.chromium.net.UrlResponseInfo&nbsp;getCurrentUrlResponseInfo()
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" target="_top">Frames</a></li>
-<li><a href="CronetDataSource.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -982,9 +987,11 @@ protected&nbsp;org.chromium.net.UrlResponseInfo&nbsp;getCurrentUrlResponseInfo()
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

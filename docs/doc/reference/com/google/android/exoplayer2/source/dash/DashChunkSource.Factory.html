@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6};
+var data = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashManifestStaleException.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" target="_top">Frames</a></li>
-<li><a href="DashChunkSource.Factory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/package-summary.html">com.google.android.exoplayer2.source.dash</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.dash</a></div>
 <h2 title="Interface DashChunkSource.Factory" class="title">Interface DashChunkSource.Factory</h2>
 </div>
 <div class="contentContainer">
@@ -123,15 +122,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.Factory</a></code></dd>
+<dd><code><a href="DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.Factory</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing interface:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></dd>
+<dd><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></dd>
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">DashChunkSource.Factory</span></pre>
-<div class="block">Factory for <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>s.</div>
+<div class="block">Factory for <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>s.</div>
 </li>
 </ul>
 </div>
@@ -139,12 +138,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -152,23 +152,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html#createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.ExoTrackSelection-int-long-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">createDashChunkSource</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
-                     <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+<td class="colFirst"><code><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+                     <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
                      int&nbsp;periodIndex,
                      int[]&nbsp;adaptationSetIndices,
-                     <a href="../../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
+                     <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
                      int&nbsp;type,
                      long&nbsp;elapsedRealtimeOffsetMs,
                      boolean&nbsp;enableEventMessageTrack,
-                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
-                     <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerEmsgHandler,
-                     <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
+                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
+                     <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerEmsgHandler,
+                     <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -176,30 +177,31 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createDashChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-int:A-com.google.android.exoplayer2.trackselection.ExoTrackSelection-int-long-boolean-java.util.List-com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler-com.google.android.exoplayer2.upstream.TransferListener-">
+<a id="createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createDashChunkSource</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a>&nbsp;createDashChunkSource&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
-                                      <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+<pre class="methodSignature"><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a>&nbsp;createDashChunkSource&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+                                      <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
                                       int&nbsp;periodIndex,
                                       int[]&nbsp;adaptationSetIndices,
-                                      <a href="../../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
+                                      <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
                                       int&nbsp;type,
                                       long&nbsp;elapsedRealtimeOffsetMs,
                                       boolean&nbsp;enableEventMessageTrack,
-                                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
+                                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                                       @Nullable
-                                      <a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerEmsgHandler,
+                                      <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerEmsgHandler,
                                       @Nullable
-                                      <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
+                                      <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
@@ -208,34 +210,38 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>adaptationSetIndices</code> - The indices of the corresponding adaptation sets in the period.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>
 <dd><code>elapsedRealtimeOffsetMs</code> - If known, an estimate of the instantaneous difference between
-     server-side unix time and <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> in milliseconds,
-     specified as the server's unix time minus the local elapsed time. Or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</dd>
+     server-side unix time and <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> in milliseconds,
+     specified as the server's unix time minus the local elapsed time. Or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</dd>
 <dd><code>enableEventMessageTrack</code> - Whether to output an event message track.</dd>
-<dd><code>closedCaptionFormats</code> - The <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of closed caption tracks to be output.</dd>
+<dd><code>closedCaptionFormats</code> - The <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of closed caption tracks to be output.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.
      May be null if no listener is available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The created <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>.</dd>
+<dd>The created <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -245,16 +251,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashManifestStaleException.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" target="_top">Frames</a></li>
-<li><a href="DashChunkSource.Factory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -286,9 +284,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

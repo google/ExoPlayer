@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DataSourceInputStream.html" target="_top">Frames</a></li>
-<li><a href="DataSourceInputStream.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream</a></div>
 <h2 title="Class DataSourceInputStream" class="title">Class DataSourceInputStream</h2>
 </div>
 <div class="contentContainer">
@@ -141,7 +140,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public final class <span class="typeNameLabel">DataSourceInputStream</span>
 extends <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></pre>
-<div class="block">Allows data corresponding to a given <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> to be read from a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and
+<div class="block">Allows data corresponding to a given <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> to be read from a <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and
  consumed through an <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>InputStream</code></a>.</div>
 </li>
 </ul>
@@ -150,32 +149,35 @@ extends <a href="https://developer.android.com/reference/java/io/InputStream.htm
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#DataSourceInputStream-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">DataSourceInputStream</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec)">DataSourceInputStream</a></span>&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                     <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -184,57 +186,58 @@ extends <a href="https://developer.android.com/reference/java/io/InputStream.htm
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#bytesRead--">bytesRead</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bytesRead()">bytesRead</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the total number of bytes that have been read or skipped.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#close--">close</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#open--">open</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open()">open</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Optional call to open the underlying <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>
+<div class="block">Optional call to open the underlying <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#read--">read</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read()">read</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#read-byte:A-">read</a></span>&#8203;(byte[]&nbsp;buffer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D)">read</a></span>&#8203;(byte[]&nbsp;buffer)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html#read-byte:A-int-int-">read</a></span>&#8203;(byte[]&nbsp;buffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.io.InputStream">
+<li class="blockList"><a id="methods.inherited.from.class.java.io.InputStream">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.io.<a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></h3>
-<code><a href="https://developer.android.com/reference/java/io/InputStream.html#available--" title="class or interface in java.io" class="externalLink">available</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#mark-int-" title="class or interface in java.io" class="externalLink">mark</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#markSupported--" title="class or interface in java.io" class="externalLink">markSupported</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#readAllBytes--" title="class or interface in java.io" class="externalLink">readAllBytes</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#readNBytes-byte:A-int-int-" title="class or interface in java.io" class="externalLink">readNBytes</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#reset--" title="class or interface in java.io" class="externalLink">reset</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#skip-long-" title="class or interface in java.io" class="externalLink">skip</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#transferTo-java.io.OutputStream-" title="class or interface in java.io" class="externalLink" target="_top">transferTo</a></code></li>
+<code><a href="https://developer.android.com/reference/java/io/InputStream.html#available()" title="class or interface in java.io" class="externalLink">available</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#mark(int)" title="class or interface in java.io" class="externalLink">mark</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#markSupported()" title="class or interface in java.io" class="externalLink">markSupported</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#nullInputStream()" title="class or interface in java.io" class="externalLink">nullInputStream</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#readAllBytes()" title="class or interface in java.io" class="externalLink">readAllBytes</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#readNBytes(byte%5B%5D,int,int)" title="class or interface in java.io" class="externalLink">readNBytes</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#readNBytes(int)" title="class or interface in java.io" class="externalLink">readNBytes</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#reset()" title="class or interface in java.io" class="externalLink">reset</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#skip(long)" title="class or interface in java.io" class="externalLink">skip</a>, <a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true#transferTo(java.io.OutputStream)" title="class or interface in java.io" class="externalLink" target="_top">transferTo</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -242,128 +245,131 @@ extends <a href="https://developer.android.com/reference/java/io/InputStream.htm
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DataSourceInputStream-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DataSourceInputStream</h4>
-<pre>public&nbsp;DataSourceInputStream&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                             <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<pre>public&nbsp;DataSourceInputStream&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                             <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSource</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> from which the data should be read.</dd>
-<dd><code>dataSpec</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> defining the data to be read from <code>dataSource</code>.</dd>
+<dd><code>dataSource</code> - The <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> from which the data should be read.</dd>
+<dd><code>dataSpec</code> - The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> defining the data to be read from <code>dataSource</code>.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="bytesRead--">
+<a id="bytesRead()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bytesRead</h4>
-<pre>public&nbsp;long&nbsp;bytesRead()</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;bytesRead()</pre>
 <div class="block">Returns the total number of bytes that have been read or skipped.</div>
 </li>
 </ul>
-<a name="open--">
+<a id="open()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>open</h4>
-<pre>public&nbsp;void&nbsp;open()
+<pre class="methodSignature">public&nbsp;void&nbsp;open()
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Optional call to open the underlying <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.
+<div class="block">Optional call to open the underlying <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.
  <p>
- Calling this method does nothing if the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is already open. Calling this
+ Calling this method does nothing if the <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is already open. Calling this
  method is optional, since the read and skip methods will automatically open the underlying
- <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> if it's not open already.</div>
+ <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> if it's not open already.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink">IOException</a></code> - If an error occurs opening the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream" target="_top"><code>DataSource</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink">IOException</a></code> - If an error occurs opening the <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream" target="_top"><code>DataSource</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="read--">
+<a id="read()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;int&nbsp;read()
+<pre class="methodSignature">public&nbsp;int&nbsp;read()
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#read--" title="class or interface in java.io" class="externalLink">read</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#read()" title="class or interface in java.io" class="externalLink">read</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="read-byte:A-">
+<a id="read(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer)
+<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#read-byte:A-" title="class or interface in java.io" class="externalLink">read</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#read(byte%5B%5D)" title="class or interface in java.io" class="externalLink">read</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="read-byte:A-int-int-">
+<a id="read(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
+<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#read-byte:A-int-int-" title="class or interface in java.io" class="externalLink">read</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#read(byte%5B%5D,int,int)" title="class or interface in java.io" class="externalLink">read</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="close--">
+<a id="close()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;close()
+<pre class="methodSignature">public&nbsp;void&nbsp;close()
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close--" title="class or interface in java.lang" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close()" title="class or interface in java.lang" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html#close--" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html#close()" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#close--" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/InputStream.html#close()" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/io/InputStream.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
 </dl>
@@ -371,21 +377,25 @@ extends <a href="https://developer.android.com/reference/java/io/InputStream.htm
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -395,16 +405,8 @@ extends <a href="https://developer.android.com/reference/java/io/InputStream.htm
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DataSourceInputStream.html" target="_top">Frames</a></li>
-<li><a href="DataSourceInputStream.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -436,9 +438,11 @@ extends <a href="https://developer.android.com/reference/java/io/InputStream.htm
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

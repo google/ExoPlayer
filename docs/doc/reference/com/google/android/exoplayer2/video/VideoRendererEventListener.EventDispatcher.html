@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li>Next&nbsp;Class</li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html" target="_top">Frames</a></li>
-<li><a href="VideoRendererEventListener.EventDispatcher.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/package-summary.html">com.google.android.exoplayer2.video</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.video</a></div>
 <h2 title="Class VideoRendererEventListener.EventDispatcher" class="title">Class VideoRendererEventListener.EventDispatcher</h2>
 </div>
 <div class="contentContainer">
@@ -131,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing interface:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a></dd>
+<dd><a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">VideoRendererEventListener.EventDispatcher</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Dispatches events to a <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoRendererEventListener</code></a>.</div>
+<div class="block">Dispatches events to a <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoRendererEventListener</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -144,32 +143,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#EventDispatcher-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-">EventDispatcher</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
-               <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener)">EventDispatcher</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
+               <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -178,86 +180,91 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#decoderInitialized-java.lang.String-long-long-">decoderInitialized</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderInitialized(java.lang.String,long,long)">decoderInitialized</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                   long&nbsp;initializedTimestampMs,
                   long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDecoderInitialized-java.lang.String-long-long-"><code>VideoRendererEventListener.onVideoDecoderInitialized(String, long, long)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoDecoderInitialized(java.lang.String,long,long)"><code>VideoRendererEventListener.onVideoDecoderInitialized(String, long, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#decoderReleased-java.lang.String-">decoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderReleased(java.lang.String)">decoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDecoderReleased-java.lang.String-"><code>VideoRendererEventListener.onVideoDecoderReleased(String)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoDecoderReleased(java.lang.String)"><code>VideoRendererEventListener.onVideoDecoderReleased(String)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#disabled-com.google.android.exoplayer2.decoder.DecoderCounters-">disabled</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disabled(com.google.android.exoplayer2.decoder.DecoderCounters)">disabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDisabled-com.google.android.exoplayer2.decoder.DecoderCounters-"><code>VideoRendererEventListener.onVideoDisabled(DecoderCounters)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)"><code>VideoRendererEventListener.onVideoDisabled(DecoderCounters)</code></a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#droppedFrames-int-long-">droppedFrames</a></span>&#8203;(int&nbsp;droppedFrameCount,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedFrames(int,long)">droppedFrames</a></span>&#8203;(int&nbsp;droppedFrameCount,
              long&nbsp;elapsedMs)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onDroppedFrames-int-long-"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onDroppedFrames(int,long)"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#enabled-com.google.android.exoplayer2.decoder.DecoderCounters-">enabled</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enabled(com.google.android.exoplayer2.decoder.DecoderCounters)">enabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoEnabled-com.google.android.exoplayer2.decoder.DecoderCounters-"><code>VideoRendererEventListener.onVideoEnabled(DecoderCounters)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)"><code>VideoRendererEventListener.onVideoEnabled(DecoderCounters)</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#inputFormatChanged-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.decoder.DecoderReuseEvaluation-">inputFormatChanged</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                  <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">inputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                  <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoInputFormatChanged-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.decoder.DecoderReuseEvaluation-"><code>VideoRendererEventListener.onVideoInputFormatChanged(Format,
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>VideoRendererEventListener.onVideoInputFormatChanged(Format,
  DecoderReuseEvaluation)</code></a>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#renderedFirstFrame-android.view.Surface-">renderedFirstFrame</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderedFirstFrame(java.lang.Object)">renderedFirstFrame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onRenderedFirstFrame-android.view.Surface-"><code>VideoRendererEventListener.onRenderedFirstFrame(Surface)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onRenderedFirstFrame(java.lang.Object,long)"><code>VideoRendererEventListener.onRenderedFirstFrame(Object, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#reportVideoFrameProcessingOffset-long-int-">reportVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;totalProcessingOffsetUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reportVideoFrameProcessingOffset(long,int)">reportVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;totalProcessingOffsetUs,
                                 int&nbsp;frameCount)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoFrameProcessingOffset-long-int-"><code>VideoRendererEventListener.onVideoFrameProcessingOffset(long, int)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoFrameProcessingOffset(long,int)"><code>VideoRendererEventListener.onVideoFrameProcessingOffset(long, int)</code></a>.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#videoSizeChanged-int-int-int-float-">videoSizeChanged</a></span>&#8203;(int&nbsp;width,
-                int&nbsp;height,
-                int&nbsp;unappliedRotationDegrees,
-                float&nbsp;pixelWidthHeightRatio)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoCodecError(java.lang.Exception)">videoCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</code></th>
 <td class="colLast">
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoSizeChanged-int-int-int-float-"><code>VideoRendererEventListener.onVideoSizeChanged(int, int, int, float)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoCodecError(java.lang.Exception)"><code>VideoRendererEventListener.onVideoCodecError(Exception)</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">videoSizeChanged</a></span>&#8203;(<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</code></th>
+<td class="colLast">
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)"><code>VideoRendererEventListener.onVideoSizeChanged(VideoSize)</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -265,12 +272,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="EventDispatcher-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-">
+<a id="&lt;init&gt;(android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -279,7 +287,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;EventDispatcher&#8203;(@Nullable
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
                        @Nullable
-                       <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
+                       <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>handler</code> - A handler for dispatching events, or null if events should not be dispatched.</dd>
@@ -290,130 +298,142 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="enabled-com.google.android.exoplayer2.decoder.DecoderCounters-">
+<a id="enabled(com.google.android.exoplayer2.decoder.DecoderCounters)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>enabled</h4>
-<pre>public&nbsp;void&nbsp;enabled&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoEnabled-com.google.android.exoplayer2.decoder.DecoderCounters-"><code>VideoRendererEventListener.onVideoEnabled(DecoderCounters)</code></a>.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;enabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)"><code>VideoRendererEventListener.onVideoEnabled(DecoderCounters)</code></a>.</div>
 </li>
 </ul>
-<a name="decoderInitialized-java.lang.String-long-long-">
+<a id="decoderInitialized(java.lang.String,long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>decoderInitialized</h4>
-<pre>public&nbsp;void&nbsp;decoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+<pre class="methodSignature">public&nbsp;void&nbsp;decoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                long&nbsp;initializedTimestampMs,
                                long&nbsp;initializationDurationMs)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDecoderInitialized-java.lang.String-long-long-"><code>VideoRendererEventListener.onVideoDecoderInitialized(String, long, long)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoDecoderInitialized(java.lang.String,long,long)"><code>VideoRendererEventListener.onVideoDecoderInitialized(String, long, long)</code></a>.</div>
 </li>
 </ul>
-<a name="inputFormatChanged-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.decoder.DecoderReuseEvaluation-">
+<a id="inputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>inputFormatChanged</h4>
-<pre>public&nbsp;void&nbsp;inputFormatChanged&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<pre class="methodSignature">public&nbsp;void&nbsp;inputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                @Nullable
-                               <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoInputFormatChanged-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.decoder.DecoderReuseEvaluation-"><code>VideoRendererEventListener.onVideoInputFormatChanged(Format,
+                               <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>VideoRendererEventListener.onVideoInputFormatChanged(Format,
  DecoderReuseEvaluation)</code></a>.</div>
 </li>
 </ul>
-<a name="droppedFrames-int-long-">
+<a id="droppedFrames(int,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>droppedFrames</h4>
-<pre>public&nbsp;void&nbsp;droppedFrames&#8203;(int&nbsp;droppedFrameCount,
+<pre class="methodSignature">public&nbsp;void&nbsp;droppedFrames&#8203;(int&nbsp;droppedFrameCount,
                           long&nbsp;elapsedMs)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onDroppedFrames-int-long-"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onDroppedFrames(int,long)"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</div>
 </li>
 </ul>
-<a name="reportVideoFrameProcessingOffset-long-int-">
+<a id="reportVideoFrameProcessingOffset(long,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reportVideoFrameProcessingOffset</h4>
-<pre>public&nbsp;void&nbsp;reportVideoFrameProcessingOffset&#8203;(long&nbsp;totalProcessingOffsetUs,
+<pre class="methodSignature">public&nbsp;void&nbsp;reportVideoFrameProcessingOffset&#8203;(long&nbsp;totalProcessingOffsetUs,
                                              int&nbsp;frameCount)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoFrameProcessingOffset-long-int-"><code>VideoRendererEventListener.onVideoFrameProcessingOffset(long, int)</code></a>.</div>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoFrameProcessingOffset(long,int)"><code>VideoRendererEventListener.onVideoFrameProcessingOffset(long, int)</code></a>.</div>
 </li>
 </ul>
-<a name="videoSizeChanged-int-int-int-float-">
+<a id="videoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>videoSizeChanged</h4>
-<pre>public&nbsp;void&nbsp;videoSizeChanged&#8203;(int&nbsp;width,
-                             int&nbsp;height,
-                             int&nbsp;unappliedRotationDegrees,
-                             float&nbsp;pixelWidthHeightRatio)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoSizeChanged-int-int-int-float-"><code>VideoRendererEventListener.onVideoSizeChanged(int, int, int, float)</code></a>.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;videoSizeChanged&#8203;(<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)"><code>VideoRendererEventListener.onVideoSizeChanged(VideoSize)</code></a>.</div>
 </li>
 </ul>
-<a name="renderedFirstFrame-android.view.Surface-">
+<a id="renderedFirstFrame(java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>renderedFirstFrame</h4>
-<pre>public&nbsp;void&nbsp;renderedFirstFrame&#8203;(@Nullable
-                               <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onRenderedFirstFrame-android.view.Surface-"><code>VideoRendererEventListener.onRenderedFirstFrame(Surface)</code></a>.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;renderedFirstFrame&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onRenderedFirstFrame(java.lang.Object,long)"><code>VideoRendererEventListener.onRenderedFirstFrame(Object, long)</code></a>.</div>
 </li>
 </ul>
-<a name="decoderReleased-java.lang.String-">
+<a id="decoderReleased(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>decoderReleased</h4>
-<pre>public&nbsp;void&nbsp;decoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDecoderReleased-java.lang.String-"><code>VideoRendererEventListener.onVideoDecoderReleased(String)</code></a>.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;decoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoDecoderReleased(java.lang.String)"><code>VideoRendererEventListener.onVideoDecoderReleased(String)</code></a>.</div>
 </li>
 </ul>
-<a name="disabled-com.google.android.exoplayer2.decoder.DecoderCounters-">
+<a id="disabled(com.google.android.exoplayer2.decoder.DecoderCounters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>disabled</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;disabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)"><code>VideoRendererEventListener.onVideoDisabled(DecoderCounters)</code></a>.</div>
+</li>
+</ul>
+<a id="videoCodecError(java.lang.Exception)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>disabled</h4>
-<pre>public&nbsp;void&nbsp;disabled&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDisabled-com.google.android.exoplayer2.decoder.DecoderCounters-"><code>VideoRendererEventListener.onVideoDisabled(DecoderCounters)</code></a>.</div>
+<h4>videoCodecError</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;videoCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</pre>
+<div class="block">Invokes <a href="VideoRendererEventListener.html#onVideoCodecError(java.lang.Exception)"><code>VideoRendererEventListener.onVideoCodecError(Exception)</code></a>.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -423,16 +443,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li>Next&nbsp;Class</li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html" target="_top">Frames</a></li>
-<li><a href="VideoRendererEventListener.EventDispatcher.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -464,9 +476,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

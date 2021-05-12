@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html" target="_top">Frames</a></li>
-<li><a href="VideoDecoderOutputBuffer.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -90,7 +86,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/package-summary.html">com.google.android.exoplayer2.video</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.video</a></div>
 <h2 title="Class VideoDecoderOutputBuffer" class="title">Class VideoDecoderOutputBuffer</h2>
 </div>
 <div class="contentContainer">
@@ -122,10 +121,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.Buffer</a></li>
+<li><a href="../decoder/Buffer.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.Buffer</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.OutputBuffer</a></li>
+<li><a href="../decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.OutputBuffer</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.video.VideoDecoderOutputBuffer</li>
@@ -141,11 +140,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a></code></dd>
+<dd><code><a href="../ext/vp9/VpxOutputBuffer.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxOutputBuffer</a></code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">VideoDecoderOutputBuffer</span>
-extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></pre>
+extends <a href="../decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></pre>
 <div class="block">Video decoder output buffer containing video frame data.</div>
 </li>
 </ul>
@@ -154,27 +153,30 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="type parameter in OutputBuffer.Owner">S</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>&gt;</code></li>
+<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></h3>
+<code><a href="../decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="../decoder/OutputBuffer.Owner.html" title="type parameter in OutputBuffer.Owner">S</a> extends <a href="../decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>&gt;</code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -183,110 +185,112 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#colorspace">colorspace</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorspace">colorspace</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#COLORSPACE_BT2020">COLORSPACE_BT2020</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_BT2020">COLORSPACE_BT2020</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#COLORSPACE_BT601">COLORSPACE_BT601</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_BT601">COLORSPACE_BT601</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#COLORSPACE_BT709">COLORSPACE_BT709</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_BT709">COLORSPACE_BT709</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#COLORSPACE_UNKNOWN">COLORSPACE_UNKNOWN</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_UNKNOWN">COLORSPACE_UNKNOWN</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#data">data</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
 <td class="colLast">
 <div class="block">RGB buffer for RGB mode.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#decoderPrivate">decoderPrivate</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderPrivate">decoderPrivate</a></span></code></th>
 <td class="colLast">
 <div class="block">Decoder private data.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#format">format</a></span></code></th>
+<td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">
 <div class="block">The format of the input from which this output buffer was decoded.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#height">height</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#mode">mode</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mode">mode</a></span></code></th>
 <td class="colLast">
 <div class="block">Output mode.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#supplementalData">supplementalData</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supplementalData">supplementalData</a></span></code></th>
 <td class="colLast">
-<div class="block">Supplemental data related to the output frame, if <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
+<div class="block">Supplemental data related to the output frame, if <a href="../decoder/Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#width">width</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#yuvPlanes">yuvPlanes</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#yuvPlanes">yuvPlanes</a></span></code></th>
 <td class="colLast">
 <div class="block">YUV planes for YUV mode.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#yuvStrides">yuvStrides</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#yuvStrides">yuvStrides</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">
 <!--   -->
 </a>
-<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#skippedOutputBufferCount">skippedOutputBufferCount</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#timeUs">timeUs</a></code></li>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></h3>
+<code><a href="../decoder/OutputBuffer.html#skippedOutputBufferCount">skippedOutputBufferCount</a>, <a href="../decoder/OutputBuffer.html#timeUs">timeUs</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#VideoDecoderOutputBuffer-com.google.android.exoplayer2.decoder.OutputBuffer.Owner-">VideoDecoderOutputBuffer</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&gt;&nbsp;owner)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.decoder.OutputBuffer.Owner)">VideoDecoderOutputBuffer</a></span>&#8203;(<a href="../decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&gt;&nbsp;owner)</code></th>
 <td class="colLast">
 <div class="block">Creates VideoDecoderOutputBuffer.</div>
 </td>
@@ -294,13 +298,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -309,7 +315,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#init-long-int-java.nio.ByteBuffer-">init</a></span>&#8203;(long&nbsp;timeUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(long,int,java.nio.ByteBuffer)">init</a></span>&#8203;(long&nbsp;timeUs,
     int&nbsp;mode,
     <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;supplementalData)</code></th>
 <td class="colLast">
@@ -318,15 +324,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#initForPrivateFrame-int-int-">initForPrivateFrame</a></span>&#8203;(int&nbsp;width,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initForPrivateFrame(int,int)">initForPrivateFrame</a></span>&#8203;(int&nbsp;width,
                    int&nbsp;height)</code></th>
 <td class="colLast">
-<div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#decoderPrivate"><code>decoderPrivate</code></a>.</div>
+<div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="#decoderPrivate"><code>decoderPrivate</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#initForYuvFrame-int-int-int-int-int-">initForYuvFrame</a></span>&#8203;(int&nbsp;width,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initForYuvFrame(int,int,int,int,int)">initForYuvFrame</a></span>&#8203;(int&nbsp;width,
                int&nbsp;height,
                int&nbsp;yStride,
                int&nbsp;uvStride,
@@ -337,28 +343,29 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#release--">release</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the output buffer for reuse.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.decoder.Buffer">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.decoder.Buffer">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html" title="class in com.google.android.exoplayer2.decoder">Buffer</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#addFlag-int-">addFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#clear--">clear</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#clearFlag-int-">clearFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#getFlag-int-">getFlag</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--">hasSupplementalData</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--">isDecodeOnly</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isEndOfStream--">isEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isKeyFrame--">isKeyFrame</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#setFlags-int-">setFlags</a></code></li>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../decoder/Buffer.html" title="class in com.google.android.exoplayer2.decoder">Buffer</a></h3>
+<code><a href="../decoder/Buffer.html#addFlag(int)">addFlag</a>, <a href="../decoder/Buffer.html#clear()">clear</a>, <a href="../decoder/Buffer.html#clearFlag(int)">clearFlag</a>, <a href="../decoder/Buffer.html#getFlag(int)">getFlag</a>, <a href="../decoder/Buffer.html#hasSupplementalData()">hasSupplementalData</a>, <a href="../decoder/Buffer.html#isDecodeOnly()">isDecodeOnly</a>, <a href="../decoder/Buffer.html#isEndOfStream()">isEndOfStream</a>, <a href="../decoder/Buffer.html#isKeyFrame()">isKeyFrame</a>, <a href="../decoder/Buffer.html#setFlags(int)">setFlags</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -366,12 +373,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="COLORSPACE_UNKNOWN">
+<a id="COLORSPACE_UNKNOWN">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -384,7 +392,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </dl>
 </li>
 </ul>
-<a name="COLORSPACE_BT601">
+<a id="COLORSPACE_BT601">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -397,7 +405,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </dl>
 </li>
 </ul>
-<a name="COLORSPACE_BT709">
+<a id="COLORSPACE_BT709">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -410,7 +418,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </dl>
 </li>
 </ul>
-<a name="COLORSPACE_BT2020">
+<a id="COLORSPACE_BT2020">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -423,7 +431,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 </dl>
 </li>
 </ul>
-<a name="decoderPrivate">
+<a id="decoderPrivate">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -433,18 +441,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuff
 <div class="block">Decoder private data. Used from native code.</div>
 </li>
 </ul>
-<a name="mode">
+<a id="mode">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mode</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
+<pre><a href="../C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
 public&nbsp;int mode</pre>
 <div class="block">Output mode.</div>
 </li>
 </ul>
-<a name="data">
+<a id="data">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -455,7 +463,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <div class="block">RGB buffer for RGB mode.</div>
 </li>
 </ul>
-<a name="width">
+<a id="width">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -464,7 +472,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <pre>public&nbsp;int width</pre>
 </li>
 </ul>
-<a name="height">
+<a id="height">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -473,18 +481,18 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <pre>public&nbsp;int height</pre>
 </li>
 </ul>
-<a name="format">
+<a id="format">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>format</h4>
 <pre>@Nullable
-public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
+public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
 <div class="block">The format of the input from which this output buffer was decoded.</div>
 </li>
 </ul>
-<a name="yuvPlanes">
+<a id="yuvPlanes">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -495,7 +503,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <div class="block">YUV planes for YUV mode.</div>
 </li>
 </ul>
-<a name="yuvStrides">
+<a id="yuvStrides">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -505,7 +513,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 public&nbsp;int[] yuvStrides</pre>
 </li>
 </ul>
-<a name="colorspace">
+<a id="colorspace">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -514,7 +522,7 @@ public&nbsp;int[] yuvStrides</pre>
 <pre>public&nbsp;int colorspace</pre>
 </li>
 </ul>
-<a name="supplementalData">
+<a id="supplementalData">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -522,25 +530,27 @@ public&nbsp;int[] yuvStrides</pre>
 <h4>supplementalData</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a> supplementalData</pre>
-<div class="block">Supplemental data related to the output frame, if <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--"><code>Buffer.hasSupplementalData()</code></a> returns true.
+<div class="block">Supplemental data related to the output frame, if <a href="../decoder/Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true.
  If present, the buffer is populated with supplemental data from position 0 to its limit.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="VideoDecoderOutputBuffer-com.google.android.exoplayer2.decoder.OutputBuffer.Owner-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.decoder.OutputBuffer.Owner)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>VideoDecoderOutputBuffer</h4>
-<pre>public&nbsp;VideoDecoderOutputBuffer&#8203;(<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&gt;&nbsp;owner)</pre>
+<pre>public&nbsp;VideoDecoderOutputBuffer&#8203;(<a href="../decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&gt;&nbsp;owner)</pre>
 <div class="block">Creates VideoDecoderOutputBuffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -550,35 +560,37 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="release--">
+<a id="release()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre>public&nbsp;void&nbsp;release()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#release--">OutputBuffer</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../decoder/OutputBuffer.html#release()">OutputBuffer</a></code></span></div>
 <div class="block">Releases the output buffer for reuse. Must be called when the buffer is no longer needed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#release--">release</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></code></dd>
+<dd><code><a href="../decoder/OutputBuffer.html#release()">release</a></code>&nbsp;in class&nbsp;<code><a href="../decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="init-long-int-java.nio.ByteBuffer-">
+<a id="init(long,int,java.nio.ByteBuffer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre>public&nbsp;void&nbsp;init&#8203;(long&nbsp;timeUs,
-                 <a href="../../../../../com/google/android/exoplayer2/C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
+<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(long&nbsp;timeUs,
+                 <a href="../C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
                  int&nbsp;mode,
                  @Nullable
                  <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;supplementalData)</pre>
@@ -586,19 +598,19 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - The presentation timestamp for the buffer, in microseconds.</dd>
-<dd><code>mode</code> - The output mode. One of <a href="../../../../../com/google/android/exoplayer2/C.html#VIDEO_OUTPUT_MODE_NONE"><code>C.VIDEO_OUTPUT_MODE_NONE</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#VIDEO_OUTPUT_MODE_YUV"><code>C.VIDEO_OUTPUT_MODE_YUV</code></a> and <a href="../../../../../com/google/android/exoplayer2/C.html#VIDEO_OUTPUT_MODE_SURFACE_YUV"><code>C.VIDEO_OUTPUT_MODE_SURFACE_YUV</code></a>.</dd>
+<dd><code>mode</code> - The output mode. One of <a href="../C.html#VIDEO_OUTPUT_MODE_NONE"><code>C.VIDEO_OUTPUT_MODE_NONE</code></a>, <a href="../C.html#VIDEO_OUTPUT_MODE_YUV"><code>C.VIDEO_OUTPUT_MODE_YUV</code></a> and <a href="../C.html#VIDEO_OUTPUT_MODE_SURFACE_YUV"><code>C.VIDEO_OUTPUT_MODE_SURFACE_YUV</code></a>.</dd>
 <dd><code>supplementalData</code> - Supplemental data associated with the frame, or <code>null</code> if not
      present. It is safe to reuse the provided buffer after this method returns.</dd>
 </dl>
 </li>
 </ul>
-<a name="initForYuvFrame-int-int-int-int-int-">
+<a id="initForYuvFrame(int,int,int,int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>initForYuvFrame</h4>
-<pre>public&nbsp;boolean&nbsp;initForYuvFrame&#8203;(int&nbsp;width,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;initForYuvFrame&#8203;(int&nbsp;width,
                                int&nbsp;height,
                                int&nbsp;yStride,
                                int&nbsp;uvStride,
@@ -610,34 +622,38 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 </dl>
 </li>
 </ul>
-<a name="initForPrivateFrame-int-int-">
+<a id="initForPrivateFrame(int,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>initForPrivateFrame</h4>
-<pre>public&nbsp;void&nbsp;initForPrivateFrame&#8203;(int&nbsp;width,
+<pre class="methodSignature">public&nbsp;void&nbsp;initForPrivateFrame&#8203;(int&nbsp;width,
                                 int&nbsp;height)</pre>
-<div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html#decoderPrivate"><code>decoderPrivate</code></a>. Called via JNI after decoding completes.</div>
+<div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="#decoderPrivate"><code>decoderPrivate</code></a>. Called via JNI after decoding completes.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -647,16 +663,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/video/VideoDecoderOutputBuffer.html" target="_top">Frames</a></li>
-<li><a href="VideoDecoderOutputBuffer.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -676,7 +684,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -688,9 +696,11 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

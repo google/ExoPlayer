@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":42,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":42,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" target="_top">Frames</a></li>
-<li><a href="SingleSampleMediaSource.Factory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/package-summary.html">com.google.android.exoplayer2.source</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source</a></div>
 <h2 title="Class SingleSampleMediaSource.Factory" class="title">Class SingleSampleMediaSource.Factory</h2>
 </div>
 <div class="contentContainer">
@@ -131,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></dd>
+<dd><a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">SingleSampleMediaSource.Factory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>.</div>
+<div class="block">Factory for <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -144,33 +143,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-">Factory</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource.Factory)">Factory</a></span>&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
 <td class="colLast">
-<div class="block">Creates a factory for <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>s.</div>
+<div class="block">Creates a factory for <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>s.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -178,49 +180,49 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#createMediaSource-android.net.Uri-com.google.android.exoplayer2.Format-long-">createMediaSource</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
-                 <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<td class="colFirst"><code><a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaSource(android.net.Uri,com.google.android.exoplayer2.Format,long)">createMediaSource</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                 <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                  long&nbsp;durationUs)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem.Subtitle-long-"><code>createMediaSource(MediaItem.Subtitle, long)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem.Subtitle,long)"><code>createMediaSource(MediaItem.Subtitle, long)</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem.Subtitle-long-">createMediaSource</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2">MediaItem.Subtitle</a>&nbsp;subtitle,
+<td class="colFirst"><code><a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaSource(com.google.android.exoplayer2.MediaItem.Subtitle,long)">createMediaSource</a></span>&#8203;(<a href="../MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2">MediaItem.Subtitle</a>&nbsp;subtitle,
                  long&nbsp;durationUs)</code></th>
 <td class="colLast">
-<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a> using the current parameters.</div>
+<div class="block">Returns a new <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a> using the current parameters.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
+<td class="colFirst"><code><a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
+<div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#setTag-java.lang.Object-">setTag</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</code></th>
+<td class="colFirst"><code><a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTag(java.lang.Object)">setTag</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</code></th>
 <td class="colLast">
-<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
- as <a href="../../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
+ as <a href="../MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#setTrackId-java.lang.String-">setTrackId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId)</code></th>
+<td class="colFirst"><code><a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackId(java.lang.String)">setTrackId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId)</code></th>
 <td class="colLast">
 <div class="block">Sets an optional track id to be used.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#setTreatLoadErrorsAsEndOfStream-boolean-">setTreatLoadErrorsAsEndOfStream</a></span>&#8203;(boolean&nbsp;treatLoadErrorsAsEndOfStream)</code></th>
+<td class="colFirst"><code><a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTreatLoadErrorsAsEndOfStream(boolean)">setTreatLoadErrorsAsEndOfStream</a></span>&#8203;(boolean&nbsp;treatLoadErrorsAsEndOfStream)</code></th>
 <td class="colLast">
 <div class="block">Sets whether load errors will be treated as end-of-stream signal (load errors will not be
  propagated).</div>
@@ -228,14 +230,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -243,44 +246,47 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Factory-com.google.android.exoplayer2.upstream.DataSource.Factory-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource.Factory)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Factory</h4>
-<pre>public&nbsp;Factory&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
-<div class="block">Creates a factory for <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>s.</div>
+<pre>public&nbsp;Factory&#8203;(<a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="block">Creates a factory for <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>s.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSourceFactory</code> - The factory from which the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to read the media will
+<dd><code>dataSourceFactory</code> - The factory from which the <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to read the media will
      be obtained.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setTag-java.lang.Object-">
+<a id="setTag(java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTag</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setTag&#8203;(@Nullable
+<pre class="methodSignature">public&nbsp;<a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setTag&#8203;(@Nullable
                                               <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</pre>
-<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
- as <a href="../../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
+ as <a href="../MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tag</code> - A tag for the media source.</dd>
@@ -289,13 +295,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setTrackId-java.lang.String-">
+<a id="setTrackId(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTrackId</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setTrackId&#8203;(@Nullable
+<pre class="methodSignature">public&nbsp;<a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setTrackId&#8203;(@Nullable
                                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId)</pre>
 <div class="block">Sets an optional track id to be used.</div>
 <dl>
@@ -306,92 +312,96 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-">
+<a id="setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(@Nullable
-                                                                  <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>. The default value is created by calling <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html#DefaultLoadErrorHandlingPolicy--"><code>DefaultLoadErrorHandlingPolicy()</code></a>.</div>
+<pre class="methodSignature">public&nbsp;<a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(@Nullable
+                                                                  <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>. The default value is created by calling <a href="../upstream/DefaultLoadErrorHandlingPolicy.html#%3Cinit%3E()"><code>DefaultLoadErrorHandlingPolicy()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>loadErrorHandlingPolicy</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
+<dd><code>loadErrorHandlingPolicy</code> - A <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a name="setTreatLoadErrorsAsEndOfStream-boolean-">
+<a id="setTreatLoadErrorsAsEndOfStream(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTreatLoadErrorsAsEndOfStream</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setTreatLoadErrorsAsEndOfStream&#8203;(boolean&nbsp;treatLoadErrorsAsEndOfStream)</pre>
+<pre class="methodSignature">public&nbsp;<a href="SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a>&nbsp;setTreatLoadErrorsAsEndOfStream&#8203;(boolean&nbsp;treatLoadErrorsAsEndOfStream)</pre>
 <div class="block">Sets whether load errors will be treated as end-of-stream signal (load errors will not be
  propagated). The default value is true.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>treatLoadErrorsAsEndOfStream</code> - If true, load errors will not be propagated by sample
      streams, treating them as ended instead. If false, load errors will be propagated
-     normally by <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html#maybeThrowError--"><code>SampleStream.maybeThrowError()</code></a>.</dd>
+     normally by <a href="SampleStream.html#maybeThrowError()"><code>SampleStream.maybeThrowError()</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a name="createMediaSource-com.google.android.exoplayer2.MediaItem.Subtitle-long-">
+<a id="createMediaSource(com.google.android.exoplayer2.MediaItem.Subtitle,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaSource</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a>&nbsp;createMediaSource&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2">MediaItem.Subtitle</a>&nbsp;subtitle,
+<pre class="methodSignature">public&nbsp;<a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a>&nbsp;createMediaSource&#8203;(<a href="../MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2">MediaItem.Subtitle</a>&nbsp;subtitle,
                                                  long&nbsp;durationUs)</pre>
-<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a> using the current parameters.</div>
+<div class="block">Returns a new <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a> using the current parameters.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>subtitle</code> - The <a href="../../../../../com/google/android/exoplayer2/MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2"><code>MediaItem.Subtitle</code></a>.</dd>
+<dd><code>subtitle</code> - The <a href="../MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2"><code>MediaItem.Subtitle</code></a>.</dd>
 <dd><code>durationUs</code> - The duration of the media stream in microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>.</dd>
+<dd>The new <a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="createMediaSource-android.net.Uri-com.google.android.exoplayer2.Format-long-">
+<a id="createMediaSource(android.net.Uri,com.google.android.exoplayer2.Format,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createMediaSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a>&nbsp;createMediaSource&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
-                                                 <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a>&nbsp;createMediaSource&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                                 <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                                  long&nbsp;durationUs)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem.Subtitle-long-"><code>createMediaSource(MediaItem.Subtitle, long)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem.Subtitle,long)"><code>createMediaSource(MediaItem.Subtitle, long)</code></a> instead.</div>
 </div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -401,16 +411,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleS
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" target="_top">Frames</a></li>
-<li><a href="SingleSampleMediaSource.Factory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -442,9 +444,11 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SingleS
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

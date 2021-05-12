@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":6,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":6,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html" target="_top">Frames</a></li>
-<li><a href="SegmentBase.MultiSegmentBase.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -90,7 +86,7 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.source.dash.manifest.SegmentBase">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/package-summary.html">com.google.android.exoplayer2.source.dash.manifest</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.dash.manifest</a></div>
 <h2 title="Class SegmentBase.MultiSegmentBase" class="title">Class SegmentBase.MultiSegmentBase</h2>
 </div>
 <div class="contentContainer">
@@ -122,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">com.google.android.exoplayer2.source.dash.manifest.SegmentBase</a></li>
+<li><a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">com.google.android.exoplayer2.source.dash.manifest.SegmentBase</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase</li>
@@ -136,16 +135,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code>, <code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></dd>
+<dd><code><a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code>, <code><a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></dd>
+<dd><a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></dd>
 </dl>
 <hr>
 <pre>public abstract static class <span class="typeNameLabel">SegmentBase.MultiSegmentBase</span>
-extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></pre>
-<div class="block">A <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>SegmentBase</code></a> that consists of multiple segments.</div>
+extends <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></pre>
+<div class="block">A <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>SegmentBase</code></a> that consists of multiple segments.</div>
 </li>
 </ul>
 </div>
@@ -153,39 +152,42 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.dash.manifest.SegmentBase">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.dash.manifest.SegmentBase">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.MultiSegmentBase</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></li>
+<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></h3>
+<code><a href="SegmentBase.MultiSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.MultiSegmentBase</a>, <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>, <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>, <a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>, <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#MultiSegmentBase-com.google.android.exoplayer2.source.dash.manifest.RangedUri-long-long-long-long-java.util.List-long-long-long-">MultiSegmentBase</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long,java.util.List,long,long,long)">MultiSegmentBase</a></span>&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
                 long&nbsp;timescale,
                 long&nbsp;presentationTimeOffset,
                 long&nbsp;startNumber,
                 long&nbsp;duration,
-                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;segmentTimeline,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;segmentTimeline,
                 long&nbsp;availabilityTimeOffsetUs,
                 long&nbsp;timeShiftBufferDepthUs,
                 long&nbsp;periodStartUnixTimeUs)</code></th>
@@ -194,13 +196,15 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -208,99 +212,100 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getAvailableSegmentCount-long-long-">getAvailableSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs,
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAvailableSegmentCount(long,long)">getAvailableSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs,
                         long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getAvailableSegmentCount-long-long-"><code>DashSegmentIndex.getAvailableSegmentCount(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getAvailableSegmentCount(long,long)"><code>DashSegmentIndex.getAvailableSegmentCount(long, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getFirstAvailableSegmentNum-long-long-">getFirstAvailableSegmentNum</a></span>&#8203;(long&nbsp;periodDurationUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstAvailableSegmentNum(long,long)">getFirstAvailableSegmentNum</a></span>&#8203;(long&nbsp;periodDurationUs,
                            long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstAvailableSegmentNum-long-long-"><code>DashSegmentIndex.getFirstAvailableSegmentNum(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getFirstAvailableSegmentNum(long,long)"><code>DashSegmentIndex.getFirstAvailableSegmentNum(long, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getFirstSegmentNum--">getFirstSegmentNum</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstSegmentNum()">getFirstSegmentNum</a></span>()</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstSegmentNum--"><code>DashSegmentIndex.getFirstSegmentNum()</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getFirstSegmentNum()"><code>DashSegmentIndex.getFirstSegmentNum()</code></a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getNextSegmentAvailableTimeUs-long-long-">getNextSegmentAvailableTimeUs</a></span>&#8203;(long&nbsp;periodDurationUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextSegmentAvailableTimeUs(long,long)">getNextSegmentAvailableTimeUs</a></span>&#8203;(long&nbsp;periodDurationUs,
                              long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getNextSegmentAvailableTimeUs-long-long-"><code>DashSegmentIndex.getNextSegmentAvailableTimeUs(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getNextSegmentAvailableTimeUs(long,long)"><code>DashSegmentIndex.getNextSegmentAvailableTimeUs(long, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>abstract int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getSegmentCount-long-">getSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs)</code></th>
+<td class="colFirst"><code>abstract long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentCount(long)">getSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentCount-long-"><code>DashSegmentIndex.getSegmentCount(long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getSegmentCount(long)"><code>DashSegmentIndex.getSegmentCount(long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getSegmentDurationUs-long-long-">getSegmentDurationUs</a></span>&#8203;(long&nbsp;sequenceNumber,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentDurationUs(long,long)">getSegmentDurationUs</a></span>&#8203;(long&nbsp;sequenceNumber,
                     long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getDurationUs-long-long-"><code>DashSegmentIndex.getDurationUs(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getDurationUs(long,long)"><code>DashSegmentIndex.getDurationUs(long, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getSegmentNum-long-long-">getSegmentNum</a></span>&#8203;(long&nbsp;timeUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentNum(long,long)">getSegmentNum</a></span>&#8203;(long&nbsp;timeUs,
              long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentNum-long-long-"><code>DashSegmentIndex.getSegmentNum(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getSegmentNum(long,long)"><code>DashSegmentIndex.getSegmentNum(long, long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getSegmentTimeUs-long-">getSegmentTimeUs</a></span>&#8203;(long&nbsp;sequenceNumber)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentTimeUs(long)">getSegmentTimeUs</a></span>&#8203;(long&nbsp;sequenceNumber)</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getTimeUs-long-"><code>DashSegmentIndex.getTimeUs(long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getTimeUs(long)"><code>DashSegmentIndex.getTimeUs(long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>abstract <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#getSegmentUrl-com.google.android.exoplayer2.source.dash.manifest.Representation-long-">getSegmentUrl</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+<td class="colFirst"><code>abstract <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentUrl(com.google.android.exoplayer2.source.dash.manifest.Representation,long)">getSegmentUrl</a></span>&#8203;(<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
              long&nbsp;index)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment for the given index in the
+<div class="block">Returns a <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment for the given index in the
  given representation.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html#isExplicit--">isExplicit</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isExplicit()">isExplicit</a></span>()</code></th>
 <td class="colLast">
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#isExplicit--"><code>DashSegmentIndex.isExplicit()</code></a></div>
+<div class="block">See <a href="../DashSegmentIndex.html#isExplicit()"><code>DashSegmentIndex.isExplicit()</code></a></div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.source.dash.manifest.SegmentBase">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></h3>
+<code><a href="SegmentBase.html#getInitialization(com.google.android.exoplayer2.source.dash.manifest.Representation)">getInitialization</a>, <a href="SegmentBase.html#getPresentationTimeOffsetUs()">getPresentationTimeOffsetUs</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.dash.manifest.SegmentBase">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html#getInitialization-com.google.android.exoplayer2.source.dash.manifest.Representation-">getInitialization</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html#getPresentationTimeOffsetUs--">getPresentationTimeOffsetUs</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -308,31 +313,32 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="MultiSegmentBase-com.google.android.exoplayer2.source.dash.manifest.RangedUri-long-long-long-long-java.util.List-long-long-long-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long,java.util.List,long,long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MultiSegmentBase</h4>
 <pre>public&nbsp;MultiSegmentBase&#8203;(@Nullable
-                        <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                        <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
                         long&nbsp;timescale,
                         long&nbsp;presentationTimeOffset,
                         long&nbsp;startNumber,
                         long&nbsp;duration,
                         @Nullable
-                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;segmentTimeline,
+                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;segmentTimeline,
                         long&nbsp;availabilityTimeOffsetUs,
                         long&nbsp;timeShiftBufferDepthUs,
                         long&nbsp;periodStartUnixTimeUs)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initialization</code> - A <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> corresponding to initialization data, if such data
+<dd><code>initialization</code> - A <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> corresponding to initialization data, if such data
      exists.</dd>
 <dd><code>timescale</code> - The timescale in units per second.</dd>
 <dd><code>presentationTimeOffset</code> - The presentation time offset. The value in seconds is the
@@ -345,7 +351,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
      segments are assumed to be of fixed duration as specified by the <code>duration</code>
      parameter.</dd>
 <dd><code>availabilityTimeOffsetUs</code> - The offset to the current realtime at which segments become
-     available in microseconds, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</dd>
+     available in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</dd>
 <dd><code>timeShiftBufferDepthUs</code> - The time shift buffer depth in microseconds.</dd>
 <dd><code>periodStartUnixTimeUs</code> - The start of the enclosing period in microseconds since the Unix
      epoch.</dd>
@@ -354,138 +360,144 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getSegmentNum-long-long-">
+<a id="getSegmentNum(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentNum</h4>
-<pre>public&nbsp;long&nbsp;getSegmentNum&#8203;(long&nbsp;timeUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;getSegmentNum&#8203;(long&nbsp;timeUs,
                           long&nbsp;periodDurationUs)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentNum-long-long-"><code>DashSegmentIndex.getSegmentNum(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getSegmentNum(long,long)"><code>DashSegmentIndex.getSegmentNum(long, long)</code></a>.</div>
 </li>
 </ul>
-<a name="getSegmentDurationUs-long-long-">
+<a id="getSegmentDurationUs(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentDurationUs</h4>
-<pre>public final&nbsp;long&nbsp;getSegmentDurationUs&#8203;(long&nbsp;sequenceNumber,
+<pre class="methodSignature">public final&nbsp;long&nbsp;getSegmentDurationUs&#8203;(long&nbsp;sequenceNumber,
                                        long&nbsp;periodDurationUs)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getDurationUs-long-long-"><code>DashSegmentIndex.getDurationUs(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getDurationUs(long,long)"><code>DashSegmentIndex.getDurationUs(long, long)</code></a>.</div>
 </li>
 </ul>
-<a name="getSegmentTimeUs-long-">
+<a id="getSegmentTimeUs(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentTimeUs</h4>
-<pre>public final&nbsp;long&nbsp;getSegmentTimeUs&#8203;(long&nbsp;sequenceNumber)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getTimeUs-long-"><code>DashSegmentIndex.getTimeUs(long)</code></a>.</div>
+<pre class="methodSignature">public final&nbsp;long&nbsp;getSegmentTimeUs&#8203;(long&nbsp;sequenceNumber)</pre>
+<div class="block">See <a href="../DashSegmentIndex.html#getTimeUs(long)"><code>DashSegmentIndex.getTimeUs(long)</code></a>.</div>
 </li>
 </ul>
-<a name="getSegmentUrl-com.google.android.exoplayer2.source.dash.manifest.Representation-long-">
+<a id="getSegmentUrl(com.google.android.exoplayer2.source.dash.manifest.Representation,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentUrl</h4>
-<pre>public abstract&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getSegmentUrl&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+<pre class="methodSignature">public abstract&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getSegmentUrl&#8203;(<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                                         long&nbsp;index)</pre>
-<div class="block">Returns a <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment for the given index in the
+<div class="block">Returns a <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment for the given index in the
  given representation.
 
- <p>See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentUrl-long-"><code>DashSegmentIndex.getSegmentUrl(long)</code></a>.</div>
+ <p>See <a href="../DashSegmentIndex.html#getSegmentUrl(long)"><code>DashSegmentIndex.getSegmentUrl(long)</code></a>.</div>
 </li>
 </ul>
-<a name="getFirstSegmentNum--">
+<a id="getFirstSegmentNum()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFirstSegmentNum</h4>
-<pre>public&nbsp;long&nbsp;getFirstSegmentNum()</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstSegmentNum--"><code>DashSegmentIndex.getFirstSegmentNum()</code></a>.</div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getFirstSegmentNum()</pre>
+<div class="block">See <a href="../DashSegmentIndex.html#getFirstSegmentNum()"><code>DashSegmentIndex.getFirstSegmentNum()</code></a>.</div>
 </li>
 </ul>
-<a name="getFirstAvailableSegmentNum-long-long-">
+<a id="getFirstAvailableSegmentNum(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFirstAvailableSegmentNum</h4>
-<pre>public&nbsp;long&nbsp;getFirstAvailableSegmentNum&#8203;(long&nbsp;periodDurationUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;getFirstAvailableSegmentNum&#8203;(long&nbsp;periodDurationUs,
                                         long&nbsp;nowUnixTimeUs)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstAvailableSegmentNum-long-long-"><code>DashSegmentIndex.getFirstAvailableSegmentNum(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getFirstAvailableSegmentNum(long,long)"><code>DashSegmentIndex.getFirstAvailableSegmentNum(long, long)</code></a>.</div>
 </li>
 </ul>
-<a name="getAvailableSegmentCount-long-long-">
+<a id="getAvailableSegmentCount(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getAvailableSegmentCount</h4>
-<pre>public&nbsp;int&nbsp;getAvailableSegmentCount&#8203;(long&nbsp;periodDurationUs,
-                                    long&nbsp;nowUnixTimeUs)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getAvailableSegmentCount-long-long-"><code>DashSegmentIndex.getAvailableSegmentCount(long, long)</code></a>.</div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getAvailableSegmentCount&#8203;(long&nbsp;periodDurationUs,
+                                     long&nbsp;nowUnixTimeUs)</pre>
+<div class="block">See <a href="../DashSegmentIndex.html#getAvailableSegmentCount(long,long)"><code>DashSegmentIndex.getAvailableSegmentCount(long, long)</code></a>.</div>
 </li>
 </ul>
-<a name="getNextSegmentAvailableTimeUs-long-long-">
+<a id="getNextSegmentAvailableTimeUs(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getNextSegmentAvailableTimeUs</h4>
-<pre>public&nbsp;long&nbsp;getNextSegmentAvailableTimeUs&#8203;(long&nbsp;periodDurationUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;getNextSegmentAvailableTimeUs&#8203;(long&nbsp;periodDurationUs,
                                           long&nbsp;nowUnixTimeUs)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getNextSegmentAvailableTimeUs-long-long-"><code>DashSegmentIndex.getNextSegmentAvailableTimeUs(long, long)</code></a>.</div>
+<div class="block">See <a href="../DashSegmentIndex.html#getNextSegmentAvailableTimeUs(long,long)"><code>DashSegmentIndex.getNextSegmentAvailableTimeUs(long, long)</code></a>.</div>
 </li>
 </ul>
-<a name="isExplicit--">
+<a id="isExplicit()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isExplicit</h4>
-<pre>public&nbsp;boolean&nbsp;isExplicit()</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#isExplicit--"><code>DashSegmentIndex.isExplicit()</code></a></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isExplicit()</pre>
+<div class="block">See <a href="../DashSegmentIndex.html#isExplicit()"><code>DashSegmentIndex.isExplicit()</code></a></div>
 </li>
 </ul>
-<a name="getSegmentCount-long-">
+<a id="getSegmentCount(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getSegmentCount</h4>
-<pre>public abstract&nbsp;int&nbsp;getSegmentCount&#8203;(long&nbsp;periodDurationUs)</pre>
-<div class="block">See <a href="../../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentCount-long-"><code>DashSegmentIndex.getSegmentCount(long)</code></a>.</div>
+<pre class="methodSignature">public abstract&nbsp;long&nbsp;getSegmentCount&#8203;(long&nbsp;periodDurationUs)</pre>
+<div class="block">See <a href="../DashSegmentIndex.html#getSegmentCount(long)"><code>DashSegmentIndex.getSegmentCount(long)</code></a>.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -495,16 +507,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/dash/manifest/SegmentBase.MultiSegmentBase.html" target="_top">Frames</a></li>
-<li><a href="SegmentBase.MultiSegmentBase.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -524,7 +528,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.source.dash.manifest.SegmentBase">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -536,9 +540,11 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/dash/
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

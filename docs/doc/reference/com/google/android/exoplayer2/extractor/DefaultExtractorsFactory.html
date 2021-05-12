@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" target="_top">Frames</a></li>
-<li><a href="DefaultExtractorsFactory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -91,7 +87,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/package-summary.html">com.google.android.exoplayer2.extractor</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor</a></div>
 <h2 title="Class DefaultExtractorsFactory" class="title">Class DefaultExtractorsFactory</h2>
 </div>
 <div class="contentContainer">
@@ -131,37 +130,37 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
+<dd><code><a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">DefaultExtractorsFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></pre>
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> that provides an array of extractors for the following formats:
+implements <a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></pre>
+<div class="block">An <a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> that provides an array of extractors for the following formats:
 
  <ul>
-   <li>MP4, including M4A (<a href="../../../../../com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a>)
-   <li>fMP4 (<a href="../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a>)
-   <li>Matroska and WebM (<a href="../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a>)
-   <li>Ogg Vorbis/FLAC (<a href="../../../../../com/google/android/exoplayer2/extractor/ogg/OggExtractor.html" title="class in com.google.android.exoplayer2.extractor.ogg"><code>OggExtractor</code></a>
-   <li>MP3 (<a href="../../../../../com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a>)
-   <li>AAC (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a>)
-   <li>MPEG TS (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a>)
-   <li>MPEG PS (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/PsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>PsExtractor</code></a>)
-   <li>FLV (<a href="../../../../../com/google/android/exoplayer2/extractor/flv/FlvExtractor.html" title="class in com.google.android.exoplayer2.extractor.flv"><code>FlvExtractor</code></a>)
-   <li>WAV (<a href="../../../../../com/google/android/exoplayer2/extractor/wav/WavExtractor.html" title="class in com.google.android.exoplayer2.extractor.wav"><code>WavExtractor</code></a>)
-   <li>AC3 (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/Ac3Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>Ac3Extractor</code></a>)
-   <li>AC4 (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/Ac4Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>Ac4Extractor</code></a>)
-   <li>AMR (<a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a>)
+   <li>MP4, including M4A (<a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a>)
+   <li>fMP4 (<a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a>)
+   <li>Matroska and WebM (<a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a>)
+   <li>Ogg Vorbis/FLAC (<a href="ogg/OggExtractor.html" title="class in com.google.android.exoplayer2.extractor.ogg"><code>OggExtractor</code></a>
+   <li>MP3 (<a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a>)
+   <li>AAC (<a href="ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a>)
+   <li>MPEG TS (<a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a>)
+   <li>MPEG PS (<a href="ts/PsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>PsExtractor</code></a>)
+   <li>FLV (<a href="flv/FlvExtractor.html" title="class in com.google.android.exoplayer2.extractor.flv"><code>FlvExtractor</code></a>)
+   <li>WAV (<a href="wav/WavExtractor.html" title="class in com.google.android.exoplayer2.extractor.wav"><code>WavExtractor</code></a>)
+   <li>AC3 (<a href="ts/Ac3Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>Ac3Extractor</code></a>)
+   <li>AC4 (<a href="ts/Ac4Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>Ac4Extractor</code></a>)
+   <li>AMR (<a href="amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a>)
    <li>FLAC
        <ul>
          <li>If available, the FLAC extension's <code>
              com.google.android.exoplayer2.ext.flac.FlacExtractor</code> is used.
-         <li>Otherwise, the core <a href="../../../../../com/google/android/exoplayer2/extractor/flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> is used. Note that Android devices do not
+         <li>Otherwise, the core <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> is used. Note that Android devices do not
              generally include a FLAC decoder before API 27. This can be worked around by using
              the FLAC extension or the FFmpeg extension.
        </ul>
-   <li>JPEG (<a href="../../../../../com/google/android/exoplayer2/extractor/jpeg/JpegExtractor.html" title="class in com.google.android.exoplayer2.extractor.jpeg"><code>JpegExtractor</code></a>)
+   <li>JPEG (<a href="jpeg/JpegExtractor.html" title="class in com.google.android.exoplayer2.extractor.jpeg"><code>JpegExtractor</code></a>)
  </ul></div>
 </li>
 </ul>
@@ -170,46 +169,51 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.extractor.ExtractorsFactory">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.extractor.ExtractorsFactory">
 <!--   -->
 </a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#EMPTY">EMPTY</a></code></li>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></h3>
+<code><a href="ExtractorsFactory.html#EMPTY">EMPTY</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#DefaultExtractorsFactory--">DefaultExtractorsFactory</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultExtractorsFactory</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -217,110 +221,111 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#createExtractors--">createExtractors</a></span>()</code></th>
+<td class="colFirst"><code><a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createExtractors()">createExtractors</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+<div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#createExtractors-android.net.Uri-java.util.Map-">createExtractors</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
-                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</code></th>
+<td class="colFirst"><code><a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createExtractors(android.net.Uri,java.util.Map)">createExtractors</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</code></th>
 <td class="colLast">
-<div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+<div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setAdtsExtractorFlags-int-">setAdtsExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdtsExtractorFlags(int)">setAdtsExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setAmrExtractorFlags-int-">setAmrExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAmrExtractorFlags(int)">setAmrExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setConstantBitrateSeekingEnabled-boolean-">setConstantBitrateSeekingEnabled</a></span>&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setConstantBitrateSeekingEnabled(boolean)">setConstantBitrateSeekingEnabled</a></span>&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</code></th>
 <td class="colLast">
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setFlacExtractorFlags-int-">setFlacExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlacExtractorFlags(int)">setFlacExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setFragmentedMp4ExtractorFlags-int-">setFragmentedMp4ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFragmentedMp4ExtractorFlags(int)">setFragmentedMp4ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setMatroskaExtractorFlags-int-">setMatroskaExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMatroskaExtractorFlags(int)">setMatroskaExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setMp3ExtractorFlags-int-">setMp3ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMp3ExtractorFlags(int)">setMp3ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setMp4ExtractorFlags-int-">setMp4ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMp4ExtractorFlags(int)">setMp4ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setTsExtractorFlags-int-">setTsExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorFlags(int)">setTsExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
+<div class="block">Sets flags for <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
  created by the factory.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setTsExtractorMode-int-">setTsExtractorMode</a></span>&#8203;(int&nbsp;mode)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorMode(int)">setTsExtractorMode</a></span>&#8203;(int&nbsp;mode)</code></th>
 <td class="colLast">
-<div class="block">Sets the mode for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets the mode for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html#setTsExtractorTimestampSearchBytes-int-">setTsExtractorTimestampSearchBytes</a></span>&#8203;(int&nbsp;timestampSearchBytes)</code></th>
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorTimestampSearchBytes(int)">setTsExtractorTimestampSearchBytes</a></span>&#8203;(int&nbsp;timestampSearchBytes)</code></th>
 <td class="colLast">
-<div class="block">Sets the number of bytes searched to find a timestamp for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
+<div class="block">Sets the number of bytes searched to find a timestamp for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
  by the factory.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -328,12 +333,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultExtractorsFactory--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -344,19 +350,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setConstantBitrateSeekingEnabled-boolean-">
+<a id="setConstantBitrateSeekingEnabled(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setConstantBitrateSeekingEnabled</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingEnabled&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</pre>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingEnabled&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</pre>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it. If set to true, the flags required to enable
  this functionality will be OR'd with those passed to the setters when creating extractor
@@ -371,53 +379,53 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
-<a name="setAdtsExtractorFlags-int-">
+<a id="setAdtsExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdtsExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAdtsExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/ts/AdtsExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAdtsExtractorFlags&#8203;(<a href="ts/AdtsExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
                                                       int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - The flags to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/ts/AdtsExtractor.html#AdtsExtractor-int-"><code>AdtsExtractor(int)</code></a></dd>
+<dd><a href="ts/AdtsExtractor.html#%3Cinit%3E(int)"><code>AdtsExtractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setAmrExtractorFlags-int-">
+<a id="setAmrExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAmrExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAmrExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.amr">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAmrExtractorFlags&#8203;(<a href="amr/AmrExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.amr">@Flags</a>
                                                      int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - The flags to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#AmrExtractor-int-"><code>AmrExtractor(int)</code></a></dd>
+<dd><a href="amr/AmrExtractor.html#%3Cinit%3E(int)"><code>AmrExtractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setFlacExtractorFlags-int-">
+<a id="setFlacExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFlacExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFlacExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/flac/FlacExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.flac">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFlacExtractorFlags&#8203;(<a href="flac/FlacExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.flac">@Flags</a>
                                                       int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory. The flags are also used
+<div class="block">Sets flags for <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory. The flags are also used
  by <code>com.google.android.exoplayer2.ext.flac.FlacExtractor</code> instances if the FLAC extension
  is being used.</div>
 <dl>
@@ -426,114 +434,114 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/flac/FlacExtractor.html#FlacExtractor-int-"><code>FlacExtractor(int)</code></a></dd>
+<dd><a href="flac/FlacExtractor.html#%3Cinit%3E(int)"><code>FlacExtractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setMatroskaExtractorFlags-int-">
+<a id="setMatroskaExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMatroskaExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMatroskaExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mkv">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMatroskaExtractorFlags&#8203;(<a href="mkv/MatroskaExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mkv">@Flags</a>
                                                           int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - The flags to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/mkv/MatroskaExtractor.html#MatroskaExtractor-int-"><code>MatroskaExtractor(int)</code></a></dd>
+<dd><a href="mkv/MatroskaExtractor.html#%3Cinit%3E(int)"><code>MatroskaExtractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setMp4ExtractorFlags-int-">
+<a id="setMp4ExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMp4ExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp4ExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp4ExtractorFlags&#8203;(<a href="mp4/Mp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Flags</a>
                                                      int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - The flags to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.html#Mp4Extractor-int-"><code>Mp4Extractor(int)</code></a></dd>
+<dd><a href="mp4/Mp4Extractor.html#%3Cinit%3E(int)"><code>Mp4Extractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setFragmentedMp4ExtractorFlags-int-">
+<a id="setFragmentedMp4ExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFragmentedMp4ExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFragmentedMp4ExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFragmentedMp4ExtractorFlags&#8203;(<a href="mp4/FragmentedMp4Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Flags</a>
                                                                int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - The flags to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#FragmentedMp4Extractor-int-"><code>FragmentedMp4Extractor(int)</code></a></dd>
+<dd><a href="mp4/FragmentedMp4Extractor.html#%3Cinit%3E(int)"><code>FragmentedMp4Extractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setMp3ExtractorFlags-int-">
+<a id="setMp3ExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMp3ExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp3ExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp3">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp3ExtractorFlags&#8203;(<a href="mp3/Mp3Extractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.mp3">@Flags</a>
                                                      int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
+<div class="block">Sets flags for <a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - The flags to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html#Mp3Extractor-int-"><code>Mp3Extractor(int)</code></a></dd>
+<dd><a href="mp3/Mp3Extractor.html#%3Cinit%3E(int)"><code>Mp3Extractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setTsExtractorMode-int-">
+<a id="setTsExtractorMode(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTsExtractorMode</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorMode&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.Mode.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Mode</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorMode&#8203;(<a href="ts/TsExtractor.Mode.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Mode</a>
                                                    int&nbsp;mode)</pre>
-<div class="block">Sets the mode for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
+<div class="block">Sets the mode for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mode</code> - The mode to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html#TsExtractor-int-com.google.android.exoplayer2.util.TimestampAdjuster-com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory-int-"><code>TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory, int)</code></a></dd>
+<dd><a href="ts/TsExtractor.html#%3Cinit%3E(int,com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory,int)"><code>TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory, int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setTsExtractorFlags-int-">
+<a id="setTsExtractorFlags(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTsExtractorFlags</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorFlags&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorFlags&#8203;(<a href="ts/DefaultTsPayloadReaderFactory.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
                                                     int&nbsp;flags)</pre>
-<div class="block">Sets flags for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
+<div class="block">Sets flags for <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
  created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -541,18 +549,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html#TsExtractor-int-"><code>TsExtractor(int)</code></a></dd>
+<dd><a href="ts/TsExtractor.html#%3Cinit%3E(int)"><code>TsExtractor(int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="setTsExtractorTimestampSearchBytes-int-">
+<a id="setTsExtractorTimestampSearchBytes(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTsExtractorTimestampSearchBytes</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorTimestampSearchBytes&#8203;(int&nbsp;timestampSearchBytes)</pre>
-<div class="block">Sets the number of bytes searched to find a timestamp for <a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorTimestampSearchBytes&#8203;(int&nbsp;timestampSearchBytes)</pre>
+<div class="block">Sets the number of bytes searched to find a timestamp for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
  by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -560,64 +568,68 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/ts/TsExtractor.html#TsExtractor-int-com.google.android.exoplayer2.util.TimestampAdjuster-com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory-int-"><code>TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory, int)</code></a></dd>
+<dd><a href="ts/TsExtractor.html#%3Cinit%3E(int,com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory,int)"><code>TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory, int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="createExtractors--">
+<a id="createExtractors()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createExtractors</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#createExtractors--">ExtractorsFactory</a></code></span></div>
-<div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+<pre class="methodSignature">public&nbsp;<a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorsFactory.html#createExtractors()">ExtractorsFactory</a></code></span></div>
+<div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#createExtractors--">createExtractors</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
+<dd><code><a href="ExtractorsFactory.html#createExtractors()">createExtractors</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="createExtractors-android.net.Uri-java.util.Map-">
+<a id="createExtractors(android.net.Uri,java.util.Map)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createExtractors</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
-                                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#createExtractors-android.net.Uri-java.util.Map-">ExtractorsFactory</a></code></span></div>
-<div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+<pre class="methodSignature">public&nbsp;<a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorsFactory.html#createExtractors(android.net.Uri,java.util.Map)">ExtractorsFactory</a></code></span></div>
+<div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#createExtractors-android.net.Uri-java.util.Map-">createExtractors</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
+<dd><code><a href="ExtractorsFactory.html#createExtractors(android.net.Uri,java.util.Map)">createExtractors</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> of the media to extract.</dd>
 <dd><code>responseHeaders</code> - The response headers of the media to extract, or an empty map if there
      are none. The map lookup should be case-insensitive.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</dd>
+<dd>The <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -627,16 +639,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" target="_top">Frames</a></li>
-<li><a href="DefaultExtractorsFactory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -657,7 +661,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -668,9 +672,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

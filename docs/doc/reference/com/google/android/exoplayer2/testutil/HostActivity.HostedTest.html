@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/HttpDataSourceTestEnv.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html" target="_top">Frames</a></li>
-<li><a href="HostActivity.HostedTest.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Interface HostActivity.HostedTest" class="title">Interface HostActivity.HostedTest</h2>
 </div>
 <div class="contentContainer">
@@ -123,15 +122,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil">ExoHostedTest</a></code></dd>
+<dd><code><a href="ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil">ExoHostedTest</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a></dd>
+<dd><a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a></dd>
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">HostActivity.HostedTest</span></pre>
-<div class="block">Interface for tests that run inside of a <a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><code>HostActivity</code></a>.</div>
+<div class="block">Interface for tests that run inside of a <a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><code>HostActivity</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -139,12 +138,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -153,29 +153,29 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html#blockUntilStopped-long-">blockUntilStopped</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilStopped(long)">blockUntilStopped</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
 <td class="colLast">
-<div class="block">Called on the main thread to block until the test has stopped or <a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html#forceStop--"><code>forceStop()</code></a> is
+<div class="block">Called on the main thread to block until the test has stopped or <a href="#forceStop()"><code>forceStop()</code></a> is
  called.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html#forceStop--">forceStop</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceStop()">forceStop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called on the main thread to force stop the test (if it is not stopped already).</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html#onFinished--">onFinished</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFinished()">onFinished</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called on the test thread after the test has finished and been stopped.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html#onStart-com.google.android.exoplayer2.testutil.HostActivity-android.view.Surface-android.widget.FrameLayout-">onStart</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a>&nbsp;host,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStart(com.google.android.exoplayer2.testutil.HostActivity,android.view.Surface,android.widget.FrameLayout)">onStart</a></span>&#8203;(<a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a>&nbsp;host,
        <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
        <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a>&nbsp;overlayFrameLayout)</code></th>
 <td class="colLast">
@@ -185,6 +185,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -192,40 +193,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="onStart-com.google.android.exoplayer2.testutil.HostActivity-android.view.Surface-android.widget.FrameLayout-">
+<a id="onStart(com.google.android.exoplayer2.testutil.HostActivity,android.view.Surface,android.widget.FrameLayout)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onStart</h4>
-<pre>void&nbsp;onStart&#8203;(<a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a>&nbsp;host,
+<pre class="methodSignature">void&nbsp;onStart&#8203;(<a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a>&nbsp;host,
              <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
              <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a>&nbsp;overlayFrameLayout)</pre>
 <div class="block">Called on the main thread when the test is started.
 
- <p>The test will not be started until the <a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><code>HostActivity</code></a> has been resumed and its
+ <p>The test will not be started until the <a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><code>HostActivity</code></a> has been resumed and its
  <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> has been created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>host</code> - The <a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><code>HostActivity</code></a> in which the test is being run.</dd>
+<dd><code>host</code> - The <a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><code>HostActivity</code></a> in which the test is being run.</dd>
 <dd><code>surface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</dd>
 <dd><code>overlayFrameLayout</code> - A <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a> that is on top of the surface.</dd>
 </dl>
 </li>
 </ul>
-<a name="blockUntilStopped-long-">
+<a id="blockUntilStopped(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>blockUntilStopped</h4>
-<pre>boolean&nbsp;blockUntilStopped&#8203;(long&nbsp;timeoutMs)</pre>
-<div class="block">Called on the main thread to block until the test has stopped or <a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html#forceStop--"><code>forceStop()</code></a> is
+<pre class="methodSignature">boolean&nbsp;blockUntilStopped&#8203;(long&nbsp;timeoutMs)</pre>
+<div class="block">Called on the main thread to block until the test has stopped or <a href="#forceStop()"><code>forceStop()</code></a> is
  called.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -235,13 +237,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="forceStop--">
+<a id="forceStop()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>forceStop</h4>
-<pre>boolean&nbsp;forceStop()</pre>
+<pre class="methodSignature">boolean&nbsp;forceStop()</pre>
 <div class="block">Called on the main thread to force stop the test (if it is not stopped already).</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -249,13 +251,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="onFinished--">
+<a id="onFinished()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onFinished</h4>
-<pre>void&nbsp;onFinished()</pre>
+<pre class="methodSignature">void&nbsp;onFinished()</pre>
 <div class="block">Called on the test thread after the test has finished and been stopped.
  <p>
  Implementations may use this method to assert that test criteria were met.</div>
@@ -263,21 +265,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -287,16 +293,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/HostActivity.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/HttpDataSourceTestEnv.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/HostActivity.HostedTest.html" target="_top">Frames</a></li>
-<li><a href="HostActivity.HostedTest.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -328,9 +326,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

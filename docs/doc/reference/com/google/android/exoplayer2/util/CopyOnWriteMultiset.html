@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/Consumer.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" target="_top">Frames</a></li>
-<li><a href="CopyOnWriteMultiset.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
 <h2 title="Class CopyOnWriteMultiset" class="title">Class CopyOnWriteMultiset&lt;E&gt;</h2>
 </div>
 <div class="contentContainer">
@@ -145,11 +144,11 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
  unique elements.
 
  <p>This class is thread-safe using the same method as <a href="https://developer.android.com/reference/java/util/concurrent/CopyOnWriteArrayList.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top"><code>CopyOnWriteArrayList</code></a>. Mutation methods cause the underlying data to be
- copied. <a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#elementSet--"><code>elementSet()</code></a> and <a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#iterator--"><code>iterator()</code></a> return snapshots that are unaffected by
+ copied. <a href="#elementSet()"><code>elementSet()</code></a> and <a href="#iterator()"><code>iterator()</code></a> return snapshots that are unaffected by
  subsequent mutations.
 
  <p>Iterating directly on this class reveals duplicate elements. Unique elements can be accessed
- via <a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#elementSet--"><code>elementSet()</code></a>. Iteration order for both of these is not defined.</div>
+ via <a href="#elementSet()"><code>elementSet()</code></a>. Iteration order for both of these is not defined.</div>
 </li>
 </ul>
 </div>
@@ -157,31 +156,34 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#CopyOnWriteMultiset--">CopyOnWriteMultiset</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">CopyOnWriteMultiset</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -190,50 +192,58 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#add-E-">add</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#add(E)">add</a></span>&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
 <td class="colLast">
 <div class="block">Adds <code>element</code> to the multiset.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#elementSet--">elementSet</a></span>()</code></th>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#count(E)">count</a></span>&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
+<td class="colLast">
+<div class="block">Returns the number of occurrences of an element in this multiset.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#elementSet()">elementSet</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a snapshot of the unique elements currently in this multiset.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Iterator.html" title="class or interface in java.util" class="externalLink">Iterator</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#iterator--">iterator</a></span>()</code></th>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Iterator.html" title="class or interface in java.util" class="externalLink">Iterator</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#iterator()">iterator</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns an iterator over a snapshot of all the elements currently in this multiset (including
  duplicates).</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html#remove-E-">remove</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(E)">remove</a></span>&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
 <td class="colLast">
 <div class="block">Removes <code>element</code> from the multiset.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Iterable">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Iterable.html" title="class or interface in java.lang" class="externalLink" target="_top">Iterable</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Iterable.html#forEach-java.util.function.Consumer-" title="class or interface in java.lang" class="externalLink">forEach</a>, <a href="https://developer.android.com/reference/java/lang/Iterable.html?is-external=true#spliterator--" title="class or interface in java.lang" class="externalLink" target="_top">spliterator</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Iterable">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Iterable.html" title="class or interface in java.lang" class="externalLink" target="_top">Iterable</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Iterable.html#forEach(java.util.function.Consumer)" title="class or interface in java.lang" class="externalLink">forEach</a>, <a href="https://developer.android.com/reference/java/lang/Iterable.html?is-external=true#spliterator()" title="class or interface in java.lang" class="externalLink" target="_top">spliterator</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -241,12 +251,13 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="CopyOnWriteMultiset--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -257,21 +268,23 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="add-java.lang.Object-">
+<a id="add(java.lang.Object)">
 <!--   -->
-</a><a name="add-E-">
+</a><a id="add(E)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>add</h4>
-<pre>public&nbsp;void&nbsp;add&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;add&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
 <div class="block">Adds <code>element</code> to the multiset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -279,15 +292,15 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </dl>
 </li>
 </ul>
-<a name="remove-java.lang.Object-">
+<a id="remove(java.lang.Object)">
 <!--   -->
-</a><a name="remove-E-">
+</a><a id="remove(E)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;remove&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;remove&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
 <div class="block">Removes <code>element</code> from the multiset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -295,13 +308,13 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </dl>
 </li>
 </ul>
-<a name="elementSet--">
+<a id="elementSet()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>elementSet</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;&nbsp;elementSet()</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;&nbsp;elementSet()</pre>
 <div class="block">Returns a snapshot of the unique elements currently in this multiset.
 
  <p>Changes to the underlying multiset are not reflected in the returned value.</div>
@@ -311,42 +324,58 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </dl>
 </li>
 </ul>
-<a name="iterator--">
+<a id="iterator()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>iterator</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Iterator.html" title="class or interface in java.util" class="externalLink">Iterator</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;&nbsp;iterator()</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Iterator.html" title="class or interface in java.util" class="externalLink">Iterator</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;&nbsp;iterator()</pre>
 <div class="block">Returns an iterator over a snapshot of all the elements currently in this multiset (including
  duplicates).
 
  <p>Changes to the underlying multiset are not reflected in the returned value.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Iterable.html#iterator--" title="class or interface in java.lang" class="externalLink">iterator</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Iterable</a>&lt;<a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Iterable.html#iterator()" title="class or interface in java.lang" class="externalLink">iterator</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Iterable</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An unmodifiable iterator over all the elements in this multiset (including duplicates).</dd>
 </dl>
 </li>
 </ul>
+<a id="count(java.lang.Object)">
+<!--   -->
+</a><a id="count(E)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>count</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;count&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
+<div class="block">Returns the number of occurrences of an element in this multiset.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
+</li>
+</ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -356,16 +385,8 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/Consumer.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" target="_top">Frames</a></li>
-<li><a href="CopyOnWriteMultiset.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -397,9 +418,11 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

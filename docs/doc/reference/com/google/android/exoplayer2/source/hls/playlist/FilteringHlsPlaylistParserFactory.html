@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var data = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html" target="_top">Frames</a></li>
-<li><a href="FilteringHlsPlaylistParserFactory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></div>
 <h2 title="Class FilteringHlsPlaylistParserFactory" class="title">Class FilteringHlsPlaylistParserFactory</h2>
 </div>
 <div class="contentContainer">
@@ -131,13 +130,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
+<dd><code><a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">FilteringHlsPlaylistParserFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></pre>
-<div class="block">A <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistParserFactory</code></a> that includes only the streams identified by the given stream
+implements <a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></pre>
+<div class="block">A <a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistParserFactory</code></a> that includes only the streams identified by the given stream
  keys.</div>
 </li>
 </ul>
@@ -146,32 +145,35 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html#FilteringHlsPlaylistParserFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-java.util.List-">FilteringHlsPlaylistParserFactory</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;hlsPlaylistParserFactory,
-                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory,java.util.List)">FilteringHlsPlaylistParserFactory</a></span>&#8203;(<a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;hlsPlaylistParserFactory,
+                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -179,30 +181,31 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html#createPlaylistParser--">createPlaylistParser</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPlaylistParser()">createPlaylistParser</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a stand-alone playlist parser.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html#createPlaylistParser-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist-">createPlaylistParser</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
-                    <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</code></th>
+<td class="colFirst"><code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></span>&#8203;(<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
+                    <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</code></th>
 <td class="colLast">
-<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>.</div>
+<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -210,19 +213,20 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="FilteringHlsPlaylistParserFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory-java.util.List-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory,java.util.List)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FilteringHlsPlaylistParserFactory</h4>
-<pre>public&nbsp;FilteringHlsPlaylistParserFactory&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;hlsPlaylistParserFactory,
-                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<pre>public&nbsp;FilteringHlsPlaylistParserFactory&#8203;(<a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;hlsPlaylistParserFactory,
+                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>hlsPlaylistParserFactory</code> - A factory for the parsers of the playlists which will be
@@ -233,43 +237,45 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createPlaylistParser--">
+<a id="createPlaylistParser()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createPlaylistParser</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html#createPlaylistParser--">HlsPlaylistParserFactory</a></code></span></div>
+<pre class="methodSignature">public&nbsp;<a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistParserFactory.html#createPlaylistParser()">HlsPlaylistParserFactory</a></code></span></div>
 <div class="block">Returns a stand-alone playlist parser. Playlists parsed by the returned parser do not inherit
  any attributes from other playlists.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html#createPlaylistParser--">createPlaylistParser</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
+<dd><code><a href="HlsPlaylistParserFactory.html#createPlaylistParser()">createPlaylistParser</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="createPlaylistParser-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist-">
+<a id="createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createPlaylistParser</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
+<pre class="methodSignature">public&nbsp;<a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser&#8203;(<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
                                                                 @Nullable
-                                                                <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html#createPlaylistParser-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist-">HlsPlaylistParserFactory</a></code></span></div>
-<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>. Returned <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMediaPlaylist</code></a> instances may inherit attributes from
+                                                                <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistParserFactory.html#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">HlsPlaylistParserFactory</a></code></span></div>
+<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>. Returned <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMediaPlaylist</code></a> instances may inherit attributes from
  <code>masterPlaylist</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html#createPlaylistParser-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist-">createPlaylistParser</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
+<dd><code><a href="HlsPlaylistParserFactory.html#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>masterPlaylist</code> - The master playlist that referenced any parsed media playlists.</dd>
 <dd><code>previousMediaPlaylist</code> - The previous media playlist or null if there is no previous media
@@ -281,21 +287,25 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -305,16 +315,8 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/FilteringHlsPlaylistParserFactory.html" target="_top">Frames</a></li>
-<li><a href="FilteringHlsPlaylistParserFactory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -346,9 +348,11 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

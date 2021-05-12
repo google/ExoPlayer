@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10};
+var data = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCueParser.html" title="class in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html" title="class in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/text/webvtt/WebvttDecoder.html" target="_top">Frames</a></li>
-<li><a href="WebvttDecoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/package-summary.html">com.google.android.exoplayer2.text.webvtt</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.text.webvtt</a></div>
 <h2 title="Class WebvttDecoder" class="title">Class WebvttDecoder</h2>
 </div>
 <div class="contentContainer">
@@ -122,10 +121,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.SimpleDecoder</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,<a href="../../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,<a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</li>
+<li><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.SimpleDecoder</a>&lt;<a href="../SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,&#8203;<a href="../SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,&#8203;<a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">com.google.android.exoplayer2.text.SimpleSubtitleDecoder</a></li>
+<li><a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">com.google.android.exoplayer2.text.SimpleSubtitleDecoder</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.text.webvtt.WebvttDecoder</li>
@@ -141,12 +140,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,<a href="../../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,<a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</code>, <code><a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></code></dd>
+<dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,&#8203;<a href="../SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,&#8203;<a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</code>, <code><a href="../SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">WebvttDecoder</span>
-extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></pre>
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text"><code>SimpleSubtitleDecoder</code></a> for WebVTT.
+extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></pre>
+<div class="block">A <a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text"><code>SimpleSubtitleDecoder</code></a> for WebVTT.
+
  <p></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -159,31 +159,34 @@ extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubt
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttDecoder.html#WebvttDecoder--">WebvttDecoder</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">WebvttDecoder</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -191,45 +194,46 @@ extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubt
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttDecoder.html#decode-byte:A-int-boolean-">decode</a></span>&#8203;(byte[]&nbsp;bytes,
+<td class="colFirst"><code>protected <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(byte%5B%5D,int,boolean)">decode</a></span>&#8203;(byte[]&nbsp;bytes,
       int&nbsp;length,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
-<div class="block">Decodes data into a <a href="../../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
+<div class="block">Decodes data into a <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.decoder.Decoder">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.text.SimpleSubtitleDecoder">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html#dequeueInputBuffer--">dequeueInputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html#dequeueOutputBuffer--">dequeueOutputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html#flush--">flush</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html#queueInputBuffer-I-">queueInputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/Decoder.html#release--">release</a></code></li>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.text.<a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></h3>
+<code><a href="../SimpleSubtitleDecoder.html#createInputBuffer()">createInputBuffer</a>, <a href="../SimpleSubtitleDecoder.html#createOutputBuffer()">createOutputBuffer</a>, <a href="../SimpleSubtitleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a>, <a href="../SimpleSubtitleDecoder.html#decode(com.google.android.exoplayer2.text.SubtitleInputBuffer,com.google.android.exoplayer2.text.SubtitleOutputBuffer,boolean)">decode</a>, <a href="../SimpleSubtitleDecoder.html#getName()">getName</a>, <a href="../SimpleSubtitleDecoder.html#setPositionUs(long)">setPositionUs</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.decoder.SimpleDecoder">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a></h3>
+<code><a href="../../decoder/SimpleDecoder.html#dequeueInputBuffer()">dequeueInputBuffer</a>, <a href="../../decoder/SimpleDecoder.html#dequeueOutputBuffer()">dequeueOutputBuffer</a>, <a href="../../decoder/SimpleDecoder.html#flush()">flush</a>, <a href="../../decoder/SimpleDecoder.html#queueInputBuffer(I)">queueInputBuffer</a>, <a href="../../decoder/SimpleDecoder.html#release()">release</a>, <a href="../../decoder/SimpleDecoder.html#releaseOutputBuffer(O)">releaseOutputBuffer</a>, <a href="../../decoder/SimpleDecoder.html#setInitialInputBufferSize(int)">setInitialInputBufferSize</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.decoder.SimpleDecoder">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.decoder.Decoder">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#dequeueInputBuffer--">dequeueInputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#dequeueOutputBuffer--">dequeueOutputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#flush--">flush</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#queueInputBuffer-I-">queueInputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#release--">release</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#releaseOutputBuffer-O-">releaseOutputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#setInitialInputBufferSize-int-">setInitialInputBufferSize</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.text.SimpleSubtitleDecoder">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.text.<a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#createInputBuffer--">createInputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#createOutputBuffer--">createOutputBuffer</a>, <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#createUnexpectedDecodeException-java.lang.Throwable-">createUnexpectedDecodeException</a>, <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#decode-com.google.android.exoplayer2.text.SubtitleInputBuffer-com.google.android.exoplayer2.text.SubtitleOutputBuffer-boolean-">decode</a>, <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#getName--">getName</a>, <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#setPositionUs-long-">setPositionUs</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.decoder.<a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a></h3>
+<code><a href="../../decoder/Decoder.html#dequeueInputBuffer()">dequeueInputBuffer</a>, <a href="../../decoder/Decoder.html#dequeueOutputBuffer()">dequeueOutputBuffer</a>, <a href="../../decoder/Decoder.html#flush()">flush</a>, <a href="../../decoder/Decoder.html#queueInputBuffer(I)">queueInputBuffer</a>, <a href="../../decoder/Decoder.html#release()">release</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -237,12 +241,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubt
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="WebvttDecoder--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -253,55 +258,61 @@ extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubt
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="decode-byte:A-int-boolean-">
+<a id="decode(byte[],int,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>decode</h4>
-<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a>&nbsp;decode&#8203;(byte[]&nbsp;bytes,
+<pre class="methodSignature">protected&nbsp;<a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a>&nbsp;decode&#8203;(byte[]&nbsp;bytes,
                           int&nbsp;length,
                           boolean&nbsp;reset)
-                   throws <a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#decode-byte:A-int-boolean-">SimpleSubtitleDecoder</a></code></span></div>
-<div class="block">Decodes data into a <a href="../../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
+                   throws <a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../SimpleSubtitleDecoder.html#decode(byte%5B%5D,int,boolean)">SimpleSubtitleDecoder</a></code></span></div>
+<div class="block">Decodes data into a <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#decode-byte:A-int-boolean-">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code></dd>
+<dd><code><a href="../SimpleSubtitleDecoder.html#decode(byte%5B%5D,int,boolean)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bytes</code> - An array holding the data to be decoded, starting at position 0.</dd>
 <dd><code>length</code> - The size of the data to be decoded.</dd>
 <dd><code>reset</code> - Whether the decoder must be reset before decoding.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The decoded <a href="../../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</dd>
+<dd>The decoded <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></code> - If a decoding error occurs.</dd>
+<dd><code><a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></code> - If a decoding error occurs.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -311,16 +322,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubt
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCueParser.html" title="class in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html" title="class in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/text/webvtt/WebvttDecoder.html" target="_top">Frames</a></li>
-<li><a href="WebvttDecoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -352,9 +355,11 @@ extends <a href="../../../../../../com/google/android/exoplayer2/text/SimpleSubt
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

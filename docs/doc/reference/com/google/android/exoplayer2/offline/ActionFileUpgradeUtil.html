@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9};
+var data = {"i0":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" target="_top">Frames</a></li>
-<li><a href="ActionFileUpgradeUtil.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/package-summary.html">com.google.android.exoplayer2.offline</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.offline</a></div>
 <h2 title="Class ActionFileUpgradeUtil" class="title">Class ActionFileUpgradeUtil</h2>
 </div>
 <div class="contentContainer">
@@ -132,7 +131,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public final class <span class="typeNameLabel">ActionFileUpgradeUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Utility class for upgrading legacy action files into <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>.</div>
+<div class="block">Utility class for upgrading legacy action files into <a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -140,12 +139,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,7 +154,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a></span></code></th>
 <td class="colLast">
 <div class="block">Provides download IDs during action file upgrade.</div>
 </td>
@@ -162,13 +162,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -177,26 +179,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html#upgradeAndDelete-java.io.File-com.google.android.exoplayer2.offline.ActionFileUpgradeUtil.DownloadIdProvider-com.google.android.exoplayer2.offline.DefaultDownloadIndex-boolean-boolean-">upgradeAndDelete</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;actionFilePath,
-                <a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a>&nbsp;downloadIdProvider,
-                <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a>&nbsp;downloadIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#upgradeAndDelete(java.io.File,com.google.android.exoplayer2.offline.ActionFileUpgradeUtil.DownloadIdProvider,com.google.android.exoplayer2.offline.DefaultDownloadIndex,boolean,boolean)">upgradeAndDelete</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;actionFilePath,
+                <a href="ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a>&nbsp;downloadIdProvider,
+                <a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a>&nbsp;downloadIndex,
                 boolean&nbsp;deleteOnFailure,
                 boolean&nbsp;addNewDownloadsAsCompleted)</code></th>
 <td class="colLast">
-<div class="block">Merges <a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequests</code></a> contained in a legacy action file into a <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>, deleting the action file if the merge is successful or if <code>
+<div class="block">Merges <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequests</code></a> contained in a legacy action file into a <a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>, deleting the action file if the merge is successful or if <code>
  deleteOnFailure</code> is <code>true</code>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -204,30 +207,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="upgradeAndDelete-java.io.File-com.google.android.exoplayer2.offline.ActionFileUpgradeUtil.DownloadIdProvider-com.google.android.exoplayer2.offline.DefaultDownloadIndex-boolean-boolean-">
+<a id="upgradeAndDelete(java.io.File,com.google.android.exoplayer2.offline.ActionFileUpgradeUtil.DownloadIdProvider,com.google.android.exoplayer2.offline.DefaultDownloadIndex,boolean,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>upgradeAndDelete</h4>
-<pre>@WorkerThread
+<pre class="methodSignature">@WorkerThread
 public static&nbsp;void&nbsp;upgradeAndDelete&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;actionFilePath,
                                     @Nullable
-                                    <a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a>&nbsp;downloadIdProvider,
-                                    <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a>&nbsp;downloadIndex,
+                                    <a href="ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a>&nbsp;downloadIdProvider,
+                                    <a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a>&nbsp;downloadIndex,
                                     boolean&nbsp;deleteOnFailure,
                                     boolean&nbsp;addNewDownloadsAsCompleted)
                              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Merges <a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequests</code></a> contained in a legacy action file into a <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>, deleting the action file if the merge is successful or if <code>
+<div class="block">Merges <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequests</code></a> contained in a legacy action file into a <a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>, deleting the action file if the merge is successful or if <code>
  deleteOnFailure</code> is <code>true</code>.
 
- <p>This method must not be called while the <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a> is being used by a
- <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.
+ <p>This method must not be called while the <a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a> is being used by a
+ <a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a>.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
@@ -245,21 +249,25 @@ public static&nbsp;void&nbsp;upgradeAndDelete&#8203;(<a href="https://developer.
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -269,16 +277,8 @@ public static&nbsp;void&nbsp;upgradeAndDelete&#8203;(<a href="https://developer.
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" target="_top">Frames</a></li>
-<li><a href="ActionFileUpgradeUtil.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -310,9 +310,11 @@ public static&nbsp;void&nbsp;upgradeAndDelete&#8203;(<a href="https://developer.
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

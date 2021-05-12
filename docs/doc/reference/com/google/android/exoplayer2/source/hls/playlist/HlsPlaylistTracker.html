@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" target="_top">Frames</a></li>
-<li><a href="HlsPlaylistTracker.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></div>
 <h2 title="Interface HlsPlaylistTracker" class="title">Interface HlsPlaylistTracker</h2>
 </div>
 <div class="contentContainer">
@@ -123,7 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></code></dd>
+<dd><code><a href="DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">HlsPlaylistTracker</span></pre>
@@ -144,12 +143,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -158,35 +158,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a></span></code></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistTracker</code></a> instances.</div>
+<div class="block">Factory for <a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistTracker</code></a> instances.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></span></code></th>
 <td class="colLast">
 <div class="block">Called on playlist loading events.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistResetException.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistResetException</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsPlaylistTracker.PlaylistResetException.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistResetException</a></span></code></th>
 <td class="colLast">
 <div class="block">Thrown when the media sequence of a new snapshot indicates the server has reset.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistStuckException.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistStuckException</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsPlaylistTracker.PlaylistStuckException.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistStuckException</a></span></code></th>
 <td class="colLast">
 <div class="block">Thrown when a playlist is considered to be stuck due to a server side error.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a></span></code></th>
 <td class="colLast">
 <div class="block">Listener for primary playlist changes.</div>
 </td>
@@ -194,13 +194,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -209,29 +211,29 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#addListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">addListener</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">addListener</a></span>&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Registers a listener to receive events from the playlist tracker.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getInitialStartTimeUs--">getInitialStartTimeUs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInitialStartTimeUs()">getInitialStartTimeUs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the start time of the first loaded primary playlist, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
+<div class="block">Returns the start time of the first loaded primary playlist, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
  media playlist has been loaded.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getMasterPlaylist--">getMasterPlaylist</a></span>()</code></th>
+<td class="colFirst"><code><a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMasterPlaylist()">getMasterPlaylist</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the master playlist.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-android.net.Uri-boolean-">getPlaylistSnapshot</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
+<td class="colFirst"><code><a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaylistSnapshot(android.net.Uri,boolean)">getPlaylistSnapshot</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
                    boolean&nbsp;isForPlayback)</code></th>
 <td class="colLast">
 <div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
@@ -239,14 +241,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isLive--">isLive</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLive()">isLive</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the tracked playlists describe a live stream.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-android.net.Uri-">isSnapshotValid</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSnapshotValid(android.net.Uri)">isSnapshotValid</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> is valid,
  meaning all the segments referenced by the playlist are expected to be available.</div>
@@ -254,7 +256,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-android.net.Uri-">maybeThrowPlaylistRefreshError</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPlaylistRefreshError(android.net.Uri)">maybeThrowPlaylistRefreshError</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
 <div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>,
  this method throws the underlying error.</div>
@@ -262,7 +264,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError--">maybeThrowPrimaryPlaylistRefreshError</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPrimaryPlaylistRefreshError()">maybeThrowPrimaryPlaylistRefreshError</a></span>()</code></th>
 <td class="colLast">
 <div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
  method throws the underlying error.</div>
@@ -270,30 +272,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">refreshPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#refreshPlaylist(android.net.Uri)">refreshPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
 <div class="block">Requests a playlist refresh and removes it from the exclusion list.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#removeListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">removeListener</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">removeListener</a></span>&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-">start</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
-     <a href="../../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-     <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)">start</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
+     <a href="../../MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
+     <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Starts the playlist tracker.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#stop--">stop</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Stops the playlist tracker and releases any acquired resources.</div>
 </td>
@@ -301,6 +303,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -308,23 +311,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-">
+<a id="start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>void&nbsp;start&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
-           <a href="../../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-           <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</pre>
+<pre class="methodSignature">void&nbsp;start&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
+           <a href="../../MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
+           <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</pre>
 <div class="block">Starts the playlist tracker.
 
- <p>Must be called from the playback thread. A tracker may be restarted after a <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#stop--"><code>stop()</code></a>
+ <p>Must be called from the playback thread. A tracker may be restarted after a <a href="#stop()"><code>stop()</code></a>
  call.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -335,25 +339,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="stop--">
+<a id="stop()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>void&nbsp;stop()</pre>
+<pre class="methodSignature">void&nbsp;stop()</pre>
 <div class="block">Stops the playlist tracker and releases any acquired resources.
 
- <p>Must be called once per <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> call.</div>
+ <p>Must be called once per <a href="#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> call.</div>
 </li>
 </ul>
-<a name="addListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">
+<a id="addListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addListener</h4>
-<pre>void&nbsp;addListener&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</pre>
+<pre class="methodSignature">void&nbsp;addListener&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</pre>
 <div class="block">Registers a listener to receive events from the playlist tracker.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -361,13 +365,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="removeListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">
+<a id="removeListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>removeListener</h4>
-<pre>void&nbsp;removeListener&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</pre>
+<pre class="methodSignature">void&nbsp;removeListener&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</pre>
 <div class="block">Unregisters a listener.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -375,17 +379,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="getMasterPlaylist--">
+<a id="getMasterPlaylist()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getMasterPlaylist</h4>
-<pre>@Nullable
-<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;getMasterPlaylist()</pre>
+<pre class="methodSignature">@Nullable
+<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;getMasterPlaylist()</pre>
 <div class="block">Returns the master playlist.
 
- <p>If the uri passed to <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> points to a media playlist, an <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>
+ <p>If the uri passed to <a href="#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> points to a media playlist, an <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>
  with a single variant for said media playlist is returned.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -393,14 +397,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="getPlaylistSnapshot-android.net.Uri-boolean-">
+<a id="getPlaylistSnapshot(android.net.Uri,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaylistSnapshot</h4>
-<pre>@Nullable
-<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;getPlaylistSnapshot&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
+<pre class="methodSignature">@Nullable
+<a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;getPlaylistSnapshot&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
                                      boolean&nbsp;isForPlayback)</pre>
 <div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 <dl>
@@ -414,24 +418,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="getInitialStartTimeUs--">
+<a id="getInitialStartTimeUs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getInitialStartTimeUs</h4>
-<pre>long&nbsp;getInitialStartTimeUs()</pre>
-<div class="block">Returns the start time of the first loaded primary playlist, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
+<pre class="methodSignature">long&nbsp;getInitialStartTimeUs()</pre>
+<div class="block">Returns the start time of the first loaded primary playlist, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
  media playlist has been loaded.</div>
 </li>
 </ul>
-<a name="isSnapshotValid-android.net.Uri-">
+<a id="isSnapshotValid(android.net.Uri)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isSnapshotValid</h4>
-<pre>boolean&nbsp;isSnapshotValid&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
+<pre class="methodSignature">boolean&nbsp;isSnapshotValid&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
 <div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> is valid,
  meaning all the segments referenced by the playlist are expected to be available. If the
  playlist is not valid then some of the segments may no longer be available.</div>
@@ -443,13 +447,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="maybeThrowPrimaryPlaylistRefreshError--">
+<a id="maybeThrowPrimaryPlaylistRefreshError()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowPrimaryPlaylistRefreshError</h4>
-<pre>void&nbsp;maybeThrowPrimaryPlaylistRefreshError()
+<pre class="methodSignature">void&nbsp;maybeThrowPrimaryPlaylistRefreshError()
                                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
  method throws the underlying error. Otherwise, does nothing.</div>
@@ -459,13 +463,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="maybeThrowPlaylistRefreshError-android.net.Uri-">
+<a id="maybeThrowPlaylistRefreshError(android.net.Uri)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowPlaylistRefreshError</h4>
-<pre>void&nbsp;maybeThrowPlaylistRefreshError&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)
+<pre class="methodSignature">void&nbsp;maybeThrowPlaylistRefreshError&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)
                              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>,
  this method throws the underlying error.</div>
@@ -477,13 +481,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="refreshPlaylist-android.net.Uri-">
+<a id="refreshPlaylist(android.net.Uri)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>refreshPlaylist</h4>
-<pre>void&nbsp;refreshPlaylist&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
+<pre class="methodSignature">void&nbsp;refreshPlaylist&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
 <div class="block">Requests a playlist refresh and removes it from the exclusion list.
 
  <p>The playlist tracker may choose to delay the playlist refresh. The request is discarded if a
@@ -494,13 +498,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a name="isLive--">
+<a id="isLive()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isLive</h4>
-<pre>boolean&nbsp;isLive()</pre>
+<pre class="methodSignature">boolean&nbsp;isLive()</pre>
 <div class="block">Returns whether the tracked playlists describe a live stream.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -510,21 +514,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -534,16 +542,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" target="_top">Frames</a></li>
-<li><a href="HlsPlaylistTracker.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -575,9 +575,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":42};
+var data = {"i0":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" target="_top">Frames</a></li>
-<li><a href="DefaultHttpDataSourceFactory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream</a></div>
 <h2 title="Class DefaultHttpDataSourceFactory" class="title">Class DefaultHttpDataSourceFactory</h2>
 </div>
 <div class="contentContainer">
@@ -122,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory</a></li>
+<li><a href="HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory</li>
@@ -136,14 +135,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a></code></dd>
+<dd><code><a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></code>, <code><a href="HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a></code></dd>
 </dl>
 <hr>
 <pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">DefaultHttpDataSourceFactory</span>
-extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></pre>
+extends <a href="HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a> instead.</div>
 </div>
 </li>
 </ul>
@@ -152,33 +151,34 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory--">DefaultHttpDataSourceFactory</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultHttpDataSourceFactory</a></span>()</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-int-int-boolean-">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,int,int,boolean)">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
                             int&nbsp;connectTimeoutMillis,
                             int&nbsp;readTimeoutMillis,
                             boolean&nbsp;allowCrossProtocolRedirects)</code></th>
@@ -187,16 +187,16 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 &nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.TransferListener)">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
+                            <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.TransferListener,int,int,boolean)">DefaultHttpDataSourceFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
+                            <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
                             int&nbsp;connectTimeoutMillis,
                             int&nbsp;readTimeoutMillis,
                             boolean&nbsp;allowCrossProtocolRedirects)</code></th>
@@ -207,13 +207,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -221,30 +223,31 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#createDataSourceInternal-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">createDataSourceInternal</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
+<td class="colFirst"><code>protected <a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDataSourceInternal(com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">createDataSourceInternal</a></span>&#8203;(<a href="HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Called by <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#createDataSource--"><code>HttpDataSource.BaseFactory.createDataSource()</code></a> to create a <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</div>
+<div class="block">Called by <a href="HttpDataSource.BaseFactory.html#createDataSource()"><code>HttpDataSource.BaseFactory.createDataSource()</code></a> to create a <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#createDataSource--">createDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#getDefaultRequestProperties--">getDefaultRequestProperties</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#setDefaultRequestProperties-java.util.Map-">setDefaultRequestProperties</a></code></li>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></h3>
+<code><a href="HttpDataSource.BaseFactory.html#createDataSource()">createDataSource</a>, <a href="HttpDataSource.BaseFactory.html#getDefaultRequestProperties()">getDefaultRequestProperties</a>, <a href="HttpDataSource.BaseFactory.html#setDefaultRequestProperties(java.util.Map)">setDefaultRequestProperties</a></code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -252,12 +255,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultHttpDataSourceFactory--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -265,12 +269,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <h4>DefaultHttpDataSourceFactory</h4>
 <pre>public&nbsp;DefaultHttpDataSourceFactory()</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Creates an instance. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
- connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
+<div class="block">Creates an instance. Sets <a href="DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
+ connection timeout, <a href="DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
  timeout and disables cross-protocol redirects.</div>
 </li>
 </ul>
-<a name="DefaultHttpDataSourceFactory-java.lang.String-">
+<a id="&lt;init&gt;(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -279,8 +283,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <pre>public&nbsp;DefaultHttpDataSourceFactory&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Creates an instance. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
- connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
+<div class="block">Creates an instance. Sets <a href="DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
+ connection timeout, <a href="DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
  timeout and disables cross-protocol redirects.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -289,7 +293,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </dl>
 </li>
 </ul>
-<a name="DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-">
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.upstream.TransferListener)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -298,10 +302,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <pre>public&nbsp;DefaultHttpDataSourceFactory&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
                                     @Nullable
-                                    <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
+                                    <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Creates an instance. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
- connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
+<div class="block">Creates an instance. Sets <a href="DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
+ connection timeout, <a href="DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
  timeout and disables cross-protocol redirects.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -309,11 +313,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
      agent of the underlying platform.</dd>
 <dd><code>listener</code> - An optional listener.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-"><code>DefaultHttpDataSourceFactory(String, TransferListener, int, int, boolean)</code></a></dd>
+<dd><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.TransferListener,int,int,boolean)"><code>DefaultHttpDataSourceFactory(String, TransferListener, int, int, boolean)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="DefaultHttpDataSourceFactory-java.lang.String-int-int-boolean-">
+<a id="&lt;init&gt;(java.lang.String,int,int,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -338,7 +342,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </dl>
 </li>
 </ul>
-<a name="DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-">
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.upstream.TransferListener,int,int,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -347,7 +351,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <pre>public&nbsp;DefaultHttpDataSourceFactory&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
                                     @Nullable
-                                    <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
+                                    <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
                                     int&nbsp;connectTimeoutMillis,
                                     int&nbsp;readTimeoutMillis,
                                     boolean&nbsp;allowCrossProtocolRedirects)</pre>
@@ -368,50 +372,56 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createDataSourceInternal-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
+<a id="createDataSourceInternal(com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createDataSourceInternal</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a>&nbsp;createDataSourceInternal&#8203;(<a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
+<pre class="methodSignature">protected&nbsp;<a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a>&nbsp;createDataSourceInternal&#8203;(<a href="HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#createDataSourceInternal-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">HttpDataSource.BaseFactory</a></code></span></div>
-<div class="block">Called by <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#createDataSource--"><code>HttpDataSource.BaseFactory.createDataSource()</code></a> to create a <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="HttpDataSource.BaseFactory.html#createDataSourceInternal(com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">HttpDataSource.BaseFactory</a></code></span></div>
+<div class="block">Called by <a href="HttpDataSource.BaseFactory.html#createDataSource()"><code>HttpDataSource.BaseFactory.createDataSource()</code></a> to create a <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#createDataSourceInternal-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">createDataSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></code></dd>
+<dd><code><a href="HttpDataSource.BaseFactory.html#createDataSourceInternal(com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">createDataSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>defaultRequestProperties</code> - The default <code>RequestProperties</code> to be used by the
-     <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</dd>
+     <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</dd>
+<dd>A <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instance.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -421,16 +431,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" target="_top">Frames</a></li>
-<li><a href="DefaultHttpDataSourceFactory.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -462,9 +464,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var data = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/media2/DefaultMediaItemConverter.html" title="class in com.google.android.exoplayer2.ext.media2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/media2/SessionCallbackBuilder.html" title="class in com.google.android.exoplayer2.ext.media2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/media2/MediaItemConverter.html" target="_top">Frames</a></li>
-<li><a href="MediaItemConverter.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/media2/package-summary.html">com.google.android.exoplayer2.ext.media2</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ext.media2</a></div>
 <h2 title="Interface MediaItemConverter" class="title">Interface MediaItemConverter</h2>
 </div>
 <div class="contentContainer">
@@ -123,11 +122,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/media2/DefaultMediaItemConverter.html" title="class in com.google.android.exoplayer2.ext.media2">DefaultMediaItemConverter</a></code></dd>
+<dd><code><a href="DefaultMediaItemConverter.html" title="class in com.google.android.exoplayer2.ext.media2">DefaultMediaItemConverter</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">MediaItemConverter</span></pre>
-<div class="block">Converts between <code>Media2 MediaItem</code> and <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
+<div class="block">Converts between <code>Media2 MediaItem</code> and <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -135,12 +134,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -148,22 +148,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/media2/MediaItemConverter.html#convertToExoPlayerMediaItem-androidx.media2.common.MediaItem-">convertToExoPlayerMediaItem</a></span>&#8203;(androidx.media2.common.MediaItem&nbsp;media2MediaItem)</code></th>
+<td class="colFirst"><code><a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#convertToExoPlayerMediaItem(androidx.media2.common.MediaItem)">convertToExoPlayerMediaItem</a></span>&#8203;(androidx.media2.common.MediaItem&nbsp;media2MediaItem)</code></th>
 <td class="colLast">
-<div class="block">Converts a <code>Media2 MediaItem</code> to an <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
+<div class="block">Converts a <code>Media2 MediaItem</code> to an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>androidx.media2.common.MediaItem</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/media2/MediaItemConverter.html#convertToMedia2MediaItem-com.google.android.exoplayer2.MediaItem-">convertToMedia2MediaItem</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#convertToMedia2MediaItem(com.google.android.exoplayer2.MediaItem)">convertToMedia2MediaItem</a></span>&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</code></th>
 <td class="colLast">
-<div class="block">Converts an <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a> to a <code>Media2 MediaItem</code>.</div>
+<div class="block">Converts an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a> to a <code>Media2 MediaItem</code>.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -171,48 +172,53 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="convertToExoPlayerMediaItem-androidx.media2.common.MediaItem-">
+<a id="convertToExoPlayerMediaItem(androidx.media2.common.MediaItem)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>convertToExoPlayerMediaItem</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;convertToExoPlayerMediaItem&#8203;(androidx.media2.common.MediaItem&nbsp;media2MediaItem)</pre>
-<div class="block">Converts a <code>Media2 MediaItem</code> to an <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
+<pre class="methodSignature"><a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;convertToExoPlayerMediaItem&#8203;(androidx.media2.common.MediaItem&nbsp;media2MediaItem)</pre>
+<div class="block">Converts a <code>Media2 MediaItem</code> to an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 </li>
 </ul>
-<a name="convertToMedia2MediaItem-com.google.android.exoplayer2.MediaItem-">
+<a id="convertToMedia2MediaItem(com.google.android.exoplayer2.MediaItem)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>convertToMedia2MediaItem</h4>
-<pre>androidx.media2.common.MediaItem&nbsp;convertToMedia2MediaItem&#8203;(<a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</pre>
-<div class="block">Converts an <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a> to a <code>Media2 MediaItem</code>.</div>
+<pre class="methodSignature">androidx.media2.common.MediaItem&nbsp;convertToMedia2MediaItem&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</pre>
+<div class="block">Converts an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a> to a <code>Media2 MediaItem</code>.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -222,16 +228,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/media2/DefaultMediaItemConverter.html" title="class in com.google.android.exoplayer2.ext.media2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/ext/media2/SessionCallbackBuilder.html" title="class in com.google.android.exoplayer2.ext.media2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/ext/media2/MediaItemConverter.html" target="_top">Frames</a></li>
-<li><a href="MediaItemConverter.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -263,9 +261,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9};
+var data = {"i0":10,"i1":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" target="_top">Frames</a></li>
-<li><a href="HlsMasterPlaylist.Variant.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../../";loadScripts(document, 'script');</scrip
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></div>
 <h2 title="Class HlsMasterPlaylist.Variant" class="title">Class HlsMasterPlaylist.Variant</h2>
 </div>
 <div class="contentContainer">
@@ -131,7 +130,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></dd>
+<dd><a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">HlsMasterPlaylist.Variant</span>
@@ -144,12 +143,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -158,42 +158,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#audioGroupId">audioGroupId</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioGroupId">audioGroupId</a></span></code></th>
 <td class="colLast">
 <div class="block">The audio rendition group referenced by this variant, or <code>null</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#captionGroupId">captionGroupId</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#captionGroupId">captionGroupId</a></span></code></th>
 <td class="colLast">
 <div class="block">The caption rendition group referenced by this variant, or <code>null</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#format">format</a></span></code></th>
+<td class="colFirst"><code><a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">
 <div class="block">Format information associated with this variant.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#subtitleGroupId">subtitleGroupId</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#subtitleGroupId">subtitleGroupId</a></span></code></th>
 <td class="colLast">
 <div class="block">The subtitle rendition group referenced by this variant, or <code>null</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#url">url</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#url">url</a></span></code></th>
 <td class="colLast">
 <div class="block">The variant's url.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#videoGroupId">videoGroupId</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoGroupId">videoGroupId</a></span></code></th>
 <td class="colLast">
 <div class="block">The video rendition group referenced by this variant, or <code>null</code>.</div>
 </td>
@@ -201,21 +201,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#Variant-android.net.Uri-com.google.android.exoplayer2.Format-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">Variant</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
-       <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.net.Uri,com.google.android.exoplayer2.Format,java.lang.String,java.lang.String,java.lang.String,java.lang.String)">Variant</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
+       <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoGroupId,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioGroupId,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;subtitleGroupId,
@@ -225,13 +227,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -239,29 +243,30 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#copyWithFormat-com.google.android.exoplayer2.Format-">copyWithFormat</a></span>&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colFirst"><code><a href="HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithFormat(com.google.android.exoplayer2.Format)">copyWithFormat</a></span>&#8203;(<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
-<div class="block">Returns a copy of this instance with the given <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+<div class="block">Returns a copy of this instance with the given <a href="../../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#createMediaPlaylistVariantUrl-android.net.Uri-">createMediaPlaylistVariantUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
+<td class="colFirst"><code>static <a href="HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaPlaylistVariantUrl(android.net.Uri)">createMediaPlaylistVariantUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
 <div class="block">Creates a variant for a given media playlist url.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -269,12 +274,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="url">
+<a id="url">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -284,17 +290,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The variant's url.</div>
 </li>
 </ul>
-<a name="format">
+<a id="format">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>format</h4>
-<pre>public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
+<pre>public final&nbsp;<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
 <div class="block">Format information associated with this variant.</div>
 </li>
 </ul>
-<a name="videoGroupId">
+<a id="videoGroupId">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -305,7 +311,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <div class="block">The video rendition group referenced by this variant, or <code>null</code>.</div>
 </li>
 </ul>
-<a name="audioGroupId">
+<a id="audioGroupId">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -316,7 +322,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <div class="block">The audio rendition group referenced by this variant, or <code>null</code>.</div>
 </li>
 </ul>
-<a name="subtitleGroupId">
+<a id="subtitleGroupId">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -327,7 +333,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <div class="block">The subtitle rendition group referenced by this variant, or <code>null</code>.</div>
 </li>
 </ul>
-<a name="captionGroupId">
+<a id="captionGroupId">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -340,20 +346,22 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Variant-android.net.Uri-com.google.android.exoplayer2.Format-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
+<a id="&lt;init&gt;(android.net.Uri,com.google.android.exoplayer2.Format,java.lang.String,java.lang.String,java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Variant</h4>
 <pre>public&nbsp;Variant&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
-               <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+               <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                @Nullable
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoGroupId,
                @Nullable
@@ -364,30 +372,32 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;captionGroupId)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>url</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#url"><code>url</code></a>.</dd>
-<dd><code>format</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#format"><code>format</code></a>.</dd>
-<dd><code>videoGroupId</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#videoGroupId"><code>videoGroupId</code></a>.</dd>
-<dd><code>audioGroupId</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#audioGroupId"><code>audioGroupId</code></a>.</dd>
-<dd><code>subtitleGroupId</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#subtitleGroupId"><code>subtitleGroupId</code></a>.</dd>
-<dd><code>captionGroupId</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html#captionGroupId"><code>captionGroupId</code></a>.</dd>
+<dd><code>url</code> - See <a href="#url"><code>url</code></a>.</dd>
+<dd><code>format</code> - See <a href="#format"><code>format</code></a>.</dd>
+<dd><code>videoGroupId</code> - See <a href="#videoGroupId"><code>videoGroupId</code></a>.</dd>
+<dd><code>audioGroupId</code> - See <a href="#audioGroupId"><code>audioGroupId</code></a>.</dd>
+<dd><code>subtitleGroupId</code> - See <a href="#subtitleGroupId"><code>subtitleGroupId</code></a>.</dd>
+<dd><code>captionGroupId</code> - See <a href="#captionGroupId"><code>captionGroupId</code></a>.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createMediaPlaylistVariantUrl-android.net.Uri-">
+<a id="createMediaPlaylistVariantUrl(android.net.Uri)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaPlaylistVariantUrl</h4>
-<pre>public static&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&nbsp;createMediaPlaylistVariantUrl&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
+<pre class="methodSignature">public static&nbsp;<a href="HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&nbsp;createMediaPlaylistVariantUrl&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
 <div class="block">Creates a variant for a given media playlist url.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -397,33 +407,37 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 </dl>
 </li>
 </ul>
-<a name="copyWithFormat-com.google.android.exoplayer2.Format-">
+<a id="copyWithFormat(com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>copyWithFormat</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&nbsp;copyWithFormat&#8203;(<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block">Returns a copy of this instance with the given <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+<pre class="methodSignature">public&nbsp;<a href="HlsMasterPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.Variant</a>&nbsp;copyWithFormat&#8203;(<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block">Returns a copy of this instance with the given <a href="../../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -433,16 +447,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.Variant.html" target="_top">Frames</a></li>
-<li><a href="HlsMasterPlaylist.Variant.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -474,9 +480,11 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

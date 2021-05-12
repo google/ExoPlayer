@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9};
+var data = {"i0":9,"i1":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li>Next&nbsp;Class</li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/WavUtil.html" target="_top">Frames</a></li>
-<li><a href="WavUtil.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
 <h2 title="Class WavUtil" class="title">Class WavUtil</h2>
 </div>
 <div class="contentContainer">
@@ -140,12 +139,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,70 +154,70 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#DATA_FOURCC">DATA_FOURCC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DATA_FOURCC">DATA_FOURCC</a></span></code></th>
 <td class="colLast">
 <div class="block">Four character code for "data".</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#FMT_FOURCC">FMT_FOURCC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FMT_FOURCC">FMT_FOURCC</a></span></code></th>
 <td class="colLast">
 <div class="block">Four character code for "fmt ".</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#RIFF_FOURCC">RIFF_FOURCC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RIFF_FOURCC">RIFF_FOURCC</a></span></code></th>
 <td class="colLast">
 <div class="block">Four character code for "RIFF".</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#TYPE_ALAW">TYPE_ALAW</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_ALAW">TYPE_ALAW</a></span></code></th>
 <td class="colLast">
 <div class="block">WAVE type value for 8-bit ITU-T G.711 A-law audio data.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#TYPE_FLOAT">TYPE_FLOAT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_FLOAT">TYPE_FLOAT</a></span></code></th>
 <td class="colLast">
 <div class="block">WAVE type value for float PCM audio data.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#TYPE_IMA_ADPCM">TYPE_IMA_ADPCM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_IMA_ADPCM">TYPE_IMA_ADPCM</a></span></code></th>
 <td class="colLast">
 <div class="block">WAVE type value for IMA ADPCM audio data.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#TYPE_MLAW">TYPE_MLAW</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_MLAW">TYPE_MLAW</a></span></code></th>
 <td class="colLast">
 <div class="block">WAVE type value for 8-bit ITU-T G.711 mu-law audio data.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#TYPE_PCM">TYPE_PCM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_PCM">TYPE_PCM</a></span></code></th>
 <td class="colLast">
 <div class="block">WAVE type value for integer PCM audio data.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#TYPE_WAVE_FORMAT_EXTENSIBLE">TYPE_WAVE_FORMAT_EXTENSIBLE</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_WAVE_FORMAT_EXTENSIBLE">TYPE_WAVE_FORMAT_EXTENSIBLE</a></span></code></th>
 <td class="colLast">
 <div class="block">WAVE type value for extended WAVE format.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#WAVE_FOURCC">WAVE_FOURCC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#WAVE_FOURCC">WAVE_FOURCC</a></span></code></th>
 <td class="colLast">
 <div class="block">Four character code for "WAVE".</div>
 </td>
@@ -225,13 +225,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -240,29 +242,30 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#getPcmEncodingForType-int-int-">getPcmEncodingForType</a></span>&#8203;(int&nbsp;type,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPcmEncodingForType(int,int)">getPcmEncodingForType</a></span>&#8203;(int&nbsp;type,
                      int&nbsp;bitsPerSample)</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../../../../../com/google/android/exoplayer2/C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
+<div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html#getTypeForPcmEncoding-int-">getTypeForPcmEncoding</a></span>&#8203;(int&nbsp;pcmEncoding)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeForPcmEncoding(int)">getTypeForPcmEncoding</a></span>&#8203;(int&nbsp;pcmEncoding)</code></th>
 <td class="colLast">
-<div class="block">Returns the WAVE format type value for the given <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
+<div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -270,12 +273,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="RIFF_FOURCC">
+<a id="RIFF_FOURCC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -289,7 +293,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="WAVE_FOURCC">
+<a id="WAVE_FOURCC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -303,7 +307,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="FMT_FOURCC">
+<a id="FMT_FOURCC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -317,7 +321,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="DATA_FOURCC">
+<a id="DATA_FOURCC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -331,7 +335,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_PCM">
+<a id="TYPE_PCM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -345,7 +349,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_FLOAT">
+<a id="TYPE_FLOAT">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -359,7 +363,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_ALAW">
+<a id="TYPE_ALAW">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -373,7 +377,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_MLAW">
+<a id="TYPE_MLAW">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -387,7 +391,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_IMA_ADPCM">
+<a id="TYPE_IMA_ADPCM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -401,7 +405,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="TYPE_WAVE_FORMAT_EXTENSIBLE">
+<a id="TYPE_WAVE_FORMAT_EXTENSIBLE">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -417,61 +421,67 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getTypeForPcmEncoding-int-">
+<a id="getTypeForPcmEncoding(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTypeForPcmEncoding</h4>
-<pre>public static&nbsp;int&nbsp;getTypeForPcmEncoding&#8203;(<a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+<pre class="methodSignature">public static&nbsp;int&nbsp;getTypeForPcmEncoding&#8203;(<a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
                                         int&nbsp;pcmEncoding)</pre>
-<div class="block">Returns the WAVE format type value for the given <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
+<div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>pcmEncoding</code> - The <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> value.</dd>
+<dd><code>pcmEncoding</code> - The <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> value.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The corresponding WAVE format type.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></code> - If <code>pcmEncoding</code> is not a <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2" target="_top"><code>C.PcmEncoding</code></a>, or if
-     it's <a href="../../../../../com/google/android/exoplayer2/C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></code> - If <code>pcmEncoding</code> is not a <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2" target="_top"><code>C.PcmEncoding</code></a>, or if
+     it's <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="getPcmEncodingForType-int-int-">
+<a id="getPcmEncodingForType(int,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getPcmEncodingForType</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+<pre class="methodSignature"><a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
 public static&nbsp;int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
                                         int&nbsp;bitsPerSample)</pre>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../../../../../com/google/android/exoplayer2/C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
+<div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -481,16 +491,8 @@ public static&nbsp;int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li>Next&nbsp;Class</li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/WavUtil.html" target="_top">Frames</a></li>
-<li><a href="WavUtil.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -522,9 +524,11 @@ public static&nbsp;int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

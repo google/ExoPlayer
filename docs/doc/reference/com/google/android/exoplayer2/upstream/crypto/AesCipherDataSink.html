@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSource.html" title="class in com.google.android.exoplayer2.upstream.crypto"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html" target="_top">Frames</a></li>
-<li><a href="AesCipherDataSink.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -90,7 +86,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/package-summary.html">com.google.android.exoplayer2.upstream.crypto</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream.crypto</a></div>
 <h2 title="Class AesCipherDataSink" class="title">Class AesCipherDataSink</h2>
 </div>
 <div class="contentContainer">
@@ -131,13 +130,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
+<dd><code><a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">AesCipherDataSink</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></pre>
-<div class="block">A wrapping <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> that encrypts the data being consumed.</div>
+implements <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></pre>
+<div class="block">A wrapping <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> that encrypts the data being consumed.</div>
 </li>
 </ul>
 </div>
@@ -145,43 +144,46 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.DataSink">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.DataSink">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a></code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></h3>
+<code><a href="../DataSink.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSink.Factory</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html#AesCipherDataSink-byte:A-com.google.android.exoplayer2.upstream.DataSink-">AesCipherDataSink</a></span>&#8203;(byte[]&nbsp;secretKey,
-                 <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,com.google.android.exoplayer2.upstream.DataSink)">AesCipherDataSink</a></span>&#8203;(byte[]&nbsp;secretKey,
+                 <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink)</code></th>
 <td class="colLast">
 <div class="block">Create an instance whose <code>write</code> methods have the side effect of overwriting the input
  <code>data</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html#AesCipherDataSink-byte:A-com.google.android.exoplayer2.upstream.DataSink-byte:A-">AesCipherDataSink</a></span>&#8203;(byte[]&nbsp;secretKey,
-                 <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,com.google.android.exoplayer2.upstream.DataSink,byte%5B%5D)">AesCipherDataSink</a></span>&#8203;(byte[]&nbsp;secretKey,
+                 <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink,
                  byte[]&nbsp;scratch)</code></th>
 <td class="colLast">
 <div class="block">Create an instance whose <code>write</code> methods are free of side effects.</div>
@@ -190,13 +192,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -205,21 +209,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html#close--">close</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Closes the sink.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></span>&#8203;(<a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
 <div class="block">Opens the sink to consume the specified data.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html#write-byte:A-int-int-">write</a></span>&#8203;(byte[]&nbsp;data,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#write(byte%5B%5D,int,int)">write</a></span>&#8203;(byte[]&nbsp;data,
      int&nbsp;offset,
      int&nbsp;length)</code></th>
 <td class="colLast">
@@ -228,14 +232,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -243,37 +248,38 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="AesCipherDataSink-byte:A-com.google.android.exoplayer2.upstream.DataSink-">
+<a id="&lt;init&gt;(byte[],com.google.android.exoplayer2.upstream.DataSink)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>AesCipherDataSink</h4>
 <pre>public&nbsp;AesCipherDataSink&#8203;(byte[]&nbsp;secretKey,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink)</pre>
+                         <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink)</pre>
 <div class="block">Create an instance whose <code>write</code> methods have the side effect of overwriting the input
  <code>data</code>. Use this constructor for maximum efficiency in the case that there is no
  requirement for the input data arrays to remain unchanged.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>secretKey</code> - The key data.</dd>
-<dd><code>wrappedDataSink</code> - The wrapped <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>.</dd>
+<dd><code>wrappedDataSink</code> - The wrapped <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="AesCipherDataSink-byte:A-com.google.android.exoplayer2.upstream.DataSink-byte:A-">
+<a id="&lt;init&gt;(byte[],com.google.android.exoplayer2.upstream.DataSink,byte[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AesCipherDataSink</h4>
 <pre>public&nbsp;AesCipherDataSink&#8203;(byte[]&nbsp;secretKey,
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink,
+                         <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink,
                          @Nullable
                          byte[]&nbsp;scratch)</pre>
 <div class="block">Create an instance whose <code>write</code> methods are free of side effects. Use this constructor
@@ -281,9 +287,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>secretKey</code> - The key data.</dd>
-<dd><code>wrappedDataSink</code> - The wrapped <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>.</dd>
+<dd><code>wrappedDataSink</code> - The wrapped <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>.</dd>
 <dd><code>scratch</code> - Scratch space. Data is encrypted into this array before being written to the
-     wrapped <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>. It should be of appropriate size for the expected writes. If a
+     wrapped <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a>. It should be of appropriate size for the expected writes. If a
      write is larger than the size of this array the write will still succeed, but multiple
      cipher calls will be required to complete the operation. If <code>null</code> then encryption
      will overwrite the input <code>data</code>.</dd>
@@ -292,28 +298,30 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="open-com.google.android.exoplayer2.upstream.DataSpec-">
+<a id="open(com.google.android.exoplayer2.upstream.DataSpec)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>open</h4>
-<pre>public&nbsp;void&nbsp;open&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
+<pre class="methodSignature">public&nbsp;void&nbsp;open&#8203;(<a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-">DataSink</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSink.html#open(com.google.android.exoplayer2.upstream.DataSpec)">DataSink</a></code></span></div>
 <div class="block">Opens the sink to consume the specified data.
 
- <p>Note: If an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#close--" target="_top"><code>DataSink.close()</code></a> to
+ <p>Note: If an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a> is thrown, callers must still call <a href="../DataSink.html#close()" target="_top"><code>DataSink.close()</code></a> to
  ensure that any partial effects of the invocation are cleaned up.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
+<dd><code><a href="../DataSink.html#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></code>&nbsp;in interface&nbsp;<code><a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be consumed.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -321,21 +329,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </dl>
 </li>
 </ul>
-<a name="write-byte:A-int-int-">
+<a id="write(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>write</h4>
-<pre>public&nbsp;void&nbsp;write&#8203;(byte[]&nbsp;data,
+<pre class="methodSignature">public&nbsp;void&nbsp;write&#8203;(byte[]&nbsp;data,
                   int&nbsp;offset,
                   int&nbsp;length)
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#write-byte:A-int-int-">DataSink</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSink.html#write(byte%5B%5D,int,int)">DataSink</a></code></span></div>
 <div class="block">Consumes the provided data.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#write-byte:A-int-int-">write</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
+<dd><code><a href="../DataSink.html#write(byte%5B%5D,int,int)">write</a></code>&nbsp;in interface&nbsp;<code><a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The buffer from which data should be consumed.</dd>
 <dd><code>offset</code> - The offset of the data to consume in <code>buffer</code>.</dd>
@@ -345,22 +353,22 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </dl>
 </li>
 </ul>
-<a name="close--">
+<a id="close()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;close()
+<pre class="methodSignature">public&nbsp;void&nbsp;close()
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#close--">DataSink</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSink.html#close()">DataSink</a></code></span></div>
 <div class="block">Closes the sink.
 
- <p>Note: This method must be called even if the corresponding call to <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSink.open(DataSpec)</code></a>
- threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a>. See <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-" target="_top"><code>DataSink.open(DataSpec)</code></a> for more details.</div>
+ <p>Note: This method must be called even if the corresponding call to <a href="../DataSink.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSink.open(DataSpec)</code></a>
+ threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a>. See <a href="../DataSink.html#open(com.google.android.exoplayer2.upstream.DataSpec)" target="_top"><code>DataSink.open(DataSpec)</code></a> for more details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html#close--">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
+<dd><code><a href="../DataSink.html#close()">close</a></code>&nbsp;in interface&nbsp;<code><a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs closing the sink.</dd>
 </dl>
@@ -368,21 +376,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -392,16 +404,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSource.html" title="class in com.google.android.exoplayer2.upstream.crypto"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/upstream/crypto/AesCipherDataSink.html" target="_top">Frames</a></li>
-<li><a href="AesCipherDataSink.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -421,7 +425,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -433,9 +437,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

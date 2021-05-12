@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":6};
+var data = {"i0":10,"i1":10,"i2":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/Action.AddMediaItems.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/Action.html" target="_top">Frames</a></li>
-<li><a href="Action.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Class Action" class="title">Class Action</h2>
 </div>
 <div class="contentContainer">
@@ -131,7 +130,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.AddMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.AddMediaItems</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ClearMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearMediaItems</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ClearVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearVideoSurface</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ExecuteRunnable.html" title="class in com.google.android.exoplayer2.testutil">Action.ExecuteRunnable</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.MoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.MoveMediaItem</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.PlayUntilPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.PlayUntilPosition</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.Prepare.html" title="class in com.google.android.exoplayer2.testutil">Action.Prepare</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.RemoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItem</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.RemoveMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItems</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.Seek.html" title="class in com.google.android.exoplayer2.testutil">Action.Seek</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SendMessages.html" title="class in com.google.android.exoplayer2.testutil">Action.SendMessages</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetAudioAttributes.html" title="class in com.google.android.exoplayer2.testutil">Action.SetAudioAttributes</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItems</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetMediaItemsResetPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItemsResetPosition</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetPlaybackParameters.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlaybackParameters</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlayWhenReady</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetRendererDisabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRendererDisabled</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetRepeatMode.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRepeatMode</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetShuffleModeEnabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleModeEnabled</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleOrder</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.SetVideoSurface</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.Stop.html" title="class in com.google.android.exoplayer2.testutil">Action.Stop</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ThrowPlaybackException.html" title="class in com.google.android.exoplayer2.testutil">Action.ThrowPlaybackException</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForIsLoading.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForIsLoading</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForMessage.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForMessage</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPendingPlayerCommands.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPendingPlayerCommands</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPlaybackState.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlaybackState</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlayWhenReady</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPositionDiscontinuity.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPositionDiscontinuity</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForTimelineChanged.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForTimelineChanged</a></code></dd>
+<dd><code><a href="Action.AddMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.AddMediaItems</a></code>, <code><a href="Action.ClearMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearMediaItems</a></code>, <code><a href="Action.ClearVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearVideoSurface</a></code>, <code><a href="Action.ExecuteRunnable.html" title="class in com.google.android.exoplayer2.testutil">Action.ExecuteRunnable</a></code>, <code><a href="Action.MoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.MoveMediaItem</a></code>, <code><a href="Action.PlayUntilPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.PlayUntilPosition</a></code>, <code><a href="Action.Prepare.html" title="class in com.google.android.exoplayer2.testutil">Action.Prepare</a></code>, <code><a href="Action.RemoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItem</a></code>, <code><a href="Action.RemoveMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItems</a></code>, <code><a href="Action.Seek.html" title="class in com.google.android.exoplayer2.testutil">Action.Seek</a></code>, <code><a href="Action.SendMessages.html" title="class in com.google.android.exoplayer2.testutil">Action.SendMessages</a></code>, <code><a href="Action.SetAudioAttributes.html" title="class in com.google.android.exoplayer2.testutil">Action.SetAudioAttributes</a></code>, <code><a href="Action.SetMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItems</a></code>, <code><a href="Action.SetMediaItemsResetPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItemsResetPosition</a></code>, <code><a href="Action.SetPlaybackParameters.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlaybackParameters</a></code>, <code><a href="Action.SetPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlayWhenReady</a></code>, <code><a href="Action.SetRendererDisabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRendererDisabled</a></code>, <code><a href="Action.SetRepeatMode.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRepeatMode</a></code>, <code><a href="Action.SetShuffleModeEnabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleModeEnabled</a></code>, <code><a href="Action.SetShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleOrder</a></code>, <code><a href="Action.SetVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.SetVideoSurface</a></code>, <code><a href="Action.Stop.html" title="class in com.google.android.exoplayer2.testutil">Action.Stop</a></code>, <code><a href="Action.ThrowPlaybackException.html" title="class in com.google.android.exoplayer2.testutil">Action.ThrowPlaybackException</a></code>, <code><a href="Action.WaitForIsLoading.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForIsLoading</a></code>, <code><a href="Action.WaitForMessage.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForMessage</a></code>, <code><a href="Action.WaitForPendingPlayerCommands.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPendingPlayerCommands</a></code>, <code><a href="Action.WaitForPlaybackState.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlaybackState</a></code>, <code><a href="Action.WaitForPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlayWhenReady</a></code>, <code><a href="Action.WaitForPositionDiscontinuity.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPositionDiscontinuity</a></code>, <code><a href="Action.WaitForTimelineChanged.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForTimelineChanged</a></code></dd>
 </dl>
 <hr>
 <pre>public abstract class <span class="typeNameLabel">Action</span>
@@ -144,12 +143,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -158,42 +158,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.AddMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.AddMediaItems</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.AddMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.AddMediaItems</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addMediaSources-java.util.List-"><code>SimpleExoPlayer.addMediaSources(List)</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#addMediaSources(java.util.List)"><code>SimpleExoPlayer.addMediaSources(List)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ClearMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearMediaItems</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.ClearMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearMediaItems</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearMediaItems--"><code>SimpleExoPlayer.clearMediaItems()</code></a>}.</div>
+<div class="block">Calls <a href="../BasePlayer.html#clearMediaItems()"><code>BasePlayer.clearMediaItems()</code></a>}.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ClearVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearVideoSurface</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.ClearVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.ClearVideoSurface</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoSurface--"><code>SimpleExoPlayer.clearVideoSurface()</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#clearVideoSurface()"><code>SimpleExoPlayer.clearVideoSurface()</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ExecuteRunnable.html" title="class in com.google.android.exoplayer2.testutil">Action.ExecuteRunnable</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.ExecuteRunnable.html" title="class in com.google.android.exoplayer2.testutil">Action.ExecuteRunnable</a></span></code></th>
 <td class="colLast">
 <div class="block">Calls <code>Runnable.run()</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.MoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.MoveMediaItem</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.MoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.MoveMediaItem</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#moveMediaItem-int-int-"><code>SimpleExoPlayer.moveMediaItem(int, int)</code></a>.</div>
+<div class="block">Calls <a href="../BasePlayer.html#moveMediaItem(int,int)"><code>BasePlayer.moveMediaItem(int, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.PlayUntilPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.PlayUntilPosition</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.PlayUntilPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.PlayUntilPosition</a></span></code></th>
 <td class="colLast">
 <div class="block">Schedules a play action to be executed, waits until the player reaches the specified position,
  and pauses the player again.</div>
@@ -201,204 +201,209 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.Prepare.html" title="class in com.google.android.exoplayer2.testutil">Action.Prepare</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.Prepare.html" title="class in com.google.android.exoplayer2.testutil">Action.Prepare</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#prepare()"><code>Player.prepare()</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.RemoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItem</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.RemoveMediaItem.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItem</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeMediaItem-int-"><code>SimpleExoPlayer.removeMediaItem(int)</code></a>.</div>
+<div class="block">Calls <a href="../BasePlayer.html#removeMediaItem(int)"><code>BasePlayer.removeMediaItem(int)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.RemoveMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItems</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.RemoveMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.RemoveMediaItems</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeMediaItems-int-int-"><code>SimpleExoPlayer.removeMediaItems(int, int)</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#removeMediaItems(int,int)"><code>SimpleExoPlayer.removeMediaItems(int, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.Seek.html" title="class in com.google.android.exoplayer2.testutil">Action.Seek</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.Seek.html" title="class in com.google.android.exoplayer2.testutil">Action.Seek</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#seekTo-long-"><code>Player.seekTo(long)</code></a> or <a href="../../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-"><code>Player.seekTo(int, long)</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#seekTo(long)"><code>Player.seekTo(long)</code></a> or <a href="../Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SendMessages.html" title="class in com.google.android.exoplayer2.testutil">Action.SendMessages</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SendMessages.html" title="class in com.google.android.exoplayer2.testutil">Action.SendMessages</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-"><code>ExoPlayer.createMessage(Target)</code></a> and <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html#send--"><code>PlayerMessage.send()</code></a>.</div>
+<div class="block">Calls <a href="../ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a> and <a href="../PlayerMessage.html#send()"><code>PlayerMessage.send()</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetAudioAttributes.html" title="class in com.google.android.exoplayer2.testutil">Action.SetAudioAttributes</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetAudioAttributes.html" title="class in com.google.android.exoplayer2.testutil">Action.SetAudioAttributes</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-boolean-"><code>SimpleExoPlayer.setAudioAttributes(AudioAttributes, boolean)</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)"><code>SimpleExoPlayer.setAudioAttributes(AudioAttributes, boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItems</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetMediaItems.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItems</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setMediaSources-java.util.List-int-long-"><code>SimpleExoPlayer.setMediaSources(List, int, long)</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#setMediaSources(java.util.List,int,long)"><code>SimpleExoPlayer.setMediaSources(List, int, long)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetMediaItemsResetPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItemsResetPosition</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetMediaItemsResetPosition.html" title="class in com.google.android.exoplayer2.testutil">Action.SetMediaItemsResetPosition</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setMediaSources-java.util.List-boolean-"><code>SimpleExoPlayer.setMediaSources(List, boolean)</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#setMediaSources(java.util.List,boolean)"><code>SimpleExoPlayer.setMediaSources(List, boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetPlaybackParameters.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlaybackParameters</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetPlaybackParameters.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlaybackParameters</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlayWhenReady</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.SetPlayWhenReady</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-"><code>Player.setPlayWhenReady(boolean)</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetRendererDisabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRendererDisabled</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetRendererDisabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRendererDisabled</a></span></code></th>
 <td class="colLast">
-<div class="block">Updates the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> of a <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> to specify whether the
+<div class="block">Updates the <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> of a <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> to specify whether the
  renderer at a given index should be disabled.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetRepeatMode.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRepeatMode</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetRepeatMode.html" title="class in com.google.android.exoplayer2.testutil">Action.SetRepeatMode</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-"><code>Player.setRepeatMode(int)</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetShuffleModeEnabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleModeEnabled</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetShuffleModeEnabled.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleModeEnabled</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-"><code>Player.setShuffleModeEnabled(boolean)</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleOrder</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil">Action.SetShuffleOrder</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-"><code>ExoPlayer.setShuffleOrder(ShuffleOrder)</code></a> .</div>
+<div class="block">Calls <a href="../ExoPlayer.html#setShuffleOrder(com.google.android.exoplayer2.source.ShuffleOrder)"><code>ExoPlayer.setShuffleOrder(ShuffleOrder)</code></a> .</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.SetVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.SetVideoSurface</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.SetVideoSurface.html" title="class in com.google.android.exoplayer2.testutil">Action.SetVideoSurface</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoSurface-android.view.Surface-"><code>SimpleExoPlayer.setVideoSurface(Surface)</code></a>.</div>
+<div class="block">Calls <a href="../SimpleExoPlayer.html#setVideoSurface(android.view.Surface)"><code>SimpleExoPlayer.setVideoSurface(Surface)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.Stop.html" title="class in com.google.android.exoplayer2.testutil">Action.Stop</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.Stop.html" title="class in com.google.android.exoplayer2.testutil">Action.Stop</a></span></code></th>
 <td class="colLast">
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> or <a href="../../../../../com/google/android/exoplayer2/Player.html#stop-boolean-"><code>Player.stop(boolean)</code></a>.</div>
+<div class="block">Calls <a href="../Player.html#stop()"><code>Player.stop()</code></a> or <a href="../Player.html#stop(boolean)"><code>Player.stop(boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.ThrowPlaybackException.html" title="class in com.google.android.exoplayer2.testutil">Action.ThrowPlaybackException</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.ThrowPlaybackException.html" title="class in com.google.android.exoplayer2.testutil">Action.ThrowPlaybackException</a></span></code></th>
 <td class="colLast">
 <div class="block">Throws a playback exception on the playback thread.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForIsLoading.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForIsLoading</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForIsLoading.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForIsLoading</a></span></code></th>
 <td class="colLast">
-<div class="block">Waits for a specified loading state, returning either immediately or after a call to <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-"><code>Player.EventListener.onIsLoadingChanged(boolean)</code></a>.</div>
+<div class="block">Waits for a specified loading state, returning either immediately or after a call to <a href="../Player.EventListener.html#onIsLoadingChanged(boolean)"><code>Player.EventListener.onIsLoadingChanged(boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForMessage.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForMessage</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForMessage.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForMessage</a></span></code></th>
 <td class="colLast">
 <div class="block">Waits for a player message to arrive.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPendingPlayerCommands.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPendingPlayerCommands</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForPendingPlayerCommands.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPendingPlayerCommands</a></span></code></th>
 <td class="colLast">
 <div class="block">Waits until the player acknowledged all pending player commands.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPlaybackState.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlaybackState</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForPlaybackState.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlaybackState</a></span></code></th>
 <td class="colLast">
-<div class="block">Waits for a specified playback state, returning either immediately or after a call to <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a>.</div>
+<div class="block">Waits for a specified playback state, returning either immediately or after a call to <a href="../Player.EventListener.html#onPlaybackStateChanged(int)"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlayWhenReady</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlayWhenReady</a></span></code></th>
 <td class="colLast">
 <div class="block">Waits for a specified playWhenReady value, returning either immediately or after a call to
- <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a>.</div>
+ <a href="../Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForPositionDiscontinuity.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPositionDiscontinuity</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForPositionDiscontinuity.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPositionDiscontinuity</a></span></code></th>
 <td class="colLast">
-<div class="block">Waits for <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>Player.EventListener.onPositionDiscontinuity(int)</code></a>.</div>
+<div class="block">Waits for <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo,
+ Player.PositionInfo, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.WaitForTimelineChanged.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForTimelineChanged</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Action.WaitForTimelineChanged.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForTimelineChanged</a></span></code></th>
 <td class="colLast">
-<div class="block">Waits for <a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a>.</div>
+<div class="block">Waits for <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a>.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#Action-java.lang.String-java.lang.String-">Action</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String)">Action</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;description)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -407,10 +412,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionAndScheduleNext-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-">doActionAndScheduleNext</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
-                       <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doActionAndScheduleNext(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">doActionAndScheduleNext</a></span>&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+                       <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
                        <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                       <a href="../../../../../com/google/android/exoplayer2/util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
+                       <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
                        com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</code></th>
 <td class="colLast">
 <div class="block">Executes the action and schedules the next.</div>
@@ -418,36 +423,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionAndScheduleNextImpl-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-">doActionAndScheduleNextImpl</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
-                           <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doActionAndScheduleNextImpl(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">doActionAndScheduleNextImpl</a></span>&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+                           <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
                            <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                           <a href="../../../../../com/google/android/exoplayer2/util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
+                           <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
                            com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</code></th>
 <td class="colLast">
-<div class="block">Called by <a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionAndScheduleNext-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-"><code>doActionAndScheduleNext(SimpleExoPlayer, DefaultTrackSelector, Surface,
+<div class="block">Called by <a href="#doActionAndScheduleNext(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)"><code>doActionAndScheduleNext(SimpleExoPlayer, DefaultTrackSelector, Surface,
  HandlerWrapper, ActionNode)</code></a> to perform the action and to schedule the next action node.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected abstract void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionImpl-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-">doActionImpl</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
-            <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doActionImpl(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface)">doActionImpl</a></span>&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+            <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
             <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
-<div class="block">Called by <a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionAndScheduleNextImpl-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-"><code>doActionAndScheduleNextImpl(SimpleExoPlayer, DefaultTrackSelector, Surface,
+<div class="block">Called by <a href="#doActionAndScheduleNextImpl(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)"><code>doActionAndScheduleNextImpl(SimpleExoPlayer, DefaultTrackSelector, Surface,
  HandlerWrapper, ActionNode)</code></a> to perform the action.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -455,12 +461,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Action-java.lang.String-java.lang.String-">
+<a id="&lt;init&gt;(java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -479,23 +486,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="doActionAndScheduleNext-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-">
+<a id="doActionAndScheduleNext(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>doActionAndScheduleNext</h4>
-<pre>public final&nbsp;void&nbsp;doActionAndScheduleNext&#8203;(<a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
-                                          <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
+<pre class="methodSignature">public final&nbsp;void&nbsp;doActionAndScheduleNext&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+                                          <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
                                           @Nullable
                                           <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                                          <a href="../../../../../com/google/android/exoplayer2/util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
+                                          <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
                                           @Nullable
                                           com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</pre>
 <div class="block">Executes the action and schedules the next.</div>
@@ -511,20 +520,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="doActionAndScheduleNextImpl-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-">
+<a id="doActionAndScheduleNextImpl(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>doActionAndScheduleNextImpl</h4>
-<pre>protected&nbsp;void&nbsp;doActionAndScheduleNextImpl&#8203;(<a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
-                                           <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
+<pre class="methodSignature">protected&nbsp;void&nbsp;doActionAndScheduleNextImpl&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+                                           <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
                                            @Nullable
                                            <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
-                                           <a href="../../../../../com/google/android/exoplayer2/util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
+                                           <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;handler,
                                            @Nullable
                                            com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode&nbsp;nextAction)</pre>
-<div class="block">Called by <a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionAndScheduleNext-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-"><code>doActionAndScheduleNext(SimpleExoPlayer, DefaultTrackSelector, Surface,
+<div class="block">Called by <a href="#doActionAndScheduleNext(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)"><code>doActionAndScheduleNext(SimpleExoPlayer, DefaultTrackSelector, Surface,
  HandlerWrapper, ActionNode)</code></a> to perform the action and to schedule the next action node.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -538,17 +547,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="doActionImpl-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-">
+<a id="doActionImpl(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>doActionImpl</h4>
-<pre>protected abstract&nbsp;void&nbsp;doActionImpl&#8203;(<a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
-                                     <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
+<pre class="methodSignature">protected abstract&nbsp;void&nbsp;doActionImpl&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+                                     <a href="../trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector,
                                      @Nullable
                                      <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
-<div class="block">Called by <a href="../../../../../com/google/android/exoplayer2/testutil/Action.html#doActionAndScheduleNextImpl-com.google.android.exoplayer2.SimpleExoPlayer-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-android.view.Surface-com.google.android.exoplayer2.util.HandlerWrapper-com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode-"><code>doActionAndScheduleNextImpl(SimpleExoPlayer, DefaultTrackSelector, Surface,
+<div class="block">Called by <a href="#doActionAndScheduleNextImpl(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.trackselection.DefaultTrackSelector,android.view.Surface,com.google.android.exoplayer2.util.HandlerWrapper,com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode)"><code>doActionAndScheduleNextImpl(SimpleExoPlayer, DefaultTrackSelector, Surface,
  HandlerWrapper, ActionNode)</code></a> to perform the action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -561,21 +570,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -585,16 +598,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/Action.AddMediaItems.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/Action.html" target="_top">Frames</a></li>
-<li><a href="Action.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -626,9 +631,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

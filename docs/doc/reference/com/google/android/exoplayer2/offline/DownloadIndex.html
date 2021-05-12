@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var data = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/DownloadIndex.html" target="_top">Frames</a></li>
-<li><a href="DownloadIndex.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/package-summary.html">com.google.android.exoplayer2.offline</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.offline</a></div>
 <h2 title="Interface DownloadIndex" class="title">Interface DownloadIndex</h2>
 </div>
 <div class="contentContainer">
@@ -123,16 +122,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
+<dd><code><a href="WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a></code></dd>
+<dd><code><a href="DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a></code></dd>
 </dl>
 <hr>
 <pre>@WorkerThread
 public interface <span class="typeNameLabel">DownloadIndex</span></pre>
-<div class="block">An index of <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
+<div class="block">An index of <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -140,12 +139,13 @@ public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -153,22 +153,23 @@ public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html#getDownload-java.lang.String-">getDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
+<td class="colFirst"><code><a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownload(java.lang.String)">getDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.</div>
+<div class="block">Returns the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html#getDownloads-int...-">getDownloads</a></span>&#8203;(int...&nbsp;states)</code></th>
+<td class="colFirst"><code><a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloads(int...)">getDownloads</a></span>&#8203;(int...&nbsp;states)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</div>
+<div class="block">Returns a <a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -176,51 +177,52 @@ public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getDownload-java.lang.String-">
+<a id="getDownload(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDownload</h4>
-<pre>@Nullable
-<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)
+<pre class="methodSignature">@Nullable
+<a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)
               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.
+<div class="block">Returns the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>id</code> - ID of a <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</dd>
+<dd><code>id</code> - ID of a <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null if a download state with this
+<dd>The <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null if a download state with this
      id doesn't exist.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the state.</dd>
 </dl>
 </li>
 </ul>
-<a name="getDownloads-int...-">
+<a id="getDownloads(int...)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getDownloads</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a>&nbsp;getDownloads&#8203;(<a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
+<pre class="methodSignature"><a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a>&nbsp;getDownloads&#8203;(<a href="Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
                             int...&nbsp;states)
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.
+<div class="block">Returns a <a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>states</code> - Returns only the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with this states. If empty, returns all.</dd>
+<dd><code>states</code> - Returns only the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with this states. If empty, returns all.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A cursor to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</dd>
+<dd>A cursor to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the state.</dd>
 </dl>
@@ -228,21 +230,25 @@ public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -252,16 +258,8 @@ public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/DownloadIndex.html" target="_top">Frames</a></li>
-<li><a href="DownloadIndex.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -293,9 +291,11 @@ public interface <span class="typeNameLabel">DownloadIndex</span></pre>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

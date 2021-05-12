@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html" target="_top">Frames</a></li>
-<li><a href="VideoFrameReleaseHelper.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/package-summary.html">com.google.android.exoplayer2.video</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.video</a></div>
 <h2 title="Class VideoFrameReleaseHelper" class="title">Class VideoFrameReleaseHelper</h2>
 </div>
 <div class="contentContainer">
@@ -132,7 +131,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public final class <span class="typeNameLabel">VideoFrameReleaseHelper</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Helps a video <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> release frames to a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>. The helper:
+<div class="block">Helps a video <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> release frames to a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>. The helper:
 
  <ul>
    <li>Adjusts frame release timestamps to achieve a smoother visual result. The release
@@ -147,19 +146,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#VideoFrameReleaseHelper-android.content.Context-">VideoFrameReleaseHelper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">VideoFrameReleaseHelper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
 <div class="block">Constructs an instance.</div>
 </td>
@@ -167,13 +167,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -182,84 +184,85 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#adjustReleaseTime-long-">adjustReleaseTime</a></span>&#8203;(long&nbsp;releaseTimeNs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adjustReleaseTime(long)">adjustReleaseTime</a></span>&#8203;(long&nbsp;releaseTimeNs)</code></th>
 <td class="colLast">
 <div class="block">Adjusts the release timestamp for the next frame.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onDisabled--">onDisabled</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisabled()">onDisabled</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onEnabled--">onEnabled</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnabled()">onEnabled</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onFormatChanged-float-">onFormatChanged</a></span>&#8203;(float&nbsp;formatFrameRate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFormatChanged(float)">onFormatChanged</a></span>&#8203;(float&nbsp;formatFrameRate)</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer's output format changes.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onNextFrame-long-">onNextFrame</a></span>&#8203;(long&nbsp;framePresentationTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onNextFrame(long)">onNextFrame</a></span>&#8203;(long&nbsp;framePresentationTimeUs)</code></th>
 <td class="colLast">
 <div class="block">Called by the renderer for each frame, prior to it being skipped, dropped or rendered.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onPlaybackSpeed-float-">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer's playback speed changes.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onPositionReset--">onPositionReset</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset()">onPositionReset</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer's position is reset.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onStarted--">onStarted</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer is started.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onStopped--">onStopped</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer is stopped.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onSurfaceChanged-android.view.Surface-">onSurfaceChanged</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSurfaceChanged(android.view.Surface)">onSurfaceChanged</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer changes which <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> it's rendering to renders to.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -267,12 +270,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="VideoFrameReleaseHelper-android.content.Context-">
+<a id="&lt;init&gt;(android.content.Context)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -289,39 +293,41 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="onEnabled--">
+<a id="onEnabled()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onEnabled</h4>
-<pre>public&nbsp;void&nbsp;onEnabled()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onEnabled()</pre>
 <div class="block">Called when the renderer is enabled.</div>
 </li>
 </ul>
-<a name="onStarted--">
+<a id="onStarted()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onStarted</h4>
-<pre>public&nbsp;void&nbsp;onStarted()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onStarted()</pre>
 <div class="block">Called when the renderer is started.</div>
 </li>
 </ul>
-<a name="onSurfaceChanged-android.view.Surface-">
+<a id="onSurfaceChanged(android.view.Surface)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onSurfaceChanged</h4>
-<pre>public&nbsp;void&nbsp;onSurfaceChanged&#8203;(@Nullable
+<pre class="methodSignature">public&nbsp;void&nbsp;onSurfaceChanged&#8203;(@Nullable
                              <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
 <div class="block">Called when the renderer changes which <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> it's rendering to renders to.</div>
 <dl>
@@ -330,23 +336,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="onPositionReset--">
+<a id="onPositionReset()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPositionReset</h4>
-<pre>public&nbsp;void&nbsp;onPositionReset()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onPositionReset()</pre>
 <div class="block">Called when the renderer's position is reset.</div>
 </li>
 </ul>
-<a name="onPlaybackSpeed-float-">
+<a id="onPlaybackSpeed(float)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlaybackSpeed</h4>
-<pre>public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
 <div class="block">Called when the renderer's playback speed changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -354,27 +360,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="onFormatChanged-float-">
+<a id="onFormatChanged(float)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onFormatChanged</h4>
-<pre>public&nbsp;void&nbsp;onFormatChanged&#8203;(float&nbsp;formatFrameRate)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onFormatChanged&#8203;(float&nbsp;formatFrameRate)</pre>
 <div class="block">Called when the renderer's output format changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>formatFrameRate</code> - The format's frame rate, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</dd>
+<dd><code>formatFrameRate</code> - The format's frame rate, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</dd>
 </dl>
 </li>
 </ul>
-<a name="onNextFrame-long-">
+<a id="onNextFrame(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onNextFrame</h4>
-<pre>public&nbsp;void&nbsp;onNextFrame&#8203;(long&nbsp;framePresentationTimeUs)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onNextFrame&#8203;(long&nbsp;framePresentationTimeUs)</pre>
 <div class="block">Called by the renderer for each frame, prior to it being skipped, dropped or rendered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -382,35 +388,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="onStopped--">
+<a id="onStopped()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onStopped</h4>
-<pre>public&nbsp;void&nbsp;onStopped()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onStopped()</pre>
 <div class="block">Called when the renderer is stopped.</div>
 </li>
 </ul>
-<a name="onDisabled--">
+<a id="onDisabled()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onDisabled</h4>
-<pre>public&nbsp;void&nbsp;onDisabled()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onDisabled()</pre>
 <div class="block">Called when the renderer is disabled.</div>
 </li>
 </ul>
-<a name="adjustReleaseTime-long-">
+<a id="adjustReleaseTime(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>adjustReleaseTime</h4>
-<pre>public&nbsp;long&nbsp;adjustReleaseTime&#8203;(long&nbsp;releaseTimeNs)</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;adjustReleaseTime&#8203;(long&nbsp;releaseTimeNs)</pre>
 <div class="block">Adjusts the release timestamp for the next frame. This is the frame whose presentation
- timestamp was most recently passed to <a href="../../../../../com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html#onNextFrame-long-"><code>onNextFrame(long)</code></a>.
+ timestamp was most recently passed to <a href="#onNextFrame(long)"><code>onNextFrame(long)</code></a>.
 
  <p>This method may be called any number of times for each frame, including zero times (for
  skipped frames, or when rendering the first frame prior to playback starting), or more than
@@ -419,30 +425,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>releaseTimeNs</code> - The frame's unadjusted release time, in nanoseconds and in the same time
-     base as <a href="https://developer.android.com/reference/java/lang/System.html#nanoTime--" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.nanoTime()</code></a>.</dd>
+     base as <a href="https://developer.android.com/reference/java/lang/System.html#nanoTime()" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.nanoTime()</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The adjusted frame release timestamp, in nanoseconds and in the same time base as
-     <a href="https://developer.android.com/reference/java/lang/System.html#nanoTime--" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.nanoTime()</code></a>.</dd>
+     <a href="https://developer.android.com/reference/java/lang/System.html#nanoTime()" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.nanoTime()</code></a>.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -452,16 +462,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html" title="interface in com.google.android.exoplayer2.video"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/video/VideoFrameReleaseHelper.html" target="_top">Frames</a></li>
-<li><a href="VideoFrameReleaseHelper.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -493,9 +495,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

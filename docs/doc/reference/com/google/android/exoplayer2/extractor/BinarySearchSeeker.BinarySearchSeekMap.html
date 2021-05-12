@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html" target="_top">Frames</a></li>
-<li><a href="BinarySearchSeeker.BinarySearchSeekMap.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -90,7 +86,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/package-summary.html">com.google.android.exoplayer2.extractor</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor</a></div>
 <h2 title="Class BinarySearchSeeker.BinarySearchSeekMap" class="title">Class BinarySearchSeeker.BinarySearchSeekMap</h2>
 </div>
 <div class="contentContainer">
@@ -131,18 +130,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
+<dd><code><a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></dd>
+<dd><a href="BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></dd>
 </dl>
 <hr>
 <pre>public static class <span class="typeNameLabel">BinarySearchSeeker.BinarySearchSeekMap</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></pre>
-<div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> implementation that returns the estimated byte location from <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html#calculateNextSearchBytePosition-long-long-long-long-long-long-"><code>BinarySearchSeeker.SeekOperationParams.calculateNextSearchBytePosition(long, long, long, long, long, long)</code></a> for
- each <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#getSeekPoints-long-"><code>getSeekPoints(long)</code></a> query.</div>
+implements <a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></pre>
+<div class="block">A <a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> implementation that returns the estimated byte location from <a href="BinarySearchSeeker.SeekOperationParams.html#calculateNextSearchBytePosition(long,long,long,long,long,long)"><code>BinarySearchSeeker.SeekOperationParams.calculateNextSearchBytePosition(long, long, long, long, long, long)</code></a> for
+ each <a href="#getSeekPoints(long)"><code>getSeekPoints(long)</code></a> query.</div>
 </li>
 </ul>
 </div>
@@ -150,34 +149,37 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.extractor.SeekMap">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.extractor.SeekMap">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.Unseekable.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.Unseekable</a></code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></h3>
+<code><a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>, <a href="SeekMap.Unseekable.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.Unseekable</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#BinarySearchSeekMap-com.google.android.exoplayer2.extractor.BinarySearchSeeker.SeekTimestampConverter-long-long-long-long-long-long-">BinarySearchSeekMap</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a>&nbsp;seekTimestampConverter,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.BinarySearchSeeker.SeekTimestampConverter,long,long,long,long,long,long)">BinarySearchSeekMap</a></span>&#8203;(<a href="BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a>&nbsp;seekTimestampConverter,
                    long&nbsp;durationUs,
                    long&nbsp;floorTimePosition,
                    long&nbsp;ceilingTimePosition,
@@ -191,13 +193,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -206,40 +210,41 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#getDurationUs--">getDurationUs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the duration of the stream in microseconds.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#getSeekPoints-long-">getSeekPoints</a></span>&#8203;(long&nbsp;timeUs)</code></th>
+<td class="colFirst"><code><a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekPoints(long)">getSeekPoints</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
 <div class="block">Obtains seek points for the specified seek time in microseconds.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#isSeekable--">isSeekable</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeekable()">isSeekable</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether seeking is supported.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#timeUsToTargetTime-long-">timeUsToTargetTime</a></span>&#8203;(long&nbsp;timeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeUsToTargetTime(long)">timeUsToTargetTime</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -247,18 +252,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="BinarySearchSeekMap-com.google.android.exoplayer2.extractor.BinarySearchSeeker.SeekTimestampConverter-long-long-long-long-long-long-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.extractor.BinarySearchSeeker.SeekTimestampConverter,long,long,long,long,long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>BinarySearchSeekMap</h4>
-<pre>public&nbsp;BinarySearchSeekMap&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a>&nbsp;seekTimestampConverter,
+<pre>public&nbsp;BinarySearchSeekMap&#8203;(<a href="BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a>&nbsp;seekTimestampConverter,
                            long&nbsp;durationUs,
                            long&nbsp;floorTimePosition,
                            long&nbsp;ceilingTimePosition,
@@ -270,38 +276,40 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="isSeekable--">
+<a id="isSeekable()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isSeekable</h4>
-<pre>public&nbsp;boolean&nbsp;isSeekable()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html#isSeekable--">SeekMap</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isSeekable()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SeekMap.html#isSeekable()">SeekMap</a></code></span></div>
 <div class="block">Returns whether seeking is supported.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html#isSeekable--">isSeekable</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
+<dd><code><a href="SeekMap.html#isSeekable()">isSeekable</a></code>&nbsp;in interface&nbsp;<code><a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether seeking is supported.</dd>
 </dl>
 </li>
 </ul>
-<a name="getSeekPoints-long-">
+<a id="getSeekPoints(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSeekPoints</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>&nbsp;getSeekPoints&#8203;(long&nbsp;timeUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html#getSeekPoints-long-">SeekMap</a></code></span></div>
-<div class="block">Obtains seek points for the specified seek time in microseconds. The returned <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekMap.SeekPoints</code></a> will contain one or two distinct seek points.
+<pre class="methodSignature">public&nbsp;<a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>&nbsp;getSeekPoints&#8203;(long&nbsp;timeUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SeekMap.html#getSeekPoints(long)">SeekMap</a></code></span></div>
+<div class="block">Obtains seek points for the specified seek time in microseconds. The returned <a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekMap.SeekPoints</code></a> will contain one or two distinct seek points.
 
  <p>Two seek points [A, B] are returned in the case that seeking can only be performed to
  discrete points in time, there does not exist a seek point at exactly the requested time, and
@@ -309,7 +317,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
  before and after the requested time. A single seek point is returned in all other cases.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html#getSeekPoints-long-">getSeekPoints</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
+<dd><code><a href="SeekMap.html#getSeekPoints(long)">getSeekPoints</a></code>&nbsp;in interface&nbsp;<code><a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - A seek time in microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -317,54 +325,58 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 </dl>
 </li>
 </ul>
-<a name="getDurationUs--">
+<a id="getDurationUs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDurationUs</h4>
-<pre>public&nbsp;long&nbsp;getDurationUs()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html#getDurationUs--">SeekMap</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getDurationUs()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SeekMap.html#getDurationUs()">SeekMap</a></code></span></div>
 <div class="block">Returns the duration of the stream in microseconds.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html#getDurationUs--">getDurationUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
+<dd><code><a href="SeekMap.html#getDurationUs()">getDurationUs</a></code>&nbsp;in interface&nbsp;<code><a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The duration of the stream in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the duration is
+<dd>The duration of the stream in microseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the duration is
      unknown.</dd>
 </dl>
 </li>
 </ul>
-<a name="timeUsToTargetTime-long-">
+<a id="timeUsToTargetTime(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>timeUsToTargetTime</h4>
-<pre>public&nbsp;long&nbsp;timeUsToTargetTime&#8203;(long&nbsp;timeUs)</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;timeUsToTargetTime&#8203;(long&nbsp;timeUs)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html#timeUsToTargetTime-long-"><code>BinarySearchSeeker.SeekTimestampConverter.timeUsToTargetTime(long)</code></a></dd>
+<dd><a href="BinarySearchSeeker.SeekTimestampConverter.html#timeUsToTargetTime(long)"><code>BinarySearchSeeker.SeekTimestampConverter.timeUsToTargetTime(long)</code></a></dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -374,16 +386,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html" target="_top">Frames</a></li>
-<li><a href="BinarySearchSeeker.BinarySearchSeekMap.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -403,7 +407,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -415,9 +419,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/SeekM
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

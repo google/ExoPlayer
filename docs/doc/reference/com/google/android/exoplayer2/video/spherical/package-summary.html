@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,21 +25,25 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -49,16 +53,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/video/package-summary.html">Prev&nbsp;Package</a></li>
-<li>Next&nbsp;Package</li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/video/spherical/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -81,7 +77,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -91,13 +87,16 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
+<main role="main">
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.video.spherical</h1>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
 <li class="blockList">
-<table class="typeSummary" summary="Interface Summary table, listing interfaces, and an explanation">
+<table class="typeSummary">
 <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Interface</th>
@@ -105,16 +104,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a></th>
+<th class="colFirst" scope="row"><a href="CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a></th>
 <td class="colLast">
 <div class="block">Listens camera motion.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView.VideoSurfaceListener</a></th>
+<td class="colLast">
+<div class="block">Listener for the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> to which video frames should be rendered.</div>
 </td>
 </tr>
 </tbody>
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Class Summary table, listing classes, and an explanation">
+<table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -122,59 +127,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a></th>
+<th class="colFirst" scope="row"><a href="CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a></th>
 <td class="colLast">
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> that parses the camera motion track.</div>
+<div class="block">A <a href="../../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> that parses the camera motion track.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/FrameRotationQueue.html" title="class in com.google.android.exoplayer2.video.spherical">FrameRotationQueue</a></th>
+<th class="colFirst" scope="row"><a href="SphericalGLSurfaceView.html" title="class in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView</a></th>
 <td class="colLast">
-<div class="block">This class serves multiple purposes:
-
- 
-   Queues the rotation metadata extracted from camera motion track.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/Projection.html" title="class in com.google.android.exoplayer2.video.spherical">Projection</a></th>
-<td class="colLast">
-<div class="block">The projection mesh used with 360/VR videos.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/Projection.Mesh.html" title="class in com.google.android.exoplayer2.video.spherical">Projection.Mesh</a></th>
-<td class="colLast">
-<div class="block">A Mesh associated with the projection scene.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/Projection.SubMesh.html" title="class in com.google.android.exoplayer2.video.spherical">Projection.SubMesh</a></th>
-<td class="colLast">
-<div class="block">The sub mesh associated with the <a href="../../../../../../com/google/android/exoplayer2/video/spherical/Projection.Mesh.html" title="class in com.google.android.exoplayer2.video.spherical"><code>Projection.Mesh</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/ProjectionDecoder.html" title="class in com.google.android.exoplayer2.video.spherical">ProjectionDecoder</a></th>
-<td class="colLast">
-<div class="block">A decoder for the projection mesh.</div>
-</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li class="blockList">
-<table class="typeSummary" summary="Annotation Types Summary table, listing annotation types, and an explanation">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Annotation Type</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../../com/google/android/exoplayer2/video/spherical/Projection.DrawMode.html" title="annotation in com.google.android.exoplayer2.video.spherical">Projection.DrawMode</a></th>
-<td class="colLast">
-<div class="block">Enforces allowed (sub) mesh draw modes.</div>
+<div class="block">Renders a GL scene in a non-VR Activity that is affected by phone orientation and touch input.</div>
 </td>
 </tr>
 </tbody>
@@ -182,16 +143,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -201,16 +165,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/video/package-summary.html">Prev&nbsp;Package</a></li>
-<li>Next&nbsp;Package</li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/video/spherical/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -227,9 +183,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

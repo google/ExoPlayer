@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.Importance.html" title="annotation in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/ParsableBitArray.html" target="_top">Frames</a></li>
-<li><a href="ParsableBitArray.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
 <h2 title="Class ParsableBitArray" class="title">Class ParsableBitArray</h2>
 </div>
 <div class="contentContainer">
@@ -140,12 +139,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,38 +154,40 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#data">data</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#ParsableBitArray--">ParsableBitArray</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">ParsableBitArray</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance that initially has no backing data.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#ParsableBitArray-byte:A-">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D)">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance that wraps an existing array.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#ParsableBitArray-byte:A-int-">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,int)">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data,
                 int&nbsp;limit)</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance that wraps an existing array.</div>
@@ -194,13 +196,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -209,35 +213,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#bitsLeft--">bitsLeft</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitsLeft()">bitsLeft</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the number of bits yet to be read.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#byteAlign--">byteAlign</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#byteAlign()">byteAlign</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Aligns the position to the next byte boundary.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#getBytePosition--">getBytePosition</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBytePosition()">getBytePosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the current byte offset.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#getPosition--">getPosition</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the current bit offset.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#putInt-int-int-">putInt</a></span>&#8203;(int&nbsp;value,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putInt(int,int)">putInt</a></span>&#8203;(int&nbsp;value,
       int&nbsp;numBits)</code></th>
 <td class="colLast">
 <div class="block">Overwrites <code>numBits</code> from this array using the <code>numBits</code> least significant bits
@@ -246,14 +250,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBit--">readBit</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBit()">readBit</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Reads a single bit.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBits-byte:A-int-int-">readBits</a></span>&#8203;(byte[]&nbsp;buffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBits(byte%5B%5D,int,int)">readBits</a></span>&#8203;(byte[]&nbsp;buffer,
         int&nbsp;offset,
         int&nbsp;numBits)</code></th>
 <td class="colLast">
@@ -262,21 +266,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBits-int-">readBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBits(int)">readBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
 <td class="colLast">
 <div class="block">Reads up to 32 bits.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBitsToLong-int-">readBitsToLong</a></span>&#8203;(int&nbsp;numBits)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBitsToLong(int)">readBitsToLong</a></span>&#8203;(int&nbsp;numBits)</code></th>
 <td class="colLast">
 <div class="block">Reads up to 64 bits.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBytes-byte:A-int-int-">readBytes</a></span>&#8203;(byte[]&nbsp;buffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytes(byte%5B%5D,int,int)">readBytes</a></span>&#8203;(byte[]&nbsp;buffer,
          int&nbsp;offset,
          int&nbsp;length)</code></th>
 <td class="colLast">
@@ -285,14 +289,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBytesAsString-int-">readBytesAsString</a></span>&#8203;(int&nbsp;length)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytesAsString(int)">readBytesAsString</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads the next <code>length</code> bytes as a UTF-8 string.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBytesAsString-int-java.nio.charset.Charset-">readBytesAsString</a></span>&#8203;(int&nbsp;length,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytesAsString(int,java.nio.charset.Charset)">readBytesAsString</a></span>&#8203;(int&nbsp;length,
                  <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</code></th>
 <td class="colLast">
 <div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>.</div>
@@ -300,14 +304,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-byte:A-">reset</a></span>&#8203;(byte[]&nbsp;data)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D)">reset</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-byte:A-int-">reset</a></span>&#8203;(byte[]&nbsp;data,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D,int)">reset</a></span>&#8203;(byte[]&nbsp;data,
      int&nbsp;limit)</code></th>
 <td class="colLast">
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
@@ -315,49 +319,50 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-com.google.android.exoplayer2.util.ParsableByteArray-">reset</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(com.google.android.exoplayer2.util.ParsableByteArray)">reset</a></span>&#8203;(<a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</code></th>
 <td class="colLast">
 <div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#setPosition-int-">setPosition</a></span>&#8203;(int&nbsp;position)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int)">setPosition</a></span>&#8203;(int&nbsp;position)</code></th>
 <td class="colLast">
 <div class="block">Sets the current bit offset.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBit--">skipBit</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBit()">skipBit</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Skips a single bit.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBits-int-">skipBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBits(int)">skipBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
 <td class="colLast">
 <div class="block">Skips bits and moves current reading position forward.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBytes-int-">skipBytes</a></span>&#8203;(int&nbsp;length)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBytes(int)">skipBytes</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Skips the next <code>length</code> bytes.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -365,12 +370,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="data">
+<a id="data">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -381,13 +387,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ParsableBitArray--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -397,7 +405,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Creates a new instance that initially has no backing data.</div>
 </li>
 </ul>
-<a name="ParsableBitArray-byte:A-">
+<a id="&lt;init&gt;(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -411,7 +419,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="ParsableBitArray-byte:A-int-">
+<a id="&lt;init&gt;(byte[],int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -429,19 +437,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="reset-byte:A-">
+<a id="reset(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data)</pre>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -449,28 +459,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="reset-com.google.android.exoplayer2.util.ParsableByteArray-">
+<a id="reset(com.google.android.exoplayer2.util.ParsableByteArray)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(<a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</pre>
 <div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.
  Any modifications to the underlying data array will be visible in both instances</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parsableByteArray</code> - The <a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a>.</dd>
+<dd><code>parsableByteArray</code> - The <a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="reset-byte:A-int-">
+<a id="reset(byte[],int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data,
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data,
                   int&nbsp;limit)</pre>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 <dl>
@@ -480,33 +490,33 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="bitsLeft--">
+<a id="bitsLeft()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bitsLeft</h4>
-<pre>public&nbsp;int&nbsp;bitsLeft()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;bitsLeft()</pre>
 <div class="block">Returns the number of bits yet to be read.</div>
 </li>
 </ul>
-<a name="getPosition--">
+<a id="getPosition()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPosition</h4>
-<pre>public&nbsp;int&nbsp;getPosition()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPosition()</pre>
 <div class="block">Returns the current bit offset.</div>
 </li>
 </ul>
-<a name="getBytePosition--">
+<a id="getBytePosition()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getBytePosition</h4>
-<pre>public&nbsp;int&nbsp;getBytePosition()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;getBytePosition()</pre>
 <div class="block">Returns the current byte offset. Must only be called when the position is byte aligned.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -514,13 +524,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setPosition-int-">
+<a id="setPosition(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPosition</h4>
-<pre>public&nbsp;void&nbsp;setPosition&#8203;(int&nbsp;position)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setPosition&#8203;(int&nbsp;position)</pre>
 <div class="block">Sets the current bit offset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -528,23 +538,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="skipBit--">
+<a id="skipBit()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>skipBit</h4>
-<pre>public&nbsp;void&nbsp;skipBit()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;skipBit()</pre>
 <div class="block">Skips a single bit.</div>
 </li>
 </ul>
-<a name="skipBits-int-">
+<a id="skipBits(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>skipBits</h4>
-<pre>public&nbsp;void&nbsp;skipBits&#8203;(int&nbsp;numBits)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;skipBits&#8203;(int&nbsp;numBits)</pre>
 <div class="block">Skips bits and moves current reading position forward.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -552,13 +562,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="readBit--">
+<a id="readBit()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBit</h4>
-<pre>public&nbsp;boolean&nbsp;readBit()</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;readBit()</pre>
 <div class="block">Reads a single bit.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -566,13 +576,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="readBits-int-">
+<a id="readBits(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBits</h4>
-<pre>public&nbsp;int&nbsp;readBits&#8203;(int&nbsp;numBits)</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;readBits&#8203;(int&nbsp;numBits)</pre>
 <div class="block">Reads up to 32 bits.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -582,13 +592,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="readBitsToLong-int-">
+<a id="readBitsToLong(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBitsToLong</h4>
-<pre>public&nbsp;long&nbsp;readBitsToLong&#8203;(int&nbsp;numBits)</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;readBitsToLong&#8203;(int&nbsp;numBits)</pre>
 <div class="block">Reads up to 64 bits.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -598,13 +608,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="readBits-byte:A-int-int-">
+<a id="readBits(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBits</h4>
-<pre>public&nbsp;void&nbsp;readBits&#8203;(byte[]&nbsp;buffer,
+<pre class="methodSignature">public&nbsp;void&nbsp;readBits&#8203;(byte[]&nbsp;buffer,
                      int&nbsp;offset,
                      int&nbsp;numBits)</pre>
 <div class="block">Reads <code>numBits</code> bits into <code>buffer</code>.</div>
@@ -618,23 +628,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="byteAlign--">
+<a id="byteAlign()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>byteAlign</h4>
-<pre>public&nbsp;void&nbsp;byteAlign()</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;byteAlign()</pre>
 <div class="block">Aligns the position to the next byte boundary. Does nothing if the position is already aligned.</div>
 </li>
 </ul>
-<a name="readBytes-byte:A-int-int-">
+<a id="readBytes(byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBytes</h4>
-<pre>public&nbsp;void&nbsp;readBytes&#8203;(byte[]&nbsp;buffer,
+<pre class="methodSignature">public&nbsp;void&nbsp;readBytes&#8203;(byte[]&nbsp;buffer,
                       int&nbsp;offset,
                       int&nbsp;length)</pre>
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>. Must only be called when the position
@@ -647,17 +657,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the position isn't byte aligned.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/java/lang/System.html#arraycopy-java.lang.Object-int-java.lang.Object-int-int-" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.arraycopy(Object, int, Object, int, int)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/java/lang/System.html#arraycopy(java.lang.Object,int,java.lang.Object,int,int)" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.arraycopy(Object, int, Object, int, int)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a name="skipBytes-int-">
+<a id="skipBytes(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>skipBytes</h4>
-<pre>public&nbsp;void&nbsp;skipBytes&#8203;(int&nbsp;length)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;skipBytes&#8203;(int&nbsp;length)</pre>
 <div class="block">Skips the next <code>length</code> bytes. Must only be called when the position is byte aligned.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -667,13 +677,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="readBytesAsString-int-">
+<a id="readBytesAsString(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBytesAsString</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length)</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length)</pre>
 <div class="block">Reads the next <code>length</code> bytes as a UTF-8 string. Must only be called when the position is
  byte aligned.</div>
 <dl>
@@ -684,13 +694,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="readBytesAsString-int-java.nio.charset.Charset-">
+<a id="readBytesAsString(int,java.nio.charset.Charset)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readBytesAsString</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length,
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length,
                                 <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</pre>
 <div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>. Must only be called
  when the position is byte aligned.</div>
@@ -703,41 +713,45 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="putInt-int-int-">
+<a id="putInt(int,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>putInt</h4>
-<pre>public&nbsp;void&nbsp;putInt&#8203;(int&nbsp;value,
+<pre class="methodSignature">public&nbsp;void&nbsp;putInt&#8203;(int&nbsp;value,
                    int&nbsp;numBits)</pre>
 <div class="block">Overwrites <code>numBits</code> from this array using the <code>numBits</code> least significant bits
  from <code>value</code>. Bits are written in order from most significant to least significant. The
  read position is advanced by <code>numBits</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - The integer whose <code>numBits</code> least significant bits are written into <a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#data"><code>data</code></a>.</dd>
+<dd><code>value</code> - The integer whose <code>numBits</code> least significant bits are written into <a href="#data"><code>data</code></a>.</dd>
 <dd><code>numBits</code> - The number of bits to write.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -747,16 +761,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.Importance.html" title="annotation in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/ParsableBitArray.html" target="_top">Frames</a></li>
-<li><a href="ParsableBitArray.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -788,9 +794,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

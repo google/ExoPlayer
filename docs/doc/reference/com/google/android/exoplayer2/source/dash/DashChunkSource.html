@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var data = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DashChunkSource.html" target="_top">Frames</a></li>
-<li><a href="DashChunkSource.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/package-summary.html">com.google.android.exoplayer2.source.dash</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.dash</a></div>
 <h2 title="Interface DashChunkSource" class="title">Interface DashChunkSource</h2>
 </div>
 <div class="contentContainer">
@@ -123,16 +122,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dd><code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource</a></code></dd>
+<dd><code><a href="DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">DashChunkSource</span>
-extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></pre>
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkSource</code></a> for DASH streams.</div>
+extends <a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></pre>
+<div class="block">A <a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkSource</code></a> for DASH streams.</div>
 </li>
 </ul>
 </div>
@@ -140,12 +139,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,21 +154,23 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></span></code></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>s.</div>
+<div class="block">Factory for <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a>s.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -177,7 +179,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateManifest-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-">updateManifest</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateManifest(com.google.android.exoplayer2.source.dash.manifest.DashManifest,int)">updateManifest</a></span>&#8203;(<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
               int&nbsp;periodIndex)</code></th>
 <td class="colLast">
 <div class="block">Updates the manifest.</div>
@@ -185,21 +187,22 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.html#updateTrackSelection-com.google.android.exoplayer2.trackselection.ExoTrackSelection-">updateTrackSelection</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">updateTrackSelection</a></span>&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
 <td class="colLast">
 <div class="block">Updates the track selection.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.chunk.ChunkSource">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.source.chunk.ChunkSource">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">getAdjustedSeekPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-">getNextChunk</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getPreferredQueueSize-long-java.util.List-">getPreferredQueueSize</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#maybeThrowError--">maybeThrowError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadCompleted-com.google.android.exoplayer2.source.chunk.Chunk-">onChunkLoadCompleted</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">onChunkLoadError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#release--">release</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#shouldCancelLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-">shouldCancelLoad</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></h3>
+<code><a href="../chunk/ChunkSource.html#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">getAdjustedSeekPositionUs</a>, <a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">getNextChunk</a>, <a href="../chunk/ChunkSource.html#getPreferredQueueSize(long,java.util.List)">getPreferredQueueSize</a>, <a href="../chunk/ChunkSource.html#maybeThrowError()">maybeThrowError</a>, <a href="../chunk/ChunkSource.html#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">onChunkLoadCompleted</a>, <a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a>, <a href="../chunk/ChunkSource.html#release()">release</a>, <a href="../chunk/ChunkSource.html#shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">shouldCancelLoad</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -207,18 +210,19 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="updateManifest-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-">
+<a id="updateManifest(com.google.android.exoplayer2.source.dash.manifest.DashManifest,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>updateManifest</h4>
-<pre>void&nbsp;updateManifest&#8203;(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
+<pre class="methodSignature">void&nbsp;updateManifest&#8203;(<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
                     int&nbsp;periodIndex)</pre>
 <div class="block">Updates the manifest.</div>
 <dl>
@@ -227,13 +231,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </dl>
 </li>
 </ul>
-<a name="updateTrackSelection-com.google.android.exoplayer2.trackselection.ExoTrackSelection-">
+<a id="updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>updateTrackSelection</h4>
-<pre>void&nbsp;updateTrackSelection&#8203;(<a href="../../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
+<pre class="methodSignature">void&nbsp;updateTrackSelection&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
 <div class="block">Updates the track selection.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -243,21 +247,25 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -267,16 +275,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DashChunkSource.html" target="_top">Frames</a></li>
-<li><a href="DashChunkSource.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -308,9 +308,11 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

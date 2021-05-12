@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,21 +25,25 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -49,16 +53,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/text/webvtt/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/transformer/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/trackselection/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -81,7 +77,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -91,13 +87,16 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
+<main role="main">
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.trackselection</h1>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
 <li class="blockList">
-<table class="typeSummary" summary="Interface Summary table, listing interfaces, and an explanation">
+<table class="typeSummary">
 <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Interface</th>
@@ -105,41 +104,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></th>
+<th class="colFirst" scope="row"><a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></th>
 <td class="colLast">
-<div class="block">A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> that can change the individually selected track as a result of calling
- <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>ExoTrackSelection.updateSelectedTrack(long, long, long, List, MediaChunkIterator[])</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>ExoTrackSelection.evaluateQueueSize(long, List)</code></a>.</div>
+<div class="block">A <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> that can change the individually selected track as a result of calling
+ <a href="ExoTrackSelection.html#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)"><code>ExoTrackSelection.updateSelectedTrack(long, long, long, List, MediaChunkIterator[])</code></a> or <a href="ExoTrackSelection.html#evaluateQueueSize(long,java.util.List)"><code>ExoTrackSelection.evaluateQueueSize(long, List)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Factory</a></th>
+<th class="colFirst" scope="row"><a href="ExoTrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Factory</a></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> instances.</div>
+<div class="block">Factory for <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></th>
 <td class="colLast">
-<div class="block">A track selection consisting of a static subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">A track selection consisting of a static subset of selected tracks belonging to a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a></th>
 <td class="colLast">
 <div class="block">Functional interface to create a single adaptive track selection.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a></th>
 <td class="colLast">
-<div class="block">Notified when selections previously made by a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> are no longer valid.</div>
+<div class="block">Notified when selections previously made by a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> are no longer valid.</div>
 </td>
 </tr>
 </tbody>
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" summary="Class Summary table, listing classes, and an explanation">
+<table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -147,151 +146,151 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a></th>
+<th class="colFirst" scope="row"><a href="AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a></th>
 <td class="colLast">
-<div class="block">A bandwidth based adaptive <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a>, whose selected track is updated to be the
+<div class="block">A bandwidth based adaptive <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a>, whose selected track is updated to be the
  one of highest quality given the current network conditions and the state of the buffer.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.AdaptationCheckpoint</a></th>
+<th class="colFirst" scope="row"><a href="AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.AdaptationCheckpoint</a></th>
 <td class="colLast">
 <div class="block">Checkpoint to determine allocated bandwidth.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.Factory</a></th>
+<th class="colFirst" scope="row"><a href="AdaptiveTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.Factory</a></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>AdaptiveTrackSelection</code></a> instances.</div>
+<div class="block">Factory for <a href="AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>AdaptiveTrackSelection</code></a> instances.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></th>
+<th class="colFirst" scope="row"><a href="BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></th>
 <td class="colLast">
-<div class="block">An abstract base class suitable for most <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> implementations.</div>
+<div class="block">An abstract base class suitable for most <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> implementations.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a></th>
 <td class="colLast">
-<div class="block">A default <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> suitable for most use cases.</div>
+<div class="block">A default <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> suitable for most use cases.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.AudioTrackScore</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.AudioTrackScore</a></th>
 <td class="colLast">
-<div class="block">Represents how well an audio track matches the selection <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<div class="block">Represents how well an audio track matches the selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.OtherTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.OtherTrackScore</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.OtherTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.OtherTrackScore</a></th>
 <td class="colLast">
-<div class="block">Represents how well any other track (non video, audio or text) matches the selection <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<div class="block">Represents how well any other track (non video, audio or text) matches the selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></th>
 <td class="colLast">
-<div class="block">Extends <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> by adding fields that are specific to <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
+<div class="block">Extends <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> by adding fields that are specific to <a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a></th>
 <td class="colLast">
-<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<div class="block">A builder for <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a></th>
 <td class="colLast">
 <div class="block">A track selection override.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.TextTrackScore</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.TextTrackScore</a></th>
 <td class="colLast">
-<div class="block">Represents how well a text track matches the selection <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<div class="block">Represents how well a text track matches the selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.VideoTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.VideoTrackScore</a></th>
+<th class="colFirst" scope="row"><a href="DefaultTrackSelector.VideoTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.VideoTrackScore</a></th>
 <td class="colLast">
-<div class="block">Represents how well a video track matches the selection <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<div class="block">Represents how well a video track matches the selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a></th>
+<th class="colFirst" scope="row"><a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a></th>
 <td class="colLast">
-<div class="block">Contains of a subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">Contains of a subset of selected tracks belonging to a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection</a></th>
+<th class="colFirst" scope="row"><a href="FixedTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection</a></th>
 <td class="colLast">
-<div class="block">A <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> consisting of a single track.</div>
+<div class="block">A <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> consisting of a single track.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector</a></th>
+<th class="colFirst" scope="row"><a href="MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector</a></th>
 <td class="colLast">
-<div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>s that first establish a mapping between <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s
- and <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s, and then from that mapping create a <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> for each
+<div class="block">Base class for <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>s that first establish a mapping between <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s
+ and <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s, and then from that mapping create a <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> for each
  renderer.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a></th>
+<th class="colFirst" scope="row"><a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a></th>
 <td class="colLast">
 <div class="block">Provides mapped track information for each renderer.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection</a></th>
+<th class="colFirst" scope="row"><a href="RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection</a></th>
 <td class="colLast">
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> whose selected track is updated randomly.</div>
+<div class="block">An <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> whose selected track is updated randomly.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection.Factory</a></th>
+<th class="colFirst" scope="row"><a href="RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection.Factory</a></th>
 <td class="colLast">
-<div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>RandomTrackSelection</code></a> instances.</div>
+<div class="block">Factory for <a href="RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>RandomTrackSelection</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a></th>
 <td class="colLast">
-<div class="block">An array of <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s.</div>
+<div class="block">An array of <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></th>
 <td class="colLast">
 <div class="block">Constraint parameters for track selection.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></th>
 <td class="colLast">
-<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
+<div class="block">A builder for <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionUtil.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionUtil</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelectionUtil.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionUtil</a></th>
 <td class="colLast">
 <div class="block">Track selection related utility methods.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a></th>
 <td class="colLast">
-<div class="block">The component of an <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> responsible for selecting tracks to be consumed by each of
- the player's <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s.</div>
+<div class="block">The component of an <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> responsible for selecting tracks to be consumed by each of
+ the player's <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></th>
+<th class="colFirst" scope="row"><a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></th>
 <td class="colLast">
-<div class="block">The result of a <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> operation.</div>
+<div class="block">The result of a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> operation.</div>
 </td>
 </tr>
 </tbody>
@@ -299,16 +298,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -318,16 +320,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/text/webvtt/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/transformer/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/trackselection/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -344,9 +338,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

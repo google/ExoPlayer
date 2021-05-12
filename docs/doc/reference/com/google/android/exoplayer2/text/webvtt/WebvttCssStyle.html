@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/Mp4WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" target="_top">Frames</a></li>
-<li><a href="WebvttCssStyle.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/package-summary.html">com.google.android.exoplayer2.text.webvtt</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.text.webvtt</a></div>
 <h2 title="Class WebvttCssStyle" class="title">Class WebvttCssStyle</h2>
 </div>
 <div class="contentContainer">
@@ -145,12 +144,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
+<li class="blockList"><a id="nested.class.summary">
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -159,14 +159,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle.FontSizeUnit</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle.FontSizeUnit</a></span></code></th>
 <td class="colLast">
 <div class="block">Font size unit enum.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.StyleFlags.html" title="annotation in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle.StyleFlags</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="WebvttCssStyle.StyleFlags.html" title="annotation in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle.StyleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">Style flag enum.</div>
 </td>
@@ -174,13 +174,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -189,73 +191,77 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#FONT_SIZE_UNIT_EM">FONT_SIZE_UNIT_EM</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FONT_SIZE_UNIT_EM">FONT_SIZE_UNIT_EM</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#FONT_SIZE_UNIT_PERCENT">FONT_SIZE_UNIT_PERCENT</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FONT_SIZE_UNIT_PERCENT">FONT_SIZE_UNIT_PERCENT</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#FONT_SIZE_UNIT_PIXEL">FONT_SIZE_UNIT_PIXEL</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FONT_SIZE_UNIT_PIXEL">FONT_SIZE_UNIT_PIXEL</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_BOLD">STYLE_BOLD</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STYLE_BOLD">STYLE_BOLD</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_BOLD_ITALIC">STYLE_BOLD_ITALIC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STYLE_BOLD_ITALIC">STYLE_BOLD_ITALIC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_ITALIC">STYLE_ITALIC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STYLE_ITALIC">STYLE_ITALIC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_NORMAL">STYLE_NORMAL</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STYLE_NORMAL">STYLE_NORMAL</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#UNSPECIFIED">UNSPECIFIED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNSPECIFIED">UNSPECIFIED</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#WebvttCssStyle--">WebvttCssStyle</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">WebvttCssStyle</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -264,42 +270,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getBackgroundColor--">getBackgroundColor</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBackgroundColor()">getBackgroundColor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getCombineUpright--">getCombineUpright</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCombineUpright()">getCombineUpright</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getFontColor--">getFontColor</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFontColor()">getFontColor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getFontFamily--">getFontFamily</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFontFamily()">getFontFamily</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>float</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getFontSize--">getFontSize</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFontSize()">getFontSize</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getFontSizeUnit--">getFontSizeUnit</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFontSizeUnit()">getFontSizeUnit</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getRubyPosition--">getRubyPosition</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRubyPosition()">getRubyPosition</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getSpecificityScore-java.lang.String-java.lang.String-java.util.Set-java.lang.String-">getSpecificityScore</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSpecificityScore(java.lang.String,java.lang.String,java.util.Set,java.lang.String)">getSpecificityScore</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
                    <a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;classes,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;voice)</code></th>
@@ -309,116 +315,117 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#getStyle--">getStyle</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStyle()">getStyle</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the style or <a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#UNSPECIFIED"><code>UNSPECIFIED</code></a> when no style information is given.</div>
+<div class="block">Returns the style or <a href="#UNSPECIFIED"><code>UNSPECIFIED</code></a> when no style information is given.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#hasBackgroundColor--">hasBackgroundColor</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasBackgroundColor()">hasBackgroundColor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#hasFontColor--">hasFontColor</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasFontColor()">hasFontColor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#isLinethrough--">isLinethrough</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLinethrough()">isLinethrough</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#isUnderline--">isUnderline</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isUnderline()">isUnderline</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setBackgroundColor-int-">setBackgroundColor</a></span>&#8203;(int&nbsp;backgroundColor)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBackgroundColor(int)">setBackgroundColor</a></span>&#8203;(int&nbsp;backgroundColor)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i14" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setBold-boolean-">setBold</a></span>&#8203;(boolean&nbsp;bold)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBold(boolean)">setBold</a></span>&#8203;(boolean&nbsp;bold)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setCombineUpright-boolean-">setCombineUpright</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCombineUpright(boolean)">setCombineUpright</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setFontColor-int-">setFontColor</a></span>&#8203;(int&nbsp;color)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFontColor(int)">setFontColor</a></span>&#8203;(int&nbsp;color)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i17" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setFontFamily-java.lang.String-">setFontFamily</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fontFamily)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFontFamily(java.lang.String)">setFontFamily</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fontFamily)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i18" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setFontSize-float-">setFontSize</a></span>&#8203;(float&nbsp;fontSize)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFontSize(float)">setFontSize</a></span>&#8203;(float&nbsp;fontSize)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i19" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setFontSizeUnit-short-">setFontSizeUnit</a></span>&#8203;(short&nbsp;unit)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFontSizeUnit(short)">setFontSizeUnit</a></span>&#8203;(short&nbsp;unit)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i20" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setItalic-boolean-">setItalic</a></span>&#8203;(boolean&nbsp;italic)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setItalic(boolean)">setItalic</a></span>&#8203;(boolean&nbsp;italic)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i21" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setLinethrough-boolean-">setLinethrough</a></span>&#8203;(boolean&nbsp;linethrough)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLinethrough(boolean)">setLinethrough</a></span>&#8203;(boolean&nbsp;linethrough)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i22" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setRubyPosition-int-">setRubyPosition</a></span>&#8203;(int&nbsp;rubyPosition)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRubyPosition(int)">setRubyPosition</a></span>&#8203;(int&nbsp;rubyPosition)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setTargetClasses-java.lang.String:A-">setTargetClasses</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;targetClasses)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetClasses(java.lang.String%5B%5D)">setTargetClasses</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;targetClasses)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setTargetId-java.lang.String-">setTargetId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetId)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetId(java.lang.String)">setTargetId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetId)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setTargetTagName-java.lang.String-">setTargetTagName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetTag)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetTagName(java.lang.String)">setTargetTagName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetTag)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setTargetVoice-java.lang.String-">setTargetVoice</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetVoice)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetVoice(java.lang.String)">setTargetVoice</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetVoice)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i27" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setUnderline-boolean-">setUnderline</a></span>&#8203;(boolean&nbsp;underline)</code></th>
+<td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUnderline(boolean)">setUnderline</a></span>&#8203;(boolean&nbsp;underline)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -426,12 +433,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="UNSPECIFIED">
+<a id="UNSPECIFIED">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -444,7 +452,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="STYLE_NORMAL">
+<a id="STYLE_NORMAL">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -457,7 +465,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="STYLE_BOLD">
+<a id="STYLE_BOLD">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -470,7 +478,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="STYLE_ITALIC">
+<a id="STYLE_ITALIC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -483,7 +491,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="STYLE_BOLD_ITALIC">
+<a id="STYLE_BOLD_ITALIC">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -496,7 +504,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="FONT_SIZE_UNIT_PIXEL">
+<a id="FONT_SIZE_UNIT_PIXEL">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -509,7 +517,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="FONT_SIZE_UNIT_EM">
+<a id="FONT_SIZE_UNIT_EM">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -522,7 +530,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="FONT_SIZE_UNIT_PERCENT">
+<a id="FONT_SIZE_UNIT_PERCENT">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -537,13 +545,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="WebvttCssStyle--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -554,55 +564,57 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setTargetId-java.lang.String-">
+<a id="setTargetId(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTargetId</h4>
-<pre>public&nbsp;void&nbsp;setTargetId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetId)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setTargetId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetId)</pre>
 </li>
 </ul>
-<a name="setTargetTagName-java.lang.String-">
+<a id="setTargetTagName(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTargetTagName</h4>
-<pre>public&nbsp;void&nbsp;setTargetTagName&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetTag)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setTargetTagName&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetTag)</pre>
 </li>
 </ul>
-<a name="setTargetClasses-java.lang.String:A-">
+<a id="setTargetClasses(java.lang.String[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTargetClasses</h4>
-<pre>public&nbsp;void&nbsp;setTargetClasses&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;targetClasses)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setTargetClasses&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;targetClasses)</pre>
 </li>
 </ul>
-<a name="setTargetVoice-java.lang.String-">
+<a id="setTargetVoice(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTargetVoice</h4>
-<pre>public&nbsp;void&nbsp;setTargetVoice&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetVoice)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setTargetVoice&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;targetVoice)</pre>
 </li>
 </ul>
-<a name="getSpecificityScore-java.lang.String-java.lang.String-java.util.Set-java.lang.String-">
+<a id="getSpecificityScore(java.lang.String,java.lang.String,java.util.Set,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSpecificityScore</h4>
-<pre>public&nbsp;int&nbsp;getSpecificityScore&#8203;(@Nullable
+<pre class="methodSignature">public&nbsp;int&nbsp;getSpecificityScore&#8203;(@Nullable
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                                @Nullable
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
@@ -630,242 +642,246 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="getStyle--">
+<a id="getStyle()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getStyle</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.StyleFlags.html" title="annotation in com.google.android.exoplayer2.text.webvtt">@StyleFlags</a>
+<pre class="methodSignature"><a href="WebvttCssStyle.StyleFlags.html" title="annotation in com.google.android.exoplayer2.text.webvtt">@StyleFlags</a>
 public&nbsp;int&nbsp;getStyle()</pre>
-<div class="block">Returns the style or <a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#UNSPECIFIED"><code>UNSPECIFIED</code></a> when no style information is given.</div>
+<div class="block">Returns the style or <a href="#UNSPECIFIED"><code>UNSPECIFIED</code></a> when no style information is given.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#UNSPECIFIED"><code>UNSPECIFIED</code></a>, <a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_NORMAL"><code>STYLE_NORMAL</code></a>, <a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_BOLD"><code>STYLE_BOLD</code></a>, <a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_BOLD"><code>STYLE_BOLD</code></a>
-     or <a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#STYLE_BOLD_ITALIC"><code>STYLE_BOLD_ITALIC</code></a>.</dd>
+<dd><a href="#UNSPECIFIED"><code>UNSPECIFIED</code></a>, <a href="#STYLE_NORMAL"><code>STYLE_NORMAL</code></a>, <a href="#STYLE_BOLD"><code>STYLE_BOLD</code></a>, <a href="#STYLE_BOLD"><code>STYLE_BOLD</code></a>
+     or <a href="#STYLE_BOLD_ITALIC"><code>STYLE_BOLD_ITALIC</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="isLinethrough--">
+<a id="isLinethrough()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isLinethrough</h4>
-<pre>public&nbsp;boolean&nbsp;isLinethrough()</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isLinethrough()</pre>
 </li>
 </ul>
-<a name="setLinethrough-boolean-">
+<a id="setLinethrough(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLinethrough</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setLinethrough&#8203;(boolean&nbsp;linethrough)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setLinethrough&#8203;(boolean&nbsp;linethrough)</pre>
 </li>
 </ul>
-<a name="isUnderline--">
+<a id="isUnderline()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isUnderline</h4>
-<pre>public&nbsp;boolean&nbsp;isUnderline()</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isUnderline()</pre>
 </li>
 </ul>
-<a name="setUnderline-boolean-">
+<a id="setUnderline(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setUnderline</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setUnderline&#8203;(boolean&nbsp;underline)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setUnderline&#8203;(boolean&nbsp;underline)</pre>
 </li>
 </ul>
-<a name="setBold-boolean-">
+<a id="setBold(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setBold</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setBold&#8203;(boolean&nbsp;bold)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setBold&#8203;(boolean&nbsp;bold)</pre>
 </li>
 </ul>
-<a name="setItalic-boolean-">
+<a id="setItalic(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setItalic</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setItalic&#8203;(boolean&nbsp;italic)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setItalic&#8203;(boolean&nbsp;italic)</pre>
 </li>
 </ul>
-<a name="getFontFamily--">
+<a id="getFontFamily()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFontFamily</h4>
-<pre>@Nullable
+<pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getFontFamily()</pre>
 </li>
 </ul>
-<a name="setFontFamily-java.lang.String-">
+<a id="setFontFamily(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFontFamily</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontFamily&#8203;(@Nullable
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontFamily&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fontFamily)</pre>
 </li>
 </ul>
-<a name="getFontColor--">
+<a id="getFontColor()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFontColor</h4>
-<pre>public&nbsp;int&nbsp;getFontColor()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;getFontColor()</pre>
 </li>
 </ul>
-<a name="setFontColor-int-">
+<a id="setFontColor(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFontColor</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontColor&#8203;(int&nbsp;color)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontColor&#8203;(int&nbsp;color)</pre>
 </li>
 </ul>
-<a name="hasFontColor--">
+<a id="hasFontColor()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>hasFontColor</h4>
-<pre>public&nbsp;boolean&nbsp;hasFontColor()</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;hasFontColor()</pre>
 </li>
 </ul>
-<a name="getBackgroundColor--">
+<a id="getBackgroundColor()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getBackgroundColor</h4>
-<pre>public&nbsp;int&nbsp;getBackgroundColor()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;getBackgroundColor()</pre>
 </li>
 </ul>
-<a name="setBackgroundColor-int-">
+<a id="setBackgroundColor(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setBackgroundColor</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setBackgroundColor&#8203;(int&nbsp;backgroundColor)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setBackgroundColor&#8203;(int&nbsp;backgroundColor)</pre>
 </li>
 </ul>
-<a name="hasBackgroundColor--">
+<a id="hasBackgroundColor()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>hasBackgroundColor</h4>
-<pre>public&nbsp;boolean&nbsp;hasBackgroundColor()</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;hasBackgroundColor()</pre>
 </li>
 </ul>
-<a name="setFontSize-float-">
+<a id="setFontSize(float)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFontSize</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSize&#8203;(float&nbsp;fontSize)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSize&#8203;(float&nbsp;fontSize)</pre>
 </li>
 </ul>
-<a name="setFontSizeUnit-short-">
+<a id="setFontSizeUnit(short)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFontSizeUnit</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSizeUnit&#8203;(short&nbsp;unit)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSizeUnit&#8203;(short&nbsp;unit)</pre>
 </li>
 </ul>
-<a name="getFontSizeUnit--">
+<a id="getFontSizeUnit()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFontSizeUnit</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt">@FontSizeUnit</a>
+<pre class="methodSignature"><a href="WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt">@FontSizeUnit</a>
 public&nbsp;int&nbsp;getFontSizeUnit()</pre>
 </li>
 </ul>
-<a name="getFontSize--">
+<a id="getFontSize()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFontSize</h4>
-<pre>public&nbsp;float&nbsp;getFontSize()</pre>
+<pre class="methodSignature">public&nbsp;float&nbsp;getFontSize()</pre>
 </li>
 </ul>
-<a name="setRubyPosition-int-">
+<a id="setRubyPosition(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRubyPosition</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setRubyPosition&#8203;(<a href="../../../../../../com/google/android/exoplayer2/text/span/TextAnnotation.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setRubyPosition&#8203;(<a href="../span/TextAnnotation.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
                                       int&nbsp;rubyPosition)</pre>
 </li>
 </ul>
-<a name="getRubyPosition--">
+<a id="getRubyPosition()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getRubyPosition</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/text/span/TextAnnotation.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
+<pre class="methodSignature"><a href="../span/TextAnnotation.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
 public&nbsp;int&nbsp;getRubyPosition()</pre>
 </li>
 </ul>
-<a name="setCombineUpright-boolean-">
+<a id="setCombineUpright(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setCombineUpright</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setCombineUpright&#8203;(boolean&nbsp;enabled)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setCombineUpright&#8203;(boolean&nbsp;enabled)</pre>
 </li>
 </ul>
-<a name="getCombineUpright--">
+<a id="getCombineUpright()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCombineUpright</h4>
-<pre>public&nbsp;boolean&nbsp;getCombineUpright()</pre>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;getCombineUpright()</pre>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -875,16 +891,8 @@ public&nbsp;int&nbsp;getRubyPosition()</pre>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/Mp4WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" target="_top">Frames</a></li>
-<li><a href="WebvttCssStyle.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -916,9 +924,11 @@ public&nbsp;int&nbsp;getRubyPosition()</pre>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" target="_top">Frames</a></li>
-<li><a href="BaseMediaChunkIterator.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -91,7 +87,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/package-summary.html">com.google.android.exoplayer2.source.chunk</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.chunk</a></div>
 <h2 title="Class BaseMediaChunkIterator" class="title">Class BaseMediaChunkIterator</h2>
 </div>
 <div class="contentContainer">
@@ -131,17 +130,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
+<dd><code><a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></code>, <code><a href="../../../../../../com/google/android/exoplayer2/testutil/FakeAdaptiveDataSet.Iterator.html" title="class in com.google.android.exoplayer2.testutil">FakeAdaptiveDataSet.Iterator</a></code>, <code><a href="../../../../../../com/google/android/exoplayer2/testutil/FakeMediaChunkIterator.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunkIterator</a></code></dd>
+<dd><code><a href="../dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></code>, <code><a href="../../testutil/FakeAdaptiveDataSet.Iterator.html" title="class in com.google.android.exoplayer2.testutil">FakeAdaptiveDataSet.Iterator</a></code>, <code><a href="../../testutil/FakeMediaChunkIterator.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunkIterator</a></code></dd>
 </dl>
 <hr>
 <pre>public abstract class <span class="typeNameLabel">BaseMediaChunkIterator</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></pre>
-<div class="block">Base class for <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>s. Handles <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#next--"><code>next()</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#isEnded--"><code>isEnded()</code></a>, and
+implements <a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></pre>
+<div class="block">Base class for <a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>s. Handles <a href="#next()"><code>next()</code></a> and <a href="#isEnded()"><code>isEnded()</code></a>, and
  provides a bounds check for child classes.</div>
 </li>
 </ul>
@@ -150,34 +149,37 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunkIterator">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunkIterator">
 <!--   -->
 </a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#EMPTY">EMPTY</a></code></li>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.chunk.<a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></h3>
+<code><a href="MediaChunkIterator.html#EMPTY">EMPTY</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#BaseMediaChunkIterator-long-long-">BaseMediaChunkIterator</a></span>&#8203;(long&nbsp;fromIndex,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">BaseMediaChunkIterator</a></span>&#8203;(long&nbsp;fromIndex,
                       long&nbsp;toIndex)</code></th>
 <td class="colLast">
 <div class="block">Creates base iterator.</div>
@@ -186,13 +188,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -201,56 +205,57 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#checkInBounds--">checkInBounds</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkInBounds()">checkInBounds</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Verifies that the iterator points to a valid element.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#getCurrentIndex--">getCurrentIndex</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentIndex()">getCurrentIndex</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the current index this iterator is pointing to.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#isEnded--">isEnded</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the iteration has reached the end of the available data.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#next--">next</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#next()">next</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Moves the iterator to the next media chunk.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html#reset--">reset</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Resets the iterator to the initial position.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunkIterator">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#getChunkEndTimeUs--">getChunkEndTimeUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#getChunkStartTimeUs--">getChunkStartTimeUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#getDataSpec--">getDataSpec</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunkIterator">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.chunk.<a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></h3>
+<code><a href="MediaChunkIterator.html#getChunkEndTimeUs()">getChunkEndTimeUs</a>, <a href="MediaChunkIterator.html#getChunkStartTimeUs()">getChunkStartTimeUs</a>, <a href="MediaChunkIterator.html#getDataSpec()">getDataSpec</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -258,12 +263,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="BaseMediaChunkIterator-long-long-">
+<a id="&lt;init&gt;(long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -281,69 +287,71 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="isEnded--">
+<a id="isEnded()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>isEnded</h4>
-<pre>public&nbsp;boolean&nbsp;isEnded()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#isEnded--">MediaChunkIterator</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaChunkIterator.html#isEnded()">MediaChunkIterator</a></code></span></div>
 <div class="block">Returns whether the iteration has reached the end of the available data.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#isEnded--">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
+<dd><code><a href="MediaChunkIterator.html#isEnded()">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="next--">
+<a id="next()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>next</h4>
-<pre>public&nbsp;boolean&nbsp;next()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#next--">MediaChunkIterator</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;next()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaChunkIterator.html#next()">MediaChunkIterator</a></code></span></div>
 <div class="block">Moves the iterator to the next media chunk.
 
- <p>Check the return value or <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#isEnded--"><code>MediaChunkIterator.isEnded()</code></a> to determine whether the iterator reached the
+ <p>Check the return value or <a href="MediaChunkIterator.html#isEnded()"><code>MediaChunkIterator.isEnded()</code></a> to determine whether the iterator reached the
  end of the available data.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#next--">next</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
+<dd><code><a href="MediaChunkIterator.html#next()">next</a></code>&nbsp;in interface&nbsp;<code><a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the iterator points to a media chunk with available data.</dd>
 </dl>
 </li>
 </ul>
-<a name="reset--">
+<a id="reset()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#reset--">MediaChunkIterator</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaChunkIterator.html#reset()">MediaChunkIterator</a></code></span></div>
 <div class="block">Resets the iterator to the initial position.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html#reset--">reset</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
+<dd><code><a href="MediaChunkIterator.html#reset()">reset</a></code>&nbsp;in interface&nbsp;<code><a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="checkInBounds--">
+<a id="checkInBounds()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkInBounds</h4>
-<pre>protected final&nbsp;void&nbsp;checkInBounds()</pre>
+<pre class="methodSignature">protected final&nbsp;void&nbsp;checkInBounds()</pre>
 <div class="block">Verifies that the iterator points to a valid element.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -351,33 +359,37 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 </dl>
 </li>
 </ul>
-<a name="getCurrentIndex--">
+<a id="getCurrentIndex()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCurrentIndex</h4>
-<pre>protected final&nbsp;long&nbsp;getCurrentIndex()</pre>
+<pre class="methodSignature">protected final&nbsp;long&nbsp;getCurrentIndex()</pre>
 <div class="block">Returns the current index this iterator is pointing to.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -387,16 +399,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" target="_top">Frames</a></li>
-<li><a href="BaseMediaChunkIterator.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -417,7 +421,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -428,9 +432,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

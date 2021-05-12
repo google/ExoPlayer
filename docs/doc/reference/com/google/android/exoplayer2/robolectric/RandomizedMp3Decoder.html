@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/robolectric/PlaybackOutput.html" title="class in com.google.android.exoplayer2.robolectric"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/robolectric/RobolectricUtil.html" title="class in com.google.android.exoplayer2.robolectric"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/robolectric/RandomizedMp3Decoder.html" target="_top">Frames</a></li>
-<li><a href="RandomizedMp3Decoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/robolectric/package-summary.html">com.google.android.exoplayer2.robolectric</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.robolectric</a></div>
 <h2 title="Class RandomizedMp3Decoder" class="title">Class RandomizedMp3Decoder</h2>
 </div>
 <div class="contentContainer">
@@ -152,31 +151,34 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/robolectric/RandomizedMp3Decoder.html#RandomizedMp3Decoder--">RandomizedMp3Decoder</a></span>()</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">RandomizedMp3Decoder</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -185,14 +187,14 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;byte[]&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/robolectric/RandomizedMp3Decoder.html#getAllOutputBytes--">getAllOutputBytes</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAllOutputBytes()">getAllOutputBytes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns all arrays of bytes output from the decoder.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/robolectric/RandomizedMp3Decoder.html#onConfigured-android.media.MediaFormat-android.view.Surface-android.media.MediaCrypto-int-">onConfigured</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onConfigured(android.media.MediaFormat,android.view.Surface,android.media.MediaCrypto,int)">onConfigured</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
             <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
             <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto,
             int&nbsp;flags)</code></th>
@@ -200,20 +202,21 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/robolectric/RandomizedMp3Decoder.html#process-java.nio.ByteBuffer-java.nio.ByteBuffer-">process</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;in,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#process(java.nio.ByteBuffer,java.nio.ByteBuffer)">process</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;in,
        <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;out)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -221,12 +224,13 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="RandomizedMp3Decoder--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -237,19 +241,21 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="process-java.nio.ByteBuffer-java.nio.ByteBuffer-">
+<a id="process(java.nio.ByteBuffer,java.nio.ByteBuffer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>process</h4>
-<pre>public&nbsp;void&nbsp;process&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;in,
+<pre class="methodSignature">public&nbsp;void&nbsp;process&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;in,
                     <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -257,13 +263,13 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </dl>
 </li>
 </ul>
-<a name="onConfigured-android.media.MediaFormat-android.view.Surface-android.media.MediaCrypto-int-">
+<a id="onConfigured(android.media.MediaFormat,android.view.Surface,android.media.MediaCrypto,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onConfigured</h4>
-<pre>public&nbsp;void&nbsp;onConfigured&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
+<pre class="methodSignature">public&nbsp;void&nbsp;onConfigured&#8203;(<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;format,
                          <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface,
                          <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto,
                          int&nbsp;flags)</pre>
@@ -273,13 +279,13 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </dl>
 </li>
 </ul>
-<a name="getAllOutputBytes--">
+<a id="getAllOutputBytes()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getAllOutputBytes</h4>
-<pre>public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;byte[]&gt;&nbsp;getAllOutputBytes()</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;byte[]&gt;&nbsp;getAllOutputBytes()</pre>
 <div class="block">Returns all arrays of bytes output from the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -290,21 +296,25 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -314,16 +324,8 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/robolectric/PlaybackOutput.html" title="class in com.google.android.exoplayer2.robolectric"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/robolectric/RobolectricUtil.html" title="class in com.google.android.exoplayer2.robolectric"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/robolectric/RandomizedMp3Decoder.html" target="_top">Frames</a></li>
-<li><a href="RandomizedMp3Decoder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -355,9 +357,11 @@ implements org.robolectric.shadows.ShadowMediaCodec.CodecConfig.Codec</pre>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashUtil.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html" target="_top">Frames</a></li>
-<li><a href="DashWrappingSegmentIndex.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -91,7 +87,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/package-summary.html">com.google.android.exoplayer2.source.dash</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.dash</a></div>
 <h2 title="Class DashWrappingSegmentIndex" class="title">Class DashWrappingSegmentIndex</h2>
 </div>
 <div class="contentContainer">
@@ -131,14 +130,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">DashWrappingSegmentIndex</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></pre>
-<div class="block">An implementation of <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashSegmentIndex</code></a> that wraps a <a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> parsed from a
- media stream.</div>
+implements <a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></pre>
+<div class="block">An implementation of <a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashSegmentIndex</code></a> that wraps a <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> parsed from a media
+ stream.</div>
 </li>
 </ul>
 </div>
@@ -146,47 +145,52 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.dash.DashSegmentIndex">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.dash.DashSegmentIndex">
 <!--   -->
 </a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.dash.<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#INDEX_UNBOUNDED">INDEX_UNBOUNDED</a></code></li>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.dash.<a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></h3>
+<code><a href="DashSegmentIndex.html#INDEX_UNBOUNDED">INDEX_UNBOUNDED</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-long-">DashWrappingSegmentIndex</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.ChunkIndex,long)">DashWrappingSegmentIndex</a></span>&#8203;(<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
                         long&nbsp;timeOffsetUs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -194,8 +198,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getAvailableSegmentCount-long-long-">getAvailableSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs,
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAvailableSegmentCount(long,long)">getAvailableSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs,
                         long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
 <div class="block">Returns the number of available segments in the index.</div>
@@ -203,7 +207,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getDurationUs-long-long-">getDurationUs</a></span>&#8203;(long&nbsp;segmentNum,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs(long,long)">getDurationUs</a></span>&#8203;(long&nbsp;segmentNum,
              long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
 <div class="block">Returns the duration of a segment.</div>
@@ -211,7 +215,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getFirstAvailableSegmentNum-long-long-">getFirstAvailableSegmentNum</a></span>&#8203;(long&nbsp;periodDurationUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstAvailableSegmentNum(long,long)">getFirstAvailableSegmentNum</a></span>&#8203;(long&nbsp;periodDurationUs,
                            long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
 <div class="block">Returns the segment number of the first available segment in the index.</div>
@@ -219,29 +223,29 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getFirstSegmentNum--">getFirstSegmentNum</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstSegmentNum()">getFirstSegmentNum</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the segment number of the first defined segment in the index.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getNextSegmentAvailableTimeUs-long-long-">getNextSegmentAvailableTimeUs</a></span>&#8203;(long&nbsp;periodDurationUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextSegmentAvailableTimeUs(long,long)">getNextSegmentAvailableTimeUs</a></span>&#8203;(long&nbsp;periodDurationUs,
                              long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Returns the time, in microseconds, at which a new segment becomes available, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
+<div class="block">Returns the time, in microseconds, at which a new segment becomes available, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getSegmentCount-long-">getSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs)</code></th>
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentCount(long)">getSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
-<div class="block">Returns the number of segments defined in the index, or <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.</div>
+<div class="block">Returns the number of segments defined in the index, or <a href="DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getSegmentNum-long-long-">getSegmentNum</a></span>&#8203;(long&nbsp;timeUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentNum(long,long)">getSegmentNum</a></span>&#8203;(long&nbsp;timeUs,
              long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
 <div class="block">Returns <code>getFirstSegmentNum()</code> if the index has no segments or if the given media time is
@@ -249,36 +253,37 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getSegmentUrl-long-">getSegmentUrl</a></span>&#8203;(long&nbsp;segmentNum)</code></th>
+<td class="colFirst"><code><a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentUrl(long)">getSegmentUrl</a></span>&#8203;(long&nbsp;segmentNum)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment.</div>
+<div class="block">Returns a <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#getTimeUs-long-">getTimeUs</a></span>&#8203;(long&nbsp;segmentNum)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimeUs(long)">getTimeUs</a></span>&#8203;(long&nbsp;segmentNum)</code></th>
 <td class="colLast">
 <div class="block">Returns the start time of a segment.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#isExplicit--">isExplicit</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isExplicit()">isExplicit</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns true if segments are defined explicitly by the index.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -286,148 +291,151 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-long-">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.extractor.ChunkIndex,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DashWrappingSegmentIndex</h4>
-<pre>public&nbsp;DashWrappingSegmentIndex&#8203;(<a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
+<pre>public&nbsp;DashWrappingSegmentIndex&#8203;(<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
                                 long&nbsp;timeOffsetUs)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>chunkIndex</code> - The <a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> to wrap.</dd>
+<dd><code>chunkIndex</code> - The <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> to wrap.</dd>
 <dd><code>timeOffsetUs</code> - An offset to subtract from the times in the wrapped index, in microseconds.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getFirstSegmentNum--">
+<a id="getFirstSegmentNum()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFirstSegmentNum</h4>
-<pre>public&nbsp;long&nbsp;getFirstSegmentNum()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstSegmentNum--">DashSegmentIndex</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getFirstSegmentNum()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getFirstSegmentNum()">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the segment number of the first defined segment in the index.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstSegmentNum--">getFirstSegmentNum</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getFirstSegmentNum()">getFirstSegmentNum</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getFirstAvailableSegmentNum-long-long-">
+<a id="getFirstAvailableSegmentNum(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFirstAvailableSegmentNum</h4>
-<pre>public&nbsp;long&nbsp;getFirstAvailableSegmentNum&#8203;(long&nbsp;periodDurationUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;getFirstAvailableSegmentNum&#8203;(long&nbsp;periodDurationUs,
                                         long&nbsp;nowUnixTimeUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstAvailableSegmentNum-long-long-">DashSegmentIndex</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getFirstAvailableSegmentNum(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the segment number of the first available segment in the index.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstAvailableSegmentNum-long-long-">getFirstAvailableSegmentNum</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getFirstAvailableSegmentNum(long,long)">getFirstAvailableSegmentNum</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
+<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
 <dd><code>nowUnixTimeUs</code> - The current time in milliseconds since the Unix epoch.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of the first available segment.</dd>
 </dl>
 </li>
 </ul>
-<a name="getSegmentCount-long-">
+<a id="getSegmentCount(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentCount</h4>
-<pre>public&nbsp;int&nbsp;getSegmentCount&#8203;(long&nbsp;periodDurationUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentCount-long-">DashSegmentIndex</a></code></span></div>
-<div class="block">Returns the number of segments defined in the index, or <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.
+<pre class="methodSignature">public&nbsp;long&nbsp;getSegmentCount&#8203;(long&nbsp;periodDurationUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getSegmentCount(long)">DashSegmentIndex</a></code></span></div>
+<div class="block">Returns the number of segments defined in the index, or <a href="DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.
 
  <p>An unbounded index occurs if a dynamic manifest uses SegmentTemplate elements without a
  SegmentTimeline element, and if the period duration is not yet known. In this case the caller
- can query the available segment using <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getFirstAvailableSegmentNum-long-long-"><code>DashSegmentIndex.getFirstAvailableSegmentNum(long, long)</code></a> and
- <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getAvailableSegmentCount-long-long-"><code>DashSegmentIndex.getAvailableSegmentCount(long, long)</code></a>.</div>
+ can query the available segment using <a href="DashSegmentIndex.html#getFirstAvailableSegmentNum(long,long)"><code>DashSegmentIndex.getFirstAvailableSegmentNum(long, long)</code></a> and
+ <a href="DashSegmentIndex.html#getAvailableSegmentCount(long,long)"><code>DashSegmentIndex.getAvailableSegmentCount(long, long)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentCount-long-">getSegmentCount</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getSegmentCount(long)">getSegmentCount</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
+<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of segments in the index, or <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.</dd>
+<dd>The number of segments in the index, or <a href="DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="getAvailableSegmentCount-long-long-">
+<a id="getAvailableSegmentCount(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getAvailableSegmentCount</h4>
-<pre>public&nbsp;int&nbsp;getAvailableSegmentCount&#8203;(long&nbsp;periodDurationUs,
-                                    long&nbsp;nowUnixTimeUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getAvailableSegmentCount-long-long-">DashSegmentIndex</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getAvailableSegmentCount&#8203;(long&nbsp;periodDurationUs,
+                                     long&nbsp;nowUnixTimeUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getAvailableSegmentCount(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the number of available segments in the index.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getAvailableSegmentCount-long-long-">getAvailableSegmentCount</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getAvailableSegmentCount(long,long)">getAvailableSegmentCount</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
+<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
 <dd><code>nowUnixTimeUs</code> - The current time in milliseconds since the Unix epoch.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of available segments in the index.</dd>
 </dl>
 </li>
 </ul>
-<a name="getNextSegmentAvailableTimeUs-long-long-">
+<a id="getNextSegmentAvailableTimeUs(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getNextSegmentAvailableTimeUs</h4>
-<pre>public&nbsp;long&nbsp;getNextSegmentAvailableTimeUs&#8203;(long&nbsp;periodDurationUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;getNextSegmentAvailableTimeUs&#8203;(long&nbsp;periodDurationUs,
                                           long&nbsp;nowUnixTimeUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getNextSegmentAvailableTimeUs-long-long-">DashSegmentIndex</a></code></span></div>
-<div class="block">Returns the time, in microseconds, at which a new segment becomes available, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getNextSegmentAvailableTimeUs(long,long)">DashSegmentIndex</a></code></span></div>
+<div class="block">Returns the time, in microseconds, at which a new segment becomes available, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getNextSegmentAvailableTimeUs-long-long-">getNextSegmentAvailableTimeUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getNextSegmentAvailableTimeUs(long,long)">getNextSegmentAvailableTimeUs</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
+<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
 <dd><code>nowUnixTimeUs</code> - The current time in milliseconds since the Unix epoch.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The time, in microseconds, at which a new segment becomes available, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</dd>
+<dd>The time, in microseconds, at which a new segment becomes available, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</dd>
 </dl>
 </li>
 </ul>
-<a name="getTimeUs-long-">
+<a id="getTimeUs(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTimeUs</h4>
-<pre>public&nbsp;long&nbsp;getTimeUs&#8203;(long&nbsp;segmentNum)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getTimeUs-long-">DashSegmentIndex</a></code></span></div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTimeUs&#8203;(long&nbsp;segmentNum)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getTimeUs(long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the start time of a segment.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getTimeUs-long-">getTimeUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getTimeUs(long)">getTimeUs</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>segmentNum</code> - The segment number.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -435,78 +443,78 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </dl>
 </li>
 </ul>
-<a name="getDurationUs-long-long-">
+<a id="getDurationUs(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDurationUs</h4>
-<pre>public&nbsp;long&nbsp;getDurationUs&#8203;(long&nbsp;segmentNum,
+<pre class="methodSignature">public&nbsp;long&nbsp;getDurationUs&#8203;(long&nbsp;segmentNum,
                           long&nbsp;periodDurationUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getDurationUs-long-long-">DashSegmentIndex</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getDurationUs(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the duration of a segment.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getDurationUs-long-long-">getDurationUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getDurationUs(long,long)">getDurationUs</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>segmentNum</code> - The segment number.</dd>
-<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
+<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The duration of the segment, in microseconds.</dd>
 </dl>
 </li>
 </ul>
-<a name="getSegmentUrl-long-">
+<a id="getSegmentUrl(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentUrl</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getSegmentUrl&#8203;(long&nbsp;segmentNum)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentUrl-long-">DashSegmentIndex</a></code></span></div>
-<div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment.</div>
+<pre class="methodSignature">public&nbsp;<a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getSegmentUrl&#8203;(long&nbsp;segmentNum)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getSegmentUrl(long)">DashSegmentIndex</a></code></span></div>
+<div class="block">Returns a <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentUrl-long-">getSegmentUrl</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getSegmentUrl(long)">getSegmentUrl</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>segmentNum</code> - The segment number.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of the data.</dd>
+<dd>The <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of the data.</dd>
 </dl>
 </li>
 </ul>
-<a name="getSegmentNum-long-long-">
+<a id="getSegmentNum(long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSegmentNum</h4>
-<pre>public&nbsp;long&nbsp;getSegmentNum&#8203;(long&nbsp;timeUs,
+<pre class="methodSignature">public&nbsp;long&nbsp;getSegmentNum&#8203;(long&nbsp;timeUs,
                           long&nbsp;periodDurationUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentNum-long-long-">DashSegmentIndex</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getSegmentNum(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns <code>getFirstSegmentNum()</code> if the index has no segments or if the given media time is
  earlier than the start of the first segment. Returns <code>getFirstSegmentNum() +
  getSegmentCount() - 1</code> if the given media time is later than the end of the last segment.
  Otherwise, returns the segment number of the segment containing the given media time.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#getSegmentNum-long-long-">getSegmentNum</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#getSegmentNum(long,long)">getSegmentNum</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - The time in microseconds.</dd>
-<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
+<dd><code>periodDurationUs</code> - The duration of the enclosing period in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the period's duration is not yet known.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The segment number of the corresponding segment.</dd>
 </dl>
 </li>
 </ul>
-<a name="isExplicit--">
+<a id="isExplicit()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isExplicit</h4>
-<pre>public&nbsp;boolean&nbsp;isExplicit()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#isExplicit--">DashSegmentIndex</a></code></span></div>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isExplicit()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#isExplicit()">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns true if segments are defined explicitly by the index.
 
  <p>If true is returned, each segment is defined explicitly by the index data, and all of the
@@ -517,7 +525,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
  segments are available.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html#isExplicit--">isExplicit</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
+<dd><code><a href="DashSegmentIndex.html#isExplicit()">isExplicit</a></code>&nbsp;in interface&nbsp;<code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether segments are defined explicitly by the index.</dd>
 </dl>
@@ -525,21 +533,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -549,16 +561,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashUtil.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html" target="_top">Frames</a></li>
-<li><a href="DashWrappingSegmentIndex.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -579,7 +583,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -590,9 +594,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/DecoderCountersUtil.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" target="_top">Frames</a></li>
-<li><a href="DataSourceContractTest.TestResource.Builder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Class DataSourceContractTest.TestResource.Builder" class="title">Class DataSourceContractTest.TestResource.Builder</h2>
 </div>
 <div class="contentContainer">
@@ -131,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a></dd>
+<dd><a href="DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">DataSourceContractTest.TestResource.Builder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Builder for <a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil"><code>DataSourceContractTest.TestResource</code></a> instances.</div>
+<div class="block">Builder for <a href="DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil"><code>DataSourceContractTest.TestResource</code></a> instances.</div>
 </li>
 </ul>
 </div>
@@ -144,33 +143,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html#Builder--">Builder</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Construct a new instance.</div>
-</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -178,49 +178,49 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html#build--">build</a></span>()</code></th>
+<td class="colFirst"><code><a href="DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html#setEndOfInputExpected-boolean-">setEndOfInputExpected</a></span>&#8203;(boolean&nbsp;expected)</code></th>
-<td class="colLast">
-<div class="block">Sets whether <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-"><code>DataReader.read(byte[], int, int)</code></a> is expected to return <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a>
- after all the resource data have been read.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html#setExpectedBytes-byte:A-">setExpectedBytes</a></span>&#8203;(byte[]&nbsp;expectedBytes)</code></th>
+<td class="colFirst"><code><a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExpectedBytes(byte%5B%5D)">setExpectedBytes</a></span>&#8203;(byte[]&nbsp;expectedBytes)</code></th>
 <td class="colLast">
 <div class="block">Sets the expected contents of this resource.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html#setName-java.lang.String-">setName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setName(java.lang.String)">setName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
 <div class="block">Sets a human-readable name for this resource which will be shown in test failure messages.</div>
 </td>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(android.net.Uri)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
+<td class="colLast">
+<div class="block">Sets the URI where this resource is located.</div>
+</td>
+</tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html#setUri-android.net.Uri-">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
+<td class="colFirst"><code><a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(java.lang.String)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</code></th>
 <td class="colLast">
 <div class="block">Sets the URI where this resource is located.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -228,98 +228,103 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Builder--">
+<a id="&lt;init&gt;()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
 <pre>public&nbsp;Builder()</pre>
-<div class="block">Construct a new instance.</div>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setName-java.lang.String-">
+<a id="setName(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setName</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setName&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<pre class="methodSignature">public&nbsp;<a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setName&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
 <div class="block">Sets a human-readable name for this resource which will be shown in test failure messages.</div>
 </li>
 </ul>
-<a name="setUri-android.net.Uri-">
+<a id="setUri(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setUri</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<pre class="methodSignature">public&nbsp;<a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
 <div class="block">Sets the URI where this resource is located.</div>
 </li>
 </ul>
-<a name="setExpectedBytes-byte:A-">
+<a id="setUri(android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="block">Sets the URI where this resource is located.</div>
+</li>
+</ul>
+<a id="setExpectedBytes(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setExpectedBytes</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setExpectedBytes&#8203;(byte[]&nbsp;expectedBytes)</pre>
+<pre class="methodSignature">public&nbsp;<a href="DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setExpectedBytes&#8203;(byte[]&nbsp;expectedBytes)</pre>
 <div class="block">Sets the expected contents of this resource.
 
  <p>Must be at least 5 bytes.</div>
 </li>
 </ul>
-<a name="setEndOfInputExpected-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setEndOfInputExpected</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource.Builder</a>&nbsp;setEndOfInputExpected&#8203;(boolean&nbsp;expected)</pre>
-<div class="block">Sets whether <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-"><code>DataReader.read(byte[], int, int)</code></a> is expected to return <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a>
- after all the resource data have been read. By default, this is set to <code>true</code>.</div>
-</li>
-</ul>
-<a name="build--">
+<a id="build()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a>&nbsp;build()</pre>
+<pre class="methodSignature">public&nbsp;<a href="DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a>&nbsp;build()</pre>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -329,16 +334,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/DecoderCountersUtil.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/DataSourceContractTest.TestResource.Builder.html" target="_top">Frames</a></li>
-<li><a href="DataSourceContractTest.TestResource.Builder.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -370,9 +367,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
@@ -12,7 +12,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +25,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":9,"i9":9};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":9,"i9":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +59,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/TraceUtil.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/TimestampAdjuster.html" target="_top">Frames</a></li>
-<li><a href="TimestampAdjuster.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +98,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +108,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
 <h2 title="Class TimestampAdjuster" class="title">Class TimestampAdjuster</h2>
 </div>
 <div class="contentContainer">
@@ -141,12 +140,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -155,7 +155,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET">DO_NOT_OFFSET</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DO_NOT_OFFSET">DO_NOT_OFFSET</a></span></code></th>
 <td class="colLast">
 <div class="block">A special <code>firstSampleTimestampUs</code> value indicating that presentation timestamps should
  not be offset.</div>
@@ -164,32 +164,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </table>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#TimestampAdjuster-long-">TimestampAdjuster</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long)">TimestampAdjuster</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -198,56 +202,56 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-">adjustSampleTimestamp</a></span>&#8203;(long&nbsp;timeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adjustSampleTimestamp(long)">adjustSampleTimestamp</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
 <div class="block">Offsets a timestamp in microseconds.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustTsTimestamp-long-">adjustTsTimestamp</a></span>&#8203;(long&nbsp;pts90Khz)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adjustTsTimestamp(long)">adjustTsTimestamp</a></span>&#8203;(long&nbsp;pts90Khz)</code></th>
 <td class="colLast">
 <div class="block">Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--">getFirstSampleTimestampUs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstSampleTimestampUs()">getFirstSampleTimestampUs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the value of the first adjusted sample timestamp in microseconds, or <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps will not be offset.</div>
+<div class="block">Returns the value of the first adjusted sample timestamp in microseconds, or <a href="#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps will not be offset.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getLastAdjustedTimestampUs--">getLastAdjustedTimestampUs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLastAdjustedTimestampUs()">getLastAdjustedTimestampUs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the last value obtained from <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a>.</div>
+<div class="block">Returns the last value obtained from <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getTimestampOffsetUs--">getTimestampOffsetUs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimestampOffsetUs()">getTimestampOffsetUs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the offset between the input of <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a> and its output.</div>
+<div class="block">Returns the offset between the input of <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a> and its output.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#ptsToUs-long-">ptsToUs</a></span>&#8203;(long&nbsp;pts)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ptsToUs(long)">ptsToUs</a></span>&#8203;(long&nbsp;pts)</code></th>
 <td class="colLast">
 <div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#reset-long-">reset</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(long)">reset</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
 <td class="colLast">
 <div class="block">Resets the instance to its initial state.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#sharedInitializeOrWait-boolean-long-">sharedInitializeOrWait</a></span>&#8203;(boolean&nbsp;canInitialize,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sharedInitializeOrWait(boolean,long)">sharedInitializeOrWait</a></span>&#8203;(boolean&nbsp;canInitialize,
                       long&nbsp;startTimeUs)</code></th>
 <td class="colLast">
 <div class="block">For shared timestamp adjusters, performs necessary initialization actions for a caller.</div>
@@ -255,14 +259,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToNonWrappedPts-long-">usToNonWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#usToNonWrappedPts(long)">usToNonWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
 <td class="colLast">
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToWrappedPts-long-">usToWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#usToWrappedPts(long)">usToWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
 <td class="colLast">
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
  the result within 33-bits.</div>
@@ -270,14 +274,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -285,12 +290,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ FIELD DETAIL =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.detail">
+<li class="blockList"><a id="field.detail">
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DO_NOT_OFFSET">
+<a id="DO_NOT_OFFSET">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -307,13 +313,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="TimestampAdjuster-long-">
+<a id="&lt;init&gt;(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -323,43 +331,45 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>firstSampleTimestampUs</code> - The desired value of the first adjusted sample timestamp in
-     microseconds, or <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps should not be offset.</dd>
+     microseconds, or <a href="#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps should not be offset.</dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="sharedInitializeOrWait-boolean-long-">
+<a id="sharedInitializeOrWait(boolean,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sharedInitializeOrWait</h4>
-<pre>public&nbsp;void&nbsp;sharedInitializeOrWait&#8203;(boolean&nbsp;canInitialize,
+<pre class="methodSignature">public&nbsp;void&nbsp;sharedInitializeOrWait&#8203;(boolean&nbsp;canInitialize,
                                    long&nbsp;startTimeUs)
                             throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
 <div class="block">For shared timestamp adjusters, performs necessary initialization actions for a caller.
 
  <ul>
-   <li>If the adjuster does not yet have a target <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--"><code>first sample
+   <li>If the adjuster does not yet have a target <a href="#getFirstSampleTimestampUs()"><code>first sample
        timestamp</code></a> and if <code>canInitialize</code> is <code>true</code>, then initialization is started
        by setting the target first sample timestamp to <code>firstSampleTimestampUs</code>. The call
        returns, allowing the caller to proceed. Initialization completes when a caller adjusts
        the first timestamp.
-   <li>If <code>canInitialize</code> is <code>true</code> and the adjuster already has a target <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--"><code>first sample timestamp</code></a>, then the call returns to allow the
+   <li>If <code>canInitialize</code> is <code>true</code> and the adjuster already has a target <a href="#getFirstSampleTimestampUs()"><code>first sample timestamp</code></a>, then the call returns to allow the
        caller to proceed only if <code>firstSampleTimestampUs</code> is equal to the target. This
        ensures a caller that's previously started initialization can continue to proceed. It
        also allows other callers with the same <code>firstSampleTimestampUs</code> to proceed, since
        in this case it doesn't matter which caller adjusts the first timestamp to complete
        initialization.
    <li>If <code>canInitialize</code> is <code>false</code> or if <code>firstSampleTimestampUs</code> differs
-       from the target <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--"><code>first sample timestamp</code></a>, then the call
+       from the target <a href="#getFirstSampleTimestampUs()"><code>first sample timestamp</code></a>, then the call
        blocks until initialization completes. If initialization has already been completed the
        call returns immediately.
  </ul></div>
@@ -374,65 +384,65 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="getFirstSampleTimestampUs--">
+<a id="getFirstSampleTimestampUs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getFirstSampleTimestampUs</h4>
-<pre>public&nbsp;long&nbsp;getFirstSampleTimestampUs()</pre>
-<div class="block">Returns the value of the first adjusted sample timestamp in microseconds, or <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps will not be offset.</div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getFirstSampleTimestampUs()</pre>
+<div class="block">Returns the value of the first adjusted sample timestamp in microseconds, or <a href="#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps will not be offset.</div>
 </li>
 </ul>
-<a name="getLastAdjustedTimestampUs--">
+<a id="getLastAdjustedTimestampUs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getLastAdjustedTimestampUs</h4>
-<pre>public&nbsp;long&nbsp;getLastAdjustedTimestampUs()</pre>
-<div class="block">Returns the last value obtained from <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a>. If <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a> has not been called, returns the result of calling <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--"><code>getFirstSampleTimestampUs()</code></a>. If this value is <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a>, returns <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getLastAdjustedTimestampUs()</pre>
+<div class="block">Returns the last value obtained from <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a>. If <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a> has not been called, returns the result of calling <a href="#getFirstSampleTimestampUs()"><code>getFirstSampleTimestampUs()</code></a>. If this value is <a href="#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a>, returns <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
 </li>
 </ul>
-<a name="getTimestampOffsetUs--">
+<a id="getTimestampOffsetUs()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTimestampOffsetUs</h4>
-<pre>public&nbsp;long&nbsp;getTimestampOffsetUs()</pre>
-<div class="block">Returns the offset between the input of <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a> and its output. If
- <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> was provided to the constructor, 0 is returned. If the timestamp
- adjuster is yet not initialized, <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is returned.</div>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTimestampOffsetUs()</pre>
+<div class="block">Returns the offset between the input of <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a> and its output. If
+ <a href="#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> was provided to the constructor, 0 is returned. If the timestamp
+ adjuster is yet not initialized, <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is returned.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The offset between <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a>'s input and output. <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the adjuster is not yet initialized and 0 if timestamps should not be
+<dd>The offset between <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a>'s input and output. <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the adjuster is not yet initialized and 0 if timestamps should not be
      offset.</dd>
 </dl>
 </li>
 </ul>
-<a name="reset-long-">
+<a id="reset(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset&#8203;(long&nbsp;firstSampleTimestampUs)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(long&nbsp;firstSampleTimestampUs)</pre>
 <div class="block">Resets the instance to its initial state.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>firstSampleTimestampUs</code> - The desired value of the first adjusted sample timestamp after
-     this reset, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps should not be offset.</dd>
+     this reset, in microseconds, or <a href="#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a> if timestamps should not be offset.</dd>
 </dl>
 </li>
 </ul>
-<a name="adjustTsTimestamp-long-">
+<a id="adjustTsTimestamp(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustTsTimestamp</h4>
-<pre>public&nbsp;long&nbsp;adjustTsTimestamp&#8203;(long&nbsp;pts90Khz)</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;adjustTsTimestamp&#8203;(long&nbsp;pts90Khz)</pre>
 <div class="block">Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -442,13 +452,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="adjustSampleTimestamp-long-">
+<a id="adjustSampleTimestamp(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustSampleTimestamp</h4>
-<pre>public&nbsp;long&nbsp;adjustSampleTimestamp&#8203;(long&nbsp;timeUs)</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;adjustSampleTimestamp&#8203;(long&nbsp;timeUs)</pre>
 <div class="block">Offsets a timestamp in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -458,13 +468,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="ptsToUs-long-">
+<a id="ptsToUs(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>ptsToUs</h4>
-<pre>public static&nbsp;long&nbsp;ptsToUs&#8203;(long&nbsp;pts)</pre>
+<pre class="methodSignature">public static&nbsp;long&nbsp;ptsToUs&#8203;(long&nbsp;pts)</pre>
 <div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -474,13 +484,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="usToWrappedPts-long-">
+<a id="usToWrappedPts(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>usToWrappedPts</h4>
-<pre>public static&nbsp;long&nbsp;usToWrappedPts&#8203;(long&nbsp;us)</pre>
+<pre class="methodSignature">public static&nbsp;long&nbsp;usToWrappedPts&#8203;(long&nbsp;us)</pre>
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
  the result within 33-bits.</div>
 <dl>
@@ -491,17 +501,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="usToNonWrappedPts-long-">
+<a id="usToNonWrappedPts(long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>usToNonWrappedPts</h4>
-<pre>public static&nbsp;long&nbsp;usToNonWrappedPts&#8203;(long&nbsp;us)</pre>
+<pre class="methodSignature">public static&nbsp;long&nbsp;usToNonWrappedPts&#8203;(long&nbsp;us)</pre>
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.
 
  <p>Does not perform any wraparound. To get a 90 kHz timestamp suitable for use with MPEG-TS,
- use <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToWrappedPts-long-"><code>usToWrappedPts(long)</code></a>.</div>
+ use <a href="#usToWrappedPts(long)"><code>usToWrappedPts(long)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>us</code> - A value in microseconds.</dd>
@@ -512,21 +522,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -536,16 +550,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/TraceUtil.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/TimestampAdjuster.html" target="_top">Frames</a></li>
-<li><a href="TimestampAdjuster.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -577,9 +583,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>
