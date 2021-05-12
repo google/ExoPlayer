@@ -45,7 +45,7 @@ player.prepare();
 ~~~
 {: .language-java}
 
-## Using RTSP behind NAT ##
+## Using RTSP behind a NAT ##
 
 ExoPlayer uses UDP as the default protocol for RTP transport.
 

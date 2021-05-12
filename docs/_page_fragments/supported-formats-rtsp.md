@@ -1,12 +1,11 @@
-ExoPlayer supports streaming both live and on demand RTSP. Listed below are the
-supported formats and network types.
+ExoPlayer supports both live and on demand RTSP. Supported formats and network
+types are listed below.
 
-**Supported Formats**
-- H264
-- AAC (with ADTS bitstream)
-- AC3
+**Supported formats**
+* H264
+* AAC (with ADTS bitstream)
+* AC3
 
-**Supported Network types**
-- RTP over UDP unicast (multicast is not supported).
-- Interleaved RTSP, RTP over RTSP using TCP.
-
+**Supported network types**
+* RTP over UDP unicast (multicast is not supported)
+* Interleaved RTSP, RTP over RTSP using TCP
