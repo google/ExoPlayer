@@ -150,7 +150,7 @@ public final class RtspMediaSource extends BaseMediaSource {
 
   private RtspMediaSource(MediaItem mediaItem) {
     this.mediaItem = mediaItem;
-    rtpDataChannelFactory = RtpDataChannel.DEFAULT_FACTORY;
+    rtpDataChannelFactory = new UdpDataSourceRtpDataChannelFactory();
   }
 
   @Override

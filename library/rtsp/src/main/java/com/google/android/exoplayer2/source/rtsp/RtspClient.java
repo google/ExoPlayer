@@ -91,14 +91,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SessionInfoListener sessionInfoListener;
   private final Uri uri;
   @Nullable private final String userAgent;
-  private final RtspMessageChannel messageChannel;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
   private final SparseArray<RtspRequest> pendingRequests;
   private final MessageSender messageSender;
+  private final SparseArray<RtpDataChannel> transferRtpDataChannelMap;
 
+  private RtspMessageChannel messageChannel;
   private @MonotonicNonNull PlaybackEventListener playbackEventListener;
-  private @MonotonicNonNull String sessionId;
+  @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   private boolean hasUpdatedTimelineAndTracks;
   private long pendingSeekPositionUs;
@@ -121,11 +122,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.sessionInfoListener = sessionInfoListener;
     this.uri = RtspMessageUtil.removeUserInfo(uri);
     this.userAgent = userAgent;
-    messageChannel = new RtspMessageChannel(new MessageListener());
     pendingSetupRtpLoadInfos = new ArrayDeque<>();
     pendingRequests = new SparseArray<>();
     messageSender = new MessageSender();
+    transferRtpDataChannelMap = new SparseArray<>();
     pendingSeekPositionUs = C.TIME_UNSET;
+    messageChannel = new RtspMessageChannel(new MessageListener());
   }
 
   /**
@@ -137,16 +139,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws IOException When failed to open a connection to the supplied {@link Uri}.
    */
   public void start() throws IOException {
-    checkArgument(uri.getHost() != null);
-    int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
-    Socket socket = SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
     try {
-      messageChannel.openSocket(socket);
+      messageChannel.openSocket(openSocket());
     } catch (IOException e) {
       Util.closeQuietly(messageChannel);
       throw e;
     }
     messageSender.sendOptionsRequest(uri, sessionId);
+  }
+
+  /** Opens a {@link Socket} to the session {@link #uri}. */
+  private Socket openSocket() throws IOException {
+    checkArgument(uri.getHost() != null);
+    int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
+    return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
 
   /** Sets the {@link PlaybackEventListener} to receive playback events. */
@@ -200,6 +206,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       messageSender.sendTeardownRequest(uri, checkNotNull(sessionId));
     }
     messageChannel.close();
+  }
+
+  /**
+   * Sets up a new playback session using TCP as RTP lower transport.
+   *
+   * <p>This mode is also known as "RTP-over-RTSP".
+   */
+  public void retryWithRtpTcp() {
+    try {
+      close();
+      messageChannel = new RtspMessageChannel(new MessageListener());
+      messageChannel.openSocket(openSocket());
+      sessionId = null;
+    } catch (IOException e) {
+      checkNotNull(playbackEventListener).onPlaybackError(new RtspPlaybackException(e));
+    }
+  }
+
+  /** Registers an {@link RtpDataChannel} to receive RTSP interleaved data. */
+  public void registerInterleavedDataChannel(RtpDataChannel rtpDataChannel) {
+    transferRtpDataChannelMap.put(rtpDataChannel.getLocalPort(), rtpDataChannel);
   }
 
   private void continueSetupRtspTrack() {
@@ -410,6 +437,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       } catch (ParserException e) {
         dispatchRtspError(new RtspPlaybackException(e));
+      }
+    }
+
+    @Override
+    public void onInterleavedBinaryDataReceived(byte[] data, int channel) {
+      @Nullable RtpDataChannel dataChannel = transferRtpDataChannelMap.get(channel);
+      if (dataChannel != null) {
+        dataChannel.write(data);
       }
     }
 

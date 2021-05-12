@@ -17,9 +17,7 @@
 package com.google.android.exoplayer2.source.rtsp;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Util.closeQuietly;
 
-import android.net.Uri;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -27,7 +25,6 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -55,16 +52,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      *
      * @param transport The RTSP transport (RFC2326 Section 12.39) including the client data port
      *     and RTCP port.
+     * @param rtpDataChannel The {@link RtpDataChannel} associated with the transport.
      */
-    void onTransportReady(String transport);
+    void onTransportReady(String transport, RtpDataChannel rtpDataChannel);
   }
 
-  private static final String DEFAULT_TRANSPORT_FORMAT = "RTP/AVP;unicast;client_port=%d-%d";
-
-  private static final String RTP_ANY_INCOMING_IPV4 = "rtp://0.0.0.0";
-  // Using port zero will cause the system to generate a port.
-  private static final int RTP_LOCAL_PORT = 0;
-  private static final String RTP_BIND_ADDRESS = RTP_ANY_INCOMING_IPV4 + ":" + RTP_LOCAL_PORT;
 
   /** The track ID associated with the Loadable. */
   public final int trackId;
@@ -141,33 +133,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void load() throws IOException {
-    @Nullable RtpDataChannel firstDataChannel = null;
-    @Nullable RtpDataChannel secondDataChannel = null;
-
+    @Nullable RtpDataChannel dataChannel = null;
     try {
-      // Open and set up the data channel.
-      // From RFC3550 Section 11: "For UDP and similar protocols, RTP SHOULD use an even destination
-      // port number and the corresponding RTCP stream SHOULD use the next higher (odd) destination
-      // port number". Some RTSP servers are strict about this rule. We open a data channel first,
-      // and depending its port number, open the next data channel with a port number that is either
-      // the higher or the lower.
-      firstDataChannel = rtpDataChannelFactory.createDataChannel();
-      firstDataChannel.open(new DataSpec(Uri.parse(RTP_BIND_ADDRESS)));
+      dataChannel = rtpDataChannelFactory.createAndOpenDataChannel(trackId);
+      String transport = dataChannel.getTransport();
 
-      int firstPort = firstDataChannel.getLocalPort();
-      boolean isFirstPortNumberEven = (firstPort % 2 == 0);
-      int secondPort = isFirstPortNumberEven ? firstPort + 1 : firstPort - 1;
-
-      // RTCP always uses the immediate next port.
-      secondDataChannel = rtpDataChannelFactory.createDataChannel();
-      secondDataChannel.open(new DataSpec(Uri.parse(RTP_ANY_INCOMING_IPV4 + ":" + secondPort)));
-
-      // RTP data port is always the lower and even-numbered port.
-      RtpDataChannel dataChannel = isFirstPortNumberEven ? firstDataChannel : secondDataChannel;
-      int dataPort = dataChannel.getLocalPort();
-      int rtcpPort = dataPort + 1;
-      String transport = Util.formatInvariant(DEFAULT_TRANSPORT_FORMAT, dataPort, rtcpPort);
-      playbackThreadHandler.post(() -> eventListener.onTransportReady(transport));
+      RtpDataChannel finalDataChannel = dataChannel;
+      playbackThreadHandler.post(() -> eventListener.onTransportReady(transport, finalDataChannel));
 
       // Sets up the extractor.
       ExtractorInput extractorInput =
@@ -181,12 +153,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           extractor.seek(nextRtpTimestamp, pendingSeekPositionUs);
           pendingSeekPositionUs = C.TIME_UNSET;
         }
-
         extractor.read(extractorInput, /* seekPosition= */ new PositionHolder());
       }
     } finally {
-      closeQuietly(firstDataChannel);
-      closeQuietly(secondDataChannel);
+      Util.closeQuietly(dataChannel);
     }
   }
 

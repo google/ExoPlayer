@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
+import java.io.IOException;
 
 /** An RTP {@link DataSource}. */
 /* package */ interface RtpDataChannel extends DataSource {
@@ -23,13 +25,35 @@ import com.google.android.exoplayer2.upstream.DataSource;
   /** Creates {@link RtpDataChannel} for RTSP streams. */
   interface Factory {
 
-    /** Creates a new {@link RtpDataChannel} instance. */
-    RtpDataChannel createDataChannel();
+    /**
+     * Creates a new {@link RtpDataChannel} instance for RTP data transfer.
+     *
+     * @throws IOException If the data channels failed to open.
+     */
+    RtpDataChannel createAndOpenDataChannel(int trackId) throws IOException;
   }
 
-  /** The default {@link Factory} that returns a new {@link UdpDataSourceRtpDataChannel}. */
-  Factory DEFAULT_FACTORY = UdpDataSourceRtpDataChannel::new;
+  /** Returns the RTSP transport header for this {@link RtpDataChannel} */
+  String getTransport();
 
-  /** Returns the local port used in the underlying transport channel. */
+  /**
+   * Returns the receiving port or channel used by the underlying transport protocol, {@link
+   * C#INDEX_UNSET} if the data channel is not opened.
+   */
   int getLocalPort();
+
+  /**
+   * Returns whether the data channel is using sideband binary data to transmit RTP packets. For
+   * example, RTP-over-RTSP.
+   */
+  boolean usesSidebandBinaryData();
+
+  /**
+   * Writes data to the channel.
+   *
+   * <p>The channel owns the written buffer, the user must not alter its content after writing.
+   *
+   * @param buffer The buffer from which data should be written. The buffer should be full.
+   */
+  void write(byte[] buffer);
 }

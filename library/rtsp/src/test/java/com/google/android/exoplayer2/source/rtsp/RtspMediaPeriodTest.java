@@ -68,7 +68,7 @@ public class RtspMediaPeriodTest {
                         .build(),
                     Uri.parse("rtsp://localhost/test"))),
             PLACEHOLDER_RTSP_CLIENT,
-            RtpDataChannel.DEFAULT_FACTORY);
+            new UdpDataSourceRtpDataChannelFactory());
 
     AtomicBoolean prepareCallbackCalled = new AtomicBoolean(false);
     rtspMediaPeriod.prepare(
@@ -96,7 +96,7 @@ public class RtspMediaPeriodTest {
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             ImmutableList.of(),
             PLACEHOLDER_RTSP_CLIENT,
-            RtpDataChannel.DEFAULT_FACTORY);
+            new UdpDataSourceRtpDataChannelFactory());
 
     assertThat(rtspMediaPeriod.getBufferedPositionUs()).isEqualTo(C.TIME_END_OF_SOURCE);
   }
