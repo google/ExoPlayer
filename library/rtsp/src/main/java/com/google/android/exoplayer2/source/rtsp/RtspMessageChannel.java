@@ -29,11 +29,9 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -50,7 +48,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class RtspMessageChannel implements Closeable {
 
   private static final String TAG = "RtspMessageChannel";
-  private static final boolean LOG_RTSP_MESSAGES = true;
 
   /** A listener for received RTSP messages and possible failures. */
   public interface MessageListener {
@@ -182,13 +179,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sender.send(message);
   }
 
-  private static void logMessage(List<String> rtspMessage) {
-    // TODO(b/172331505) Remove before release.
-    if (LOG_RTSP_MESSAGES) {
-      Log.d(TAG, Joiner.on('\n').join(rtspMessage));
-    }
-  }
-
   private final class Sender implements Closeable {
 
     private final OutputStream outputStream;
@@ -218,7 +208,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param message The must of strings representing the serialized RTSP message.
      */
     public void send(List<String> message) {
-      logMessage(message);
       byte[] data = RtspMessageUtil.convertMessageToByteArray(message);
       senderThreadHandler.post(
           () -> {
@@ -295,7 +284,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         messageLines = messageBuilder.addLine(handleRtspMessageLine(dataInputStream.readByte()));
       }
 
-      logMessage(messageLines);
       ImmutableList<String> messageLinesToPost = ImmutableList.copyOf(messageLines);
       messageListenerHandler.post(
           () -> {
