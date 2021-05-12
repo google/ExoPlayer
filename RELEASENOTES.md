@@ -18,6 +18,8 @@
         content being played
         ([#8776](https://github.com/google/ExoPlayer/issues/8776)).
 *   HLS
+    *   Use the `PRECISE` attribute in `EXT-X-START` to select the default start
+        position.
     *   Fix a bug where skipping into spliced-in chunks triggered an assertion
         error ([#8937](https://github.com/google/ExoPlayer/issues/8937).
 *   DRM:

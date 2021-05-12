@@ -208,6 +208,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_FORCED = compileBooleanAttrPattern("FORCED");
   private static final Pattern REGEX_INDEPENDENT = compileBooleanAttrPattern("INDEPENDENT");
   private static final Pattern REGEX_GAP = compileBooleanAttrPattern("GAP");
+  private static final Pattern REGEX_PRECISE = compileBooleanAttrPattern("PRECISE");
   private static final Pattern REGEX_VALUE = Pattern.compile("VALUE=\"(.+?)\"");
   private static final Pattern REGEX_IMPORT = Pattern.compile("IMPORT=\"(.+?)\"");
   private static final Pattern REGEX_VARIABLE_REFERENCE =
@@ -643,6 +644,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int relativeDiscontinuitySequence = 0;
     long playlistStartTimeUs = 0;
     long segmentStartTimeUs = 0;
+    boolean preciseStart = false;
     long segmentByteRangeOffset = 0;
     long segmentByteRangeLength = C.LENGTH_UNSET;
     long partStartTimeUs = 0;
@@ -685,6 +687,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         isIFrameOnly = true;
       } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
+        preciseStart =
+            parseOptionalBooleanAttribute(line, REGEX_PRECISE, /* defaultValue= */ false);
       } else if (line.startsWith(TAG_SERVER_CONTROL)) {
         serverControl = parseServerControl(line);
       } else if (line.startsWith(TAG_PART_INF)) {
@@ -1015,6 +1019,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         baseUri,
         tags,
         startOffsetUs,
+        preciseStart,
         playlistStartTimeUs,
         hasDiscontinuitySequence,
         playlistDiscontinuitySequence,
