@@ -703,10 +703,13 @@ import com.google.common.collect.ImmutableList;
           }
           startPositionUs = defaultPosition.second;
         }
+        long minStartPositionUs =
+            getMinStartPositionAfterAdGroupUs(
+                timeline, currentPeriodId.periodUid, currentPeriodId.adGroupIndex);
         return getMediaPeriodInfoForContent(
             timeline,
             currentPeriodId.periodUid,
-            startPositionUs,
+            max(minStartPositionUs, startPositionUs),
             mediaPeriodInfo.requestedContentPositionUs,
             currentPeriodId.windowSequenceNumber);
       }
@@ -715,10 +718,13 @@ import com.google.common.collect.ImmutableList;
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(currentPeriodId.nextAdGroupIndex);
       if (adIndexInAdGroup == period.getAdCountInAdGroup(currentPeriodId.nextAdGroupIndex)) {
         // The next ad group has no ads left to play. Play content from the end position instead.
+        long startPositionUs =
+            getMinStartPositionAfterAdGroupUs(
+                timeline, currentPeriodId.periodUid, currentPeriodId.nextAdGroupIndex);
         return getMediaPeriodInfoForContent(
             timeline,
             currentPeriodId.periodUid,
-            /* startPositionUs= */ mediaPeriodInfo.durationUs,
+            startPositionUs,
             /* requestedContentPositionUs= */ mediaPeriodInfo.durationUs,
             currentPeriodId.windowSequenceNumber);
       }
@@ -841,5 +847,15 @@ import com.google.common.collect.ImmutableList;
     return !timeline.getWindow(windowIndex, window).isDynamic
         && timeline.isLastPeriod(periodIndex, period, window, repeatMode, shuffleModeEnabled)
         && isLastMediaPeriodInPeriod;
+  }
+
+  private long getMinStartPositionAfterAdGroupUs(
+      Timeline timeline, Object periodUid, int adGroupIndex) {
+    timeline.getPeriodByUid(periodUid, period);
+    long startPositionUs = period.getAdGroupTimeUs(adGroupIndex);
+    if (startPositionUs == C.TIME_END_OF_SOURCE) {
+      return period.durationUs;
+    }
+    return startPositionUs + period.getContentResumeOffsetUs(adGroupIndex);
   }
 }

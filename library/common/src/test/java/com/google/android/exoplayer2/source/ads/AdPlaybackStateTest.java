@@ -193,6 +193,8 @@ public class AdPlaybackStateTest {
             .withPlayedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 1)
             .withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0, TEST_URI)
             .withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 1, TEST_URI)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ 4444)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 3333)
             .withAdDurationsUs(new long[][] {{12}, {34, 56}})
             .withAdResumePositionUs(123)
             .withContentDurationUs(456);
@@ -216,7 +218,8 @@ public class AdPlaybackStateTest {
             .withAdState(AD_STATE_PLAYED, /* index= */ 1)
             .withAdUri(Uri.parse("https://www.google.com"), /* index= */ 0)
             .withAdUri(Uri.EMPTY, /* index= */ 1)
-            .withAdDurationsUs(new long[] {1234, 5678});
+            .withAdDurationsUs(new long[] {1234, 5678})
+            .withContentResumeOffsetUs(4444);
 
     assertThat(AdPlaybackState.AdGroup.CREATOR.fromBundle(adGroup.toBundle())).isEqualTo(adGroup);
   }

@@ -804,6 +804,17 @@ public abstract class Timeline implements Bundleable {
       return adPlaybackState.adResumePositionUs;
     }
 
+    /**
+     * Returns the offset in microseconds which should be added to the content stream when resuming
+     * playback after the specified ad group.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The offset that should be added to the content stream, in microseconds.
+     */
+    public long getContentResumeOffsetUs(int adGroupIndex) {
+      return adPlaybackState.adGroups[adGroupIndex].contentResumeOffsetUs;
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
       if (this == obj) {

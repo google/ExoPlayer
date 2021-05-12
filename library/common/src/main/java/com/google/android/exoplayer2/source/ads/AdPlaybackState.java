@@ -58,6 +58,11 @@ public final class AdPlaybackState implements Bundleable {
     @AdState public final int[] states;
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
+    /**
+     * The offset in microseconds which should be added to the content stream when resuming playback
+     * after the ad group.
+     */
+    public final long contentResumeOffsetUs;
 
     /** Creates a new ad group with an unspecified number of ads. */
     public AdGroup() {
@@ -65,16 +70,22 @@ public final class AdPlaybackState implements Bundleable {
           /* count= */ C.LENGTH_UNSET,
           /* states= */ new int[0],
           /* uris= */ new Uri[0],
-          /* durationsUs= */ new long[0]);
+          /* durationsUs= */ new long[0],
+          /* contentResumeOffsetUs= */ 0);
     }
 
     private AdGroup(
-        int count, @AdState int[] states, @NullableType Uri[] uris, long[] durationsUs) {
+        int count,
+        @AdState int[] states,
+        @NullableType Uri[] uris,
+        long[] durationsUs,
+        long contentResumeOffsetUs) {
       checkArgument(states.length == uris.length);
       this.count = count;
       this.states = states;
       this.uris = uris;
       this.durationsUs = durationsUs;
+      this.contentResumeOffsetUs = contentResumeOffsetUs;
     }
 
     /**
@@ -118,7 +129,8 @@ public final class AdPlaybackState implements Bundleable {
       return count == adGroup.count
           && Arrays.equals(uris, adGroup.uris)
           && Arrays.equals(states, adGroup.states)
-          && Arrays.equals(durationsUs, adGroup.durationsUs);
+          && Arrays.equals(durationsUs, adGroup.durationsUs)
+          && contentResumeOffsetUs == adGroup.contentResumeOffsetUs;
     }
 
     @Override
@@ -127,6 +139,7 @@ public final class AdPlaybackState implements Bundleable {
       result = 31 * result + Arrays.hashCode(uris);
       result = 31 * result + Arrays.hashCode(states);
       result = 31 * result + Arrays.hashCode(durationsUs);
+      result = 31 * result + (int) (contentResumeOffsetUs ^ (contentResumeOffsetUs >>> 32));
       return result;
     }
 
@@ -136,7 +149,7 @@ public final class AdPlaybackState implements Bundleable {
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, count);
       long[] durationsUs = copyDurationsUsWithSpaceForAdCount(this.durationsUs, count);
       @NullableType Uri[] uris = Arrays.copyOf(this.uris, count);
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(count, states, uris, durationsUs, contentResumeOffsetUs);
     }
 
     /**
@@ -153,7 +166,7 @@ public final class AdPlaybackState implements Bundleable {
       @NullableType Uri[] uris = Arrays.copyOf(this.uris, states.length);
       uris[index] = uri;
       states[index] = AD_STATE_AVAILABLE;
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(count, states, uris, durationsUs, contentResumeOffsetUs);
     }
 
     /**
@@ -180,7 +193,7 @@ public final class AdPlaybackState implements Bundleable {
       Uri[] uris =
           this.uris.length == states.length ? this.uris : Arrays.copyOf(this.uris, states.length);
       states[index] = state;
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(count, states, uris, durationsUs, contentResumeOffsetUs);
     }
 
     /** Returns a new instance with the specified ad durations, in microseconds. */
@@ -191,7 +204,13 @@ public final class AdPlaybackState implements Bundleable {
       } else if (count != C.LENGTH_UNSET && durationsUs.length > uris.length) {
         durationsUs = Arrays.copyOf(durationsUs, uris.length);
       }
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(count, states, uris, durationsUs, contentResumeOffsetUs);
+    }
+
+    /** Returns an instance with the specified {@link #contentResumeOffsetUs}. */
+    @CheckResult
+    public AdGroup withContentResumeOffsetUs(long contentResumeOffsetUs) {
+      return new AdGroup(count, states, uris, durationsUs, contentResumeOffsetUs);
     }
 
     /**
@@ -205,7 +224,8 @@ public final class AdPlaybackState implements Bundleable {
             /* count= */ 0,
             /* states= */ new int[0],
             /* uris= */ new Uri[0],
-            /* durationsUs= */ new long[0]);
+            /* durationsUs= */ new long[0],
+            contentResumeOffsetUs);
       }
       int count = this.states.length;
       @AdState int[] states = Arrays.copyOf(this.states, count);
@@ -214,7 +234,7 @@ public final class AdPlaybackState implements Bundleable {
           states[i] = AD_STATE_SKIPPED;
         }
       }
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(count, states, uris, durationsUs, contentResumeOffsetUs);
     }
 
     @CheckResult
@@ -239,13 +259,20 @@ public final class AdPlaybackState implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FIELD_COUNT, FIELD_URIS, FIELD_STATES, FIELD_DURATIONS_US})
+    @IntDef({
+      FIELD_COUNT,
+      FIELD_URIS,
+      FIELD_STATES,
+      FIELD_DURATIONS_US,
+      FIELD_CONTENT_RESUME_OFFSET_US,
+    })
     private @interface FieldNumber {}
 
     private static final int FIELD_COUNT = 0;
     private static final int FIELD_URIS = 1;
     private static final int FIELD_STATES = 2;
     private static final int FIELD_DURATIONS_US = 3;
+    private static final int FIELD_CONTENT_RESUME_OFFSET_US = 4;
 
     // putParcelableArrayList actually supports null elements.
     @SuppressWarnings("nullness:argument.type.incompatible")
@@ -257,6 +284,7 @@ public final class AdPlaybackState implements Bundleable {
           keyForField(FIELD_URIS), new ArrayList<@NullableType Uri>(Arrays.asList(uris)));
       bundle.putIntArray(keyForField(FIELD_STATES), states);
       bundle.putLongArray(keyForField(FIELD_DURATIONS_US), durationsUs);
+      bundle.putLong(keyForField(FIELD_CONTENT_RESUME_OFFSET_US), contentResumeOffsetUs);
       return bundle;
     }
 
@@ -273,11 +301,13 @@ public final class AdPlaybackState implements Bundleable {
       @AdState
       int[] states = bundle.getIntArray(keyForField(FIELD_STATES));
       @Nullable long[] durationsUs = bundle.getLongArray(keyForField(FIELD_DURATIONS_US));
+      long contentResumeOffsetUs = bundle.getLong(keyForField(FIELD_CONTENT_RESUME_OFFSET_US));
       return new AdGroup(
           count,
           states == null ? new int[0] : states,
           uriList == null ? new Uri[0] : uriList.toArray(new Uri[0]),
-          durationsUs == null ? new long[0] : durationsUs);
+          durationsUs == null ? new long[0] : durationsUs,
+          contentResumeOffsetUs);
     }
 
     private static String keyForField(@AdGroup.FieldNumber int field) {
@@ -557,6 +587,22 @@ public final class AdPlaybackState implements Bundleable {
       return new AdPlaybackState(
           adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
     }
+  }
+
+  /**
+   * Returns an instance with the specified {@link AdGroup#contentResumeOffsetUs}, in microseconds,
+   * for the specified ad group.
+   */
+  @CheckResult
+  public AdPlaybackState withContentResumeOffsetUs(int adGroupIndex, long contentResumeOffsetUs) {
+    if (adGroups[adGroupIndex].contentResumeOffsetUs == contentResumeOffsetUs) {
+      return this;
+    }
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adGroupIndex] =
+        adGroups[adGroupIndex].withContentResumeOffsetUs(contentResumeOffsetUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   @Override

@@ -205,6 +205,65 @@ public final class MediaPeriodQueueTest {
   }
 
   @Test
+  public void getNextMediaPeriodInfo_withAdGroupResumeOffsets_returnsCorrectMediaPeriodInfos() {
+    adPlaybackState =
+        new AdPlaybackState(
+                /* adsId= */ new Object(),
+                /* adGroupTimesUs...= */ 0,
+                FIRST_AD_START_TIME_US,
+                C.TIME_END_OF_SOURCE)
+            .withContentDurationUs(CONTENT_DURATION_US)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ 2000)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 3000)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 4000);
+    SinglePeriodAdTimeline adTimeline =
+        new SinglePeriodAdTimeline(CONTENT_TIMELINE, adPlaybackState);
+    setupTimeline(adTimeline);
+
+    setAdGroupLoaded(/* adGroupIndex= */ 0);
+    assertNextMediaPeriodInfoIsAd(
+        /* adGroupIndex= */ 0, AD_DURATION_US, /* contentPositionUs= */ C.TIME_UNSET);
+    advance();
+    assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
+        /* periodUid= */ firstPeriodUid,
+        /* startPositionUs= */ 2000,
+        /* requestedContentPositionUs= */ C.TIME_UNSET,
+        /* endPositionUs= */ FIRST_AD_START_TIME_US,
+        /* durationUs= */ FIRST_AD_START_TIME_US,
+        /* isLastInPeriod= */ false,
+        /* isLastInWindow= */ false,
+        /* nextAdGroupIndex= */ 1);
+    advance();
+    setAdGroupLoaded(/* adGroupIndex= */ 1);
+    assertNextMediaPeriodInfoIsAd(
+        /* adGroupIndex= */ 1, AD_DURATION_US, /* contentPositionUs= */ FIRST_AD_START_TIME_US);
+    advance();
+    assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
+        /* periodUid= */ firstPeriodUid,
+        /* startPositionUs= */ FIRST_AD_START_TIME_US + 3000,
+        /* requestedContentPositionUs= */ FIRST_AD_START_TIME_US,
+        /* endPositionUs= */ C.TIME_END_OF_SOURCE,
+        /* durationUs= */ CONTENT_DURATION_US,
+        /* isLastInPeriod= */ false,
+        /* isLastInWindow= */ false,
+        /* nextAdGroupIndex= */ 2);
+    advance();
+    setAdGroupLoaded(/* adGroupIndex= */ 2);
+    assertNextMediaPeriodInfoIsAd(
+        /* adGroupIndex= */ 2, AD_DURATION_US, /* contentPositionUs= */ CONTENT_DURATION_US);
+    advance();
+    assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
+        /* periodUid= */ firstPeriodUid,
+        /* startPositionUs= */ CONTENT_DURATION_US - 1,
+        /* requestedContentPositionUs= */ CONTENT_DURATION_US,
+        /* endPositionUs= */ C.TIME_UNSET,
+        /* durationUs= */ CONTENT_DURATION_US,
+        /* isLastInPeriod= */ true,
+        /* isLastInWindow= */ true,
+        /* nextAdGroupIndex= */ C.INDEX_UNSET);
+  }
+
+  @Test
   public void getNextMediaPeriodInfo_withPostrollLoadError_returnsEmptyFinalMediaPeriodInfo() {
     setupAdTimeline(/* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
