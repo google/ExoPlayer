@@ -1,5 +1,12 @@
 # Release notes
 
+### dev-v2 (not yet released)
+
+*   UI:
+    *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
+        in `PlayerNotificationManager`. This is required to avoid an error on
+        Android 12.
+
 ### 2.14.1 (2021-06-11)
 
 *   Core Library:
