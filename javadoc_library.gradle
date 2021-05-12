@@ -31,6 +31,7 @@ android.libraryVariants.all { variant ->
                   "https://guava.dev/releases/$project.ext.guavaVersion/api/docs"
             encoding = "UTF-8"
         }
+        options.addBooleanOption "-no-module-directories", true
         exclude "**/BuildConfig.java"
         exclude "**/R.java"
         doFirst {
