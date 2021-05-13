@@ -21,8 +21,11 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Parcel;
 import android.text.Layout;
 import android.text.SpannedString;
+import android.text.TextUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -104,5 +107,65 @@ public class CueTest {
                 .setText(SpannedString.valueOf("text"))
                 .setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
                 .build());
+  }
+
+  @Test
+  public void roundTripViaBundle_yieldsEqualInstance() {
+    Cue cue =
+        new Cue.Builder()
+            .setText(SpannedString.valueOf("text"))
+            .setTextAlignment(Layout.Alignment.ALIGN_CENTER)
+            .setMultiRowAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .setLine(5, Cue.LINE_TYPE_NUMBER)
+            .setLineAnchor(Cue.ANCHOR_TYPE_END)
+            .setPosition(0.4f)
+            .setPositionAnchor(Cue.ANCHOR_TYPE_MIDDLE)
+            .setTextSize(0.2f, Cue.TEXT_SIZE_TYPE_FRACTIONAL)
+            .setSize(0.8f)
+            .setWindowColor(Color.CYAN)
+            .setVerticalType(Cue.VERTICAL_TYPE_RL)
+            .setShearDegrees(-15f)
+            .build();
+    Cue modifiedCue = parcelAndUnParcelCue(cue);
+
+    assertThat(TextUtils.equals(modifiedCue.text, cue.text)).isTrue();
+    assertThat(modifiedCue.textAlignment).isEqualTo(cue.textAlignment);
+    assertThat(modifiedCue.multiRowAlignment).isEqualTo(cue.multiRowAlignment);
+    assertThat(modifiedCue.bitmap).isNull();
+    assertThat(modifiedCue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(modifiedCue.line).isEqualTo(cue.line);
+    assertThat(modifiedCue.lineType).isEqualTo(cue.lineType);
+    assertThat(modifiedCue.position).isEqualTo(cue.position);
+    assertThat(modifiedCue.positionAnchor).isEqualTo(cue.positionAnchor);
+    assertThat(modifiedCue.textSize).isEqualTo(cue.textSize);
+    assertThat(modifiedCue.textSizeType).isEqualTo(cue.textSizeType);
+    assertThat(modifiedCue.size).isEqualTo(cue.size);
+    assertThat(modifiedCue.windowColor).isEqualTo(cue.windowColor);
+    assertThat(modifiedCue.windowColorSet).isEqualTo(cue.windowColorSet);
+    assertThat(modifiedCue.verticalType).isEqualTo(cue.verticalType);
+    assertThat(modifiedCue.shearDegrees).isEqualTo(cue.shearDegrees);
+  }
+
+  @Test
+  public void roundTripViaBundle_withBitmap_yieldsEqualInstance() {
+    Cue cue =
+        new Cue.Builder().setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)).build();
+    Cue modifiedCue = parcelAndUnParcelCue(cue);
+
+    assertThat(modifiedCue.bitmap.sameAs(cue.bitmap)).isTrue();
+    assertThat(modifiedCue.bitmapHeight).isEqualTo(cue.bitmapHeight);
+  }
+
+  private static Cue parcelAndUnParcelCue(Cue cue) {
+    Parcel parcel = Parcel.obtain();
+    try {
+      parcel.writeBundle(cue.toBundle());
+      parcel.setDataPosition(0);
+
+      Bundle bundle = parcel.readBundle();
+      return Cue.CREATOR.fromBundle(bundle);
+    } finally {
+      parcel.recycle();
+    }
   }
 }
