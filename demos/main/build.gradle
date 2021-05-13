@@ -74,6 +74,7 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
     implementation project(modulePrefix + 'library-hls')
+    implementation project(modulePrefix + 'library-rtsp')
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'library-ui')
     implementation project(modulePrefix + 'extension-cronet')
