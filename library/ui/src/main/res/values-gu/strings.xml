@@ -57,7 +57,7 @@
   <string name="exo_track_selection_title_audio">ઑડિયો</string>
   <string name="exo_track_selection_title_text">ટેક્સ્ટ</string>
   <string name="exo_track_selection_none">એકપણ નહીં</string>
-  <string name="exo_track_selection_auto">આપમેળે</string>
+  <string name="exo_track_selection_auto">ઑટોમૅટિક રીતે</string>
   <string name="exo_track_unknown">અજાણ્યો</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">મૉનો</string>

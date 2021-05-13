@@ -56,7 +56,7 @@
   <string name="exo_track_selection_title_video">Бейне</string>
   <string name="exo_track_selection_title_audio">Aудиомазмұн</string>
   <string name="exo_track_selection_title_text">Мәтін</string>
-  <string name="exo_track_selection_none">Ешқайсысы</string>
+  <string name="exo_track_selection_none">Жоқ</string>
   <string name="exo_track_selection_auto">Автоматты</string>
   <string name="exo_track_unknown">Белгісіз</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>

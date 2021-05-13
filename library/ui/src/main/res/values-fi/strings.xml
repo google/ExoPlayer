@@ -69,6 +69,6 @@
   <string name="exo_track_role_supplementary">Lisämateriaali</string>
   <string name="exo_track_role_commentary">Kommenttiraita</string>
   <string name="exo_track_role_closed_captions">Tekstitykset</string>
-  <string name="exo_track_bitrate">%1$.2f Mt/s</string>
+  <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

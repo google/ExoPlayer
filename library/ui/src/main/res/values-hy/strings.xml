@@ -14,8 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="exo_controls_show">Ցուցադրել նվագարկիչի կառավարները</string>
-  <string name="exo_controls_hide">Թաքցնել նվագարկիչի կառավարները</string>
+  <string name="exo_controls_show">Ցուցադրել նվագարկչի կառավարները</string>
+  <string name="exo_controls_hide">Թաքցնել նվագարկչի կառավարները</string>
   <string name="exo_controls_seek_bar_description">Նվագարկման ընթացքը</string>
   <string name="exo_controls_settings_description">Կարգավորումներ</string>
   <string name="exo_controls_overflow_hide_description">Թաքցնել լրացուցիչ կարգավորումները</string>

@@ -14,12 +14,12 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="exo_controls_show">Afspeelbediening weergeven</string>
+  <string name="exo_controls_show">Afspeelbediening tonen</string>
   <string name="exo_controls_hide">Afspeelbediening verbergen</string>
   <string name="exo_controls_seek_bar_description">Afspeelvoortgang</string>
   <string name="exo_controls_settings_description">Instellingen</string>
   <string name="exo_controls_overflow_hide_description">Aanvullende instellingen verbergen</string>
-  <string name="exo_controls_overflow_show_description">Aanvullende instellingen weergeven</string>
+  <string name="exo_controls_overflow_show_description">Aanvullende instellingen tonen</string>
   <string name="exo_controls_fullscreen_enter_description">Volledig scherm openen</string>
   <string name="exo_controls_fullscreen_exit_description">Volledig scherm sluiten</string>
   <string name="exo_controls_previous_description">Vorige</string>
@@ -43,8 +43,8 @@
   <string name="exo_controls_shuffle_on_description">Shuffle aan</string>
   <string name="exo_controls_shuffle_off_description">Shuffle uit</string>
   <string name="exo_controls_vr_description">VR-modus</string>
-  <string name="exo_controls_cc_enabled_description">Ondertiteling uitschakelen</string>
-  <string name="exo_controls_cc_disabled_description">Ondertiteling inschakelen</string>
+  <string name="exo_controls_cc_enabled_description">Ondertiteling uitzetten</string>
+  <string name="exo_controls_cc_disabled_description">Ondertiteling aanzetten</string>
   <string name="exo_controls_playback_speed">Snelheid</string>
   <string name="exo_controls_playback_speed_normal">Normaal</string>
   <string name="exo_download_description">Downloaden</string>

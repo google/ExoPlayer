@@ -19,7 +19,7 @@
   <string name="exo_controls_seek_bar_description">Progrés de la reproducció</string>
   <string name="exo_controls_settings_description">Configuració</string>
   <string name="exo_controls_overflow_hide_description">Amaga les opcions de configuració addicionals</string>
-  <string name="exo_controls_overflow_show_description">Mostra les opcions de configuració addicionals</string>
+  <string name="exo_controls_overflow_show_description">Mostra opcions de configuració addicionals</string>
   <string name="exo_controls_fullscreen_enter_description">Entra a la pantalla completa</string>
   <string name="exo_controls_fullscreen_exit_description">Surt de la pantalla completa</string>
   <string name="exo_controls_previous_description">Anterior</string>
