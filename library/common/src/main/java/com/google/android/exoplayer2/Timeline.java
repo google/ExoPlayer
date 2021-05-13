@@ -805,6 +805,17 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
+     * Returns whether the ad group at index {@code adGroupIndex} is server-side inserted and part
+     * of the content stream.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return Whether this ad group is server-side inserted and part of the content stream.
+     */
+    public boolean isServerSideInsertedAdGroup(int adGroupIndex) {
+      return adPlaybackState.adGroups[adGroupIndex].isServerSideInserted;
+    }
+
+    /**
      * Returns the offset in microseconds which should be added to the content stream when resuming
      * playback after the specified ad group.
      *
