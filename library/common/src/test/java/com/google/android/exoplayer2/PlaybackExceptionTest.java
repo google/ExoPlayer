@@ -17,6 +17,8 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Bundle;
+import android.os.RemoteException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
 import org.junit.Test;
@@ -37,7 +39,71 @@ public class PlaybackExceptionTest {
     assertPlaybackExceptionsAreEqual(before, after);
   }
 
-  // TODO: Add test for backwards compatibility.
+  // Backward compatibility tests.
+  // The following tests prevent accidental modifications which break communication with older
+  // ExoPlayer versions hosted in other processes.
+
+  @Test
+  public void bundle_producesExpectedException() {
+    IOException expectedCause = new IOException("cause message");
+    PlaybackException expectedException =
+        new PlaybackException(
+            "message",
+            expectedCause,
+            PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED,
+            /* timestampMs= */ 1000);
+
+    Bundle bundle = new Bundle();
+    bundle.putInt("0", 5001); // Error code
+    bundle.putLong("1", 1000); // Timestamp.
+    bundle.putString("2", "message");
+    bundle.putString("3", expectedCause.getClass().getName());
+    bundle.putString("4", "cause message");
+
+    assertPlaybackExceptionsAreEqual(
+        expectedException, PlaybackException.CREATOR.fromBundle(bundle));
+  }
+
+  @Test
+  public void exception_producesExpectedBundle() {
+    IllegalStateException cause = new IllegalStateException("cause message");
+    PlaybackException exception =
+        new PlaybackException(
+            "message",
+            cause,
+            PlaybackException.ERROR_CODE_DECODING_FAILED,
+            /* timestampMs= */ 2000);
+
+    Bundle bundle = exception.toBundle();
+    assertThat(bundle.getInt("0")).isEqualTo(4002); // Error code.
+    assertThat(bundle.getLong("1")).isEqualTo(2000); // Timestamp.
+    assertThat(bundle.getString("2")).isEqualTo("message");
+    assertThat(bundle.getString("3")).isEqualTo(cause.getClass().getName());
+    assertThat(bundle.getString("4")).isEqualTo("cause message");
+  }
+
+  @Test
+  public void bundleWithUnexpectedCause_producesRemoteExceptionCause() {
+    RemoteException expectedCause = new RemoteException("cause message");
+    PlaybackException expectedException =
+        new PlaybackException(
+            "message",
+            expectedCause,
+            PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED,
+            /* timestampMs= */ 1000);
+
+    Bundle bundle = new Bundle();
+    bundle.putInt("0", 5001); // Error code
+    bundle.putLong("1", 1000); // Timestamp.
+    bundle.putString("2", "message");
+    bundle.putString("3", "invalid cause class name");
+    bundle.putString("4", "cause message");
+
+    assertPlaybackExceptionsAreEqual(
+        expectedException, PlaybackException.CREATOR.fromBundle(bundle));
+  }
+
+  // Internal methods.
 
   private static void assertPlaybackExceptionsAreEqual(PlaybackException a, PlaybackException b) {
     assertThat(a).hasMessageThat().isEqualTo(b.getMessage());
