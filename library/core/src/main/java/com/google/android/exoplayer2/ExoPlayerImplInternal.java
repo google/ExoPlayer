@@ -2601,12 +2601,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Drop update if we keep playing the same content (MediaPeriod.periodUid are identical) and
     // the only change is that MediaPeriodId.nextAdGroupIndex increased. This postpones a potential
     // discontinuity until we reach the former next ad group position.
+    boolean sameOldAndNewPeriodUid = oldPeriodId.periodUid.equals(newPeriodUid);
     boolean onlyNextAdGroupIndexIncreased =
-        oldPeriodId.periodUid.equals(newPeriodUid)
+        sameOldAndNewPeriodUid
             && !oldPeriodId.isAd()
             && !periodIdWithAds.isAd()
             && earliestCuePointIsUnchangedOrLater;
-    MediaPeriodId newPeriodId = onlyNextAdGroupIndexIncreased ? oldPeriodId : periodIdWithAds;
+    // Drop update if the change is from/to server-side inserted ads at the same content position to
+    // avoid any unintentional renderer reset.
+    timeline.getPeriodByUid(newPeriodUid, period);
+    boolean isInStreamAdChange =
+        sameOldAndNewPeriodUid
+            && !isUsingPlaceholderPeriod
+            && oldContentPositionUs == newContentPositionUs
+            && ((periodIdWithAds.isAd()
+                    && period.isServerSideInsertedAdGroup(periodIdWithAds.adGroupIndex))
+                || (oldPeriodId.isAd()
+                    && period.isServerSideInsertedAdGroup(oldPeriodId.adGroupIndex)));
+    MediaPeriodId newPeriodId =
+        onlyNextAdGroupIndexIncreased || isInStreamAdChange ? oldPeriodId : periodIdWithAds;
 
     long periodPositionUs = contentPositionForAdResolutionUs;
     if (newPeriodId.isAd()) {

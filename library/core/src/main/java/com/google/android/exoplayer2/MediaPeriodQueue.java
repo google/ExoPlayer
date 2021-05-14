@@ -358,6 +358,7 @@ import com.google.common.collect.ImmutableList;
                 : periodHolder.toRendererTime(newPeriodInfo.durationUs);
         boolean isReadingAndReadBeyondNewDuration =
             periodHolder == reading
+                && !isUsingSameStreamForNextMediaPeriod(timeline, periodHolder.info.id)
                 && (maxRendererReadPositionUs == C.TIME_END_OF_SOURCE
                     || maxRendererReadPositionUs >= newDurationInRendererTime);
         boolean readingPeriodRemoved = removeAfter(periodHolder);
@@ -857,5 +858,21 @@ import com.google.common.collect.ImmutableList;
       return period.durationUs;
     }
     return startPositionUs + period.getContentResumeOffsetUs(adGroupIndex);
+  }
+
+  private boolean isUsingSameStreamForNextMediaPeriod(
+      Timeline timeline, MediaPeriodId mediaPeriodId) {
+    // Server-side inserted ads or content after them will use the same underlying stream.
+    if (mediaPeriodId.isAd()) {
+      return timeline
+          .getPeriodByUid(mediaPeriodId.periodUid, period)
+          .isServerSideInsertedAdGroup(mediaPeriodId.adGroupIndex);
+    } else if (mediaPeriodId.nextAdGroupIndex == C.INDEX_UNSET) {
+      return false;
+    } else {
+      return timeline
+          .getPeriodByUid(mediaPeriodId.periodUid, period)
+          .isServerSideInsertedAdGroup(mediaPeriodId.nextAdGroupIndex);
+    }
   }
 }

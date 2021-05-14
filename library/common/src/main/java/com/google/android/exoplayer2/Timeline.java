@@ -738,10 +738,12 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
-     * Returns whether the ad group at index {@code adGroupIndex} has been played.
+     * Returns whether all ads in the ad group at index {@code adGroupIndex} have been played,
+     * skipped or failed.
      *
      * @param adGroupIndex The ad group index.
-     * @return Whether the ad group at index {@code adGroupIndex} has been played.
+     * @return Whether all ads in the ad group at index {@code adGroupIndex} have been played,
+     *     skipped or failed.
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
       return !adPlaybackState.adGroups[adGroupIndex].hasUnplayedAds();

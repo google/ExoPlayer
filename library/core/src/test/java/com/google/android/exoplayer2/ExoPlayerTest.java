@@ -39,6 +39,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
+import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfWindow;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
@@ -120,6 +121,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
+import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.NoUidTimeline;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -10444,6 +10446,73 @@ public final class ExoPlayerTest {
     assertThat(newPositions.get(1).positionMs).isEqualTo(2222);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(2222);
     player.release();
+  }
+
+  @Test
+  public void newServerSideInsertedAdAtPlaybackPosition_keepsRenderersEnabled() throws Exception {
+    // Injecting renderer to count number of renderer resets.
+    AtomicReference<FakeVideoRenderer> videoRenderer = new AtomicReference<>();
+    SimpleExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setRenderersFactory(
+                (handler, videoListener, audioListener, textOutput, metadataOutput) -> {
+                  videoRenderer.set(new FakeVideoRenderer(handler, videoListener));
+                  return new Renderer[] {videoRenderer.get()};
+                })
+            .build();
+    // Live stream timeline with unassigned next ad group.
+    AdPlaybackState initialAdPlaybackState =
+        new AdPlaybackState(
+                /* adsId= */ new Object(), /* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+            .withAdDurationsUs(new long[][] {new long[] {10 * C.MICROS_PER_SECOND}});
+    // Updated timeline with ad group at 18 seconds.
+    long firstSampleTimeUs = TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
+    Timeline initialTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* durationUs= */ C.TIME_UNSET,
+                initialAdPlaybackState));
+    AdPlaybackState updatedAdPlaybackState =
+        initialAdPlaybackState.withAdGroupTimesUs(
+            /* adGroupTimesUs...= */ firstSampleTimeUs + 18 * C.MICROS_PER_SECOND);
+    Timeline updatedTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* durationUs= */ C.TIME_UNSET,
+                updatedAdPlaybackState));
+    // Add samples to allow player to load and start playing (but no EOS as this is a live stream).
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(
+            initialTimeline,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            (format, mediaPeriodId) ->
+                ImmutableList.of(
+                    oneByteSample(firstSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME),
+                    oneByteSample(firstSampleTimeUs + 40 * C.MICROS_PER_SECOND)),
+            ExoPlayerTestRunner.VIDEO_FORMAT);
+
+    // Set updated ad group once we reach 20 seconds, and then continue playing until 40 seconds.
+    player
+        .createMessage((message, payload) -> mediaSource.setNewSourceInfo(updatedTimeline))
+        .setPosition(20_000)
+        .send();
+    player.setMediaSource(mediaSource);
+    player.prepare();
+    playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 40_000);
+    player.release();
+
+    // Assert that the renderer hasn't been reset despite the inserted ad group.
+    assertThat(videoRenderer.get().positionResetCount).isEqualTo(1);
   }
 
   // Internal methods.

@@ -108,7 +108,8 @@ public final class AdPlaybackState implements Bundleable {
     public int getNextAdIndexToPlay(int lastPlayedAdIndex) {
       int nextAdIndexToPlay = lastPlayedAdIndex + 1;
       while (nextAdIndexToPlay < states.length) {
-        if (states[nextAdIndexToPlay] == AD_STATE_UNAVAILABLE
+        if (isServerSideInserted
+            || states[nextAdIndexToPlay] == AD_STATE_UNAVAILABLE
             || states[nextAdIndexToPlay] == AD_STATE_AVAILABLE) {
           break;
         }
@@ -117,9 +118,24 @@ public final class AdPlaybackState implements Bundleable {
       return nextAdIndexToPlay;
     }
 
-    /** Returns whether the ad group has at least one ad that still needs to be played. */
-    public boolean hasUnplayedAds() {
+    /** Returns whether the ad group has at least one ad that should be played. */
+    public boolean shouldPlayAdGroup() {
       return count == C.LENGTH_UNSET || getFirstAdIndexToPlay() < count;
+    }
+
+    /**
+     * Returns whether the ad group has at least one ad that is neither played, skipped, nor failed.
+     */
+    public boolean hasUnplayedAds() {
+      if (count == C.LENGTH_UNSET) {
+        return true;
+      }
+      for (int i = 0; i < count; i++) {
+        if (states[i] == AD_STATE_UNAVAILABLE || states[i] == AD_STATE_AVAILABLE) {
+          return true;
+        }
+      }
+      return false;
     }
 
     @Override
@@ -473,7 +489,7 @@ public final class AdPlaybackState implements Bundleable {
     int index = 0;
     while (index < adGroupTimesUs.length
         && ((adGroupTimesUs[index] != C.TIME_END_OF_SOURCE && adGroupTimesUs[index] <= positionUs)
-            || !adGroups[index].hasUnplayedAds())) {
+            || !adGroups[index].shouldPlayAdGroup())) {
       index++;
     }
     return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;
@@ -501,7 +517,7 @@ public final class AdPlaybackState implements Bundleable {
    * @return The updated ad playback state.
    */
   @CheckResult
-  public AdPlaybackState withAdGroupTimesUs(long[] adGroupTimesUs) {
+  public AdPlaybackState withAdGroupTimesUs(long... adGroupTimesUs) {
     AdGroup[] adGroups =
         adGroupTimesUs.length < adGroupCount
             ? Util.nullSafeArrayCopy(this.adGroups, adGroupTimesUs.length)
