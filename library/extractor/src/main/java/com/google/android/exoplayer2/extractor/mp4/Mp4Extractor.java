@@ -58,9 +58,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Extracts data from the MP4 container format.
- */
+/** Extracts data from the MP4 container format. */
 public final class Mp4Extractor implements Extractor, SeekMap {
 
   /** Factory for {@link Mp4Extractor} instances. */

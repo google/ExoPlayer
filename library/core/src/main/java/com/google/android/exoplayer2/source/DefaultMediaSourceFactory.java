@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -467,6 +467,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
           factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
     } catch (Exception e) {
       // Expected if the app was built without the hls module.
+    }
+    try {
+      Class<? extends MediaSourceFactory> factoryClazz =
+          Class.forName("com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory")
+              .asSubclass(MediaSourceFactory.class);
+      factories.put(C.TYPE_RTSP, factoryClazz.getConstructor().newInstance());
+    } catch (Exception e) {
+      // Expected if the app was built without the RTSP module.
     }
     // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     factories.put(

@@ -28,9 +28,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Parses DVB subtitle data and extracts individual frames.
- */
+/** Parses DVB subtitle data and extracts individual frames. */
 public final class DvbSubtitleReader implements ElementaryStreamReader {
 
   private final List<DvbSubtitleInfo> subtitleInfos;

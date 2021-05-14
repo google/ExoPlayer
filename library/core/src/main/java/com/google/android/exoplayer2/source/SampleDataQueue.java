@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.source.SampleQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
@@ -120,6 +121,8 @@ import java.util.Arrays;
    *
    * @param buffer The buffer to populate.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @throws InsufficientCapacityException If the {@code buffer} has insufficient capacity to hold
+   *     the data being read.
    */
   public void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
     readAllocationNode = readSampleData(readAllocationNode, buffer, extrasHolder, scratch);
@@ -131,6 +134,8 @@ import java.util.Arrays;
    *
    * @param buffer The buffer to populate.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @throws InsufficientCapacityException If the {@code buffer} has insufficient capacity to hold
+   *     the data being peeked.
    */
   public void peekToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
     readSampleData(readAllocationNode, buffer, extrasHolder, scratch);
@@ -259,6 +264,8 @@ import java.util.Arrays;
    * @param scratch A scratch {@link ParsableByteArray}.
    * @return The first {@link AllocationNode} that contains unread bytes after the last byte that
    *     the invocation read.
+   * @throws InsufficientCapacityException If the {@code buffer} has insufficient capacity to hold
+   *     the sample data.
    */
   private static AllocationNode readSampleData(
       AllocationNode allocationNode,

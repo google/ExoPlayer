@@ -17,11 +17,9 @@ package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.decoder.Decoder;
 
-/**
- * Decodes {@link Subtitle}s from {@link SubtitleInputBuffer}s.
- */
-public interface SubtitleDecoder extends
-    Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, SubtitleDecoderException> {
+/** Decodes {@link Subtitle}s from {@link SubtitleInputBuffer}s. */
+public interface SubtitleDecoder
+    extends Decoder<SubtitleInputBuffer, SubtitleOutputBuffer, SubtitleDecoderException> {
 
   /**
    * Informs the decoder of the current playback position.

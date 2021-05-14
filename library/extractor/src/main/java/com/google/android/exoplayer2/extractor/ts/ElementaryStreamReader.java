@@ -20,9 +20,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
-/**
- * Extracts individual samples from an elementary media stream, preserving original order.
- */
+/** Extracts individual samples from an elementary media stream, preserving original order. */
 public interface ElementaryStreamReader {
 
   /**

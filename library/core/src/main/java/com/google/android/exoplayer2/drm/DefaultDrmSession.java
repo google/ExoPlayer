@@ -293,11 +293,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (openInternal(true)) {
         doLicense(true);
       }
-    } else if (eventDispatcher != null && isOpen()) {
-      // If the session is already open then send the acquire event only to the provided dispatcher.
-      // TODO: Add a parameter to onDrmSessionAcquired to indicate whether the session is being
-      // re-used or not.
-      eventDispatcher.drmSessionAcquired();
+    } else if (eventDispatcher != null
+        && isOpen()
+        && eventDispatchers.count(eventDispatcher) == 1) {
+      // If the session is already open and this is the first instance of eventDispatcher we've
+      // seen, then send the acquire event only to the provided dispatcher.
+      eventDispatcher.drmSessionAcquired(state);
     }
     referenceCountListener.onReferenceCountIncremented(this, referenceCount);
   }
@@ -321,15 +322,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         mediaDrm.closeSession(sessionId);
         sessionId = null;
       }
-      dispatchEvent(DrmSessionEventListener.EventDispatcher::drmSessionReleased);
     }
     if (eventDispatcher != null) {
-      if (isOpen()) {
-        // If the session is still open then send the release event only to the provided dispatcher
-        // before removing it.
+      eventDispatchers.remove(eventDispatcher);
+      if (eventDispatchers.count(eventDispatcher) == 0) {
+        // Release events are only sent to the last-attached instance of each EventDispatcher.
         eventDispatcher.drmSessionReleased();
       }
-      eventDispatchers.remove(eventDispatcher);
     }
     referenceCountListener.onReferenceCountDecremented(this, referenceCount);
   }
@@ -353,8 +352,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       sessionId = mediaDrm.openSession();
       mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
-      dispatchEvent(DrmSessionEventListener.EventDispatcher::drmSessionAcquired);
       state = STATE_OPENED;
+      // Capture state into a local so a consistent value is seen by the lambda.
+      int localState = state;
+      dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionAcquired(localState));
       Assertions.checkNotNull(sessionId);
       return true;
     } catch (NotProvisionedException e) {
@@ -446,7 +447,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       mediaDrm.restoreKeys(sessionId, offlineLicenseKeySetId);
       return true;
     } catch (Exception e) {
-      Log.e(TAG, "Error trying to restore keys.", e);
       onError(e);
     }
     return false;
@@ -522,6 +522,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void onError(final Exception e) {
     lastException = new DrmSessionException(e);
+    Log.e(TAG, "DRM session error", e);
     dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionManagerError(e));
     if (state != STATE_OPENED_WITH_KEYS) {
       state = STATE_ERROR;

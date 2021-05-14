@@ -20,9 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.util.Map;
 
-/**
- * Utility methods for Widevine.
- */
+/** Utility methods for Widevine. */
 public final class WidevineUtil {
 
   /** Widevine specific key status field name for the remaining license duration, in seconds. */

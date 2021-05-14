@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import static androidx.media.utils.MediaConstants.PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
@@ -45,11 +46,11 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -784,6 +785,10 @@ public final class MediaSessionConnector {
     float playbackSpeed = player.getPlaybackParameters().speed;
     extras.putFloat(EXTRAS_SPEED, playbackSpeed);
     float sessionPlaybackSpeed = player.isPlaying() ? playbackSpeed : 0f;
+    @Nullable MediaItem currentMediaItem = player.getCurrentMediaItem();
+    if (currentMediaItem != null && !MediaItem.DEFAULT_MEDIA_ID.equals(currentMediaItem.mediaId)) {
+      extras.putString(PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID, currentMediaItem.mediaId);
+    }
     builder
         .setActions(buildPrepareActions() | buildPlaybackActions(player))
         .setActiveQueueItemId(activeQueueItemId)
@@ -1080,13 +1085,12 @@ public final class MediaSessionConnector {
     }
   }
 
-  private class ComponentListener extends MediaSessionCompat.Callback
-      implements Player.EventListener {
+  private class ComponentListener extends MediaSessionCompat.Callback implements Player.Listener {
 
     private int currentWindowIndex;
     private int currentWindowCount;
 
-    // Player.EventListener implementation.
+    // Player.Listener implementation.
 
     @Override
     public void onEvents(Player player, Player.Events events) {
@@ -1220,7 +1224,7 @@ public final class MediaSessionConnector {
     @Override
     public void onSetRepeatMode(@PlaybackStateCompat.RepeatMode int mediaSessionRepeatMode) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
-        @RepeatModeUtil.RepeatToggleModes int repeatMode;
+        @Player.RepeatMode int repeatMode;
         switch (mediaSessionRepeatMode) {
           case PlaybackStateCompat.REPEAT_MODE_ALL:
           case PlaybackStateCompat.REPEAT_MODE_GROUP:

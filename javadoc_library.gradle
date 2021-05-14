@@ -25,7 +25,7 @@ android.libraryVariants.all { variant ->
     task("generateJavadoc", type: Javadoc) {
         description = "Generates Javadoc for the ${javadocTitle}."
         title = "ExoPlayer ${javadocTitle}"
-        source = allSourceDirs
+        source = allSourceDirs + "${buildDir}/generated/aidl_source_output_dir/"
         options {
             links "https://developer.android.com/reference",
                   "https://guava.dev/releases/$project.ext.guavaVersion/api/docs"

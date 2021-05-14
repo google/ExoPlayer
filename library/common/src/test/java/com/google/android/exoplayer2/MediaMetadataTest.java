@@ -18,6 +18,8 @@ package com.google.android.exoplayer2;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,6 +40,24 @@ public class MediaMetadataTest {
 
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle(title).build();
 
-    assertThat(mediaMetadata.title).isEqualTo(title);
+    assertThat(mediaMetadata.title.toString()).isEqualTo(title);
+  }
+
+  @Test
+  public void roundTripViaBundle_yieldsEqualInstance() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
+
+    assertThat(MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle())).isEqualTo(mediaMetadata);
+  }
+
+  @Test
+  public void builderPopulatedFromMetadataEntry_setsTitleCorrectly() {
+    String title = "the title";
+    Metadata.Entry entry =
+        new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title);
+    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
+
+    entry.populateMediaMetadata(builder);
+    assertThat(builder.build().title.toString()).isEqualTo(title);
   }
 }

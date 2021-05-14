@@ -40,6 +40,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class DumpFileAsserts {
 
+  /** The default test asset directory used if no other directory is specified. */
+  public static final String DEFAULT_TEST_ASSET_DIRECTORY = "../../testdata/src/test/assets";
+
   private static final String DUMP_UPDATE_INSTRUCTIONS =
       "To update the dump file, change DumpFileAsserts#DUMP_FILE_ACTION to WRITE_TO_LOCAL (for"
           + " Robolectric tests) or WRITE_TO_DEVICE (for instrumentation tests) and re-run the"
@@ -68,22 +71,85 @@ public class DumpFileAsserts {
 
   private DumpFileAsserts() {}
 
-  public static void assertOutput(Context context, Dumper.Dumpable actual, String dumpFile)
-      throws IOException {
-    assertOutput(context, new Dumper().add(actual).toString(), dumpFile);
-  }
-
   /**
-   * Asserts that {@code actual} is equal to the contents of {@code dumpFile}.
+   * Asserts that the dump output of {@code actual} is equal to the contents of {@code dumpFile} in
+   * the {@link #DEFAULT_TEST_ASSET_DIRECTORY}.
    *
    * <p>If the assertion fails because of an intended change in the output or a new dump file needs
    * to be created, set {@link #DUMP_FILE_ACTION} to {@link #WRITE_TO_LOCAL} for local tests and to
    * {@link #WRITE_TO_DEVICE} for instrumentation tests, and run the test again. Instead of
    * assertion, {@code actual} will be written to {@code dumpFile}. For instrumentation tests, this
-   * new dump file needs to be copied to the project {@code testdata/src/test} folder manually.
+   * new dump file needs to be copied to the project asset folder manually.
+   *
+   * @param context A context.
+   * @param actual The actual data.
+   * @param dumpFile The file path of the dump file in the assets directory.
+   */
+  public static void assertOutput(Context context, Dumper.Dumpable actual, String dumpFile)
+      throws IOException {
+    assertOutput(
+        context, new Dumper().add(actual).toString(), DEFAULT_TEST_ASSET_DIRECTORY, dumpFile);
+  }
+
+  /**
+   * Asserts that the dump output of {@code actual} is equal to the contents of {@code dumpFile} in
+   * the {@code assetDirectory}.
+   *
+   * <p>If the assertion fails because of an intended change in the output or a new dump file needs
+   * to be created, set {@link #DUMP_FILE_ACTION} to {@link #WRITE_TO_LOCAL} for local tests and to
+   * {@link #WRITE_TO_DEVICE} for instrumentation tests, and run the test again. Instead of
+   * assertion, {@code actual} will be written to {@code dumpFile}. For instrumentation tests, this
+   * new dump file needs to be copied to the project asset folder manually.
+   *
+   * @param context A context.
+   * @param actual The actual data.
+   * @param assetDirectory The directory of the assets relative to the project working directory.
+   *     Only used when {@link #DUMP_FILE_ACTION} is set to {@link #WRITE_TO_LOCAL}.
+   * @param dumpFile The file path of the dump file in the assets directory.
+   */
+  public static void assertOutput(
+      Context context, Dumper.Dumpable actual, String assetDirectory, String dumpFile)
+      throws IOException {
+    assertOutput(context, new Dumper().add(actual).toString(), assetDirectory, dumpFile);
+  }
+
+  /**
+   * Asserts that {@code actual} is equal to the contents of {@code dumpFile} in the {@link
+   * #DEFAULT_TEST_ASSET_DIRECTORY}.
+   *
+   * <p>If the assertion fails because of an intended change in the output or a new dump file needs
+   * to be created, set {@link #DUMP_FILE_ACTION} to {@link #WRITE_TO_LOCAL} for local tests and to
+   * {@link #WRITE_TO_DEVICE} for instrumentation tests, and run the test again. Instead of
+   * assertion, {@code actual} will be written to {@code dumpFile}. For instrumentation tests, this
+   * new dump file needs to be copied to the project asset folder manually.
+   *
+   * @param context A context.
+   * @param actual The actual data.
+   * @param dumpFile The file path of the dump file in the assets directory.
    */
   public static void assertOutput(Context context, String actual, String dumpFile)
       throws IOException {
+    assertOutput(context, actual, DEFAULT_TEST_ASSET_DIRECTORY, dumpFile);
+  }
+
+  /**
+   * Asserts that {@code actual} is equal to the contents of {@code dumpFile} in {@code
+   * assetDirectory}.
+   *
+   * <p>If the assertion fails because of an intended change in the output or a new dump file needs
+   * to be created, set {@link #DUMP_FILE_ACTION} to {@link #WRITE_TO_LOCAL} for local tests and to
+   * {@link #WRITE_TO_DEVICE} for instrumentation tests, and run the test again. Instead of
+   * assertion, {@code actual} will be written to {@code dumpFile}. For instrumentation tests, this
+   * new dump file needs to be copied to the project asset folder manually.
+   *
+   * @param context A context.
+   * @param actual The actual data.
+   * @param assetDirectory The directory of the assets relative to the project working directory.
+   *     Only used when {@link #DUMP_FILE_ACTION} is set to {@link #WRITE_TO_LOCAL}.
+   * @param dumpFile The file path of the dump file in the assets directory.
+   */
+  public static void assertOutput(
+      Context context, String actual, String assetDirectory, String dumpFile) throws IOException {
     if (DUMP_FILE_ACTION == COMPARE_WITH_EXISTING) {
       String expected;
       try {
@@ -98,7 +164,7 @@ public class DumpFileAsserts {
     } else {
       File file =
           DUMP_FILE_ACTION == WRITE_TO_LOCAL
-              ? new File(StandardSystemProperty.USER_DIR.value(), "../../testdata/src/test/assets")
+              ? new File(StandardSystemProperty.USER_DIR.value(), assetDirectory)
               : context.getExternalFilesDir(null);
       file = new File(file, dumpFile);
       Assertions.checkStateNotNull(file.getParentFile()).mkdirs();

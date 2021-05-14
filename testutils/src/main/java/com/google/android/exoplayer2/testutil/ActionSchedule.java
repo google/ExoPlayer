@@ -56,9 +56,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Schedules a sequence of {@link Action}s for execution during a test.
- */
+/** Schedules a sequence of {@link Action}s for execution during a test. */
 public final class ActionSchedule {
 
   /**

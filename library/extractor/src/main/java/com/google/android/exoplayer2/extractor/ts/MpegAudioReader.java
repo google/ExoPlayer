@@ -29,9 +29,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Parses a continuous MPEG Audio byte stream and extracts individual frames.
- */
+/** Parses a continuous MPEG Audio byte stream and extracts individual frames. */
 public final class MpegAudioReader implements ElementaryStreamReader {
 
   private static final int STATE_FINDING_HEADER = 0;

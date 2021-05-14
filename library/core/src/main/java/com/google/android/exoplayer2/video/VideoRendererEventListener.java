@@ -17,14 +17,17 @@ package com.google.android.exoplayer2.video;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
+import android.media.MediaCodec;
+import android.media.MediaCodec.CodecException;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
-import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -65,11 +68,8 @@ public interface VideoRendererEventListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onVideoInputFormatChanged(
-      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onVideoInputFormatChanged(format);
-  }
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -107,30 +107,19 @@ public interface VideoRendererEventListener {
    * Called before a frame is rendered for the first time since setting the surface, and each time
    * there's a change in the size, rotation or pixel aspect ratio of the video being rendered.
    *
-   * @param width The video width in pixels.
-   * @param height The video height in pixels.
-   * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
-   *     rotation in degrees that the application should apply for the video for it to be rendered
-   *     in the correct orientation. This value will always be zero on API levels 21 and above,
-   *     since the renderer will apply all necessary rotations internally. On earlier API levels
-   *     this is not possible. Applications that use {@link TextureView} can apply the rotation by
-   *     calling {@link TextureView#setTransform}. Applications that do not expect to encounter
-   *     rotated videos can safely ignore this parameter.
-   * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case of
-   *     square pixels this will be equal to 1.0. Different values are indicative of anamorphic
-   *     content.
+   * @param videoSize The new size of the video.
    */
-  default void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
+  default void onVideoSizeChanged(VideoSize videoSize) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * Called when a frame is rendered for the first time since setting the output, or since the
    * renderer was reset, or since the stream being rendered was changed.
    *
-   * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
-   *     the renderer renders to something that isn't a {@link Surface}.
+   * @param output The output of the video renderer. Normally a {@link Surface}, however some video
+   *     renderers may have other output types (e.g., a {@link VideoDecoderOutputBufferRenderer}).
+   * @param renderTimeMs The {@link SystemClock#elapsedRealtime()} when the frame was rendered.
    */
-  default void onRenderedFirstFrame(@Nullable Surface surface) {}
+  default void onRenderedFirstFrame(Object output, long renderTimeMs) {}
 
   /**
    * Called when a decoder is released.
@@ -147,8 +136,21 @@ public interface VideoRendererEventListener {
   default void onVideoDisabled(DecoderCounters counters) {}
 
   /**
-   * Dispatches events to a {@link VideoRendererEventListener}.
+   * Called when a video decoder encounters an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
+   *
+   * @param videoCodecError The error. Typically a {@link CodecException} if the renderer uses
+   *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
    */
+  default void onVideoCodecError(Exception videoCodecError) {}
+
+  /** Dispatches events to a {@link VideoRendererEventListener}. */
   final class EventDispatcher {
 
     @Nullable private final Handler handler;
@@ -188,11 +190,15 @@ public interface VideoRendererEventListener {
      * Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format,
      * DecoderReuseEvaluation)}.
      */
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
     public void inputFormatChanged(
         Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       if (handler != null) {
         handler.post(
-            () -> castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation));
+            () -> {
+              castNonNull(listener).onVideoInputFormatChanged(format);
+              castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation);
+            });
       }
     }
 
@@ -213,25 +219,19 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /** Invokes {@link VideoRendererEventListener#onVideoSizeChanged(int, int, int, float)}. */
-    public void videoSizeChanged(
-        int width,
-        int height,
-        final int unappliedRotationDegrees,
-        final float pixelWidthHeightRatio) {
+    /** Invokes {@link VideoRendererEventListener#onVideoSizeChanged(VideoSize)}. */
+    public void videoSizeChanged(VideoSize videoSize) {
       if (handler != null) {
-        handler.post(
-            () ->
-                castNonNull(listener)
-                    .onVideoSizeChanged(
-                        width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
+        handler.post(() -> castNonNull(listener).onVideoSizeChanged(videoSize));
       }
     }
 
-    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface)}. */
-    public void renderedFirstFrame(@Nullable Surface surface) {
+    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Object, long)}. */
+    public void renderedFirstFrame(Object output) {
       if (handler != null) {
-        handler.post(() -> castNonNull(listener).onRenderedFirstFrame(surface));
+        // TODO: Replace this timestamp with the actual frame release time.
+        long renderTimeMs = SystemClock.elapsedRealtime();
+        handler.post(() -> castNonNull(listener).onRenderedFirstFrame(output, renderTimeMs));
       }
     }
 
@@ -254,6 +254,12 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /** Invokes {@link VideoRendererEventListener#onVideoCodecError(Exception)}. */
+    public void videoCodecError(Exception videoCodecError) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onVideoCodecError(videoCodecError));
+      }
+    }
   }
 
 }

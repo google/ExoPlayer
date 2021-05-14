@@ -54,13 +54,17 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
   }
 
   @Override
+  protected boolean unboundedReadsAreIndefinite() {
+    return true;
+  }
+
+  @Override
   protected ImmutableList<TestResource> getTestResources() {
     return ImmutableList.of(
         new TestResource.Builder()
             .setName("local-udp-unicast-socket")
-            .setUri(Uri.parse("udp://localhost:" + findFreeUdpPort()))
+            .setUri("udp://localhost:" + findFreeUdpPort())
             .setExpectedBytes(data)
-            .setEndOfInputExpected(false)
             .build());
   }
 
@@ -83,6 +87,26 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
   @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
   @Override
   public void dataSpecWithPositionAndLength_readExpectedRange() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithPositionAtEnd_throwsPositionOutOfRangeException() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithPositionAtEndAndLength_throwsPositionOutOfRangeException() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithPositionOutOfRange_throwsPositionOutOfRangeException() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithEndPositionOutOfRange_readsToEnd() {}
 
   /**
    * Finds a free UDP port in the range of unreserved ports 50000-60000 that can be used from the

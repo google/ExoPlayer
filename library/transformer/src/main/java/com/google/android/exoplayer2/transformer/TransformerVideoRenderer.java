@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import androidx.annotation.Nullable;
@@ -24,7 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import java.nio.ByteBuffer;
 
 @RequiresApi(18)
@@ -59,8 +60,7 @@ import java.nio.ByteBuffer;
 
     if (!formatRead) {
       FormatHolder formatHolder = getFormatHolder();
-      @SampleStream.ReadDataResult
-      int result = readSource(formatHolder, buffer, /* formatRequired= */ true);
+      @ReadDataResult int result = readSource(formatHolder, buffer, FLAG_REQUIRE_FORMAT);
       if (result != C.RESULT_FORMAT_READ) {
         return;
       }
@@ -102,8 +102,7 @@ import java.nio.ByteBuffer;
    */
   private boolean readAndTransformBuffer() {
     buffer.clear();
-    @SampleStream.ReadDataResult
-    int result = readSource(getFormatHolder(), buffer, /* formatRequired= */ false);
+    @ReadDataResult int result = readSource(getFormatHolder(), buffer, /* readFlags= */ 0);
     if (result == C.RESULT_FORMAT_READ) {
       throw new IllegalStateException("Format changes are not supported.");
     } else if (result == C.RESULT_NOTHING_READ) {

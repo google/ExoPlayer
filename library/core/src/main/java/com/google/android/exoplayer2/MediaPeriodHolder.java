@@ -53,12 +53,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** {@link MediaPeriodInfo} about this media period. */
   public MediaPeriodInfo info;
   /**
-   * Whether all required renderers have been enabled with the {@link #sampleStreams} for this
+   * Whether all renderers are in the correct state for this {@link #mediaPeriod}.
+   *
+   * <p>Renderers that are needed must have been enabled with the {@link #sampleStreams} for this
    * {@link #mediaPeriod}. This means either {@link Renderer#enable(RendererConfiguration, Format[],
-   * SampleStream, long, boolean, boolean, long)} or {@link Renderer#replaceStream(Format[],
-   * SampleStream, long)} has been called.
+   * SampleStream, long, boolean, boolean, long, long)} or {@link Renderer#replaceStream(Format[],
+   * SampleStream, long, long)} has been called.
+   *
+   * <p>Renderers that are not needed must have been {@link Renderer#disable() disabled}.
    */
-  public boolean allRenderersEnabled;
+  public boolean allRenderersInCorrectState;
 
   private final boolean[] mayRetainStreamFlags;
   private final RendererCapabilities[] rendererCapabilities;

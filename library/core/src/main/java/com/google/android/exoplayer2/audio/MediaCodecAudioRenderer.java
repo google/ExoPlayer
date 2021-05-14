@@ -49,8 +49,9 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -346,9 +347,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void configureCodec(
+  protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
@@ -356,12 +356,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
-    codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     // Store the input MIME type if we're only using the codec for decryption.
     boolean decryptOnlyCodecEnabled =
         MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
             && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     decryptOnlyCodecFormat = decryptOnlyCodecEnabled ? format : null;
+    return new MediaCodecAdapter.Configuration(
+        codecInfo, mediaFormat, format, /* surface= */ null, crypto, /* flags= */ 0);
   }
 
   @Override
@@ -412,6 +413,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onCodecReleased(String name) {
     eventDispatcher.decoderReleased(name);
+  }
+
+  @Override
+  protected void onCodecError(Exception codecError) {
+    Log.e(TAG, "Audio codec error", codecError);
+    eventDispatcher.audioCodecError(codecError);
   }
 
   @Override
@@ -848,6 +855,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     @Override
     public void onAudioSinkError(Exception audioSinkError) {
+      Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
     }
   }

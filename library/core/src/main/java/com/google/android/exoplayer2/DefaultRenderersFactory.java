@@ -44,9 +44,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-/**
- * Default {@link RenderersFactory} implementation.
- */
+/** Default {@link RenderersFactory} implementation. */
 public class DefaultRenderersFactory implements RenderersFactory {
 
   /**
@@ -641,6 +639,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
         new DefaultAudioProcessorChain(),
         enableFloatOutput,
         enableAudioTrackPlaybackParams,
-        enableOffload);
+        enableOffload
+            ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
+            : DefaultAudioSink.OFFLOAD_MODE_DISABLED);
   }
 }

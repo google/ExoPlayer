@@ -19,9 +19,7 @@ import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/**
- * Buffer for {@link SimpleDecoder} output.
- */
+/** Buffer for {@link SimpleDecoder} output. */
 public class SimpleOutputBuffer extends OutputBuffer {
 
   private final Owner<SimpleOutputBuffer> owner;

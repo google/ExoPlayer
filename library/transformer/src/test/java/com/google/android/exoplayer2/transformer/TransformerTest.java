@@ -33,8 +33,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Iterables;
@@ -71,14 +71,14 @@ public final class TransformerTest {
   private Context context;
   private String outputPath;
   private TestMuxer testMuxer;
-  private AutoAdvancingFakeClock clock;
+  private FakeClock clock;
   private ProgressHolder progressHolder;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    clock = new AutoAdvancingFakeClock();
+    clock = new FakeClock(/* isAutoAdvancing= */ true);
     progressHolder = new ProgressHolder();
     createEncodersAndDecoders();
   }
@@ -169,9 +169,6 @@ public final class TransformerTest {
     TransformerTestRunner.runUntilCompleted(transformer);
     Files.delete(Paths.get(outputPath));
 
-    // Transformer.startTransformation() will create a new SimpleExoPlayer instance. Reset the
-    // clock's handler so that the clock advances with the new SimpleExoPlayer instance.
-    clock.resetHandler();
     // Transform second media item.
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
@@ -280,9 +277,7 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     transformer.cancel();
     Files.delete(Paths.get(outputPath));
-    // Transformer.startTransformation() will create a new SimpleExoPlayer instance. Reset the
-    // clock's handler so that the clock advances with the new SimpleExoPlayer instance.
-    clock.resetHandler();
+
     // This would throw if the previous transformation had not been cancelled.
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);

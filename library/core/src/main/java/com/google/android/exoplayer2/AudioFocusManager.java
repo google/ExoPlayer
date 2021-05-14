@@ -103,7 +103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private AudioAttributes audioAttributes;
 
   @AudioFocusState private int audioFocusState;
-  @C.AudioFocusGain private int focusGain;
+  @C.AudioFocusGain private int focusGainToRequest;
   private float volumeMultiplier = VOLUME_MULTIPLIER_DEFAULT;
 
   private @MonotonicNonNull AudioFocusRequest audioFocusRequest;
@@ -142,9 +142,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void setAudioAttributes(@Nullable AudioAttributes audioAttributes) {
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
-      focusGain = convertAudioAttributesToFocusGain(audioAttributes);
+      focusGainToRequest = convertAudioAttributesToFocusGain(audioAttributes);
       Assertions.checkArgument(
-          focusGain == C.AUDIOFOCUS_GAIN || focusGain == C.AUDIOFOCUS_NONE,
+          focusGainToRequest == C.AUDIOFOCUS_GAIN || focusGainToRequest == C.AUDIOFOCUS_NONE,
           "Automatic handling of audio focus is only available for USAGE_MEDIA and USAGE_GAME.");
     }
   }
@@ -158,8 +158,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @PlayerCommand
   public int updateAudioFocus(boolean playWhenReady, @Player.State int playbackState) {
-    if (shouldAbandonAudioFocus(playbackState)) {
-      abandonAudioFocus();
+    if (shouldAbandonAudioFocusIfHeld(playbackState)) {
+      abandonAudioFocusIfHeld();
       return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
     }
     return playWhenReady ? requestAudioFocus() : PLAYER_COMMAND_DO_NOT_PLAY;
@@ -171,7 +171,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void release() {
     playerControl = null;
-    abandonAudioFocus();
+    abandonAudioFocusIfHeld();
   }
 
   // Internal methods.
@@ -181,8 +181,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return focusListener;
   }
 
-  private boolean shouldAbandonAudioFocus(@Player.State int playbackState) {
-    return playbackState == Player.STATE_IDLE || focusGain != C.AUDIOFOCUS_GAIN;
+  private boolean shouldAbandonAudioFocusIfHeld(@Player.State int playbackState) {
+    return playbackState == Player.STATE_IDLE || focusGainToRequest != C.AUDIOFOCUS_GAIN;
   }
 
   @PlayerCommand
@@ -200,7 +200,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void abandonAudioFocus() {
+  private void abandonAudioFocusIfHeld() {
     if (audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
       return;
     }
@@ -216,7 +216,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return audioManager.requestAudioFocus(
         focusListener,
         Util.getStreamTypeForAudioUsage(checkNotNull(audioAttributes).usage),
-        focusGain);
+        focusGainToRequest);
   }
 
   @RequiresApi(26)
@@ -224,7 +224,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (audioFocusRequest == null || rebuildAudioFocusRequest) {
       AudioFocusRequest.Builder builder =
           audioFocusRequest == null
-              ? new AudioFocusRequest.Builder(focusGain)
+              ? new AudioFocusRequest.Builder(focusGainToRequest)
               : new AudioFocusRequest.Builder(audioFocusRequest);
 
       boolean willPauseWhenDucked = willPauseWhenDucked();
@@ -361,7 +361,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return;
       case AudioManager.AUDIOFOCUS_LOSS:
         executePlayerCommand(PLAYER_COMMAND_DO_NOT_PLAY);
-        abandonAudioFocus();
+        abandonAudioFocusIfHeld();
         return;
       case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
       case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:

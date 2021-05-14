@@ -183,7 +183,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
         continue;
       }
 
-      int segmentCount = index.getSegmentCount(periodDurationUs);
+      long segmentCount = index.getSegmentCount(periodDurationUs);
       if (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
         throw new DownloadException("Unbounded segment index");
       }

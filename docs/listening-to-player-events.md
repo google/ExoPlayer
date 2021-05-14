@@ -5,16 +5,16 @@ title: Player events
 ## Listening to playback events ##
 
 Events such as changes in state and playback errors are reported to registered
-[`Player.EventListener`][] instances. Registering a listener to receive such
+[`Player.Listener`][] instances. Registering a listener to receive such
 events is easy:
 
 ~~~
 // Add a listener to receive events from the player.
-player.addListener(eventListener);
+player.addListener(listener);
 ~~~
 {: .language-java}
 
-`Player.EventListener` has empty default methods, so you only need to implement
+`Player.Listener` has empty default methods, so you only need to implement
 the methods you're interested in. See the [Javadoc][] for a full description of
 the methods and when they're called. Some of the most important methods are
 described in more detail below.
@@ -28,7 +28,7 @@ should be preferred for different use cases.
 
 Changes in player state can be received by implementing
 `onPlaybackStateChanged(@State int state)` in a registered
-`Player.EventListener`. The player can be in one of four playback states:
+`Player.Listener`. The player can be in one of four playback states:
 
 * `Player.STATE_IDLE`: This is the initial state, the state when the player is
   stopped, and when playback failed.
@@ -68,7 +68,7 @@ public void onIsPlayingChanged(boolean isPlaying) {
 
 Errors that cause playback to fail can be received by implementing
 `onPlayerError(ExoPlaybackException error)` in a registered
-`Player.EventListener`. When a failure occurs, this method will be called
+`Player.Listener`. When a failure occurs, this method will be called
 immediately before the playback state transitions to `Player.STATE_IDLE`.
 Failed or stopped playbacks can be retried by calling `ExoPlayer.retry`.
 
@@ -107,7 +107,7 @@ public void onPlayerError(ExoPlaybackException error) {
 Whenever the player changes to a new media item in the playlist
 `onMediaItemTransition(MediaItem mediaItem,
 @MediaItemTransitionReason int reason)` is called on registered
-`Player.EventListener`s. The reason indicates whether this was an automatic
+`Player.Listener`s. The reason indicates whether this was an automatic
 transition, a seek (for example after calling `player.next()`), a repetition of
 the same item, or caused by a playlist change (e.g., if the currently playing
 item is removed).
@@ -115,7 +115,7 @@ item is removed).
 ### Seeking ###
 
 Calling `Player.seekTo` methods results in a series of callbacks to registered
-`Player.EventListener` instances:
+`Player.Listener` instances:
 
 1. `onPositionDiscontinuity` with `reason=DISCONTINUITY_REASON_SEEK`. This is
    the direct result of calling `Player.seekTo`.
@@ -177,28 +177,12 @@ generic `onEvents` callback, for example to record media item change reasons
 with `onMediaItemTransition`, but only act once all state changes can be used
 together in `onEvents`.
 
-## Additional SimpleExoPlayer listeners ##
+## Using AnalyticsListener ##
 
-When using `SimpleExoPlayer`, additional listeners can be registered with the
-player.
-
-* `addAnalyticsListener`: Listen to detailed events that may be useful for
-  analytics and logging purposes. Please refer to the [analytics page][] for
-  more details.
-* `addTextOutput`: Listen to changes in the subtitle or caption cues.
-* `addMetadataOutput`: Listen to timed metadata events, such as timed ID3 and
-  EMSG data.
-* `addVideoListener`: Listen to events related to video rendering that may be
-  useful for adjusting the UI (e.g., the aspect ratio of the `Surface` onto
-  which video is being rendered).
-* `addAudioListener`: Listen to events related to audio, such as when an audio
-  session ID changes, and when the player volume is changed.
-* `addDeviceListener`: Listen to events related to the state of the device.
-
-ExoPlayer's UI components, such as `StyledPlayerView`, will register themselves
-as listeners to events that they are interested in. Hence manual registration
-using the methods above is only useful for applications that implement their own
-player UI, or need to listen to events for some other purpose.
+When using `SimpleExoPlayer`, an `AnalyticsListener` can be registered with the
+player by calling `addAnalyticsListener`. `AnalyticsListener` implementations
+are able to listen to detailed events that may be useful for analytics and
+logging purposes. Please refer to the [analytics page][] for more details.
 
 ### Using EventLogger ###
 
@@ -241,8 +225,8 @@ player
 ~~~
 {: .language-java }
 
-[`Player.EventListener`]: {{ site.exo_sdk }}/Player.EventListener.html
-[Javadoc]: {{ site.exo_sdk }}/Player.EventListener.html
+[`Player.Listener`]: {{ site.exo_sdk }}/Player.Listener.html
+[Javadoc]: {{ site.exo_sdk }}/Player.Listener.html
 [`Individual callbacks vs onEvents`]: #individual-callbacks-vs-onevents
 [`ExoPlaybackException`]: {{ site.exo_sdk }}/ExoPlaybackException.html
 [log output]: event-logger.html

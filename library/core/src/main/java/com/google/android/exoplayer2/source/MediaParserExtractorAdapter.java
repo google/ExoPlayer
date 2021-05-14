@@ -38,7 +38,13 @@ import java.util.Map;
 
 /** {@link ProgressiveMediaExtractor} implemented on top of the platform's {@link MediaParser}. */
 @RequiresApi(30)
-/* package */ final class MediaParserExtractorAdapter implements ProgressiveMediaExtractor {
+public final class MediaParserExtractorAdapter implements ProgressiveMediaExtractor {
+
+  /**
+   * A {@link ProgressiveMediaExtractor.Factory} for instances of this class, which rely on platform
+   * extractors through {@link MediaParser}.
+   */
+  public static final ProgressiveMediaExtractor.Factory FACTORY = MediaParserExtractorAdapter::new;
 
   private final OutputConsumerAdapterV30 outputConsumerAdapter;
   private final InputReaderAdapterV30 inputReaderAdapter;

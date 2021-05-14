@@ -53,8 +53,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link SampleStream} that loads media in {@link Chunk}s, obtained from a {@link ChunkSource}.
  * May also be configured to expose additional embedded {@link SampleStream}s.
  */
-public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, SequenceableLoader,
-    Loader.Callback<Chunk>, Loader.ReleaseCallback {
+public class ChunkSampleStream<T extends ChunkSource>
+    implements SampleStream, SequenceableLoader, Loader.Callback<Chunk>, Loader.ReleaseCallback {
 
   /** A callback to be notified when a sample stream has finished being released. */
   public interface ReleaseCallback<T extends ChunkSource> {
@@ -133,7 +133,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     this.callback = callback;
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    loader = new Loader("Loader:ChunkSampleStream");
+    loader = new Loader("ChunkSampleStream");
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
@@ -381,8 +381,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
+  public int readData(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
@@ -395,7 +395,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
     maybeNotifyPrimaryTrackFormatChanged();
 
-    return primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
+    return primarySampleQueue.read(formatHolder, buffer, readFlags, loadingFinished);
   }
 
   @Override
@@ -862,8 +862,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        boolean formatRequired) {
+    public int readData(
+        FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       if (isPendingReset()) {
         return C.RESULT_NOTHING_READ;
       }
@@ -875,7 +875,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         return C.RESULT_NOTHING_READ;
       }
       maybeNotifyDownstreamFormat();
-      return sampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
+      return sampleQueue.read(formatHolder, buffer, readFlags, loadingFinished);
     }
 
     public void release() {

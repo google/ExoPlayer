@@ -14,7 +14,7 @@ redirect_from:
 * [Why do some streams fail with HTTP response code 301 or 302?][]
 * [Why do some streams fail with UnrecognizedInputFormatException?][]
 * [Why doesn't setPlaybackParameters work properly on some devices?][]
-* [What do "Player is accessed on the wrong thread" warnings mean?][]
+* [What do "Player is accessed on the wrong thread" errors mean?][]
 * [How can I fix "Unexpected status line: ICY 200 OK"?][]
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
@@ -204,17 +204,7 @@ releases you provide to end users should not be affected by this issue.
 
 #### What do "Player is accessed on the wrong thread" errors mean? ####
 
-If you are seeing `IllegalStateException` being thrown with the message "Player
-is accessed on the wrong thread", then some code in your app is accessing a
-`SimpleExoPlayer` instance on the wrong thread (the exception's stack trace
-shows you where). ExoPlayer instances need to be accessed from a single thread
-only. In most cases, this should be the application's main thread. For details,
-please read through the ["Threading model" section of the ExoPlayer Javadoc][].
-You can temporarily opt out from these exceptions being thrown by calling
-`SimpleExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case the issue
-will be logged as a warning instead. Using this opt out is not safe and may
-result in unexpected or obscure errors. The opt out will be removed in ExoPlayer
-2.14.
+See [A note on threading][] on the getting started page.
 
 #### How can I fix "Unexpected status line: ICY 200 OK"? ####
 
@@ -313,7 +303,7 @@ is the official way to play YouTube videos on Android.
 [Why do some streams fail with HTTP response code 301 or 302?]: #why-do-some-streams-fail-with-http-response-code-301-or-302
 [Why do some streams fail with UnrecognizedInputFormatException?]: #why-do-some-streams-fail-with-unrecognizedinputformatexception
 [Why doesn't setPlaybackParameters work properly on some devices?]: #why-doesnt-setplaybackparameters-work-properly-on-some-devices
-[What do "Player is accessed on the wrong thread" warnings mean?]: #what-do-player-is-accessed-on-the-wrong-thread-warnings-mean
+[What do "Player is accessed on the wrong thread" errors mean?]: #what-do-player-is-accessed-on-the-wrong-thread-errors-mean
 [How can I fix "Unexpected status line: ICY 200 OK"?]:  #how-can-i-fix-unexpected-status-line-icy-200-ok
 [How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
@@ -347,7 +337,7 @@ is the official way to play YouTube videos on Android.
 [`WakeLock`]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
 [`SimpleExoPlayer`]: {{ site.exo_sdk }}/SimpleExoPlayer.html
 [`setWakeMode`]: {{ site.exo_sdk }}/SimpleExoPlayer.html#setWakeMode-int-
-["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
+[A note on threading]: {{ site.base_url }}/hello-world.html#a-note-on-threading
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
 [CORS enabled]: https://www.w3.org/wiki/CORS_Enabled
 [Cast framework]: {{ site.google_sdk }}/cast/docs/chrome_sender/advanced#cors_requirements

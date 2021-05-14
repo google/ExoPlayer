@@ -24,9 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/**
- * Holds input for a decoder.
- */
+/** Holds input for a decoder. */
 public class DecoderInputBuffer extends Buffer {
 
   /**
@@ -111,12 +109,8 @@ public class DecoderInputBuffer extends Buffer {
   @BufferReplacementMode private final int bufferReplacementMode;
   private final int paddingSize;
 
-  /**
-   * Creates a new instance for which {@link #isFlagsOnly()} will return true.
-   *
-   * @return A new flags only input buffer.
-   */
-  public static DecoderInputBuffer newFlagsOnlyInstance() {
+  /** Returns a new instance that's not able to hold any data. */
+  public static DecoderInputBuffer newNoDataInstance() {
     return new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
   }
 
@@ -198,14 +192,6 @@ public class DecoderInputBuffer extends Buffer {
     }
     // Set the new buffer.
     data = newData;
-  }
-
-  /**
-   * Returns whether the buffer is only able to hold flags, meaning {@link #data} is null and
-   * its replacement mode is {@link #BUFFER_REPLACEMENT_MODE_DISABLED}.
-   */
-  public final boolean isFlagsOnly() {
-    return data == null && bufferReplacementMode == BUFFER_REPLACEMENT_MODE_DISABLED;
   }
 
   /**

@@ -19,14 +19,15 @@ import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
+import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 
-/**
- * An abstract base class suitable for most {@link Renderer} implementations.
- */
+/** An abstract base class suitable for most {@link Renderer} implementations. */
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final int trackType;
@@ -193,7 +194,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -224,8 +225,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param formats The enabled formats.
    * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
-   *     #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input buffers have
-   *     monotonically increasing timestamps.
+   *     #readSource} so that decoder input buffers have monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
@@ -382,16 +382,17 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the {@link
    *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
-   * @param formatRequired Whether the caller requires that the format of the stream be read even if
-   *     it's not changing. A sample will never be read if set to true, however it is still possible
-   *     for the end of stream or nothing to be read.
-   * @return The status of read, one of {@link SampleStream.ReadDataResult}.
+   * @param readFlags Flags controlling the behavior of this read operation.
+   * @return The {@link ReadDataResult result} of the read operation.
+   * @throws InsufficientCapacityException If the {@code buffer} has insufficient capacity to hold
+   *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
+   *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
-  @SampleStream.ReadDataResult
+  @ReadDataResult
   protected final int readSource(
-      FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
-    @SampleStream.ReadDataResult
-    int result = Assertions.checkNotNull(stream).readData(formatHolder, buffer, formatRequired);
+      FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+    @ReadDataResult
+    int result = Assertions.checkNotNull(stream).readData(formatHolder, buffer, readFlags);
     if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {
         readingPositionUs = C.TIME_END_OF_SOURCE;

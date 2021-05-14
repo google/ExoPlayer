@@ -21,7 +21,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
-import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -216,7 +216,7 @@ public final class WebvttCssStyle {
   }
 
   public WebvttCssStyle setFontFamily(@Nullable String fontFamily) {
-    this.fontFamily = Util.toLowerInvariant(fontFamily);
+    this.fontFamily = fontFamily == null ? null : Ascii.toLowerCase(fontFamily);
     return this;
   }
 

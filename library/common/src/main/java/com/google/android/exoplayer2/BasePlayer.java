@@ -30,45 +30,68 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem) {
+  public final void setMediaItem(MediaItem mediaItem) {
     setMediaItems(Collections.singletonList(mediaItem));
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
+  public final void setMediaItem(MediaItem mediaItem, long startPositionMs) {
     setMediaItems(Collections.singletonList(mediaItem), /* startWindowIndex= */ 0, startPositionMs);
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
+  public final void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
     setMediaItems(Collections.singletonList(mediaItem), resetPosition);
   }
 
   @Override
-  public void setMediaItems(List<MediaItem> mediaItems) {
+  public final void setMediaItems(List<MediaItem> mediaItems) {
     setMediaItems(mediaItems, /* resetPosition= */ true);
   }
 
   @Override
-  public void addMediaItem(int index, MediaItem mediaItem) {
+  public final void addMediaItem(int index, MediaItem mediaItem) {
     addMediaItems(index, Collections.singletonList(mediaItem));
   }
 
   @Override
-  public void addMediaItem(MediaItem mediaItem) {
+  public final void addMediaItem(MediaItem mediaItem) {
     addMediaItems(Collections.singletonList(mediaItem));
   }
 
   @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
+  public final void addMediaItems(List<MediaItem> mediaItems) {
+    addMediaItems(/* index= */ Integer.MAX_VALUE, mediaItems);
+  }
+
+  @Override
+  public final void moveMediaItem(int currentIndex, int newIndex) {
     if (currentIndex != newIndex) {
       moveMediaItems(/* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
     }
   }
 
   @Override
-  public void removeMediaItem(int index) {
+  public final void removeMediaItem(int index) {
     removeMediaItems(/* fromIndex= */ index, /* toIndex= */ index + 1);
+  }
+
+  @Override
+  public final void clearMediaItems() {
+    removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
+  }
+
+  @Override
+  public final boolean isCommandAvailable(@Command int command) {
+    return getAvailableCommands().contains(command);
+  }
+
+  /** @deprecated Use {@link #getPlayerError()} instead. */
+  @Deprecated
+  @Override
+  @Nullable
+  public final ExoPlaybackException getPlaybackError() {
+    return getPlayerError();
   }
 
   @Override
@@ -130,6 +153,11 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void setPlaybackSpeed(float speed) {
+    setPlaybackParameters(getPlaybackParameters().withSpeed(speed));
+  }
+
+  @Override
   public final void stop() {
     stop(/* reset= */ false);
   }
@@ -180,12 +208,12 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public int getMediaItemCount() {
+  public final int getMediaItemCount() {
     return getCurrentTimeline().getWindowCount();
   }
 
   @Override
-  public MediaItem getMediaItemAt(int index) {
+  public final MediaItem getMediaItemAt(int index) {
     return getCurrentTimeline().getWindow(index, window).mediaItem;
   }
 
@@ -248,5 +276,16 @@ public abstract class BasePlayer implements Player {
   private int getRepeatModeForNavigation() {
     @RepeatMode int repeatMode = getRepeatMode();
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
+  }
+
+  protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
+    return new Commands.Builder()
+        .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
+        .build();
   }
 }

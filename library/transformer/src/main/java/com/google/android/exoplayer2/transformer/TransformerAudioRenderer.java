@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
@@ -31,7 +32,7 @@ import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -273,8 +274,8 @@ import java.nio.ByteBuffer;
     }
 
     decoderInputBuffer.clear();
-    @SampleStream.ReadDataResult
-    int result = readSource(getFormatHolder(), decoderInputBuffer, /* formatRequired= */ false);
+    @ReadDataResult
+    int result = readSource(getFormatHolder(), decoderInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
         mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
@@ -373,8 +374,7 @@ import java.nio.ByteBuffer;
     }
 
     FormatHolder formatHolder = getFormatHolder();
-    @SampleStream.ReadDataResult
-    int result = readSource(formatHolder, decoderInputBuffer, /* formatRequired= */ true);
+    @ReadDataResult int result = readSource(formatHolder, decoderInputBuffer, FLAG_REQUIRE_FORMAT);
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }

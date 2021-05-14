@@ -31,9 +31,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
-/**
- * Defines constants used by the library.
- */
+/** Defines constants used by the library. */
 @SuppressWarnings("InlinedApi")
 public final class C {
 
@@ -553,8 +551,8 @@ public final class C {
   /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
   public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
   // LINT.ThenChange(
-  //     ../../../../../../../../../extensions/av1/src/main/jni/gav1_jni.cc,
-  //     ../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
+  //     ../../../../../../../../../../../media/libraries/decoder_av1/src/main/jni/gav1_jni.cc,
+  //     ../../../../../../../../../../../media/libraries/decoder_vp9/src/main/jni/vpx_jni.cc
   // )
 
   /**
@@ -588,7 +586,15 @@ public final class C {
    * Indicates that the track should be selected if user preferences do not state otherwise.
    */
   public static final int SELECTION_FLAG_DEFAULT = 1;
-  /** Indicates that the track must be displayed. Only applies to text tracks. */
+  /**
+   * Indicates that the track should be selected if its language matches the language of the
+   * selected audio track and user preferences do not state otherwise. Only applies to text tracks.
+   *
+   * <p>Tracks with this flag generally provide translation for elements that don't match the
+   * declared language of the selected audio track (e.g. speech in an alien language). See <a
+   * href="https://partnerhelp.netflixstudios.com/hc/en-us/articles/217558918">Netflix's summary</a>
+   * for more info.
+   */
   public static final int SELECTION_FLAG_FORCED = 1 << 1; // 2
   /**
    * Indicates that the player may choose to play the track in absence of an explicit user
@@ -601,11 +607,11 @@ public final class C {
 
   /**
    * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
-   * #TYPE_HLS} or {@link #TYPE_OTHER}.
+   * #TYPE_HLS}, {@link #TYPE_RTSP} or {@link #TYPE_OTHER}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
+  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
   public @interface ContentType {}
   /**
    * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
@@ -619,11 +625,13 @@ public final class C {
    * Value returned by {@link Util#inferContentType(String)} for HLS manifests.
    */
   public static final int TYPE_HLS = 2;
+  /** Value returned by {@link Util#inferContentType(String)} for RTSP. */
+  public static final int TYPE_RTSP = 3;
   /**
    * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
-   * Smooth Streaming manifests.
+   * Smooth Streaming manifests, or RTSP URIs.
    */
-  public static final int TYPE_OTHER = 3;
+  public static final int TYPE_OTHER = 4;
 
   /**
    * A return value for methods where the end of an input was encountered.
@@ -774,7 +782,7 @@ public final class C {
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
-  /** @deprecated Use {@code Renderer.MSG_SET_SURFACE}. */
+  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_OUTPUT}. */
   @Deprecated public static final int MSG_SET_SURFACE = 1;
 
   /** @deprecated Use {@code Renderer.MSG_SET_VOLUME}. */
@@ -794,9 +802,6 @@ public final class C {
 
   /** @deprecated Use {@code Renderer.MSG_SET_CAMERA_MOTION_LISTENER}. */
   @Deprecated public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. */
-  @Deprecated public static final int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = 8;
 
   /** @deprecated Use {@code Renderer.MSG_CUSTOM_BASE}. */
   @Deprecated public static final int MSG_CUSTOM_BASE = 10000;
@@ -930,8 +935,8 @@ public final class C {
   /**
    * Network connection type. One of {@link #NETWORK_TYPE_UNKNOWN}, {@link #NETWORK_TYPE_OFFLINE},
    * {@link #NETWORK_TYPE_WIFI}, {@link #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, {@link
-   * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_5G}, {@link #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link
-   * #NETWORK_TYPE_ETHERNET} or {@link #NETWORK_TYPE_OTHER}.
+   * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_5G_SA}, {@link #NETWORK_TYPE_5G_NSA}, {@link
+   * #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link #NETWORK_TYPE_ETHERNET} or {@link #NETWORK_TYPE_OTHER}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -942,7 +947,8 @@ public final class C {
     NETWORK_TYPE_2G,
     NETWORK_TYPE_3G,
     NETWORK_TYPE_4G,
-    NETWORK_TYPE_5G,
+    NETWORK_TYPE_5G_SA,
+    NETWORK_TYPE_5G_NSA,
     NETWORK_TYPE_CELLULAR_UNKNOWN,
     NETWORK_TYPE_ETHERNET,
     NETWORK_TYPE_OTHER
@@ -960,8 +966,10 @@ public final class C {
   public static final int NETWORK_TYPE_3G = 4;
   /** Network type for a 4G cellular connection. */
   public static final int NETWORK_TYPE_4G = 5;
-  /** Network type for a 5G cellular connection. */
-  public static final int NETWORK_TYPE_5G = 9;
+  /** Network type for a 5G stand-alone (SA) cellular connection. */
+  public static final int NETWORK_TYPE_5G_SA = 9;
+  /** Network type for a 5G non-stand-alone (NSA) cellular connection. */
+  public static final int NETWORK_TYPE_5G_NSA = 10;
   /**
    * Network type for cellular connections which cannot be mapped to one of {@link
    * #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, or {@link #NETWORK_TYPE_4G}.

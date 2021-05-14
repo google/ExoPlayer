@@ -37,6 +37,11 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   @Override
+  public int getType() {
+    return TYPE_UNSET;
+  }
+
+  @Override
   public TrackGroup getTrackGroup() {
     return trackGroup;
   }

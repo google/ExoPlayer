@@ -23,8 +23,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -73,7 +74,7 @@ public final class TestContentProvider extends ContentProvider
             openPipeHelper(
                 uri, /* mimeType= */ null, /* opts= */ null, /* args= */ null, /* func= */ this);
         return new AssetFileDescriptor(
-            fileDescriptor, /* startOffset= */ 0, /* length= */ C.LENGTH_UNSET);
+            fileDescriptor, /* startOffset= */ 0, AssetFileDescriptor.UNKNOWN_LENGTH);
       } else {
         return getContext().getAssets().openFd(fileName);
       }
@@ -111,12 +112,17 @@ public final class TestContentProvider extends ContentProvider
       String mimeType,
       @Nullable Bundle opts,
       @Nullable Object args) {
-    try {
+    try (FileOutputStream outputStream = new FileOutputStream(output.getFileDescriptor())) {
       byte[] data = TestUtil.getByteArray(getContext(), getFileName(uri));
-      FileOutputStream outputStream = new FileOutputStream(output.getFileDescriptor());
       outputStream.write(data);
-      outputStream.close();
     } catch (IOException e) {
+      if (e.getCause() instanceof ErrnoException
+          && ((ErrnoException) e.getCause()).errno == OsConstants.EPIPE) {
+        // Swallow the exception if it's caused by a broken pipe - this indicates the reader has
+        // closed the pipe and is therefore no longer interested in the data being written.
+        // [See internal b/186728171].
+        return;
+      }
       throw new RuntimeException("Error writing to pipe", e);
     }
   }

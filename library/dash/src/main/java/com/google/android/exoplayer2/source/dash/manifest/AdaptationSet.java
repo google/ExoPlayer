@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents a set of interchangeable encoded versions of a media content component.
- */
+/** Represents a set of interchangeable encoded versions of a media content component. */
 public class AdaptationSet {
 
   /**

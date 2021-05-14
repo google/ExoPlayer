@@ -136,7 +136,7 @@ just-in-time modifications of the URI, as shown in the following snippet:
 DataSource.Factory dataSourceFactory = new ResolvingDataSource.Factory(
     httpDataSourceFactory,
     // Provide just-in-time URI resolution logic.
-    (DataSpec dataSpec) -> dataSpec.withUri(resolveUri(dataSpec.uri)));
+    dataSpec -> dataSpec.withUri(resolveUri(dataSpec.uri)));
 ~~~
 {: .language-java}
 

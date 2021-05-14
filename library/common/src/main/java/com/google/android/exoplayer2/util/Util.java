@@ -37,8 +37,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.media.AudioFormat;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -98,9 +96,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
-/**
- * Miscellaneous utility methods.
- */
+/** Miscellaneous utility methods. */
 public final class Util {
 
   /**
@@ -538,7 +534,7 @@ public final class Util {
    * @param threadName The name of the thread.
    * @return The executor.
    */
-  public static ExecutorService newSingleThreadExecutor(final String threadName) {
+  public static ExecutorService newSingleThreadExecutor(String threadName) {
     return Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
   }
 
@@ -672,11 +668,11 @@ public final class Util {
     // Locale data (especially for API < 21) may produce tags with '_' instead of the
     // standard-conformant '-'.
     String normalizedTag = language.replace('_', '-');
-    if (normalizedTag.isEmpty() || "und".equals(normalizedTag)) {
+    if (normalizedTag.isEmpty() || normalizedTag.equals(C.LANGUAGE_UNDETERMINED)) {
       // Tag isn't valid, keep using the original.
       normalizedTag = language;
     }
-    normalizedTag = Util.toLowerInvariant(normalizedTag);
+    normalizedTag = Ascii.toLowerCase(normalizedTag);
     String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
     if (languageTagReplacementMap == null) {
       languageTagReplacementMap = createIsoLanguageReplacementMap();
@@ -760,26 +756,6 @@ public final class Util {
    */
   public static boolean isLinebreak(int c) {
     return c == '\n' || c == '\r';
-  }
-
-  /**
-   * Converts text to lower case using {@link Locale#US}.
-   *
-   * @param text The text to convert.
-   * @return The lower case text, or null if {@code text} is null.
-   */
-  public static @PolyNull String toLowerInvariant(@PolyNull String text) {
-    return text == null ? text : text.toLowerCase(Locale.US);
-  }
-
-  /**
-   * Converts text to upper case using {@link Locale#US}.
-   *
-   * @param text The text to convert.
-   * @return The upper case text, or null if {@code text} is null.
-   */
-  public static @PolyNull String toUpperInvariant(@PolyNull String text) {
-    return text == null ? text : text.toUpperCase(Locale.US);
   }
 
   /**
@@ -1786,7 +1762,7 @@ public final class Util {
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
   public static @Nullable UUID getDrmUuid(String drmScheme) {
-    switch (toLowerInvariant(drmScheme)) {
+    switch (Ascii.toLowerCase(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
       case "playready":
@@ -1824,6 +1800,11 @@ public final class Util {
    */
   @ContentType
   public static int inferContentType(Uri uri) {
+    @Nullable String scheme = uri.getScheme();
+    if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
+      return C.TYPE_RTSP;
+    }
+
     @Nullable String path = uri.getPath();
     return path == null ? C.TYPE_OTHER : inferContentType(path);
   }
@@ -1836,7 +1817,7 @@ public final class Util {
    */
   @ContentType
   public static int inferContentType(String fileName) {
-    fileName = toLowerInvariant(fileName);
+    fileName = Ascii.toLowerCase(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
@@ -1876,6 +1857,8 @@ public final class Util {
         return C.TYPE_HLS;
       case MimeTypes.APPLICATION_SS:
         return C.TYPE_SS;
+      case MimeTypes.APPLICATION_RTSP:
+        return C.TYPE_RTSP;
       default:
         return C.TYPE_OTHER;
     }
@@ -1909,11 +1892,11 @@ public final class Util {
    * @return The fixed URI.
    */
   public static Uri fixSmoothStreamingIsmManifestUri(Uri uri) {
-    @Nullable String path = toLowerInvariant(uri.getPath());
+    @Nullable String path = uri.getPath();
     if (path == null) {
       return uri;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(path);
+    Matcher ismMatcher = ISM_URL_PATTERN.matcher(Ascii.toLowerCase(path));
     if (ismMatcher.matches() && ismMatcher.group(1) == null) {
       // Add missing "Manifest" suffix.
       return Uri.withAppendedPath(uri, "Manifest");
@@ -2149,52 +2132,6 @@ public final class Util {
   }
 
   /**
-   * Returns the {@link C.NetworkType} of the current network connection.
-   *
-   * @param context A context to access the connectivity manager.
-   * @return The {@link C.NetworkType} of the current network connection.
-   */
-  // Intentional null check to guard against user input.
-  @SuppressWarnings("known.nonnull")
-  @C.NetworkType
-  public static int getNetworkType(Context context) {
-    if (context == null) {
-      // Note: This is for backward compatibility only (context used to be @Nullable).
-      return C.NETWORK_TYPE_UNKNOWN;
-    }
-    NetworkInfo networkInfo;
-    @Nullable
-    ConnectivityManager connectivityManager =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    if (connectivityManager == null) {
-      return C.NETWORK_TYPE_UNKNOWN;
-    }
-    try {
-      networkInfo = connectivityManager.getActiveNetworkInfo();
-    } catch (SecurityException e) {
-      // Expected if permission was revoked.
-      return C.NETWORK_TYPE_UNKNOWN;
-    }
-    if (networkInfo == null || !networkInfo.isConnected()) {
-      return C.NETWORK_TYPE_OFFLINE;
-    }
-    switch (networkInfo.getType()) {
-      case ConnectivityManager.TYPE_WIFI:
-        return C.NETWORK_TYPE_WIFI;
-      case ConnectivityManager.TYPE_WIMAX:
-        return C.NETWORK_TYPE_4G;
-      case ConnectivityManager.TYPE_MOBILE:
-      case ConnectivityManager.TYPE_MOBILE_DUN:
-      case ConnectivityManager.TYPE_MOBILE_HIPRI:
-        return getMobileNetworkType(networkInfo);
-      case ConnectivityManager.TYPE_ETHERNET:
-        return C.NETWORK_TYPE_ETHERNET;
-      default:
-        return C.NETWORK_TYPE_OTHER;
-    }
-  }
-
-  /**
    * Returns the upper-case ISO 3166-1 alpha-2 country code of the current registered operator's MCC
    * (Mobile Country Code), or the country code of the default Locale if not available.
    *
@@ -2209,11 +2146,11 @@ public final class Util {
       if (telephonyManager != null) {
         String countryCode = telephonyManager.getNetworkCountryIso();
         if (!TextUtils.isEmpty(countryCode)) {
-          return toUpperInvariant(countryCode);
+          return Ascii.toUpperCase(countryCode);
         }
       }
     }
-    return toUpperInvariant(Locale.getDefault().getCountry());
+    return Ascii.toUpperCase(Locale.getDefault().getCountry());
   }
 
   /**
@@ -2480,38 +2417,6 @@ public final class Util {
   @RequiresApi(21)
   private static String getLocaleLanguageTagV21(Locale locale) {
     return locale.toLanguageTag();
-  }
-
-  private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
-    switch (networkInfo.getSubtype()) {
-      case TelephonyManager.NETWORK_TYPE_EDGE:
-      case TelephonyManager.NETWORK_TYPE_GPRS:
-        return C.NETWORK_TYPE_2G;
-      case TelephonyManager.NETWORK_TYPE_1xRTT:
-      case TelephonyManager.NETWORK_TYPE_CDMA:
-      case TelephonyManager.NETWORK_TYPE_EVDO_0:
-      case TelephonyManager.NETWORK_TYPE_EVDO_A:
-      case TelephonyManager.NETWORK_TYPE_EVDO_B:
-      case TelephonyManager.NETWORK_TYPE_HSDPA:
-      case TelephonyManager.NETWORK_TYPE_HSPA:
-      case TelephonyManager.NETWORK_TYPE_HSUPA:
-      case TelephonyManager.NETWORK_TYPE_IDEN:
-      case TelephonyManager.NETWORK_TYPE_UMTS:
-      case TelephonyManager.NETWORK_TYPE_EHRPD:
-      case TelephonyManager.NETWORK_TYPE_HSPAP:
-      case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
-        return C.NETWORK_TYPE_3G;
-      case TelephonyManager.NETWORK_TYPE_LTE:
-        return C.NETWORK_TYPE_4G;
-      case TelephonyManager.NETWORK_TYPE_NR:
-        return SDK_INT >= 29 ? C.NETWORK_TYPE_5G : C.NETWORK_TYPE_UNKNOWN;
-      case TelephonyManager.NETWORK_TYPE_IWLAN:
-        return C.NETWORK_TYPE_WIFI;
-      case TelephonyManager.NETWORK_TYPE_GSM:
-      case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-      default: // Future mobile network types.
-        return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
-    }
   }
 
   private static HashMap<String, String> createIsoLanguageReplacementMap() {

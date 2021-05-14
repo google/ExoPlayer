@@ -22,7 +22,6 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
-import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
@@ -36,6 +35,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.HashMap;
@@ -578,7 +578,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
     MediaItem currentMediaItem = player.getCurrentMediaItem();
     boolean notifyCurrentMediaItem =
-        !ObjectsCompat.equals(this.currentMediaItem, currentMediaItem) && currentMediaItem != null;
+        !Util.areEqual(this.currentMediaItem, currentMediaItem) && currentMediaItem != null;
     this.currentMediaItem = currentMediaItem;
 
     long currentPosition = getCurrentPosition();
@@ -594,7 +594,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
   private void notifySkipToCompletedOnHandler() {
     MediaItem currentMediaItem = Assertions.checkNotNull(player.getCurrentMediaItem());
-    if (ObjectsCompat.equals(this.currentMediaItem, currentMediaItem)) {
+    if (Util.areEqual(this.currentMediaItem, currentMediaItem)) {
       return;
     }
     this.currentMediaItem = currentMediaItem;
@@ -714,7 +714,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
     @Override
     public void onCurrentMediaItemChanged(MediaItem mediaItem) {
-      if (ObjectsCompat.equals(currentMediaItem, mediaItem)) {
+      if (Util.areEqual(currentMediaItem, mediaItem)) {
         return;
       }
       currentMediaItem = mediaItem;

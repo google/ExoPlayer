@@ -15,29 +15,23 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Handler;
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener.EventDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Estimates bandwidth by listening to data transfers.
@@ -51,30 +45,34 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   /**
    * Country groups used to determine the default initial bitrate estimate. The group assignment for
-   * each country is a list for [Wifi, 2G, 3G, 4G, 5G_NSA].
+   * each country is a list for [Wifi, 2G, 3G, 4G, 5G_NSA, 5G_SA].
    */
   public static final ImmutableListMultimap<String, Integer>
       DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS = createInitialBitrateCountryGroupAssignment();
 
   /** Default initial Wifi bitrate estimate in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI =
-      ImmutableList.of(6_100_000L, 3_800_000L, 2_100_000L, 1_300_000L, 590_000L);
+      ImmutableList.of(6_200_000L, 3_900_000L, 2_300_000L, 1_300_000L, 620_000L);
 
   /** Default initial 2G bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_2G =
-      ImmutableList.of(218_000L, 159_000L, 145_000L, 130_000L, 112_000L);
+      ImmutableList.of(248_000L, 160_000L, 142_000L, 127_000L, 113_000L);
 
   /** Default initial 3G bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_3G =
-      ImmutableList.of(2_200_000L, 1_300_000L, 930_000L, 730_000L, 530_000L);
+      ImmutableList.of(2_200_000L, 1_300_000L, 950_000L, 760_000L, 520_000L);
 
   /** Default initial 4G bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_4G =
-      ImmutableList.of(4_800_000L, 2_700_000L, 1_800_000L, 1_200_000L, 630_000L);
+      ImmutableList.of(4_400_000L, 2_300_000L, 1_500_000L, 1_100_000L, 640_000L);
 
   /** Default initial 5G-NSA bitrate estimates in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA =
-      ImmutableList.of(12_000_000L, 8_800_000L, 5_900_000L, 3_500_000L, 1_800_000L);
+      ImmutableList.of(10_000_000L, 7_200_000L, 5_000_000L, 2_700_000L, 1_600_000L);
+
+  /** Default initial 5G-SA bitrate estimates in bits per second. */
+  public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA =
+      ImmutableList.of(2_600_000L, 2_200_000L, 2_000_000L, 1_500_000L, 470_000L);
 
   /**
    * Default initial bitrate estimate used when the device is offline or the network type cannot be
@@ -95,6 +93,8 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private static final int COUNTRY_GROUP_INDEX_4G = 3;
   /** Index for the 5G-NSA group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
   private static final int COUNTRY_GROUP_INDEX_5G_NSA = 4;
+  /** Index for the 5G-SA group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  private static final int COUNTRY_GROUP_INDEX_5G_SA = 5;
 
   @Nullable private static DefaultBandwidthMeter singletonInstance;
 
@@ -171,7 +171,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      */
     public Builder setInitialBitrateEstimate(String countryCode) {
       initialBitrateEstimates =
-          getInitialBitrateEstimatesForCountry(Util.toUpperInvariant(countryCode));
+          getInitialBitrateEstimatesForCountry(Ascii.toUpperCase(countryCode));
       return this;
     }
 
@@ -214,7 +214,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
     private static Map<Integer, Long> getInitialBitrateEstimatesForCountry(String countryCode) {
       List<Integer> groupIndices = getCountryGroupIndices(countryCode);
-      Map<Integer, Long> result = new HashMap<>(/* initialCapacity= */ 6);
+      Map<Integer, Long> result = new HashMap<>(/* initialCapacity= */ 8);
       result.put(C.NETWORK_TYPE_UNKNOWN, DEFAULT_INITIAL_BITRATE_ESTIMATE);
       result.put(
           C.NETWORK_TYPE_WIFI,
@@ -229,9 +229,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
           C.NETWORK_TYPE_4G,
           DEFAULT_INITIAL_BITRATE_ESTIMATES_4G.get(groupIndices.get(COUNTRY_GROUP_INDEX_4G)));
       result.put(
-          C.NETWORK_TYPE_5G,
+          C.NETWORK_TYPE_5G_NSA,
           DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA.get(
               groupIndices.get(COUNTRY_GROUP_INDEX_5G_NSA)));
+      result.put(
+          C.NETWORK_TYPE_5G_SA,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA.get(groupIndices.get(COUNTRY_GROUP_INDEX_5G_SA)));
       // Assume default Wifi speed for Ethernet to prevent using the slower fallback.
       result.put(
           C.NETWORK_TYPE_ETHERNET,
@@ -242,7 +245,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     private static ImmutableList<Integer> getCountryGroupIndices(String countryCode) {
       ImmutableList<Integer> groupIndices = DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS.get(countryCode);
       // Assume median group if not found.
-      return groupIndices.isEmpty() ? ImmutableList.of(2, 2, 2, 2, 2) : groupIndices;
+      return groupIndices.isEmpty() ? ImmutableList.of(2, 2, 2, 2, 2, 2) : groupIndices;
     }
   }
 
@@ -262,11 +265,11 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;
   private static final int BYTES_TRANSFERRED_FOR_ESTIMATE = 512 * 1024;
 
-  @Nullable private final Context context;
   private final ImmutableMap<Integer, Long> initialBitrateEstimates;
   private final EventDispatcher eventDispatcher;
   private final SlidingPercentile slidingPercentile;
   private final Clock clock;
+  private final boolean resetOnNetworkTypeChange;
 
   private int streamCount;
   private long sampleStartTimeMs;
@@ -298,19 +301,19 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       int maxWeight,
       Clock clock,
       boolean resetOnNetworkTypeChange) {
-    this.context = context == null ? null : context.getApplicationContext();
     this.initialBitrateEstimates = ImmutableMap.copyOf(initialBitrateEstimates);
     this.eventDispatcher = new EventDispatcher();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     this.clock = clock;
-    // Set the initial network type and bitrate estimate
-    networkType = context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context);
-    bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
-    // Register to receive connectivity actions if possible.
-    if (context != null && resetOnNetworkTypeChange) {
-      ConnectivityActionReceiver connectivityActionReceiver =
-          ConnectivityActionReceiver.getInstance(context);
-      connectivityActionReceiver.register(/* bandwidthMeter= */ this);
+    this.resetOnNetworkTypeChange = resetOnNetworkTypeChange;
+    if (context != null) {
+      NetworkTypeObserver networkTypeObserver = NetworkTypeObserver.getInstance(context);
+      networkType = networkTypeObserver.getNetworkType();
+      bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
+      networkTypeObserver.register(/* listener= */ this::onNetworkTypeChanged);
+    } else {
+      networkType = C.NETWORK_TYPE_UNKNOWN;
+      bitrateEstimate = getInitialBitrateEstimateForNetworkType(C.NETWORK_TYPE_UNKNOWN);
     }
   }
 
@@ -325,7 +328,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   public synchronized void setNetworkTypeOverride(@C.NetworkType int networkType) {
     networkTypeOverride = networkType;
     networkTypeOverrideSet = true;
-    onConnectivityAction();
+    onNetworkTypeChanged(networkType);
   }
 
   @Override
@@ -400,11 +403,15 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     streamCount--;
   }
 
-  private synchronized void onConnectivityAction() {
-    int networkType =
-        networkTypeOverrideSet
-            ? networkTypeOverride
-            : (context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
+  private synchronized void onNetworkTypeChanged(@C.NetworkType int networkType) {
+    if (this.networkType != C.NETWORK_TYPE_UNKNOWN && !resetOnNetworkTypeChange) {
+      // Reset on network change disabled. Ignore all updates except the initial one.
+      return;
+    }
+
+    if (networkTypeOverrideSet) {
+      networkType = networkTypeOverride;
+    }
     if (this.networkType == networkType) {
       return;
     }
@@ -455,312 +462,248 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     return isNetwork && !dataSpec.isFlagSet(DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED);
   }
 
-  /*
-   * Note: This class only holds a weak reference to DefaultBandwidthMeter instances. It should not
-   * be made non-static, since doing so adds a strong reference (i.e. DefaultBandwidthMeter.this).
-   */
-  private static class ConnectivityActionReceiver extends BroadcastReceiver {
-
-    private static @MonotonicNonNull ConnectivityActionReceiver staticInstance;
-
-    private final Handler mainHandler;
-    private final ArrayList<WeakReference<DefaultBandwidthMeter>> bandwidthMeters;
-
-    public static synchronized ConnectivityActionReceiver getInstance(Context context) {
-      if (staticInstance == null) {
-        staticInstance = new ConnectivityActionReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        context.registerReceiver(staticInstance, filter);
-      }
-      return staticInstance;
-    }
-
-    private ConnectivityActionReceiver() {
-      mainHandler = new Handler(Looper.getMainLooper());
-      bandwidthMeters = new ArrayList<>();
-    }
-
-    public synchronized void register(DefaultBandwidthMeter bandwidthMeter) {
-      removeClearedReferences();
-      bandwidthMeters.add(new WeakReference<>(bandwidthMeter));
-      // Simulate an initial update on the main thread (like the sticky broadcast we'd receive if
-      // we were to register a separate broadcast receiver for each bandwidth meter).
-      mainHandler.post(() -> updateBandwidthMeter(bandwidthMeter));
-    }
-
-    @Override
-    public synchronized void onReceive(Context context, Intent intent) {
-      if (isInitialStickyBroadcast()) {
-        return;
-      }
-      removeClearedReferences();
-      for (int i = 0; i < bandwidthMeters.size(); i++) {
-        WeakReference<DefaultBandwidthMeter> bandwidthMeterReference = bandwidthMeters.get(i);
-        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterReference.get();
-        if (bandwidthMeter != null) {
-          updateBandwidthMeter(bandwidthMeter);
-        }
-      }
-    }
-
-    private void updateBandwidthMeter(DefaultBandwidthMeter bandwidthMeter) {
-      bandwidthMeter.onConnectivityAction();
-    }
-
-    private void removeClearedReferences() {
-      for (int i = bandwidthMeters.size() - 1; i >= 0; i--) {
-        WeakReference<DefaultBandwidthMeter> bandwidthMeterReference = bandwidthMeters.get(i);
-        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterReference.get();
-        if (bandwidthMeter == null) {
-          bandwidthMeters.remove(i);
-        }
-      }
-    }
-  }
-
   private static ImmutableListMultimap<String, Integer>
       createInitialBitrateCountryGroupAssignment() {
-    ImmutableListMultimap.Builder<String, Integer> countryGroupAssignment =
-        ImmutableListMultimap.builder();
-    countryGroupAssignment.putAll("AD", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("AE", 1, 4, 4, 4, 1);
-    countryGroupAssignment.putAll("AF", 4, 4, 3, 4, 2);
-    countryGroupAssignment.putAll("AG", 2, 2, 1, 1, 2);
-    countryGroupAssignment.putAll("AI", 1, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("AL", 1, 1, 0, 1, 2);
-    countryGroupAssignment.putAll("AM", 2, 2, 1, 2, 2);
-    countryGroupAssignment.putAll("AO", 3, 4, 4, 2, 2);
-    countryGroupAssignment.putAll("AR", 2, 4, 2, 2, 2);
-    countryGroupAssignment.putAll("AS", 2, 2, 4, 3, 2);
-    countryGroupAssignment.putAll("AT", 0, 3, 0, 0, 2);
-    countryGroupAssignment.putAll("AU", 0, 2, 0, 1, 1);
-    countryGroupAssignment.putAll("AW", 1, 2, 0, 4, 2);
-    countryGroupAssignment.putAll("AX", 0, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("AZ", 3, 3, 3, 4, 2);
-    countryGroupAssignment.putAll("BA", 1, 1, 0, 1, 2);
-    countryGroupAssignment.putAll("BB", 0, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("BD", 2, 0, 3, 3, 2);
-    countryGroupAssignment.putAll("BE", 0, 1, 2, 3, 2);
-    countryGroupAssignment.putAll("BF", 4, 4, 4, 2, 2);
-    countryGroupAssignment.putAll("BG", 0, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("BH", 1, 0, 2, 4, 2);
-    countryGroupAssignment.putAll("BI", 4, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("BJ", 4, 4, 3, 4, 2);
-    countryGroupAssignment.putAll("BL", 1, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("BM", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("BN", 4, 0, 1, 1, 2);
-    countryGroupAssignment.putAll("BO", 2, 3, 3, 2, 2);
-    countryGroupAssignment.putAll("BQ", 1, 2, 1, 2, 2);
-    countryGroupAssignment.putAll("BR", 2, 4, 2, 1, 2);
-    countryGroupAssignment.putAll("BS", 3, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("BT", 3, 0, 3, 2, 2);
-    countryGroupAssignment.putAll("BW", 3, 4, 2, 2, 2);
-    countryGroupAssignment.putAll("BY", 1, 0, 2, 1, 2);
-    countryGroupAssignment.putAll("BZ", 2, 2, 2, 1, 2);
-    countryGroupAssignment.putAll("CA", 0, 3, 1, 2, 3);
-    countryGroupAssignment.putAll("CD", 4, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("CF", 4, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("CG", 3, 4, 1, 1, 2);
-    countryGroupAssignment.putAll("CH", 0, 1, 0, 0, 0);
-    countryGroupAssignment.putAll("CI", 3, 3, 3, 3, 2);
-    countryGroupAssignment.putAll("CK", 3, 2, 1, 0, 2);
-    countryGroupAssignment.putAll("CL", 1, 1, 2, 3, 2);
-    countryGroupAssignment.putAll("CM", 3, 4, 3, 2, 2);
-    countryGroupAssignment.putAll("CN", 2, 2, 2, 1, 3);
-    countryGroupAssignment.putAll("CO", 2, 4, 3, 2, 2);
-    countryGroupAssignment.putAll("CR", 2, 3, 4, 4, 2);
-    countryGroupAssignment.putAll("CU", 4, 4, 2, 1, 2);
-    countryGroupAssignment.putAll("CV", 2, 3, 3, 3, 2);
-    countryGroupAssignment.putAll("CW", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("CY", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("CZ", 0, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("DE", 0, 1, 1, 2, 0);
-    countryGroupAssignment.putAll("DJ", 4, 1, 4, 4, 2);
-    countryGroupAssignment.putAll("DK", 0, 0, 1, 0, 2);
-    countryGroupAssignment.putAll("DM", 1, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("DO", 3, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("DZ", 3, 2, 4, 4, 2);
-    countryGroupAssignment.putAll("EC", 2, 4, 3, 2, 2);
-    countryGroupAssignment.putAll("EE", 0, 0, 0, 0, 2);
-    countryGroupAssignment.putAll("EG", 3, 4, 2, 1, 2);
-    countryGroupAssignment.putAll("EH", 2, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("ER", 4, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("ES", 0, 1, 2, 1, 2);
-    countryGroupAssignment.putAll("ET", 4, 4, 4, 1, 2);
-    countryGroupAssignment.putAll("FI", 0, 0, 1, 0, 0);
-    countryGroupAssignment.putAll("FJ", 3, 0, 3, 3, 2);
-    countryGroupAssignment.putAll("FK", 2, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("FM", 4, 2, 4, 3, 2);
-    countryGroupAssignment.putAll("FO", 0, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("FR", 1, 0, 2, 1, 2);
-    countryGroupAssignment.putAll("GA", 3, 3, 1, 0, 2);
-    countryGroupAssignment.putAll("GB", 0, 0, 1, 2, 2);
-    countryGroupAssignment.putAll("GD", 1, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("GE", 1, 0, 1, 3, 2);
-    countryGroupAssignment.putAll("GF", 2, 2, 2, 4, 2);
-    countryGroupAssignment.putAll("GG", 0, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("GH", 3, 2, 3, 2, 2);
-    countryGroupAssignment.putAll("GI", 0, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("GL", 1, 2, 2, 1, 2);
-    countryGroupAssignment.putAll("GM", 4, 3, 2, 4, 2);
-    countryGroupAssignment.putAll("GN", 4, 3, 4, 2, 2);
-    countryGroupAssignment.putAll("GP", 2, 2, 3, 4, 2);
-    countryGroupAssignment.putAll("GQ", 4, 2, 3, 4, 2);
-    countryGroupAssignment.putAll("GR", 1, 1, 0, 1, 2);
-    countryGroupAssignment.putAll("GT", 3, 2, 3, 2, 2);
-    countryGroupAssignment.putAll("GU", 1, 2, 4, 4, 2);
-    countryGroupAssignment.putAll("GW", 3, 4, 4, 3, 2);
-    countryGroupAssignment.putAll("GY", 3, 3, 1, 0, 2);
-    countryGroupAssignment.putAll("HK", 0, 2, 3, 4, 2);
-    countryGroupAssignment.putAll("HN", 3, 0, 3, 3, 2);
-    countryGroupAssignment.putAll("HR", 1, 1, 0, 1, 2);
-    countryGroupAssignment.putAll("HT", 4, 3, 4, 4, 2);
-    countryGroupAssignment.putAll("HU", 0, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("ID", 3, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("IE", 0, 0, 1, 1, 2);
-    countryGroupAssignment.putAll("IL", 1, 0, 2, 3, 2);
-    countryGroupAssignment.putAll("IM", 0, 2, 0, 1, 2);
-    countryGroupAssignment.putAll("IN", 2, 1, 3, 3, 2);
-    countryGroupAssignment.putAll("IO", 4, 2, 2, 4, 2);
-    countryGroupAssignment.putAll("IQ", 3, 2, 4, 3, 2);
-    countryGroupAssignment.putAll("IR", 4, 2, 3, 4, 2);
-    countryGroupAssignment.putAll("IS", 0, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("IT", 0, 0, 1, 1, 2);
-    countryGroupAssignment.putAll("JE", 2, 2, 0, 2, 2);
-    countryGroupAssignment.putAll("JM", 3, 3, 4, 4, 2);
-    countryGroupAssignment.putAll("JO", 1, 2, 1, 1, 2);
-    countryGroupAssignment.putAll("JP", 0, 2, 0, 1, 3);
-    countryGroupAssignment.putAll("KE", 3, 4, 2, 2, 2);
-    countryGroupAssignment.putAll("KG", 1, 0, 2, 2, 2);
-    countryGroupAssignment.putAll("KH", 2, 0, 4, 3, 2);
-    countryGroupAssignment.putAll("KI", 4, 2, 3, 1, 2);
-    countryGroupAssignment.putAll("KM", 4, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("KN", 1, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("KP", 4, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("KR", 0, 2, 1, 1, 1);
-    countryGroupAssignment.putAll("KW", 2, 3, 1, 1, 1);
-    countryGroupAssignment.putAll("KY", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("KZ", 1, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("LA", 2, 2, 1, 1, 2);
-    countryGroupAssignment.putAll("LB", 3, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("LC", 1, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("LI", 0, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("LK", 2, 0, 2, 3, 2);
-    countryGroupAssignment.putAll("LR", 3, 4, 3, 2, 2);
-    countryGroupAssignment.putAll("LS", 3, 3, 2, 3, 2);
-    countryGroupAssignment.putAll("LT", 0, 0, 0, 0, 2);
-    countryGroupAssignment.putAll("LU", 0, 0, 0, 0, 2);
-    countryGroupAssignment.putAll("LV", 0, 0, 0, 0, 2);
-    countryGroupAssignment.putAll("LY", 4, 2, 4, 3, 2);
-    countryGroupAssignment.putAll("MA", 2, 1, 2, 1, 2);
-    countryGroupAssignment.putAll("MC", 0, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("MD", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("ME", 1, 2, 1, 2, 2);
-    countryGroupAssignment.putAll("MF", 1, 2, 1, 0, 2);
-    countryGroupAssignment.putAll("MG", 3, 4, 3, 3, 2);
-    countryGroupAssignment.putAll("MH", 4, 2, 2, 4, 2);
-    countryGroupAssignment.putAll("MK", 1, 0, 0, 0, 2);
-    countryGroupAssignment.putAll("ML", 4, 4, 1, 1, 2);
-    countryGroupAssignment.putAll("MM", 2, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("MN", 2, 4, 1, 1, 2);
-    countryGroupAssignment.putAll("MO", 0, 2, 4, 4, 2);
-    countryGroupAssignment.putAll("MP", 0, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("MQ", 2, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("MR", 3, 0, 4, 2, 2);
-    countryGroupAssignment.putAll("MS", 1, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("MT", 0, 2, 0, 1, 2);
-    countryGroupAssignment.putAll("MU", 3, 1, 2, 3, 2);
-    countryGroupAssignment.putAll("MV", 4, 3, 1, 4, 2);
-    countryGroupAssignment.putAll("MW", 4, 1, 1, 0, 2);
-    countryGroupAssignment.putAll("MX", 2, 4, 3, 3, 2);
-    countryGroupAssignment.putAll("MY", 2, 0, 3, 3, 2);
-    countryGroupAssignment.putAll("MZ", 3, 3, 2, 3, 2);
-    countryGroupAssignment.putAll("NA", 4, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("NC", 2, 0, 4, 4, 2);
-    countryGroupAssignment.putAll("NE", 4, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("NF", 2, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("NG", 3, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("NI", 3, 1, 4, 4, 2);
-    countryGroupAssignment.putAll("NL", 0, 2, 4, 2, 0);
-    countryGroupAssignment.putAll("NO", 0, 1, 1, 0, 2);
-    countryGroupAssignment.putAll("NP", 2, 0, 4, 3, 2);
-    countryGroupAssignment.putAll("NR", 4, 2, 3, 1, 2);
-    countryGroupAssignment.putAll("NU", 4, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("NZ", 0, 2, 1, 2, 4);
-    countryGroupAssignment.putAll("OM", 2, 2, 0, 2, 2);
-    countryGroupAssignment.putAll("PA", 1, 3, 3, 4, 2);
-    countryGroupAssignment.putAll("PE", 2, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("PF", 2, 2, 1, 1, 2);
-    countryGroupAssignment.putAll("PG", 4, 3, 3, 2, 2);
-    countryGroupAssignment.putAll("PH", 3, 0, 3, 4, 4);
-    countryGroupAssignment.putAll("PK", 3, 2, 3, 3, 2);
-    countryGroupAssignment.putAll("PL", 1, 0, 2, 2, 2);
-    countryGroupAssignment.putAll("PM", 0, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("PR", 1, 2, 2, 3, 4);
-    countryGroupAssignment.putAll("PS", 3, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("PT", 1, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("PW", 1, 2, 3, 0, 2);
-    countryGroupAssignment.putAll("PY", 2, 0, 3, 3, 2);
-    countryGroupAssignment.putAll("QA", 2, 3, 1, 2, 2);
-    countryGroupAssignment.putAll("RE", 1, 0, 2, 1, 2);
-    countryGroupAssignment.putAll("RO", 1, 1, 1, 2, 2);
-    countryGroupAssignment.putAll("RS", 1, 2, 0, 0, 2);
-    countryGroupAssignment.putAll("RU", 0, 1, 0, 1, 2);
-    countryGroupAssignment.putAll("RW", 4, 3, 3, 4, 2);
-    countryGroupAssignment.putAll("SA", 2, 2, 2, 1, 2);
-    countryGroupAssignment.putAll("SB", 4, 2, 4, 2, 2);
-    countryGroupAssignment.putAll("SC", 4, 2, 0, 1, 2);
-    countryGroupAssignment.putAll("SD", 4, 4, 4, 3, 2);
-    countryGroupAssignment.putAll("SE", 0, 0, 0, 0, 2);
-    countryGroupAssignment.putAll("SG", 0, 0, 3, 3, 4);
-    countryGroupAssignment.putAll("SH", 4, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("SI", 0, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("SJ", 2, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("SK", 0, 1, 0, 0, 2);
-    countryGroupAssignment.putAll("SL", 4, 3, 3, 1, 2);
-    countryGroupAssignment.putAll("SM", 0, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("SN", 4, 4, 4, 3, 2);
-    countryGroupAssignment.putAll("SO", 3, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("SR", 3, 2, 3, 1, 2);
-    countryGroupAssignment.putAll("SS", 4, 1, 4, 2, 2);
-    countryGroupAssignment.putAll("ST", 2, 2, 1, 2, 2);
-    countryGroupAssignment.putAll("SV", 2, 1, 4, 4, 2);
-    countryGroupAssignment.putAll("SX", 2, 2, 1, 0, 2);
-    countryGroupAssignment.putAll("SY", 4, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("SZ", 3, 4, 3, 4, 2);
-    countryGroupAssignment.putAll("TC", 1, 2, 1, 0, 2);
-    countryGroupAssignment.putAll("TD", 4, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("TG", 3, 2, 1, 0, 2);
-    countryGroupAssignment.putAll("TH", 1, 3, 4, 3, 0);
-    countryGroupAssignment.putAll("TJ", 4, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("TL", 4, 1, 4, 4, 2);
-    countryGroupAssignment.putAll("TM", 4, 2, 1, 2, 2);
-    countryGroupAssignment.putAll("TN", 2, 1, 1, 1, 2);
-    countryGroupAssignment.putAll("TO", 3, 3, 4, 2, 2);
-    countryGroupAssignment.putAll("TR", 1, 2, 1, 1, 2);
-    countryGroupAssignment.putAll("TT", 1, 3, 1, 3, 2);
-    countryGroupAssignment.putAll("TV", 3, 2, 2, 4, 2);
-    countryGroupAssignment.putAll("TW", 0, 0, 0, 0, 1);
-    countryGroupAssignment.putAll("TZ", 3, 3, 3, 2, 2);
-    countryGroupAssignment.putAll("UA", 0, 3, 0, 0, 2);
-    countryGroupAssignment.putAll("UG", 3, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("US", 0, 1, 3, 3, 3);
-    countryGroupAssignment.putAll("UY", 2, 1, 1, 1, 2);
-    countryGroupAssignment.putAll("UZ", 2, 0, 3, 2, 2);
-    countryGroupAssignment.putAll("VC", 2, 2, 2, 2, 2);
-    countryGroupAssignment.putAll("VE", 4, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("VG", 2, 2, 1, 2, 2);
-    countryGroupAssignment.putAll("VI", 1, 2, 2, 4, 2);
-    countryGroupAssignment.putAll("VN", 0, 1, 4, 4, 2);
-    countryGroupAssignment.putAll("VU", 4, 1, 3, 1, 2);
-    countryGroupAssignment.putAll("WS", 3, 1, 4, 2, 2);
-    countryGroupAssignment.putAll("XK", 1, 1, 1, 0, 2);
-    countryGroupAssignment.putAll("YE", 4, 4, 4, 4, 2);
-    countryGroupAssignment.putAll("YT", 3, 2, 1, 3, 2);
-    countryGroupAssignment.putAll("ZA", 2, 3, 2, 2, 2);
-    countryGroupAssignment.putAll("ZM", 3, 2, 2, 3, 2);
-    countryGroupAssignment.putAll("ZW", 3, 3, 3, 3, 2);
-    return countryGroupAssignment.build();
+    return ImmutableListMultimap.<String, Integer>builder()
+        .putAll("AD", 1, 2, 0, 0, 2, 2)
+        .putAll("AE", 1, 4, 4, 4, 2, 2)
+        .putAll("AF", 4, 4, 3, 4, 2, 2)
+        .putAll("AG", 4, 2, 1, 4, 2, 2)
+        .putAll("AI", 1, 2, 2, 2, 2, 2)
+        .putAll("AL", 1, 1, 1, 1, 2, 2)
+        .putAll("AM", 2, 2, 1, 3, 2, 2)
+        .putAll("AO", 3, 4, 3, 1, 2, 2)
+        .putAll("AR", 2, 4, 2, 1, 2, 2)
+        .putAll("AS", 2, 2, 3, 3, 2, 2)
+        .putAll("AT", 0, 1, 0, 0, 0, 2)
+        .putAll("AU", 0, 2, 0, 1, 1, 2)
+        .putAll("AW", 1, 2, 0, 4, 2, 2)
+        .putAll("AX", 0, 2, 2, 2, 2, 2)
+        .putAll("AZ", 3, 3, 3, 4, 4, 2)
+        .putAll("BA", 1, 1, 0, 1, 2, 2)
+        .putAll("BB", 0, 2, 0, 0, 2, 2)
+        .putAll("BD", 2, 0, 3, 3, 2, 2)
+        .putAll("BE", 0, 0, 2, 3, 2, 2)
+        .putAll("BF", 4, 4, 4, 2, 2, 2)
+        .putAll("BG", 0, 1, 0, 0, 2, 2)
+        .putAll("BH", 1, 0, 2, 4, 2, 2)
+        .putAll("BI", 4, 4, 4, 4, 2, 2)
+        .putAll("BJ", 4, 4, 4, 4, 2, 2)
+        .putAll("BL", 1, 2, 2, 2, 2, 2)
+        .putAll("BM", 0, 2, 0, 0, 2, 2)
+        .putAll("BN", 3, 2, 1, 0, 2, 2)
+        .putAll("BO", 1, 2, 4, 2, 2, 2)
+        .putAll("BQ", 1, 2, 1, 2, 2, 2)
+        .putAll("BR", 2, 4, 3, 2, 2, 2)
+        .putAll("BS", 2, 2, 1, 3, 2, 2)
+        .putAll("BT", 3, 0, 3, 2, 2, 2)
+        .putAll("BW", 3, 4, 1, 1, 2, 2)
+        .putAll("BY", 1, 1, 1, 2, 2, 2)
+        .putAll("BZ", 2, 2, 2, 2, 2, 2)
+        .putAll("CA", 0, 3, 1, 2, 4, 2)
+        .putAll("CD", 4, 2, 2, 1, 2, 2)
+        .putAll("CF", 4, 2, 3, 2, 2, 2)
+        .putAll("CG", 3, 4, 2, 2, 2, 2)
+        .putAll("CH", 0, 0, 0, 0, 1, 2)
+        .putAll("CI", 3, 3, 3, 3, 2, 2)
+        .putAll("CK", 2, 2, 3, 0, 2, 2)
+        .putAll("CL", 1, 1, 2, 2, 2, 2)
+        .putAll("CM", 3, 4, 3, 2, 2, 2)
+        .putAll("CN", 2, 2, 2, 1, 3, 2)
+        .putAll("CO", 2, 3, 4, 2, 2, 2)
+        .putAll("CR", 2, 3, 4, 4, 2, 2)
+        .putAll("CU", 4, 4, 2, 2, 2, 2)
+        .putAll("CV", 2, 3, 1, 0, 2, 2)
+        .putAll("CW", 1, 2, 0, 0, 2, 2)
+        .putAll("CY", 1, 1, 0, 0, 2, 2)
+        .putAll("CZ", 0, 1, 0, 0, 1, 2)
+        .putAll("DE", 0, 0, 1, 1, 0, 2)
+        .putAll("DJ", 4, 0, 4, 4, 2, 2)
+        .putAll("DK", 0, 0, 1, 0, 0, 2)
+        .putAll("DM", 1, 2, 2, 2, 2, 2)
+        .putAll("DO", 3, 4, 4, 4, 2, 2)
+        .putAll("DZ", 3, 3, 4, 4, 2, 4)
+        .putAll("EC", 2, 4, 3, 1, 2, 2)
+        .putAll("EE", 0, 1, 0, 0, 2, 2)
+        .putAll("EG", 3, 4, 3, 3, 2, 2)
+        .putAll("EH", 2, 2, 2, 2, 2, 2)
+        .putAll("ER", 4, 2, 2, 2, 2, 2)
+        .putAll("ES", 0, 1, 1, 1, 2, 2)
+        .putAll("ET", 4, 4, 4, 1, 2, 2)
+        .putAll("FI", 0, 0, 0, 0, 0, 2)
+        .putAll("FJ", 3, 0, 2, 3, 2, 2)
+        .putAll("FK", 4, 2, 2, 2, 2, 2)
+        .putAll("FM", 3, 2, 4, 4, 2, 2)
+        .putAll("FO", 1, 2, 0, 1, 2, 2)
+        .putAll("FR", 1, 1, 2, 0, 1, 2)
+        .putAll("GA", 3, 4, 1, 1, 2, 2)
+        .putAll("GB", 0, 0, 1, 1, 1, 2)
+        .putAll("GD", 1, 2, 2, 2, 2, 2)
+        .putAll("GE", 1, 1, 1, 2, 2, 2)
+        .putAll("GF", 2, 2, 2, 3, 2, 2)
+        .putAll("GG", 1, 2, 0, 0, 2, 2)
+        .putAll("GH", 3, 1, 3, 2, 2, 2)
+        .putAll("GI", 0, 2, 0, 0, 2, 2)
+        .putAll("GL", 1, 2, 0, 0, 2, 2)
+        .putAll("GM", 4, 3, 2, 4, 2, 2)
+        .putAll("GN", 4, 3, 4, 2, 2, 2)
+        .putAll("GP", 2, 1, 2, 3, 2, 2)
+        .putAll("GQ", 4, 2, 2, 4, 2, 2)
+        .putAll("GR", 1, 2, 0, 0, 2, 2)
+        .putAll("GT", 3, 2, 3, 1, 2, 2)
+        .putAll("GU", 1, 2, 3, 4, 2, 2)
+        .putAll("GW", 4, 4, 4, 4, 2, 2)
+        .putAll("GY", 3, 3, 3, 4, 2, 2)
+        .putAll("HK", 0, 1, 2, 3, 2, 0)
+        .putAll("HN", 3, 1, 3, 3, 2, 2)
+        .putAll("HR", 1, 1, 0, 0, 3, 2)
+        .putAll("HT", 4, 4, 4, 4, 2, 2)
+        .putAll("HU", 0, 0, 0, 0, 0, 2)
+        .putAll("ID", 3, 2, 3, 3, 2, 2)
+        .putAll("IE", 0, 0, 1, 1, 3, 2)
+        .putAll("IL", 1, 0, 2, 3, 4, 2)
+        .putAll("IM", 0, 2, 0, 1, 2, 2)
+        .putAll("IN", 2, 1, 3, 3, 2, 2)
+        .putAll("IO", 4, 2, 2, 4, 2, 2)
+        .putAll("IQ", 3, 3, 4, 4, 2, 2)
+        .putAll("IR", 3, 2, 3, 2, 2, 2)
+        .putAll("IS", 0, 2, 0, 0, 2, 2)
+        .putAll("IT", 0, 4, 0, 1, 2, 2)
+        .putAll("JE", 2, 2, 1, 2, 2, 2)
+        .putAll("JM", 3, 3, 4, 4, 2, 2)
+        .putAll("JO", 2, 2, 1, 1, 2, 2)
+        .putAll("JP", 0, 0, 0, 0, 2, 1)
+        .putAll("KE", 3, 4, 2, 2, 2, 2)
+        .putAll("KG", 2, 0, 1, 1, 2, 2)
+        .putAll("KH", 1, 0, 4, 3, 2, 2)
+        .putAll("KI", 4, 2, 4, 3, 2, 2)
+        .putAll("KM", 4, 3, 2, 3, 2, 2)
+        .putAll("KN", 1, 2, 2, 2, 2, 2)
+        .putAll("KP", 4, 2, 2, 2, 2, 2)
+        .putAll("KR", 0, 0, 1, 3, 1, 2)
+        .putAll("KW", 1, 3, 1, 1, 1, 2)
+        .putAll("KY", 1, 2, 0, 2, 2, 2)
+        .putAll("KZ", 2, 2, 2, 3, 2, 2)
+        .putAll("LA", 1, 2, 1, 1, 2, 2)
+        .putAll("LB", 3, 2, 0, 0, 2, 2)
+        .putAll("LC", 1, 2, 0, 0, 2, 2)
+        .putAll("LI", 0, 2, 2, 2, 2, 2)
+        .putAll("LK", 2, 0, 2, 3, 2, 2)
+        .putAll("LR", 3, 4, 4, 3, 2, 2)
+        .putAll("LS", 3, 3, 2, 3, 2, 2)
+        .putAll("LT", 0, 0, 0, 0, 2, 2)
+        .putAll("LU", 1, 0, 1, 1, 2, 2)
+        .putAll("LV", 0, 0, 0, 0, 2, 2)
+        .putAll("LY", 4, 2, 4, 3, 2, 2)
+        .putAll("MA", 3, 2, 2, 1, 2, 2)
+        .putAll("MC", 0, 2, 0, 0, 2, 2)
+        .putAll("MD", 1, 2, 0, 0, 2, 2)
+        .putAll("ME", 1, 2, 0, 1, 2, 2)
+        .putAll("MF", 2, 2, 1, 1, 2, 2)
+        .putAll("MG", 3, 4, 2, 2, 2, 2)
+        .putAll("MH", 4, 2, 2, 4, 2, 2)
+        .putAll("MK", 1, 1, 0, 0, 2, 2)
+        .putAll("ML", 4, 4, 2, 2, 2, 2)
+        .putAll("MM", 2, 3, 3, 3, 2, 2)
+        .putAll("MN", 2, 4, 2, 2, 2, 2)
+        .putAll("MO", 0, 2, 4, 4, 2, 2)
+        .putAll("MP", 0, 2, 2, 2, 2, 2)
+        .putAll("MQ", 2, 2, 2, 3, 2, 2)
+        .putAll("MR", 3, 0, 4, 3, 2, 2)
+        .putAll("MS", 1, 2, 2, 2, 2, 2)
+        .putAll("MT", 0, 2, 0, 0, 2, 2)
+        .putAll("MU", 2, 1, 1, 2, 2, 2)
+        .putAll("MV", 4, 3, 2, 4, 2, 2)
+        .putAll("MW", 4, 2, 1, 0, 2, 2)
+        .putAll("MX", 2, 4, 4, 4, 4, 2)
+        .putAll("MY", 1, 0, 3, 2, 2, 2)
+        .putAll("MZ", 3, 3, 2, 1, 2, 2)
+        .putAll("NA", 4, 3, 3, 2, 2, 2)
+        .putAll("NC", 3, 0, 4, 4, 2, 2)
+        .putAll("NE", 4, 4, 4, 4, 2, 2)
+        .putAll("NF", 2, 2, 2, 2, 2, 2)
+        .putAll("NG", 3, 3, 2, 3, 2, 2)
+        .putAll("NI", 2, 1, 4, 4, 2, 2)
+        .putAll("NL", 0, 2, 3, 2, 0, 2)
+        .putAll("NO", 0, 1, 2, 0, 0, 2)
+        .putAll("NP", 2, 0, 4, 2, 2, 2)
+        .putAll("NR", 3, 2, 3, 1, 2, 2)
+        .putAll("NU", 4, 2, 2, 2, 2, 2)
+        .putAll("NZ", 0, 2, 1, 2, 4, 2)
+        .putAll("OM", 2, 2, 1, 3, 3, 2)
+        .putAll("PA", 1, 3, 3, 3, 2, 2)
+        .putAll("PE", 2, 3, 4, 4, 2, 2)
+        .putAll("PF", 2, 2, 2, 1, 2, 2)
+        .putAll("PG", 4, 4, 3, 2, 2, 2)
+        .putAll("PH", 2, 1, 3, 3, 3, 2)
+        .putAll("PK", 3, 2, 3, 3, 2, 2)
+        .putAll("PL", 1, 0, 1, 2, 3, 2)
+        .putAll("PM", 0, 2, 2, 2, 2, 2)
+        .putAll("PR", 2, 1, 2, 2, 4, 3)
+        .putAll("PS", 3, 3, 2, 2, 2, 2)
+        .putAll("PT", 0, 1, 1, 0, 2, 2)
+        .putAll("PW", 1, 2, 4, 1, 2, 2)
+        .putAll("PY", 2, 0, 3, 2, 2, 2)
+        .putAll("QA", 2, 3, 1, 2, 3, 2)
+        .putAll("RE", 1, 0, 2, 2, 2, 2)
+        .putAll("RO", 0, 1, 0, 1, 0, 2)
+        .putAll("RS", 1, 2, 0, 0, 2, 2)
+        .putAll("RU", 0, 1, 0, 1, 4, 2)
+        .putAll("RW", 3, 3, 3, 1, 2, 2)
+        .putAll("SA", 2, 2, 2, 1, 1, 2)
+        .putAll("SB", 4, 2, 3, 2, 2, 2)
+        .putAll("SC", 4, 2, 1, 3, 2, 2)
+        .putAll("SD", 4, 4, 4, 4, 2, 2)
+        .putAll("SE", 0, 0, 0, 0, 0, 2)
+        .putAll("SG", 1, 0, 1, 2, 3, 2)
+        .putAll("SH", 4, 2, 2, 2, 2, 2)
+        .putAll("SI", 0, 0, 0, 0, 2, 2)
+        .putAll("SJ", 2, 2, 2, 2, 2, 2)
+        .putAll("SK", 0, 1, 0, 0, 2, 2)
+        .putAll("SL", 4, 3, 4, 0, 2, 2)
+        .putAll("SM", 0, 2, 2, 2, 2, 2)
+        .putAll("SN", 4, 4, 4, 4, 2, 2)
+        .putAll("SO", 3, 3, 3, 4, 2, 2)
+        .putAll("SR", 3, 2, 2, 2, 2, 2)
+        .putAll("SS", 4, 4, 3, 3, 2, 2)
+        .putAll("ST", 2, 2, 1, 2, 2, 2)
+        .putAll("SV", 2, 1, 4, 3, 2, 2)
+        .putAll("SX", 2, 2, 1, 0, 2, 2)
+        .putAll("SY", 4, 3, 3, 2, 2, 2)
+        .putAll("SZ", 3, 3, 2, 4, 2, 2)
+        .putAll("TC", 2, 2, 2, 0, 2, 2)
+        .putAll("TD", 4, 3, 4, 4, 2, 2)
+        .putAll("TG", 3, 2, 2, 4, 2, 2)
+        .putAll("TH", 0, 3, 2, 3, 2, 2)
+        .putAll("TJ", 4, 4, 4, 4, 2, 2)
+        .putAll("TL", 4, 0, 4, 4, 2, 2)
+        .putAll("TM", 4, 2, 4, 3, 2, 2)
+        .putAll("TN", 2, 1, 1, 2, 2, 2)
+        .putAll("TO", 3, 3, 4, 3, 2, 2)
+        .putAll("TR", 1, 2, 1, 1, 2, 2)
+        .putAll("TT", 1, 4, 0, 1, 2, 2)
+        .putAll("TV", 3, 2, 2, 4, 2, 2)
+        .putAll("TW", 0, 0, 0, 0, 1, 0)
+        .putAll("TZ", 3, 3, 3, 2, 2, 2)
+        .putAll("UA", 0, 3, 1, 1, 2, 2)
+        .putAll("UG", 3, 2, 3, 3, 2, 2)
+        .putAll("US", 1, 1, 2, 2, 4, 2)
+        .putAll("UY", 2, 2, 1, 1, 2, 2)
+        .putAll("UZ", 2, 1, 3, 4, 2, 2)
+        .putAll("VC", 1, 2, 2, 2, 2, 2)
+        .putAll("VE", 4, 4, 4, 4, 2, 2)
+        .putAll("VG", 2, 2, 1, 1, 2, 2)
+        .putAll("VI", 1, 2, 1, 2, 2, 2)
+        .putAll("VN", 0, 1, 3, 4, 2, 2)
+        .putAll("VU", 4, 0, 3, 1, 2, 2)
+        .putAll("WF", 4, 2, 2, 4, 2, 2)
+        .putAll("WS", 3, 1, 3, 1, 2, 2)
+        .putAll("XK", 0, 1, 1, 0, 2, 2)
+        .putAll("YE", 4, 4, 4, 3, 2, 2)
+        .putAll("YT", 4, 2, 2, 3, 2, 2)
+        .putAll("ZA", 3, 3, 2, 1, 2, 2)
+        .putAll("ZM", 3, 2, 3, 3, 2, 2)
+        .putAll("ZW", 3, 2, 4, 3, 2, 2)
+        .build();
   }
 }

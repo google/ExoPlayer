@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.robolectric;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -57,8 +58,8 @@ public class TestPlayerRunHelper {
       return;
     }
     AtomicBoolean receivedExpectedState = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPlaybackStateChanged(int state) {
             if (state == expectedState) {
@@ -87,8 +88,8 @@ public class TestPlayerRunHelper {
       return;
     }
     AtomicBoolean receivedExpectedPlayWhenReady = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
             if (playWhenReady == expectedPlayWhenReady) {
@@ -117,8 +118,8 @@ public class TestPlayerRunHelper {
       return;
     }
     AtomicBoolean receivedExpectedTimeline = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onTimelineChanged(Timeline timeline, int reason) {
             if (expectedTimeline.equals(timeline)) {
@@ -142,8 +143,8 @@ public class TestPlayerRunHelper {
   public static Timeline runUntilTimelineChanged(Player player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<Timeline> receivedTimeline = new AtomicReference<>();
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onTimelineChanged(Timeline timeline, int reason) {
             receivedTimeline.set(timeline);
@@ -157,8 +158,8 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onPositionDiscontinuity} callback with the specified {@link
-   * Player.DiscontinuityReason} occurred.
+   * Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}
+   * callback with the specified {@link Player.DiscontinuityReason} occurred.
    *
    * @param player The {@link Player}.
    * @param expectedReason The expected {@link Player.DiscontinuityReason}.
@@ -169,10 +170,11 @@ public class TestPlayerRunHelper {
       Player player, @Player.DiscontinuityReason int expectedReason) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
-          public void onPositionDiscontinuity(int reason) {
+          public void onPositionDiscontinuity(
+              Player.PositionInfo oldPosition, Player.PositionInfo newPosition, int reason) {
             if (reason == expectedReason) {
               receivedCallback.set(true);
               player.removeListener(this);
@@ -194,8 +196,8 @@ public class TestPlayerRunHelper {
   public static ExoPlaybackException runUntilError(Player player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<ExoPlaybackException> receivedError = new AtomicReference<>();
-    Player.EventListener listener =
-        new Player.EventListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onPlayerError(ExoPlaybackException error) {
             receivedError.set(error);
@@ -209,46 +211,48 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged} callback occurred.
+   * ExoPlayer.AudioOffloadListener#onExperimentalOffloadSchedulingEnabledChanged} callback
+   * occurred.
    *
    * @param player The {@link Player}.
    * @return The new offloadSchedulingEnabled state.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(Player player)
+  public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(ExoPlayer player)
       throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<@NullableType Boolean> offloadSchedulingEnabledReceiver =
         new AtomicReference<>();
-    Player.EventListener listener =
-        new Player.EventListener() {
+    ExoPlayer.AudioOffloadListener listener =
+        new ExoPlayer.AudioOffloadListener() {
           @Override
           public void onExperimentalOffloadSchedulingEnabledChanged(
               boolean offloadSchedulingEnabled) {
             offloadSchedulingEnabledReceiver.set(offloadSchedulingEnabled);
           }
         };
-    player.addListener(listener);
+    player.addAudioOffloadListener(listener);
     runMainLooperUntil(() -> offloadSchedulingEnabledReceiver.get() != null);
     return Assertions.checkNotNull(offloadSchedulingEnabledReceiver.get());
   }
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onExperimentalSleepingForOffloadChanged(boolean)} callback occurred.
+   * ExoPlayer.AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)} callback
+   * occurred.
    *
    * @param player The {@link Player}.
    * @param expectedSleepForOffload The expected sleep of offload state.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void runUntilSleepingForOffload(Player player, boolean expectedSleepForOffload)
+  public static void runUntilSleepingForOffload(ExoPlayer player, boolean expectedSleepForOffload)
       throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receiverCallback = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    ExoPlayer.AudioOffloadListener listener =
+        new ExoPlayer.AudioOffloadListener() {
           @Override
           public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
             if (sleepingForOffload == expectedSleepForOffload) {
@@ -256,8 +260,14 @@ public class TestPlayerRunHelper {
             }
           }
         };
-    player.addListener(listener);
-    runMainLooperUntil(receiverCallback::get);
+    player.addAudioOffloadListener(listener);
+    runMainLooperUntil(
+        () -> { // Make sure progress is being made, see [internal: b/170387438#comment2]
+          assertThat(player.getPlayerError()).isNull();
+          assertThat(player.getPlayWhenReady()).isTrue();
+          assertThat(player.getPlaybackState()).isAnyOf(Player.STATE_BUFFERING, Player.STATE_READY);
+          return receiverCallback.get();
+        });
   }
 
   /**
@@ -271,15 +281,15 @@ public class TestPlayerRunHelper {
   public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
-    VideoListener listener =
-        new VideoListener() {
+    Player.Listener listener =
+        new Player.Listener() {
           @Override
           public void onRenderedFirstFrame() {
             receivedCallback.set(true);
-            player.removeVideoListener(this);
+            player.removeListener(this);
           }
         };
-    player.addVideoListener(listener);
+    player.addListener(listener);
     runMainLooperUntil(receivedCallback::get);
   }
 
@@ -313,6 +323,7 @@ public class TestPlayerRunHelper {
                         blockPlaybackThreadCondition.open();
                       });
               try {
+                player.getClock().onThreadBlocked();
                 blockPlaybackThreadCondition.block();
               } catch (InterruptedException e) {
                 // Ignore.

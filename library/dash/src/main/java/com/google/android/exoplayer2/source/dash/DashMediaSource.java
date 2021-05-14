@@ -562,7 +562,7 @@ public final class DashMediaSource extends BaseMediaSource {
       processManifest(false);
     } else {
       dataSource = manifestDataSourceFactory.createDataSource();
-      loader = new Loader("Loader:DashMediaSource");
+      loader = new Loader("DashMediaSource");
       handler = Util.createHandlerForCurrentLooper();
       startLoadingManifest();
     }
@@ -1139,7 +1139,7 @@ public final class DashMediaSource extends BaseMediaSource {
       if (index == null) {
         return periodStartTimeInManifestUs;
       }
-      int availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
+      long availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
       if (availableSegmentCount == 0) {
         return periodStartTimeInManifestUs;
       }
@@ -1171,7 +1171,7 @@ public final class DashMediaSource extends BaseMediaSource {
       if (index == null) {
         return periodStartTimeInManifestUs + periodDurationUs;
       }
-      int availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
+      long availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
       if (availableSegmentCount == 0) {
         return periodStartTimeInManifestUs;
       }

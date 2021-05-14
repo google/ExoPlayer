@@ -35,8 +35,8 @@ public final class DataSchemeDataSource extends BaseDataSource {
 
   @Nullable private DataSpec dataSpec;
   @Nullable private byte[] data;
-  private int endPosition;
   private int readPosition;
+  private int bytesRemaining;
 
   public DataSchemeDataSource() {
     super(/* isNetwork= */ false);
@@ -46,7 +46,6 @@ public final class DataSchemeDataSource extends BaseDataSource {
   public long open(DataSpec dataSpec) throws IOException {
     transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
-    readPosition = (int) dataSpec.position;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
     if (!SCHEME_DATA.equals(scheme)) {
@@ -67,14 +66,17 @@ public final class DataSchemeDataSource extends BaseDataSource {
       // TODO: Add support for other charsets.
       data = Util.getUtf8Bytes(URLDecoder.decode(dataString, Charsets.US_ASCII.name()));
     }
-    endPosition =
-        dataSpec.length != C.LENGTH_UNSET ? (int) dataSpec.length + readPosition : data.length;
-    if (endPosition > data.length || readPosition > endPosition) {
+    if (dataSpec.position > data.length) {
       data = null;
       throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
+    readPosition = (int) dataSpec.position;
+    bytesRemaining = data.length - readPosition;
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesRemaining = (int) min(bytesRemaining, dataSpec.length);
+    }
     transferStarted(dataSpec);
-    return (long) endPosition - readPosition;
+    return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : bytesRemaining;
   }
 
   @Override
@@ -82,13 +84,13 @@ public final class DataSchemeDataSource extends BaseDataSource {
     if (readLength == 0) {
       return 0;
     }
-    int remainingBytes = endPosition - readPosition;
-    if (remainingBytes == 0) {
+    if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    readLength = min(readLength, remainingBytes);
+    readLength = min(readLength, bytesRemaining);
     System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
     readPosition += readLength;
+    bytesRemaining -= readLength;
     bytesTransferred(readLength);
     return readLength;
   }

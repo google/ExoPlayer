@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
+import com.google.android.exoplayer2.testutil.FakeDataSet;
+import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
@@ -27,27 +30,36 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 /** {@link DataSource} contract tests for {@link CacheDataSource}. */
 @RunWith(AndroidJUnit4.class)
 public class CacheDataSourceContractTest extends DataSourceContractTest {
-  private static final byte[] DATA = TestUtil.buildTestData(20);
-
-  @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
   private Uri simpleUri;
+  private Uri unknownLengthUri;
+  private byte[] simpleData;
+  private byte[] unknownLengthData;
+  private FakeDataSet fakeDataSet;
+
+  private FakeDataSource upstreamDataSource;
 
   @Before
   public void setUp() throws IOException {
-    File file = tempFolder.newFile();
-    Files.write(Paths.get(file.getAbsolutePath()), DATA);
-    simpleUri = Uri.fromFile(file);
+    simpleUri = Uri.parse("test://simple.test");
+    unknownLengthUri = Uri.parse("test://unknown-length.test");
+    simpleData = TestUtil.buildTestData(/* length= */ 20);
+    unknownLengthData = TestUtil.buildTestData(/* length= */ 40);
+    fakeDataSet =
+        new FakeDataSet()
+            .newData(simpleUri)
+            .appendReadData(simpleData)
+            .endData()
+            .newData(unknownLengthUri)
+            .setSimulateUnknownLength(true)
+            .appendReadData(unknownLengthData)
+            .endData();
   }
 
   @Override
@@ -56,13 +68,18 @@ public class CacheDataSourceContractTest extends DataSourceContractTest {
         new TestResource.Builder()
             .setName("simple")
             .setUri(simpleUri)
-            .setExpectedBytes(DATA)
+            .setExpectedBytes(simpleData)
+            .build(),
+        new TestResource.Builder()
+            .setName("unknown length")
+            .setUri(unknownLengthUri)
+            .setExpectedBytes(unknownLengthData)
             .build());
   }
 
   @Override
   protected Uri getNotFoundUri() {
-    return Uri.fromFile(tempFolder.getRoot().toPath().resolve("nonexistent").toFile());
+    return Uri.parse("test://not-found.test");
   }
 
   @Override
@@ -71,6 +88,13 @@ public class CacheDataSourceContractTest extends DataSourceContractTest {
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     SimpleCache cache =
         new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
-    return new CacheDataSource(cache, new FileDataSource());
+    upstreamDataSource = new FakeDataSource(fakeDataSet);
+    return new CacheDataSource(cache, upstreamDataSource);
+  }
+
+  @Override
+  @Nullable
+  protected DataSource getTransferListenerDataSource() {
+    return upstreamDataSource;
   }
 }

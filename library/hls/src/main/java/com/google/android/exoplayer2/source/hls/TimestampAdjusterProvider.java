@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 
-/**
- * Provides {@link TimestampAdjuster} instances for use during HLS playbacks.
- */
+/** Provides {@link TimestampAdjuster} instances for use during HLS playbacks. */
 public final class TimestampAdjusterProvider {
 
   // TODO: Prevent this array from growing indefinitely large by removing adjusters that are no

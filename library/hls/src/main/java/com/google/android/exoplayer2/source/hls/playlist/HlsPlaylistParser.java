@@ -64,9 +64,7 @@ import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
-/**
- * HLS playlists parsing logic.
- */
+/** HLS playlists parsing logic. */
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
 
   /** Exception thrown when merging a delta update fails. */
@@ -1190,7 +1188,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     }
   }
 
-  private static @Nullable String parseOptionalStringAttr(
+  @Nullable
+  private static String parseOptionalStringAttr(
       String line, Pattern pattern, Map<String, String> variableDefinitions) {
     return parseOptionalStringAttr(line, pattern, null, variableDefinitions);
   }

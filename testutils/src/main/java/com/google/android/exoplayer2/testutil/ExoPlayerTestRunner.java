@@ -22,6 +22,7 @@ import static junit.framework.TestCase.assertFalse;
 import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -49,7 +50,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 /** Helper class to run an ExoPlayer test. */
-public final class ExoPlayerTestRunner implements Player.EventListener, ActionSchedule.Callback {
+public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedule.Callback {
 
   /** A generic video {@link Format} which can be used to set up a {@link FakeMediaSource}. */
   public static final Format VIDEO_FORMAT =
@@ -80,7 +81,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     private Format[] supportedFormats;
     private Object manifest;
     private ActionSchedule actionSchedule;
-    private Player.EventListener eventListener;
+    private Surface surface;
+    private Player.Listener playerListener;
     private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
     private boolean pauseAtEndOfMediaItems;
@@ -277,14 +279,25 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * Sets an {@link Player.EventListener} to be registered to listen to player events.
+     * Sets the video {@link Surface}. The default value is {@code null}.
      *
-     * @param eventListener A {@link Player.EventListener} to be registered by the test runner to
-     *     listen to player events.
+     * @param surface The {@link Surface} to be used by the player.
      * @return This builder.
      */
-    public Builder setEventListener(Player.EventListener eventListener) {
-      this.eventListener = eventListener;
+    public Builder setVideoSurface(Surface surface) {
+      this.surface = surface;
+      return this;
+    }
+
+    /**
+     * Sets an {@link Player.Listener} to be registered to listen to player events.
+     *
+     * @param playerListener A {@link Player.Listener} to be registered by the test runner to listen
+     *     to player events.
+     * @return This builder.
+     */
+    public Builder setPlayerListener(Player.Listener playerListener) {
+      this.playerListener = playerListener;
       return this;
     }
 
@@ -334,8 +347,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           skipSettingMediaSources,
           initialWindowIndex,
           initialPositionMs,
+          surface,
           actionSchedule,
-          eventListener,
+          playerListener,
           analyticsListener,
           expectedPlayerEndedCount,
           pauseAtEndOfMediaItems);
@@ -347,10 +361,12 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final boolean skipSettingMediaSources;
   private final int initialWindowIndex;
   private final long initialPositionMs;
+  @Nullable private final Surface surface;
   @Nullable private final ActionSchedule actionSchedule;
-  @Nullable private final Player.EventListener eventListener;
+  @Nullable private final Player.Listener playerListener;
   @Nullable private final AnalyticsListener analyticsListener;
 
+  private final Clock clock;
   private final HandlerThread playerThread;
   private final HandlerWrapper handler;
   private final CountDownLatch endedCountDownLatch;
@@ -375,8 +391,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       boolean skipSettingMediaSources,
       int initialWindowIndex,
       long initialPositionMs,
+      @Nullable Surface surface,
       @Nullable ActionSchedule actionSchedule,
-      @Nullable Player.EventListener eventListener,
+      @Nullable Player.Listener playerListener,
       @Nullable AnalyticsListener analyticsListener,
       int expectedPlayerEndedCount,
       boolean pauseAtEndOfMediaItems) {
@@ -385,9 +402,11 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.skipSettingMediaSources = skipSettingMediaSources;
     this.initialWindowIndex = initialWindowIndex;
     this.initialPositionMs = initialPositionMs;
+    this.surface = surface;
     this.actionSchedule = actionSchedule;
-    this.eventListener = eventListener;
+    this.playerListener = playerListener;
     this.analyticsListener = analyticsListener;
+    this.clock = playerBuilder.getClock();
     timelines = new ArrayList<>();
     timelineChangeReasons = new ArrayList<>();
     mediaItems = new ArrayList<>();
@@ -399,8 +418,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     actionScheduleFinishedCountDownLatch = new CountDownLatch(actionSchedule != null ? 1 : 0);
     playerThread = new HandlerThread("ExoPlayerTest thread");
     playerThread.start();
-    handler =
-        playerBuilder.getClock().createHandler(playerThread.getLooper(), /* callback= */ null);
+    handler = clock.createHandler(playerThread.getLooper(), /* callback= */ null);
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
   }
 
@@ -429,22 +447,25 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         () -> {
           try {
             player = playerBuilder.setLooper(Looper.myLooper()).build();
-            player.addListener(ExoPlayerTestRunner.this);
-            if (eventListener != null) {
-              player.addListener(eventListener);
-            }
-            if (analyticsListener != null) {
-              player.addAnalyticsListener(analyticsListener);
+            if (surface != null) {
+              player.setVideoSurface(surface);
             }
             if (pauseAtEndOfMediaItems) {
               player.setPauseAtEndOfMediaItems(true);
+            }
+            player.addListener(ExoPlayerTestRunner.this);
+            if (playerListener != null) {
+              player.addListener(playerListener);
+            }
+            if (analyticsListener != null) {
+              player.addAnalyticsListener(analyticsListener);
             }
             player.play();
             if (actionSchedule != null) {
               actionSchedule.start(
                   player,
                   playerBuilder.getTrackSelector(),
-                  /* surface= */ null,
+                  surface,
                   handler,
                   /* callback= */ ExoPlayerTestRunner.this);
             }
@@ -476,6 +497,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
+    clock.onThreadBlocked();
     if (!endedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       exception = new TimeoutException("Test playback timed out waiting for playback to end.");
     }
@@ -498,6 +520,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    */
   public ExoPlayerTestRunner blockUntilActionScheduleFinished(long timeoutMs)
       throws TimeoutException, InterruptedException {
+    clock.onThreadBlocked();
     if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       throw new TimeoutException("Test playback timed out waiting for action schedule to finish.");
     }
@@ -507,8 +530,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   // Assertions called on the test thread after test finished.
 
   /**
-   * Asserts that the timelines reported by {@link Player.EventListener#onTimelineChanged(Timeline,
-   * int)} are the same to the provided timelines. This assert differs from testing equality by not
+   * Asserts that the timelines reported by {@link Player.Listener#onTimelineChanged(Timeline, int)}
+   * are the same to the provided timelines. This assert differs from testing equality by not
    * comparing period ids which may be different due to id mapping of child source period ids.
    *
    * @param timelines A list of expected {@link Timeline}s.
@@ -523,8 +546,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the timeline change reasons reported by {@link
-   * Player.EventListener#onTimelineChanged(Timeline, int)} are equal to the provided timeline
-   * change reasons.
+   * Player.Listener#onTimelineChanged(Timeline, int)} are equal to the provided timeline change
+   * reasons.
    */
   public void assertTimelineChangeReasonsEqual(Integer... reasons) {
     assertThat(timelineChangeReasons).containsExactlyElementsIn(Arrays.asList(reasons)).inOrder();
@@ -532,7 +555,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the media items reported by {@link
-   * Player.EventListener#onMediaItemTransition(MediaItem, int)} are the same as the provided media
+   * Player.Listener#onMediaItemTransition(MediaItem, int)} are the same as the provided media
    * items.
    *
    * @param mediaItems A list of expected {@link MediaItem media items}.
@@ -543,8 +566,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the media item transition reasons reported by {@link
-   * Player.EventListener#onMediaItemTransition(MediaItem, int)} are the same as the provided
-   * reasons.
+   * Player.Listener#onMediaItemTransition(MediaItem, int)} are the same as the provided reasons.
    *
    * @param reasons A list of expected transition reasons.
    */
@@ -554,7 +576,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the playback states reported by {@link
-   * Player.EventListener#onPlaybackStateChanged(int)} are equal to the provided playback states.
+   * Player.Listener#onPlaybackStateChanged(int)} are equal to the provided playback states.
    */
   public void assertPlaybackStatesEqual(Integer... states) {
     assertThat(playbackStates).containsExactlyElementsIn(states).inOrder();
@@ -562,8 +584,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the last track group array reported by {@link
-   * Player.EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)} is equal to the
-   * provided track group array.
+   * Player.Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)} is equal to the provided
+   * track group array.
    *
    * @param trackGroupArray The expected {@link TrackGroupArray}.
    */
@@ -572,7 +594,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   /**
-   * Asserts that {@link Player.EventListener#onPositionDiscontinuity(int)} was not called.
+   * Asserts that {@link Player.Listener#onPositionDiscontinuity(Player.PositionInfo,
+   * Player.PositionInfo, int)} was not called.
    */
   public void assertNoPositionDiscontinuities() {
     assertThat(discontinuityReasons).isEmpty();
@@ -580,7 +603,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the discontinuity reasons reported by {@link
-   * Player.EventListener#onPositionDiscontinuity(int)} are equal to the provided values.
+   * Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)} are
+   * equal to the provided values.
    *
    * @param discontinuityReasons The expected discontinuity reasons.
    */
@@ -619,6 +643,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             playerThread.quit();
           }
         });
+    clock.onThreadBlocked();
     playerThread.join();
   }
 
@@ -631,7 +656,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
   }
 
-  // Player.EventListener
+  // Player.Listener
 
   @Override
   public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
@@ -672,10 +697,15 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     discontinuityReasons.add(reason);
     int currentIndex = player.getCurrentPeriodIndex();
-    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+    if ((reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+            && oldPosition.adGroupIndex != C.INDEX_UNSET
+            && newPosition.adGroupIndex != C.INDEX_UNSET)
         || periodIndices.isEmpty()
         || periodIndices.get(periodIndices.size() - 1) != currentIndex) {
       // Ignore seek or internal discontinuities within a period.

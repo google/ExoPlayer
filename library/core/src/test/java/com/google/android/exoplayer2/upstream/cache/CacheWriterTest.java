@@ -23,14 +23,16 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.FailOnCloseDataSink;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +71,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -91,7 +92,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -103,7 +103,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -126,7 +125,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -150,7 +148,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -162,7 +159,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -184,7 +180,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ true,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -194,25 +189,46 @@ public final class CacheWriterTest {
   }
 
   @Test
-  public void cacheThrowEOFException() throws Exception {
+  public void cache_afterFailureOnClose_succeeds() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
-    FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
+    FakeDataSource upstreamDataSource = new FakeDataSource(fakeDataSet);
 
-    Uri testUri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
+    AtomicBoolean failOnClose = new AtomicBoolean(/* initialValue= */ true);
+    FailOnCloseDataSink dataSink = new FailOnCloseDataSink(cache, failOnClose);
 
-    IOException exception =
-        assertThrows(
-            IOException.class,
-            () ->
-                new CacheWriter(
-                        new CacheDataSource(cache, dataSource),
-                        dataSpec,
-                        /* allowShortContent= */ false,
-                        /* temporaryBuffer= */ null,
-                        /* progressListener= */ null)
-                    .cache());
-    assertThat(DataSourceException.isCausedByPositionOutOfRange(exception)).isTrue();
+    CacheDataSource cacheDataSource =
+        new CacheDataSource(
+            cache,
+            upstreamDataSource,
+            new FileDataSource(),
+            dataSink,
+            /* flags= */ 0,
+            /* eventListener= */ null);
+
+    CachingCounters counters = new CachingCounters();
+
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            cacheDataSource,
+            new DataSpec(Uri.parse("test_data")),
+            /* temporaryBuffer= */ null,
+            counters);
+
+    // DataSink.close failing must cause the operation to fail rather than succeed.
+    assertThrows(IOException.class, cacheWriter::cache);
+    // Since all of the bytes were read through the DataSource chain successfully before the sink
+    // was closed, the progress listener will have seen all of the bytes being cached, even though
+    // this may not really be the case.
+    counters.assertValues(
+        /* bytesAlreadyCached= */ 0, /* bytesNewlyCached= */ 100, /* contentLength= */ 100);
+
+    failOnClose.set(false);
+
+    // The bytes will be downloaded again, but cached successfully this time.
+    cacheWriter.cache();
+    counters.assertValues(
+        /* bytesAlreadyCached= */ 0, /* bytesNewlyCached= */ 100, /* contentLength= */ 100);
+    assertCachedData(cache, fakeDataSet);
   }
 
   @Test
@@ -233,7 +249,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();

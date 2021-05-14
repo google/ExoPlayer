@@ -43,9 +43,6 @@ public interface Clock {
   /** @see android.os.SystemClock#uptimeMillis() */
   long uptimeMillis();
 
-  /** @see android.os.SystemClock#sleep(long) */
-  void sleep(long sleepTimeMs);
-
   /**
    * Creates a {@link HandlerWrapper} using a specified looper and a specified callback for handling
    * messages.
@@ -53,4 +50,12 @@ public interface Clock {
    * @see Handler#Handler(Looper, Handler.Callback)
    */
   HandlerWrapper createHandler(Looper looper, @Nullable Handler.Callback callback);
+
+  /**
+   * Notifies the clock that the current thread is about to be blocked and won't return until a
+   * condition on another thread becomes true.
+   *
+   * <p>Should be a no-op for all non-test cases.
+   */
+  void onThreadBlocked();
 }

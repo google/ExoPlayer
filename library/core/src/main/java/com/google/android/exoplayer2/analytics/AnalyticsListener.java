@@ -17,7 +17,10 @@ package com.google.android.exoplayer2.analytics;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.media.MediaCodec;
+import android.media.MediaCodec.CodecException;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.SparseArray;
 import android.view.Surface;
 import androidx.annotation.IntDef;
@@ -26,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -35,14 +39,19 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.MutableFlags;
+import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -65,13 +74,27 @@ import java.util.List;
 public interface AnalyticsListener {
 
   /** A set of {@link EventFlags}. */
-  final class Events extends MutableFlags {
+  final class Events {
 
+    private final ExoFlags flags;
     private final SparseArray<EventTime> eventTimes;
 
-    /** Creates the set of event flags. */
-    public Events() {
-      eventTimes = new SparseArray<>(/* initialCapacity= */ 0);
+    /**
+     * Creates an instance.
+     *
+     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
+     *     all the events recorded in {@code flags}. Events that are not recorded in {@code flags}
+     *     are ignored.
+     */
+    public Events(ExoFlags flags, SparseArray<EventTime> eventTimes) {
+      this.flags = flags;
+      SparseArray<EventTime> flagsToTimes = new SparseArray<>(/* initialCapacity= */ flags.size());
+      for (int i = 0; i < flags.size(); i++) {
+        @EventFlags int eventFlag = flags.get(i);
+        flagsToTimes.append(eventFlag, checkNotNull(eventTimes.get(eventFlag)));
+      }
+      this.eventTimes = flagsToTimes;
     }
 
     /**
@@ -85,29 +108,13 @@ public interface AnalyticsListener {
     }
 
     /**
-     * Sets the {@link EventTime} values for events recorded in this set.
-     *
-     * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
-     *     all the events recorded in this set.
-     */
-    public void setEventTimes(SparseArray<EventTime> eventTimes) {
-      this.eventTimes.clear();
-      for (int i = 0; i < size(); i++) {
-        @EventFlags int eventFlag = get(i);
-        this.eventTimes.append(eventFlag, checkNotNull(eventTimes.get(eventFlag)));
-      }
-    }
-
-    /**
      * Returns whether the given event occurred.
      *
      * @param event The {@link EventFlags event}.
      * @return Whether the event occurred.
      */
-    @Override
     public boolean contains(@EventFlags int event) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.contains(event);
+      return flags.contains(event);
     }
 
     /**
@@ -116,10 +123,13 @@ public interface AnalyticsListener {
      * @param events The {@link EventFlags events}.
      * @return Whether any of the events occurred.
      */
-    @Override
     public boolean containsAny(@EventFlags int... events) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.containsAny(events);
+      return flags.containsAny(events);
+    }
+
+    /** Returns the number of events in the set. */
+    public int size() {
+      return flags.size();
     }
 
     /**
@@ -131,11 +141,9 @@ public interface AnalyticsListener {
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
      * @return The {@link EventFlags event} at the given index.
      */
-    @Override
     @EventFlags
     public int get(int index) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.get(index);
+      return flags.get(index);
     }
   }
 
@@ -161,6 +169,7 @@ public interface AnalyticsListener {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_MEDIA_METADATA_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -198,6 +207,8 @@ public interface AnalyticsListener {
     EVENT_DRM_KEYS_REMOVED,
     EVENT_DRM_SESSION_RELEASED,
     EVENT_PLAYER_RELEASED,
+    EVENT_AUDIO_CODEC_ERROR,
+    EVENT_VIDEO_CODEC_ERROR,
   })
   @interface EventFlags {}
   /** {@link Player#getCurrentTimeline()} changed. */
@@ -230,11 +241,13 @@ public interface AnalyticsListener {
   int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
   /**
    * A position discontinuity occurred. See {@link
-   * Player.EventListener#onPositionDiscontinuity(int)}.
+   * Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** {@link Player#getMediaMetadata()} changed. */
+  int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -312,6 +325,10 @@ public interface AnalyticsListener {
   int EVENT_DRM_SESSION_RELEASED = 1035;
   /** The player was released. */
   int EVENT_PLAYER_RELEASED = 1036;
+  /** The audio codec encountered an error. */
+  int EVENT_AUDIO_CODEC_ERROR = 1037;
+  /** The video codec encountered an error. */
+  int EVENT_VIDEO_CODEC_ERROR = 1038;
 
   /** Time information of an event. */
   final class EventTime {
@@ -522,18 +539,32 @@ public interface AnalyticsListener {
       @Player.MediaItemTransitionReason int reason) {}
 
   /**
-   * Called when a position discontinuity occurred.
-   *
-   * @param eventTime The event time.
-   * @param reason The reason for the position discontinuity.
+   * @deprecated Use {@link #onPositionDiscontinuity(EventTime, Player.PositionInfo,
+   *     Player.PositionInfo, int)} instead.
    */
+  @Deprecated
   default void onPositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason) {}
 
   /**
-   * Called when a seek operation started.
+   * Called when a position discontinuity occurred.
    *
    * @param eventTime The event time.
+   * @param oldPosition The position before the discontinuity.
+   * @param newPosition The position after the discontinuity.
+   * @param reason The reason for the position discontinuity.
    */
+  default void onPositionDiscontinuity(
+      EventTime eventTime,
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @DiscontinuityReason int reason) {}
+
+  /**
+   * @deprecated Use {@link #onPositionDiscontinuity(EventTime, Player.PositionInfo,
+   *     Player.PositionInfo, int)} instead, listening to changes with {@link
+   *     Player#DISCONTINUITY_REASON_SEEK}.
+   */
+  @Deprecated
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
@@ -574,10 +605,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param isLoading Whether the player is loading.
    */
-  @SuppressWarnings("deprecation")
-  default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
-    onLoadingChanged(eventTime, isLoading);
-  }
+  default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /** @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead. */
   @Deprecated
@@ -619,6 +647,18 @@ public interface AnalyticsListener {
   default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
 
   /**
+   * Called when the combined {@link MediaMetadata} changes.
+   *
+   * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
+   * and the static and dynamic metadata sourced from {@link
+   * Player.Listener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
+   *
+   * @param eventTime The event time.
+   * @param mediaMetadata The combined {@link MediaMetadata}.
+   */
+  default void onMediaMetadataChanged(EventTime eventTime, MediaMetadata mediaMetadata) {}
+
+  /**
    * Called when a media source started loading data.
    *
    * @param eventTime The event time.
@@ -649,8 +689,14 @@ public interface AnalyticsListener {
       EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {}
 
   /**
-   * Called when a media source loading error occurred. These errors are just for informational
-   * purposes and the player may recover.
+   * Called when a media source loading error occurred.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
@@ -740,8 +786,18 @@ public interface AnalyticsListener {
    *
    * @param eventTime The event time.
    * @param decoderName The decoder that was created.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
    * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
+  default void onAudioDecoderInitialized(
+      EventTime eventTime,
+      String decoderName,
+      long initializedTimestampMs,
+      long initializationDurationMs) {}
+
+  /** @deprecated Use {@link #onAudioDecoderInitialized(EventTime, String, long, long)}. */
+  @Deprecated
   default void onAudioDecoderInitialized(
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
 
@@ -760,11 +816,10 @@ public interface AnalyticsListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onAudioInputFormatChanged(
-      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onAudioInputFormatChanged(eventTime, format);
-  }
+      EventTime eventTime,
+      Format format,
+      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called when the audio position has increased for the first time since the last pause or
@@ -829,14 +884,37 @@ public interface AnalyticsListener {
   default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
 
   /**
-   * Called when {@link AudioSink} has encountered an error. These errors are just for informational
-   * purposes and the player may recover.
+   * Called when {@link AudioSink} has encountered an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
-   * @param audioSinkError Either a {@link AudioSink.InitializationException} or a {@link
-   *     AudioSink.WriteException} describing the error.
+   * @param audioSinkError The error that occurred. Typically an {@link
+   *     AudioSink.InitializationException}, a {@link AudioSink.WriteException}, or an {@link
+   *     AudioSink.UnexpectedDiscontinuityException}.
    */
   default void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
+
+  /**
+   * Called when an audio decoder encounters an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
+   *
+   * @param eventTime The event time.
+   * @param audioCodecError The error. Typically a {@link CodecException} if the renderer uses
+   *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
+   */
+  default void onAudioCodecError(EventTime eventTime, Exception audioCodecError) {}
 
   /**
    * Called when the volume changes.
@@ -860,8 +938,18 @@ public interface AnalyticsListener {
    *
    * @param eventTime The event time.
    * @param decoderName The decoder that was created.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
    * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
+  default void onVideoDecoderInitialized(
+      EventTime eventTime,
+      String decoderName,
+      long initializedTimestampMs,
+      long initializationDurationMs) {}
+
+  /** @deprecated Use {@link #onVideoDecoderInitialized(EventTime, String, long, long)}. */
+  @Deprecated
   default void onVideoDecoderInitialized(
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
 
@@ -880,11 +968,10 @@ public interface AnalyticsListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onVideoInputFormatChanged(
-      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onVideoInputFormatChanged(eventTime, format);
-  }
+      EventTime eventTime,
+      Format format,
+      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called after video frames have been dropped.
@@ -932,28 +1019,43 @@ public interface AnalyticsListener {
       EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
 
   /**
+   * Called when a video decoder encounters an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
+   *
+   * @param eventTime The event time.
+   * @param videoCodecError The error. Typically a {@link CodecException} if the renderer uses
+   *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
+   */
+  default void onVideoCodecError(EventTime eventTime, Exception videoCodecError) {}
+
+  /**
    * Called when a frame is rendered for the first time since setting the surface, or since the
    * renderer was reset, or since the stream being rendered was changed.
    *
    * @param eventTime The event time.
-   * @param surface The {@link Surface} to which a frame has been rendered, or {@code null} if the
-   *     renderer renders to something that isn't a {@link Surface}.
+   * @param output The output to which a frame has been rendered. Normally a {@link Surface},
+   *     however may also be other output types (e.g., a {@link VideoDecoderOutputBufferRenderer}).
+   * @param renderTimeMs {@link SystemClock#elapsedRealtime()} when the first frame was rendered.
    */
-  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
+  default void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
    * there's a change in the size or pixel aspect ratio of the video being rendered.
    *
    * @param eventTime The event time.
-   * @param width The width of the video.
-   * @param height The height of the video.
-   * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
-   *     rotation in degrees that the application should apply for the video for it to be rendered
-   *     in the correct orientation. This value will always be zero on API levels 21 and above,
-   *     since the renderer will apply all necessary rotations internally.
-   * @param pixelWidthHeightRatio The width to height ratio of each pixel.
+   * @param videoSize The new size of the video.
    */
+  default void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {}
+
+  /** @deprecated Implement {@link #onVideoSizeChanged(EventTime eventTime, VideoSize)} instead. */
+  @Deprecated
   default void onVideoSizeChanged(
       EventTime eventTime,
       int width,
@@ -972,12 +1074,17 @@ public interface AnalyticsListener {
    */
   default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
+  /** @deprecated Implement {@link #onDrmSessionAcquired(EventTime, int)} instead. */
+  @Deprecated
+  default void onDrmSessionAcquired(EventTime eventTime) {}
+
   /**
    * Called each time a drm session is acquired.
    *
    * @param eventTime The event time.
+   * @param state The {@link DrmSession.State} of the session when the acquisition completed.
    */
-  default void onDrmSessionAcquired(EventTime eventTime) {}
+  default void onDrmSessionAcquired(EventTime eventTime, @DrmSession.State int state) {}
 
   /**
    * Called each time drm keys are loaded.
@@ -987,8 +1094,14 @@ public interface AnalyticsListener {
   default void onDrmKeysLoaded(EventTime eventTime) {}
 
   /**
-   * Called when a drm error occurs. These errors are just for informational purposes and the player
-   * may recover.
+   * Called when a drm error occurs.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior. This
+   * method is called to provide the application with an opportunity to log the error if it wishes
+   * to do so.
    *
    * @param eventTime The event time.
    * @param error The error.

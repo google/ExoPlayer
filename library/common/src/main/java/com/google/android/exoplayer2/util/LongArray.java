@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.util;
 
 import java.util.Arrays;
 
-/**
- * An append-only, auto-growing {@code long[]}.
- */
+/** An append-only, auto-growing {@code long[]}. */
 public final class LongArray {
 
   private static final int DEFAULT_INITIAL_CAPACITY = 32;

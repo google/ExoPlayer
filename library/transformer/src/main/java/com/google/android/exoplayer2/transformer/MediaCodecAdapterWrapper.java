@@ -27,8 +27,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
-import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
+import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.SynchronousMediaCodecAdapter;
+import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -60,6 +62,36 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
 
+  private static class Factory extends SynchronousMediaCodecAdapter.Factory {
+    private final boolean decoder;
+
+    public Factory(boolean decoder) {
+      this.decoder = decoder;
+    }
+
+    @Override
+    protected MediaCodec createCodec(Configuration configuration) throws IOException {
+      String sampleMimeType =
+          checkNotNull(configuration.mediaFormat.getString(MediaFormat.KEY_MIME));
+      return decoder
+          ? MediaCodec.createDecoderByType(checkNotNull(sampleMimeType))
+          : MediaCodec.createEncoderByType(checkNotNull(sampleMimeType));
+    }
+  }
+
+  private static MediaCodecInfo createPlaceholderMediaCodecInfo() {
+    return MediaCodecInfo.newInstance(
+        /* name= */ "name-placeholder",
+        /* mimeType= */ "mime-type-placeholder",
+        /* codecMimeType= */ "mime-type-placeholder",
+        /* capabilities= */ null,
+        /* hardwareAccelerated= */ false,
+        /* softwareOnly= */ false,
+        /* vendor= */ false,
+        /* forceDisableAdaptive= */ false,
+        /* forceSecure= */ false);
+  }
+
   /**
    * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
    * MediaCodecAdapter} audio decoder.
@@ -70,25 +102,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws IOException If the underlying codec cannot be created.
    */
   public static MediaCodecAdapterWrapper createForAudioDecoding(Format format) throws IOException {
-    @Nullable MediaCodec decoder = null;
     @Nullable MediaCodecAdapter adapter = null;
     try {
-      decoder = MediaCodec.createDecoderByType(checkNotNull(format.sampleMimeType));
       MediaFormat mediaFormat =
           MediaFormat.createAudioFormat(
-              format.sampleMimeType, format.sampleRate, format.channelCount);
+              checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-      adapter = new SynchronousMediaCodecAdapter.Factory().createAdapter(decoder);
-      adapter.configure(mediaFormat, /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
-      adapter.start();
+      adapter =
+          new Factory(/* decoder= */ true)
+              .createAdapter(
+                  new MediaCodecAdapter.Configuration(
+                      createPlaceholderMediaCodecInfo(),
+                      mediaFormat,
+                      format,
+                      /* surface= */ null,
+                      /* crypto= */ null,
+                      /* flags= */ 0));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
         adapter.release();
-      } else if (decoder != null) {
-        decoder.release();
       }
       throw e;
     }
@@ -107,18 +142,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable MediaCodec encoder = null;
     @Nullable MediaCodecAdapter adapter = null;
     try {
-      encoder = MediaCodec.createEncoderByType(checkNotNull(format.sampleMimeType));
       MediaFormat mediaFormat =
           MediaFormat.createAudioFormat(
-              format.sampleMimeType, format.sampleRate, format.channelCount);
+              checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
       mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
-      adapter = new SynchronousMediaCodecAdapter.Factory().createAdapter(encoder);
-      adapter.configure(
-          mediaFormat,
-          /* surface= */ null,
-          /* crypto= */ null,
-          /* flags= */ MediaCodec.CONFIGURE_FLAG_ENCODE);
-      adapter.start();
+      adapter =
+          new Factory(/* decoder= */ false)
+              .createAdapter(
+                  new MediaCodecAdapter.Configuration(
+                      createPlaceholderMediaCodecInfo(),
+                      mediaFormat,
+                      format,
+                      /* surface= */ null,
+                      /* crypto= */ null,
+                      /* flags= */ MediaCodec.CONFIGURE_FLAG_ENCODE));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {

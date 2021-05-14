@@ -21,12 +21,10 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 
-/**
- * Base class for subtitle parsers that use their own decode thread.
- */
-public abstract class SimpleSubtitleDecoder extends
-    SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, SubtitleDecoderException> implements
-    SubtitleDecoder {
+/** Base class for subtitle parsers that use their own decode thread. */
+public abstract class SimpleSubtitleDecoder
+    extends SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, SubtitleDecoderException>
+    implements SubtitleDecoder {
 
   private final String name;
 

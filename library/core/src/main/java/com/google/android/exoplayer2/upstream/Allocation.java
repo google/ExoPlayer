@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.upstream;
 
 /**
  * An allocation within a byte array.
- * <p>
- * The allocation's length is obtained by calling {@link Allocator#getIndividualAllocationLength()}
- * on the {@link Allocator} from which it was obtained.
+ *
+ * <p>The allocation's length is obtained by calling {@link
+ * Allocator#getIndividualAllocationLength()} on the {@link Allocator} from which it was obtained.
  */
 public final class Allocation {
 

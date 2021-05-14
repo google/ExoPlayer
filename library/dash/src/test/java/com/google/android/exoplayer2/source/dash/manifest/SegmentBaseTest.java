@@ -182,4 +182,43 @@ public final class SegmentBaseTest {
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 17_500_000))
         .isEqualTo(19_500_000);
   }
+
+  /** Regression test for https://github.com/google/ExoPlayer/issues/8804. */
+  @Test
+  public void getSegmentCount_withSegmentTemplate_avoidsIncorrectRounding() {
+    SegmentBase.SegmentTemplate segmentTemplate =
+        new SegmentBase.SegmentTemplate(
+            /* initialization= */ null,
+            /* timescale= */ 90000,
+            /* presentationTimeOffset= */ 0,
+            /* startNumber= */ 0,
+            /* endNumber= */ C.INDEX_UNSET,
+            /* duration= */ 179989,
+            /* segmentTimeline= */ null,
+            /* availabilityTimeOffsetUs= */ C.TIME_UNSET,
+            /* initializationTemplate= */ null,
+            /* mediaTemplate= */ null,
+            /* timeShiftBufferDepthUs= */ C.TIME_UNSET,
+            /* periodStartUnixTimeUs= */ C.TIME_UNSET);
+    assertThat(segmentTemplate.getSegmentCount(2931820000L)).isEqualTo(1466);
+  }
+
+  @Test
+  public void getSegmentCount_withSegmentTemplate_avoidsOverflow() {
+    SegmentBase.SegmentTemplate segmentTemplate =
+        new SegmentBase.SegmentTemplate(
+            /* initialization= */ null,
+            /* timescale= */ 1000000,
+            /* presentationTimeOffset= */ 0,
+            /* startNumber= */ 0,
+            /* endNumber= */ C.INDEX_UNSET,
+            /* duration= */ 179989,
+            /* segmentTimeline= */ null,
+            /* availabilityTimeOffsetUs= */ C.TIME_UNSET,
+            /* initializationTemplate= */ null,
+            /* mediaTemplate= */ null,
+            /* timeShiftBufferDepthUs= */ C.TIME_UNSET,
+            /* periodStartUnixTimeUs= */ C.TIME_UNSET);
+    assertThat(segmentTemplate.getSegmentCount(1618875028000000L)).isEqualTo(8994299808L);
+  }
 }

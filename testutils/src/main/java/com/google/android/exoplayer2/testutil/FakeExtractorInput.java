@@ -27,23 +27,24 @@ import java.io.IOException;
 
 /**
  * A fake {@link ExtractorInput} capable of simulating various scenarios.
- * <p>
- * Read, skip and peek errors can be simulated using {@link Builder#setSimulateIOErrors}. When
+ *
+ * <p>Read, skip and peek errors can be simulated using {@link Builder#setSimulateIOErrors}. When
  * enabled each read and skip will throw a {@link SimulatedIOException} unless one has already been
  * thrown from the current position. Each peek will throw {@link SimulatedIOException} unless one
  * has already been thrown from the current peek position. When a {@link SimulatedIOException} is
  * thrown the read position is left unchanged and the peek position is reset back to the read
  * position.
- * <p>
- * Partial reads and skips can be simulated using {@link Builder#setSimulatePartialReads}. When
+ *
+ * <p>Partial reads and skips can be simulated using {@link Builder#setSimulatePartialReads}. When
  * enabled, {@link #read(byte[], int, int)} and {@link #skip(int)} calls will only read or skip a
  * single byte unless a partial read or skip has already been performed that had the same target
- * position. For example, a first read request for 10 bytes will be partially satisfied by reading
- * a single byte and advancing the position to 1. If the following read request attempts to read 9
+ * position. For example, a first read request for 10 bytes will be partially satisfied by reading a
+ * single byte and advancing the position to 1. If the following read request attempts to read 9
  * bytes then it will be fully satisfied, since it has the same target position of 10.
- * <p>
- * Unknown data length can be simulated using {@link Builder#setSimulateUnknownLength}. When enabled
- * {@link #getLength()} will return {@link C#LENGTH_UNSET} rather than the length of the data.
+ *
+ * <p>Unknown data length can be simulated using {@link Builder#setSimulateUnknownLength}. When
+ * enabled {@link #getLength()} will return {@link C#LENGTH_UNSET} rather than the length of the
+ * data.
  */
 public final class FakeExtractorInput implements ExtractorInput {
 

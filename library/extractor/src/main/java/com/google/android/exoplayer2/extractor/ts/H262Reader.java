@@ -33,9 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Parses a continuous H262 byte stream and extracts individual frames.
- */
+/** Parses a continuous H262 byte stream and extracts individual frames. */
 public final class H262Reader implements ElementaryStreamReader {
 
   private static final int START_PICTURE = 0x00;

@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.EOFException;
 import java.io.IOException;
@@ -540,7 +541,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static byte[] getEncryptionIvArray(String ivString) {
     String trimmedIv;
-    if (Util.toLowerInvariant(ivString).startsWith("0x")) {
+    if (Ascii.toLowerCase(ivString).startsWith("0x")) {
       trimmedIv = ivString.substring(2);
     } else {
       trimmedIv = ivString;

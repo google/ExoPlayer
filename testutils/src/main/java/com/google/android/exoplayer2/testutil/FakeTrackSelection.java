@@ -42,20 +42,11 @@ public final class FakeTrackSelection implements ExoTrackSelection {
     this.rendererTrackGroup = rendererTrackGroup;
   }
 
-  @Override
-  public void enable() {
-    // assert that track selection is in disabled state before this call.
-    assertThat(isEnabled).isFalse();
-    enableCount++;
-    isEnabled = true;
-  }
+  // TrackSelection implementation.
 
   @Override
-  public void disable() {
-    // assert that track selection is in enabled state before this call.
-    assertThat(isEnabled).isTrue();
-    releaseCount++;
-    isEnabled = false;
+  public int getType() {
+    return TYPE_UNSET;
   }
 
   @Override
@@ -87,6 +78,24 @@ public final class FakeTrackSelection implements ExoTrackSelection {
   @Override
   public int indexOf(int indexInTrackGroup) {
     return 0;
+  }
+
+  // ExoTrackSelection specific methods.
+
+  @Override
+  public void enable() {
+    // assert that track selection is in disabled state before this call.
+    assertThat(isEnabled).isFalse();
+    enableCount++;
+    isEnabled = true;
+  }
+
+  @Override
+  public void disable() {
+    // assert that track selection is in enabled state before this call.
+    assertThat(isEnabled).isTrue();
+    releaseCount++;
+    isEnabled = false;
   }
 
   @Override
@@ -138,6 +147,12 @@ public final class FakeTrackSelection implements ExoTrackSelection {
 
   @Override
   public boolean blacklist(int index, long exclusionDurationMs) {
+    assertThat(isEnabled).isTrue();
+    return false;
+  }
+
+  @Override
+  public boolean isBlacklisted(int index, long exclusionDurationMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }

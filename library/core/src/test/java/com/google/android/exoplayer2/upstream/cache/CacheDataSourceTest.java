@@ -154,7 +154,7 @@ public final class CacheDataSourceTest {
     try {
       cacheDataSource =
           createCacheDataSource(/* setReadException= */ false, /* unknownLength= */ false);
-      cacheDataSource.open(buildDataSpec(TEST_DATA.length, /* length= */ 1, defaultCacheKey));
+      cacheDataSource.open(buildDataSpec(TEST_DATA.length + 1, /* length= */ 1, defaultCacheKey));
       fail();
     } catch (IOException e) {
       // Expected.
@@ -204,7 +204,7 @@ public final class CacheDataSourceTest {
       cacheDataSource =
           createCacheDataSource(
               /* setReadException= */ false, /* unknownLength= */ false, cacheKeyFactory);
-      cacheDataSource.open(buildDataSpec(TEST_DATA.length, /* length= */ 1, customCacheKey));
+      cacheDataSource.open(buildDataSpec(TEST_DATA.length + 1, /* length= */ 1, customCacheKey));
       fail();
     } catch (IOException e) {
       // Expected.
@@ -257,7 +257,7 @@ public final class CacheDataSourceTest {
       cacheDataSource =
           createCacheDataSource(
               /* setReadException= */ false, /* unknownLength= */ false, cacheKeyFactory);
-      cacheDataSource.open(buildDataSpec(TEST_DATA.length, /* length= */ 1, customCacheKey));
+      cacheDataSource.open(buildDataSpec(TEST_DATA.length + 1, /* length= */ 1, customCacheKey));
       fail();
     } catch (IOException e) {
       // Expected.
@@ -265,30 +265,31 @@ public final class CacheDataSourceTest {
   }
 
   @Test
-  public void contentLengthEdgeCases() throws Exception {
-    DataSpec dataSpec = buildDataSpec(TEST_DATA.length - 2, 2);
+  public void boundedRead_doesNotSetContentLength() throws Exception {
+    DataSpec dataSpec = buildDataSpec(0, TEST_DATA.length);
 
-    // Read partial at EOS but don't cross it so length is unknown.
+    // Read up to the end of the data, but since the DataSpec is bounded, the read doesn't see the
+    // EOS, and so the content length remains unknown.
     CacheDataSource cacheDataSource = createCacheDataSource(false, true);
+
     assertReadData(cacheDataSource, dataSpec, true);
     assertThat(ContentMetadata.getContentLength(cache.getContentMetadata(defaultCacheKey)))
         .isEqualTo(C.LENGTH_UNSET);
+  }
 
-    // Now do an unbounded request for whole data. This will cause a bounded request from upstream.
-    // End of data from upstream shouldn't be mixed up with EOS and cause length set wrong.
-    cacheDataSource = createCacheDataSource(false, true);
+  @Test
+  public void unboundedRead_setsContentLength() throws IOException {
+    // Perform an unbounded request for the whole data. This should cause the content length to
+    // become known.
+    CacheDataSource cacheDataSource = createCacheDataSource(false, true);
     assertReadDataContentLength(cacheDataSource, unboundedDataSpec, true, false);
 
-    // Now the length set correctly do an unbounded request with offset.
+    // Check the correct length is returned for an unbounded request.
     assertThat(
             cacheDataSource.open(
                 buildDataSpec(TEST_DATA.length - 2, C.LENGTH_UNSET, defaultCacheKey)))
         .isEqualTo(2);
-
-    // An unbounded request with offset for not cached content.
-    dataSpec =
-        new DataSpec(Uri.parse("https://www.test.com/other"), TEST_DATA.length - 2, C.LENGTH_UNSET);
-    assertThat(cacheDataSource.open(dataSpec)).isEqualTo(C.LENGTH_UNSET);
+    cacheDataSource.close();
   }
 
   @Test
@@ -363,7 +364,6 @@ public final class CacheDataSourceTest {
         new CacheWriter(
             new CacheDataSource(cache, upstream2),
             unboundedDataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -413,7 +413,6 @@ public final class CacheDataSourceTest {
         new CacheWriter(
             new CacheDataSource(cache, upstream2),
             unboundedDataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -438,7 +437,6 @@ public final class CacheDataSourceTest {
         new CacheWriter(
             new CacheDataSource(cache, upstream),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -475,7 +473,6 @@ public final class CacheDataSourceTest {
         new CacheWriter(
             new CacheDataSource(cache, upstream),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();

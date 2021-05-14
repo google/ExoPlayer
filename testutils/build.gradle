@@ -17,6 +17,7 @@ dependencies {
     api 'org.mockito:mockito-core:' + mockitoVersion
     api 'androidx.test:core:' + androidxTestCoreVersion
     api 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    api 'androidx.test.ext:truth:' + androidxTestTruthVersion
     api 'junit:junit:' + junitVersion
     api 'com.google.truth:truth:' + truthVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

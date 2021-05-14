@@ -22,9 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Comment ID3 frame.
- */
+/** Comment ID3 frame. */
 public final class CommentFrame extends Id3Frame {
 
   public static final String ID = "COMM";

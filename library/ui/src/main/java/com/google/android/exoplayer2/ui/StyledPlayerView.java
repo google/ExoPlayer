@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -27,6 +29,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.opengl.GLSurfaceView;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -56,19 +59,16 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
-import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
-import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
-import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -147,12 +147,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
- *       </ul>
- *   <li><b>{@code use_sensor_rotation}</b> - Whether to use the orientation sensor for rotation
- *       during spherical playbacks (if available).
- *       <ul>
- *         <li>Corresponding method: {@link #setUseSensorRotation(boolean)}
- *         <li>Default: {@code true}
  *       </ul>
  *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter}
  *       view.
@@ -265,7 +259,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * attribute on a StyledPlayerView. This will cause the specified layout to be inflated instead of
  * {@code exo_styled_player_view.xml} for only the instance on which the attribute is set.
  */
-public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewProvider {
+public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   // LINT.IfChange
   /**
@@ -302,6 +296,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   @Nullable private final AspectRatioFrameLayout contentFrame;
   @Nullable private final View shutterView;
   @Nullable private final View surfaceView;
+  private final boolean surfaceViewIgnoresVideoAspectRatio;
   @Nullable private final ImageView artworkView;
   @Nullable private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
@@ -317,7 +312,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
-  private boolean useSensorRotation;
   @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   @Nullable private CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
@@ -347,6 +341,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       contentFrame = null;
       shutterView = null;
       surfaceView = null;
+      surfaceViewIgnoresVideoAspectRatio = false;
       artworkView = null;
       subtitleView = null;
       bufferingView = null;
@@ -377,7 +372,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
     int showBuffering = SHOW_BUFFERING_NEVER;
-    useSensorRotation = true;
     if (attrs != null) {
       TypedArray a =
           context.getTheme().obtainStyledAttributes(attrs, R.styleable.StyledPlayerView, 0, 0);
@@ -406,8 +400,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
                 keepContentOnPlayerReset);
         controllerHideDuringAds =
             a.getBoolean(R.styleable.StyledPlayerView_hide_during_ads, controllerHideDuringAds);
-        useSensorRotation =
-            a.getBoolean(R.styleable.StyledPlayerView_use_sensor_rotation, useSensorRotation);
       } finally {
         a.recycle();
       }
@@ -429,6 +421,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     }
 
     // Create a surface view and insert it into the content frame, if there is one.
+    boolean surfaceViewIgnoresVideoAspectRatio = false;
     if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
       ViewGroup.LayoutParams params =
           new ViewGroup.LayoutParams(
@@ -438,10 +431,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           surfaceView = new TextureView(context);
           break;
         case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
-          SphericalGLSurfaceView sphericalGLSurfaceView = new SphericalGLSurfaceView(context);
-          sphericalGLSurfaceView.setSingleTapListener(componentListener);
-          sphericalGLSurfaceView.setUseSensorRotation(useSensorRotation);
-          surfaceView = sphericalGLSurfaceView;
+          surfaceView = new SphericalGLSurfaceView(context);
+          surfaceViewIgnoresVideoAspectRatio = true;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
           surfaceView = new VideoDecoderGLSurfaceView(context);
@@ -451,10 +442,16 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           break;
       }
       surfaceView.setLayoutParams(params);
+      // We don't want surfaceView to be clickable separately to the StyledPlayerView itself, but we
+      // do want to register as an OnClickListener so that surfaceView implementations can propagate
+      // click events up to the StyledPlayerView by calling their own performClick method.
+      surfaceView.setOnClickListener(componentListener);
+      surfaceView.setClickable(false);
       contentFrame.addView(surfaceView, 0);
     } else {
       surfaceView = null;
     }
+    this.surfaceViewIgnoresVideoAspectRatio = surfaceViewIgnoresVideoAspectRatio;
 
     // Ad overlay frame layout.
     adOverlayFrameLayout = findViewById(R.id.exo_ad_overlay);
@@ -573,21 +570,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     }
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
-      oldPlayer.removeListener(componentListener);
-      @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
-      if (oldVideoComponent != null) {
-        oldVideoComponent.removeVideoListener(componentListener);
-        if (surfaceView instanceof TextureView) {
-          oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalGLSurfaceView) {
-          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
-        } else if (surfaceView instanceof SurfaceView) {
-          oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
-        }
-      }
-      @Nullable Player.TextComponent oldTextComponent = oldPlayer.getTextComponent();
-      if (oldTextComponent != null) {
-        oldTextComponent.removeTextOutput(componentListener);
+      if (surfaceView instanceof TextureView) {
+        oldPlayer.clearVideoTextureView((TextureView) surfaceView);
+      } else if (surfaceView instanceof SurfaceView) {
+        oldPlayer.clearVideoSurfaceView((SurfaceView) surfaceView);
       }
     }
     if (subtitleView != null) {
@@ -601,23 +587,15 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     updateErrorMessage();
     updateForCurrentTrackSelections(/* isNewPlayer= */ true);
     if (player != null) {
-      @Nullable Player.VideoComponent newVideoComponent = player.getVideoComponent();
-      if (newVideoComponent != null) {
+      if (player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)) {
         if (surfaceView instanceof TextureView) {
-          newVideoComponent.setVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalGLSurfaceView) {
-          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
+          player.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SurfaceView) {
-          newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
+          player.setVideoSurfaceView((SurfaceView) surfaceView);
         }
-        newVideoComponent.addVideoListener(componentListener);
       }
-      @Nullable Player.TextComponent newTextComponent = player.getTextComponent();
-      if (newTextComponent != null) {
-        newTextComponent.addTextOutput(componentListener);
-        if (subtitleView != null) {
-          subtitleView.setCues(newTextComponent.getCurrentCues());
-        }
+      if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
+        subtitleView.setCues(player.getCurrentCues());
       }
       player.addListener(componentListener);
       maybeShowController(false);
@@ -748,22 +726,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     if (this.keepContentOnPlayerReset != keepContentOnPlayerReset) {
       this.keepContentOnPlayerReset = keepContentOnPlayerReset;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
-    }
-  }
-
-  /**
-   * Sets whether to use the orientation sensor for rotation during spherical playbacks (if
-   * available)
-   *
-   * @param useSensorRotation Whether to use the orientation sensor for rotation during spherical
-   *     playbacks.
-   */
-  public void setUseSensorRotation(boolean useSensorRotation) {
-    if (this.useSensorRotation != useSensorRotation) {
-      this.useSensorRotation = useSensorRotation;
-      if (surfaceView instanceof SphericalGLSurfaceView) {
-        ((SphericalGLSurfaceView) surfaceView).setUseSensorRotation(useSensorRotation);
-      }
     }
   }
 
@@ -1196,48 +1158,42 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   }
 
   /**
-   * Should be called when the player is visible to the user and if {@code surface_type} is {@code
-   * spherical_gl_surface_view}. It is the counterpart to {@link #onPause()}.
+   * Should be called when the player is visible to the user, if the {@code surface_type} extends
+   * {@link GLSurfaceView}. It is the counterpart to {@link #onPause()}.
    *
    * <p>This method should typically be called in {@code Activity.onStart()}, or {@code
    * Activity.onResume()} for API versions &lt;= 23.
    */
   public void onResume() {
-    if (surfaceView instanceof SphericalGLSurfaceView) {
-      ((SphericalGLSurfaceView) surfaceView).onResume();
+    if (surfaceView instanceof GLSurfaceView) {
+      ((GLSurfaceView) surfaceView).onResume();
     }
   }
 
   /**
-   * Should be called when the player is no longer visible to the user and if {@code surface_type}
-   * is {@code spherical_gl_surface_view}. It is the counterpart to {@link #onResume()}.
+   * Should be called when the player is no longer visible to the user, if the {@code surface_type}
+   * extends {@link GLSurfaceView}. It is the counterpart to {@link #onResume()}.
    *
    * <p>This method should typically be called in {@code Activity.onStop()}, or {@code
    * Activity.onPause()} for API versions &lt;= 23.
    */
   public void onPause() {
-    if (surfaceView instanceof SphericalGLSurfaceView) {
-      ((SphericalGLSurfaceView) surfaceView).onPause();
+    if (surfaceView instanceof GLSurfaceView) {
+      ((GLSurfaceView) surfaceView).onPause();
     }
   }
 
   /**
-   * Called when there's a change in the aspect ratio of the content being displayed. The default
-   * implementation sets the aspect ratio of the content frame to that of the content, unless the
-   * content view is a {@link SphericalGLSurfaceView} in which case the frame's aspect ratio is
-   * cleared.
+   * Called when there's a change in the desired aspect ratio of the content frame. The default
+   * implementation sets the aspect ratio of the content frame to the specified value.
    *
-   * @param contentAspectRatio The aspect ratio of the content.
    * @param contentFrame The content frame, or {@code null}.
-   * @param contentView The view that holds the content being displayed, or {@code null}.
+   * @param aspectRatio The aspect ratio to apply.
    */
   protected void onContentAspectRatioChanged(
-      float contentAspectRatio,
-      @Nullable AspectRatioFrameLayout contentFrame,
-      @Nullable View contentView) {
+      @Nullable AspectRatioFrameLayout contentFrame, float aspectRatio) {
     if (contentFrame != null) {
-      contentFrame.setAspectRatio(
-          contentView instanceof SphericalGLSurfaceView ? 0 : contentAspectRatio);
+      contentFrame.setAspectRatio(aspectRatio);
     }
   }
 
@@ -1250,18 +1206,17 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   }
 
   @Override
-  public List<AdsLoader.OverlayInfo> getAdOverlayInfos() {
-    List<AdsLoader.OverlayInfo> overlayViews = new ArrayList<>();
+  public List<AdOverlayInfo> getAdOverlayInfos() {
+    List<AdOverlayInfo> overlayViews = new ArrayList<>();
     if (overlayFrameLayout != null) {
       overlayViews.add(
-          new AdsLoader.OverlayInfo(
+          new AdOverlayInfo(
               overlayFrameLayout,
-              AdsLoader.OverlayInfo.PURPOSE_NOT_VISIBLE,
+              AdOverlayInfo.PURPOSE_NOT_VISIBLE,
               /* detailedReason= */ "Transparent overlay does not impact viewability"));
     }
     if (controller != null) {
-      overlayViews.add(
-          new AdsLoader.OverlayInfo(controller, AdsLoader.OverlayInfo.PURPOSE_CONTROLS));
+      overlayViews.add(new AdOverlayInfo(controller, AdOverlayInfo.PURPOSE_CONTROLS));
     }
     return ImmutableList.copyOf(overlayViews);
   }
@@ -1354,14 +1309,11 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       closeShutter();
     }
 
-    TrackSelectionArray selections = player.getCurrentTrackSelections();
-    for (int i = 0; i < selections.length; i++) {
-      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
-        // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
-        // onRenderedFirstFrame().
-        hideArtwork();
-        return;
-      }
+    if (TrackSelectionUtil.hasTrackOfType(player.getCurrentTrackSelections(), C.TRACK_TYPE_VIDEO)) {
+      // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
+      // onRenderedFirstFrame().
+      hideArtwork();
+      return;
     }
 
     // Video disabled so the shutter must be closed.
@@ -1418,7 +1370,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       int drawableHeight = drawable.getIntrinsicHeight();
       if (drawableWidth > 0 && drawableHeight > 0) {
         float artworkAspectRatio = (float) drawableWidth / drawableHeight;
-        onContentAspectRatioChanged(artworkAspectRatio, contentFrame, artworkView);
+        onContentAspectRatioChanged(contentFrame, artworkAspectRatio);
         artworkView.setImageDrawable(drawable);
         artworkView.setVisibility(VISIBLE);
         return true;
@@ -1544,11 +1496,9 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   }
 
   private final class ComponentListener
-      implements Player.EventListener,
-          TextOutput,
-          VideoListener,
+      implements Player.Listener,
           OnLayoutChangeListener,
-          SingleTapListener,
+          OnClickListener,
           StyledPlayerControlView.VisibilityListener {
 
     private final Period period;
@@ -1594,7 +1544,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
         applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
       }
 
-      onContentAspectRatioChanged(videoAspectRatio, contentFrame, surfaceView);
+      onContentAspectRatioChanged(
+          contentFrame, surfaceViewIgnoresVideoAspectRatio ? 0 : videoAspectRatio);
     }
 
     @Override
@@ -1649,7 +1600,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     }
 
     @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @DiscontinuityReason int reason) {
       if (isPlayingAd() && controllerHideDuringAds) {
         hideController();
       }
@@ -1671,11 +1625,11 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       applyTextureViewRotation((TextureView) view, textureViewRotation);
     }
 
-    // SingleTapListener implementation
+    // OnClickListener implementation
 
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-      return toggleControllerVisibility();
+    public void onClick(View view) {
+      toggleControllerVisibility();
     }
 
     // StyledPlayerControlView.VisibilityListener implementation

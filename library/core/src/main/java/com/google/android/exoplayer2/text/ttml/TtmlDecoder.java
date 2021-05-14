@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
+import com.google.common.base.Ascii;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -432,7 +433,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     String displayAlign =
         XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_DISPLAY_ALIGN);
     if (displayAlign != null) {
-      switch (Util.toLowerInvariant(displayAlign)) {
+      switch (Ascii.toLowerCase(displayAlign)) {
         case "center":
           lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
           line += height / 2;
@@ -454,7 +455,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     String writingDirection =
         XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_WRITING_MODE);
     if (writingDirection != null) {
-      switch (Util.toLowerInvariant(writingDirection)) {
+      switch (Ascii.toLowerCase(writingDirection)) {
           // TODO: Support horizontal RTL modes.
         case TtmlNode.VERTICAL:
         case TtmlNode.VERTICAL_LR:
@@ -533,25 +534,13 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               TtmlNode.ITALIC.equalsIgnoreCase(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_TEXT_ALIGN:
-          switch (Util.toLowerInvariant(attributeValue)) {
-            case TtmlNode.LEFT:
-            case TtmlNode.START:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
-              break;
-            case TtmlNode.RIGHT:
-            case TtmlNode.END:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
-              break;
-            case TtmlNode.CENTER:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_CENTER);
-              break;
-            default:
-              // ignore
-              break;
-          }
+          style = createIfNull(style).setTextAlign(parseAlignment(attributeValue));
+          break;
+        case TtmlNode.ATTR_EBUTTS_MULTI_ROW_ALIGN:
+          style = createIfNull(style).setMultiRowAlign(parseAlignment(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_TEXT_COMBINE:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.COMBINE_NONE:
               style = createIfNull(style).setTextCombine(false);
               break;
@@ -564,7 +553,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_RUBY:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.RUBY_CONTAINER:
               style = createIfNull(style).setRubyType(TtmlStyle.RUBY_TYPE_CONTAINER);
               break;
@@ -585,7 +574,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_RUBY_POSITION:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.ANNOTATION_POSITION_BEFORE:
               style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_BEFORE);
               break;
@@ -598,7 +587,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_TEXT_DECORATION:
-          switch (Util.toLowerInvariant(attributeValue)) {
+          switch (Ascii.toLowerCase(attributeValue)) {
             case TtmlNode.LINETHROUGH:
               style = createIfNull(style).setLinethrough(true);
               break;
@@ -614,9 +603,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case TtmlNode.ATTR_TTS_TEXT_EMPHASIS:
-          style =
-              createIfNull(style)
-                  .setTextEmphasis(TextEmphasis.parse(Util.toLowerInvariant(attributeValue)));
+          style = createIfNull(style).setTextEmphasis(TextEmphasis.parse(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_SHEAR:
           style = createIfNull(style).setShearPercentage(parseShear(attributeValue));
@@ -631,6 +618,22 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
   private static TtmlStyle createIfNull(@Nullable TtmlStyle style) {
     return style == null ? new TtmlStyle() : style;
+  }
+
+  @Nullable
+  private static Layout.Alignment parseAlignment(String alignment) {
+    switch (Ascii.toLowerCase(alignment)) {
+      case TtmlNode.LEFT:
+      case TtmlNode.START:
+        return Layout.Alignment.ALIGN_NORMAL;
+      case TtmlNode.RIGHT:
+      case TtmlNode.END:
+        return Layout.Alignment.ALIGN_OPPOSITE;
+      case TtmlNode.CENTER:
+        return Layout.Alignment.ALIGN_CENTER;
+      default:
+        return null;
+    }
   }
 
   private static TtmlNode parseNode(

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
@@ -127,6 +128,13 @@ public interface PlaybackSessionManager {
    * @param reason The {@link DiscontinuityReason}.
    */
   void updateSessionsWithDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason);
+
+  /**
+   * Returns the session identifier of the session that is currently actively playing, or {@code
+   * null} if there no such session.
+   */
+  @Nullable
+  String getActiveSessionId();
 
   /**
    * Finishes all existing sessions and calls their respective {@link

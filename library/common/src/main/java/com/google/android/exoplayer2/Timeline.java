@@ -15,15 +15,26 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.BundleUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A flexible representation of the structure of media. A timeline is able to represent the
@@ -119,7 +130,7 @@ import com.google.android.exoplayer2.util.Util;
  * <p>This case includes mid-roll ad groups, which are defined as part of the timeline's single
  * period. The period can be queried for information about the ad groups and the ads they contain.
  */
-public abstract class Timeline {
+public abstract class Timeline implements Bundleable {
 
   /**
    * Holds information about a window in a {@link Timeline}. A window usually corresponds to one
@@ -131,12 +142,14 @@ public abstract class Timeline {
    * <p style="align:center"><img src="doc-files/timeline-window.svg" alt="Information defined by a
    * timeline window">
    */
-  public static final class Window {
+  public static final class Window implements Bundleable {
 
     /**
      * A {@link #uid} for a window that must be used for single-window {@link Timeline Timelines}.
      */
     public static final Object SINGLE_WINDOW_UID = new Object();
+
+    private static final Object FAKE_WINDOW_UID = new Object();
 
     private static final MediaItem EMPTY_MEDIA_ITEM =
         new MediaItem.Builder()
@@ -208,14 +221,6 @@ public abstract class Timeline {
      */
     public boolean isPlaceholder;
 
-    /** The index of the first period that belongs to this window. */
-    public int firstPeriodIndex;
-
-    /**
-     * The index of the last period that belongs to this window.
-     */
-    public int lastPeriodIndex;
-
     /**
      * The default position relative to the start of the window at which to begin playback, in
      * microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
@@ -228,6 +233,12 @@ public abstract class Timeline {
      * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
      */
     public long durationUs;
+
+    /** The index of the first period that belongs to this window. */
+    public int firstPeriodIndex;
+
+    /** The index of the last period that belongs to this window. */
+    public int lastPeriodIndex;
 
     /**
      * The position of the start of this window relative to the start of the first period belonging
@@ -399,6 +410,142 @@ public abstract class Timeline {
       result = 31 * result + (int) (positionInFirstPeriodUs ^ (positionInFirstPeriodUs >>> 32));
       return result;
     }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_MEDIA_ITEM,
+      FIELD_PRESENTATION_START_TIME_MS,
+      FIELD_WINDOW_START_TIME_MS,
+      FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS,
+      FIELD_IS_SEEKABLE,
+      FIELD_IS_DYNAMIC,
+      FIELD_LIVE_CONFIGURATION,
+      FIELD_IS_PLACEHOLDER,
+      FIELD_DEFAULT_POSITION_US,
+      FIELD_DURATION_US,
+      FIELD_FIRST_PERIOD_INDEX,
+      FIELD_LAST_PERIOD_INDEX,
+      FIELD_POSITION_IN_FIRST_PERIOD_US,
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_MEDIA_ITEM = 1;
+    private static final int FIELD_PRESENTATION_START_TIME_MS = 2;
+    private static final int FIELD_WINDOW_START_TIME_MS = 3;
+    private static final int FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS = 4;
+    private static final int FIELD_IS_SEEKABLE = 5;
+    private static final int FIELD_IS_DYNAMIC = 6;
+    private static final int FIELD_LIVE_CONFIGURATION = 7;
+    private static final int FIELD_IS_PLACEHOLDER = 8;
+    private static final int FIELD_DEFAULT_POSITION_US = 9;
+    private static final int FIELD_DURATION_US = 10;
+    private static final int FIELD_FIRST_PERIOD_INDEX = 11;
+    private static final int FIELD_LAST_PERIOD_INDEX = 12;
+    private static final int FIELD_POSITION_IN_FIRST_PERIOD_US = 13;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
+     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
+     * instance will be {@code null}.
+     */
+    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      bundle.putLong(keyForField(FIELD_PRESENTATION_START_TIME_MS), presentationStartTimeMs);
+      bundle.putLong(keyForField(FIELD_WINDOW_START_TIME_MS), windowStartTimeMs);
+      bundle.putLong(
+          keyForField(FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS), elapsedRealtimeEpochOffsetMs);
+      bundle.putBoolean(keyForField(FIELD_IS_SEEKABLE), isSeekable);
+      bundle.putBoolean(keyForField(FIELD_IS_DYNAMIC), isDynamic);
+      @Nullable MediaItem.LiveConfiguration liveConfiguration = this.liveConfiguration;
+      if (liveConfiguration != null) {
+        bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
+      }
+      bundle.putBoolean(keyForField(FIELD_IS_PLACEHOLDER), isPlaceholder);
+      bundle.putLong(keyForField(FIELD_DEFAULT_POSITION_US), defaultPositionUs);
+      bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
+      bundle.putInt(keyForField(FIELD_FIRST_PERIOD_INDEX), firstPeriodIndex);
+      bundle.putInt(keyForField(FIELD_LAST_PERIOD_INDEX), lastPeriodIndex);
+      bundle.putLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), positionInFirstPeriodUs);
+      return bundle;
+    }
+
+    /**
+     * Object that can restore {@link Period} from a {@link Bundle}.
+     *
+     * <p>The {@link #uid} of a restored instance will be a fake {@link Object} and the {@link
+     * #manifest} of the instance will be {@code null}.
+     */
+    public static final Creator<Window> CREATOR = Window::fromBundle;
+
+    private static Window fromBundle(Bundle bundle) {
+      @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
+      @Nullable
+      MediaItem mediaItem =
+          mediaItemBundle != null ? MediaItem.CREATOR.fromBundle(mediaItemBundle) : null;
+      long presentationStartTimeMs =
+          bundle.getLong(
+              keyForField(FIELD_PRESENTATION_START_TIME_MS), /* defaultValue= */ C.TIME_UNSET);
+      long windowStartTimeMs =
+          bundle.getLong(keyForField(FIELD_WINDOW_START_TIME_MS), /* defaultValue= */ C.TIME_UNSET);
+      long elapsedRealtimeEpochOffsetMs =
+          bundle.getLong(
+              keyForField(FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS),
+              /* defaultValue= */ C.TIME_UNSET);
+      boolean isSeekable =
+          bundle.getBoolean(keyForField(FIELD_IS_SEEKABLE), /* defaultValue= */ false);
+      boolean isDynamic =
+          bundle.getBoolean(keyForField(FIELD_IS_DYNAMIC), /* defaultValue= */ false);
+      @Nullable
+      Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
+      @Nullable
+      MediaItem.LiveConfiguration liveConfiguration =
+          liveConfigurationBundle != null
+              ? MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle)
+              : null;
+      boolean isPlaceHolder =
+          bundle.getBoolean(keyForField(FIELD_IS_PLACEHOLDER), /* defaultValue= */ false);
+      long defaultPositionUs =
+          bundle.getLong(keyForField(FIELD_DEFAULT_POSITION_US), /* defaultValue= */ 0);
+      long durationUs =
+          bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
+      int firstPeriodIndex =
+          bundle.getInt(keyForField(FIELD_FIRST_PERIOD_INDEX), /* defaultValue= */ 0);
+      int lastPeriodIndex =
+          bundle.getInt(keyForField(FIELD_LAST_PERIOD_INDEX), /* defaultValue= */ 0);
+      long positionInFirstPeriodUs =
+          bundle.getLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), /* defaultValue= */ 0);
+
+      Window window = new Window();
+      window.set(
+          FAKE_WINDOW_UID,
+          mediaItem,
+          /* manifest= */ null,
+          presentationStartTimeMs,
+          windowStartTimeMs,
+          elapsedRealtimeEpochOffsetMs,
+          isSeekable,
+          isDynamic,
+          liveConfiguration,
+          defaultPositionUs,
+          durationUs,
+          firstPeriodIndex,
+          lastPeriodIndex,
+          positionInFirstPeriodUs);
+      window.isPlaceholder = isPlaceHolder;
+      return window;
+    }
+
+    private static String keyForField(@Window.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
   }
 
   /**
@@ -412,7 +559,7 @@ public abstract class Timeline {
    * <p style="align:center"><img src="doc-files/timeline-period.svg" alt="Information defined by a
    * period">
    */
-  public static final class Period {
+  public static final class Period implements Bundleable {
 
     /**
      * An identifier for the period. Not necessarily unique. May be null if the ids of the period
@@ -435,7 +582,19 @@ public abstract class Timeline {
      */
     public long durationUs;
 
-    private long positionInWindowUs;
+    /**
+     * The position of the start of this period relative to the start of the window to which it
+     * belongs, in microseconds. May be negative if the start of the period is not within the
+     * window.
+     */
+    public long positionInWindowUs;
+
+    /**
+     * Whether this period contains placeholder information because the real information has yet to
+     * be loaded.
+     */
+    public boolean isPlaceholder;
+
     private AdPlaybackState adPlaybackState;
 
     /** Creates a new instance with no ad playback state. */
@@ -464,7 +623,14 @@ public abstract class Timeline {
         int windowIndex,
         long durationUs,
         long positionInWindowUs) {
-      return set(id, uid, windowIndex, durationUs, positionInWindowUs, AdPlaybackState.NONE);
+      return set(
+          id,
+          uid,
+          windowIndex,
+          durationUs,
+          positionInWindowUs,
+          AdPlaybackState.NONE,
+          /* isPlaceholder= */ false);
     }
 
     /**
@@ -482,6 +648,8 @@ public abstract class Timeline {
      *     period is not within the window.
      * @param adPlaybackState The state of the period's ads, or {@link AdPlaybackState#NONE} if
      *     there are no ads.
+     * @param isPlaceholder Whether this period contains placeholder information because the real
+     *     information has yet to be loaded.
      * @return This period, for convenience.
      */
     public Period set(
@@ -490,13 +658,15 @@ public abstract class Timeline {
         int windowIndex,
         long durationUs,
         long positionInWindowUs,
-        AdPlaybackState adPlaybackState) {
+        AdPlaybackState adPlaybackState,
+        boolean isPlaceholder) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
       this.adPlaybackState = adPlaybackState;
+      this.isPlaceholder = isPlaceholder;
       return this;
     }
 
@@ -592,9 +762,10 @@ public abstract class Timeline {
     }
 
     /**
-     * Returns the index of the ad group at or before {@code positionUs} in the period, if that ad
-     * group is unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code
-     * positionUs} has no ads remaining to be played, or if there is no such ad group.
+     * Returns the index of the ad group at or before {@code positionUs} in the period that should
+     * be played before the content at {@code positionUs}. Returns {@link C#INDEX_UNSET} if the ad
+     * group at or before {@code positionUs} has no ads remaining to be played, or if there is no
+     * such ad group.
      *
      * @param positionUs The period position at or before which to find an ad group, in
      *     microseconds.
@@ -606,7 +777,7 @@ public abstract class Timeline {
 
     /**
      * Returns the index of the next ad group after {@code positionUs} in the period that has ads
-     * remaining to be played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
+     * that should be played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
      *
      * @param positionUs The period position after which to find an ad group, in microseconds.
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
@@ -661,6 +832,7 @@ public abstract class Timeline {
           && windowIndex == that.windowIndex
           && durationUs == that.durationUs
           && positionInWindowUs == that.positionInWindowUs
+          && isPlaceholder == that.isPlaceholder
           && Util.areEqual(adPlaybackState, that.adPlaybackState);
     }
 
@@ -672,8 +844,83 @@ public abstract class Timeline {
       result = 31 * result + windowIndex;
       result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
       result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
+      result = 31 * result + (isPlaceholder ? 1 : 0);
       result = 31 * result + adPlaybackState.hashCode();
       return result;
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_WINDOW_INDEX,
+      FIELD_DURATION_US,
+      FIELD_POSITION_IN_WINDOW_US,
+      FIELD_PLACEHOLDER,
+      FIELD_AD_PLAYBACK_STATE
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_WINDOW_INDEX = 0;
+    private static final int FIELD_DURATION_US = 1;
+    private static final int FIELD_POSITION_IN_WINDOW_US = 2;
+    private static final int FIELD_PLACEHOLDER = 3;
+    private static final int FIELD_AD_PLAYBACK_STATE = 4;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #id} and {@link #uid} fields so these fields of an instance restored
+     * by {@link #CREATOR} will always be {@code null}.
+     */
+    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
+      bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
+      bundle.putLong(keyForField(FIELD_POSITION_IN_WINDOW_US), positionInWindowUs);
+      bundle.putBoolean(keyForField(FIELD_PLACEHOLDER), isPlaceholder);
+      bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATE), adPlaybackState.toBundle());
+      return bundle;
+    }
+
+    /**
+     * Object that can restore {@link Period} from a {@link Bundle}.
+     *
+     * <p>The {@link #id} and {@link #uid} of restored instances will always be {@code null}.
+     */
+    public static final Creator<Period> CREATOR = Period::fromBundle;
+
+    private static Period fromBundle(Bundle bundle) {
+      int windowIndex = bundle.getInt(keyForField(FIELD_WINDOW_INDEX), /* defaultValue= */ 0);
+      long durationUs =
+          bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
+      long positionInWindowUs =
+          bundle.getLong(keyForField(FIELD_POSITION_IN_WINDOW_US), /* defaultValue= */ 0);
+      boolean isPlaceholder = bundle.getBoolean(keyForField(FIELD_PLACEHOLDER));
+      @Nullable
+      Bundle adPlaybackStateBundle = bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATE));
+      AdPlaybackState adPlaybackState =
+          adPlaybackStateBundle != null
+              ? AdPlaybackState.CREATOR.fromBundle(adPlaybackStateBundle)
+              : AdPlaybackState.NONE;
+
+      Period period = new Period();
+      period.set(
+          /* id= */ null,
+          /* uid= */ null,
+          windowIndex,
+          durationUs,
+          positionInWindowUs,
+          adPlaybackState,
+          isPlaceholder);
+      return period;
+    }
+
+    private static String keyForField(@Period.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
@@ -922,13 +1169,14 @@ public abstract class Timeline {
       }
     }
     int periodIndex = window.firstPeriodIndex;
-    long periodPositionUs = window.getPositionInFirstPeriodUs() + windowPositionUs;
-    long periodDurationUs = getPeriod(periodIndex, period, /* setIds= */ true).getDurationUs();
-    while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
-        && periodIndex < window.lastPeriodIndex) {
-      periodPositionUs -= periodDurationUs;
-      periodDurationUs = getPeriod(++periodIndex, period, /* setIds= */ true).getDurationUs();
+    getPeriod(periodIndex, period);
+    while (periodIndex < window.lastPeriodIndex
+        && period.positionInWindowUs != windowPositionUs
+        && getPeriod(periodIndex + 1, period).positionInWindowUs <= windowPositionUs) {
+      periodIndex++;
     }
+    getPeriod(periodIndex, period, /* setIds= */ true);
+    long periodPositionUs = windowPositionUs - period.positionInWindowUs;
     return Pair.create(Assertions.checkNotNull(period.uid), periodPositionUs);
   }
 
@@ -1028,5 +1276,244 @@ public abstract class Timeline {
       result = 31 * result + getPeriod(i, period, /* setIds= */ true).hashCode();
     }
     return result;
+  }
+
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_WINDOWS,
+    FIELD_PERIODS,
+    FIELD_SHUFFLED_WINDOW_INDICES,
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_WINDOWS = 0;
+  private static final int FIELD_PERIODS = 1;
+  private static final int FIELD_SHUFFLED_WINDOW_INDICES = 2;
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
+   * Window#toBundle()} and {@link Period#toBundle()}.
+   */
+  @Override
+  public final Bundle toBundle() {
+    List<Bundle> windowBundles = new ArrayList<>();
+    int windowCount = getWindowCount();
+    Window window = new Window();
+    for (int i = 0; i < windowCount; i++) {
+      windowBundles.add(getWindow(i, window, /* defaultPositionProjectionUs= */ 0).toBundle());
+    }
+
+    List<Bundle> periodBundles = new ArrayList<>();
+    int periodCount = getPeriodCount();
+    Period period = new Period();
+    for (int i = 0; i < periodCount; i++) {
+      periodBundles.add(getPeriod(i, period, /* setIds= */ false).toBundle());
+    }
+
+    int[] shuffledWindowIndices = new int[windowCount];
+    if (windowCount > 0) {
+      shuffledWindowIndices[0] = getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+    }
+    for (int i = 1; i < windowCount; i++) {
+      shuffledWindowIndices[i] =
+          getNextWindowIndex(
+              shuffledWindowIndices[i - 1], Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true);
+    }
+
+    Bundle bundle = new Bundle();
+    BundleUtil.putBinder(
+        bundle, keyForField(FIELD_WINDOWS), new BundleListRetriever(windowBundles));
+    BundleUtil.putBinder(
+        bundle, keyForField(FIELD_PERIODS), new BundleListRetriever(periodBundles));
+    bundle.putIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES), shuffledWindowIndices);
+    return bundle;
+  }
+
+  /**
+   * Object that can restore a {@link Timeline} from a {@link Bundle}.
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * a restored instance may have missing fields as described in {@link Window#CREATOR} and {@link
+   * Period#CREATOR}.
+   */
+  public static final Creator<Timeline> CREATOR = Timeline::fromBundle;
+
+  private static Timeline fromBundle(Bundle bundle) {
+    ImmutableList<Window> windows =
+        fromBundleListRetriever(
+            Window.CREATOR, BundleUtil.getBinder(bundle, keyForField(FIELD_WINDOWS)));
+    ImmutableList<Period> periods =
+        fromBundleListRetriever(
+            Period.CREATOR, BundleUtil.getBinder(bundle, keyForField(FIELD_PERIODS)));
+    @Nullable
+    int[] shuffledWindowIndices = bundle.getIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES));
+    return new RemotableTimeline(
+        windows,
+        periods,
+        shuffledWindowIndices == null
+            ? generateUnshuffledIndices(windows.size())
+            : shuffledWindowIndices);
+  }
+
+  private static <T extends Bundleable> ImmutableList<T> fromBundleListRetriever(
+      Creator<T> creator, @Nullable IBinder binder) {
+    if (binder == null) {
+      return ImmutableList.of();
+    }
+    ImmutableList.Builder<T> builder = new ImmutableList.Builder<>();
+    List<Bundle> bundleList = BundleListRetriever.getList(binder);
+    for (int i = 0; i < bundleList.size(); i++) {
+      builder.add(creator.fromBundle(bundleList.get(i)));
+    }
+    return builder.build();
+  }
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  private static int[] generateUnshuffledIndices(int n) {
+    int[] indices = new int[n];
+    for (int i = 0; i < n; i++) {
+      indices[i] = i;
+    }
+    return indices;
+  }
+
+  /**
+   * A concrete class of {@link Timeline} to restore a {@link Timeline} instance from a {@link
+   * Bundle} sent by another process via {@link IBinder}.
+   */
+  private static final class RemotableTimeline extends Timeline {
+
+    private final ImmutableList<Window> windows;
+    private final ImmutableList<Period> periods;
+    private final int[] shuffledWindowIndices;
+    private final int[] windowIndicesInShuffled;
+
+    public RemotableTimeline(
+        ImmutableList<Window> windows, ImmutableList<Period> periods, int[] shuffledWindowIndices) {
+      checkArgument(windows.size() == shuffledWindowIndices.length);
+      this.windows = windows;
+      this.periods = periods;
+      this.shuffledWindowIndices = shuffledWindowIndices;
+      windowIndicesInShuffled = new int[shuffledWindowIndices.length];
+      for (int i = 0; i < shuffledWindowIndices.length; i++) {
+        windowIndicesInShuffled[shuffledWindowIndices[i]] = i;
+      }
+    }
+
+    @Override
+    public int getWindowCount() {
+      return windows.size();
+    }
+
+    @Override
+    public Window getWindow(
+        int windowIndex, Window window, long ignoredDefaultPositionProjectionUs) {
+      Window w = windows.get(windowIndex);
+      window.set(
+          w.uid,
+          w.mediaItem,
+          w.manifest,
+          w.presentationStartTimeMs,
+          w.windowStartTimeMs,
+          w.elapsedRealtimeEpochOffsetMs,
+          w.isSeekable,
+          w.isDynamic,
+          w.liveConfiguration,
+          w.defaultPositionUs,
+          w.durationUs,
+          w.firstPeriodIndex,
+          w.lastPeriodIndex,
+          w.positionInFirstPeriodUs);
+      window.isPlaceholder = w.isPlaceholder;
+      return window;
+    }
+
+    @Override
+    public int getNextWindowIndex(
+        int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+      if (repeatMode == Player.REPEAT_MODE_ONE) {
+        return windowIndex;
+      }
+      if (windowIndex == getLastWindowIndex(shuffleModeEnabled)) {
+        return repeatMode == Player.REPEAT_MODE_ALL
+            ? getFirstWindowIndex(shuffleModeEnabled)
+            : C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled
+          ? shuffledWindowIndices[windowIndicesInShuffled[windowIndex] + 1]
+          : windowIndex + 1;
+    }
+
+    @Override
+    public int getPreviousWindowIndex(
+        int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+      if (repeatMode == Player.REPEAT_MODE_ONE) {
+        return windowIndex;
+      }
+      if (windowIndex == getFirstWindowIndex(shuffleModeEnabled)) {
+        return repeatMode == Player.REPEAT_MODE_ALL
+            ? getLastWindowIndex(shuffleModeEnabled)
+            : C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled
+          ? shuffledWindowIndices[windowIndicesInShuffled[windowIndex] - 1]
+          : windowIndex - 1;
+    }
+
+    @Override
+    public int getLastWindowIndex(boolean shuffleModeEnabled) {
+      if (isEmpty()) {
+        return C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled
+          ? shuffledWindowIndices[getWindowCount() - 1]
+          : getWindowCount() - 1;
+    }
+
+    @Override
+    public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+      if (isEmpty()) {
+        return C.INDEX_UNSET;
+      }
+      return shuffleModeEnabled ? shuffledWindowIndices[0] : 0;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return periods.size();
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
+      Period p = periods.get(periodIndex);
+      period.set(
+          p.id,
+          p.uid,
+          p.windowIndex,
+          p.durationUs,
+          p.positionInWindowUs,
+          p.adPlaybackState,
+          p.isPlaceholder);
+      return period;
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      throw new UnsupportedOperationException();
+    }
   }
 }

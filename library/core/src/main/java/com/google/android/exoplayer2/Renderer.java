@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.DecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -76,11 +75,14 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * The type of a message that can be passed to a video renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link Surface}, or
-   * null.
+   * ExoPlayer#createMessage(Target)}. The message payload is normally a {@link Surface}, however
+   * some video renderers may accept other outputs (e.g., {@link VideoDecoderOutputBufferRenderer}).
+   *
+   * <p>If the receiving renderer does not support the payload type as an output, then it will clear
+   * any existing output that it has.
    */
   @SuppressWarnings("deprecation")
-  int MSG_SET_SURFACE = C.MSG_SET_SURFACE;
+  int MSG_SET_VIDEO_OUTPUT = C.MSG_SET_SURFACE;
   /**
    * A type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Float} with 0 being
@@ -142,17 +144,6 @@ public interface Renderer extends PlayerMessage.Target {
    */
   @SuppressWarnings("deprecation")
   int MSG_SET_CAMERA_MOTION_LISTENER = C.MSG_SET_CAMERA_MOTION_LISTENER;
-  /**
-   * The type of a message that can be passed to a {@link DecoderVideoRenderer} via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
-   * VideoDecoderOutputBufferRenderer}, or null.
-   *
-   * <p>This message is intended only for use with extension renderers that expect a {@link
-   * VideoDecoderOutputBufferRenderer}. For other use cases, an output surface should be passed via
-   * {@link #MSG_SET_SURFACE} instead.
-   */
-  @SuppressWarnings("deprecation")
-  int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER;
   /**
    * The type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Boolean} instance
@@ -240,7 +231,7 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * Returns the track type that the renderer handles.
    *
-   * @see Player#getRendererType(int)
+   * @see ExoPlayer#getRendererType(int)
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getTrackType();

@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -29,9 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * An HTTP {@link DataSource}.
- */
+/** An HTTP {@link DataSource}. */
 public interface HttpDataSource extends DataSource {
 
   /**
@@ -182,7 +181,10 @@ public interface HttpDataSource extends DataSource {
   /** A {@link Predicate} that rejects content types often used for pay-walls. */
   Predicate<String> REJECT_PAYWALL_TYPES =
       contentType -> {
-        contentType = Util.toLowerInvariant(contentType);
+        if (contentType == null) {
+          return false;
+        }
+        contentType = Ascii.toLowerCase(contentType);
         return !TextUtils.isEmpty(contentType)
             && (!contentType.contains("text") || contentType.contains("text/vtt"))
             && !contentType.contains("html")

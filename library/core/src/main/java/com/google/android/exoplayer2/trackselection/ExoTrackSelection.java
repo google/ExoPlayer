@@ -42,10 +42,8 @@ public interface ExoTrackSelection extends TrackSelection {
     public final TrackGroup group;
     /** The indices of the selected tracks in {@link #group}. */
     public final int[] tracks;
-    /** The track selection reason. One of the {@link C} SELECTION_REASON_ constants. */
-    public final int reason;
-    /** Optional data associated with this selection of tracks. */
-    @Nullable public final Object data;
+    /** The type that will be returned from {@link TrackSelection#getType()}. */
+    public final int type;
 
     /**
      * @param group The {@link TrackGroup}. Must not be null.
@@ -53,20 +51,19 @@ public interface ExoTrackSelection extends TrackSelection {
      *     null or empty. May be in any order.
      */
     public Definition(TrackGroup group, int... tracks) {
-      this(group, tracks, C.SELECTION_REASON_UNKNOWN, /* data= */ null);
+      this(group, tracks, TrackSelection.TYPE_UNSET);
     }
 
     /**
      * @param group The {@link TrackGroup}. Must not be null.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
-     * @param reason The track selection reason. One of the {@link C} SELECTION_REASON_ constants.
-     * @param data Optional data associated with this selection of tracks.
+     *     null or empty. May be in any order.
+     * @param type The type that will be returned from {@link TrackSelection#getType()}.
      */
-    public Definition(TrackGroup group, int[] tracks, int reason, @Nullable Object data) {
+    public Definition(TrackGroup group, int[] tracks, int type) {
       this.group = group;
       this.tracks = tracks;
-      this.reason = reason;
-      this.data = data;
+      this.type = type;
     }
   }
 
@@ -274,4 +271,13 @@ public interface ExoTrackSelection extends TrackSelection {
    * @return Whether exclusion was successful.
    */
   boolean blacklist(int index, long exclusionDurationMs);
+
+  /**
+   * Returns whether the track at the specified index in the selection is excluded.
+   *
+   * @param index The index of the track in the selection.
+   * @param nowMs The current time in the timebase of {@link
+   *     android.os.SystemClock#elapsedRealtime()}.
+   */
+  boolean isBlacklisted(int index, long nowMs);
 }

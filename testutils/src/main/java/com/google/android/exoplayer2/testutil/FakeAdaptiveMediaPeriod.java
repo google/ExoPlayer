@@ -42,9 +42,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import java.io.IOException;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
@@ -63,7 +63,7 @@ public class FakeAdaptiveMediaPeriod
   private final Allocator allocator;
   private final long durationUs;
   @Nullable private final TransferListener transferListener;
-  private final Set<ChunkSampleStream<FakeChunkSource>> sampleStreams;
+  private final List<ChunkSampleStream<FakeChunkSource>> sampleStreams;
 
   @Nullable private Callback callback;
   private boolean prepared;
@@ -82,7 +82,7 @@ public class FakeAdaptiveMediaPeriod
     this.allocator = allocator;
     this.durationUs = durationUs;
     this.transferListener = transferListener;
-    sampleStreams = Sets.newIdentityHashSet();
+    sampleStreams = new ArrayList<>();
     sequenceableLoader = new CompositeSequenceableLoader(new SequenceableLoader[0]);
     fakePreparationLoadTaskId = LoadEventInfo.getNewId();
   }

@@ -60,14 +60,14 @@ player.prepare();
 
 You can retrieve the current manifest by calling `Player.getCurrentManifest`.
 For HLS you should cast the returned object to `HlsManifest`. The
-`onTimelineChanged` callback of `Player.EventListener` is also called whenever
+`onTimelineChanged` callback of `Player.Listener` is also called whenever
 the manifest is loaded. This will happen once for a on-demand content, and
 possibly many times for live content. The code snippet below shows how an app
 can do something whenever the manifest is loaded.
 
 ~~~
 player.addListener(
-    new Player.EventListener() {
+    new Player.Listener() {
       @Override
       public void onTimelineChanged(
           Timeline timeline, @Player.TimelineChangeReason int reason) {
@@ -110,7 +110,7 @@ follow to improve your HLS content. Read our [Medium post about HLS playback in
 ExoPlayer][] for a full explanation. The main points are:
 
 * Use precise segment durations.
-* Use a continues media stream; avoid changes in the media structure across
+* Use a continuous media stream; avoid changes in the media structure across
   segments.
 * Use the `#EXT-X-INDEPENDENT-SEGMENTS` tag.
 * Prefer demuxed streams, as opposed to files that include both video and audio.

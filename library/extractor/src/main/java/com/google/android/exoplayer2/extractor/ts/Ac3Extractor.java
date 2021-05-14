@@ -31,9 +31,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerat
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
-/**
- * Extracts data from (E-)AC-3 bitstreams.
- */
+/** Extracts data from (E-)AC-3 bitstreams. */
 public final class Ac3Extractor implements Extractor {
 
   /** Factory for {@link Ac3Extractor} instances. */

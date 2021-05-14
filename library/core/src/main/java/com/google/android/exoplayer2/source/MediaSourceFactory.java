@@ -31,25 +31,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.util.List;
 
-/**
- * Factory for creating {@link MediaSource}s from URIs.
- *
- * <h3>DrmSessionManager creation for protected content</h3>
- *
- * <p>In case a {@link DrmSessionManager} is passed to {@link
- * #setDrmSessionManager(DrmSessionManager)}, it will be used regardless of the drm configuration of
- * the media item.
- *
- * <p>For a media item with a {@link MediaItem.DrmConfiguration}, a {@link DefaultDrmSessionManager}
- * is created based on that configuration. The following setter can be used to optionally configure
- * the creation:
- *
- * <ul>
- *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}: Sets the data source factory
- *       to be used by the {@link HttpMediaDrmCallback} for network requests (default: {@link
- *       DefaultHttpDataSourceFactory}).
- * </ul>
- */
+/** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
 public interface MediaSourceFactory {
 
   /** @deprecated Use {@link MediaItem.PlaybackProperties#streamKeys} instead. */

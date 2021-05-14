@@ -23,9 +23,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Encapsulates information describing an MP4 track.
- */
+/** Encapsulates information describing an MP4 track. */
 public final class Track {
 
   /**

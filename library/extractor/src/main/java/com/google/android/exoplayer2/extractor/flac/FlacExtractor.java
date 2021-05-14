@@ -75,7 +75,7 @@ public final class FlacExtractor implements Extractor {
    * required.
    */
   public static final int FLAG_DISABLE_ID3_METADATA = 1;
-  // LINT.ThenChange(../../../../../../../../../../../extensions/flac/src/main/java/com/google/android/exoplayer2/ext/flac/FlacExtractor.java)
+  // LINT.ThenChange(../../../../../../../../../../decoder_flac/src/main/java/com/google/android/exoplayer2/ext/flac/FlacExtractor.java)
 
   /** Parser state. */
   @Documented

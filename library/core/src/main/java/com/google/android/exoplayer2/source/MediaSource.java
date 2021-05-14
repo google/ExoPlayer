@@ -104,8 +104,18 @@ public interface MediaSource {
     }
 
     /** See {@link com.google.android.exoplayer2.source.MediaPeriodId#copyWithPeriodUid(Object)}. */
+    @Override
     public MediaPeriodId copyWithPeriodUid(Object newPeriodUid) {
       return new MediaPeriodId(super.copyWithPeriodUid(newPeriodUid));
+    }
+
+    /**
+     * See {@link
+     * com.google.android.exoplayer2.source.MediaPeriodId#copyWithWindowSequenceNumber(long)}.
+     */
+    @Override
+    public MediaPeriodId copyWithWindowSequenceNumber(long windowSequenceNumber) {
+      return new MediaPeriodId(super.copyWithWindowSequenceNumber(windowSequenceNumber));
     }
   }
 

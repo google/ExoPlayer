@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_DRM_SESSION_CHANGED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static java.lang.Math.max;
 
 import android.os.Handler;
@@ -45,8 +46,9 @@ import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -81,6 +83,8 @@ public abstract class DecoderAudioRenderer<
         T extends
             Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>>
     extends BaseRenderer implements MediaClock {
+
+  private static final String TAG = "DecoderAudioRenderer";
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -186,7 +190,7 @@ public abstract class DecoderAudioRenderer<
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.audioSink = audioSink;
     audioSink.setListener(new AudioSinkListener());
-    flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
+    flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     audioTrackNeedsConfigure = true;
   }
@@ -270,7 +274,7 @@ public abstract class DecoderAudioRenderer<
       // We don't have a format yet, so try and read one.
       FormatHolder formatHolder = getFormatHolder();
       flagsOnlyBuffer.clear();
-      @SampleStream.ReadDataResult int result = readSource(formatHolder, flagsOnlyBuffer, true);
+      @ReadDataResult int result = readSource(formatHolder, flagsOnlyBuffer, FLAG_REQUIRE_FORMAT);
       if (result == C.RESULT_FORMAT_READ) {
         onInputFormatChanged(formatHolder);
       } else if (result == C.RESULT_BUFFER_READ) {
@@ -300,6 +304,8 @@ public abstract class DecoderAudioRenderer<
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (DecoderException e) {
+        Log.e(TAG, "Audio codec error", e);
+        eventDispatcher.audioCodecError(e);
         throw createRendererException(e, inputFormat);
       } catch (AudioSink.ConfigurationException e) {
         throw createRendererException(e, e.format);
@@ -433,7 +439,7 @@ public abstract class DecoderAudioRenderer<
     }
 
     FormatHolder formatHolder = getFormatHolder();
-    switch (readSource(formatHolder, inputBuffer, /* formatRequired= */ false)) {
+    switch (readSource(formatHolder, inputBuffer, /* readFlags= */ 0)) {
       case C.RESULT_NOTHING_READ:
         return false;
       case C.RESULT_FORMAT_READ:
@@ -618,7 +624,11 @@ public abstract class DecoderAudioRenderer<
       eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (DecoderException | OutOfMemoryError e) {
+    } catch (DecoderException e) {
+      Log.e(TAG, "Audio codec error", e);
+      eventDispatcher.audioCodecError(e);
+      throw createRendererException(e, inputFormat);
+    } catch (OutOfMemoryError e) {
       throw createRendererException(e, inputFormat);
     }
   }
@@ -688,7 +698,7 @@ public abstract class DecoderAudioRenderer<
     eventDispatcher.inputFormatChanged(inputFormat, evaluation);
   }
 
-  private void onQueueInputBuffer(DecoderInputBuffer buffer) {
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
     if (allowFirstBufferPositionDiscontinuity && !buffer.isDecodeOnly()) {
       // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
       // Allow the position to jump if the first presentable input buffer has a timestamp that
@@ -735,6 +745,7 @@ public abstract class DecoderAudioRenderer<
 
     @Override
     public void onAudioSinkError(Exception audioSinkError) {
+      Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
     }
   }

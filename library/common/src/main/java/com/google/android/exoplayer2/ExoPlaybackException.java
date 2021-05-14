@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Bundle;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import androidx.annotation.CheckResult;
@@ -23,13 +25,14 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Thrown when a non locally recoverable playback failure occurs. */
-public final class ExoPlaybackException extends Exception {
+public final class ExoPlaybackException extends Exception implements Bundleable {
 
   /**
    * The type of source that produced the error. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}
@@ -102,13 +105,9 @@ public final class ExoPlaybackException extends Exception {
   @Nullable public final MediaPeriodId mediaPeriodId;
 
   /**
-   * Whether the error may be recoverable.
-   *
-   * <p>This is only used internally by ExoPlayer to try to recover from some errors and should not
-   * be used by apps.
-   *
-   * <p>If the {@link #type} is {@link #TYPE_RENDERER}, it may be possible to recover from the error
-   * by disabling and re-enabling the renderers.
+   * If {@link #type} is {@link #TYPE_RENDERER}, this field indicates whether the error may be
+   * recoverable by disabling and re-enabling (but <em>not</em> resetting) the renderers. For other
+   * {@link Type types} this field will always be {@code false}.
    */
   /* package */ final boolean isRecoverable;
 
@@ -271,7 +270,7 @@ public final class ExoPlaybackException extends Exception {
   }
 
   private ExoPlaybackException(
-      @Nullable String message,
+      String message,
       @Nullable Throwable cause,
       @Type int type,
       @Nullable String rendererName,
@@ -282,6 +281,7 @@ public final class ExoPlaybackException extends Exception {
       long timestampMs,
       boolean isRecoverable) {
     super(message, cause);
+    Assertions.checkArgument(!isRecoverable || type == TYPE_RENDERER);
     this.type = type;
     this.cause = cause;
     this.rendererName = rendererName;
@@ -332,7 +332,7 @@ public final class ExoPlaybackException extends Exception {
   @CheckResult
   /* package */ ExoPlaybackException copyWithMediaPeriodId(@Nullable MediaPeriodId mediaPeriodId) {
     return new ExoPlaybackException(
-        getMessage(),
+        Util.castNonNull(getMessage()),
         cause,
         type,
         rendererName,
@@ -344,7 +344,6 @@ public final class ExoPlaybackException extends Exception {
         isRecoverable);
   }
 
-  @Nullable
   private static String deriveMessage(
       @Type int type,
       @Nullable String customMessage,
@@ -352,7 +351,7 @@ public final class ExoPlaybackException extends Exception {
       int rendererIndex,
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport) {
-    @Nullable String message;
+    String message;
     switch (type) {
       case TYPE_SOURCE:
         message = "Source error";
@@ -380,5 +379,137 @@ public final class ExoPlaybackException extends Exception {
       message += ": " + customMessage;
     }
     return message;
+  }
+
+  // Bundleable implementation.
+  // TODO(b/145954241): Revisit bundling fields when this class is split for Player and ExoPlayer.
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_MESSAGE,
+    FIELD_TYPE,
+    FIELD_RENDERER_NAME,
+    FIELD_RENDERER_INDEX,
+    FIELD_RENDERER_FORMAT,
+    FIELD_RENDERER_FORMAT_SUPPORT,
+    FIELD_TIME_STAMP_MS,
+    FIELD_IS_RECOVERABLE,
+    FIELD_CAUSE_CLASS_NAME,
+    FIELD_CAUSE_MESSAGE
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_MESSAGE = 0;
+  private static final int FIELD_TYPE = 1;
+  private static final int FIELD_RENDERER_NAME = 2;
+  private static final int FIELD_RENDERER_INDEX = 3;
+  private static final int FIELD_RENDERER_FORMAT = 4;
+  private static final int FIELD_RENDERER_FORMAT_SUPPORT = 5;
+  private static final int FIELD_TIME_STAMP_MS = 6;
+  private static final int FIELD_IS_RECOVERABLE = 7;
+  private static final int FIELD_CAUSE_CLASS_NAME = 8;
+  private static final int FIELD_CAUSE_MESSAGE = 9;
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>It omits the {@link #mediaPeriodId} field. The {@link #mediaPeriodId} of an instance
+   * restored by {@link #CREATOR} will always be {@code null}.
+   */
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putString(keyForField(FIELD_MESSAGE), getMessage());
+    bundle.putInt(keyForField(FIELD_TYPE), type);
+    bundle.putString(keyForField(FIELD_RENDERER_NAME), rendererName);
+    bundle.putInt(keyForField(FIELD_RENDERER_INDEX), rendererIndex);
+    bundle.putParcelable(keyForField(FIELD_RENDERER_FORMAT), rendererFormat);
+    bundle.putInt(keyForField(FIELD_RENDERER_FORMAT_SUPPORT), rendererFormatSupport);
+    bundle.putLong(keyForField(FIELD_TIME_STAMP_MS), timestampMs);
+    bundle.putBoolean(keyForField(FIELD_IS_RECOVERABLE), isRecoverable);
+    if (cause != null) {
+      bundle.putString(keyForField(FIELD_CAUSE_CLASS_NAME), cause.getClass().getName());
+      bundle.putString(keyForField(FIELD_CAUSE_MESSAGE), cause.getMessage());
+    }
+    return bundle;
+  }
+
+  /** Object that can restore {@link ExoPlaybackException} from a {@link Bundle}. */
+  public static final Creator<ExoPlaybackException> CREATOR = ExoPlaybackException::fromBundle;
+
+  private static ExoPlaybackException fromBundle(Bundle bundle) {
+    int type = bundle.getInt(keyForField(FIELD_TYPE), /* defaultValue= */ TYPE_UNEXPECTED);
+    @Nullable String rendererName = bundle.getString(keyForField(FIELD_RENDERER_NAME));
+    int rendererIndex =
+        bundle.getInt(keyForField(FIELD_RENDERER_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+    @Nullable Format rendererFormat = bundle.getParcelable(keyForField(FIELD_RENDERER_FORMAT));
+    int rendererFormatSupport =
+        bundle.getInt(
+            keyForField(FIELD_RENDERER_FORMAT_SUPPORT), /* defaultValue= */ C.FORMAT_HANDLED);
+    long timestampMs =
+        bundle.getLong(
+            keyForField(FIELD_TIME_STAMP_MS), /* defaultValue= */ SystemClock.elapsedRealtime());
+    boolean isRecoverable =
+        bundle.getBoolean(keyForField(FIELD_IS_RECOVERABLE), /* defaultValue= */ false);
+    @Nullable String message = bundle.getString(keyForField(FIELD_MESSAGE));
+    if (message == null) {
+      message =
+          deriveMessage(
+              type,
+              /* customMessage= */ null,
+              rendererName,
+              rendererIndex,
+              rendererFormat,
+              rendererFormatSupport);
+    }
+
+    @Nullable String causeClassName = bundle.getString(keyForField(FIELD_CAUSE_CLASS_NAME));
+    @Nullable String causeMessage = bundle.getString(keyForField(FIELD_CAUSE_MESSAGE));
+    @Nullable Throwable cause = null;
+    if (!TextUtils.isEmpty(causeClassName)) {
+      final Class<?> clazz;
+      try {
+        clazz =
+            Class.forName(
+                causeClassName,
+                /* initialize= */ true,
+                ExoPlaybackException.class.getClassLoader());
+        if (Throwable.class.isAssignableFrom(clazz)) {
+          cause = createThrowable(clazz, causeMessage);
+        }
+      } catch (Throwable e) {
+        // Intentionally catch Throwable to catch both Exception and Error.
+        cause = createRemoteException(causeMessage);
+      }
+    }
+
+    return new ExoPlaybackException(
+        message,
+        cause,
+        type,
+        rendererName,
+        rendererIndex,
+        rendererFormat,
+        rendererFormatSupport,
+        /* mediaPeriodId= */ null,
+        timestampMs,
+        isRecoverable);
+  }
+
+  // Creates a new {@link Throwable} with possibly @{code null} message.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static Throwable createThrowable(Class<?> throwableClazz, @Nullable String message)
+      throws Exception {
+    return (Throwable) throwableClazz.getConstructor(String.class).newInstance(message);
+  }
+
+  // Creates a new {@link RemoteException} with possibly {@code null} message.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static RemoteException createRemoteException(@Nullable String message) {
+    return new RemoteException(message);
+  }
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

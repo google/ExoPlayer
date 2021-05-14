@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -131,7 +132,7 @@ import java.util.regex.Pattern;
       return null;
     }
 
-    String parsingValue = value.trim();
+    String parsingValue = Ascii.toLowerCase(value.trim());
     if (parsingValue.isEmpty()) {
       return null;
     }

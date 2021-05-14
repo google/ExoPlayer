@@ -24,5 +24,11 @@
     <div>
       <p begin="70s" end="78s">No textAlign property</p>
     </div>
+    <div>
+      <p begin="80s" end="88s" tts:textAlign="start"><span tts:fontSize="50%">Ancestor start</span> alignment</p>
+    </div>
+    <div>
+      <p begin="90s" end="98s"><span tts:textAlign="start">Not a P node</span></p>
+    </div>
   </body>
 </tt>

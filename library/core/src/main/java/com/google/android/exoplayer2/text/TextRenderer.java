@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -41,10 +41,10 @@ import java.util.List;
 
 /**
  * A renderer for text.
- * <p>
- * {@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances obtained
- * from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s is
- * delegated to a {@link TextOutput}.
+ *
+ * <p>{@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances
+ * obtained from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s
+ * is delegated to a {@link TextOutput}.
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
 
@@ -273,7 +273,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
           return;
         }
         // Try and read the next subtitle from the source.
-        @SampleStream.ReadDataResult int result = readSource(formatHolder, nextInputBuffer, false);
+        @ReadDataResult int result = readSource(formatHolder, nextInputBuffer, /* readFlags= */ 0);
         if (result == C.RESULT_BUFFER_READ) {
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;

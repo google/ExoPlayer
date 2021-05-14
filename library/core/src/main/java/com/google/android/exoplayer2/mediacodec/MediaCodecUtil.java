@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,9 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/**
- * A utility class for querying the available codecs.
- */
+/** A utility class for querying the available codecs. */
 @SuppressLint("InlinedApi")
 public final class MediaCodecUtil {
 
@@ -624,7 +623,7 @@ public final class MediaCodecUtil {
     if (Util.SDK_INT >= 29) {
       return isSoftwareOnlyV29(codecInfo);
     }
-    String codecName = Util.toLowerInvariant(codecInfo.getName());
+    String codecName = Ascii.toLowerCase(codecInfo.getName());
     if (codecName.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
       return false;
     }
@@ -650,7 +649,7 @@ public final class MediaCodecUtil {
     if (Util.SDK_INT >= 29) {
       return isVendorV29(codecInfo);
     }
-    String codecName = Util.toLowerInvariant(codecInfo.getName());
+    String codecName = Ascii.toLowerCase(codecInfo.getName());
     return !codecName.startsWith("omx.google.")
         && !codecName.startsWith("c2.android.")
         && !codecName.startsWith("c2.google.");

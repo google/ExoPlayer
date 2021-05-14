@@ -88,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
-    loader = new Loader("Loader:SingleSampleMediaPeriod");
+    loader = new Loader("SingleSampleMediaPeriod");
   }
 
   public void release() {
@@ -349,31 +349,39 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public int readData(
-        FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
+        FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       maybeNotifyDownstreamFormat();
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
-      } else if (requireFormat || streamState == STREAM_STATE_SEND_FORMAT) {
+      }
+
+      if ((readFlags & FLAG_REQUIRE_FORMAT) != 0 || streamState == STREAM_STATE_SEND_FORMAT) {
         formatHolder.format = format;
         streamState = STREAM_STATE_SEND_SAMPLE;
         return C.RESULT_FORMAT_READ;
-      } else if (loadingFinished) {
-        if (sampleData != null) {
-          buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
-          buffer.timeUs = 0;
-          if (buffer.isFlagsOnly()) {
-            return C.RESULT_BUFFER_READ;
-          }
-          buffer.ensureSpaceForWrite(sampleSize);
-          buffer.data.put(sampleData, 0, sampleSize);
-        } else {
-          buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-        }
+      }
+
+      if (!loadingFinished) {
+        return C.RESULT_NOTHING_READ;
+      }
+
+      if (sampleData == null) {
+        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         streamState = STREAM_STATE_END_OF_STREAM;
         return C.RESULT_BUFFER_READ;
       }
-      return C.RESULT_NOTHING_READ;
+
+      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+      buffer.timeUs = 0;
+      if ((readFlags & FLAG_OMIT_SAMPLE_DATA) == 0) {
+        buffer.ensureSpaceForWrite(sampleSize);
+        buffer.data.put(sampleData, 0, sampleSize);
+      }
+      if ((readFlags & FLAG_PEEK) == 0) {
+        streamState = STREAM_STATE_END_OF_STREAM;
+      }
+      return C.RESULT_BUFFER_READ;
     }
 
     @Override

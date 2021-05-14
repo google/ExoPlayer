@@ -47,9 +47,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-/**
- * Utility methods for tests.
- */
+/** Utility methods for tests. */
 public class TestUtil {
 
   private TestUtil() {}

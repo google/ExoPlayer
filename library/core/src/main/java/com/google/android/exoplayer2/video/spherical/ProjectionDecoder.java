@@ -34,7 +34,7 @@ import java.util.zip.Inflater;
  *
  * <p>The decoder does not perform CRC checks at the moment.
  */
-public final class ProjectionDecoder {
+/* package */ final class ProjectionDecoder {
 
   private static final int TYPE_YTMP = 0x79746d70;
   private static final int TYPE_MSHP = 0x6d736870;

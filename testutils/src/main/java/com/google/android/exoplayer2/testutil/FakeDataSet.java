@@ -34,8 +34,8 @@ import java.util.List;
  * FakeDataSet#newDefaultData()}.
  *
  * <p>{@link FakeDataSet#newData(Uri)} and {@link FakeDataSet#newDefaultData()} return a {@link
- * FakeData} instance which can be used to define specific results during
- * {@link FakeDataSource#read(byte[], int, int)} calls.
+ * FakeData} instance which can be used to define specific results during {@link
+ * FakeDataSource#read(byte[], int, int)} calls.
  *
  * <p>The data that will be read from the source can be constructed by calling {@link
  * FakeData#appendReadData(byte[])} Calls to {@link FakeDataSource#read(byte[], int, int)} will not
@@ -44,9 +44,9 @@ import java.util.List;
  *
  * <p>Errors can be inserted by calling {@link FakeData#appendReadError(IOException)}. An inserted
  * error will be thrown from the first call to {@link FakeDataSource#read(byte[], int, int)} that
- * attempts to read from the corresponding position, and from all subsequent calls to
- * {@link FakeDataSource#read(byte[], int, int)} until the source is closed. If the source is closed
- * and re-opened having encountered an error, that error will not be thrown again.
+ * attempts to read from the corresponding position, and from all subsequent calls to {@link
+ * FakeDataSource#read(byte[], int, int)} until the source is closed. If the source is closed and
+ * re-opened having encountered an error, that error will not be thrown again.
  *
  * <p>Actions are inserted by calling {@link FakeData#appendReadAction(Runnable)}. An actions is
  * triggered when the reading reaches action's position. This can be used to make sure the code is

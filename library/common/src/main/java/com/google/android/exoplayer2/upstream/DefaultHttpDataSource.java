@@ -15,21 +15,21 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.upstream.HttpUtil.buildRangeRequestHeader;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.net.Uri;
-import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
-import java.io.EOFException;
+import com.google.common.net.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -43,10 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
@@ -207,8 +204,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private static final int HTTP_STATUS_TEMPORARY_REDIRECT = 307;
   private static final int HTTP_STATUS_PERMANENT_REDIRECT = 308;
   private static final long MAX_BYTES_TO_DRAIN = 2048;
-  private static final Pattern CONTENT_RANGE_HEADER =
-      Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
 
   private final boolean allowCrossProtocolRedirects;
   private final int connectTimeoutMillis;
@@ -221,14 +216,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Nullable private DataSpec dataSpec;
   @Nullable private HttpURLConnection connection;
   @Nullable private InputStream inputStream;
-  private byte @MonotonicNonNull [] skipBuffer;
   private boolean opened;
   private int responseCode;
-
-  private long bytesToSkip;
   private long bytesToRead;
-
-  private long bytesSkipped;
   private long bytesRead;
 
   /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
@@ -341,8 +331,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
-    this.bytesRead = 0;
-    this.bytesSkipped = 0;
+    bytesRead = 0;
+    bytesToRead = 0;
     transferInitializing(dataSpec);
 
     try {
@@ -350,7 +340,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     } catch (IOException e) {
       @Nullable String message = e.getMessage();
       if (message != null
-          && Util.toLowerInvariant(message).matches("cleartext http traffic.*not permitted.*")) {
+          && Ascii.toLowerCase(message).matches("cleartext http traffic.*not permitted.*")) {
         throw new CleartextNotPermittedException(e, dataSpec);
       }
       throw new HttpDataSourceException(
@@ -371,6 +361,16 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
+      if (responseCode == 416) {
+        long documentSize =
+            HttpUtil.getDocumentSize(connection.getHeaderField(HttpHeaders.CONTENT_RANGE));
+        if (dataSpec.position == documentSize) {
+          opened = true;
+          transferStarted(dataSpec);
+          return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : 0;
+        }
+      }
+
       @Nullable InputStream errorStream = connection.getErrorStream();
       byte[] errorResponseBody;
       try {
@@ -383,7 +383,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       InvalidResponseCodeException exception =
           new InvalidResponseCodeException(
               responseCode, responseMessage, headers, dataSpec, errorResponseBody);
-
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -400,7 +399,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     // If we requested a range starting from a non-zero position and received a 200 rather than a
     // 206, then the server does not support partial requests. We'll need to manually skip to the
     // requested position.
-    bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
+    long bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
     boolean isCompressed = isCompressed(connection);
@@ -408,7 +407,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesToRead = dataSpec.length;
       } else {
-        long contentLength = getContentLength(connection);
+        long contentLength =
+            HttpUtil.getContentLength(
+                connection.getHeaderField(HttpHeaders.CONTENT_LENGTH),
+                connection.getHeaderField(HttpHeaders.CONTENT_RANGE));
         bytesToRead = contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip)
             : C.LENGTH_UNSET;
       }
@@ -432,13 +434,21 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     opened = true;
     transferStarted(dataSpec);
 
+    try {
+      if (!skipFully(bytesToSkip)) {
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      }
+    } catch (IOException e) {
+      closeConnectionQuietly();
+      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+    }
+
     return bytesToRead;
   }
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
     try {
-      skipInternal();
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
       throw new HttpDataSourceException(
@@ -451,7 +461,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     try {
       @Nullable InputStream inputStream = this.inputStream;
       if (inputStream != null) {
-        maybeTerminateInputStream(connection, bytesRemaining());
+        long bytesRemaining =
+            bytesToRead == C.LENGTH_UNSET ? C.LENGTH_UNSET : bytesToRead - bytesRead;
+        maybeTerminateInputStream(connection, bytesRemaining);
         try {
           inputStream.close();
         } catch (IOException e) {
@@ -467,48 +479,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         transferEnded();
       }
     }
-  }
-
-  /**
-   * Returns the current connection, or null if the source is not currently opened.
-   *
-   * @return The current open connection, or null.
-   */
-  @Nullable
-  protected final HttpURLConnection getConnection() {
-    return connection;
-  }
-
-  /**
-   * Returns the number of bytes that have been skipped since the most recent call to
-   * {@link #open(DataSpec)}.
-   *
-   * @return The number of bytes skipped.
-   */
-  protected final long bytesSkipped() {
-    return bytesSkipped;
-  }
-
-  /**
-   * Returns the number of bytes that have been read since the most recent call to
-   * {@link #open(DataSpec)}.
-   *
-   * @return The number of bytes read.
-   */
-  protected final long bytesRead() {
-    return bytesRead;
-  }
-
-  /**
-   * Returns the number of bytes that are still to be read for the current {@link DataSpec}.
-   * <p>
-   * If the total length of the data being read is known, then this length minus {@code bytesRead()}
-   * is returned. If the total length is unknown, {@link C#LENGTH_UNSET} is returned.
-   *
-   * @return The remaining length, or {@link C#LENGTH_UNSET}.
-   */
-  protected final long bytesRemaining() {
-    return bytesToRead == C.LENGTH_UNSET ? bytesToRead : bytesToRead - bytesRead;
   }
 
   /**
@@ -616,17 +586,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.setRequestProperty(property.getKey(), property.getValue());
     }
 
-    if (!(position == 0 && length == C.LENGTH_UNSET)) {
-      String rangeRequest = "bytes=" + position + "-";
-      if (length != C.LENGTH_UNSET) {
-        rangeRequest += (position + length - 1);
-      }
-      connection.setRequestProperty("Range", rangeRequest);
+    @Nullable String rangeHeader = buildRangeRequestHeader(position, length);
+    if (rangeHeader != null) {
+      connection.setRequestProperty(HttpHeaders.RANGE, rangeHeader);
     }
     if (userAgent != null) {
-      connection.setRequestProperty("User-Agent", userAgent);
+      connection.setRequestProperty(HttpHeaders.USER_AGENT, userAgent);
     }
-    connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
+    connection.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, allowGzip ? "gzip" : "identity");
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);
     connection.setRequestMethod(DataSpec.getStringForHttpMethod(httpMethod));
@@ -679,80 +646,32 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
-   * Attempts to extract the length of the content from the response headers of an open connection.
+   * Attempts to skip the specified number of bytes in full.
    *
-   * @param connection The open connection.
-   * @return The extracted length, or {@link C#LENGTH_UNSET}.
-   */
-  private static long getContentLength(HttpURLConnection connection) {
-    long contentLength = C.LENGTH_UNSET;
-    String contentLengthHeader = connection.getHeaderField("Content-Length");
-    if (!TextUtils.isEmpty(contentLengthHeader)) {
-      try {
-        contentLength = Long.parseLong(contentLengthHeader);
-      } catch (NumberFormatException e) {
-        Log.e(TAG, "Unexpected Content-Length [" + contentLengthHeader + "]");
-      }
-    }
-    String contentRangeHeader = connection.getHeaderField("Content-Range");
-    if (!TextUtils.isEmpty(contentRangeHeader)) {
-      Matcher matcher = CONTENT_RANGE_HEADER.matcher(contentRangeHeader);
-      if (matcher.find()) {
-        try {
-          long contentLengthFromRange =
-              Long.parseLong(checkNotNull(matcher.group(2)))
-                  - Long.parseLong(checkNotNull(matcher.group(1)))
-                  + 1;
-          if (contentLength < 0) {
-            // Some proxy servers strip the Content-Length header. Fall back to the length
-            // calculated here in this case.
-            contentLength = contentLengthFromRange;
-          } else if (contentLength != contentLengthFromRange) {
-            // If there is a discrepancy between the Content-Length and Content-Range headers,
-            // assume the one with the larger value is correct. We have seen cases where carrier
-            // change one of them to reduce the size of a request, but it is unlikely anybody would
-            // increase it.
-            Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
-                + "]");
-            contentLength = max(contentLength, contentLengthFromRange);
-          }
-        } catch (NumberFormatException e) {
-          Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
-        }
-      }
-    }
-    return contentLength;
-  }
-
-  /**
-   * Skips any bytes that need skipping. Else does nothing.
-   * <p>
-   * This implementation is based roughly on {@code libcore.io.Streams.skipByReading()}.
-   *
+   * @param bytesToSkip The number of bytes to skip.
    * @throws InterruptedIOException If the thread is interrupted during the operation.
-   * @throws EOFException If the end of the input stream is reached before the bytes are skipped.
+   * @throws IOException If an error occurs reading from the source.
+   * @return Whether the bytes were skipped in full. If {@code false} then the data ended before the
+   *     specified number of bytes were skipped. Always {@code true} if {@code bytesToSkip == 0}.
    */
-  private void skipInternal() throws IOException {
-    if (bytesSkipped == bytesToSkip) {
-      return;
+  private boolean skipFully(long bytesToSkip) throws IOException {
+    if (bytesToSkip == 0) {
+      return true;
     }
-
-    if (skipBuffer == null) {
-      skipBuffer = new byte[4096];
-    }
-
-    while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) min(bytesToSkip - bytesSkipped, skipBuffer.length);
+    byte[] skipBuffer = new byte[4096];
+    while (bytesToSkip > 0) {
+      int readLength = (int) min(bytesToSkip, skipBuffer.length);
       int read = castNonNull(inputStream).read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
       if (read == -1) {
-        throw new EOFException();
+        return false;
       }
-      bytesSkipped += read;
+      bytesToSkip -= read;
       bytesTransferred(read);
     }
+    return true;
   }
 
   /**
@@ -783,10 +702,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     int read = castNonNull(inputStream).read(buffer, offset, readLength);
     if (read == -1) {
-      if (bytesToRead != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new EOFException();
-      }
       return C.RESULT_END_OF_INPUT;
     }
 

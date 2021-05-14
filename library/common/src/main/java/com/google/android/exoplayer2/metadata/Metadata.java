@@ -19,13 +19,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A collection of metadata entries.
- */
+/** A collection of metadata entries. */
 public final class Metadata implements Parcelable {
 
   /** A metadata entry. */
@@ -48,6 +47,17 @@ public final class Metadata implements Parcelable {
     default byte[] getWrappedMetadataBytes() {
       return null;
     }
+
+    /**
+     * Updates the {@link MediaMetadata.Builder} with the type specific values stored in this Entry.
+     *
+     * <p>The order of the {@link Entry} objects in the {@link Metadata} matters. If two {@link
+     * Entry} entries attempt to populate the same {@link MediaMetadata} field, then the last one in
+     * the list is used.
+     *
+     * @param builder The builder to be updated.
+     */
+    default void populateMediaMetadata(MediaMetadata.Builder builder) {}
   }
 
   private final Entry[] entries;

@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link MetadataRetriever}. */
 @RunWith(AndroidJUnit4.class)
@@ -48,12 +49,12 @@ public class MetadataRetrieverTest {
   private static final long TEST_TIMEOUT_SEC = 10;
 
   private Context context;
-  private AutoAdvancingFakeClock clock;
+  private FakeClock clock;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
-    clock = new AutoAdvancingFakeClock();
+    clock = new FakeClock(/* isAutoAdvancing= */ true);
   }
 
   @Test
@@ -63,6 +64,7 @@ public class MetadataRetrieverTest {
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
+    ShadowLooper.idleMainLooper();
     TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(2);
@@ -85,6 +87,7 @@ public class MetadataRetrieverTest {
         retrieveMetadata(context, mediaItem1, clock);
     ListenableFuture<TrackGroupArray> trackGroupsFuture2 =
         retrieveMetadata(context, mediaItem2, clock);
+    ShadowLooper.idleMainLooper();
     TrackGroupArray trackGroups1 = trackGroupsFuture1.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
     TrackGroupArray trackGroups2 = trackGroupsFuture2.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
@@ -118,6 +121,7 @@ public class MetadataRetrieverTest {
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
+    ShadowLooper.idleMainLooper();
     TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(1);
@@ -134,6 +138,7 @@ public class MetadataRetrieverTest {
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
+    ShadowLooper.idleMainLooper();
     TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(1);
@@ -164,6 +169,7 @@ public class MetadataRetrieverTest {
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
+    ShadowLooper.idleMainLooper();
     TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(2); // Video and audio
@@ -185,6 +191,7 @@ public class MetadataRetrieverTest {
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
+    ShadowLooper.idleMainLooper();
 
     assertThrows(
         ExecutionException.class, () -> trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS));

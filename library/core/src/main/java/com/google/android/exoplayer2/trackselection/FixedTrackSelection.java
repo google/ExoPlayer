@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import java.util.List;
 
-/**
- * A {@link TrackSelection} consisting of a single track.
- */
+/** A {@link TrackSelection} consisting of a single track. */
 public final class FixedTrackSelection extends BaseTrackSelection {
 
   private final int reason;
@@ -35,17 +33,33 @@ public final class FixedTrackSelection extends BaseTrackSelection {
    * @param track The index of the selected track within the {@link TrackGroup}.
    */
   public FixedTrackSelection(TrackGroup group, int track) {
-    this(group, track, C.SELECTION_REASON_UNKNOWN, null);
+    this(group, /* track= */ track, /* type= */ TrackSelection.TYPE_UNSET);
   }
 
   /**
    * @param group The {@link TrackGroup}. Must not be null.
    * @param track The index of the selected track within the {@link TrackGroup}.
+   * @param type The type that will be returned from {@link TrackSelection#getType()}.
+   */
+  public FixedTrackSelection(TrackGroup group, int track, int type) {
+    this(
+        group,
+        /* track= */ track,
+        /* type= */ type,
+        /* reason= */ C.SELECTION_REASON_UNKNOWN,
+        null);
+  }
+
+  /**
+   * @param group The {@link TrackGroup}. Must not be null.
+   * @param track The index of the selected track within the {@link TrackGroup}.
+   * @param type The type that will be returned from {@link TrackSelection#getType()}.
    * @param reason A reason for the track selection.
    * @param data Optional data associated with the track selection.
    */
-  public FixedTrackSelection(TrackGroup group, int track, int reason, @Nullable Object data) {
-    super(group, track);
+  public FixedTrackSelection(
+      TrackGroup group, int track, int type, int reason, @Nullable Object data) {
+    super(group, /* tracks= */ new int[] {track}, /* type= */ type);
     this.reason = reason;
     this.data = data;
   }

@@ -66,6 +66,7 @@ public final class TtmlStyleTest {
           .setRubyType(RUBY_TYPE)
           .setRubyPosition(RUBY_POSITION)
           .setTextAlign(TEXT_ALIGN)
+          .setMultiRowAlign(Layout.Alignment.ALIGN_NORMAL)
           .setTextCombine(TEXT_COMBINE)
           .setTextEmphasis(TextEmphasis.parse(TEXT_EMPHASIS_STYLE))
           .setShearPercentage(SHEAR_PERCENTAGE);
@@ -85,6 +86,7 @@ public final class TtmlStyleTest {
     assertThat(style.getFontSizeUnit()).isEqualTo(FONT_SIZE_UNIT);
     assertThat(style.getRubyPosition()).isEqualTo(RUBY_POSITION);
     assertThat(style.getTextAlign()).isEqualTo(TEXT_ALIGN);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
     assertThat(style.getTextCombine()).isEqualTo(TEXT_COMBINE);
     assertWithMessage("rubyType should not be inherited")
         .that(style.getRubyType())
@@ -115,6 +117,7 @@ public final class TtmlStyleTest {
     assertThat(style.getFontSizeUnit()).isEqualTo(FONT_SIZE_UNIT);
     assertThat(style.getRubyPosition()).isEqualTo(RUBY_POSITION);
     assertThat(style.getTextAlign()).isEqualTo(TEXT_ALIGN);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
     assertThat(style.getTextCombine()).isEqualTo(TEXT_COMBINE);
     assertWithMessage("backgroundColor should be chained")
         .that(style.getBackgroundColor())
@@ -251,6 +254,18 @@ public final class TtmlStyleTest {
     assertThat(style.getTextAlign()).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
     style.setTextAlign(null);
     assertThat(style.getTextAlign()).isNull();
+  }
+
+  @Test
+  public void multiRowAlign() {
+    TtmlStyle style = new TtmlStyle();
+    assertThat(style.getMultiRowAlign()).isEqualTo(null);
+    style.setMultiRowAlign(Layout.Alignment.ALIGN_CENTER);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_CENTER);
+    style.setMultiRowAlign(Layout.Alignment.ALIGN_NORMAL);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+    style.setMultiRowAlign(Layout.Alignment.ALIGN_OPPOSITE);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
   }
 
   @Test

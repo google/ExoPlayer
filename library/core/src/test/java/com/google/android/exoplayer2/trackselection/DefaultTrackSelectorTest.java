@@ -88,6 +88,7 @@ public final class DefaultTrackSelectorTest {
           .setSampleMimeType(MimeTypes.VIDEO_H264)
           .setWidth(1024)
           .setHeight(768)
+          .setAverageBitrate(450000)
           .build();
   private static final Format AUDIO_FORMAT =
       new Format.Builder()
@@ -1494,6 +1495,21 @@ public final class DefaultTrackSelectorTest {
 
     assertThat(result.length).isEqualTo(1);
     assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 1, 2);
+  }
+
+  @Test
+  public void selectTracks_multipleVideoTracksWithoutBitrate_onlySelectsSingleTrack()
+      throws Exception {
+    TrackGroupArray trackGroups =
+        singleTrackGroup(
+            VIDEO_FORMAT.buildUpon().setId("0").setAverageBitrate(Format.NO_VALUE).build(),
+            VIDEO_FORMAT.buildUpon().setId("1").setAverageBitrate(Format.NO_VALUE).build());
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), /* expectedTrack= */ 0);
   }
 
   @Test

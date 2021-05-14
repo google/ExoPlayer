@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.common.truth.Truth.assertThat;
@@ -93,11 +94,11 @@ public final class MergingMediaPeriodTest {
     FormatHolder formatHolder = new FormatHolder();
     DecoderInputBuffer inputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-    assertThat(streams[1].readData(formatHolder, inputBuffer, /* formatRequired= */ true))
+    assertThat(streams[1].readData(formatHolder, inputBuffer, FLAG_REQUIRE_FORMAT))
         .isEqualTo(C.RESULT_FORMAT_READ);
     assertThat(formatHolder.format).isEqualTo(childFormat12);
 
-    assertThat(streams[2].readData(formatHolder, inputBuffer, /* formatRequired= */ true))
+    assertThat(streams[2].readData(formatHolder, inputBuffer, FLAG_REQUIRE_FORMAT))
         .isEqualTo(C.RESULT_FORMAT_READ);
     assertThat(formatHolder.format).isEqualTo(childFormat21);
   }
@@ -134,20 +135,20 @@ public final class MergingMediaPeriodTest {
     FormatHolder formatHolder = new FormatHolder();
     DecoderInputBuffer inputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-    streams[0].readData(formatHolder, inputBuffer, /* formatRequired= */ true);
-    streams[1].readData(formatHolder, inputBuffer, /* formatRequired= */ true);
+    streams[0].readData(formatHolder, inputBuffer, FLAG_REQUIRE_FORMAT);
+    streams[1].readData(formatHolder, inputBuffer, FLAG_REQUIRE_FORMAT);
 
     FakeMediaPeriodWithSelectTracksPosition childMediaPeriod1 =
         (FakeMediaPeriodWithSelectTracksPosition) mergingMediaPeriod.getChildPeriod(0);
     assertThat(childMediaPeriod1.selectTracksPositionUs).isEqualTo(0);
-    assertThat(streams[0].readData(formatHolder, inputBuffer, /* formatRequired= */ false))
+    assertThat(streams[0].readData(formatHolder, inputBuffer, /* readFlags= */ 0))
         .isEqualTo(C.RESULT_BUFFER_READ);
     assertThat(inputBuffer.timeUs).isEqualTo(123_000L);
 
     FakeMediaPeriodWithSelectTracksPosition childMediaPeriod2 =
         (FakeMediaPeriodWithSelectTracksPosition) mergingMediaPeriod.getChildPeriod(1);
     assertThat(childMediaPeriod2.selectTracksPositionUs).isEqualTo(3000L);
-    assertThat(streams[1].readData(formatHolder, inputBuffer, /* formatRequired= */ false))
+    assertThat(streams[1].readData(formatHolder, inputBuffer, /* readFlags= */ 0))
         .isEqualTo(C.RESULT_BUFFER_READ);
     assertThat(inputBuffer.timeUs).isEqualTo(456_000 - 3000);
   }

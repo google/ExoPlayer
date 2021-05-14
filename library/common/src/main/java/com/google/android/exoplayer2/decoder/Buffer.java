@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.decoder;
 
 import com.google.android.exoplayer2.C;
 
-/**
- * Base class for buffers with flags.
- */
+/** Base class for buffers with flags. */
 public abstract class Buffer {
 
   @C.BufferFlags

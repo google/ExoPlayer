@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MaskingMediaPeriod;
@@ -339,6 +340,7 @@ import java.util.Set;
         Log.e(TAG, "Failed to release child source.", e);
       }
       childSource.mediaSource.removeEventListener(childSource.eventListener);
+      childSource.mediaSource.removeDrmEventListener(childSource.eventListener);
     }
     childSources.clear();
     enabledMediaSourceHolders.clear();
@@ -448,6 +450,7 @@ import java.util.Set;
           Assertions.checkNotNull(childSources.remove(mediaSourceHolder));
       removedChild.mediaSource.releaseSource(removedChild.caller);
       removedChild.mediaSource.removeEventListener(removedChild.eventListener);
+      removedChild.mediaSource.removeDrmEventListener(removedChild.eventListener);
       enabledMediaSourceHolders.remove(mediaSourceHolder);
     }
   }
@@ -503,12 +506,12 @@ import java.util.Set;
 
     public final MediaSource mediaSource;
     public final MediaSource.MediaSourceCaller caller;
-    public final MediaSourceEventListener eventListener;
+    public final ForwardingEventListener eventListener;
 
     public MediaSourceAndListener(
         MediaSource mediaSource,
         MediaSource.MediaSourceCaller caller,
-        MediaSourceEventListener eventListener) {
+        ForwardingEventListener eventListener) {
       this.mediaSource = mediaSource;
       this.caller = caller;
       this.eventListener = eventListener;
@@ -600,9 +603,11 @@ import java.util.Set;
 
     @Override
     public void onDrmSessionAcquired(
-        int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
+        int windowIndex,
+        @Nullable MediaSource.MediaPeriodId mediaPeriodId,
+        @DrmSession.State int state) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        drmEventDispatcher.drmSessionAcquired();
+        drmEventDispatcher.drmSessionAcquired(state);
       }
     }
 

@@ -58,7 +58,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     }
     MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
     if (item.mediaMetadata.title != null) {
-      metadata.putString(MediaMetadata.KEY_TITLE, item.mediaMetadata.title);
+      metadata.putString(MediaMetadata.KEY_TITLE, item.mediaMetadata.title.toString());
     }
     MediaInfo mediaInfo =
         new MediaInfo.Builder(item.playbackProperties.uri.toString())

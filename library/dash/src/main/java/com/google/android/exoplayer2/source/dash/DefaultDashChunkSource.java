@@ -26,11 +26,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer2.extractor.rawcc.RawCcExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.BundledChunkExtractor;
@@ -53,27 +48,49 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A default {@link DashChunkSource} implementation.
- */
+/** A default {@link DashChunkSource} implementation. */
 public class DefaultDashChunkSource implements DashChunkSource {
 
   public static final class Factory implements DashChunkSource.Factory {
 
     private final DataSource.Factory dataSourceFactory;
     private final int maxSegmentsPerLoad;
+    private final ChunkExtractor.Factory chunkExtractorFactory;
 
+    /**
+     * Equivalent to {@link #Factory(ChunkExtractor.Factory, DataSource.Factory, int) new
+     * Factory(BundledChunkExtractor.FACTORY, dataSourceFactory, maxSegmentsPerLoad = 1)}.
+     */
     public Factory(DataSource.Factory dataSourceFactory) {
       this(dataSourceFactory, /* maxSegmentsPerLoad= */ 1);
     }
 
+    /**
+     * Equivalent to {@link #Factory(ChunkExtractor.Factory, DataSource.Factory, int) new
+     * Factory(BundledChunkExtractor.FACTORY, dataSourceFactory, maxSegmentsPerLoad)}.
+     */
     public Factory(DataSource.Factory dataSourceFactory, int maxSegmentsPerLoad) {
+      this(BundledChunkExtractor.FACTORY, dataSourceFactory, maxSegmentsPerLoad);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param chunkExtractorFactory Creates {@link ChunkExtractor} instances to use for extracting
+     *     chunks.
+     * @param dataSourceFactory Creates the {@link DataSource} to use for downloading chunks.
+     * @param maxSegmentsPerLoad See {@link DefaultDashChunkSource#DefaultDashChunkSource}.
+     */
+    public Factory(
+        ChunkExtractor.Factory chunkExtractorFactory,
+        DataSource.Factory dataSourceFactory,
+        int maxSegmentsPerLoad) {
+      this.chunkExtractorFactory = chunkExtractorFactory;
       this.dataSourceFactory = dataSourceFactory;
       this.maxSegmentsPerLoad = maxSegmentsPerLoad;
     }
@@ -96,6 +113,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         dataSource.addTransferListener(transferListener);
       }
       return new DefaultDashChunkSource(
+          chunkExtractorFactory,
           manifestLoaderErrorThrower,
           manifest,
           periodIndex,
@@ -129,6 +147,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private boolean missingLastSegment;
 
   /**
+   * @param chunkExtractorFactory Creates {@link ChunkExtractor} instances to use for extracting
+   *     chunks.
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
    * @param periodIndex The index of the period in the manifest.
@@ -148,6 +168,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     messages targeting the player. Maybe null if this is not necessary.
    */
   public DefaultDashChunkSource(
+      ChunkExtractor.Factory chunkExtractorFactory,
       LoaderErrorThrower manifestLoaderErrorThrower,
       DashManifest manifest,
       int periodIndex,
@@ -180,11 +201,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
       representationHolders[i] =
           new RepresentationHolder(
               periodDurationUs,
-              trackType,
               representation,
-              enableEventMessageTrack,
-              closedCaptionFormats,
-              playerTrackEmsgHandler);
+              BundledChunkExtractor.FACTORY.createProgressiveMediaExtractor(
+                  trackType,
+                  representation.format,
+                  enableEventMessageTrack,
+                  closedCaptionFormats,
+                  playerTrackEmsgHandler),
+              /* segmentNumShift= */ 0,
+              representation.getIndex());
     }
   }
 
@@ -195,7 +220,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       if (representationHolder.segmentIndex != null) {
         long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
-        int segmentCount = representationHolder.getSegmentCount();
+        long segmentCount = representationHolder.getSegmentCount();
         long secondSyncUs =
             firstSyncUs < positionUs
                     && (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED
@@ -438,7 +463,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
           representationHolders[trackSelection.indexOf(chunk.trackFormat)];
-      int segmentCount = representationHolder.getSegmentCount();
+      long segmentCount = representationHolder.getSegmentCount();
       if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED && segmentCount != 0) {
         long lastAvailableSegmentNum = representationHolder.getFirstSegmentNum() + segmentCount - 1;
         if (((MediaChunk) chunk).getNextChunkIndex() > lastAvailableSegmentNum) {
@@ -666,26 +691,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     /* package */ RepresentationHolder(
         long periodDurationUs,
-        int trackType,
-        Representation representation,
-        boolean enableEventMessageTrack,
-        List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput) {
-      this(
-          periodDurationUs,
-          representation,
-          createChunkExtractor(
-              trackType,
-              representation,
-              enableEventMessageTrack,
-              closedCaptionFormats,
-              playerEmsgTrackOutput),
-          /* segmentNumShift= */ 0,
-          representation.getIndex());
-    }
-
-    private RepresentationHolder(
-        long periodDurationUs,
         Representation representation,
         @Nullable ChunkExtractor chunkExtractor,
         long segmentNumShift,
@@ -716,7 +721,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             newPeriodDurationUs, newRepresentation, chunkExtractor, segmentNumShift, newIndex);
       }
 
-      int oldIndexSegmentCount = oldIndex.getSegmentCount(newPeriodDurationUs);
+      long oldIndexSegmentCount = oldIndex.getSegmentCount(newPeriodDurationUs);
       if (oldIndexSegmentCount == 0) {
         // Segment numbers cannot shift if the old index was empty.
         return new RepresentationHolder(
@@ -770,7 +775,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           + segmentNumShift;
     }
 
-    public int getSegmentCount() {
+    public long getSegmentCount() {
       return segmentIndex.getSegmentCount(periodDurationUs);
     }
 
@@ -798,42 +803,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowPeriodTimeUs) {
-      return nowPeriodTimeUs == C.TIME_UNSET || getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
-    }
-
-    @Nullable
-    private static ChunkExtractor createChunkExtractor(
-        int trackType,
-        Representation representation,
-        boolean enableEventMessageTrack,
-        List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput) {
-      String containerMimeType = representation.format.containerMimeType;
-      Extractor extractor;
-      if (MimeTypes.isText(containerMimeType)) {
-        if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-          // RawCC is special because it's a text specific container format.
-          extractor = new RawCcExtractor(representation.format);
-        } else {
-          // All other text types are raw formats that do not need an extractor.
-          return null;
-        }
-      } else if (MimeTypes.isMatroska(containerMimeType)) {
-        extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
-      } else {
-        int flags = 0;
-        if (enableEventMessageTrack) {
-          flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
-        }
-        extractor =
-            new FragmentedMp4Extractor(
-                flags,
-                /* timestampAdjuster= */ null,
-                /* sideloadedTrack= */ null,
-                closedCaptionFormats,
-                playerEmsgTrackOutput);
+      if (segmentIndex.isExplicit()) {
+        // We don't support segment availability for explicit indices (internal ref: b/172894901).
+        // Hence, also assume all segments in explicit indices are always available at full network
+        // speed even if they end in the future.
+        return true;
       }
-      return new BundledChunkExtractor(extractor, trackType, representation.format);
+      return nowPeriodTimeUs == C.TIME_UNSET || getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
     }
   }
 }

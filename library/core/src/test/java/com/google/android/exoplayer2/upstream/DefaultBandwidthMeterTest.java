@@ -20,6 +20,7 @@ import static android.net.NetworkInfo.State.DISCONNECTED;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
@@ -30,11 +31,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
+import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowNetworkInfo;
 
 /** Unit test for {@link DefaultBandwidthMeter}. */
@@ -42,7 +46,7 @@ import org.robolectric.shadows.ShadowNetworkInfo;
 public final class DefaultBandwidthMeterTest {
 
   private static final int SIMULATED_TRANSFER_COUNT = 100;
-  private static final String FAST_COUNTRY_ISO = "EE";
+  private static final String FAST_COUNTRY_ISO = "TW";
   private static final String SLOW_COUNTRY_ISO = "PG";
 
   private TelephonyManager telephonyManager;
@@ -52,10 +56,14 @@ public final class DefaultBandwidthMeterTest {
   private NetworkInfo networkInfo2g;
   private NetworkInfo networkInfo3g;
   private NetworkInfo networkInfo4g;
+  // TODO: Add tests covering 5G-NSA networks. Not testable right now because we need to set the
+  // TelephonyDisplayInfo on API 31, which isn't available for Robolectric yet.
+  private NetworkInfo networkInfo5gSa;
   private NetworkInfo networkInfoEthernet;
 
   @Before
   public void setUp() {
+    NetworkTypeObserver.resetForTests();
     connectivityManager =
         (ConnectivityManager)
             ApplicationProvider.getApplicationContext()
@@ -97,6 +105,13 @@ public final class DefaultBandwidthMeterTest {
             DetailedState.CONNECTED,
             ConnectivityManager.TYPE_MOBILE,
             TelephonyManager.NETWORK_TYPE_LTE,
+            /* isAvailable= */ true,
+            CONNECTED);
+    networkInfo5gSa =
+        ShadowNetworkInfo.newInstance(
+            DetailedState.CONNECTED,
+            ConnectivityManager.TYPE_MOBILE,
+            TelephonyManager.NETWORK_TYPE_NR,
             /* isAvailable= */ true,
             CONNECTED);
     networkInfoEthernet =
@@ -213,6 +228,22 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate3g).isGreaterThan(initialEstimate2g);
   }
 
+  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
+  @Test
+  public void defaultInitialBitrateEstimate_for5gSa_isGreaterThanEstimateFor4g() {
+    setActiveNetworkInfo(networkInfo4g);
+    DefaultBandwidthMeter bandwidthMeter4g =
+        new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
+    long initialEstimate4g = bandwidthMeter4g.getBitrateEstimate();
+
+    setActiveNetworkInfo(networkInfo5gSa);
+    DefaultBandwidthMeter bandwidthMeter5gSa =
+        new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
+    long initialEstimate5gSa = bandwidthMeter5gSa.getBitrateEstimate();
+
+    assertThat(initialEstimate5gSa).isGreaterThan(initialEstimate4g);
+  }
+
   @Test
   public void defaultInitialBitrateEstimate_forOffline_isReasonable() {
     setActiveNetworkInfo(networkInfoOffline);
@@ -296,6 +327,24 @@ public final class DefaultBandwidthMeterTest {
   public void
       defaultInitialBitrateEstimate_for4g_forFastCountry_isGreaterThanEstimateForSlowCountry() {
     setActiveNetworkInfo(networkInfo4g);
+    setNetworkCountryIso(FAST_COUNTRY_ISO);
+    DefaultBandwidthMeter bandwidthMeterFast =
+        new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
+    long initialEstimateFast = bandwidthMeterFast.getBitrateEstimate();
+
+    setNetworkCountryIso(SLOW_COUNTRY_ISO);
+    DefaultBandwidthMeter bandwidthMeterSlow =
+        new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
+    long initialEstimateSlow = bandwidthMeterSlow.getBitrateEstimate();
+
+    assertThat(initialEstimateFast).isGreaterThan(initialEstimateSlow);
+  }
+
+  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
+  @Test
+  public void
+      defaultInitialBitrateEstimate_for5gSa_forFastCountry_isGreaterThanEstimateForSlowCountry() {
+    setActiveNetworkInfo(networkInfo5gSa);
     setNetworkCountryIso(FAST_COUNTRY_ISO);
     DefaultBandwidthMeter bandwidthMeterFast =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
@@ -459,6 +508,33 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate).isNotEqualTo(123456789);
   }
 
+  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
+  @Test
+  public void initialBitrateEstimateOverwrite_for5gSa_whileConnectedTo5gSa_setsInitialEstimate() {
+    setActiveNetworkInfo(networkInfo5gSa);
+    DefaultBandwidthMeter bandwidthMeter =
+        new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext())
+            .setInitialBitrateEstimate(C.NETWORK_TYPE_5G_SA, 123456789)
+            .build();
+    long initialEstimate = bandwidthMeter.getBitrateEstimate();
+
+    assertThat(initialEstimate).isEqualTo(123456789);
+  }
+
+  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
+  @Test
+  public void
+      initialBitrateEstimateOverwrite_for5gSa_whileConnectedToOtherNetwork_doesNotSetInitialEstimate() {
+    setActiveNetworkInfo(networkInfoWifi);
+    DefaultBandwidthMeter bandwidthMeter =
+        new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext())
+            .setInitialBitrateEstimate(C.NETWORK_TYPE_5G_SA, 123456789)
+            .build();
+    long initialEstimate = bandwidthMeter.getBitrateEstimate();
+
+    assertThat(initialEstimate).isNotEqualTo(123456789);
+  }
+
   @Test
   public void initialBitrateEstimateOverwrite_forOffline_whileOffline_setsInitialEstimate() {
     setActiveNetworkInfo(networkInfoOffline);
@@ -559,8 +635,12 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimateWithoutBuilder).isLessThan(50_000_000L);
   }
 
+  @SuppressWarnings("StickyBroadcast")
   private void setActiveNetworkInfo(NetworkInfo networkInfo) {
     Shadows.shadowOf(connectivityManager).setActiveNetworkInfo(networkInfo);
+    ApplicationProvider.getApplicationContext()
+        .sendStickyBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
+    ShadowLooper.idleMainLooper();
   }
 
   private void setNetworkCountryIso(String countryIso) {

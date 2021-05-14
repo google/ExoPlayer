@@ -31,6 +31,7 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 
 /**
  * A {@link DataSource} for reading a raw resource inside the APK.
@@ -60,7 +61,7 @@ public final class RawResourceDataSource extends BaseDataSource {
       super(message);
     }
 
-    public RawResourceDataSourceException(IOException e) {
+    public RawResourceDataSourceException(Throwable e) {
       super(e);
     }
   }
@@ -133,41 +134,73 @@ public final class RawResourceDataSource extends BaseDataSource {
     }
 
     transferInitializing(dataSpec);
-    AssetFileDescriptor assetFileDescriptor = resources.openRawResourceFd(resourceId);
+
+    AssetFileDescriptor assetFileDescriptor;
+    try {
+      assetFileDescriptor = resources.openRawResourceFd(resourceId);
+    } catch (Resources.NotFoundException e) {
+      throw new RawResourceDataSourceException(e);
+    }
+
     this.assetFileDescriptor = assetFileDescriptor;
     if (assetFileDescriptor == null) {
       throw new RawResourceDataSourceException("Resource is compressed: " + uri);
     }
 
+    long assetFileDescriptorLength = assetFileDescriptor.getLength();
     FileInputStream inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
     this.inputStream = inputStream;
+
     try {
-      inputStream.skip(assetFileDescriptor.getStartOffset());
-      long skipped = inputStream.skip(dataSpec.position);
-      if (skipped < dataSpec.position) {
+      // We can't rely only on the "skipped < dataSpec.position" check below to detect whether the
+      // position is beyond the end of the resource being read. This is because the file will
+      // typically contain multiple resources, and there's nothing to prevent InputStream.skip()
+      // from succeeding by skipping into the data of the next resource. Hence we also need to check
+      // against the resource length explicitly, which is guaranteed to be set unless the resource
+      // extends to the end of the file.
+      if (assetFileDescriptorLength != AssetFileDescriptor.UNKNOWN_LENGTH
+          && dataSpec.position > assetFileDescriptorLength) {
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      }
+      long assetFileDescriptorOffset = assetFileDescriptor.getStartOffset();
+      long skipped =
+          inputStream.skip(assetFileDescriptorOffset + dataSpec.position)
+              - assetFileDescriptorOffset;
+      if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
-        // skip beyond the end of the data.
-        throw new EOFException();
+        // read beyond the end of the last resource in the file.
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      }
+      if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
+        // The asset must extend to the end of the file. We can try and resolve the length with
+        // FileInputStream.getChannel().size().
+        FileChannel channel = inputStream.getChannel();
+        if (channel.size() == 0) {
+          bytesRemaining = C.LENGTH_UNSET;
+        } else {
+          bytesRemaining = channel.size() - channel.position();
+          if (bytesRemaining < 0) {
+            // The skip above was satisfied in full, but skipped beyond the end of the file.
+            throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+          }
+        }
+      } else {
+        bytesRemaining = assetFileDescriptorLength - skipped;
+        if (bytesRemaining < 0) {
+          throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+        }
       }
     } catch (IOException e) {
       throw new RawResourceDataSourceException(e);
     }
 
     if (dataSpec.length != C.LENGTH_UNSET) {
-      bytesRemaining = dataSpec.length;
-    } else {
-      long assetFileDescriptorLength = assetFileDescriptor.getLength();
-      // If the length is UNKNOWN_LENGTH then the asset extends to the end of the file.
       bytesRemaining =
-          assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH
-              ? C.LENGTH_UNSET
-              : (assetFileDescriptorLength - dataSpec.position);
+          bytesRemaining == C.LENGTH_UNSET ? dataSpec.length : min(bytesRemaining, dataSpec.length);
     }
-
     opened = true;
     transferStarted(dataSpec);
-
-    return bytesRemaining;
+    return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : bytesRemaining;
   }
 
   @Override

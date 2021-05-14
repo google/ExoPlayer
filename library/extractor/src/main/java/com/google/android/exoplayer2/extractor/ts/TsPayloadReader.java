@@ -29,9 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Parses TS packet payload data.
- */
+/** Parses TS packet payload data. */
 public interface TsPayloadReader {
 
   /**

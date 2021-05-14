@@ -19,9 +19,7 @@ import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-/**
- * Utility methods for handling H.264/AVC and H.265/HEVC NAL units.
- */
+/** Utility methods for handling H.264/AVC and H.265/HEVC NAL units. */
 public final class NalUnitUtil {
 
   private static final String TAG = "NalUnitUtil";

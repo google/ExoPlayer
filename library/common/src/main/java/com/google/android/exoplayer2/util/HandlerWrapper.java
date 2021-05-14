@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.util;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import androidx.annotation.Nullable;
 
 /**
@@ -25,6 +24,16 @@ import androidx.annotation.Nullable;
  * Clock#createHandler(Looper, Handler.Callback)} on {@link Clock#DEFAULT} for all non-test cases.
  */
 public interface HandlerWrapper {
+
+  /** A message obtained from the handler. */
+  interface Message {
+
+    /** See {@link android.os.Message#sendToTarget()}. */
+    void sendToTarget();
+
+    /** See {@link android.os.Message#getTarget()}. */
+    HandlerWrapper getTarget();
+  }
 
   /** See {@link Handler#getLooper()}. */
   Looper getLooper();
@@ -43,6 +52,9 @@ public interface HandlerWrapper {
 
   /** See {@link Handler#obtainMessage(int, int, int, Object)}. */
   Message obtainMessage(int what, int arg1, int arg2, @Nullable Object obj);
+
+  /** See {@link Handler#sendMessageAtFrontOfQueue(android.os.Message)}. */
+  boolean sendMessageAtFrontOfQueue(Message message);
 
   /** See {@link Handler#sendEmptyMessage(int)}. */
   boolean sendEmptyMessage(int what);
@@ -64,4 +76,7 @@ public interface HandlerWrapper {
 
   /** See {@link Handler#postDelayed(Runnable, long)}. */
   boolean postDelayed(Runnable runnable, long delayMs);
+
+  /** See {@link android.os.Handler#postAtFrontOfQueue(Runnable)}. */
+  boolean postAtFrontOfQueue(Runnable runnable);
 }

@@ -32,9 +32,15 @@ import java.util.Map;
 /**
  * Loops a {@link MediaSource} a specified number of times.
  *
- * <p>Note: To loop a {@link MediaSource} indefinitely, it is usually better to use {@link
- * ExoPlayer#setRepeatMode(int)} instead of this class.
+ * @deprecated To loop a {@link MediaSource} indefinitely, use {@link Player#setRepeatMode(int)}
+ *     instead of this class. To add a {@link MediaSource} a specific number of times to the
+ *     playlist, use {@link ExoPlayer#addMediaSource} in a loop with the same {@link MediaSource}.
+ *     To combine repeated {@link MediaSource} instances into one {@link MediaSource}, for example
+ *     to further wrap it in another {@link MediaSource}, use {@link ConcatenatingMediaSource} with
+ *     the same {@link MediaSource} {@link ConcatenatingMediaSource#addMediaSource added} multiple
+ *     times.
  */
+@Deprecated
 public final class LoopingMediaSource extends CompositeMediaSource<Void> {
 
   private final MaskingMediaSource maskingMediaSource;

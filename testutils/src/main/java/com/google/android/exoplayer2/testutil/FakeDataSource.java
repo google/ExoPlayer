@@ -117,11 +117,10 @@ public class FakeDataSource extends BaseDataSource {
       throw new IOException("Data is empty: " + dataSpec.uri);
     }
 
-    // If the source knows that the request is unsatisfiable then fail.
-    if (dataSpec.position >= totalLength || (dataSpec.length != C.LENGTH_UNSET
-        && (dataSpec.position + dataSpec.length > totalLength))) {
+    if (dataSpec.position > totalLength) {
       throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
+
     // Scan through the segments, configuring them for the current read.
     boolean findingCurrentSegmentIndex = true;
     currentSegmentIndex = 0;
@@ -210,6 +209,7 @@ public class FakeDataSource extends BaseDataSource {
       transferEnded();
     }
     fakeData = null;
+    onClosed();
   }
 
   /**
@@ -227,8 +227,13 @@ public class FakeDataSource extends BaseDataSource {
     return sourceOpened;
   }
 
+  /** Called when data is being read. */
   protected void onDataRead(int bytesRead) throws IOException {
     // Do nothing. Can be overridden.
   }
 
+  /** Called when the source is closed. */
+  protected void onClosed() {
+    // Do nothing. Can be overridden.
+  }
 }

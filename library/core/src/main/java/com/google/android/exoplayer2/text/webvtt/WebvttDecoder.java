@@ -27,7 +27,9 @@ import java.util.List;
 
 /**
  * A {@link SimpleSubtitleDecoder} for WebVTT.
+ *
  * <p>
+ *
  * @see <a href="http://dev.w3.org/html5/webvtt">WebVTT specification</a>
  */
 public final class WebvttDecoder extends SimpleSubtitleDecoder {

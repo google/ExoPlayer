@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.SurfaceTexture;
 import android.os.Looper;
 import android.util.SparseArray;
 import android.view.Surface;
@@ -80,11 +81,13 @@ import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaDrm;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallbackException;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -107,8 +110,10 @@ import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -215,7 +220,7 @@ public final class AnalyticsCollectorTest {
             period0 /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
-        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, WINDOW_0 /* SOURCE_UPDATE */)
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* SOURCE_UPDATE */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0 /* started */, period0 /* stopped */)
@@ -656,9 +661,11 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(
             WINDOW_0 /* PLAYLIST_CHANGE */,
-            WINDOW_0 /* SOURCE_UPDATE */,
+            period0Seq0 /* SOURCE_UPDATE */,
             WINDOW_0 /* PLAYLIST_CHANGE */,
-            WINDOW_0 /* SOURCE_UPDATE */);
+            period0Seq1 /* SOURCE_UPDATE */);
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
+        .containsExactly(WINDOW_0 /* REMOVE */);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq1, period0Seq1)
         .inOrder();
@@ -748,7 +755,7 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
-        .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* prepared */);
+        .containsExactly(WINDOW_0 /* prepared */, period0Seq0 /* prepared */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0Seq0);
@@ -929,10 +936,13 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(
             WINDOW_0 /* PLAYLIST_CHANGED */,
-            WINDOW_0 /* SOURCE_UPDATE (first item) */,
+            period0Seq0 /* SOURCE_UPDATE (first item) */,
             period0Seq0 /* PLAYLIST_CHANGED (add) */,
             period0Seq0 /* SOURCE_UPDATE (second item) */,
             period0Seq1 /* PLAYLIST_CHANGED (remove) */)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
+        .containsExactly(period0Seq1 /* REMOVE */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
@@ -949,7 +959,7 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
-        .containsExactly(period0Seq0, period1Seq1, period0Seq1)
+        .containsExactly(period0Seq0, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_INIT))
         .containsExactly(period0Seq0, period1Seq1)
@@ -957,10 +967,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
-        .containsExactly(period0Seq0, period0Seq0);
+    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED))
-        .containsExactly(period0Seq0, period1Seq1, period0Seq1)
+        .containsExactly(period0Seq0, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INITIALIZED))
         .containsExactly(period0Seq0, period1Seq1)
@@ -968,13 +977,13 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
         .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0, period0Seq0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
-        .containsExactly(period0Seq0, period0Seq1);
+        .containsExactly(period0Seq0, period1Seq1, period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
         .containsExactly(period0Seq1);
     listener.assertNoMoreEvents();
@@ -1032,12 +1041,14 @@ public final class AnalyticsCollectorTest {
                   @Override
                   public void run(SimpleExoPlayer player) {
                     player.addListener(
-                        new Player.EventListener() {
+                        new Player.Listener() {
                           @Override
                           public void onPositionDiscontinuity(
+                              Player.PositionInfo oldPosition,
+                              Player.PositionInfo newPosition,
                               @Player.DiscontinuityReason int reason) {
                             if (!player.isPlayingAd()
-                                && reason == Player.DISCONTINUITY_REASON_AD_INSERTION) {
+                                && reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
                               // Finished playing ad. Marked as played.
                               adPlaybackState.set(
                                   adPlaybackState
@@ -1132,7 +1143,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(
             WINDOW_0 /* PLAYLIST_CHANGED */,
-            WINDOW_0 /* SOURCE_UPDATE (initial) */,
+            prerollAd /* SOURCE_UPDATE (initial) */,
             contentAfterPreroll /* SOURCE_UPDATE (played preroll) */,
             contentAfterMidroll /* SOURCE_UPDATE (played midroll) */,
             contentAfterPostroll /* SOURCE_UPDATE (played postroll) */)
@@ -1327,7 +1338,7 @@ public final class AnalyticsCollectorTest {
             contentAfterMidroll /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
-        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, WINDOW_0 /* SOURCE_UPDATE */);
+        .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, contentBeforeMidroll /* SOURCE_UPDATE */);
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
         .containsExactly(
             contentAfterMidroll /* seek */,
@@ -1436,19 +1447,43 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void drmEvents_periodWithSameDrmData_keysReused() throws Exception {
+  public void drmEvents_periodsWithSameDrmData_keysReusedButLoadEventReportedTwice()
+      throws Exception {
+    BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.returnsEmpty();
+    DrmSessionManager blockingDrmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setMultiSession(true)
+            .build(mediaDrmCallback);
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1),
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1));
-    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+            new FakeMediaSource(
+                SINGLE_PERIOD_TIMELINE, blockingDrmSessionManager, VIDEO_FORMAT_DRM_1),
+            new FakeMediaSource(
+                SINGLE_PERIOD_TIMELINE, blockingDrmSessionManager, VIDEO_FORMAT_DRM_1));
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            mediaSource,
+            // Wait for the media to be fully buffered before unblocking the DRM key request. This
+            // ensures both periods report the same load event (because period1's DRM session is
+            // already preacquired by the time the key load completes).
+            new ActionSchedule.Builder(TAG)
+                .waitForIsLoading(false)
+                .waitForIsLoading(true)
+                .waitForIsLoading(false)
+                .executeRunnable(mediaDrmCallback.keyCondition::open)
+                .build());
 
     populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_DRM_SESSION_MANAGER_ERROR)).isEmpty();
     assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED))
         .containsExactly(period0, period1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0);
+    // This includes both period0 and period1 because period1's DrmSession was preacquired before
+    // the key load completed. There's only one key load (a second would block forever). We can't
+    // assume the order these events will arrive in because it depends on the iteration order of a
+    // HashSet of EventDispatchers inside DefaultDrmSession.
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0, period1);
     // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
     // thread has been quit during clean-up.
     assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
@@ -1470,9 +1505,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED))
         .containsExactly(period0, period1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED))
-        .containsExactly(period0, period1)
-        .inOrder();
+    // The pre-fetched key load for period1 might complete before the blocking key load for period0,
+    // so we can't assert the order:
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0, period1);
     // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
     // thread has been quit during clean-up.
     assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
@@ -1480,11 +1515,21 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void drmEvents_errorHandling() throws Exception {
+    BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.alwaysFailing();
     DrmSessionManager failingDrmSessionManager =
-        new DefaultDrmSessionManager.Builder().build(new FailingDrmCallback());
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setMultiSession(true)
+            .build(mediaDrmCallback);
     MediaSource mediaSource =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, failingDrmSessionManager, VIDEO_FORMAT_DRM_1);
-    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            mediaSource,
+            new ActionSchedule.Builder(TAG)
+                .waitForIsLoading(false)
+                .executeRunnable(mediaDrmCallback.keyCondition::open)
+                .build());
 
     populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_DRM_SESSION_MANAGER_ERROR)).containsExactly(period0);
@@ -1595,6 +1640,9 @@ public final class AnalyticsCollectorTest {
   public void onEvents_isReportedWithCorrectEventTimes() throws Exception {
     SimpleExoPlayer player =
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    player.setVideoSurface(surface);
+
     AnalyticsListener listener = mock(AnalyticsListener.class);
     Format[] formats =
         new Format[] {
@@ -1615,11 +1663,12 @@ public final class AnalyticsCollectorTest {
     player.addMediaSource(new FakeMediaSource(new FakeTimeline(), formats));
     player.play();
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
     ShadowLooper.runMainLooperToNextTask();
     player.release();
+    surface.release();
 
     // Verify that expected individual callbacks have been called and capture EventTimes.
     ArgumentCaptor<AnalyticsListener.EventTime> individualTimelineChangedEventTimes =
@@ -1701,12 +1750,12 @@ public final class AnalyticsCollectorTest {
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
         .onVideoDecoderInitialized(
-            individualVideoDecoderInitializedEventTimes.capture(), any(), anyLong());
+            individualVideoDecoderInitializedEventTimes.capture(), any(), anyLong(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualAudioDecoderInitializedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
         .onAudioDecoderInitialized(
-            individualAudioDecoderInitializedEventTimes.capture(), any(), anyLong());
+            individualAudioDecoderInitializedEventTimes.capture(), any(), anyLong(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualVideoDisabledEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
@@ -1718,9 +1767,11 @@ public final class AnalyticsCollectorTest {
     ArgumentCaptor<AnalyticsListener.EventTime> individualRenderedFirstFrameEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
-        .onRenderedFirstFrame(individualRenderedFirstFrameEventTimes.capture(), any());
+        .onRenderedFirstFrame(individualRenderedFirstFrameEventTimes.capture(), any(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualVideoSizeChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoSizeChanged(individualVideoSizeChangedEventTimes.capture(), any());
     verify(listener, atLeastOnce())
         .onVideoSizeChanged(
             individualVideoSizeChangedEventTimes.capture(),
@@ -1939,11 +1990,13 @@ public final class AnalyticsCollectorTest {
       @Nullable ActionSchedule actionSchedule,
       RenderersFactory renderersFactory)
       throws Exception {
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
       new ExoPlayerTestRunner.Builder(ApplicationProvider.getApplicationContext())
           .setMediaSources(mediaSource)
           .setRenderersFactory(renderersFactory)
+          .setVideoSurface(surface)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
           .build()
@@ -1952,6 +2005,8 @@ public final class AnalyticsCollectorTest {
           .blockUntilEnded(TIMEOUT_MS);
     } catch (ExoPlaybackException e) {
       // Ignore ExoPlaybackException as these may be expected.
+    } finally {
+      surface.release();
     }
     return listener;
   }
@@ -2049,7 +2104,11 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onPositionDiscontinuity(EventTime eventTime, int reason) {
+    public void onPositionDiscontinuity(
+        EventTime eventTime,
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        int reason) {
       reportedEvents.add(new ReportedEvent(EVENT_POSITION_DISCONTINUITY, eventTime));
     }
 
@@ -2184,7 +2243,10 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onAudioDecoderInitialized(
-        EventTime eventTime, String decoderName, long initializationDurationMs) {
+        EventTime eventTime,
+        String decoderName,
+        long initializedTimestampMs,
+        long initializationDurationMs) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_DECODER_INITIALIZED, eventTime));
     }
 
@@ -2221,7 +2283,10 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onVideoDecoderInitialized(
-        EventTime eventTime, String decoderName, long initializationDurationMs) {
+        EventTime eventTime,
+        String decoderName,
+        long initializedTimestampMs,
+        long initializationDurationMs) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_DECODER_INITIALIZED, eventTime));
     }
 
@@ -2247,22 +2312,17 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
+    public void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {
       reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
     }
 
     @Override
-    public void onVideoSizeChanged(
-        EventTime eventTime,
-        int width,
-        int height,
-        int unappliedRotationDegrees,
-        float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_SIZE_CHANGED, eventTime));
     }
 
     @Override
-    public void onDrmSessionAcquired(EventTime eventTime) {
+    public void onDrmSessionAcquired(EventTime eventTime, @DrmSession.State int state) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_ACQUIRED, eventTime));
     }
 
@@ -2304,12 +2364,7 @@ public final class AnalyticsCollectorTest {
 
       @Override
       public String toString() {
-        return "{"
-            + "type="
-            + Long.numberOfTrailingZeros(eventType)
-            + ", windowAndPeriodId="
-            + eventWindowAndPeriodId
-            + '}';
+        return "{" + "type=" + eventType + ", windowAndPeriodId=" + eventWindowAndPeriodId + '}';
       }
     }
   }
@@ -2321,34 +2376,67 @@ public final class AnalyticsCollectorTest {
    */
   private static final class EmptyDrmCallback implements MediaDrmCallback {
     @Override
-    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
-        throws MediaDrmCallbackException {
+    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request) {
       return new byte[0];
     }
 
     @Override
-    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
-        throws MediaDrmCallbackException {
+    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request) {
       return new byte[0];
     }
   }
 
   /**
-   * A {@link MediaDrmCallback} that throws exceptions for both {@link
-   * #executeProvisionRequest(UUID, ExoMediaDrm.ProvisionRequest)} and {@link
-   * #executeKeyRequest(UUID, ExoMediaDrm.KeyRequest)}.
+   * A {@link MediaDrmCallback} that blocks each provision and key request until the associated
+   * {@link ConditionVariable} field is opened, and then returns an empty byte array. The {@link
+   * ConditionVariable} must be explicitly opened for each request.
    */
-  private static final class FailingDrmCallback implements MediaDrmCallback {
+  private static final class BlockingDrmCallback implements MediaDrmCallback {
+
+    public final ConditionVariable provisionCondition;
+    public final ConditionVariable keyCondition;
+
+    private final boolean alwaysFail;
+
+    private BlockingDrmCallback(boolean alwaysFail) {
+      this.provisionCondition = RobolectricUtil.createRobolectricConditionVariable();
+      this.keyCondition = RobolectricUtil.createRobolectricConditionVariable();
+
+      this.alwaysFail = alwaysFail;
+    }
+
+    /** Returns a callback that always returns an empty byte array from its execute methods. */
+    public static BlockingDrmCallback returnsEmpty() {
+      return new BlockingDrmCallback(/* alwaysFail= */ false);
+    }
+
+    /** Returns a callback that always throws an exception from its execute methods. */
+    public static BlockingDrmCallback alwaysFailing() {
+      return new BlockingDrmCallback(/* alwaysFail= */ true);
+    }
+
     @Override
     public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
         throws MediaDrmCallbackException {
-      throw new RuntimeException("executeProvision failed");
+      provisionCondition.blockUninterruptible();
+      provisionCondition.close();
+      if (alwaysFail) {
+        throw new RuntimeException("executeProvisionRequest failed");
+      } else {
+        return new byte[0];
+      }
     }
 
     @Override
     public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
         throws MediaDrmCallbackException {
-      throw new RuntimeException("executeKey failed");
+      keyCondition.blockUninterruptible();
+      keyCondition.close();
+      if (alwaysFail) {
+        throw new RuntimeException("executeKeyRequest failed");
+      } else {
+        return new byte[0];
+      }
     }
   }
 }

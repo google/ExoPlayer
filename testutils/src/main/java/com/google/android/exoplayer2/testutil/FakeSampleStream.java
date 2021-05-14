@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class FakeSampleStream implements SampleStream {
 
-  /** Item to customize a return value of {@link FakeSampleStream#readData}. */
+  /** Item to customize a return value of {@link SampleStream#readData}. */
   public static final class FakeSampleStreamItem {
 
     /** Item that designates the end of stream has been reached. */
@@ -265,12 +265,12 @@ public class FakeSampleStream implements SampleStream {
 
   @Override
   public int readData(
-      FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
-    int result = sampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
+      FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+    int result = sampleQueue.read(formatHolder, buffer, readFlags, loadingFinished);
     if (result == C.RESULT_FORMAT_READ) {
       downstreamFormat = checkNotNull(formatHolder.format);
     }
-    if (result == C.RESULT_BUFFER_READ && !buffer.isFlagsOnly()) {
+    if (result == C.RESULT_BUFFER_READ && (readFlags & FLAG_OMIT_SAMPLE_DATA) == 0) {
       maybeNotifyDownstreamFormat(buffer.timeUs);
     }
     return result;

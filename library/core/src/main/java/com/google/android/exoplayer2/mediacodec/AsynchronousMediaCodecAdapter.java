@@ -29,7 +29,9 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
+import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.common.base.Supplier;
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -96,13 +98,41 @@ import java.nio.ByteBuffer;
     }
 
     @Override
-    public AsynchronousMediaCodecAdapter createAdapter(MediaCodec codec) {
-      return new AsynchronousMediaCodecAdapter(
-          codec,
-          callbackThreadSupplier.get(),
-          queueingThreadSupplier.get(),
-          forceQueueingSynchronizationWorkaround,
-          synchronizeCodecInteractionsWithQueueing);
+    public AsynchronousMediaCodecAdapter createAdapter(Configuration configuration)
+        throws IOException {
+      String codecName = configuration.codecInfo.name;
+      @Nullable AsynchronousMediaCodecAdapter codecAdapter = null;
+      @Nullable MediaCodec codec = null;
+      try {
+        TraceUtil.beginSection("createCodec:" + codecName);
+        codec = MediaCodec.createByCodecName(codecName);
+        codecAdapter =
+            new AsynchronousMediaCodecAdapter(
+                codec,
+                callbackThreadSupplier.get(),
+                queueingThreadSupplier.get(),
+                forceQueueingSynchronizationWorkaround,
+                synchronizeCodecInteractionsWithQueueing);
+        TraceUtil.endSection();
+        TraceUtil.beginSection("configureCodec");
+        codecAdapter.configure(
+            configuration.mediaFormat,
+            configuration.surface,
+            configuration.crypto,
+            configuration.flags);
+        TraceUtil.endSection();
+        TraceUtil.beginSection("startCodec");
+        codecAdapter.start();
+        TraceUtil.endSection();
+        return codecAdapter;
+      } catch (Exception e) {
+        if (codecAdapter != null) {
+          codecAdapter.release();
+        } else if (codec != null) {
+          codec.release();
+        }
+        throw e;
+      }
     }
   }
 
@@ -138,8 +168,7 @@ import java.nio.ByteBuffer;
     this.state = STATE_CREATED;
   }
 
-  @Override
-  public void configure(
+  private void configure(
       @Nullable MediaFormat mediaFormat,
       @Nullable Surface surface,
       @Nullable MediaCrypto crypto,
@@ -149,8 +178,7 @@ import java.nio.ByteBuffer;
     state = STATE_CONFIGURED;
   }
 
-  @Override
-  public void start() {
+  private void start() {
     bufferEnqueuer.start();
     codec.start();
     state = STATE_STARTED;

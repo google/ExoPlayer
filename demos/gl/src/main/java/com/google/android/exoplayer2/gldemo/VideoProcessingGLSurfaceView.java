@@ -25,8 +25,8 @@ import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
@@ -72,7 +72,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
-  @Nullable private Player.VideoComponent videoComponent;
+  @Nullable private ExoPlayer.VideoComponent videoComponent;
 
   /**
    * Creates a new instance. Pass {@code true} for {@code requireSecureContext} if the {@link
@@ -151,7 +151,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
    *
    * @param newVideoComponent The new video component, or {@code null} to detach this view.
    */
-  public void setVideoComponent(@Nullable Player.VideoComponent newVideoComponent) {
+  public void setVideoComponent(@Nullable ExoPlayer.VideoComponent newVideoComponent) {
     if (newVideoComponent == videoComponent) {
       return;
     }

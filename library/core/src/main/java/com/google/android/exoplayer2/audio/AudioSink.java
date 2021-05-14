@@ -119,15 +119,15 @@ public interface AudioSink {
      * The player may be able to recover from the error (for example by recreating the AudioTrack,
      * possibly with different settings) and continue. Hence applications should <em>not</em>
      * implement this method to display a user visible error or initiate an application level retry
-     * ({@link Player.EventListener#onPlayerError} is the appropriate place to implement such
-     * behavior). This method is called to provide the application with an opportunity to log the
-     * error if it wishes to do so.
+     * ({@link Player.Listener#onPlayerError} is the appropriate place to implement such behavior).
+     * This method is called to provide the application with an opportunity to log the error if it
+     * wishes to do so.
      *
      * <p>Fatal errors that cannot be recovered will be reported wrapped in a {@link
-     * ExoPlaybackException} by {@link Player.EventListener#onPlayerError(ExoPlaybackException)}.
+     * ExoPlaybackException} by {@link Player.Listener#onPlayerError(ExoPlaybackException)}.
      *
-     * @param audioSinkError Either an {@link AudioSink.InitializationException} or a {@link
-     *     AudioSink.WriteException} describing the error.
+     * @param audioSinkError The error that occurred. Typically an {@link InitializationException},
+     *     a {@link WriteException}, or an {@link UnexpectedDiscontinuityException}.
      */
     default void onAudioSinkError(Exception audioSinkError) {}
   }
@@ -224,6 +224,32 @@ public interface AudioSink {
       this.format = format;
     }
 
+  }
+
+  /** Thrown when the sink encounters an unexpected timestamp discontinuity. */
+  final class UnexpectedDiscontinuityException extends Exception {
+    /** The actual presentation time of a sample, in microseconds. */
+    public final long actualPresentationTimeUs;
+    /** The expected presentation time of a sample, in microseconds. */
+    public final long expectedPresentationTimeUs;
+
+    /**
+     * Creates an instance.
+     *
+     * @param actualPresentationTimeUs The actual presentation time of a sample, in microseconds.
+     * @param expectedPresentationTimeUs The expected presentation time of a sample, in
+     *     microseconds.
+     */
+    public UnexpectedDiscontinuityException(
+        long actualPresentationTimeUs, long expectedPresentationTimeUs) {
+      super(
+          "Unexpected audio track timestamp discontinuity: expected "
+              + expectedPresentationTimeUs
+              + ", got "
+              + actualPresentationTimeUs);
+      this.actualPresentationTimeUs = actualPresentationTimeUs;
+      this.expectedPresentationTimeUs = expectedPresentationTimeUs;
+    }
   }
 
   /**
@@ -402,7 +428,7 @@ public interface AudioSink {
   /**
    * Sets the playback volume.
    *
-   * @param volume A volume in the range [0.0, 1.0].
+   * @param volume Linear output gain to apply to all channels. Should be in the range [0.0, 1.0].
    */
   void setVolume(float volume);
 

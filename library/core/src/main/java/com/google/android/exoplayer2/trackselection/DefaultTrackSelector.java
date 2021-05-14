@@ -105,10 +105,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  * }</pre>
  *
  * If {@code rendererTrackGroups} is null then there aren't any currently mapped tracks, and so
- * setting an override isn't possible. Note that a {@link Player.EventListener} registered on the
- * player can be used to determine when the current tracks (and therefore the mapping) changes. If
- * {@code rendererTrackGroups} is non-null then an override can be set. The next step is to query
- * the properties of the available tracks to determine the {@code groupIndex} and the {@code
+ * setting an override isn't possible. Note that a {@link Player.Listener} registered on the player
+ * can be used to determine when the current tracks (and therefore the mapping) changes. If {@code
+ * rendererTrackGroups} is non-null then an override can be set. The next step is to query the
+ * properties of the available tracks to determine the {@code groupIndex} and the {@code
  * trackIndices} within the group it that should be selected. The override can then be specified
  * using {@link ParametersBuilder#setSelectionOverride}:
  *
@@ -1507,29 +1507,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final int groupIndex;
     public final int[] tracks;
     public final int length;
-    public final int reason;
-    public final int data;
+    public final int type;
 
     /**
      * @param groupIndex The overriding track group index.
      * @param tracks The overriding track indices within the track group.
      */
     public SelectionOverride(int groupIndex, int... tracks) {
-      this(groupIndex, tracks, C.SELECTION_REASON_MANUAL, /* data= */ 0);
+      this(groupIndex, tracks, TrackSelection.TYPE_UNSET);
     }
 
     /**
      * @param groupIndex The overriding track group index.
      * @param tracks The overriding track indices within the track group.
-     * @param reason The reason for the override. One of the {@link C} SELECTION_REASON_ constants.
-     * @param data Optional data associated with this override.
+     * @param type The type that will be returned from {@link TrackSelection#getType()}.
      */
-    public SelectionOverride(int groupIndex, int[] tracks, int reason, int data) {
+    public SelectionOverride(int groupIndex, int[] tracks, int type) {
       this.groupIndex = groupIndex;
       this.tracks = Arrays.copyOf(tracks, tracks.length);
       this.length = tracks.length;
-      this.reason = reason;
-      this.data = data;
+      this.type = type;
       Arrays.sort(this.tracks);
     }
 
@@ -1538,8 +1535,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       length = in.readByte();
       tracks = new int[length];
       in.readIntArray(tracks);
-      reason = in.readInt();
-      data = in.readInt();
+      type = in.readInt();
     }
 
     /** Returns whether this override contains the specified track index. */
@@ -1555,8 +1551,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Override
     public int hashCode() {
       int hash = 31 * groupIndex + Arrays.hashCode(tracks);
-      hash = 31 * hash + reason;
-      return 31 * hash + data;
+      return 31 * hash + type;
     }
 
     @Override
@@ -1570,8 +1565,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       SelectionOverride other = (SelectionOverride) obj;
       return groupIndex == other.groupIndex
           && Arrays.equals(tracks, other.tracks)
-          && reason == other.reason
-          && data == other.data;
+          && type == other.type;
     }
 
     // Parcelable implementation.
@@ -1586,8 +1580,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       dest.writeInt(groupIndex);
       dest.writeInt(tracks.length);
       dest.writeIntArray(tracks);
-      dest.writeInt(reason);
-      dest.writeInt(data);
+      dest.writeInt(type);
     }
 
     public static final Parcelable.Creator<SelectionOverride> CREATOR =
@@ -1729,10 +1722,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             override == null
                 ? null
                 : new ExoTrackSelection.Definition(
-                    rendererTrackGroups.get(override.groupIndex),
-                    override.tracks,
-                    override.reason,
-                    override.data);
+                    rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
       }
     }
 
@@ -2135,8 +2125,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             || (minVideoHeight <= format.height && format.height <= maxVideoHeight))
         && (format.frameRate == Format.NO_VALUE
             || (minVideoFrameRate <= format.frameRate && format.frameRate <= maxVideoFrameRate))
-        && (format.bitrate == Format.NO_VALUE
-            || (minVideoBitrate <= format.bitrate && format.bitrate <= maxVideoBitrate));
+        && format.bitrate != Format.NO_VALUE
+        && minVideoBitrate <= format.bitrate
+        && format.bitrate <= maxVideoBitrate;
   }
 
   @Nullable

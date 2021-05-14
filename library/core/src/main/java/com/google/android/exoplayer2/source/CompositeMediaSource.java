@@ -19,6 +19,7 @@ import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -34,7 +35,7 @@ import java.util.HashMap;
  */
 public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
-  private final HashMap<T, MediaSourceAndListener> childSources;
+  private final HashMap<T, MediaSourceAndListener<T>> childSources;
 
   @Nullable private Handler eventHandler;
   @Nullable private TransferListener mediaTransferListener;
@@ -54,7 +55,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @Override
   @CallSuper
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    for (MediaSourceAndListener childSource : childSources.values()) {
+    for (MediaSourceAndListener<T> childSource : childSources.values()) {
       childSource.mediaSource.maybeThrowSourceInfoRefreshError();
     }
   }
@@ -62,7 +63,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @Override
   @CallSuper
   protected void enableInternal() {
-    for (MediaSourceAndListener childSource : childSources.values()) {
+    for (MediaSourceAndListener<T> childSource : childSources.values()) {
       childSource.mediaSource.enable(childSource.caller);
     }
   }
@@ -70,7 +71,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @Override
   @CallSuper
   protected void disableInternal() {
-    for (MediaSourceAndListener childSource : childSources.values()) {
+    for (MediaSourceAndListener<T> childSource : childSources.values()) {
       childSource.mediaSource.disable(childSource.caller);
     }
   }
@@ -78,9 +79,10 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @Override
   @CallSuper
   protected void releaseSourceInternal() {
-    for (MediaSourceAndListener childSource : childSources.values()) {
+    for (MediaSourceAndListener<T> childSource : childSources.values()) {
       childSource.mediaSource.releaseSource(childSource.caller);
       childSource.mediaSource.removeEventListener(childSource.eventListener);
+      childSource.mediaSource.removeDrmEventListener(childSource.eventListener);
     }
     childSources.clear();
   }
@@ -112,7 +114,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     MediaSourceCaller caller =
         (source, timeline) -> onChildSourceInfoRefreshed(id, source, timeline);
     ForwardingEventListener eventListener = new ForwardingEventListener(id);
-    childSources.put(id, new MediaSourceAndListener(mediaSource, caller, eventListener));
+    childSources.put(id, new MediaSourceAndListener<>(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
     mediaSource.addDrmEventListener(Assertions.checkNotNull(eventHandler), eventListener);
     mediaSource.prepareSource(caller, mediaTransferListener);
@@ -127,7 +129,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    * @param id The unique id used to prepare the child source.
    */
   protected final void enableChildSource(@UnknownNull T id) {
-    MediaSourceAndListener enabledChild = Assertions.checkNotNull(childSources.get(id));
+    MediaSourceAndListener<T> enabledChild = Assertions.checkNotNull(childSources.get(id));
     enabledChild.mediaSource.enable(enabledChild.caller);
   }
 
@@ -137,7 +139,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    * @param id The unique id used to prepare the child source.
    */
   protected final void disableChildSource(@UnknownNull T id) {
-    MediaSourceAndListener disabledChild = Assertions.checkNotNull(childSources.get(id));
+    MediaSourceAndListener<T> disabledChild = Assertions.checkNotNull(childSources.get(id));
     disabledChild.mediaSource.disable(disabledChild.caller);
   }
 
@@ -147,9 +149,10 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    * @param id The unique id used to prepare the child source.
    */
   protected final void releaseChildSource(@UnknownNull T id) {
-    MediaSourceAndListener removedChild = Assertions.checkNotNull(childSources.remove(id));
+    MediaSourceAndListener<T> removedChild = Assertions.checkNotNull(childSources.remove(id));
     removedChild.mediaSource.releaseSource(removedChild.caller);
     removedChild.mediaSource.removeEventListener(removedChild.eventListener);
+    removedChild.mediaSource.removeDrmEventListener(removedChild.eventListener);
   }
 
   /**
@@ -181,25 +184,30 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   }
 
   /**
-   * Returns the media time in the composite source corresponding to the specified media time in a
-   * child source. The default implementation does not change the media time.
+   * Returns the media time in the {@link MediaPeriod} of the composite source corresponding to the
+   * specified media time in the {@link MediaPeriod} of the child source. The default implementation
+   * does not change the media time.
    *
    * @param id The unique id used to prepare the child source.
-   * @param mediaTimeMs A media time of the child source, in milliseconds.
-   * @return The corresponding media time in the composite source, in milliseconds.
+   * @param mediaTimeMs A media time in the {@link MediaPeriod} of the child source, in
+   *     milliseconds.
+   * @return The corresponding media time in the {@link MediaPeriod} of the composite source, in
+   *     milliseconds.
    */
   protected long getMediaTimeForChildMediaTime(@UnknownNull T id, long mediaTimeMs) {
     return mediaTimeMs;
   }
 
-  private static final class MediaSourceAndListener {
+  private static final class MediaSourceAndListener<T> {
 
     public final MediaSource mediaSource;
     public final MediaSourceCaller caller;
-    public final MediaSourceEventListener eventListener;
+    public final CompositeMediaSource<T>.ForwardingEventListener eventListener;
 
     public MediaSourceAndListener(
-        MediaSource mediaSource, MediaSourceCaller caller, MediaSourceEventListener eventListener) {
+        MediaSource mediaSource,
+        MediaSourceCaller caller,
+        CompositeMediaSource<T>.ForwardingEventListener eventListener) {
       this.mediaSource = mediaSource;
       this.caller = caller;
       this.eventListener = eventListener;
@@ -290,9 +298,10 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     // DrmSessionEventListener implementation
 
     @Override
-    public void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    public void onDrmSessionAcquired(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, @DrmSession.State int state) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        drmEventDispatcher.drmSessionAcquired();
+        drmEventDispatcher.drmSessionAcquired(state);
       }
     }
 

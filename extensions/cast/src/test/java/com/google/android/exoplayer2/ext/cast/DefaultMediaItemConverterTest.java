@@ -51,7 +51,7 @@ public class DefaultMediaItemConverterTest {
     MediaItem item =
         builder
             .setUri(Uri.parse("http://example.com"))
-            .setMediaMetadata(new MediaMetadata.Builder().build())
+            .setMediaMetadata(MediaMetadata.EMPTY)
             .setMimeType(MimeTypes.APPLICATION_MPD)
             .setDrmUuid(C.WIDEVINE_UUID)
             .setDrmLicenseUri("http://license.com")

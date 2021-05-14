@@ -24,9 +24,11 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -71,12 +73,12 @@ public class OpusPlaybackTest {
     }
   }
 
-  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
+  private static class TestPlaybackRunnable implements Player.Listener, Runnable {
 
     private final Context context;
     private final Uri uri;
 
-    @Nullable private ExoPlayer player;
+    @Nullable private SimpleExoPlayer player;
     @Nullable private ExoPlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context) {
@@ -87,8 +89,14 @@ public class OpusPlaybackTest {
     @Override
     public void run() {
       Looper.prepare();
-      LibopusAudioRenderer audioRenderer = new LibopusAudioRenderer();
-      player = new ExoPlayer.Builder(context, audioRenderer).build();
+      RenderersFactory renderersFactory =
+          (eventHandler,
+              videoRendererEventListener,
+              audioRendererEventListener,
+              textRendererOutput,
+              metadataRendererOutput) ->
+              new Renderer[] {new LibopusAudioRenderer(eventHandler, audioRendererEventListener)};
+      player = new SimpleExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(

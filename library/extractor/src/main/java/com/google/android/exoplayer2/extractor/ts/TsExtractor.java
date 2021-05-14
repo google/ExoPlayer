@@ -49,9 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Extracts data from the MPEG-2 TS container format.
- */
+/** Extracts data from the MPEG-2 TS container format. */
 public final class TsExtractor implements Extractor {
 
   /** Factory for {@link TsExtractor} instances. */

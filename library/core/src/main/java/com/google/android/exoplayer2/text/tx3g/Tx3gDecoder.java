@@ -39,8 +39,8 @@ import java.util.List;
 
 /**
  * A {@link SimpleSubtitleDecoder} for tx3g.
- * <p>
- * Currently supports parsing of a single text track with embedded styles.
+ *
+ * <p>Currently supports parsing of a single text track with embedded styles.
  */
 public final class Tx3gDecoder extends SimpleSubtitleDecoder {
 

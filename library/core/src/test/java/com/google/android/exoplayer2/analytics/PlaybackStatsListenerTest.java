@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.robolectric.shadows.ShadowLooper.runMainLooperToNextTask;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -62,41 +62,44 @@ public final class PlaybackStatsListenerTest {
   }
 
   @Test
-  public void events_duringInitialIdleState_dontCreateNewPlaybackStats() {
+  public void events_duringInitialIdleState_dontCreateNewPlaybackStats() throws Exception {
     PlaybackStatsListener playbackStatsListener =
         new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
     player.addAnalyticsListener(playbackStatsListener);
 
     player.seekTo(/* positionMs= */ 1234);
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
     player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f));
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
     player.play();
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
 
     assertThat(playbackStatsListener.getPlaybackStats()).isNull();
   }
 
   @Test
-  public void stateChangeEvent_toNonIdle_createsInitialPlaybackStats() {
+  public void stateChangeEvent_toEndedWithEmptyTimeline_doesNotCreateInitialPlaybackStats()
+      throws Exception {
+    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
     PlaybackStatsListener playbackStatsListener =
-        new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
+        new PlaybackStatsListener(/* keepHistory= */ true, callback);
     player.addAnalyticsListener(playbackStatsListener);
 
     player.prepare();
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
 
-    assertThat(playbackStatsListener.getPlaybackStats()).isNotNull();
+    assertThat(playbackStatsListener.getPlaybackStats()).isNull();
+    verifyNoMoreInteractions(callback);
   }
 
   @Test
-  public void timelineChangeEvent_toNonEmpty_createsInitialPlaybackStats() {
+  public void timelineChangeEvent_toNonEmpty_createsInitialPlaybackStats() throws Exception {
     PlaybackStatsListener playbackStatsListener =
         new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
     player.addAnalyticsListener(playbackStatsListener);
 
     player.setMediaItem(MediaItem.fromUri("http://test.org"));
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
 
     assertThat(playbackStatsListener.getPlaybackStats()).isNotNull();
   }
@@ -111,7 +114,7 @@ public final class PlaybackStatsListenerTest {
     player.prepare();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
 
     @Nullable PlaybackStats playbackStats = playbackStatsListener.getPlaybackStats();
     assertThat(playbackStats).isNotNull();
@@ -128,7 +131,7 @@ public final class PlaybackStatsListenerTest {
     player.prepare();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
 
     @Nullable PlaybackStats playbackStats = playbackStatsListener.getPlaybackStats();
     assertThat(playbackStats).isNotNull();
@@ -136,7 +139,7 @@ public final class PlaybackStatsListenerTest {
   }
 
   @Test
-  public void finishedSession_callsCallback() {
+  public void finishedSession_callsCallback() throws Exception {
     PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
     PlaybackStatsListener playbackStatsListener =
         new PlaybackStatsListener(/* keepHistory= */ true, callback);
@@ -145,10 +148,10 @@ public final class PlaybackStatsListenerTest {
     // Create session with some events and finish it by removing it from the playlist.
     player.setMediaSource(new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1)));
     player.prepare();
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
     verify(callback, never()).onPlaybackStatsReady(any(), any());
     player.clearMediaItems();
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
 
     verify(callback).onPlaybackStatsReady(any(), any());
   }
@@ -197,9 +200,9 @@ public final class PlaybackStatsListenerTest {
     // the first one isn't finished yet.
     TestPlayerRunHelper.playUntilPosition(
         player, /* windowIndex= */ 0, /* positionMs= */ player.getDuration());
-    runMainLooperToNextTask();
+    runUntilPendingCommandsAreFullyHandled(player);
     player.release();
-    runMainLooperToNextTask();
+    ShadowLooper.idleMainLooper();
 
     ArgumentCaptor<AnalyticsListener.EventTime> eventTimeCaptor =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);

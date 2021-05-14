@@ -29,7 +29,6 @@ import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -176,7 +175,7 @@ import java.util.Map;
                 + "right:0;"
                 + "color:%s;"
                 + "font-size:%s;"
-                + "line-height:%.2fem;"
+                + "line-height:%.2f;"
                 + "text-shadow:%s;"
                 + "'>",
             HtmlUtils.toCssRgba(style.foregroundColor),
@@ -278,6 +277,7 @@ import java.util.Map;
               Util.formatInvariant(
                   "<div style='"
                       + "position:absolute;"
+                      + "z-index:%s;"
                       + "%s:%.2f%%;"
                       + "%s:%s;"
                       + "%s:%s;"
@@ -288,6 +288,7 @@ import java.util.Map;
                       + "transform:translate(%s%%,%s%%)"
                       + "%s;"
                       + "'>",
+                  /* z-index */ i,
                   positionProperty,
                   positionPercent,
                   lineProperty,
@@ -301,11 +302,22 @@ import java.util.Map;
                   horizontalTranslatePercent,
                   verticalTranslatePercent,
                   getBlockShearTransformFunction(cue)))
-          .append(Util.formatInvariant("<span class='%s'>", DEFAULT_BACKGROUND_CSS_CLASS))
-          .append(htmlAndCss.html)
-          .append("</span>")
-          .append("</div>");
+          .append(Util.formatInvariant("<span class='%s'>", DEFAULT_BACKGROUND_CSS_CLASS));
+
+      if (cue.multiRowAlignment != null) {
+        html.append(
+                Util.formatInvariant(
+                    "<span style='display:inline-block; text-align:%s;'>",
+                    convertAlignmentToCss(cue.multiRowAlignment)))
+            .append(htmlAndCss.html)
+            .append("</span>");
+      } else {
+        html.append(htmlAndCss.html);
+      }
+
+      html.append("</span>").append("</div>");
     }
+
     html.append("</div></body></html>");
 
     StringBuilder htmlHead = new StringBuilder();

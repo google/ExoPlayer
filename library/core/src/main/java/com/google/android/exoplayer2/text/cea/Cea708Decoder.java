@@ -45,9 +45,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
- */
+/** A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708"). */
 public final class Cea708Decoder extends CeaDecoder {
 
   private static final String TAG = "Cea708Decoder";

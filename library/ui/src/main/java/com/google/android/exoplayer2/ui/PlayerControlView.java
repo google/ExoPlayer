@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
@@ -910,13 +913,18 @@ public class PlayerControlView extends FrameLayout {
     if (player != null) {
       Timeline timeline = player.getCurrentTimeline();
       if (!timeline.isEmpty() && !player.isPlayingAd()) {
+        boolean isSeekable = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
         timeline.getWindow(player.getCurrentWindowIndex(), window);
-        boolean isSeekable = window.isSeekable;
         enableSeeking = isSeekable;
-        enablePrevious = isSeekable || !window.isLive() || player.hasPrevious();
+        enablePrevious =
+            isSeekable
+                || !window.isLive()
+                || player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
         enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
         enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
-        enableNext = (window.isLive() && window.isDynamic) || player.hasNext();
+        enableNext =
+            (window.isLive() && window.isDynamic)
+                || player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
       }
     }
 

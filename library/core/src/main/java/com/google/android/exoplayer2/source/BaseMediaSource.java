@@ -87,7 +87,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   /**
    * Returns a {@link MediaSourceEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified media period id.
+   * registered listeners with the specified {@link MediaPeriodId}.
    *
    * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
    *     the events do not belong to a specific media period.
@@ -101,7 +101,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   /**
    * Returns a {@link MediaSourceEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified media period id and time offset.
+   * registered listeners with the specified {@link MediaPeriodId} and time offset.
    *
    * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events.
    * @param mediaTimeOffsetMs The offset to be added to all media times, in milliseconds.
@@ -115,7 +115,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   /**
    * Returns a {@link MediaSourceEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified window index, media period id and time offset.
+   * registered listeners with the specified window index, {@link MediaPeriodId} and time offset.
    *
    * @param windowIndex The timeline window index to be reported with the events.
    * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
@@ -130,7 +130,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   /**
    * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified media period id.
+   * registered listeners with the specified {@link MediaPeriodId}
    *
    * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
    *     the events do not belong to a specific media period.
@@ -143,7 +143,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   /**
    * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified window index and media period id.
+   * registered listeners with the specified window index and {@link MediaPeriodId}.
    *
    * @param windowIndex The timeline window index to be reported with the events.
    * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if

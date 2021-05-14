@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -92,8 +92,7 @@ public class FakeRenderer extends BaseRenderer {
       if (!hasPendingBuffer) {
         FormatHolder formatHolder = getFormatHolder();
         buffer.clear();
-        @SampleStream.ReadDataResult
-        int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
+        @ReadDataResult int result = readSource(formatHolder, buffer, /* readFlags= */ 0);
 
         if (result == C.RESULT_FORMAT_READ) {
           DrmSession.replaceSession(currentDrmSession, formatHolder.drmSession);

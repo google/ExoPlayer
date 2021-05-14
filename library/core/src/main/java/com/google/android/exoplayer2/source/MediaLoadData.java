@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 
-/** Descriptor for data being loaded or selected by a media source. */
+/** Descriptor for data being loaded or selected by a {@link MediaSource}. */
 public final class MediaLoadData {
 
   /** One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data. */
@@ -45,13 +45,13 @@ public final class MediaLoadData {
    */
   @Nullable public final Object trackSelectionData;
   /**
-   * The start time of the media, or {@link C#TIME_UNSET} if the data does not belong to a specific
-   * media period.
+   * The start time of the media in the {@link MediaPeriod}, or {@link C#TIME_UNSET} if the data
+   * does not belong to a specific {@link MediaPeriod}.
    */
   public final long mediaStartTimeMs;
   /**
-   * The end time of the media, or {@link C#TIME_UNSET} if the data does not belong to a specific
-   * media period or the end time is unknown.
+   * The end time of the media in the {@link MediaPeriod}, or {@link C#TIME_UNSET} if the data does
+   * not belong to a specific {@link MediaPeriod} or the end time is unknown.
    */
   public final long mediaEndTimeMs;
 

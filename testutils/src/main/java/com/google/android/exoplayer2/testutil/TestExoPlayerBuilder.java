@@ -48,7 +48,7 @@ public class TestExoPlayerBuilder {
 
   public TestExoPlayerBuilder(Context context) {
     this.context = context;
-    clock = new AutoAdvancingFakeClock();
+    clock = new FakeClock(/* isAutoAdvancing= */ true);
     trackSelector = new DefaultTrackSelector(context);
     loadControl = new DefaultLoadControl();
     bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
@@ -176,8 +176,8 @@ public class TestExoPlayerBuilder {
   }
 
   /**
-   * Sets the {@link Clock} to be used by the player. The default value is a {@link
-   * AutoAdvancingFakeClock}.
+   * Sets the {@link Clock} to be used by the player. The default value is an auto-advancing {@link
+   * FakeClock}.
    *
    * @param clock A {@link Clock} to be used by the player.
    * @return This builder.

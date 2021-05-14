@@ -31,9 +31,7 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Extracts data from the Ogg container format.
- */
+/** Extracts data from the Ogg container format. */
 public class OggExtractor implements Extractor {
 
   /** Factory for {@link OggExtractor} instances. */

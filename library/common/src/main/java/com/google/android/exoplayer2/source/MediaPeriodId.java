@@ -152,6 +152,14 @@ public class MediaPeriodId {
             newPeriodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, nextAdGroupIndex);
   }
 
+  /** Returns a copy of this period identifier with a new {@code windowSequenceNumber}. */
+  public MediaPeriodId copyWithWindowSequenceNumber(long windowSequenceNumber) {
+    return this.windowSequenceNumber == windowSequenceNumber
+        ? this
+        : new MediaPeriodId(
+            periodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, nextAdGroupIndex);
+  }
+
   /** Returns whether this period identifier identifies an ad in an ad group in a period. */
   public boolean isAd() {
     return adGroupIndex != C.INDEX_UNSET;

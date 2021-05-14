@@ -24,7 +24,6 @@ import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -72,48 +71,61 @@ public final class ContentDataSource extends BaseDataSource {
       if (assetFileDescriptor == null) {
         throw new FileNotFoundException("Could not open file descriptor for: " + uri);
       }
+
+      long assetFileDescriptorLength = assetFileDescriptor.getLength();
       FileInputStream inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
       this.inputStream = inputStream;
 
-      long assetStartOffset = assetFileDescriptor.getStartOffset();
-      long skipped = inputStream.skip(assetStartOffset + dataSpec.position) - assetStartOffset;
+      // We can't rely only on the "skipped < dataSpec.position" check below to detect whether the
+      // position is beyond the end of the asset being read. This is because the file may contain
+      // multiple assets, and there's nothing to prevent InputStream.skip() from succeeding by
+      // skipping into the data of the next asset. Hence we also need to check against the asset
+      // length explicitly, which is guaranteed to be set unless the asset extends to the end of the
+      // file.
+      if (assetFileDescriptorLength != AssetFileDescriptor.UNKNOWN_LENGTH
+          && dataSpec.position > assetFileDescriptorLength) {
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      }
+      long assetFileDescriptorOffset = assetFileDescriptor.getStartOffset();
+      long skipped =
+          inputStream.skip(assetFileDescriptorOffset + dataSpec.position)
+              - assetFileDescriptorOffset;
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
-        // skip beyond the end of the data.
-        throw new EOFException();
+        // read beyond the end of the last resource in the file.
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
       }
-      if (dataSpec.length != C.LENGTH_UNSET) {
-        bytesRemaining = dataSpec.length;
-      } else {
-        long assetFileDescriptorLength = assetFileDescriptor.getLength();
-        if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
-          // The asset must extend to the end of the file. If FileInputStream.getChannel().size()
-          // returns 0 then the remaining length cannot be determined.
-          FileChannel channel = inputStream.getChannel();
-          long channelSize = channel.size();
-          if (channelSize == 0) {
-            bytesRemaining = C.LENGTH_UNSET;
-          } else {
-            bytesRemaining = channelSize - channel.position();
-            if (bytesRemaining < 0) {
-              throw new EOFException();
-            }
-          }
+      if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
+        // The asset must extend to the end of the file. We can try and resolve the length with
+        // FileInputStream.getChannel().size().
+        FileChannel channel = inputStream.getChannel();
+        long channelSize = channel.size();
+        if (channelSize == 0) {
+          bytesRemaining = C.LENGTH_UNSET;
         } else {
-          bytesRemaining = assetFileDescriptorLength - skipped;
+          bytesRemaining = channelSize - channel.position();
           if (bytesRemaining < 0) {
-            throw new EOFException();
+            // The skip above was satisfied in full, but skipped beyond the end of the file.
+            throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
           }
+        }
+      } else {
+        bytesRemaining = assetFileDescriptorLength - skipped;
+        if (bytesRemaining < 0) {
+          throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
         }
       }
     } catch (IOException e) {
       throw new ContentDataSourceException(e);
     }
 
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesRemaining =
+          bytesRemaining == C.LENGTH_UNSET ? dataSpec.length : min(bytesRemaining, dataSpec.length);
+    }
     opened = true;
     transferStarted(dataSpec);
-
-    return bytesRemaining;
+    return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : bytesRemaining;
   }
 
   @Override
@@ -134,10 +146,6 @@ public final class ContentDataSource extends BaseDataSource {
     }
 
     if (bytesRead == -1) {
-      if (bytesRemaining != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new ContentDataSourceException(new EOFException());
-      }
       return C.RESULT_END_OF_INPUT;
     }
     if (bytesRemaining != C.LENGTH_UNSET) {

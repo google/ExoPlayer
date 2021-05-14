@@ -30,9 +30,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Parses ID3 data and extracts individual text information frames.
- */
+/** Parses ID3 data and extracts individual text information frames. */
 public final class Id3Reader implements ElementaryStreamReader {
 
   private static final String TAG = "Id3Reader";

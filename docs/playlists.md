@@ -101,7 +101,7 @@ MediaItem mediaItem =
 ## Detecting when playback transitions to another media item ##
 
 When playback transitions to another media item, or starts repeating the same
-media item, `EventListener.onMediaItemTransition(MediaItem,
+media item, `Listener.onMediaItemTransition(MediaItem,
 @MediaItemTransitionReason)` is called. This callback receives the new media
 item, along with a `@MediaItemTransitionReason` indicating why the transition
 occurred. A common use case for `onMediaItemTransition` is to update the
@@ -135,7 +135,7 @@ public void onMediaItemTransition(
 ## Detecting when the playlist changes ##
 
 When a media item is added, removed or moved,
-`EventListener.onTimelineChanged(Timeline, @TimelineChangeReason)` is called
+`Listener.onTimelineChanged(Timeline, @TimelineChangeReason)` is called
 immediately with `TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED`. This callback is
 called even when the player has not yet been prepared.
 

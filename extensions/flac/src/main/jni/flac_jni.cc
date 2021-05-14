@@ -47,6 +47,7 @@ class JavaDataSource : public DataSource {
     if (mid == NULL) {
       jclass cls = env->GetObjectClass(flacDecoderJni);
       mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;)I");
+      env->DeleteLocalRef(cls);
     }
   }
 
@@ -57,6 +58,7 @@ class JavaDataSource : public DataSource {
       // Exception is thrown in Java when returning from the native call.
       result = -1;
     }
+    env->DeleteLocalRef(byteBuffer);
     return result;
   }
 

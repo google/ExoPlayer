@@ -24,9 +24,11 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
@@ -87,13 +89,13 @@ public class FlacPlaybackTest {
         "audiosinkdumps/" + fileName + ".audiosink.dump");
   }
 
-  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
+  private static class TestPlaybackRunnable implements Player.Listener, Runnable {
 
     private final Context context;
     private final Uri uri;
     private final AudioSink audioSink;
 
-    @Nullable private ExoPlayer player;
+    @Nullable private SimpleExoPlayer player;
     @Nullable private ExoPlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context, AudioSink audioSink) {
@@ -105,9 +107,16 @@ public class FlacPlaybackTest {
     @Override
     public void run() {
       Looper.prepare();
-      LibflacAudioRenderer audioRenderer =
-          new LibflacAudioRenderer(/* eventHandler= */ null, /* eventListener= */ null, audioSink);
-      player = new ExoPlayer.Builder(context, audioRenderer).build();
+      RenderersFactory renderersFactory =
+          (eventHandler,
+              videoRendererEventListener,
+              audioRendererEventListener,
+              textRendererOutput,
+              metadataRendererOutput) ->
+              new Renderer[] {
+                new LibflacAudioRenderer(eventHandler, audioRendererEventListener, audioSink)
+              };
+      player = new SimpleExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(

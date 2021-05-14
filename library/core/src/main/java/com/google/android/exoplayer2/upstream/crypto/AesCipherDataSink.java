@@ -24,9 +24,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.IOException;
 import javax.crypto.Cipher;
 
-/**
- * A wrapping {@link DataSink} that encrypts the data being consumed.
- */
+/** A wrapping {@link DataSink} that encrypts the data being consumed. */
 public final class AesCipherDataSink implements DataSink {
 
   private final DataSink wrappedDataSink;

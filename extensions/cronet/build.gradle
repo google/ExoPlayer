@@ -28,6 +28,7 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:' + androidxTestRulesVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
     // Instrumentation tests assume that an app-packaged version of cronet is
     // available.
     androidTestImplementation 'org.chromium.net:cronet-embedded:72.3626.96'

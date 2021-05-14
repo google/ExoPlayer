@@ -41,7 +41,8 @@
     <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
         android:label="@string/application_name"
-        android:theme="@style/Theme.AppCompat">
+        android:theme="@style/Theme.AppCompat"
+        android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
@@ -65,7 +66,8 @@
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
         android:launchMode="singleTop"
         android:label="@string/application_name"
-        android:theme="@style/PlayerTheme">
+        android:theme="@style/PlayerTheme"
+        android:exported="true">
       <intent-filter>
         <action android:name="com.google.android.exoplayer.demo.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>

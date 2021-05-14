@@ -27,9 +27,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
-/**
- * A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data.
- */
+/** A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data. */
 public class ContainerMediaChunk extends BaseMediaChunk {
 
   private final int chunkCount;

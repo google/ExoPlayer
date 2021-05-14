@@ -17,15 +17,12 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.upstream.ContentDataSource.ContentDataSourceException;
-import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -85,36 +82,6 @@ public final class ContentDataSourceTest {
     }
   }
 
-  @Test
-  public void read_positionPastEndOfContent_throwsEOFException() throws Exception {
-    Uri contentUri = TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ false);
-    ContentDataSource dataSource =
-        new ContentDataSource(ApplicationProvider.getApplicationContext());
-    DataSpec dataSpec = new DataSpec(contentUri, /* position= */ 1025, C.LENGTH_UNSET);
-    try {
-      ContentDataSourceException exception =
-          assertThrows(ContentDataSourceException.class, () -> dataSource.open(dataSpec));
-      assertThat(exception).hasCauseThat().isInstanceOf(EOFException.class);
-    } finally {
-      dataSource.close();
-    }
-  }
-
-  @Test
-  public void readPipeMode_positionPastEndOfContent_throwsEOFException() throws Exception {
-    Uri contentUri = TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ true);
-    ContentDataSource dataSource =
-        new ContentDataSource(ApplicationProvider.getApplicationContext());
-    DataSpec dataSpec = new DataSpec(contentUri, /* position= */ 1025, C.LENGTH_UNSET);
-    try {
-      ContentDataSourceException exception =
-          assertThrows(ContentDataSourceException.class, () -> dataSource.open(dataSpec));
-      assertThat(exception).hasCauseThat().isInstanceOf(EOFException.class);
-    } finally {
-      dataSource.close();
-    }
-  }
-
   private static void assertData(int offset, int length, boolean pipeMode) throws IOException {
     Uri contentUri = TestContentProvider.buildUri(DATA_PATH, pipeMode);
     ContentDataSource dataSource =
@@ -130,5 +97,4 @@ public final class ContentDataSourceTest {
       dataSource.close();
     }
   }
-
 }

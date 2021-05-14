@@ -30,9 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Default {@link TsPayloadReader.Factory} implementation.
- */
+/** Default {@link TsPayloadReader.Factory} implementation. */
 public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Factory {
 
   /**

@@ -57,9 +57,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
 
-/**
- * A parser of media presentation description files.
- */
+/** A parser of media presentation description files. */
 public class DashManifestParser extends DefaultHandler
     implements ParsingLoadable.Parser<DashManifest> {
 
@@ -549,7 +547,7 @@ public class DashManifestParser extends DefaultHandler
 
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     if (schemeIdUri != null) {
-      switch (Util.toLowerInvariant(schemeIdUri)) {
+      switch (Ascii.toLowerCase(schemeIdUri)) {
         case "urn:mpeg:dash:mp4protection:2011":
           schemeType = xpp.getAttributeValue(null, "value");
           String defaultKid = XmlPullParserUtil.getAttributeValueIgnorePrefix(xpp, "default_KID");
@@ -1798,11 +1796,11 @@ public class DashManifestParser extends DefaultHandler
    *     not be parsed.
    */
   protected static int parseDolbyChannelConfiguration(XmlPullParser xpp) {
-    String value = Util.toLowerInvariant(xpp.getAttributeValue(null, "value"));
+    @Nullable String value = xpp.getAttributeValue(null, "value");
     if (value == null) {
       return Format.NO_VALUE;
     }
-    switch (value) {
+    switch (Ascii.toLowerCase(value)) {
       case "4000":
         return 1;
       case "a000":

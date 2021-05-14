@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -91,7 +90,7 @@ public final class FileDataSource extends BaseDataSource {
       bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
           : dataSpec.length;
       if (bytesRemaining < 0) {
-        throw new EOFException();
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
       }
     } catch (IOException e) {
       throw new FileDataSourceException(e);

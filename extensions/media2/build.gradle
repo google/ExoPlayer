@@ -13,16 +13,15 @@
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
-android.defaultConfig.minSdkVersion 19
-
 dependencies {
-    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-common')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.concurrent:concurrent-futures:' + androidxFuturesVersion
     api 'androidx.media2:media2-session:' + androidxMedia2Version
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    androidTestImplementation project(modulePrefix + 'library-core')
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     androidTestImplementation 'androidx.test:core:' + androidxTestCoreVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion

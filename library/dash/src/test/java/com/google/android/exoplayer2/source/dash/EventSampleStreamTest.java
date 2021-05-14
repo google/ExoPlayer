@@ -58,7 +58,7 @@ public final class EventSampleStreamTest {
   }
 
   /**
-   * Tests that {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} will
+   * Tests that {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} will
    * return format for the first call.
    */
   @Test
@@ -106,7 +106,7 @@ public final class EventSampleStreamTest {
   }
 
   /**
-   * Tests that {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} will
+   * Tests that {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} will
    * return sample data after the first call.
    */
   @Test
@@ -127,8 +127,8 @@ public final class EventSampleStreamTest {
 
   /**
    * Tests that {@link EventSampleStream#skipData(long)} will skip until the given position, and the
-   * next {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call will
-   * return sample data from that position.
+   * next {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call will return
+   * sample data from that position.
    */
   @Test
   public void skipDataThenReadDataReturnDataFromSkippedPosition() {
@@ -153,7 +153,7 @@ public final class EventSampleStreamTest {
 
   /**
    * Tests that {@link EventSampleStream#seekToUs(long)} (long)} will seek to the given position,
-   * and the next {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call
+   * and the next {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call
    * will return sample data from that position.
    */
   @Test
@@ -179,8 +179,8 @@ public final class EventSampleStreamTest {
   /**
    * Tests that {@link EventSampleStream#updateEventStream(EventStream, boolean)} will update the
    * underlying event stream, but keep the read timestamp, so the next {@link
-   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call will return sample
-   * data from after the last read sample timestamp.
+   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call will return sample data
+   * from after the last read sample timestamp.
    */
   @Test
   public void updateEventStreamContinueToReadAfterLastReadSamplePresentationTime() {
@@ -213,8 +213,8 @@ public final class EventSampleStreamTest {
   /**
    * Tests that {@link EventSampleStream#updateEventStream(EventStream, boolean)} will update the
    * underlying event stream, but keep the timestamp the stream has skipped to, so the next {@link
-   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call will return sample
-   * data from the skipped position.
+   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call will return sample data
+   * from the skipped position.
    */
   @Test
   public void skipDataThenUpdateStreamContinueToReadFromSkippedPosition() {
@@ -246,8 +246,8 @@ public final class EventSampleStreamTest {
    * Tests that {@link EventSampleStream#skipData(long)} will only skip to the point right after it
    * last event. A following {@link EventSampleStream#updateEventStream(EventStream, boolean)} will
    * update the underlying event stream and keep the timestamp the stream has skipped to, so the
-   * next {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call will
-   * return sample data from the skipped position.
+   * next {@link EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call will return
+   * sample data from the skipped position.
    */
   @Test
   public void skipDataThenUpdateStreamContinueToReadDoNotSkippedMoreThanAvailable() {
@@ -280,8 +280,8 @@ public final class EventSampleStreamTest {
   /**
    * Tests that {@link EventSampleStream#updateEventStream(EventStream, boolean)} will update the
    * underlying event stream, but keep the timestamp the stream has seek to, so the next {@link
-   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call will return sample
-   * data from the seek position.
+   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call will return sample data
+   * from the seek position.
    */
   @Test
   public void seekToUsThenUpdateStreamContinueToReadFromSeekPosition() {
@@ -312,8 +312,8 @@ public final class EventSampleStreamTest {
   /**
    * Tests that {@link EventSampleStream#updateEventStream(EventStream, boolean)} will update the
    * underlying event stream, but keep the timestamp the stream has seek to, so the next {@link
-   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)} call will return sample
-   * data from the seek position.
+   * EventSampleStream#readData(FormatHolder, DecoderInputBuffer, int)} call will return sample data
+   * from the seek position.
    */
   @Test
   public void seekToThenUpdateStreamContinueToReadFromSeekPositionEvenSeekMoreThanAvailable() {
@@ -343,7 +343,7 @@ public final class EventSampleStreamTest {
 
   private int readData(EventSampleStream sampleStream) {
     inputBuffer.clear();
-    return sampleStream.readData(formatHolder, inputBuffer, false);
+    return sampleStream.readData(formatHolder, inputBuffer, /* readFlags= */ 0);
   }
 
   private EventMessage newEventMessageWithId(int id) {

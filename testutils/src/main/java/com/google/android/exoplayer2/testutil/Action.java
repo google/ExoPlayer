@@ -701,6 +701,7 @@ public abstract class Action {
                           blockPlaybackThreadCondition.open();
                         });
                 try {
+                  player.getClock().onThreadBlocked();
                   blockPlaybackThreadCondition.block();
                 } catch (InterruptedException e) {
                   // Ignore.
@@ -728,7 +729,7 @@ public abstract class Action {
     }
   }
 
-  /** Waits for {@link Player.EventListener#onTimelineChanged(Timeline, int)}. */
+  /** Waits for {@link Player.Listener#onTimelineChanged(Timeline, int)}. */
   public static final class WaitForTimelineChanged extends Action {
 
     @Nullable private final Timeline expectedTimeline;
@@ -775,8 +776,8 @@ public abstract class Action {
       if (nextAction == null) {
         return;
       }
-      Player.EventListener listener =
-          new Player.EventListener() {
+      Player.Listener listener =
+          new Player.Listener() {
             @Override
             public void onTimelineChanged(
                 Timeline timeline, @Player.TimelineChangeReason int reason) {
@@ -802,7 +803,10 @@ public abstract class Action {
     }
   }
 
-  /** Waits for {@link Player.EventListener#onPositionDiscontinuity(int)}. */
+  /**
+   * Waits for {@link Player.Listener#onPositionDiscontinuity(Player.PositionInfo,
+   * Player.PositionInfo, int)}.
+   */
   public static final class WaitForPositionDiscontinuity extends Action {
 
     /** @param tag A tag to use for logging. */
@@ -821,9 +825,12 @@ public abstract class Action {
         return;
       }
       player.addListener(
-          new Player.EventListener() {
+          new Player.Listener() {
             @Override
-            public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+            public void onPositionDiscontinuity(
+                Player.PositionInfo oldPosition,
+                Player.PositionInfo newPosition,
+                @Player.DiscontinuityReason int reason) {
               player.removeListener(this);
               nextAction.schedule(player, trackSelector, surface, handler);
             }
@@ -839,7 +846,7 @@ public abstract class Action {
 
   /**
    * Waits for a specified playWhenReady value, returning either immediately or after a call to
-   * {@link Player.EventListener#onPlayWhenReadyChanged(boolean, int)}.
+   * {@link Player.Listener#onPlayWhenReadyChanged(boolean, int)}.
    */
   public static final class WaitForPlayWhenReady extends Action {
 
@@ -868,7 +875,7 @@ public abstract class Action {
         nextAction.schedule(player, trackSelector, surface, handler);
       } else {
         player.addListener(
-            new Player.EventListener() {
+            new Player.Listener() {
               @Override
               public void onPlayWhenReadyChanged(
                   boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
@@ -890,7 +897,7 @@ public abstract class Action {
 
   /**
    * Waits for a specified playback state, returning either immediately or after a call to {@link
-   * Player.EventListener#onPlaybackStateChanged(int)}.
+   * Player.Listener#onPlaybackStateChanged(int)}.
    */
   public static final class WaitForPlaybackState extends Action {
 
@@ -919,7 +926,7 @@ public abstract class Action {
         nextAction.schedule(player, trackSelector, surface, handler);
       } else {
         player.addListener(
-            new Player.EventListener() {
+            new Player.Listener() {
               @Override
               public void onPlaybackStateChanged(@Player.State int playbackState) {
                 if (targetPlaybackState == playbackState) {
@@ -980,7 +987,7 @@ public abstract class Action {
 
   /**
    * Waits for a specified loading state, returning either immediately or after a call to {@link
-   * Player.EventListener#onIsLoadingChanged(boolean)}.
+   * Player.Listener#onIsLoadingChanged(boolean)}.
    */
   public static final class WaitForIsLoading extends Action {
 
@@ -1009,7 +1016,7 @@ public abstract class Action {
         nextAction.schedule(player, trackSelector, surface, handler);
       } else {
         player.addListener(
-            new Player.EventListener() {
+            new Player.Listener() {
               @Override
               public void onIsLoadingChanged(boolean isLoading) {
                 if (targetIsLoading == isLoading) {

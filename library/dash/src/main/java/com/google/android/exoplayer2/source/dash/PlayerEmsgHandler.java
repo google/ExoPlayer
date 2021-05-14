@@ -205,7 +205,8 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     }
   }
 
-  private @Nullable Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
+  @Nullable
+  private Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
     return manifestPublishTimeToExpiryTimeUs.ceilingEntry(publishTimeMs);
   }
 
@@ -360,8 +361,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     private MetadataInputBuffer dequeueSample() {
       buffer.clear();
       int result =
-          sampleQueue.read(
-              formatHolder, buffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+          sampleQueue.read(formatHolder, buffer, /* readFlags= */ 0, /* loadingFinished= */ false);
       if (result == C.RESULT_BUFFER_READ) {
         buffer.flip();
         return buffer;

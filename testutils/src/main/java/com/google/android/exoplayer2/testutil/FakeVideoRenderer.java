@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link FakeRenderer} that supports {@link C#TRACK_TYPE_VIDEO}. */
@@ -33,6 +35,7 @@ public class FakeVideoRenderer extends FakeRenderer {
   private final VideoRendererEventListener.EventDispatcher eventDispatcher;
   private final DecoderCounters decoderCounters;
   private @MonotonicNonNull Format format;
+  @Nullable private Object output;
   private long streamOffsetUs;
   private boolean renderedFirstFrameAfterReset;
   private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
@@ -58,9 +61,7 @@ public class FakeVideoRenderer extends FakeRenderer {
       throws ExoPlaybackException {
     super.onStreamChanged(formats, startPositionUs, offsetUs);
     streamOffsetUs = offsetUs;
-    if (renderedFirstFrameAfterReset) {
-      renderedFirstFrameAfterReset = false;
-    }
+    renderedFirstFrameAfterReset = false;
   }
 
   @Override
@@ -94,18 +95,34 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
+  public void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException {
+    switch (messageType) {
+      case MSG_SET_VIDEO_OUTPUT:
+        output = payload;
+        renderedFirstFrameAfterReset = false;
+        break;
+      default:
+        super.handleMessage(messageType, payload);
+    }
+  }
+
+  @Override
   protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
     boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
     boolean shouldRenderFirstFrame =
-        !renderedFirstFrameAfterEnable
-            ? (getState() == Renderer.STATE_STARTED || mayRenderFirstFrameAfterEnableIfNotStarted)
-            : !renderedFirstFrameAfterReset;
+        output != null
+            && (!renderedFirstFrameAfterEnable
+                ? (getState() == Renderer.STATE_STARTED
+                    || mayRenderFirstFrameAfterEnableIfNotStarted)
+                : !renderedFirstFrameAfterReset);
     shouldProcess |= shouldRenderFirstFrame && playbackPositionUs >= streamOffsetUs;
-    if (shouldProcess && !renderedFirstFrameAfterReset) {
+    @Nullable Object output = this.output;
+    if (shouldProcess && !renderedFirstFrameAfterReset && output != null) {
       @MonotonicNonNull Format format = Assertions.checkNotNull(this.format);
       eventDispatcher.videoSizeChanged(
-          format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio);
-      eventDispatcher.renderedFirstFrame(/* surface= */ null);
+          new VideoSize(
+              format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio));
+      eventDispatcher.renderedFirstFrame(output);
       renderedFirstFrameAfterReset = true;
       renderedFirstFrameAfterEnable = true;
     }

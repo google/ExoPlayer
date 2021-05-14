@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * Default implementation of {@link Allocator}.
- */
+/** Default implementation of {@link Allocator}. */
 public final class DefaultAllocator implements Allocator {
 
   private static final int AVAILABLE_EXTRA_CAPACITY = 100;

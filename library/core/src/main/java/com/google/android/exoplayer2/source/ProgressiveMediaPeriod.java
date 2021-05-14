@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
@@ -40,6 +39,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
+import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -147,7 +147,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource The data source to read the media.
-   * @param extractorsFactory The {@link ExtractorsFactory} to use to read the data source.
+   * @param progressiveMediaExtractor The {@link ProgressiveMediaExtractor} to use to read the data
+   *     source.
    * @param drmSessionManager A {@link DrmSessionManager} to allow DRM interactions.
    * @param drmEventDispatcher A dispatcher to notify of {@link DrmSessionEventListener} events.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
@@ -168,7 +169,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public ProgressiveMediaPeriod(
       Uri uri,
       DataSource dataSource,
-      ExtractorsFactory extractorsFactory,
+      ProgressiveMediaExtractor progressiveMediaExtractor,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
@@ -187,8 +188,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.allocator = allocator;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
-    loader = new Loader("Loader:ProgressiveMediaPeriod");
-    this.progressiveMediaExtractor = new BundledExtractorsAdapter(extractorsFactory);
+    loader = new Loader("ProgressiveMediaPeriod");
+    this.progressiveMediaExtractor = progressiveMediaExtractor;
     loadCondition = new ConditionVariable();
     maybeFinishPrepareRunnable = this::maybeFinishPrepare;
     onContinueLoadingRequestedRunnable =
@@ -478,13 +479,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int sampleQueueIndex,
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
-      boolean formatRequired) {
+      @ReadFlags int readFlags) {
     if (suppressRead()) {
       return C.RESULT_NOTHING_READ;
     }
     maybeNotifyDownstreamFormat(sampleQueueIndex);
     int result =
-        sampleQueues[sampleQueueIndex].read(formatHolder, buffer, formatRequired, loadingFinished);
+        sampleQueues[sampleQueueIndex].read(formatHolder, buffer, readFlags, loadingFinished);
     if (result == C.RESULT_NOTHING_READ) {
       maybeStartDeferredRetry(sampleQueueIndex);
     }
@@ -947,9 +948,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        boolean formatRequired) {
-      return ProgressiveMediaPeriod.this.readData(track, formatHolder, buffer, formatRequired);
+    public int readData(
+        FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+      return ProgressiveMediaPeriod.this.readData(track, formatHolder, buffer, readFlags);
     }
 
     @Override
