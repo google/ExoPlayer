@@ -104,10 +104,10 @@ git checkout release-v2
 ```
 
 Next, add the following to your project's `settings.gradle` file, replacing
-`path/to/exoplayer` with the path to your local copy:
+`/absolute/path/to/exoplayer` with the absolute path to your local copy:
 
 ```gradle
-gradle.ext.exoplayerRoot = 'path/to/exoplayer'
+gradle.ext.exoplayerRoot = '/absolute/path/to/exoplayer'
 gradle.ext.exoplayerModulePrefix = 'exoplayer-'
 apply from: new File(gradle.ext.exoplayerRoot, 'core_settings.gradle')
 ```
