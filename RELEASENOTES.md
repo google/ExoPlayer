@@ -1,34 +1,5 @@
 # Release notes
 
-### dev-v2 (not yet released)
-
-*   Remove deprecated symbols:
-    *   Remove `PlaybackPreparer`. UI components that previously had
-        `setPlaybackPreparer` methods will now call `Player.prepare` by default.
-        If this behavior is sufficient, use of `PlaybackPreparer` can be removed
-        from application code without replacement. For custom preparation logic,
-        replace calls to `setPlaybackPreparer` with calls to
-        `setControlDispatcher` on the same components, passing a
-        `ControlDispatcher` that implements custom preparation logic in
-        `dispatchPrepare`. Extend `DefaultControlDispatcher` to avoid having to
-        implement the other `ControlDispatcher` methods.
-    *   Remove `setRewindIncrementMs` and `setFastForwardIncrementMs` from UI
-        components. Use `setControlDispatcher` on the same components, passing a
-        `DefaultControlDispatcher` built using `DefaultControlDispatcher(long,
-        long)`.
-    *   Remove `PlayerNotificationManager` constructors and `createWith`
-        methods. Use `PlayerNotificationManager.Builder` instead.
-    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
-        `PlayerNotificationManager.Builder.setNotificationListener` instead.
-    *   Remove `PlayerNotificationManager` `setUseNavigationActions` and
-        `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
-        `setUsePreviousAction`, `setUseNextActionInCompactView` and
-        `setUsePreviousActionInCompactView` instead.
-    *   Remove `Format.create` methods. Use `Format.Builder` instead.
-    *   Remove `CastPlayer` specific playlist manipulation methods. Use
-        `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
-        instead.
-
 ### 2.14.0 (2021-05-13)
 
 *   Core Library:
