@@ -386,7 +386,12 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
           cue.buildUpon().setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET).clearWindowColor();
       if (cueText != null) {
         // Remove all spans, regardless of type.
-        strippedCue.setText(cueText.toString());
+        strippedCue.setText(new SpannableString(cueText.toString()));
+        if (cueText instanceof Spanned) {
+          SubtitleViewUtils
+              .preserveJapaneseLanguageFeatures((SpannableString)strippedCue.getText(),
+                  (Spanned) cueText);
+        }
       }
       return strippedCue.build();
     } else if (!applyEmbeddedFontSizes) {

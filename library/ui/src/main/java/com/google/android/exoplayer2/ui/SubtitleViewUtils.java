@@ -16,7 +16,13 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.text.Spannable;
+import android.text.Spanned;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
+import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.SpanUtil;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 
 /** Utility class for subtitle layout logic. */
 /* package */ final class SubtitleViewUtils {
@@ -45,6 +51,28 @@ import com.google.android.exoplayer2.text.Cue;
       case Cue.TYPE_UNSET:
       default:
         return Cue.DIMEN_UNSET;
+    }
+  }
+
+  public static void preserveJapaneseLanguageFeatures(Spannable copy, Spanned original) {
+    RubySpan[] absSpans =
+        original.getSpans(0, original.length(), RubySpan.class);
+    for (RubySpan rubySpan : absSpans) {
+      SpanUtil.addOrReplaceSpan(copy, rubySpan, original.getSpanStart(rubySpan),
+          original.getSpanEnd(rubySpan), original.getSpanFlags(rubySpan));
+    }
+    TextEmphasisSpan[] textEmphasisSpans =
+        original.getSpans(0, original.length(), TextEmphasisSpan.class);
+    for (TextEmphasisSpan textEmphasisSpan : textEmphasisSpans) {
+      SpanUtil.addOrReplaceSpan(copy, textEmphasisSpan, original.getSpanStart(textEmphasisSpan),
+          original.getSpanEnd(textEmphasisSpan), original.getSpanFlags(textEmphasisSpan));
+    }
+    HorizontalTextInVerticalContextSpan[] horizontalTextInVerticalContextSpans =
+        original.getSpans(0, original.length(), HorizontalTextInVerticalContextSpan.class);
+
+    for (HorizontalTextInVerticalContextSpan span : horizontalTextInVerticalContextSpans) {
+      SpanUtil.addOrReplaceSpan(copy, span, original.getSpanStart(span),
+          original.getSpanEnd(span), original.getSpanFlags(span));
     }
   }
 
