@@ -545,7 +545,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         default:
           return false;
       }
-      maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
       if (e.type == ExoPlaybackException.TYPE_RENDERER) {
         @Nullable MediaPeriodHolder readingPeriod = queue.getReadingPeriod();
@@ -571,7 +570,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
-      maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
       ExoPlaybackException error = ExoPlaybackException.createForSource(e);
       @Nullable MediaPeriodHolder playingPeriod = queue.getPlayingPeriod();
@@ -582,14 +580,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Log.e(TAG, "Playback error", error);
       stopInternal(/* forceResetRenderers= */ false, /* acknowledgeStop= */ false);
       playbackInfo = playbackInfo.copyWithPlaybackError(error);
-      maybeNotifyPlaybackInfoChanged();
     } catch (RuntimeException e) {
       ExoPlaybackException error = ExoPlaybackException.createForUnexpected(e);
       Log.e(TAG, "Playback error", error);
       stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
       playbackInfo = playbackInfo.copyWithPlaybackError(error);
-      maybeNotifyPlaybackInfoChanged();
     }
+    maybeNotifyPlaybackInfoChanged();
     return true;
   }
 
