@@ -56,10 +56,6 @@ We do not recommend configuring your license server to behave in this way. It
 requires extra license requests to play multi-key content, which is less
 efficient and robust than the alternative described above.
 
-{% include known-issue-box.html issue-id="4133" description="When using this
-license server configuration, there may be a slight pause in playback when
-adapting between streams that use different keys." %}
-
 ### Offline keys ###
 
 An offline key set can be loaded by passing the key set ID to
