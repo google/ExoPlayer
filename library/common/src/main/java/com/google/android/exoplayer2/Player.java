@@ -581,6 +581,33 @@ public interface Player {
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
 
+      @Command
+      private static final int[] SUPPORTED_COMMANDS = {
+        COMMAND_PLAY_PAUSE,
+        COMMAND_PREPARE_STOP,
+        COMMAND_SEEK_TO_DEFAULT_POSITION,
+        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+        COMMAND_SEEK_TO_MEDIA_ITEM,
+        COMMAND_SET_SPEED_AND_PITCH,
+        COMMAND_SET_SHUFFLE_MODE,
+        COMMAND_SET_REPEAT_MODE,
+        COMMAND_GET_CURRENT_MEDIA_ITEM,
+        COMMAND_GET_MEDIA_ITEMS,
+        COMMAND_GET_MEDIA_ITEMS_METADATA,
+        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_GET_AUDIO_ATTRIBUTES,
+        COMMAND_GET_VOLUME,
+        COMMAND_GET_DEVICE_VOLUME,
+        COMMAND_SET_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_SET_VIDEO_SURFACE,
+        COMMAND_GET_TEXT
+      };
+
       private final ExoFlags.Builder flagsBuilder;
 
       /** Creates a builder. */
@@ -639,6 +666,17 @@ public interface Player {
        */
       public Builder addAll(Commands commands) {
         flagsBuilder.addAll(commands.flags);
+        return this;
+      }
+
+      /**
+       * Adds all existing {@link Command commands}.
+       *
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAllCommands() {
+        flagsBuilder.addAll(SUPPORTED_COMMANDS);
         return this;
       }
 
