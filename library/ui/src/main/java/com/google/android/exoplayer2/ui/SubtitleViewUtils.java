@@ -17,9 +17,15 @@
 package com.google.android.exoplayer2.ui;
 
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.RelativeSizeSpan;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
+import com.google.android.exoplayer2.text.span.LanguageFeatureStyle;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.text.span.SpanUtil;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
@@ -54,26 +60,42 @@ import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
     }
   }
 
-  public static void preserveJapaneseLanguageFeatures(Spannable copy, Spanned original) {
-    RubySpan[] absSpans =
-        original.getSpans(0, original.length(), RubySpan.class);
-    for (RubySpan rubySpan : absSpans) {
-      SpanUtil.addOrReplaceSpan(copy, rubySpan, original.getSpanStart(rubySpan),
-          original.getSpanEnd(rubySpan), original.getSpanFlags(rubySpan));
+  /**
+   * Returns a cue object with the specified styling removed
+   * @param cue - Cue object that contains all the styling information
+   * @param applyEmbeddedStyles - if true, styles embedded within the cues should be applied
+   * @param applyEmbeddedFontSizes - if true, font sizes embedded within the cues should be applied.
+   *                               Only takes effect if setApplyEmbeddedStyles is true
+   *                               See {@link SubtitleView#setApplyEmbeddedStyles}
+   * @return New cue object with the specified styling removed
+   */
+  @NonNull
+  static Cue removeEmbeddedStyling(@NonNull Cue cue, boolean applyEmbeddedStyles,
+      boolean applyEmbeddedFontSizes) {
+    @Nullable CharSequence cueText = cue.text;
+    if (cueText != null && (!applyEmbeddedStyles || !applyEmbeddedFontSizes)) {
+      Cue.Builder strippedCue = cue.buildUpon().setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET);
+      if (!applyEmbeddedStyles) {
+        strippedCue.clearWindowColor();
+      }
+      if (cueText instanceof Spanned) {
+        SpannableString spannable = SpannableString.valueOf(cueText);
+        Object[] spans = spannable.getSpans(0, spannable.length(), Object.class);
+        for (Object span : spans) {
+          if (span instanceof LanguageFeatureStyle) {
+            continue;
+          }
+          // applyEmbeddedFontSizes should only be applied if applyEmbeddedStyles is true
+          if (!applyEmbeddedStyles || span instanceof AbsoluteSizeSpan
+              || span instanceof RelativeSizeSpan) {
+            spannable.removeSpan(span);
+          }
+        }
+        strippedCue.setText(spannable);
+      }
+      return strippedCue.build();
     }
-    TextEmphasisSpan[] textEmphasisSpans =
-        original.getSpans(0, original.length(), TextEmphasisSpan.class);
-    for (TextEmphasisSpan textEmphasisSpan : textEmphasisSpans) {
-      SpanUtil.addOrReplaceSpan(copy, textEmphasisSpan, original.getSpanStart(textEmphasisSpan),
-          original.getSpanEnd(textEmphasisSpan), original.getSpanFlags(textEmphasisSpan));
-    }
-    HorizontalTextInVerticalContextSpan[] horizontalTextInVerticalContextSpans =
-        original.getSpans(0, original.length(), HorizontalTextInVerticalContextSpan.class);
-
-    for (HorizontalTextInVerticalContextSpan span : horizontalTextInVerticalContextSpans) {
-      SpanUtil.addOrReplaceSpan(copy, span, original.getSpanStart(span),
-          original.getSpanEnd(span), original.getSpanFlags(span));
-    }
+    return cue;
   }
 
   private SubtitleViewUtils() {}

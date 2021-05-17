@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.text.span.LanguageFeatureStyle;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -374,47 +375,9 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     }
     List<Cue> strippedCues = new ArrayList<>(cues.size());
     for (int i = 0; i < cues.size(); i++) {
-      strippedCues.add(removeEmbeddedStyling(cues.get(i)));
+      strippedCues.add(SubtitleViewUtils
+          .removeEmbeddedStyling(cues.get(i), applyEmbeddedStyles, applyEmbeddedFontSizes));
     }
     return strippedCues;
-  }
-
-  private Cue removeEmbeddedStyling(Cue cue) {
-    @Nullable CharSequence cueText = cue.text;
-    if (!applyEmbeddedStyles) {
-      Cue.Builder strippedCue =
-          cue.buildUpon().setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET).clearWindowColor();
-      if (cueText != null) {
-        // Remove all spans, regardless of type.
-        strippedCue.setText(new SpannableString(cueText.toString()));
-        if (cueText instanceof Spanned) {
-          SubtitleViewUtils
-              .preserveJapaneseLanguageFeatures((SpannableString)strippedCue.getText(),
-                  (Spanned) cueText);
-        }
-      }
-      return strippedCue.build();
-    } else if (!applyEmbeddedFontSizes) {
-      if (cueText == null) {
-        return cue;
-      }
-      Cue.Builder strippedCue = cue.buildUpon().setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET);
-      if (cueText instanceof Spanned) {
-        SpannableString spannable = SpannableString.valueOf(cueText);
-        AbsoluteSizeSpan[] absSpans =
-            spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class);
-        for (AbsoluteSizeSpan absSpan : absSpans) {
-          spannable.removeSpan(absSpan);
-        }
-        RelativeSizeSpan[] relSpans =
-            spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class);
-        for (RelativeSizeSpan relSpan : relSpans) {
-          spannable.removeSpan(relSpan);
-        }
-        strippedCue.setText(spannable);
-      }
-      return strippedCue.build();
-    }
-    return cue;
   }
 }
