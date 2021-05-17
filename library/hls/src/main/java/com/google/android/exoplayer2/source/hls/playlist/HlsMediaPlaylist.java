@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -392,8 +395,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   /** The type of the playlist. See {@link PlaylistType}. */
   @PlaylistType public final int playlistType;
   /**
-   * The start offset in microseconds, as defined by #EXT-X-START, or {@link C#TIME_UNSET} if
-   * undefined.
+   * The start offset in microseconds from the beginning of the playlist, as defined by
+   * #EXT-X-START, or {@link C#TIME_UNSET} if undefined. The value is guaranteed to be between 0 and
+   * {@link #durationUs}, inclusive.
    */
   public final long startOffsetUs;
   /** Whether the start position should be precise, as defined by #EXT-X-START. */
@@ -513,10 +517,15 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     } else {
       durationUs = 0;
     }
+    // From RFC 8216, section 4.4.2.2: If startOffsetUs is negative, it indicates the offset from
+    // the end of the playlist. If the absolute value exceeds the duration of the playlist, it
+    // indicates the beginning (if negative) or the end (if positive) of the playlist.
     this.startOffsetUs =
         startOffsetUs == C.TIME_UNSET
             ? C.TIME_UNSET
-            : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+            : startOffsetUs >= 0
+                ? min(durationUs, startOffsetUs)
+                : max(0, durationUs + startOffsetUs);
     this.serverControl = serverControl;
   }
 
