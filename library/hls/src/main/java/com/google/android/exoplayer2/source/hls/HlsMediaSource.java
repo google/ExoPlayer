@@ -583,15 +583,12 @@ public final class HlsMediaSource extends BaseMediaSource
     if (playlist.startOffsetUs == C.TIME_UNSET || playlist.segments.isEmpty()) {
       windowDefaultStartPositionUs = 0;
     } else {
-      // From RFC 8216, section 4.4.2.2: if playlist.startOffsetUs is negative, it indicates the
-      // beginning of the Playlist, whereas if it is beyond the playlist duration it indicates the
-      // end of the playlist.
-      long startOffsetUs = Util.constrainValue(playlist.startOffsetUs, 0, playlist.durationUs);
-      if (playlist.preciseStart || startOffsetUs == playlist.durationUs) {
-        windowDefaultStartPositionUs = startOffsetUs;
+      if (playlist.preciseStart || playlist.startOffsetUs == playlist.durationUs) {
+        windowDefaultStartPositionUs = playlist.startOffsetUs;
       } else {
         windowDefaultStartPositionUs =
-            findClosestPrecedingSegment(playlist.segments, startOffsetUs).relativeStartTimeUs;
+            findClosestPrecedingSegment(playlist.segments, playlist.startOffsetUs)
+                .relativeStartTimeUs;
       }
     }
     return new SinglePeriodTimeline(
@@ -617,17 +614,16 @@ public final class HlsMediaSource extends BaseMediaSource
 
   private long getLiveWindowDefaultStartPositionUs(
       HlsMediaPlaylist playlist, long liveEdgeOffsetUs) {
-    if (playlist.startOffsetUs != C.TIME_UNSET && playlist.preciseStart) {
-      // From RFC 8216, section 4.4.2.2: if playlist.startOffsetUs is negative, it indicates the
-      // beginning of the Playlist, whereas if it is beyond the playlist duration it indicates the
-      // end of the playlist.
-      return Util.constrainValue(playlist.startOffsetUs, 0, playlist.durationUs);
+    long startPositionUs =
+        playlist.startOffsetUs != C.TIME_UNSET
+            ? playlist.startOffsetUs
+            : playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
+    if (playlist.preciseStart) {
+      return startPositionUs;
     }
-    long maxStartPositionUs =
-        playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
     @Nullable
     HlsMediaPlaylist.Part part =
-        findClosestPrecedingIndependentPart(playlist.trailingParts, maxStartPositionUs);
+        findClosestPrecedingIndependentPart(playlist.trailingParts, startPositionUs);
     if (part != null) {
       return part.relativeStartTimeUs;
     }
@@ -635,8 +631,8 @@ public final class HlsMediaSource extends BaseMediaSource
       return 0;
     }
     HlsMediaPlaylist.Segment segment =
-        findClosestPrecedingSegment(playlist.segments, maxStartPositionUs);
-    part = findClosestPrecedingIndependentPart(segment.parts, maxStartPositionUs);
+        findClosestPrecedingSegment(playlist.segments, startPositionUs);
+    part = findClosestPrecedingIndependentPart(segment.parts, startPositionUs);
     if (part != null) {
       return part.relativeStartTimeUs;
     }
@@ -671,11 +667,7 @@ public final class HlsMediaSource extends BaseMediaSource
     HlsMediaPlaylist.ServerControl serverControl = playlist.serverControl;
     long targetOffsetUs;
     if (playlist.startOffsetUs != C.TIME_UNSET) {
-      // From RFC 8216, section 4.4.2.2: if playlist.startOffsetUs is negative, it indicates the
-      // beginning of the Playlist, whereas if it is beyond the playlist duration it indicates the
-      // end of the playlist.
-      long startOffsetUs = Util.constrainValue(playlist.startOffsetUs, 0, playlist.durationUs);
-      targetOffsetUs = playlist.durationUs - startOffsetUs;
+      targetOffsetUs = playlist.durationUs - playlist.startOffsetUs;
     } else if (serverControl.partHoldBackUs != C.TIME_UNSET
         && playlist.partTargetDurationUs != C.TIME_UNSET) {
       // Select part hold back only if the playlist has a part target duration.
@@ -705,8 +697,8 @@ public final class HlsMediaSource extends BaseMediaSource
   }
 
   /**
-   * Gets the segment that contains {@code positionUs}, or the last sent if the position is beyond
-   * the segments list.
+   * Gets the segment that contains {@code positionUs}, or the last segment if the position is
+   * beyond the segments list.
    */
   private static HlsMediaPlaylist.Segment findClosestPrecedingSegment(
       List<HlsMediaPlaylist.Segment> segments, long positionUs) {
