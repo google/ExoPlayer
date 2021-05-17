@@ -841,9 +841,9 @@ public final class MediaCodecUtil {
   /**
    * Conversion values taken from ISO 14496-10 Table A-1.
    *
-   * @param avcLevel one of CodecProfileLevel.AVCLevel* constants.
-   * @return maximum frame size that can be decoded by a decoder with the specified avc level
-   *     (or {@code -1} if the level is not recognized)
+   * @param avcLevel One of the {@link CodecProfileLevel} {@code AVCLevel*} constants.
+   * @return The maximum frame size that can be decoded by a decoder with the specified AVC level,
+   *     or {@code -1} if the level is not recognized.
    */
   private static int avcLevelToMaxFrameSize(int avcLevel) {
     switch (avcLevel) {
@@ -873,6 +873,10 @@ public final class MediaCodecUtil {
       case CodecProfileLevel.AVCLevel51:
       case CodecProfileLevel.AVCLevel52:
         return 36864 * 16 * 16;
+      case CodecProfileLevel.AVCLevel6:
+      case CodecProfileLevel.AVCLevel61:
+      case CodecProfileLevel.AVCLevel62:
+        return 139264 * 16 * 16;
       default:
         return -1;
     }
