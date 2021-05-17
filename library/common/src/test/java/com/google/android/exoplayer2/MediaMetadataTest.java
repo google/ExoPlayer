@@ -23,7 +23,9 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -91,14 +93,35 @@ public class MediaMetadataTest {
   }
 
   @Test
-  public void builderPopulatedFromTextInformationFrameEntry_setsTitle() {
+  public void builderPopulatedFromTextInformationFrameEntry_setsValues() {
     String title = "the title";
-    Metadata.Entry entry =
-        new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title);
+    String artist = "artist";
+    String albumTitle = "album title";
+    String albumArtist = "album Artist";
+    String trackNumberInfo = "11/17";
+
+    List<Metadata.Entry> entries =
+        ImmutableList.of(
+            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title),
+            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ artist),
+            new TextInformationFrame(
+                /* id= */ "TAL", /* description= */ null, /* value= */ albumTitle),
+            new TextInformationFrame(
+                /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
+            new TextInformationFrame(
+                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
-    entry.populateMediaMetadata(builder);
+    for (Metadata.Entry entry : entries) {
+      entry.populateMediaMetadata(builder);
+    }
+
     assertThat(builder.build().title.toString()).isEqualTo(title);
+    assertThat(builder.build().artist.toString()).isEqualTo(artist);
+    assertThat(builder.build().albumTitle.toString()).isEqualTo(albumTitle);
+    assertThat(builder.build().albumArtist.toString()).isEqualTo(albumArtist);
+    assertThat(builder.build().trackNumber).isEqualTo(11);
+    assertThat(builder.build().totalTrackCount).isEqualTo(17);
   }
 
   @Test

@@ -49,6 +49,8 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Rating overallRating;
     @Nullable private byte[] artworkData;
     @Nullable private Uri artworkUri;
+    @Nullable private Integer trackNumber;
+    @Nullable private Integer totalTrackCount;
 
     public Builder() {}
 
@@ -65,6 +67,8 @@ public final class MediaMetadata implements Bundleable {
       this.overallRating = mediaMetadata.overallRating;
       this.artworkData = mediaMetadata.artworkData;
       this.artworkUri = mediaMetadata.artworkUri;
+      this.trackNumber = mediaMetadata.trackNumber;
+      this.totalTrackCount = mediaMetadata.totalTrackCount;
     }
 
     /** Sets the title. */
@@ -143,6 +147,18 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Sets the track number. */
+    public Builder setTrackNumber(@Nullable Integer trackNumber) {
+      this.trackNumber = trackNumber;
+      return this;
+    }
+
+    /** Sets the total number of tracks. */
+    public Builder setTotalTrackCount(@Nullable Integer totalTrackCount) {
+      this.totalTrackCount = totalTrackCount;
+      return this;
+    }
+
     /**
      * Sets all fields supported by the {@link Metadata.Entry entries} within the {@link Metadata}.
      *
@@ -218,6 +234,10 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final byte[] artworkData;
   /** Optional artwork {@link Uri}. */
   @Nullable public final Uri artworkUri;
+  /** Optional track number. */
+  @Nullable public final Integer trackNumber;
+  /** Optional total number of tracks. */
+  @Nullable public final Integer totalTrackCount;
 
   private MediaMetadata(Builder builder) {
     this.title = builder.title;
@@ -232,6 +252,8 @@ public final class MediaMetadata implements Bundleable {
     this.overallRating = builder.overallRating;
     this.artworkData = builder.artworkData;
     this.artworkUri = builder.artworkUri;
+    this.trackNumber = builder.trackNumber;
+    this.totalTrackCount = builder.totalTrackCount;
   }
 
   /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
@@ -259,7 +281,9 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(userRating, that.userRating)
         && Util.areEqual(overallRating, that.overallRating)
         && Arrays.equals(artworkData, that.artworkData)
-        && Util.areEqual(artworkUri, that.artworkUri);
+        && Util.areEqual(artworkUri, that.artworkUri)
+        && Util.areEqual(trackNumber, that.trackNumber)
+        && Util.areEqual(totalTrackCount, that.totalTrackCount);
   }
 
   @Override
@@ -276,7 +300,9 @@ public final class MediaMetadata implements Bundleable {
         userRating,
         overallRating,
         Arrays.hashCode(artworkData),
-        artworkUri);
+        artworkUri,
+        trackNumber,
+        totalTrackCount);
   }
 
   // Bundleable implementation.
@@ -295,7 +321,9 @@ public final class MediaMetadata implements Bundleable {
     FIELD_USER_RATING,
     FIELD_OVERALL_RATING,
     FIELD_ARTWORK_DATA,
-    FIELD_ARTWORK_URI
+    FIELD_ARTWORK_URI,
+    FIELD_TRACK_NUMBER,
+    FIELD_TOTAL_TRACK_COUNT
   })
   private @interface FieldNumber {}
 
@@ -311,6 +339,8 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_OVERALL_RATING = 9;
   private static final int FIELD_ARTWORK_DATA = 10;
   private static final int FIELD_ARTWORK_URI = 11;
+  private static final int FIELD_TRACK_NUMBER = 12;
+  private static final int FIELD_TOTAL_TRACK_COUNT = 13;
 
   @Override
   public Bundle toBundle() {
@@ -332,7 +362,12 @@ public final class MediaMetadata implements Bundleable {
     if (overallRating != null) {
       bundle.putBundle(keyForField(FIELD_OVERALL_RATING), overallRating.toBundle());
     }
-
+    if (trackNumber != null) {
+      bundle.putInt(keyForField(FIELD_TRACK_NUMBER), trackNumber);
+    }
+    if (totalTrackCount != null) {
+      bundle.putInt(keyForField(FIELD_TOTAL_TRACK_COUNT), totalTrackCount);
+    }
     return bundle;
   }
 
@@ -364,6 +399,12 @@ public final class MediaMetadata implements Bundleable {
       if (fieldBundle != null) {
         builder.setOverallRating(Rating.CREATOR.fromBundle(fieldBundle));
       }
+    }
+    if (bundle.containsKey(keyForField(FIELD_TRACK_NUMBER))) {
+      builder.setTrackNumber(bundle.getInt(keyForField(FIELD_TRACK_NUMBER)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_TOTAL_TRACK_COUNT))) {
+      builder.setTotalTrackCount(bundle.getInt(keyForField(FIELD_TOTAL_TRACK_COUNT)));
     }
 
     return builder.build();
