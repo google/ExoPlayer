@@ -36,7 +36,7 @@ public class PlaybackExceptionTest {
             /* cause= */ new IOException(/* message= */ "io"),
             PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
     PlaybackException after = PlaybackException.CREATOR.fromBundle(before.toBundle());
-    assertPlaybackExceptionsAreEqual(before, after);
+    assertPlaybackExceptionsAreEquivalent(before, after);
   }
 
   // Backward compatibility tests.
@@ -60,7 +60,7 @@ public class PlaybackExceptionTest {
     bundle.putString("3", expectedCause.getClass().getName());
     bundle.putString("4", "cause message");
 
-    assertPlaybackExceptionsAreEqual(
+    assertPlaybackExceptionsAreEquivalent(
         expectedException, PlaybackException.CREATOR.fromBundle(bundle));
   }
 
@@ -99,13 +99,14 @@ public class PlaybackExceptionTest {
     bundle.putString("3", "invalid cause class name");
     bundle.putString("4", "cause message");
 
-    assertPlaybackExceptionsAreEqual(
+    assertPlaybackExceptionsAreEquivalent(
         expectedException, PlaybackException.CREATOR.fromBundle(bundle));
   }
 
   // Internal methods.
 
-  private static void assertPlaybackExceptionsAreEqual(PlaybackException a, PlaybackException b) {
+  private static void assertPlaybackExceptionsAreEquivalent(
+      PlaybackException a, PlaybackException b) {
     assertThat(a).hasMessageThat().isEqualTo(b.getMessage());
     assertThat(a.errorCode).isEqualTo(b.errorCode);
     assertThat(a.timestampMs).isEqualTo(b.timestampMs);
