@@ -255,12 +255,26 @@ public class ForwardingPlayerTest {
   }
 
   @Test
+  public void forwardingPlayer_overridesAllPlayerMethods() throws Exception {
+    // Check with reflection that ForwardingPlayer overrides all Player methods.
+    List<Method> playerMethods = getPublicMethods(Player.class);
+    for (int i = 0; i < playerMethods.size(); i++) {
+      Method method = playerMethods.get(i);
+      assertThat(
+              ForwardingPlayer.class.getDeclaredMethod(
+                  method.getName(), method.getParameterTypes()))
+          .isNotNull();
+    }
+  }
+
+  @Test
   public void forwardingListener_overridesAllListenerMethods() throws Exception {
     // Check with reflection that ForwardingListener in ForwardingPlayer overrides all Listener
     // methods.
     Class<?> forwardingListenerClass = getNestedClass("ForwardingListener");
     List<Method> publicListenerMethods = getPublicMethods(Player.Listener.class);
-    for (Method method : publicListenerMethods) {
+    for (int i = 0; i < publicListenerMethods.size(); i++) {
+      Method method = publicListenerMethods.get(i);
       assertThat(
               forwardingListenerClass.getDeclaredMethod(
                   method.getName(), method.getParameterTypes()))
@@ -274,7 +288,8 @@ public class ForwardingPlayerTest {
     // EventListener methods.
     Class<?> listenerWrapperClass = getNestedClass("EventListenerWrapper");
     List<Method> publicListenerMethods = getPublicMethods(Player.EventListener.class);
-    for (Method method : publicListenerMethods) {
+    for (int i = 0; i < publicListenerMethods.size(); i++) {
+      Method method = publicListenerMethods.get(i);
       assertThat(
               listenerWrapperClass.getDeclaredMethod(method.getName(), method.getParameterTypes()))
           .isNotNull();
