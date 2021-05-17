@@ -217,8 +217,8 @@ status lines correctly.
 
 #### How can I query whether the stream being played is a live stream? ####
 
-You can query ExoPlayer's [`isCurrentWindowLive`][] method. In addition, you can
-check [`isCurrentWindowDynamic`][] to find out whether the window is dynamic
+You can query the player's [`isCurrentWindowLive`][] method. In addition, you
+can check [`isCurrentWindowDynamic`][] to find out whether the window is dynamic
 (i.e., still updating over time).
 
 #### How do I keep audio playing when my app is backgrounded? ####
@@ -315,28 +315,28 @@ is the official way to play YouTube videos on Android.
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [set on a `DefaultExtractorsFactory`]: {{ site.base_url }}/customization.html#customizing-extractor-flags
-[`setMp3ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
+[`setMp3ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags(int)
 [`FLAG_ENABLE_INDEX_SEEKING`]: {{ site.exo_sdk }}/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_INDEX_SEEKING
 [`FLAG_DETECT_ACCESS_UNITS`]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
 [`FLAG_ALLOW_NON_IDR_KEYFRAMES`]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
-[`setTsExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
+[`setTsExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags(int)
 [`Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`]: {{ site.exo_sdk }}/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
 [`FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`]: {{ site.exo_sdk }}/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
-[`setMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
-[`setFragmentedMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
+[`setMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags(int)
+[`setFragmentedMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags(int)
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
 [`DefaultHttpDataSourceFactory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSourceFactory.html
 [ExoPlayer module]: {{ site.base_url }}/hello-world.html#add-exoplayer-modules
 [issue tracker]: https://github.com/google/ExoPlayer/issues
-[`isCurrentWindowLive`]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowLive--
-[`isCurrentWindowDynamic`]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowDynamic--
-[`setPlaybackParameters`]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
+[`isCurrentWindowLive`]: {{ site.exo_sdk }}/Player.html#isCurrentWindowLive()
+[`isCurrentWindowDynamic`]: {{ site.exo_sdk }}/Player.html#isCurrentWindowDynamic()
+[`setPlaybackParameters`]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
 [`WifiLock`]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
 [`WakeLock`]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
 [`SimpleExoPlayer`]: {{ site.exo_sdk }}/SimpleExoPlayer.html
-[`setWakeMode`]: {{ site.exo_sdk }}/SimpleExoPlayer.html#setWakeMode-int-
+[`setWakeMode`]: {{ site.exo_sdk }}/SimpleExoPlayer.html#setWakeMode(int)
 [A note on threading]: {{ site.base_url }}/hello-world.html#a-note-on-threading
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
 [CORS enabled]: https://www.w3.org/wiki/CORS_Enabled

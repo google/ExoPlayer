@@ -249,5 +249,5 @@ specified using the `controller_layout_id` attribute:
 [`StyledPlayerView`]: {{ site.exo_sdk }}/ui/StyledPlayerView.html
 [`StyledPlayerControlView`]: {{ site.exo_sdk }}/ui/StyledPlayerControlView.html
 [`SDK_INT`]: {{ site.android_sdk }}/android/os/Build.VERSION.html#SDK_INT
-[`Util.getCurrentDisplayModeSize`]: {{ site.exo_sdk }}/util/Util.html#getCurrentDisplayModeSize-android.content.Context-
+[`Util.getCurrentDisplayModeSize`]: {{ site.exo_sdk }}/util/Util.html#getCurrentDisplayModeSize(android.content.Context)
 [`Display.getSize`]: {{ site.android_sdk }}/android/view/Display.html#getSize(android.graphics.Point)
