@@ -9,6 +9,9 @@
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
         `MediaItem.PlaybackProperties.tag` instead.
+    *   Remove `Player.Listener.onTimelineChanged(Timeline, Object, int)`. Use
+        `Player.Listener.onTimelineChanged(Timeline, int)` instead. The manifest
+        can be accessed using `Player.getCurrentManifest`.
     *   Remove `PlaybackPreparer`. UI components that previously had
         `setPlaybackPreparer` methods will now call `Player.prepare` by default.
         If this behavior is sufficient, use of `PlaybackPreparer` can be removed

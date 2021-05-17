@@ -97,15 +97,6 @@ public interface Player {
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
 
     /**
-     * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
-     *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
-     *     window).manifest} for a given window index.
-     */
-    @Deprecated
-    default void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
-
-    /**
      * Called when playback transitions to a media item or starts repeating a media item according
      * to the current {@link #getRepeatMode() repeat mode}.
      *

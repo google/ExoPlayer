@@ -1233,16 +1233,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> {
-            @Nullable Object manifest = null;
-            if (newPlaybackInfo.timeline.getWindowCount() == 1) {
-              // Legacy behavior was to report the manifest for single window timelines only.
-              Timeline.Window window = new Timeline.Window();
-              manifest = newPlaybackInfo.timeline.getWindow(0, window).manifest;
-            }
-            listener.onTimelineChanged(newPlaybackInfo.timeline, manifest, timelineChangeReason);
-            listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason);
-          });
+          listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
     }
     if (positionDiscontinuity) {
       PositionInfo previousPositionInfo =

@@ -741,15 +741,6 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
-      listeners.sendEvent(
-          EVENT_TIMELINE_CHANGED,
-          listener -> listener.onTimelineChanged(timeline, manifest, reason));
-    }
-
-    @Override
     public void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
       listeners.sendEvent(
@@ -905,13 +896,6 @@ public class ForwardingPlayer implements Player {
     }
 
     // EventListener callbacks
-
-    @Override
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
-      listener.onTimelineChanged(timeline, manifest, reason);
-    }
 
     @Override
     public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {

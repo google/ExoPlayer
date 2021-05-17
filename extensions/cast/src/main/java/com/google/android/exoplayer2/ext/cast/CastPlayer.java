@@ -804,11 +804,8 @@ public final class CastPlayer extends BasePlayer {
       // Call onTimelineChanged.
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> {
-            listener.onTimelineChanged(
-                timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-            listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-          });
+          listener ->
+              listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
 
       // Call onPositionDiscontinuity if required.
       Timeline currentTimeline = getCurrentTimeline();
