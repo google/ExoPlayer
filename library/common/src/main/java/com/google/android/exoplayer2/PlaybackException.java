@@ -112,11 +112,11 @@ public class PlaybackException extends Exception implements Bundleable {
   // Content parsing errors (3xxx).
 
   /**
-   * Caused by a parsing error associated to a media manifest. Examples of a media manifest are a
+   * Caused by a parsing error associated with a media manifest. Examples of a media manifest are a
    * DASH or a SmoothStreaming manifest, or an HLS playlist.
    */
   public static final int ERROR_CODE_PARSING_MANIFEST_MALFORMED = 3001;
-  /** Caused by a parsing error associated to a media container format bitstream. */
+  /** Caused by a parsing error associated with a media container format bitstream. */
   public static final int ERROR_CODE_PARSING_CONTAINER_MALFORMED = 3002;
   /**
    * Caused by attempting to extract a file with an unsupported media container format, or an
