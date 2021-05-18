@@ -2,6 +2,10 @@
 
 ### 2.14.0 (not yet released)
 
+*   Core Library:
+    *   Fix gradle config to allow specifying a relative path for
+        `exoplayerRoot` when [depending on ExoPlayer locally](README.md#locally)
+        ([#8927](https://github.com/google/ExoPlayer/issues/8927)).
 *   Extractors:
     *   Add support for MPEG-H 3D Audio in MP4 extractors
         ([#8860](https://github.com/google/ExoPlayer/pull/8860)).
