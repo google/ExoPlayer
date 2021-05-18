@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.ads;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.common.collect.ObjectArrays.concat;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -508,25 +507,48 @@ public final class AdPlaybackState implements Bundleable {
   }
 
   /**
-   * Returns an instance with the specified ad group times.
+   * Returns an instance with the specified ad group time.
    *
-   * <p>If the number of ad groups differs, ad groups are either removed or empty ad groups are
-   * added.
-   *
-   * @param adGroupTimesUs The new ad group times, in microseconds.
+   * @param adGroupIndex The index of the ad group.
+   * @param adGroupTimeUs The new ad group time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
+   *     indicate a postroll ad.
    * @return The updated ad playback state.
    */
   @CheckResult
-  public AdPlaybackState withAdGroupTimesUs(long... adGroupTimesUs) {
-    AdGroup[] adGroups =
-        adGroupTimesUs.length < adGroupCount
-            ? Util.nullSafeArrayCopy(this.adGroups, adGroupTimesUs.length)
-            : adGroupTimesUs.length == adGroupCount
-                ? this.adGroups
-                : concat(
-                    this.adGroups,
-                    createEmptyAdGroups(adGroupTimesUs.length - adGroupCount),
-                    AdGroup.class);
+  public AdPlaybackState withAdGroupTimeUs(int adGroupIndex, long adGroupTimeUs) {
+    long[] adGroupTimesUs = Arrays.copyOf(this.adGroupTimesUs, this.adGroupCount);
+    adGroupTimesUs[adGroupIndex] = adGroupTimeUs;
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+  }
+
+  /**
+   * Returns an instance with a new ad group.
+   *
+   * @param adGroupIndex The insertion index of the new group.
+   * @param adGroupTimeUs The ad group time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
+   *     indicate a postroll ad.
+   * @return The updated ad playback state.
+   */
+  @CheckResult
+  public AdPlaybackState withNewAdGroup(int adGroupIndex, long adGroupTimeUs) {
+    AdGroup newAdGroup = new AdGroup();
+    AdGroup[] adGroups = Util.nullSafeArrayAppend(this.adGroups, newAdGroup);
+    System.arraycopy(
+        /* src= */ adGroups,
+        /* srcPos= */ adGroupIndex,
+        /* dest= */ adGroups,
+        /* destPos= */ adGroupIndex + 1,
+        /* length= */ adGroupCount - adGroupIndex);
+    adGroups[adGroupIndex] = newAdGroup;
+    long[] adGroupTimesUs = Arrays.copyOf(this.adGroupTimesUs, adGroupCount + 1);
+    System.arraycopy(
+        /* src= */ adGroupTimesUs,
+        /* srcPos= */ adGroupIndex,
+        /* dest= */ adGroupTimesUs,
+        /* destPos= */ adGroupIndex + 1,
+        /* length= */ adGroupCount - adGroupIndex);
+    adGroupTimesUs[adGroupIndex] = adGroupTimeUs;
     return new AdPlaybackState(
         adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
@@ -602,6 +624,18 @@ public final class AdPlaybackState implements Bundleable {
     for (int adGroupIndex = 0; adGroupIndex < adGroupCount; adGroupIndex++) {
       adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdDurationsUs(adDurationUs[adGroupIndex]);
     }
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+  }
+
+  /**
+   * Returns an instance with the specified ad durations, in microseconds, in the specified ad
+   * group.
+   */
+  @CheckResult
+  public AdPlaybackState withAdDurationsUs(int adGroupIndex, long... adDurationsUs) {
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdDurationsUs(adDurationsUs);
     return new AdPlaybackState(
         adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }

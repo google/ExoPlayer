@@ -10479,8 +10479,9 @@ public final class ExoPlayerTest {
                 /* durationUs= */ C.TIME_UNSET,
                 initialAdPlaybackState));
     AdPlaybackState updatedAdPlaybackState =
-        initialAdPlaybackState.withAdGroupTimesUs(
-            /* adGroupTimesUs...= */ firstSampleTimeUs + 18 * C.MICROS_PER_SECOND);
+        initialAdPlaybackState.withAdGroupTimeUs(
+            /* adGroupIndex= */ 0,
+            /* adGroupTimeUs= */ firstSampleTimeUs + 18 * C.MICROS_PER_SECOND);
     Timeline updatedTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(

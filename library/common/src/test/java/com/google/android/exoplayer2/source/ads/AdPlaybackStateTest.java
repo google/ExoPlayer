@@ -73,35 +73,58 @@ public class AdPlaybackStateTest {
   }
 
   @Test
-  public void withAdGroupTimesUs_removingGroups_keepsRemainingGroups() {
-    AdPlaybackState state =
-        new AdPlaybackState(TEST_ADS_ID, new long[] {0, C.msToUs(10_000)})
-            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2)
-            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1, TEST_URI);
+  public void withAdGroupTimeUs_updatesAdGroupTimeUs() {
+    AdPlaybackState state = new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0, 10_000);
 
-    state = state.withAdGroupTimesUs(new long[] {C.msToUs(3_000)});
+    state =
+        state
+            .withAdGroupTimeUs(/* adGroupIndex= */ 0, 3_000)
+            .withAdGroupTimeUs(/* adGroupIndex= */ 1, 6_000);
 
-    assertThat(state.adGroupCount).isEqualTo(1);
-    assertThat(state.adGroups[0].count).isEqualTo(2);
-    assertThat(state.adGroups[0].uris[1]).isSameInstanceAs(TEST_URI);
+    assertThat(state.adGroupCount).isEqualTo(2);
+    assertThat(state.adGroupTimesUs[0]).isEqualTo(3_000);
+    assertThat(state.adGroupTimesUs[1]).isEqualTo(6_000);
   }
 
   @Test
-  public void withAdGroupTimesUs_addingGroups_keepsExistingGroups() {
+  public void withNewAdGroup_addsGroupAndKeepsExistingGroups() {
     AdPlaybackState state =
-        new AdPlaybackState(TEST_ADS_ID, new long[] {0, C.msToUs(10_000)})
+        new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 3_000, 6_000)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)
             .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1, TEST_URI)
             .withSkippedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0);
 
-    state = state.withAdGroupTimesUs(new long[] {0, C.msToUs(3_000), C.msToUs(20_000)});
+    state =
+        state
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ 1_000)
+            .withNewAdGroup(/* adGroupIndex= */ 2, /* adGroupTimeUs= */ 5_000)
+            .withNewAdGroup(/* adGroupIndex= */ 4, /* adGroupTimeUs= */ 8_000);
 
-    assertThat(state.adGroupCount).isEqualTo(3);
-    assertThat(state.adGroups[0].count).isEqualTo(2);
-    assertThat(state.adGroups[0].uris[1]).isSameInstanceAs(TEST_URI);
-    assertThat(state.adGroups[1].states[0]).isEqualTo(AdPlaybackState.AD_STATE_SKIPPED);
+    assertThat(state.adGroupCount).isEqualTo(5);
+    assertThat(state.adGroups[0].count).isEqualTo(C.INDEX_UNSET);
+    assertThat(state.adGroups[1].count).isEqualTo(2);
+    assertThat(state.adGroups[1].uris[1]).isSameInstanceAs(TEST_URI);
     assertThat(state.adGroups[2].count).isEqualTo(C.INDEX_UNSET);
+    assertThat(state.adGroups[3].count).isEqualTo(1);
+    assertThat(state.adGroups[3].states[0]).isEqualTo(AdPlaybackState.AD_STATE_SKIPPED);
+    assertThat(state.adGroups[4].count).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
+  public void withAdDurationsUs_updatesAdDurations() {
+    AdPlaybackState state =
+        new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0, 10_000)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 2)
+            .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 2)
+            .withAdDurationsUs(new long[][] {new long[] {5_000, 6_000}, new long[] {7_000, 8_000}});
+
+    state = state.withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs...= */ 1_000, 2_000);
+
+    assertThat(state.adGroups[0].durationsUs[0]).isEqualTo(5_000);
+    assertThat(state.adGroups[0].durationsUs[1]).isEqualTo(6_000);
+    assertThat(state.adGroups[1].durationsUs[0]).isEqualTo(1_000);
+    assertThat(state.adGroups[1].durationsUs[1]).isEqualTo(2_000);
   }
 
   @Test
