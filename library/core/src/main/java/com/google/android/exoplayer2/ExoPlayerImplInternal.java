@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -570,16 +571,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
+    } catch (BehindLiveWindowException e) {
+      handleIoException(e, PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW);
     } catch (IOException e) {
-      ExoPlaybackException error = ExoPlaybackException.createForSource(e);
-      @Nullable MediaPeriodHolder playingPeriod = queue.getPlayingPeriod();
-      if (playingPeriod != null) {
-        // We ensure that all IOException throwing methods are only executed for the playing period.
-        error = error.copyWithMediaPeriodId(playingPeriod.info.id);
-      }
-      Log.e(TAG, "Playback error", error);
-      stopInternal(/* forceResetRenderers= */ false, /* acknowledgeStop= */ false);
-      playbackInfo = playbackInfo.copyWithPlaybackError(error);
+      handleIoException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
     } catch (RuntimeException e) {
       ExoPlaybackException error = ExoPlaybackException.createForUnexpected(e);
       Log.e(TAG, "Playback error", error);
@@ -591,6 +586,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   // Private methods.
+
+  private void handleIoException(IOException e, @PlaybackException.ErrorCode int errorCode) {
+    ExoPlaybackException error = ExoPlaybackException.createForSource(e, errorCode);
+    @Nullable MediaPeriodHolder playingPeriod = queue.getPlayingPeriod();
+    if (playingPeriod != null) {
+      // We ensure that all IOException throwing methods are only executed for the playing period.
+      error = error.copyWithMediaPeriodId(playingPeriod.info.id);
+    }
+    Log.e(TAG, "Playback error", error);
+    stopInternal(/* forceResetRenderers= */ false, /* acknowledgeStop= */ false);
+    playbackInfo = playbackInfo.copyWithPlaybackError(error);
+  }
 
   /**
    * Blocks the current thread until a condition becomes true or the specified amount of time has
