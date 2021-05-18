@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
@@ -219,7 +218,7 @@ public final class RtspMessageUtilTest {
 
     assertThat(messageLines).isEqualTo(expectedLines);
     assertThat(RtspMessageUtil.convertMessageToByteArray(messageLines))
-        .isEqualTo(expectedRtspMessage.getBytes(Charsets.UTF_8));
+        .isEqualTo(expectedRtspMessage.getBytes(RtspMessageChannel.CHARSET));
   }
 
   @Test
@@ -252,7 +251,7 @@ public final class RtspMessageUtilTest {
             + "\r\n";
     assertThat(messageLines).isEqualTo(expectedLines);
     assertThat(RtspMessageUtil.convertMessageToByteArray(messageLines))
-        .isEqualTo(expectedRtspMessage.getBytes(Charsets.UTF_8));
+        .isEqualTo(expectedRtspMessage.getBytes(RtspMessageChannel.CHARSET));
   }
 
   @Test
@@ -317,7 +316,7 @@ public final class RtspMessageUtilTest {
 
     assertThat(messageLines).isEqualTo(expectedLines);
     assertThat(RtspMessageUtil.convertMessageToByteArray(messageLines))
-        .isEqualTo(expectedRtspMessage.getBytes(Charsets.UTF_8));
+        .isEqualTo(expectedRtspMessage.getBytes(RtspMessageChannel.CHARSET));
   }
 
   @Test
@@ -334,7 +333,7 @@ public final class RtspMessageUtilTest {
 
     assertThat(RtspMessageUtil.serializeResponse(response)).isEqualTo(expectedLines);
     assertThat(RtspMessageUtil.convertMessageToByteArray(messageLines))
-        .isEqualTo(expectedRtspMessage.getBytes(Charsets.UTF_8));
+        .isEqualTo(expectedRtspMessage.getBytes(RtspMessageChannel.CHARSET));
   }
 
   @Test
