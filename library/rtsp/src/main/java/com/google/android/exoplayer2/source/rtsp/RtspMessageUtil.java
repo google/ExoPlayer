@@ -37,7 +37,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -139,7 +138,7 @@ import java.util.regex.Pattern;
    *     removed.
    */
   public static byte[] convertMessageToByteArray(List<String> message) {
-    return Joiner.on("\r\n").join(message).getBytes(Charsets.UTF_8);
+    return Joiner.on("\r\n").join(message).getBytes(RtspMessageChannel.CHARSET);
   }
 
   /** Removes the user info from the supplied {@link Uri}. */

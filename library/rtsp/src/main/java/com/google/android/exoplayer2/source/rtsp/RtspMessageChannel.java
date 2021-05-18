@@ -40,12 +40,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Sends and receives RTSP messages. */
 /* package */ final class RtspMessageChannel implements Closeable {
+
+  /** RTSP uses UTF-8 (RFC2326 Section 1.1). */
+  public static final Charset CHARSET = Charsets.UTF_8;
 
   private static final String TAG = "RtspMessageChannel";
 
@@ -383,8 +387,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               && lineBytes[lineBytes.length - 2] == Ascii.CR
               && lineBytes[lineBytes.length - 1] == Ascii.LF);
       String line =
-          new String(
-              lineBytes, /* offset= */ 0, /* length= */ lineBytes.length - 2, Charsets.UTF_8);
+          new String(lineBytes, /* offset= */ 0, /* length= */ lineBytes.length - 2, CHARSET);
       messageLines.add(line);
 
       switch (state) {
