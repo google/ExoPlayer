@@ -114,7 +114,7 @@ public final class ExoPlaybackException extends PlaybackException {
    * @return The created instance.
    */
   public static ExoPlaybackException createForSource(IOException cause) {
-    return new ExoPlaybackException(TYPE_SOURCE, cause);
+    return new ExoPlaybackException(TYPE_SOURCE, cause, ERROR_CODE_UNSPECIFIED);
   }
 
   /**
@@ -128,6 +128,7 @@ public final class ExoPlaybackException extends PlaybackException {
         TYPE_RENDERER,
         cause,
         /* customMessage= */ null,
+        ERROR_CODE_UNSPECIFIED,
         /* rendererName */ null,
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
@@ -184,6 +185,7 @@ public final class ExoPlaybackException extends PlaybackException {
         TYPE_RENDERER,
         cause,
         /* customMessage= */ null,
+        ERROR_CODE_UNSPECIFIED,
         rendererName,
         rendererIndex,
         rendererFormat,
@@ -198,7 +200,7 @@ public final class ExoPlaybackException extends PlaybackException {
    * @return The created instance.
    */
   public static ExoPlaybackException createForUnexpected(RuntimeException cause) {
-    return new ExoPlaybackException(TYPE_UNEXPECTED, cause);
+    return new ExoPlaybackException(TYPE_UNEXPECTED, cause, ERROR_CODE_UNSPECIFIED);
   }
 
   /**
@@ -208,14 +210,11 @@ public final class ExoPlaybackException extends PlaybackException {
    * @return The created instance.
    */
   public static ExoPlaybackException createForRemote(String message) {
-    return new ExoPlaybackException(TYPE_REMOTE, message);
-  }
-
-  private ExoPlaybackException(@Type int type, Throwable cause) {
-    this(
-        type,
-        cause,
-        /* customMessage= */ null,
+    return new ExoPlaybackException(
+        TYPE_REMOTE,
+        /* cause= */ null,
+        /* customMessage= */ message,
+        ERROR_CODE_REMOTE_ERROR,
         /* rendererName= */ null,
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
@@ -223,11 +222,12 @@ public final class ExoPlaybackException extends PlaybackException {
         /* isRecoverable= */ false);
   }
 
-  private ExoPlaybackException(@Type int type, String message) {
+  private ExoPlaybackException(@Type int type, Throwable cause, @ErrorCode int errorCode) {
     this(
         type,
-        /* cause= */ null,
-        /* customMessage= */ message,
+        cause,
+        /* customMessage= */ null,
+        errorCode,
         /* rendererName= */ null,
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
@@ -239,6 +239,7 @@ public final class ExoPlaybackException extends PlaybackException {
       @Type int type,
       @Nullable Throwable cause,
       @Nullable String customMessage,
+      @ErrorCode int errorCode,
       @Nullable String rendererName,
       int rendererIndex,
       @Nullable Format rendererFormat,
@@ -253,6 +254,7 @@ public final class ExoPlaybackException extends PlaybackException {
             rendererFormat,
             rendererFormatSupport),
         cause,
+        errorCode,
         type,
         rendererName,
         rendererIndex,
@@ -280,6 +282,7 @@ public final class ExoPlaybackException extends PlaybackException {
   private ExoPlaybackException(
       String message,
       @Nullable Throwable cause,
+      @ErrorCode int errorCode,
       @Type int type,
       @Nullable String rendererName,
       int rendererIndex,
@@ -288,7 +291,7 @@ public final class ExoPlaybackException extends PlaybackException {
       @Nullable MediaPeriodId mediaPeriodId,
       long timestampMs,
       boolean isRecoverable) {
-    super(message, cause, ERROR_CODE_UNSPECIFIED, timestampMs);
+    super(message, cause, errorCode, timestampMs);
     Assertions.checkArgument(!isRecoverable || type == TYPE_RENDERER);
     Assertions.checkArgument(cause != null || type == TYPE_REMOTE);
     this.type = type;
@@ -341,6 +344,7 @@ public final class ExoPlaybackException extends PlaybackException {
     return new ExoPlaybackException(
         Util.castNonNull(getMessage()),
         getCause(),
+        errorCode,
         type,
         rendererName,
         rendererIndex,
