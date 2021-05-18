@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.chunk;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.DataType;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -38,11 +39,8 @@ public abstract class Chunk implements Loadable {
   public final long loadTaskId;
   /** The {@link DataSpec} that defines the data to be loaded. */
   public final DataSpec dataSpec;
-  /**
-   * The type of the chunk. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
-   * reporting only.
-   */
-  public final int type;
+  /** The {@link DataType data type} of the chunk. For reporting only. */
+  @DataType public final int type;
   /** The format of the track to which this chunk belongs. */
   public final Format trackFormat;
   /**
@@ -82,7 +80,7 @@ public abstract class Chunk implements Loadable {
   public Chunk(
       DataSource dataSource,
       DataSpec dataSpec,
-      int type,
+      @DataType int type,
       Format trackFormat,
       int trackSelectionReason,
       @Nullable Object trackSelectionData,

@@ -557,6 +557,28 @@ public final class C {
   /** A return value for methods where a format was read. */
   public static final int RESULT_FORMAT_READ = -5;
 
+  /**
+   * Represents a type of data. May be one of {@link #DATA_TYPE_UNKNOWN}, {@link #DATA_TYPE_MEDIA},
+   * {@link #DATA_TYPE_MEDIA_INITIALIZATION}, {@link #DATA_TYPE_DRM}, {@link #DATA_TYPE_MANIFEST},
+   * {@link #DATA_TYPE_TIME_SYNCHRONIZATION}, {@link #DATA_TYPE_AD}, or {@link
+   * #DATA_TYPE_MEDIA_PROGRESSIVE_LIVE}. May also be an app-defined value (see {@link
+   * #DATA_TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        DATA_TYPE_UNKNOWN,
+        DATA_TYPE_MEDIA,
+        DATA_TYPE_MEDIA_INITIALIZATION,
+        DATA_TYPE_DRM,
+        DATA_TYPE_MANIFEST,
+        DATA_TYPE_TIME_SYNCHRONIZATION,
+        DATA_TYPE_AD,
+        DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
+      })
+  public @interface DataType {}
   /** A data type constant for data of unknown or unspecified type. */
   public static final int DATA_TYPE_UNKNOWN = 0;
   /** A data type constant for media, typically containing media samples. */

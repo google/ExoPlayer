@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.chunk;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.DataType;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -48,7 +49,7 @@ public abstract class DataChunk extends Chunk {
   public DataChunk(
       DataSource dataSource,
       DataSpec dataSpec,
-      int type,
+      @DataType int type,
       Format trackFormat,
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
