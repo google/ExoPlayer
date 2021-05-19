@@ -1097,6 +1097,7 @@ public interface Player {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
+    COMMAND_INVALID,
     COMMAND_PLAY_PAUSE,
     COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
@@ -1168,6 +1169,9 @@ public interface Player {
   int COMMAND_SET_VIDEO_SURFACE = 22;
   /** Command to get the text that should currently be displayed by the player. */
   int COMMAND_GET_TEXT = 23;
+
+  /** Represents an invalid {@link Command}. */
+  int COMMAND_INVALID = -1;
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
