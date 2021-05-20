@@ -74,7 +74,7 @@ project(modulePrefix + 'extension-workmanager').projectDir = new File(rootDir, '
 
 include modulePrefix + 'robolectricutils'
 project(modulePrefix + 'robolectricutils').projectDir = new File(rootDir, 'robolectricutils')
-include modulePrefix + 'testutils'
-project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
 include modulePrefix + 'testdata'
 project(modulePrefix + 'testdata').projectDir = new File(rootDir, 'testdata')
+include modulePrefix + 'testutils'
+project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
