@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -571,6 +572,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
+    } catch (HttpDataSource.InvalidResponseCodeException e) {
+      handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
     } catch (BehindLiveWindowException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW);
     } catch (IOException e) {
