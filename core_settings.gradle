@@ -15,6 +15,7 @@ def rootDir = file(gradle.ext.exoplayerRoot)
 if (!gradle.ext.has('exoplayerSettingsDir')) {
     gradle.ext.exoplayerSettingsDir = rootDir.getCanonicalPath()
 }
+
 def modulePrefix = ':'
 if (gradle.ext.has('exoplayerModulePrefix')) {
     modulePrefix += gradle.ext.exoplayerModulePrefix
