@@ -55,28 +55,28 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private static final String TAG = "AtomParsers";
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_vide = 0x76696465;
-
-  @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_soun = 0x736f756e;
-
-  @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_text = 0x74657874;
-
-  @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_sbtl = 0x7362746c;
-
-  @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_subt = 0x73756274;
-
-  @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_clcp = 0x636c6370;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_mdta = 0x6d647461;
 
   @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_meta = 0x6d657461;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  private static final int TYPE_mdta = 0x6d647461;
+  private static final int TYPE_sbtl = 0x7362746c;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_soun = 0x736f756e;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_subt = 0x73756274;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_text = 0x74657874;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_vide = 0x76696465;
 
   /**
    * The threshold number of samples to trim from the start/end of an audio track when applying an
