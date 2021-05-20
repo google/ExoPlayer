@@ -15,30 +15,101 @@
  */
 package com.google.android.exoplayer2;
 
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C.DataType;
 import java.io.IOException;
 
 /** Thrown when an error occurs parsing media data and metadata. */
 public class ParserException extends IOException {
 
-  public ParserException() {
-    super();
-  }
-
-  /** @param message The detail message for the exception. */
-  public ParserException(String message) {
-    super(message);
-  }
-
-  /** @param cause The cause for the exception. */
-  public ParserException(Throwable cause) {
-    super(cause);
+  /**
+   * Creates a new instance for which {@link #contentIsMalformed} is true and {@link #dataType} is
+   * {@link C#DATA_TYPE_MEDIA}.
+   *
+   * @param message See {@link #getMessage()}.
+   * @param cause See {@link #getCause()}.
+   * @return The created instance.
+   */
+  public static ParserException createForMalformedContainer(
+      @Nullable String message, @Nullable Throwable cause) {
+    return new ParserException(message, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_MEDIA);
   }
 
   /**
+   * Creates a new instance for which {@link #contentIsMalformed} is false and {@link #dataType} is
+   * {@link C#DATA_TYPE_MEDIA}.
+   *
+   * @param message See {@link #getMessage()}.
+   * @return The created instance.
+   */
+  public static ParserException createForUnsupportedContainerFeature(@Nullable String message) {
+    return new ParserException(
+        message, /* cause= */ null, /* contentIsMalformed= */ false, C.DATA_TYPE_MEDIA);
+  }
+
+  /**
+   * Whether the parsing error was caused by a bitstream not following the expected format. May be
+   * false when a parser encounters a legal condition which it does not support.
+   */
+  public final boolean contentIsMalformed;
+  /** The {@link DataType data type} of the parsed bitstream. */
+  public final int dataType;
+
+  /**
+   * Creates a new instance.
+   *
+   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
+   *     #dataType} instead.
+   */
+  @Deprecated
+  public ParserException() {
+    this(/* message= */ null, /* cause= */ null);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param message The detail message for the exception.
+   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
+   *     #dataType} instead.
+   */
+  @Deprecated
+  public ParserException(String message) {
+    this(message, /* cause= */ null);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param cause The cause for the exception.
+   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
+   *     #dataType} instead.
+   */
+  @Deprecated
+  public ParserException(Throwable cause) {
+    this(/* message= */ null, cause);
+  }
+
+  /**
+   * Creates a new instance.
+   *
    * @param message The detail message for the exception.
    * @param cause The cause for the exception.
+   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
+   *     #dataType} instead.
    */
-  public ParserException(String message, Throwable cause) {
+  @Deprecated
+  public ParserException(@Nullable String message, @Nullable Throwable cause) {
+    this(message, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
+  }
+
+  private ParserException(
+      @Nullable String message,
+      @Nullable Throwable cause,
+      boolean contentIsMalformed,
+      @DataType int dataType) {
     super(message, cause);
+    this.contentIsMalformed = contentIsMalformed;
+    this.dataType = dataType;
   }
 }
