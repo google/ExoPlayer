@@ -2134,7 +2134,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (renderer.getStream() != sampleStream
           || (sampleStream != null
               && !renderer.hasReadStreamToEnd()
-              && !hasFinishedReadingClippedContent(renderer, readingPeriodHolder))) {
+              && !hasReachedServerSideInsertedAdsTransition(renderer, readingPeriodHolder))) {
         // The current reading period is still being read by at least one renderer.
         return false;
       }
@@ -2142,15 +2142,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return true;
   }
 
-  private boolean hasFinishedReadingClippedContent(Renderer renderer, MediaPeriodHolder reading) {
+  private boolean hasReachedServerSideInsertedAdsTransition(
+      Renderer renderer, MediaPeriodHolder reading) {
     MediaPeriodHolder nextPeriod = reading.getNext();
-    // We can advance the reading period early once the clipped content has been read beyond its
-    // clipped end time because we know there won't be any further samples. This shortcut is helpful
-    // in case the clipped end time was reduced and renderers already read beyond the new end time.
-    // But wait until the next period is actually prepared to allow a seamless transition.
-    return reading.info.id.nextAdGroupIndex != C.INDEX_UNSET
+    // We can advance the reading period early once we read beyond the transition point in a
+    // server-side inserted ads stream because we know the samples are read from the same underlying
+    // stream. This shortcut is helpful in case the transition point moved and renderers already
+    // read beyond the new transition point. But wait until the next period is actually prepared to
+    // allow a seamless transition.
+    return reading.info.isFollowedByTransitionToSameStream
         && nextPeriod.prepared
-        && renderer.getReadingPositionUs() >= nextPeriod.getStartPositionRendererTime();
+        && (renderer instanceof TextRenderer // [internal: b/181312195]
+            || renderer.getReadingPositionUs() >= nextPeriod.getStartPositionRendererTime());
   }
 
   private void setAllRendererStreamsFinal(long streamEndPositionUs) {
