@@ -709,6 +709,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               ? lastMediaChunk.endTimeUs
               : max(lastSeekPositionUs, lastMediaChunk.startTimeUs);
     }
+    nextChunkHolder.clear();
     chunkSource.getNextChunk(
         positionUs,
         loadPositionUs,
@@ -718,7 +719,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     boolean endOfStream = nextChunkHolder.endOfStream;
     @Nullable Chunk loadable = nextChunkHolder.chunk;
     @Nullable Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
-    nextChunkHolder.clear();
 
     if (endOfStream) {
       pendingResetPositionUs = C.TIME_UNSET;
