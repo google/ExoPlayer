@@ -20,11 +20,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.Layout.Alignment;
+import android.text.TextUtils;
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -474,6 +476,58 @@ public final class Cue implements Bundleable {
     return new Cue.Builder(this);
   }
 
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    Cue that = (Cue) obj;
+    return TextUtils.equals(text, that.text)
+        && textAlignment == that.textAlignment
+        && multiRowAlignment == that.multiRowAlignment
+        && (bitmap == null
+            ? that.bitmap == null
+            : (that.bitmap != null && bitmap.sameAs(that.bitmap)))
+        && line == that.line
+        && lineType == that.lineType
+        && lineAnchor == that.lineAnchor
+        && position == that.position
+        && positionAnchor == that.positionAnchor
+        && size == that.size
+        && bitmapHeight == that.bitmapHeight
+        && windowColorSet == that.windowColorSet
+        && windowColor == that.windowColor
+        && textSizeType == that.textSizeType
+        && textSize == that.textSize
+        && verticalType == that.verticalType
+        && shearDegrees == that.shearDegrees;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(
+        text,
+        textAlignment,
+        multiRowAlignment,
+        bitmap,
+        line,
+        lineType,
+        lineAnchor,
+        position,
+        positionAnchor,
+        size,
+        bitmapHeight,
+        windowColorSet,
+        windowColor,
+        textSizeType,
+        textSize,
+        verticalType,
+        shearDegrees);
+  }
+
   /** A builder for {@link Cue} objects. */
   public static final class Builder {
     @Nullable private CharSequence text;
@@ -911,7 +965,7 @@ public final class Cue implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_TEXT), text);
     bundle.putSerializable(keyForField(FIELD_TEXT_ALIGNMENT), textAlignment);
     bundle.putSerializable(keyForField(FIELD_MULTI_ROW_ALIGNMENT), multiRowAlignment);
-    // TODO(b/187804381): Use Util.scaleDownBitmap when it's added
+    // TODO(b/187804381): Drop bitmap
     bundle.putParcelable(keyForField(FIELD_BITMAP), bitmap);
     bundle.putFloat(keyForField(FIELD_LINE), line);
     bundle.putInt(keyForField(FIELD_LINE_TYPE), lineType);
