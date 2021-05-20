@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <android/log.h>
 #include <jni.h>
 #include <stdlib.h>
-#include <android/log.h>
 
 extern "C" {
 #ifdef __cplusplus
@@ -33,8 +33,8 @@ extern "C" {
 }
 
 #define LOG_TAG "ffmpeg_jni"
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
-                   __VA_ARGS__))
+#define LOGE(...) \
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 
 #define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                              \
   extern "C" {                                                            \
@@ -69,7 +69,7 @@ static const int AUDIO_DECODER_ERROR_OTHER = -2;
 /**
  * Returns the AVCodec with the specified name, or NULL if it is not available.
  */
-AVCodec *getCodecByName(JNIEnv* env, jstring codecName);
+AVCodec *getCodecByName(JNIEnv *env, jstring codecName);
 
 /**
  * Allocates and opens a new AVCodecContext for the specified codec, passing the
@@ -100,7 +100,7 @@ void releaseContext(AVCodecContext *context);
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
   JNIEnv *env;
-  if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+  if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {
     return -1;
   }
   avcodec_register_all();
@@ -149,13 +149,13 @@ AUDIO_DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
     LOGE("Invalid output buffer length: %d", outputSize);
     return -1;
   }
-  uint8_t *inputBuffer = (uint8_t *) env->GetDirectBufferAddress(inputData);
-  uint8_t *outputBuffer = (uint8_t *) env->GetDirectBufferAddress(outputData);
+  uint8_t *inputBuffer = (uint8_t *)env->GetDirectBufferAddress(inputData);
+  uint8_t *outputBuffer = (uint8_t *)env->GetDirectBufferAddress(outputData);
   AVPacket packet;
   av_init_packet(&packet);
   packet.data = inputBuffer;
   packet.size = inputSize;
-  return decodePacket((AVCodecContext *) context, &packet, outputBuffer,
+  return decodePacket((AVCodecContext *)context, &packet, outputBuffer,
                       outputSize);
 }
 
@@ -164,7 +164,7 @@ AUDIO_DECODER_FUNC(jint, ffmpegGetChannelCount, jlong context) {
     LOGE("Context must be non-NULL.");
     return -1;
   }
-  return ((AVCodecContext *) context)->channels;
+  return ((AVCodecContext *)context)->channels;
 }
 
 AUDIO_DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
@@ -172,11 +172,11 @@ AUDIO_DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
     LOGE("Context must be non-NULL.");
     return -1;
   }
-  return ((AVCodecContext *) context)->sample_rate;
+  return ((AVCodecContext *)context)->sample_rate;
 }
 
 AUDIO_DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
-  AVCodecContext *context = (AVCodecContext *) jContext;
+  AVCodecContext *context = (AVCodecContext *)jContext;
   if (!context) {
     LOGE("Tried to reset without a context.");
     return 0L;
@@ -200,16 +200,16 @@ AUDIO_DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
   }
 
   avcodec_flush_buffers(context);
-  return (jlong) context;
+  return (jlong)context;
 }
 
 AUDIO_DECODER_FUNC(void, ffmpegRelease, jlong context) {
   if (context) {
-    releaseContext((AVCodecContext *) context);
+    releaseContext((AVCodecContext *)context);
   }
 }
 
-AVCodec *getCodecByName(JNIEnv* env, jstring codecName) {
+AVCodec *getCodecByName(JNIEnv *env, jstring codecName) {
   if (!codecName) {
     return NULL;
   }
@@ -233,13 +233,13 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
     jsize size = env->GetArrayLength(extraData);
     context->extradata_size = size;
     context->extradata =
-        (uint8_t *) av_malloc(size + AV_INPUT_BUFFER_PADDING_SIZE);
+        (uint8_t *)av_malloc(size + AV_INPUT_BUFFER_PADDING_SIZE);
     if (!context->extradata) {
       LOGE("Failed to allocate extradata.");
       releaseContext(context);
       return NULL;
     }
-    env->GetByteArrayRegion(extraData, 0, size, (jbyte *) context->extradata);
+    env->GetByteArrayRegion(extraData, 0, size, (jbyte *)context->extradata);
   }
   if (context->codec_id == AV_CODEC_ID_PCM_MULAW ||
       context->codec_id == AV_CODEC_ID_PCM_ALAW) {
@@ -299,14 +299,14 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       resampleContext = (SwrContext *)context->opaque;
     } else {
       resampleContext = swr_alloc();
-      av_opt_set_int(resampleContext, "in_channel_layout",  channelLayout, 0);
+      av_opt_set_int(resampleContext, "in_channel_layout", channelLayout, 0);
       av_opt_set_int(resampleContext, "out_channel_layout", channelLayout, 0);
       av_opt_set_int(resampleContext, "in_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "out_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "in_sample_fmt", sampleFormat, 0);
       // The output format is always the requested format.
       av_opt_set_int(resampleContext, "out_sample_fmt",
-          context->request_sample_fmt, 0);
+                     context->request_sample_fmt, 0);
       result = swr_init(resampleContext);
       if (result < 0) {
         logError("swr_init", result);
@@ -345,7 +345,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
 }
 
 void logError(const char *functionName, int errorNumber) {
-  char *buffer = (char *) malloc(ERROR_STRING_BUFFER_LENGTH * sizeof(char));
+  char *buffer = (char *)malloc(ERROR_STRING_BUFFER_LENGTH * sizeof(char));
   av_strerror(errorNumber, buffer, ERROR_STRING_BUFFER_LENGTH);
   LOGE("Error in %s: %s", functionName, buffer);
   free(buffer);
@@ -362,4 +362,3 @@ void releaseContext(AVCodecContext *context) {
   }
   avcodec_free_context(&context);
 }
-

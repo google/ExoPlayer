@@ -18,12 +18,12 @@
 #ifdef __ARM_NEON__
 #include <arm_neon.h>
 #endif
-#include <jni.h>
-
 #include <android/log.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include <jni.h>
 #include <pthread.h>
+
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -31,12 +31,12 @@
 #include <new>
 
 #define VPX_CODEC_DISABLE_COMPAT 1
-#include "vpx/vpx_decoder.h"
 #include "vpx/vp8dx.h"
+#include "vpx/vpx_decoder.h"
 
 #define LOG_TAG "vpx_jni"
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
-                                             __VA_ARGS__))
+#define LOGE(...) \
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 
 #define DECODER_FUNC(RETURN_TYPE, NAME, ...)                        \
   extern "C" {                                                      \
@@ -480,12 +480,12 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
       "com/google/android/exoplayer2/video/VideoDecoderOutputBuffer");
-  initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
-                                     "(IIIII)Z");
+  initForYuvFrame =
+      env->GetMethodID(outputBufferClass, "initForYuvFrame", "(IIIII)Z");
   initForPrivateFrame =
       env->GetMethodID(outputBufferClass, "initForPrivateFrame", "(II)V");
-  dataField = env->GetFieldID(outputBufferClass, "data",
-                              "Ljava/nio/ByteBuffer;");
+  dataField =
+      env->GetFieldID(outputBufferClass, "data", "Ljava/nio/ByteBuffer;");
   outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
   decoderPrivateField =
       env->GetFieldID(outputBufferClass, "decoderPrivate", "I");
@@ -508,9 +508,9 @@ DECODER_FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {
 }
 
 DECODER_FUNC(jlong, vpxSecureDecode, jlong jContext, jobject encoded, jint len,
-    jobject mediaCrypto, jint inputMode, jbyteArray&, jbyteArray&,
-    jint inputNumSubSamples, jintArray numBytesOfClearData,
-    jintArray numBytesOfEncryptedData) {
+             jobject mediaCrypto, jint inputMode, jbyteArray&, jbyteArray&,
+             jint inputNumSubSamples, jintArray numBytesOfClearData,
+             jintArray numBytesOfEncryptedData) {
   // Doesn't support
   // Java client should have checked vpxSupportSecureDecode
   // and avoid calling this
@@ -552,7 +552,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
       case VPX_CS_BT_709:
         colorspace = kColorspaceBT709;
         break;
-    case VPX_CS_BT_2020:
+      case VPX_CS_BT_2020:
         colorspace = kColorspaceBT2020;
         break;
       default:

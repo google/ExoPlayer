@@ -14,38 +14,37 @@
  * limitations under the License.
  */
 
-#include <jni.h>
-
 #include <android/log.h>
+#include <jni.h>
 
 #include <cstdlib>
 
-#include "opus.h"  // NOLINT
+#include "opus.h"              // NOLINT
 #include "opus_multistream.h"  // NOLINT
 
 #define LOG_TAG "opus_jni"
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
-                                             __VA_ARGS__))
+#define LOGE(...) \
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                          \
+  extern "C" {                                                        \
+  JNIEXPORT RETURN_TYPE                                               \
+      Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__);                  \
+  }                                                                   \
+  JNIEXPORT RETURN_TYPE                                               \
+      Java_com_google_android_exoplayer2_ext_opus_OpusDecoder_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
-#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_opus_OpusLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_opus_OpusLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                          \
+  extern "C" {                                                        \
+  JNIEXPORT RETURN_TYPE                                               \
+      Java_com_google_android_exoplayer2_ext_opus_OpusLibrary_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__);                  \
+  }                                                                   \
+  JNIEXPORT RETURN_TYPE                                               \
+      Java_com_google_android_exoplayer2_ext_opus_OpusLibrary_##NAME( \
+          JNIEnv* env, jobject thiz, ##__VA_ARGS__)
 
 // JNI references for SimpleOutputBuffer class.
 static jmethodID outputBufferInit;
@@ -66,7 +65,8 @@ static int errorCode;
 static bool outputFloat = false;
 
 DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
-     jint numStreams, jint numCoupled, jint gain, jbyteArray jStreamMap) {
+             jint numStreams, jint numCoupled, jint gain,
+             jbyteArray jStreamMap) {
   int status = OPUS_INVALID_STATE;
   ::channelCount = channelCount;
   errorCode = 0;
@@ -88,21 +88,20 @@ DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
       "com/google/android/exoplayer2/decoder/SimpleOutputBuffer");
-  outputBufferInit = env->GetMethodID(outputBufferClass, "init",
-      "(JI)Ljava/nio/ByteBuffer;");
+  outputBufferInit =
+      env->GetMethodID(outputBufferClass, "init", "(JI)Ljava/nio/ByteBuffer;");
 
   return reinterpret_cast<intptr_t>(decoder);
 }
 
 DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
-     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer) {
+             jobject jInputBuffer, jint inputSize, jobject jOutputBuffer) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
-  const uint8_t* inputBuffer =
-      reinterpret_cast<const uint8_t*>(
-          env->GetDirectBufferAddress(jInputBuffer));
+  const uint8_t* inputBuffer = reinterpret_cast<const uint8_t*>(
+      env->GetDirectBufferAddress(jInputBuffer));
 
-  const int byteSizePerSample = outputFloat ?
-      kBytesPerFloatSample : kBytesPerIntPcmSample;
+  const int byteSizePerSample =
+      outputFloat ? kBytesPerFloatSample : kBytesPerIntPcmSample;
   const jint outputSize =
       kMaxOpusOutputPacketSizeSamples * byteSizePerSample * channelCount;
 
@@ -111,8 +110,8 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
     // Exception is thrown in Java when returning from the native call.
     return -1;
   }
-  const jobject jOutputBufferData = env->CallObjectMethod(jOutputBuffer,
-      outputBufferInit, jTimeUs, outputSize);
+  const jobject jOutputBufferData = env->CallObjectMethod(
+      jOutputBuffer, outputBufferInit, jTimeUs, outputSize);
   if (env->ExceptionCheck()) {
     // Exception is thrown in Java when returning from the native call.
     return -1;
@@ -122,26 +121,28 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
   if (outputFloat) {
     float* outputBufferData = reinterpret_cast<float*>(
         env->GetDirectBufferAddress(jOutputBufferData));
-    sampleCount = opus_multistream_decode_float(decoder, inputBuffer, inputSize,
-      outputBufferData, kMaxOpusOutputPacketSizeSamples, 0);
+    sampleCount = opus_multistream_decode_float(
+        decoder, inputBuffer, inputSize, outputBufferData,
+        kMaxOpusOutputPacketSizeSamples, 0);
   } else {
     int16_t* outputBufferData = reinterpret_cast<int16_t*>(
         env->GetDirectBufferAddress(jOutputBufferData));
     sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
-      outputBufferData, kMaxOpusOutputPacketSizeSamples, 0);
+                                          outputBufferData,
+                                          kMaxOpusOutputPacketSizeSamples, 0);
   }
 
   // record error code
   errorCode = (sampleCount < 0) ? sampleCount : 0;
   return (sampleCount < 0) ? sampleCount
-      : sampleCount * byteSizePerSample * channelCount;
+                           : sampleCount * byteSizePerSample * channelCount;
 }
 
 DECODER_FUNC(jint, opusSecureDecode, jlong jDecoder, jlong jTimeUs,
-     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
-     jint sampleRate, jobject mediaCrypto, jint inputMode, jbyteArray key,
-     jbyteArray javaIv, jint inputNumSubSamples, jintArray numBytesOfClearData,
-     jintArray numBytesOfEncryptedData) {
+             jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
+             jint sampleRate, jobject mediaCrypto, jint inputMode,
+             jbyteArray key, jbyteArray javaIv, jint inputNumSubSamples,
+             jintArray numBytesOfClearData, jintArray numBytesOfEncryptedData) {
   // Doesn't support
   // Java client should have checked vpxSupportSecureDecode
   // and avoid calling this
@@ -163,13 +164,9 @@ DECODER_FUNC(jstring, opusGetErrorMessage, jlong jContext) {
   return env->NewStringUTF(opus_strerror(errorCode));
 }
 
-DECODER_FUNC(jint, opusGetErrorCode, jlong jContext) {
-  return errorCode;
-}
+DECODER_FUNC(jint, opusGetErrorCode, jlong jContext) { return errorCode; }
 
-DECODER_FUNC(void, opusSetFloatOutput) {
-  outputFloat = true;
-}
+DECODER_FUNC(void, opusSetFloatOutput) { outputFloat = true; }
 
 LIBRARY_FUNC(jstring, opusIsSecureDecodeSupported) {
   // Doesn't support
