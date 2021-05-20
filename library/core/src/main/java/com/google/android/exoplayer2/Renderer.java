@@ -339,9 +339,8 @@ public interface Renderer extends PlayerMessage.Target {
   boolean hasReadStreamToEnd();
 
   /**
-   * Returns the renderer time up to which the renderer has read samples from the current {@link
-   * SampleStream}, in microseconds, or {@link C#TIME_END_OF_SOURCE} if the renderer has read the
-   * current {@link SampleStream} to the end.
+   * Returns the renderer time up to which the renderer has read samples, in microseconds, or {@link
+   * C#TIME_END_OF_SOURCE} if the renderer has read the current {@link SampleStream} to the end.
    *
    * <p>This method may be called when the renderer is in the following states: {@link
    * #STATE_ENABLED}, {@link #STATE_STARTED}.

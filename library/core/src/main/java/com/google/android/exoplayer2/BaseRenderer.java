@@ -113,7 +113,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
-    readingPositionUs = offsetUs;
+    if (readingPositionUs == C.TIME_END_OF_SOURCE) {
+      readingPositionUs = startPositionUs;
+    }
     streamFormats = formats;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats, startPositionUs, offsetUs);
