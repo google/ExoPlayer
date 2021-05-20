@@ -358,7 +358,7 @@ import com.google.common.collect.ImmutableList;
                 : periodHolder.toRendererTime(newPeriodInfo.durationUs);
         boolean isReadingAndReadBeyondNewDuration =
             periodHolder == reading
-                && !isUsingSameStreamForNextMediaPeriod(timeline, periodHolder.info.id)
+                && !periodHolder.info.isFollowedByTransitionToSameStream
                 && (maxRendererReadPositionUs == C.TIME_END_OF_SOURCE
                     || maxRendererReadPositionUs >= newDurationInRendererTime);
         boolean readingPeriodRemoved = removeAfter(periodHolder);
@@ -396,12 +396,18 @@ import com.google.common.collect.ImmutableList;
             : (endPositionUs == C.TIME_UNSET || endPositionUs == C.TIME_END_OF_SOURCE
                 ? period.getDurationUs()
                 : endPositionUs);
+    boolean isFollowedByTransitionToSameStream =
+        id.isAd()
+            ? period.isServerSideInsertedAdGroup(id.adGroupIndex)
+            : (id.nextAdGroupIndex != C.INDEX_UNSET
+                && period.isServerSideInsertedAdGroup(id.nextAdGroupIndex));
     return new MediaPeriodInfo(
         id,
         info.startPositionUs,
         info.requestedContentPositionUs,
         endPositionUs,
         durationUs,
+        isFollowedByTransitionToSameStream,
         isLastInPeriod,
         isLastInWindow,
         isLastInTimeline);
@@ -778,6 +784,8 @@ import com.google.common.collect.ImmutableList;
         adIndexInAdGroup == period.getFirstAdIndexToPlay(adGroupIndex)
             ? period.getAdResumePositionUs()
             : 0;
+    boolean isFollowedByTransitionToSameStream =
+        period.isServerSideInsertedAdGroup(id.adGroupIndex);
     if (durationUs != C.TIME_UNSET && startPositionUs >= durationUs) {
       // Ensure start position doesn't exceed duration.
       startPositionUs = max(0, durationUs - 1);
@@ -788,6 +796,7 @@ import com.google.common.collect.ImmutableList;
         contentPositionUs,
         /* endPositionUs= */ C.TIME_UNSET,
         durationUs,
+        isFollowedByTransitionToSameStream,
         /* isLastInTimelinePeriod= */ false,
         /* isLastInTimelineWindow= */ false,
         /* isFinal= */ false);
@@ -805,6 +814,8 @@ import com.google.common.collect.ImmutableList;
     boolean isLastInPeriod = isLastInPeriod(id);
     boolean isLastInWindow = isLastInWindow(timeline, id);
     boolean isLastInTimeline = isLastInTimeline(timeline, id, isLastInPeriod);
+    boolean isFollowedByTransitionToSameStream =
+        nextAdGroupIndex != C.INDEX_UNSET && period.isServerSideInsertedAdGroup(nextAdGroupIndex);
     long endPositionUs =
         nextAdGroupIndex != C.INDEX_UNSET
             ? period.getAdGroupTimeUs(nextAdGroupIndex)
@@ -823,6 +834,7 @@ import com.google.common.collect.ImmutableList;
         requestedContentPositionUs,
         endPositionUs,
         durationUs,
+        isFollowedByTransitionToSameStream,
         isLastInPeriod,
         isLastInWindow,
         isLastInTimeline);
@@ -858,21 +870,5 @@ import com.google.common.collect.ImmutableList;
       return period.durationUs;
     }
     return startPositionUs + period.getContentResumeOffsetUs(adGroupIndex);
-  }
-
-  private boolean isUsingSameStreamForNextMediaPeriod(
-      Timeline timeline, MediaPeriodId mediaPeriodId) {
-    // Server-side inserted ads or content after them will use the same underlying stream.
-    if (mediaPeriodId.isAd()) {
-      return timeline
-          .getPeriodByUid(mediaPeriodId.periodUid, period)
-          .isServerSideInsertedAdGroup(mediaPeriodId.adGroupIndex);
-    } else if (mediaPeriodId.nextAdGroupIndex == C.INDEX_UNSET) {
-      return false;
-    } else {
-      return timeline
-          .getPeriodByUid(mediaPeriodId.periodUid, period)
-          .isServerSideInsertedAdGroup(mediaPeriodId.nextAdGroupIndex);
-    }
   }
 }
