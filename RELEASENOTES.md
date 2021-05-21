@@ -1036,6 +1036,7 @@ To learn more about what's new in 2.12, read the corresponding
         and the range of API levels for which they are supported is too small to
         be useful.
     *   Remove generic types from DRM components.
+    *   Rename `DefaultDrmSessionEventListener` to `DrmSessionEventListener`.
 *   Track selection:
     *   Add `TrackSelection.shouldCancelMediaChunkLoad` to check whether an
         ongoing load should be canceled
