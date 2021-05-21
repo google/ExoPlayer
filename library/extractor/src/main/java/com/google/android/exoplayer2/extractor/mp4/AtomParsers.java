@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.MimeTypes.getMimeTypeFromMp4ObjectType;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 
 import android.util.Pair;
@@ -29,10 +30,10 @@ import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.extractor.ExtractorUtil;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -351,7 +352,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else {
       @Nullable Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
       if (stz2Atom == null) {
-        throw new ParserException("Track has no sample table size information");
+        throw ParserException.createForMalformedContainer(
+            "Track has no sample table size information", /* cause= */ null);
       }
       sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
     }
@@ -919,7 +921,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     for (int i = 0; i < numberOfEntries; i++) {
       int childStartPosition = stsd.getPosition();
       int childAtomSize = stsd.readInt();
-      Assertions.checkState(childAtomSize > 0, "childAtomSize should be positive");
+      ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childAtomType = stsd.readInt();
       if (childAtomType == Atom.TYPE_avc1
           || childAtomType == Atom.TYPE_avc3
@@ -1105,10 +1107,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         // Handle optional terminating four zero bytes in MOV files.
         break;
       }
-      Assertions.checkState(childAtomSize > 0, "childAtomSize should be positive");
+      ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_avcC) {
-        Assertions.checkState(mimeType == null);
+        ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H264;
         parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
         AvcConfig avcConfig = AvcConfig.parse(parent);
@@ -1119,7 +1121,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         }
         codecs = avcConfig.codecs;
       } else if (childAtomType == Atom.TYPE_hvcC) {
-        Assertions.checkState(mimeType == null);
+        ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H265;
         parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
         HevcConfig hevcConfig = HevcConfig.parse(parent);
@@ -1133,16 +1135,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           mimeType = MimeTypes.VIDEO_DOLBY_VISION;
         }
       } else if (childAtomType == Atom.TYPE_vpcC) {
-        Assertions.checkState(mimeType == null);
+        ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
       } else if (childAtomType == Atom.TYPE_av1C) {
-        Assertions.checkState(mimeType == null);
+        ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
       } else if (childAtomType == Atom.TYPE_d263) {
-        Assertions.checkState(mimeType == null);
+        ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H263;
       } else if (childAtomType == Atom.TYPE_esds) {
-        Assertions.checkState(mimeType == null);
+        ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationDataBytes =
             parseEsdsFromParent(parent, childStartPosition);
         mimeType = mimeTypeAndInitializationDataBytes.first;
@@ -1370,7 +1372,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
-      Assertions.checkState(childAtomSize > 0, "childAtomSize should be positive");
+      ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_mhaC) {
         // See ISO_IEC_23008-3;2019 MHADecoderConfigurationRecord
@@ -1481,12 +1483,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Returns the position of the esds box within a parent, or {@link C#POSITION_UNSET} if no esds
    * box is found
    */
-  private static int findEsdsPosition(ParsableByteArray parent, int position, int size) {
+  private static int findEsdsPosition(ParsableByteArray parent, int position, int size)
+      throws ParserException {
     int childAtomPosition = parent.getPosition();
     while (childAtomPosition - position < size) {
       parent.setPosition(childAtomPosition);
       int childAtomSize = parent.readInt();
-      Assertions.checkState(childAtomSize > 0, "childAtomSize should be positive");
+      ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childType = parent.readInt();
       if (childType == Atom.TYPE_esds) {
         return childAtomPosition;
@@ -1546,12 +1549,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   @Nullable
   private static Pair<Integer, TrackEncryptionBox> parseSampleEntryEncryptionData(
-      ParsableByteArray parent, int position, int size) {
+      ParsableByteArray parent, int position, int size) throws ParserException {
     int childPosition = parent.getPosition();
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
-      Assertions.checkState(childAtomSize > 0, "childAtomSize should be positive");
+      ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_sinf) {
         @Nullable
@@ -1568,7 +1571,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Nullable
   /* package */ static Pair<Integer, TrackEncryptionBox> parseCommonEncryptionSinfFromParent(
-      ParsableByteArray parent, int position, int size) {
+      ParsableByteArray parent, int position, int size) throws ParserException {
     int childPosition = position + Atom.HEADER_SIZE;
     int schemeInformationBoxPosition = C.POSITION_UNSET;
     int schemeInformationBoxSize = 0;
@@ -1595,15 +1598,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         || C.CENC_TYPE_cbc1.equals(schemeType)
         || C.CENC_TYPE_cens.equals(schemeType)
         || C.CENC_TYPE_cbcs.equals(schemeType)) {
-      Assertions.checkStateNotNull(dataFormat, "frma atom is mandatory");
-      Assertions.checkState(
+      ExtractorUtil.checkContainerInput(dataFormat != null, "frma atom is mandatory");
+      ExtractorUtil.checkContainerInput(
           schemeInformationBoxPosition != C.POSITION_UNSET, "schi atom is mandatory");
+      @Nullable
       TrackEncryptionBox encryptionBox =
-          Assertions.checkStateNotNull(
-              parseSchiFromParent(
-                  parent, schemeInformationBoxPosition, schemeInformationBoxSize, schemeType),
-              "tenc atom is mandatory");
-      return Pair.create(dataFormat, encryptionBox);
+          parseSchiFromParent(
+              parent, schemeInformationBoxPosition, schemeInformationBoxSize, schemeType);
+      ExtractorUtil.checkContainerInput(encryptionBox != null, "tenc atom is mandatory");
+      return Pair.create(dataFormat, castNonNull(encryptionBox));
     } else {
       return null;
     }
@@ -1714,7 +1717,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private int remainingSamplesPerChunkChanges;
 
     public ChunkIterator(
-        ParsableByteArray stsc, ParsableByteArray chunkOffsets, boolean chunkOffsetsAreLongs) {
+        ParsableByteArray stsc, ParsableByteArray chunkOffsets, boolean chunkOffsetsAreLongs)
+        throws ParserException {
       this.stsc = stsc;
       this.chunkOffsets = chunkOffsets;
       this.chunkOffsetsAreLongs = chunkOffsetsAreLongs;
@@ -1722,7 +1726,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       length = chunkOffsets.readUnsignedIntToInt();
       stsc.setPosition(Atom.FULL_HEADER_SIZE);
       remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt();
-      Assertions.checkState(stsc.readInt() == 1, "first_chunk must be 1");
+      ExtractorUtil.checkContainerInput(stsc.readInt() == 1, "first_chunk must be 1");
       index = -1;
     }
 

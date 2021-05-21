@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public final class AtomParsersTest {
       Util.getBytesFromHexString(ATOM_HEADER + "00000010" + SAMPLE_COUNT + "0001000200030004");
 
   @Test
-  public void parseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() {
+  public void parseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() throws ParserException {
     byte[] cencSinf =
         new byte[] {
           0, 0, 0, 24, 115, 105, 110, 102, // size (4), 'sinf' (4)
