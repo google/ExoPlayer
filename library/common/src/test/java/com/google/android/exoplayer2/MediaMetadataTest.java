@@ -49,6 +49,8 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.overallRating).isNull();
     assertThat(mediaMetadata.artworkData).isNull();
     assertThat(mediaMetadata.artworkUri).isNull();
+    assertThat(mediaMetadata.folderType).isNull();
+    assertThat(mediaMetadata.isPlayable).isNull();
   }
 
   @Test
@@ -86,6 +88,8 @@ public class MediaMetadataTest {
             .setUserRating(new HeartRating(false))
             .setOverallRating(new PercentageRating(87.4f))
             .setArtworkData(new byte[] {-88, 12, 3, 2, 124, -54, -33, 69})
+            .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
+            .setIsPlayable(true)
             .build();
 
     MediaMetadata fromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
