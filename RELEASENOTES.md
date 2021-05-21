@@ -9,6 +9,9 @@
 *   Extractors:
     *   Add support for MPEG-H 3D Audio in MP4 extractors
         ([#8860](https://github.com/google/ExoPlayer/pull/8860)).
+*   HLS
+    *   Fix a bug where skipping into spliced-in chunks triggered an assertion
+        error ([#8937](https://github.com/google/ExoPlayer/issues/8937).
 
 ### 2.14.0 (2021-05-13)
 
