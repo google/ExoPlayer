@@ -15,11 +15,26 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import java.io.IOException;
+import org.checkerframework.dataflow.qual.Pure;
 
 /** Extractor related utility methods. */
-/* package */ final class ExtractorUtil {
+public final class ExtractorUtil {
+
+  /**
+   * If {@code expression} is false, throws a {@link ParserException#createForMalformedContainer
+   * container malformed ParserException} with the given message. Otherwise, does nothing.
+   */
+  @Pure
+  public static void checkContainerInput(boolean expression, @Nullable String message)
+      throws ParserException {
+    if (!expression) {
+      throw ParserException.createForMalformedContainer(message, /* cause= */ null);
+    }
+  }
 
   /**
    * Peeks {@code length} bytes from the input peek position, or all the bytes to the end of the
