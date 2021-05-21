@@ -51,6 +51,8 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Uri artworkUri;
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
+    @Nullable @FolderType private Integer folderType;
+    @Nullable private Boolean isPlayable;
 
     public Builder() {}
 
@@ -69,6 +71,8 @@ public final class MediaMetadata implements Bundleable {
       this.artworkUri = mediaMetadata.artworkUri;
       this.trackNumber = mediaMetadata.trackNumber;
       this.totalTrackCount = mediaMetadata.totalTrackCount;
+      this.folderType = mediaMetadata.folderType;
+      this.isPlayable = mediaMetadata.isPlayable;
     }
 
     /** Sets the title. */
@@ -159,6 +163,18 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Sets the {@link FolderType}. */
+    public Builder setFolderType(@Nullable @FolderType Integer folderType) {
+      this.folderType = folderType;
+      return this;
+    }
+
+    /** Sets whether the media is playable. */
+    public Builder setIsPlayable(@Nullable Boolean isPlayable) {
+      this.isPlayable = isPlayable;
+      return this;
+    }
+
     /**
      * Sets all fields supported by the {@link Metadata.Entry entries} within the {@link Metadata}.
      *
@@ -203,6 +219,41 @@ public final class MediaMetadata implements Bundleable {
     }
   }
 
+  /**
+   * The folder type of the media item.
+   *
+   * <p>This can be used as the type of a browsable bluetooth folder (see section 6.10.2.2 of the <a
+   * href="https://www.bluetooth.com/specifications/specs/a-v-remote-control-profile-1-6-2/">Bluetooth
+   * AVRCP 1.6.2</a>).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FOLDER_TYPE_MIXED,
+    FOLDER_TYPE_TITLES,
+    FOLDER_TYPE_ALBUMS,
+    FOLDER_TYPE_ARTISTS,
+    FOLDER_TYPE_GENRES,
+    FOLDER_TYPE_PLAYLISTS,
+    FOLDER_TYPE_YEARS
+  })
+  public @interface FolderType {}
+
+  /** Type for a folder containing media of mixed types. */
+  public static final int FOLDER_TYPE_MIXED = 0;
+  /** Type for a folder containing only playable media. */
+  public static final int FOLDER_TYPE_TITLES = 1;
+  /** Type for a folder containing media categorized by album. */
+  public static final int FOLDER_TYPE_ALBUMS = 2;
+  /** Type for a folder containing media categorized by artist. */
+  public static final int FOLDER_TYPE_ARTISTS = 3;
+  /** Type for a folder containing media categorized by genre. */
+  public static final int FOLDER_TYPE_GENRES = 4;
+  /** Type for a folder containing a playlist. */
+  public static final int FOLDER_TYPE_PLAYLISTS = 5;
+  /** Type for a folder containing media categorized by year. */
+  public static final int FOLDER_TYPE_YEARS = 6;
+
   /** Empty {@link MediaMetadata}. */
   public static final MediaMetadata EMPTY = new MediaMetadata.Builder().build();
 
@@ -238,6 +289,10 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Integer trackNumber;
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
+  /** Optional {@link FolderType}. */
+  @Nullable @FolderType public final Integer folderType;
+  /** Optional boolean for media playability. */
+  @Nullable public final Boolean isPlayable;
 
   private MediaMetadata(Builder builder) {
     this.title = builder.title;
@@ -254,6 +309,8 @@ public final class MediaMetadata implements Bundleable {
     this.artworkUri = builder.artworkUri;
     this.trackNumber = builder.trackNumber;
     this.totalTrackCount = builder.totalTrackCount;
+    this.folderType = builder.folderType;
+    this.isPlayable = builder.isPlayable;
   }
 
   /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
@@ -283,7 +340,9 @@ public final class MediaMetadata implements Bundleable {
         && Arrays.equals(artworkData, that.artworkData)
         && Util.areEqual(artworkUri, that.artworkUri)
         && Util.areEqual(trackNumber, that.trackNumber)
-        && Util.areEqual(totalTrackCount, that.totalTrackCount);
+        && Util.areEqual(totalTrackCount, that.totalTrackCount)
+        && Util.areEqual(folderType, that.folderType)
+        && Util.areEqual(isPlayable, that.isPlayable);
   }
 
   @Override
@@ -302,7 +361,9 @@ public final class MediaMetadata implements Bundleable {
         Arrays.hashCode(artworkData),
         artworkUri,
         trackNumber,
-        totalTrackCount);
+        totalTrackCount,
+        folderType,
+        isPlayable);
   }
 
   // Bundleable implementation.
@@ -323,7 +384,9 @@ public final class MediaMetadata implements Bundleable {
     FIELD_ARTWORK_DATA,
     FIELD_ARTWORK_URI,
     FIELD_TRACK_NUMBER,
-    FIELD_TOTAL_TRACK_COUNT
+    FIELD_TOTAL_TRACK_COUNT,
+    FIELD_FOLDER_TYPE,
+    FIELD_IS_PLAYABLE
   })
   private @interface FieldNumber {}
 
@@ -341,6 +404,8 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_ARTWORK_URI = 11;
   private static final int FIELD_TRACK_NUMBER = 12;
   private static final int FIELD_TOTAL_TRACK_COUNT = 13;
+  private static final int FIELD_FOLDER_TYPE = 14;
+  private static final int FIELD_IS_PLAYABLE = 15;
 
   @Override
   public Bundle toBundle() {
@@ -368,6 +433,13 @@ public final class MediaMetadata implements Bundleable {
     if (totalTrackCount != null) {
       bundle.putInt(keyForField(FIELD_TOTAL_TRACK_COUNT), totalTrackCount);
     }
+    if (folderType != null) {
+      bundle.putInt(keyForField(FIELD_FOLDER_TYPE), folderType);
+    }
+    if (isPlayable != null) {
+      bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
+    }
+
     return bundle;
   }
 
@@ -405,6 +477,12 @@ public final class MediaMetadata implements Bundleable {
     }
     if (bundle.containsKey(keyForField(FIELD_TOTAL_TRACK_COUNT))) {
       builder.setTotalTrackCount(bundle.getInt(keyForField(FIELD_TOTAL_TRACK_COUNT)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_FOLDER_TYPE))) {
+      builder.setFolderType(bundle.getInt(keyForField(FIELD_FOLDER_TYPE)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_IS_PLAYABLE))) {
+      builder.setIsPlayable(bundle.getBoolean(keyForField(FIELD_IS_PLAYABLE)));
     }
 
     return builder.build();
