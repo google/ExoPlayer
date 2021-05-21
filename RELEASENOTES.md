@@ -52,6 +52,8 @@
 *   HLS
     *   Use the PRECISE attribute in EXT-X-START to select the default start
         position.
+    *   Fix a bug where skipping into spliced-in chunks triggered an assertion
+        error ([#8937](https://github.com/google/ExoPlayer/issues/8937).
 *   PlayerNotificationManager:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
         Android 12.
