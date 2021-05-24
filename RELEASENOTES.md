@@ -12,6 +12,9 @@
 *   HLS
     *   Fix a bug where skipping into spliced-in chunks triggered an assertion
         error ([#8937](https://github.com/google/ExoPlayer/issues/8937).
+*   DRM:
+    *   Don't restore offline keys before releasing them. In OEMCrypto v16+ keys
+        must be released without restoring them first.
 
 ### 2.14.0 (2021-05-13)
 
