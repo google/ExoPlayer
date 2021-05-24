@@ -30,6 +30,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.dataflow.qual.Pure;
 
 /** Contains information about a specific cue, including textual content and formatting data. */
 // This class shouldn't be sub-classed. If a subtitle format needs additional fields, either they
@@ -604,6 +605,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#text
      */
+    @Pure
     @Nullable
     public CharSequence getText() {
       return text;
@@ -624,6 +626,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#bitmap
      */
+    @Pure
     @Nullable
     public Bitmap getBitmap() {
       return bitmap;
@@ -646,6 +649,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#textAlignment
      */
+    @Pure
     @Nullable
     public Alignment getTextAlignment() {
       return textAlignment;
@@ -682,6 +686,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#line
      */
+    @Pure
     public float getLine() {
       return line;
     }
@@ -691,6 +696,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#lineType
      */
+    @Pure
     @LineType
     public int getLineType() {
       return lineType;
@@ -711,6 +717,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#lineAnchor
      */
+    @Pure
     @AnchorType
     public int getLineAnchor() {
       return lineAnchor;
@@ -733,6 +740,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#position
      */
+    @Pure
     public float getPosition() {
       return position;
     }
@@ -752,6 +760,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#positionAnchor
      */
+    @Pure
     @AnchorType
     public int getPositionAnchor() {
       return positionAnchor;
@@ -774,6 +783,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#textSizeType
      */
+    @Pure
     @TextSizeType
     public int getTextSizeType() {
       return textSizeType;
@@ -784,6 +794,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#textSize
      */
+    @Pure
     public float getTextSize() {
       return textSize;
     }
@@ -805,6 +816,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#size
      */
+    @Pure
     public float getSize() {
       return size;
     }
@@ -824,6 +836,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#bitmapHeight
      */
+    @Pure
     public float getBitmapHeight() {
       return bitmapHeight;
     }
@@ -862,6 +875,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#windowColor
      */
+    @Pure
     @ColorInt
     public int getWindowColor() {
       return windowColor;
@@ -888,6 +902,7 @@ public final class Cue implements Bundleable {
      *
      * @see Cue#verticalType
      */
+    @Pure
     @VerticalType
     public int getVerticalType() {
       return verticalType;
