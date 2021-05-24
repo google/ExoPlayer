@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
@@ -49,8 +50,11 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.overallRating).isNull();
     assertThat(mediaMetadata.artworkData).isNull();
     assertThat(mediaMetadata.artworkUri).isNull();
+    assertThat(mediaMetadata.trackNumber).isNull();
+    assertThat(mediaMetadata.totalTrackCount).isNull();
     assertThat(mediaMetadata.folderType).isNull();
     assertThat(mediaMetadata.isPlayable).isNull();
+    assertThat(mediaMetadata.extras).isNull();
   }
 
   @Test
@@ -80,6 +84,9 @@ public class MediaMetadataTest {
 
   @Test
   public void roundTripViaBundle_yieldsEqualInstance() {
+    Bundle extras = new Bundle();
+    extras.putString("exampleKey", "exampleValue");
+
     MediaMetadata mediaMetadata =
         new MediaMetadata.Builder()
             .setTitle("title")
@@ -88,12 +95,16 @@ public class MediaMetadataTest {
             .setUserRating(new HeartRating(false))
             .setOverallRating(new PercentageRating(87.4f))
             .setArtworkData(new byte[] {-88, 12, 3, 2, 124, -54, -33, 69})
+            .setTrackNumber(4)
+            .setTotalTrackCount(12)
             .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
             .setIsPlayable(true)
+            .setExtras(extras) // Extras is not implemented in MediaMetadata.equals(Object o).
             .build();
 
     MediaMetadata fromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
     assertThat(fromBundle).isEqualTo(mediaMetadata);
+    assertThat(fromBundle.extras.getString("exampleKey")).isEqualTo("exampleValue");
   }
 
   @Test

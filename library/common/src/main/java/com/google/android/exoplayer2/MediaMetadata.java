@@ -53,6 +53,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer totalTrackCount;
     @Nullable @FolderType private Integer folderType;
     @Nullable private Boolean isPlayable;
+    @Nullable private Bundle extras;
 
     public Builder() {}
 
@@ -73,6 +74,7 @@ public final class MediaMetadata implements Bundleable {
       this.totalTrackCount = mediaMetadata.totalTrackCount;
       this.folderType = mediaMetadata.folderType;
       this.isPlayable = mediaMetadata.isPlayable;
+      this.extras = mediaMetadata.extras;
     }
 
     /** Sets the title. */
@@ -172,6 +174,12 @@ public final class MediaMetadata implements Bundleable {
     /** Sets whether the media is playable. */
     public Builder setIsPlayable(@Nullable Boolean isPlayable) {
       this.isPlayable = isPlayable;
+      return this;
+    }
+
+    /** Sets the extras {@link Bundle}. */
+    public Builder setExtras(@Nullable Bundle extras) {
+      this.extras = extras;
       return this;
     }
 
@@ -293,6 +301,13 @@ public final class MediaMetadata implements Bundleable {
   @Nullable @FolderType public final Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
+  /**
+   * Optional extras {@link Bundle}.
+   *
+   * <p>Given the complexities of checking the equality of two {@link Bundle}s, this is not
+   * considered in the {@link #equals(Object)} or {@link #hashCode()}.
+   */
+  @Nullable public final Bundle extras;
 
   private MediaMetadata(Builder builder) {
     this.title = builder.title;
@@ -311,6 +326,7 @@ public final class MediaMetadata implements Bundleable {
     this.totalTrackCount = builder.totalTrackCount;
     this.folderType = builder.folderType;
     this.isPlayable = builder.isPlayable;
+    this.extras = builder.extras;
   }
 
   /** Returns a new {@link Builder} instance with the current {@link MediaMetadata} fields. */
@@ -386,7 +402,8 @@ public final class MediaMetadata implements Bundleable {
     FIELD_TRACK_NUMBER,
     FIELD_TOTAL_TRACK_COUNT,
     FIELD_FOLDER_TYPE,
-    FIELD_IS_PLAYABLE
+    FIELD_IS_PLAYABLE,
+    FIELD_EXTRAS
   })
   private @interface FieldNumber {}
 
@@ -406,6 +423,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_TOTAL_TRACK_COUNT = 13;
   private static final int FIELD_FOLDER_TYPE = 14;
   private static final int FIELD_IS_PLAYABLE = 15;
+  private static final int FIELD_EXTRAS = 1000;
 
   @Override
   public Bundle toBundle() {
@@ -439,7 +457,9 @@ public final class MediaMetadata implements Bundleable {
     if (isPlayable != null) {
       bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
     }
-
+    if (extras != null) {
+      bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
+    }
     return bundle;
   }
 
@@ -458,7 +478,8 @@ public final class MediaMetadata implements Bundleable {
         .setDescription(bundle.getCharSequence(keyForField(FIELD_DESCRIPTION)))
         .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
         .setArtworkData(bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)))
-        .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)));
+        .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)))
+        .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
 
     if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {
       @Nullable Bundle fieldBundle = bundle.getBundle(keyForField(FIELD_USER_RATING));
