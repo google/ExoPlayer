@@ -57,6 +57,9 @@
 *   PlayerNotificationManager:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
         Android 12.
+*   DRM:
+    *   Don't restore offline keys before releasing them. In OEMCrypto v16+ keys
+        must be released without restoring them first.
 
 ### 2.14.0 (2021-05-13)
 
