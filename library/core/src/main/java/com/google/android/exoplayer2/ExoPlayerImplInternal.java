@@ -572,6 +572,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
+    } catch (ParserException e) {
+      int errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
+      if (e.dataType == C.DATA_TYPE_MEDIA) {
+        errorCode =
+            e.contentIsMalformed
+                ? PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED
+                : PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED;
+      } else if (e.dataType == C.DATA_TYPE_MANIFEST) {
+        errorCode =
+            e.contentIsMalformed
+                ? PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED
+                : PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED;
+      }
+      handleIoException(e, errorCode);
     } catch (HttpDataSource.InvalidResponseCodeException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
     } catch (BehindLiveWindowException e) {
