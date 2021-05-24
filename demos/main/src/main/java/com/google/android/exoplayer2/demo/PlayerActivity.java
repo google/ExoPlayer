@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -43,7 +44,6 @@ import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
-import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -413,20 +413,6 @@ public class PlayerActivity extends AppCompatActivity
     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
   }
 
-  private static boolean isBehindLiveWindow(ExoPlaybackException e) {
-    if (e.type != ExoPlaybackException.TYPE_SOURCE) {
-      return false;
-    }
-    Throwable cause = e.getSourceException();
-    while (cause != null) {
-      if (cause instanceof BehindLiveWindowException) {
-        return true;
-      }
-      cause = cause.getCause();
-    }
-    return false;
-  }
-
   private class PlayerEventListener implements Player.EventListener {
 
     @Override
@@ -439,7 +425,7 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public void onPlayerError(@NonNull ExoPlaybackException e) {
-      if (isBehindLiveWindow(e)) {
+      if (e.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
         player.seekToDefaultPosition();
         player.prepare();
       } else {
