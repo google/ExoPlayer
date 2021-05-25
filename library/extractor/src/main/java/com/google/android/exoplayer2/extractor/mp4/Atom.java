@@ -76,6 +76,9 @@ import java.util.List;
   public static final int TYPE_av1C = 0x61763143;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_colr = 0x636f6c72;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_dvav = 0x64766176;
 
   @SuppressWarnings("ConstantCaseForConstants")

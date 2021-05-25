@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import com.google.common.base.Function;
@@ -50,7 +51,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
-@SuppressWarnings({"ConstantField"})
+@SuppressWarnings("ConstantField")
 /* package */ final class AtomParsers {
 
   private static final String TAG = "AtomParsers";
@@ -63,6 +64,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_meta = 0x6d657461;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_nclc = 0x6e636c63;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  private static final int TYPE_nclx = 0x6e636c78;
 
   @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_sbtl = 0x7362746c;
@@ -1099,6 +1106,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Nullable String codecs = null;
     @Nullable byte[] projectionData = null;
     @C.StereoMode int stereoMode = Format.NO_VALUE;
+    @Nullable ColorInfo colorInfo = null;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childStartPosition = parent.getPosition();
@@ -1179,6 +1187,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               break;
           }
         }
+      } else if (childAtomType == Atom.TYPE_colr) {
+        int colorType = parent.readInt();
+        boolean isNclx = colorType == TYPE_nclx;
+        if (isNclx || colorType == TYPE_nclc) {
+          // For more info on syntax, see Section 8.5.2.2 in ISO/IEC 14496-12:2012(E) and
+          // https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap3/qtff3.html.
+          int colorPrimaries = parent.readUnsignedShort();
+          int transferCharacteristics = parent.readUnsignedShort();
+          parent.skipBytes(2); // matrix_coefficients.
+          boolean fullRangeFlag = isNclx && (parent.readUnsignedByte() & 0b10000000) != 0;
+          colorInfo =
+              new ColorInfo(
+                  ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries),
+                  fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED,
+                  ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics),
+                  /* hdrStaticInfo= */ null);
+        } else {
+          Log.w(TAG, "Unsupported color type: " + Atom.getAtomTypeString(colorType));
+        }
       }
       childPosition += childAtomSize;
     }
@@ -1201,6 +1228,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .setStereoMode(stereoMode)
             .setInitializationData(initializationData)
             .setDrmInitData(drmInitData)
+            .setColorInfo(colorInfo)
             .build();
   }
 
