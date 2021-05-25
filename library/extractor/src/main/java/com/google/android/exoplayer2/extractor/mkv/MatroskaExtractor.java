@@ -931,39 +931,16 @@ public class MatroskaExtractor implements Extractor {
       case ID_COLOUR_PRIMARIES:
         assertInTrackEntry(id);
         currentTrack.hasColorInfo = true;
-        switch ((int) value) {
-          case 1:
-            currentTrack.colorSpace = C.COLOR_SPACE_BT709;
-            break;
-          case 4: // BT.470M.
-          case 5: // BT.470BG.
-          case 6: // SMPTE 170M.
-          case 7: // SMPTE 240M.
-            currentTrack.colorSpace = C.COLOR_SPACE_BT601;
-            break;
-          case 9:
-            currentTrack.colorSpace = C.COLOR_SPACE_BT2020;
-            break;
-          default:
-            break;
+        int colorSpace = ColorInfo.isoColorPrimariesToColorSpace((int) value);
+        if (colorSpace != Format.NO_VALUE) {
+          currentTrack.colorSpace = colorSpace;
         }
         break;
       case ID_COLOUR_TRANSFER:
         assertInTrackEntry(id);
-        switch ((int) value) {
-          case 1: // BT.709.
-          case 6: // SMPTE 170M.
-          case 7: // SMPTE 240M.
-            currentTrack.colorTransfer = C.COLOR_TRANSFER_SDR;
-            break;
-          case 16:
-            currentTrack.colorTransfer = C.COLOR_TRANSFER_ST2084;
-            break;
-          case 18:
-            currentTrack.colorTransfer = C.COLOR_TRANSFER_HLG;
-            break;
-          default:
-            break;
+        int colorTransfer = ColorInfo.isoTransferCharacteristicsToColorTransfer((int) value);
+        if (colorTransfer != Format.NO_VALUE) {
+          currentTrack.colorTransfer = colorTransfer;
         }
         break;
       case ID_COLOUR_RANGE:
