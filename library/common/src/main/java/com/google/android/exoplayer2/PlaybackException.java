@@ -173,6 +173,76 @@ public class PlaybackException extends Exception implements Bundleable {
    */
   public static final int CUSTOM_ERROR_CODE_BASE = 1000000;
 
+  /** Returns the name of a given {@code errorCode}. */
+  public static String getErrorCodeName(@ErrorCode int errorCode) {
+    switch (errorCode) {
+      case ERROR_CODE_UNSPECIFIED:
+        return "ERROR_CODE_UNSPECIFIED";
+      case ERROR_CODE_REMOTE_ERROR:
+        return "ERROR_CODE_REMOTE_ERROR";
+      case ERROR_CODE_BEHIND_LIVE_WINDOW:
+        return "ERROR_CODE_BEHIND_LIVE_WINDOW";
+      case ERROR_CODE_IO_UNSPECIFIED:
+        return "ERROR_CODE_IO_UNSPECIFIED";
+      case ERROR_CODE_IO_NETWORK_UNAVAILABLE:
+        return "ERROR_CODE_IO_NETWORK_UNAVAILABLE";
+      case ERROR_CODE_IO_NETWORK_CONNECTION_FAILED:
+        return "ERROR_CODE_IO_NETWORK_CONNECTION_FAILED";
+      case ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT:
+        return "ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT";
+      case ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED:
+        return "ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED";
+      case ERROR_CODE_IO_BAD_HTTP_STATUS:
+        return "ERROR_CODE_IO_BAD_HTTP_STATUS";
+      case ERROR_CODE_IO_DNS_FAILED:
+        return "ERROR_CODE_IO_DNS_FAILED";
+      case ERROR_CODE_IO_FILE_NOT_FOUND:
+        return "ERROR_CODE_IO_FILE_NOT_FOUND";
+      case ERROR_CODE_IO_NO_PERMISSION:
+        return "ERROR_CODE_IO_NO_PERMISSION";
+      case ERROR_CODE_PARSING_CONTAINER_MALFORMED:
+        return "ERROR_CODE_PARSING_CONTAINER_MALFORMED";
+      case ERROR_CODE_PARSING_MANIFEST_MALFORMED:
+        return "ERROR_CODE_PARSING_MANIFEST_MALFORMED";
+      case ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED:
+        return "ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED";
+      case ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED:
+        return "ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED";
+      case ERROR_CODE_DECODER_INIT_FAILED:
+        return "ERROR_CODE_DECODER_INIT_FAILED";
+      case ERROR_CODE_DECODING_FAILED:
+        return "ERROR_CODE_DECODING_FAILED";
+      case ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES:
+        return "ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES";
+      case ERROR_CODE_DECODING_FORMAT_UNSUPPORTED:
+        return "ERROR_CODE_DECODING_FORMAT_UNSUPPORTED";
+      case ERROR_CODE_AUDIO_TRACK_INIT_FAILED:
+        return "ERROR_CODE_AUDIO_TRACK_INIT_FAILED";
+      case ERROR_CODE_AUDIO_TRACK_WRITE_FAILED:
+        return "ERROR_CODE_AUDIO_TRACK_WRITE_FAILED";
+      case ERROR_CODE_DRM_SCHEME_UNSUPPORTED:
+        return "ERROR_CODE_DRM_SCHEME_UNSUPPORTED";
+      case ERROR_CODE_DRM_PROVISIONING_FAILED:
+        return "ERROR_CODE_DRM_PROVISIONING_FAILED";
+      case ERROR_CODE_DRM_CONTENT_ERROR:
+        return "ERROR_CODE_DRM_CONTENT_ERROR";
+      case ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED:
+        return "ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED";
+      case ERROR_CODE_DRM_DISALLOWED_OPERATION:
+        return "ERROR_CODE_DRM_DISALLOWED_OPERATION";
+      case ERROR_CODE_DRM_SYSTEM_ERROR:
+        return "ERROR_CODE_DRM_SYSTEM_ERROR";
+      case ERROR_CODE_DRM_DEVICE_REVOKED:
+        return "ERROR_CODE_DRM_DEVICE_REVOKED";
+      default:
+        if (errorCode >= CUSTOM_ERROR_CODE_BASE) {
+          return "custom error code";
+        } else {
+          return "invalid error code";
+        }
+    }
+  }
+
   /** An error code which identifies the cause of the playback failure. */
   @ErrorCode public final int errorCode;
 
