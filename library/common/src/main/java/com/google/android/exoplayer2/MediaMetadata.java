@@ -53,6 +53,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer totalTrackCount;
     @Nullable @FolderType private Integer folderType;
     @Nullable private Boolean isPlayable;
+    @Nullable private Integer year;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -74,6 +75,7 @@ public final class MediaMetadata implements Bundleable {
       this.totalTrackCount = mediaMetadata.totalTrackCount;
       this.folderType = mediaMetadata.folderType;
       this.isPlayable = mediaMetadata.isPlayable;
+      this.year = mediaMetadata.year;
       this.extras = mediaMetadata.extras;
     }
 
@@ -174,6 +176,12 @@ public final class MediaMetadata implements Bundleable {
     /** Sets whether the media is playable. */
     public Builder setIsPlayable(@Nullable Boolean isPlayable) {
       this.isPlayable = isPlayable;
+      return this;
+    }
+
+    /** Sets the year. */
+    public Builder setYear(@Nullable Integer year) {
+      this.year = year;
       return this;
     }
 
@@ -301,6 +309,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable @FolderType public final Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
+  /** Optional year. */
+  @Nullable public final Integer year;
   /**
    * Optional extras {@link Bundle}.
    *
@@ -326,6 +336,7 @@ public final class MediaMetadata implements Bundleable {
     this.totalTrackCount = builder.totalTrackCount;
     this.folderType = builder.folderType;
     this.isPlayable = builder.isPlayable;
+    this.year = builder.year;
     this.extras = builder.extras;
   }
 
@@ -358,7 +369,8 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(trackNumber, that.trackNumber)
         && Util.areEqual(totalTrackCount, that.totalTrackCount)
         && Util.areEqual(folderType, that.folderType)
-        && Util.areEqual(isPlayable, that.isPlayable);
+        && Util.areEqual(isPlayable, that.isPlayable)
+        && Util.areEqual(year, that.year);
   }
 
   @Override
@@ -379,7 +391,8 @@ public final class MediaMetadata implements Bundleable {
         trackNumber,
         totalTrackCount,
         folderType,
-        isPlayable);
+        isPlayable,
+        year);
   }
 
   // Bundleable implementation.
@@ -403,6 +416,7 @@ public final class MediaMetadata implements Bundleable {
     FIELD_TOTAL_TRACK_COUNT,
     FIELD_FOLDER_TYPE,
     FIELD_IS_PLAYABLE,
+    FIELD_YEAR,
     FIELD_EXTRAS
   })
   private @interface FieldNumber {}
@@ -423,6 +437,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_TOTAL_TRACK_COUNT = 13;
   private static final int FIELD_FOLDER_TYPE = 14;
   private static final int FIELD_IS_PLAYABLE = 15;
+  private static final int FIELD_YEAR = 16;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -456,6 +471,9 @@ public final class MediaMetadata implements Bundleable {
     }
     if (isPlayable != null) {
       bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
+    }
+    if (year != null) {
+      bundle.putInt(keyForField(FIELD_YEAR), year);
     }
     if (extras != null) {
       bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
@@ -504,6 +522,9 @@ public final class MediaMetadata implements Bundleable {
     }
     if (bundle.containsKey(keyForField(FIELD_IS_PLAYABLE))) {
       builder.setIsPlayable(bundle.getBoolean(keyForField(FIELD_IS_PLAYABLE)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_YEAR))) {
+      builder.setYear(bundle.getInt(keyForField(FIELD_YEAR)));
     }
 
     return builder.build();

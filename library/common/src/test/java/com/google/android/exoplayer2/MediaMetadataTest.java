@@ -54,6 +54,7 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.totalTrackCount).isNull();
     assertThat(mediaMetadata.folderType).isNull();
     assertThat(mediaMetadata.isPlayable).isNull();
+    assertThat(mediaMetadata.year).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -99,6 +100,7 @@ public class MediaMetadataTest {
             .setTotalTrackCount(12)
             .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
             .setIsPlayable(true)
+            .setYear(2000)
             .setExtras(extras) // Extras is not implemented in MediaMetadata.equals(Object o).
             .build();
 
@@ -114,6 +116,7 @@ public class MediaMetadataTest {
     String albumTitle = "album title";
     String albumArtist = "album Artist";
     String trackNumberInfo = "11/17";
+    String year = "2000";
 
     List<Metadata.Entry> entries =
         ImmutableList.of(
@@ -124,7 +127,8 @@ public class MediaMetadataTest {
             new TextInformationFrame(
                 /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
             new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo));
+                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
+            new TextInformationFrame(/* id= */ "TYE", /* description= */ null, /* value= */ year));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     for (Metadata.Entry entry : entries) {
@@ -137,6 +141,7 @@ public class MediaMetadataTest {
     assertThat(builder.build().albumArtist.toString()).isEqualTo(albumArtist);
     assertThat(builder.build().trackNumber).isEqualTo(11);
     assertThat(builder.build().totalTrackCount).isEqualTo(17);
+    assertThat(builder.build().year).isEqualTo(2000);
   }
 
   @Test
