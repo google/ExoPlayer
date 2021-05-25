@@ -73,6 +73,14 @@ public final class TextInformationFrame extends Id3Frame {
           // Do nothing, invalid input.
         }
         break;
+      case "TYE":
+      case "TYER":
+        try {
+          builder.setYear(Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+          // Do nothing, invalid input.
+        }
+        break;
       default:
         break;
     }
