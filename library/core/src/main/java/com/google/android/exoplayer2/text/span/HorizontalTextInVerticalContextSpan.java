@@ -29,4 +29,4 @@ package com.google.android.exoplayer2.text.span;
 // NOTE: There's no Android layout support for this, so this span currently doesn't extend any
 // styling superclasses (e.g. MetricAffectingSpan). The only way to render this styling is to
 // extract the spans and do the layout manually.
-public final class HorizontalTextInVerticalContextSpan {}
+public final class HorizontalTextInVerticalContextSpan implements LanguageFeatureSpan {}
