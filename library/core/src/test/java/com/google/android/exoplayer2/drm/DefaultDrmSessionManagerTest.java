@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertThrows;
 
 import android.os.Looper;
 import androidx.annotation.Nullable;
@@ -405,6 +406,31 @@ public class DefaultDrmSessionManagerTest {
     // correctness).
     sessionReference.release();
     drmSessionManager.release();
+  }
+
+  @Test
+  public void managerNotPrepared_acquireSessionAndPreacquireSessionFail() throws Exception {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+    DefaultDrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .build(/* mediaDrmCallback= */ licenseServer);
+
+    assertThrows(
+        Exception.class,
+        () ->
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    assertThrows(
+        Exception.class,
+        () ->
+            drmSessionManager.preacquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
   }
 
   private static void waitForOpenedWithKeys(DrmSession drmSession) {
