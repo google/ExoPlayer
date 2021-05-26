@@ -245,6 +245,7 @@ public final class MediaMetadata implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
+    FOLDER_TYPE_NONE,
     FOLDER_TYPE_MIXED,
     FOLDER_TYPE_TITLES,
     FOLDER_TYPE_ALBUMS,
@@ -255,6 +256,8 @@ public final class MediaMetadata implements Bundleable {
   })
   public @interface FolderType {}
 
+  /** Type for an item that is not a folder. */
+  public static final int FOLDER_TYPE_NONE = -1;
   /** Type for a folder containing media of mixed types. */
   public static final int FOLDER_TYPE_MIXED = 0;
   /** Type for a folder containing only playable media. */
