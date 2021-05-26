@@ -141,18 +141,18 @@ public final class RtspMessageChannelTest {
     assertThat(receivedRtspResponses)
         .containsExactly(
             /* optionsResponse */
-            ImmutableList.of("RTSP/1.0 200 OK", "CSeq: 2", "Public: OPTIONS", ""),
+            ImmutableList.of("RTSP/1.0 200 OK", "cseq: 2", "public: OPTIONS", ""),
             /* describeResponse */
             ImmutableList.of(
                 "RTSP/1.0 200 OK",
-                "CSeq: 3",
-                "Content-Type: application/sdp",
-                "Content-Length: 28",
+                "cseq: 3",
+                "content-type: application/sdp",
+                "content-length: 28",
                 "",
                 "v=安卓アンドロイド"),
             /* setupResponse */
             ImmutableList.of(
-                "RTSP/1.0 200 OK", "CSeq: 3", "Transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
+                "RTSP/1.0 200 OK", "cseq: 3", "transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
         .inOrder();
     assertThat(receivedInterleavedData)
         .containsExactly(
