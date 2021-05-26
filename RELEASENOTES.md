@@ -19,6 +19,10 @@
     *   Keep subtitle language features embedded (e.g. rubies & tate-chu-yoko)
         in `Cue.text` even when `SubtitleView#setApplyEmbeddedStyles()` is
         false.
+*   UI
+    *   Fix `NullPointerException` in `StyledPlayerView` that could occur after
+        calling `StyledPlayerView.setPlayer(null)`
+        ([#8985](https://github.com/google/ExoPlayer/issues/8985)).
 
 ### 2.14.0 (2021-05-13)
 

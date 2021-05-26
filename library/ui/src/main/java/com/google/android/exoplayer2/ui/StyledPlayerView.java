@@ -570,6 +570,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     }
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
+      oldPlayer.removeListener(componentListener);
       if (surfaceView instanceof TextureView) {
         oldPlayer.clearVideoTextureView((TextureView) surfaceView);
       } else if (surfaceView instanceof SurfaceView) {
