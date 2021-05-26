@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,11 +94,13 @@ import java.util.regex.Pattern;
     builder.add(
         Util.formatInvariant(
             "%s %s %s", toMethodString(request.method), request.uri, RTSP_VERSION));
-    ImmutableMap<String, String> headers = request.headers.asMap();
+
+    ImmutableListMultimap<String, String> headers = request.headers.asMultiMap();
     for (String headerName : headers.keySet()) {
-      builder.add(
-          Util.formatInvariant(
-              "%s: %s", headerName, checkNotNull(request.headers.get(headerName))));
+      ImmutableList<String> headerValuesForName = headers.get(headerName);
+      for (int i = 0; i < headerValuesForName.size(); i++) {
+        builder.add(Util.formatInvariant("%s: %s", headerName, headerValuesForName.get(i)));
+      }
     }
     // Empty line after headers.
     builder.add("");
@@ -119,11 +121,12 @@ import java.util.regex.Pattern;
         Util.formatInvariant(
             "%s %s %s", RTSP_VERSION, response.status, getRtspStatusReasonPhrase(response.status)));
 
-    ImmutableMap<String, String> headers = response.headers.asMap();
+    ImmutableListMultimap<String, String> headers = response.headers.asMultiMap();
     for (String headerName : headers.keySet()) {
-      builder.add(
-          Util.formatInvariant(
-              "%s: %s", headerName, checkNotNull(response.headers.get(headerName))));
+      ImmutableList<String> headerValuesForName = headers.get(headerName);
+      for (int i = 0; i < headerValuesForName.size(); i++) {
+        builder.add(Util.formatInvariant("%s: %s", headerName, headerValuesForName.get(i)));
+      }
     }
     // Empty line after headers.
     builder.add("");
