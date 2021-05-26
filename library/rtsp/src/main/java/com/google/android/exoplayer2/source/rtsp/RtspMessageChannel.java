@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.SparseArray;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -64,15 +65,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     void onRtspMessageReceived(List<String> message);
 
     /**
-     * Called when interleaved binary data is received on RTSP.
-     *
-     * @param data The received binary data. The byte array will not be reused by {@link
-     *     RtspMessageChannel}, and will always be full.
-     * @param channel The channel on which the data is received.
-     */
-    default void onInterleavedBinaryDataReceived(byte[] data, int channel) {}
-
-    /**
      * Called when failed to send an RTSP message.
      *
      * @param message The list of lines making up the RTSP message that is failed to send.
@@ -86,6 +78,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param e The thrown {@link Exception}.
      */
     default void onReceivingFailed(Exception e) {}
+  }
+
+  /** A listener for received interleaved binary data from RTSP. */
+  public interface InterleavedBinaryDataListener {
+
+    /**
+     * Called when interleaved binary data is received on RTSP.
+     *
+     * @param data The received binary data. The byte array will not be reused by {@link
+     *     RtspMessageChannel}, and will always be full.
+     */
+    void onInterleavedBinaryDataReceived(byte[] data);
   }
 
   /**
@@ -102,6 +106,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final MessageListener messageListener;
   private final Loader receiverLoader;
+  private final SparseArray<InterleavedBinaryDataListener> interleavedBinaryDataListeners;
   private @MonotonicNonNull Sender sender;
   private @MonotonicNonNull Socket socket;
 
@@ -123,6 +128,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.messageListenerHandler = Util.createHandlerForCurrentLooper();
     this.messageListener = messageListener;
     this.receiverLoader = new Loader("ExoPlayer:RtspMessageChannel:ReceiverLoader");
+    this.interleavedBinaryDataListeners = new SparseArray<>();
   }
 
   /**
@@ -181,6 +187,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void send(List<String> message) {
     checkStateNotNull(sender);
     sender.send(message);
+  }
+
+  /**
+   * Registers an {@link InterleavedBinaryDataListener} to receive RTSP interleaved data.
+   *
+   * <p>The listener method {@link InterleavedBinaryDataListener#onInterleavedBinaryDataReceived} is
+   * called on {@link RtspMessageChannel}'s internal thread for receiving RTSP messages. The user
+   * should post the handling for the interleaved data onto another thread, if the handling is
+   * performance intensive.
+   */
+  public void registerInterleavedBinaryDataListener(
+      int channel, InterleavedBinaryDataListener listener) {
+    interleavedBinaryDataListeners.put(channel, listener);
   }
 
   private final class Sender implements Closeable {
@@ -322,12 +341,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       byte[] data = new byte[size];
       dataInputStream.readFully(data, /* off= */ 0, size);
 
-      messageListenerHandler.post(
-          () -> {
-            if (!closed) {
-              messageListener.onInterleavedBinaryDataReceived(data, channel);
-            }
-          });
+      @Nullable
+      InterleavedBinaryDataListener listener = interleavedBinaryDataListeners.get(channel);
+      if (listener != null && !closed) {
+        listener.onInterleavedBinaryDataReceived(data);
+      }
     }
   }
 

@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaPeriod.RtpLoadInfo;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
+import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspSessionHeader;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -95,7 +96,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
   private final SparseArray<RtspRequest> pendingRequests;
   private final MessageSender messageSender;
-  private final SparseArray<RtpDataChannel> transferRtpDataChannelMap;
 
   private RtspMessageChannel messageChannel;
   private @MonotonicNonNull PlaybackEventListener playbackEventListener;
@@ -125,7 +125,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     pendingSetupRtpLoadInfos = new ArrayDeque<>();
     pendingRequests = new SparseArray<>();
     messageSender = new MessageSender();
-    transferRtpDataChannelMap = new SparseArray<>();
     pendingSeekPositionUs = C.TIME_UNSET;
     messageChannel = new RtspMessageChannel(new MessageListener());
   }
@@ -224,9 +223,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  /** Registers an {@link RtpDataChannel} to receive RTSP interleaved data. */
-  public void registerInterleavedDataChannel(RtpDataChannel rtpDataChannel) {
-    transferRtpDataChannelMap.put(rtpDataChannel.getLocalPort(), rtpDataChannel);
+  /** Registers an {@link InterleavedBinaryDataListener} to receive RTSP interleaved data. */
+  public void registerInterleavedDataChannel(
+      int channel, InterleavedBinaryDataListener interleavedBinaryDataListener) {
+    messageChannel.registerInterleavedBinaryDataListener(channel, interleavedBinaryDataListener);
   }
 
   private void continueSetupRtspTrack() {
@@ -437,14 +437,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       } catch (ParserException e) {
         dispatchRtspError(new RtspPlaybackException(e));
-      }
-    }
-
-    @Override
-    public void onInterleavedBinaryDataReceived(byte[] data, int channel) {
-      @Nullable RtpDataChannel dataChannel = transferRtpDataChannelMap.get(channel);
-      if (dataChannel != null) {
-        dataChannel.write(data);
       }
     }
 
