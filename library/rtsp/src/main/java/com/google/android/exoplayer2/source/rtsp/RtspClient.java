@@ -36,6 +36,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -347,8 +348,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final class MessageListener implements RtspMessageChannel.MessageListener {
 
+    private final Handler messageHandler;
+
+    /**
+     * Creates a new instance.
+     *
+     * <p>The constructor must be called on a {@link Looper} thread, on which all the received RTSP
+     * messages are processed.
+     */
+    public MessageListener() {
+      messageHandler = Util.createHandlerForCurrentLooper();
+    }
+
     @Override
     public void onRtspMessageReceived(List<String> message) {
+      messageHandler.post(() -> handleRtspMessage(message));
+    }
+
+    private void handleRtspMessage(List<String> message) {
       RtspResponse response = RtspMessageUtil.parseResponse(message);
 
       int cSeq = Integer.parseInt(checkNotNull(response.headers.get(RtspHeaders.CSEQ)));
@@ -412,24 +429,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             onPlayResponseReceived(new RtspPlayResponse(response.status, timing, trackTimingList));
             break;
 
-          case METHOD_GET_PARAMETER:
-            onGetParameterResponseReceived(response);
-            break;
-
-          case METHOD_TEARDOWN:
-            onTeardownResponseReceived(response);
-            break;
-
           case METHOD_PAUSE:
-            onPauseResponseReceived(response);
+            onPauseResponseReceived();
             break;
 
+          case METHOD_GET_PARAMETER:
+          case METHOD_TEARDOWN:
           case METHOD_PLAY_NOTIFY:
           case METHOD_RECORD:
           case METHOD_REDIRECT:
           case METHOD_ANNOUNCE:
           case METHOD_SET_PARAMETER:
-            onUnsupportedResponseReceived(response);
             break;
           case METHOD_UNSET:
           default:
@@ -442,7 +452,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Response handlers must only be called only on 200 (OK) responses.
 
-    public void onOptionsResponseReceived(RtspOptionsResponse response) {
+    private void onOptionsResponseReceived(RtspOptionsResponse response) {
       if (keepAliveMonitor != null) {
         // Ignores the OPTIONS requests that are sent to keep RTSP connection alive.
         return;
@@ -456,7 +466,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
-    public void onDescribeResponseReceived(RtspDescribeResponse response) {
+    private void onDescribeResponseReceived(RtspDescribeResponse response) {
       @Nullable
       String sessionRangeAttributeString =
           response.sessionDescription.attributes.get(SessionDescription.ATTR_RANGE);
@@ -473,12 +483,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
-    public void onSetupResponseReceived(RtspSetupResponse response) {
+    private void onSetupResponseReceived(RtspSetupResponse response) {
       sessionId = response.sessionHeader.sessionId;
       continueSetupRtspTrack();
     }
 
-    public void onPlayResponseReceived(RtspPlayResponse response) {
+    private void onPlayResponseReceived(RtspPlayResponse response) {
       if (keepAliveMonitor == null) {
         keepAliveMonitor = new KeepAliveMonitor(DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS);
         keepAliveMonitor.start();
@@ -490,22 +500,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       pendingSeekPositionUs = C.TIME_UNSET;
     }
 
-    public void onPauseResponseReceived(RtspResponse response) {
+    private void onPauseResponseReceived() {
       if (pendingSeekPositionUs != C.TIME_UNSET) {
         startPlayback(C.usToMs(pendingSeekPositionUs));
       }
-    }
-
-    public void onGetParameterResponseReceived(RtspResponse response) {
-      // Do nothing.
-    }
-
-    public void onTeardownResponseReceived(RtspResponse response) {
-      // Do nothing.
-    }
-
-    public void onUnsupportedResponseReceived(RtspResponse response) {
-      // Do nothing.
     }
 
     private void dispatchRtspError(Throwable error) {
