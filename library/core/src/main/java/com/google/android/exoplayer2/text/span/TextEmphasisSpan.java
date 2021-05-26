@@ -32,7 +32,7 @@ import java.lang.annotation.Retention;
 // NOTE: There's no Android layout support for text emphasis, so this span currently doesn't extend
 // any styling superclasses (e.g. MetricAffectingSpan). The only way to render this emphasis is to
 // extract the spans and do the layout manually.
-public final class TextEmphasisSpan {
+public final class TextEmphasisSpan implements LanguageFeatureSpan {
 
   /**
    * The possible mark shapes that can be used.

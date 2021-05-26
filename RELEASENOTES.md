@@ -15,6 +15,10 @@
 *   DRM:
     *   Don't restore offline keys before releasing them. In OEMCrypto v16+ keys
         must be released without restoring them first.
+*   UI:
+    *   Keep subtitle language features embedded (e.g. rubies & tate-chu-yoko)
+        in `Cue.text` even when `SubtitleView#setApplyEmbeddedStyles()` is
+        false.
 
 ### 2.14.0 (2021-05-13)
 

@@ -30,7 +30,7 @@ package com.google.android.exoplayer2.text.span;
 // extract the spans and do the layout manually.
 // TODO: Consider adding support for parenthetical text to be used when rendering doesn't support
 // rubies (e.g. HTML <rp> tag).
-public final class RubySpan {
+public final class RubySpan implements LanguageFeatureSpan {
 
   /** The ruby text, i.e. the smaller explanatory characters. */
   public final String rubyText;
