@@ -31,7 +31,11 @@ import java.util.Arrays;
   public static final class ItemData {
 
     /** Holds no media information. */
-    public static final ItemData EMPTY = new ItemData();
+    public static final ItemData EMPTY =
+        new ItemData(
+            /* durationUs= */ C.TIME_UNSET,
+            /* defaultPositionUs= */ C.TIME_UNSET,
+            /* isLive= */ false);
 
     /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public final long durationUs;
@@ -41,13 +45,6 @@ import java.util.Arrays;
     public final long defaultPositionUs;
     /** Whether the item is live content, or {@code false} if unknown. */
     public final boolean isLive;
-
-    private ItemData() {
-      this(
-          /* durationUs= */ C.TIME_UNSET,
-          /* defaultPositionUs= */ C.TIME_UNSET,
-          /* isLive= */ false);
-    }
 
     /**
      * Creates an instance.
