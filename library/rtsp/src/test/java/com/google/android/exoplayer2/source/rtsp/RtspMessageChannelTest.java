@@ -128,7 +128,7 @@ public final class RtspMessageChannelTest {
     rtspMessageChannel.registerInterleavedBinaryDataListener(
         /* channel= */ 1, data -> receivedInterleavedData.put(1, Bytes.asList(data)));
 
-    rtspMessageChannel.openSocket(clientSideSocket);
+    rtspMessageChannel.open(clientSideSocket);
 
     RobolectricUtil.runMainLooperUntil(receivingFinished::get);
     Util.closeQuietly(rtspMessageChannel);

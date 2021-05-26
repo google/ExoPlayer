@@ -140,19 +140,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void start() throws IOException {
     try {
-      messageChannel.openSocket(openSocket());
+      messageChannel.open(getSocket(uri));
     } catch (IOException e) {
       Util.closeQuietly(messageChannel);
       throw e;
     }
     messageSender.sendOptionsRequest(uri, sessionId);
-  }
-
-  /** Opens a {@link Socket} to the session {@link #uri}. */
-  private Socket openSocket() throws IOException {
-    checkArgument(uri.getHost() != null);
-    int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
-    return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
 
   /** Sets the {@link PlaybackEventListener} to receive playback events. */
@@ -217,7 +210,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       close();
       messageChannel = new RtspMessageChannel(new MessageListener());
-      messageChannel.openSocket(openSocket());
+      messageChannel.open(getSocket(uri));
       sessionId = null;
     } catch (IOException e) {
       checkNotNull(playbackEventListener).onPlaybackError(new RtspPlaybackException(e));
@@ -237,6 +230,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     messageSender.sendSetupRequest(loadInfo.getTrackUri(), loadInfo.getTransport(), sessionId);
+  }
+
+  /** Returns a {@link Socket} that is connected to the {@code uri}. */
+  private static Socket getSocket(Uri uri) throws IOException {
+    checkArgument(uri.getHost() != null);
+    int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
+    return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
 
   /**

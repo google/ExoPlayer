@@ -87,7 +87,7 @@ public final class RtspServer implements Closeable {
   private void handleNewClientConnected(Socket socket) {
     try {
       connectedClient = new RtspMessageChannel(new MessageListener());
-      connectedClient.openSocket(socket);
+      connectedClient.open(socket);
     } catch (IOException e) {
       Util.closeQuietly(connectedClient);
       // Log the error.

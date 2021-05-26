@@ -109,9 +109,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Constructs a new instance.
    *
-   * <p>An RTSP {@link Socket socket} must be constructed, and used to call {@link #openSocket} to
-   * open the connection before being able to send and receive. {@link #close} must be called when
-   * done.
+   * <p>A connected {@link Socket} must be provided in {@link #open} in order to send and receive
+   * RTSP messages. {@link #close} must be called when done, which would also close the socket.
    *
    * <p>{@link MessageListener} and {@link InterleavedBinaryDataListener} implementations must not
    * make assumptions about which thread called their listener methods; and must be thread-safe.
@@ -132,9 +131,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>Note: If an {@link IOException} is thrown, callers must still call {@link #close()} to
    * ensure that any partial effects of the invocation are cleaned up.
    *
-   * @param socket An accepted {@link Socket}.
+   * @param socket A connected {@link Socket}.
    */
-  public void openSocket(Socket socket) throws IOException {
+  public void open(Socket socket) throws IOException {
     this.socket = socket;
     sender = new Sender(socket.getOutputStream());
 
