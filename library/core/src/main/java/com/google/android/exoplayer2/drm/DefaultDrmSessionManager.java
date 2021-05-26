@@ -487,6 +487,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
+    checkState(prepareCallsCount > 0);
     initPlaybackLooper(playbackLooper);
     PreacquiredSessionReference preacquiredSessionReference =
         new PreacquiredSessionReference(eventDispatcher);
@@ -500,6 +501,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
+    checkState(prepareCallsCount > 0);
     initPlaybackLooper(playbackLooper);
     return acquireSession(
         playbackLooper,
