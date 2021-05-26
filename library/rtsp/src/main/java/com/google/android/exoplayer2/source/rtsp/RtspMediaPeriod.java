@@ -689,8 +689,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           (transport, rtpDataChannel) -> {
             RtpLoadInfo.this.transport = transport;
 
-            if (rtpDataChannel.usesSidebandBinaryData()) {
-              rtspClient.registerInterleavedDataChannel(rtpDataChannel);
+            @Nullable
+            RtspMessageChannel.InterleavedBinaryDataListener interleavedBinaryDataListener =
+                rtpDataChannel.getInterleavedBinaryDataListener();
+            if (interleavedBinaryDataListener != null) {
+              rtspClient.registerInterleavedDataChannel(
+                  rtpDataChannel.getLocalPort(), interleavedBinaryDataListener);
             }
 
             maybeSetupTracks();

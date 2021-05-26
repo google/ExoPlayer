@@ -55,6 +55,12 @@ import java.io.IOException;
     return port == UdpDataSource.UDP_PORT_UNSET ? C.INDEX_UNSET : port;
   }
 
+  @Nullable
+  @Override
+  public RtspMessageChannel.InterleavedBinaryDataListener getInterleavedBinaryDataListener() {
+    return null;
+  }
+
   @Override
   public void addTransferListener(TransferListener transferListener) {
     dataSource.addTransferListener(transferListener);
@@ -83,20 +89,6 @@ import java.io.IOException;
   @Override
   public int read(byte[] target, int offset, int length) throws IOException {
     return dataSource.read(target, offset, length);
-  }
-
-  @Override
-  public boolean usesSidebandBinaryData() {
-    return false;
-  }
-
-  /**
-   * Writing to a {@link UdpDataSource} backed {@link RtpDataChannel} is not supported at the
-   * moment.
-   */
-  @Override
-  public void write(byte[] buffer) {
-    throw new UnsupportedOperationException();
   }
 
   public void setRtcpChannel(UdpDataSourceRtpDataChannel rtcpChannel) {

@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
-import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.MessageListener;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
@@ -84,6 +83,7 @@ public final class RtspMessageChannelTest {
     AtomicBoolean receivingFinished = new AtomicBoolean();
     AtomicReference<Exception> sendingException = new AtomicReference<>();
     List<List<String>> receivedRtspResponses = new ArrayList<>(/* initialCapacity= */ 3);
+    // Key: channel number, Value: a list of received byte arrays.
     Multimap<Integer, List<Byte>> receivedInterleavedData = LinkedListMultimap.create();
     ServerSocket serverSocket =
         new ServerSocket(/* port= */ 0, /* backlog= */ 1, InetAddress.getByName(/* host= */ null));
@@ -116,20 +116,18 @@ public final class RtspMessageChannelTest {
 
     RtspMessageChannel rtspMessageChannel =
         new RtspMessageChannel(
-            new MessageListener() {
-              @Override
-              public void onRtspMessageReceived(List<String> message) {
-                receivedRtspResponses.add(message);
-                if (receivedRtspResponses.size() == 3 && receivedInterleavedData.size() == 2) {
-                  receivingFinished.set(true);
-                }
-              }
-
-              @Override
-              public void onInterleavedBinaryDataReceived(byte[] data, int channel) {
-                receivedInterleavedData.put(channel, Bytes.asList(data));
+            message -> {
+              receivedRtspResponses.add(message);
+              if (receivedRtspResponses.size() == 3 && receivedInterleavedData.size() == 2) {
+                receivingFinished.set(true);
               }
             });
+
+    rtspMessageChannel.registerInterleavedBinaryDataListener(
+        /* channel= */ 0, data -> receivedInterleavedData.put(0, Bytes.asList(data)));
+    rtspMessageChannel.registerInterleavedBinaryDataListener(
+        /* channel= */ 1, data -> receivedInterleavedData.put(1, Bytes.asList(data)));
+
     rtspMessageChannel.openSocket(clientSideSocket);
 
     RobolectricUtil.runMainLooperUntil(receivingFinished::get);
