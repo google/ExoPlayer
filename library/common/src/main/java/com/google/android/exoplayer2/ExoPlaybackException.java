@@ -432,5 +432,4 @@ public final class ExoPlaybackException extends PlaybackException {
     bundle.putBoolean(keyForField(FIELD_IS_RECOVERABLE), isRecoverable);
     return bundle;
   }
-
 }
