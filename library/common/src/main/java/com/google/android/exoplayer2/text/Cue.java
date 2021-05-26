@@ -988,7 +988,6 @@ public final class Cue implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_TEXT), text);
     bundle.putSerializable(keyForField(FIELD_TEXT_ALIGNMENT), textAlignment);
     bundle.putSerializable(keyForField(FIELD_MULTI_ROW_ALIGNMENT), multiRowAlignment);
-    // TODO(b/187804381): Drop bitmap
     bundle.putParcelable(keyForField(FIELD_BITMAP), bitmap);
     bundle.putFloat(keyForField(FIELD_LINE), line);
     bundle.putInt(keyForField(FIELD_LINE_TYPE), lineType);
