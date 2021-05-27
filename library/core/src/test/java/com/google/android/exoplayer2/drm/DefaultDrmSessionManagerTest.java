@@ -25,12 +25,14 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.ExoMediaDrm.AppManagedProvider;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.FakeExoMediaDrm;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
@@ -406,6 +408,48 @@ public class DefaultDrmSessionManagerTest {
     // correctness).
     sessionReference.release();
     drmSessionManager.release();
+  }
+
+  @Test(timeout = 10_000)
+  public void keyRefreshEvent_triggersKeyRefresh() throws Exception {
+    FakeExoMediaDrm exoMediaDrm = new FakeExoMediaDrm();
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+    DrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, new AppManagedProvider(exoMediaDrm))
+            .build(/* mediaDrmCallback= */ licenseServer);
+
+    drmSessionManager.prepare();
+
+    DefaultDrmSession drmSession =
+        (DefaultDrmSession)
+            checkNotNull(
+                drmSessionManager.acquireSession(
+                    /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                    /* eventDispatcher= */ null,
+                    FORMAT_WITH_DRM_INIT_DATA));
+    waitForOpenedWithKeys(drmSession);
+
+    assertThat(licenseServer.getReceivedSchemeDatas()).hasSize(1);
+
+    exoMediaDrm.triggerEvent(
+        drmSession::hasSessionId,
+        ExoMediaDrm.EVENT_KEY_REQUIRED,
+        /* extra= */ 0,
+        /* data= */ Util.EMPTY_BYTE_ARRAY);
+
+    while (licenseServer.getReceivedSchemeDatas().size() == 1) {
+      // Allow the key refresh event to be handled.
+      ShadowLooper.idleMainLooper();
+    }
+
+    assertThat(licenseServer.getReceivedSchemeDatas()).hasSize(2);
+    assertThat(ImmutableSet.copyOf(licenseServer.getReceivedSchemeDatas())).hasSize(1);
+
+    drmSession.release(/* eventDispatcher= */ null);
+    drmSessionManager.release();
+    exoMediaDrm.release();
   }
 
   @Test
