@@ -68,6 +68,8 @@
 *   DRM:
     *   Don't restore offline keys before releasing them. In OEMCrypto v16+ keys
         must be released without restoring them first.
+    *   Ensure `DefaultDrmSession` instances keep working even after their
+        `DefaultDrmSessionManager` instance is released.
 *   UI:
     *   Keep subtitle language features embedded (e.g. rubies & tate-chu-yoko)
         in `Cue.text` even when `SubtitleView#setApplyEmbeddedStyles()` is

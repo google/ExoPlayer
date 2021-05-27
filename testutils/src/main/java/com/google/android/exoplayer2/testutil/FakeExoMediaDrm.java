@@ -283,6 +283,10 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   // Methods to facilitate testing
 
+  public int getReferenceCount() {
+    return referenceCount;
+  }
+
   /**
    * Calls {@link OnEventListener#onEvent(ExoMediaDrm, byte[], int, int, byte[])} on the attached
    * listener (if present) once for each open session ID which passes {@code sessionIdPredicate},
