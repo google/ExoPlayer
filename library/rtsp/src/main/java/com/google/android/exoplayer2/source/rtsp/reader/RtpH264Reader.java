@@ -95,7 +95,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // RFC6184 Section 5.6, 5.7 and 5.8.
       rtpH264PacketMode = data.getData()[0] & 0x1F;
     } catch (IndexOutOfBoundsException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(/* message= */ null, e);
     }
 
     checkStateNotNull(trackOutput);
@@ -106,8 +106,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } else if (rtpH264PacketMode == RTP_PACKET_TYPE_FU_A) {
       processFragmentationUnitPacket(data, sequenceNumber);
     } else {
-      throw new ParserException(
-          String.format("RTP H264 packetization mode [%d] not supported.", rtpH264PacketMode));
+      throw ParserException.createForMalformedManifest(
+          String.format("RTP H264 packetization mode [%d] not supported.", rtpH264PacketMode),
+          /* cause= */ null);
     }
 
     if (isAuBoundary) {

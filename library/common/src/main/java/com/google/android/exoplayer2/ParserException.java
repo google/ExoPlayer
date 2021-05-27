@@ -36,6 +36,20 @@ public class ParserException extends IOException {
   }
 
   /**
+   * Creates a new instance for which {@link #contentIsMalformed} is true and {@link #dataType} is
+   * {@link C#DATA_TYPE_MANIFEST}.
+   *
+   * @param message See {@link #getMessage()}.
+   * @param cause See {@link #getCause()}.
+   * @return The created instance.
+   */
+  public static ParserException createForMalformedManifest(
+      @Nullable String message, @Nullable Throwable cause) {
+    return new ParserException(
+        message, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_MANIFEST);
+  }
+
+  /**
    * Creates a new instance for which {@link #contentIsMalformed} is false and {@link #dataType} is
    * {@link C#DATA_TYPE_MEDIA}.
    *

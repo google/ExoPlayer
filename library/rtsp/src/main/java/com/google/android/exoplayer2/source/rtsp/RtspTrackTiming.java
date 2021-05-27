@@ -80,17 +80,17 @@ import com.google.common.collect.ImmutableList;
               rtpTime = Long.parseLong(attributeValue);
               break;
             default:
-              throw new ParserException();
+              throw ParserException.createForMalformedManifest(attributeName, /* cause= */ null);
           }
         } catch (Exception e) {
-          throw new ParserException(attributePair, e);
+          throw ParserException.createForMalformedManifest(attributePair, e);
         }
       }
 
       if (uri == null
           || uri.getScheme() == null // Checks if the URI is a URL.
           || (sequenceNumber == C.INDEX_UNSET && rtpTime == C.TIME_UNSET)) {
-        throw new ParserException(perTrackTimingString);
+        throw ParserException.createForMalformedManifest(perTrackTimingString, /* cause= */ null);
       }
 
       listBuilder.add(new RtspTrackTiming(rtpTime, sequenceNumber, uri));

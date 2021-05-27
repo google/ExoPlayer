@@ -456,7 +456,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             @Nullable String sessionHeaderString = response.headers.get(RtspHeaders.SESSION);
             @Nullable String transportHeaderString = response.headers.get(RtspHeaders.TRANSPORT);
             if (sessionHeaderString == null || transportHeaderString == null) {
-              throw new ParserException();
+              throw ParserException.createForMalformedManifest(
+                  "Missing mandatory session or transport header", /* cause= */ null);
             }
 
             RtspSessionHeader sessionHeader =
