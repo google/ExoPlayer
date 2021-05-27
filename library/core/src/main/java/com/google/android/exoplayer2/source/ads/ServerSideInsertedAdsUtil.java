@@ -53,7 +53,7 @@ public final class ServerSideInsertedAdsUtil {
     long adGroupInsertionPositionUs =
         getMediaPeriodPositionUsForContent(
             fromPositionUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
-    int insertionIndex = 0;
+    int insertionIndex = adPlaybackState.removedAdGroupCount;
     while (insertionIndex < adPlaybackState.adGroupCount
         && adPlaybackState.getAdGroup(insertionIndex).timeUs != C.TIME_END_OF_SOURCE
         && adPlaybackState.getAdGroup(insertionIndex).timeUs <= adGroupInsertionPositionUs) {
@@ -184,7 +184,7 @@ public final class ServerSideInsertedAdsUtil {
       long positionUs, int adGroupIndex, int adIndexInAdGroup, AdPlaybackState adPlaybackState) {
     AdPlaybackState.AdGroup currentAdGroup = adPlaybackState.getAdGroup(adGroupIndex);
     positionUs += currentAdGroup.timeUs;
-    for (int i = 0; i < adGroupIndex; i++) {
+    for (int i = adPlaybackState.removedAdGroupCount; i < adGroupIndex; i++) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       for (int j = 0; j < getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i); j++) {
         positionUs += adGroup.durationsUs[j];
@@ -214,7 +214,7 @@ public final class ServerSideInsertedAdsUtil {
       long positionUs, int adGroupIndex, int adIndexInAdGroup, AdPlaybackState adPlaybackState) {
     AdPlaybackState.AdGroup currentAdGroup = adPlaybackState.getAdGroup(adGroupIndex);
     positionUs -= currentAdGroup.timeUs;
-    for (int i = 0; i < adGroupIndex; i++) {
+    for (int i = adPlaybackState.removedAdGroupCount; i < adGroupIndex; i++) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       for (int j = 0; j < getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i); j++) {
         positionUs -= adGroup.durationsUs[j];
@@ -246,7 +246,7 @@ public final class ServerSideInsertedAdsUtil {
     if (nextAdGroupIndex == C.INDEX_UNSET) {
       nextAdGroupIndex = adPlaybackState.adGroupCount;
     }
-    for (int i = 0; i < nextAdGroupIndex; i++) {
+    for (int i = adPlaybackState.removedAdGroupCount; i < nextAdGroupIndex; i++) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       if (adGroup.timeUs == C.TIME_END_OF_SOURCE || adGroup.timeUs > positionUs) {
         break;
@@ -283,7 +283,7 @@ public final class ServerSideInsertedAdsUtil {
     if (nextAdGroupIndex == C.INDEX_UNSET) {
       nextAdGroupIndex = adPlaybackState.adGroupCount;
     }
-    for (int i = 0; i < nextAdGroupIndex; i++) {
+    for (int i = adPlaybackState.removedAdGroupCount; i < nextAdGroupIndex; i++) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       if (adGroup.timeUs == C.TIME_END_OF_SOURCE
           || adGroup.timeUs > positionUs - totalAdDurationBeforePositionUs) {

@@ -700,6 +700,14 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
+     * Returns the number of removed ad groups in the period. Ad groups with indices between {@code
+     * 0} (inclusive) and {@code removedAdGroupCount} (exclusive) will be empty.
+     */
+    public int getRemovedAdGroupCount() {
+      return adPlaybackState.adGroupCount;
+    }
+
+    /**
      * Returns the time of the ad group at index {@code adGroupIndex} in the period, in
      * microseconds.
      *

@@ -121,7 +121,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
    */
   public void setAdPlaybackState(AdPlaybackState adPlaybackState) {
     checkArgument(adPlaybackState.adGroupCount >= this.adPlaybackState.adGroupCount);
-    for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
+    for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       checkArgument(adGroup.isServerSideInserted);
       if (i < this.adPlaybackState.adGroupCount) {

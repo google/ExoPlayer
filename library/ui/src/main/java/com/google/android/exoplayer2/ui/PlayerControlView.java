@@ -982,8 +982,9 @@ public class PlayerControlView extends FrameLayout {
         }
         for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
           timeline.getPeriod(j, period);
-          int periodAdGroupCount = period.getAdGroupCount();
-          for (int adGroupIndex = 0; adGroupIndex < periodAdGroupCount; adGroupIndex++) {
+          int removedGroups = period.getRemovedAdGroupCount();
+          int totalGroups = period.getAdGroupCount();
+          for (int adGroupIndex = removedGroups; adGroupIndex < totalGroups; adGroupIndex++) {
             long adGroupTimeInPeriodUs = period.getAdGroupTimeUs(adGroupIndex);
             if (adGroupTimeInPeriodUs == C.TIME_END_OF_SOURCE) {
               if (period.durationUs == C.TIME_UNSET) {
