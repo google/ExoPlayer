@@ -243,6 +243,14 @@ public class PlaybackException extends Exception implements Bundleable {
     }
   }
 
+  /**
+   * Equivalent to {@link PlaybackException#getErrorCodeName(int)
+   * PlaybackException.getErrorCodeName(this.errorCode)}.
+   */
+  public final String getErrorCodeName() {
+    return getErrorCodeName(errorCode);
+  }
+
   /** An error code which identifies the cause of the playback failure. */
   @ErrorCode public final int errorCode;
 

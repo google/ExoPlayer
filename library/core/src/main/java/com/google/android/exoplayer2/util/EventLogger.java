@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -598,6 +599,9 @@ public class EventLogger implements AnalyticsListener {
       @Nullable String eventDescription,
       @Nullable Throwable throwable) {
     String eventString = eventName + " [" + getEventTimeString(eventTime);
+    if (throwable instanceof PlaybackException) {
+      eventString += ", errorCode=" + ((PlaybackException) throwable).getErrorCodeName();
+    }
     if (eventDescription != null) {
       eventString += ", " + eventDescription;
     }
