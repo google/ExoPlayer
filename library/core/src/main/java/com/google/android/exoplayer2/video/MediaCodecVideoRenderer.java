@@ -124,7 +124,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
 
   @Nullable private Surface surface;
-  @Nullable private Surface dummySurface;
+  @Nullable private DummySurface dummySurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   @C.VideoScalingMode private int scalingMode;
   private boolean renderedFirstFrameAfterReset;
@@ -486,6 +486,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  @TargetApi(17) // Needed for dummySurface usage. dummySurface is always null on API level 16.
   @Override
   protected void onReset() {
     try {
@@ -596,12 +597,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return tunneling && Util.SDK_INT < 23;
   }
 
+  @TargetApi(17) // Needed for dummySurface usage. dummySurface is always null on API level 16.
   @Override
   protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
+    if (dummySurface != null && dummySurface.secure != codecInfo.secure) {
+      // We can't re-use the current DummySurface instance with the new decoder.
+      dummySurface.release();
+      dummySurface = null;
+    }
     String codecMimeType = codecInfo.codecMimeType;
     codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
     MediaFormat mediaFormat =
