@@ -47,6 +47,12 @@
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
+*   Video:
+    *   Fix bug that could cause `CodecException: Error 0xffffffff` to be thrown
+        from `MediaCodec.native_setSurface` in use cases that involve both
+        swapping the output `Surface` and a mixture of secure and non-secure
+        content being played
+        ([#8776](https://github.com/google/ExoPlayer/issues/8776)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
@@ -66,7 +72,6 @@
     *   Keep subtitle language features embedded (e.g. rubies & tate-chu-yoko)
         in `Cue.text` even when `SubtitleView#setApplyEmbeddedStyles()` is
         false.
-*   UI
     *   Fix `NullPointerException` in `StyledPlayerView` that could occur after
         calling `StyledPlayerView.setPlayer(null)`
         ([#8985](https://github.com/google/ExoPlayer/issues/8985)).
