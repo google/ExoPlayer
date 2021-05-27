@@ -19,7 +19,9 @@ package com.google.android.exoplayer2.source.rtsp;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import java.util.Arrays;
@@ -398,5 +400,84 @@ public final class RtspMessageUtilTest {
   public void isRtspStartLine_onValidHeaderLine_succeeds() {
     assertThat(RtspMessageUtil.isRtspStartLine("Transport: RTP/AVP;unicast;client_port=1000-1001"))
         .isFalse();
+  }
+
+  @Test
+  public void extractUserInfo_withoutPassword_returnsNull() {
+    @Nullable
+    RtspAuthUserInfo authUserInfo =
+        RtspMessageUtil.parseUserInfo(Uri.parse("rtsp://username@mediaserver.com/stream1"));
+
+    assertThat(authUserInfo).isNull();
+  }
+
+  @Test
+  public void extractUserInfo_withoutUserInfo_returnsNull() {
+    @Nullable
+    RtspAuthUserInfo authUserInfo =
+        RtspMessageUtil.parseUserInfo(Uri.parse("rtsp://mediaserver.com/stream1"));
+    assertThat(authUserInfo).isNull();
+  }
+
+  @Test
+  public void extractUserInfo_withProperlyFormattedUri_succeeds() {
+    @Nullable
+    RtspAuthUserInfo authUserInfo =
+        RtspMessageUtil.parseUserInfo(
+            Uri.parse("rtsp://username:pass:word@mediaserver.com/stream1"));
+
+    assertThat(authUserInfo).isNotNull();
+    assertThat(authUserInfo.username).isEqualTo("username");
+    assertThat(authUserInfo.password).isEqualTo("pass:word");
+  }
+
+  @Test
+  public void parseWWWAuthenticateHeader_withBasicAuthentication_succeeds() throws Exception {
+    RtspAuthenticationInfo authenticationInfo =
+        RtspMessageUtil.parseWwwAuthenticateHeader("Basic realm=\"WallyWorld\"");
+    assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.BASIC);
+    assertThat(authenticationInfo.nonce).isEmpty();
+    assertThat(authenticationInfo.realm).isEqualTo("WallyWorld");
+  }
+
+  @Test
+  public void parseWWWAuthenticateHeader_withDigestAuthenticationWithDomain_succeeds()
+      throws Exception {
+    RtspAuthenticationInfo authenticationInfo =
+        RtspMessageUtil.parseWwwAuthenticateHeader(
+            "Digest realm=\"testrealm@host.com\", domain=\"host.com\","
+                + " nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\", "
+                + " opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"");
+
+    assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.DIGEST);
+    assertThat(authenticationInfo.nonce).isEqualTo("dcd98b7102dd2f0e8b11d0f600bfb0c093");
+    assertThat(authenticationInfo.realm).isEqualTo("testrealm@host.com");
+    assertThat(authenticationInfo.opaque).isEmpty();
+  }
+
+  @Test
+  public void parseWWWAuthenticateHeader_withDigestAuthenticationWithOptionalParameters_succeeds()
+      throws Exception {
+    RtspAuthenticationInfo authenticationInfo =
+        RtspMessageUtil.parseWwwAuthenticateHeader(
+            "Digest realm=\"testrealm@host.com\", nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\","
+                + " opaque=\"5ccc069c403ebaf9f0171e9517f40e41\", stale=\"stalev\","
+                + " algorithm=\"md5\"");
+
+    assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.DIGEST);
+    assertThat(authenticationInfo.nonce).isEqualTo("dcd98b7102dd2f0e8b11d0f600bfb0c093");
+    assertThat(authenticationInfo.realm).isEqualTo("testrealm@host.com");
+    assertThat(authenticationInfo.opaque).isEqualTo("5ccc069c403ebaf9f0171e9517f40e41");
+  }
+
+  @Test
+  public void parseWWWAuthenticateHeader_withDigestAuthentication_succeeds() throws Exception {
+    RtspAuthenticationInfo authenticationInfo =
+        RtspMessageUtil.parseWwwAuthenticateHeader(
+            "Digest realm=\"LIVE555 Streaming Media\", nonce=\"0cdfe9719e7373b7d5bb2913e2115f3f\"");
+    assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.DIGEST);
+    assertThat(authenticationInfo.nonce).isEqualTo("0cdfe9719e7373b7d5bb2913e2115f3f");
+    assertThat(authenticationInfo.realm).isEqualTo("LIVE555 Streaming Media");
+    assertThat(authenticationInfo.opaque).isEmpty();
   }
 }

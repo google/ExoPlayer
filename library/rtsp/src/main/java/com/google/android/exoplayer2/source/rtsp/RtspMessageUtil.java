@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_TEARD
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_UNSET;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 import android.net.Uri;
@@ -63,6 +64,20 @@ import java.util.regex.Pattern;
     }
   }
 
+  /** Wraps username and password for authentication purposes. */
+  public static final class RtspAuthUserInfo {
+    /** The username. */
+    public final String username;
+    /** The password. */
+    public final String password;
+
+    /** Creates a new instance. */
+    public RtspAuthUserInfo(String username, String password) {
+      this.username = username;
+      this.password = password;
+    }
+  }
+
   /** The default timeout, in milliseconds, defined for RTSP (RFC2326 Section 12.37). */
   public static final long DEFAULT_RTSP_TIMEOUT_MS = 60_000;
 
@@ -79,6 +94,17 @@ import java.util.regex.Pattern;
   // Session header pattern, see RFC2326 Section 12.37.
   private static final Pattern SESSION_HEADER_PATTERN =
       Pattern.compile("(\\w+)(?:;\\s?timeout=(\\d+))?");
+
+  // WWW-Authenticate header pattern, see RFC2068 Sections 14.46 and RFC2069.
+  private static final Pattern WWW_AUTHENTICATION_HEADER_DIGEST_PATTERN =
+      Pattern.compile(
+          "Digest realm=\"([\\w\\s@.]+)\""
+              + ",\\s?(?:domain=\"(.+)\",\\s?)?"
+              + "nonce=\"(\\w+)\""
+              + "(?:,\\s?opaque=\"(\\w+)\")?");
+  // WWW-Authenticate header pattern, see RFC2068 Section 11.1 and RFC2069.
+  private static final Pattern WWW_AUTHENTICATION_HEADER_BASIC_PATTERN =
+      Pattern.compile("Basic realm=\"([\\w\\s@.]+)\"");
 
   private static final String RTSP_VERSION = "RTSP/1.0";
 
@@ -155,6 +181,31 @@ import java.util.regex.Pattern;
     checkArgument(authorityWithUserInfo.contains("@"));
     String authority = Util.split(authorityWithUserInfo, "@")[1];
     return uri.buildUpon().encodedAuthority(authority).build();
+  }
+
+  /**
+   * Parses the user info encapsulated in the RTSP {@link Uri}.
+   *
+   * @param uri The {@link Uri}.
+   * @return The extracted {@link RtspAuthUserInfo}, {@code null} if the argument {@link Uri} does
+   *     not contain userinfo, or it's not properly formatted.
+   */
+  @Nullable
+  public static RtspAuthUserInfo parseUserInfo(Uri uri) {
+    @Nullable String userInfo = uri.getUserInfo();
+    if (userInfo == null) {
+      return null;
+    }
+    if (userInfo.contains(":")) {
+      String[] userInfoStrings = Util.splitAtFirst(userInfo, ":");
+      return new RtspAuthUserInfo(userInfoStrings[0], userInfoStrings[1]);
+    }
+    return null;
+  }
+
+  /** Returns the byte array representation of a string, using RTSP's character encoding. */
+  public static byte[] getStringBytes(String s) {
+    return s.getBytes(RtspMessageChannel.CHARSET);
   }
 
   /** Returns the corresponding String representation of the {@link RtspRequest.Method} argument. */
@@ -343,6 +394,39 @@ import java.util.regex.Pattern;
     }
 
     return new RtspSessionHeader(sessionId, timeoutMs);
+  }
+
+  /**
+   * Parses a WWW-Authenticate header.
+   *
+   * <p>Reference RFC2068 Section 14.46 for WWW-Authenticate header. Only digest and basic
+   * authentication mechanisms are supported.
+   *
+   * @param headerValue The string representation of the content, without the header name
+   *     (WWW-Authenticate: ).
+   * @return The parsed {@link RtspAuthenticationInfo}.
+   * @throws ParserException When the input header value does not follow the WWW-Authenticate header
+   *     format, or is not using either Basic or Digest mechanisms.
+   */
+  public static RtspAuthenticationInfo parseWwwAuthenticateHeader(String headerValue)
+      throws ParserException {
+    Matcher matcher = WWW_AUTHENTICATION_HEADER_DIGEST_PATTERN.matcher(headerValue);
+    if (matcher.find()) {
+      return new RtspAuthenticationInfo(
+          RtspAuthenticationInfo.DIGEST,
+          /* realm= */ checkNotNull(matcher.group(1)),
+          /* nonce= */ checkNotNull(matcher.group(3)),
+          /* opaque= */ nullToEmpty(matcher.group(4)));
+    }
+    matcher = WWW_AUTHENTICATION_HEADER_BASIC_PATTERN.matcher(headerValue);
+    if (matcher.matches()) {
+      return new RtspAuthenticationInfo(
+          RtspAuthenticationInfo.BASIC,
+          /* realm= */ checkNotNull(matcher.group(1)),
+          /* nonce= */ "",
+          /* opaque= */ "");
+    }
+    throw new ParserException("Invalid WWW-Authenticate header " + headerValue);
   }
 
   private static String getRtspStatusReasonPhrase(int statusCode) {
