@@ -284,8 +284,7 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets the {@link UUID} of the protection scheme. If a DRM system UUID is set, the {@link
-     * DrmConfiguration#licenseUri} needs to be set as well.
+     * Sets the {@link UUID} of the protection scheme.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM system UUID is used to create
      * a {@link PlaybackProperties} object. Otherwise it will be ignored.
