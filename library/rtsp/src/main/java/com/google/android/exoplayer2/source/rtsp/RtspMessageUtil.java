@@ -426,7 +426,8 @@ import java.util.regex.Pattern;
           /* nonce= */ "",
           /* opaque= */ "");
     }
-    throw new ParserException("Invalid WWW-Authenticate header " + headerValue);
+    throw ParserException.createForMalformedManifest(
+        "Invalid WWW-Authenticate header " + headerValue, /* cause= */ null);
   }
 
   private static String getRtspStatusReasonPhrase(int statusCode) {

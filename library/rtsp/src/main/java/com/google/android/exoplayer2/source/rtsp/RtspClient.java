@@ -421,7 +421,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               @Nullable
               String wwwAuthenticateHeader = response.headers.get(RtspHeaders.WWW_AUTHENTICATE);
               if (wwwAuthenticateHeader == null) {
-                throw new ParserException("Missing WWW-Authenticate header in a 401 response.");
+                throw ParserException.createForMalformedManifest(
+                    "Missing WWW-Authenticate header in a 401 response.", /* cause= */ null);
               }
               rtspAuthenticationInfo =
                   RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeader);

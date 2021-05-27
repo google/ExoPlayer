@@ -95,7 +95,8 @@ import java.security.NoSuchAlgorithmException;
       case DIGEST:
         return getDigestAuthorizationHeaderValue(authUserInfo, uri, requestMethod);
       default:
-        throw new ParserException(new UnsupportedOperationException());
+        throw ParserException.createForManifestWithUnsupportedFeature(
+            /* message= */ null, new UnsupportedOperationException());
     }
   }
 
@@ -136,7 +137,7 @@ import java.security.NoSuchAlgorithmException;
             DIGEST_FORMAT_WITH_OPAQUE, authUserInfo.username, realm, nonce, uri, response, opaque);
       }
     } catch (NoSuchAlgorithmException e) {
-      throw new ParserException(e);
+      throw ParserException.createForManifestWithUnsupportedFeature(/* message= */ null, e);
     }
   }
 }
