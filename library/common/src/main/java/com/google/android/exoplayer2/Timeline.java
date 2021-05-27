@@ -708,7 +708,7 @@ public abstract class Timeline implements Bundleable {
      *     Period}, in microseconds, or {@link C#TIME_END_OF_SOURCE} for a post-roll ad group.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
-      return adPlaybackState.adGroupTimesUs[adGroupIndex];
+      return adPlaybackState.getAdGroup(adGroupIndex).timeUs;
     }
 
     /**
@@ -720,7 +720,7 @@ public abstract class Timeline implements Bundleable {
      *     if no ads should be played.
      */
     public int getFirstAdIndexToPlay(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
+      return adPlaybackState.getAdGroup(adGroupIndex).getFirstAdIndexToPlay();
     }
 
     /**
@@ -734,7 +734,7 @@ public abstract class Timeline implements Bundleable {
      *     if the ad group does not have any ads remaining to play.
      */
     public int getNextAdIndexToPlay(int adGroupIndex, int lastPlayedAdIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].getNextAdIndexToPlay(lastPlayedAdIndex);
+      return adPlaybackState.getAdGroup(adGroupIndex).getNextAdIndexToPlay(lastPlayedAdIndex);
     }
 
     /**
@@ -746,7 +746,7 @@ public abstract class Timeline implements Bundleable {
      *     skipped or failed.
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
-      return !adPlaybackState.adGroups[adGroupIndex].hasUnplayedAds();
+      return !adPlaybackState.getAdGroup(adGroupIndex).hasUnplayedAds();
     }
 
     /**
@@ -782,7 +782,7 @@ public abstract class Timeline implements Bundleable {
      * @return The number of ads in the ad group, or {@link C#LENGTH_UNSET} if not yet known.
      */
     public int getAdCountInAdGroup(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].count;
+      return adPlaybackState.getAdGroup(adGroupIndex).count;
     }
 
     /**
@@ -794,7 +794,7 @@ public abstract class Timeline implements Bundleable {
      * @return The duration of the ad, or {@link C#TIME_UNSET} if not yet known.
      */
     public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
       return adGroup.count != C.LENGTH_UNSET ? adGroup.durationsUs[adIndexInAdGroup] : C.TIME_UNSET;
     }
 
@@ -814,7 +814,7 @@ public abstract class Timeline implements Bundleable {
      * @return Whether this ad group is server-side inserted and part of the content stream.
      */
     public boolean isServerSideInsertedAdGroup(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].isServerSideInserted;
+      return adPlaybackState.getAdGroup(adGroupIndex).isServerSideInserted;
     }
 
     /**
@@ -825,7 +825,7 @@ public abstract class Timeline implements Bundleable {
      * @return The offset that should be added to the content stream, in microseconds.
      */
     public long getContentResumeOffsetUs(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].contentResumeOffsetUs;
+      return adPlaybackState.getAdGroup(adGroupIndex).contentResumeOffsetUs;
     }
 
     @Override

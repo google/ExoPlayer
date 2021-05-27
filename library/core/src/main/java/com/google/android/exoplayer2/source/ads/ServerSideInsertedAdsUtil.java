@@ -55,8 +55,8 @@ public final class ServerSideInsertedAdsUtil {
             fromPositionUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
     int insertionIndex = 0;
     while (insertionIndex < adPlaybackState.adGroupCount
-        && adPlaybackState.adGroupTimesUs[insertionIndex] != C.TIME_END_OF_SOURCE
-        && adPlaybackState.adGroupTimesUs[insertionIndex] <= adGroupInsertionPositionUs) {
+        && adPlaybackState.getAdGroup(insertionIndex).timeUs != C.TIME_END_OF_SOURCE
+        && adPlaybackState.getAdGroup(insertionIndex).timeUs <= adGroupInsertionPositionUs) {
       insertionIndex++;
     }
     long adDurationUs = toPositionUs - fromPositionUs;
@@ -69,11 +69,11 @@ public final class ServerSideInsertedAdsUtil {
             .withContentResumeOffsetUs(insertionIndex, contentResumeOffsetUs);
     long followingAdGroupTimeUsOffset = -adDurationUs + contentResumeOffsetUs;
     for (int i = insertionIndex + 1; i < adPlaybackState.adGroupCount; i++) {
-      if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
+      long adGroupTimeUs = adPlaybackState.getAdGroup(i).timeUs;
+      if (adGroupTimeUs != C.TIME_END_OF_SOURCE) {
         adPlaybackState =
             adPlaybackState.withAdGroupTimeUs(
-                /* adGroupIndex= */ i,
-                adPlaybackState.adGroupTimesUs[i] + followingAdGroupTimeUsOffset);
+                /* adGroupIndex= */ i, adGroupTimeUs + followingAdGroupTimeUsOffset);
       }
     }
     return adPlaybackState;
@@ -182,16 +182,18 @@ public final class ServerSideInsertedAdsUtil {
    */
   public static long getStreamPositionUsForAd(
       long positionUs, int adGroupIndex, int adIndexInAdGroup, AdPlaybackState adPlaybackState) {
-    positionUs += adPlaybackState.adGroupTimesUs[adGroupIndex];
+    AdPlaybackState.AdGroup currentAdGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    positionUs += currentAdGroup.timeUs;
     for (int i = 0; i < adGroupIndex; i++) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       for (int j = 0; j < getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i); j++) {
-        positionUs += adPlaybackState.adGroups[i].durationsUs[j];
+        positionUs += adGroup.durationsUs[j];
       }
-      positionUs -= adPlaybackState.adGroups[i].contentResumeOffsetUs;
+      positionUs -= adGroup.contentResumeOffsetUs;
     }
     if (adIndexInAdGroup < getAdCountInGroup(adPlaybackState, adGroupIndex)) {
       for (int i = 0; i < adIndexInAdGroup; i++) {
-        positionUs += adPlaybackState.adGroups[adGroupIndex].durationsUs[i];
+        positionUs += currentAdGroup.durationsUs[i];
       }
     }
     return positionUs;
@@ -210,16 +212,18 @@ public final class ServerSideInsertedAdsUtil {
    */
   public static long getMediaPeriodPositionUsForAd(
       long positionUs, int adGroupIndex, int adIndexInAdGroup, AdPlaybackState adPlaybackState) {
-    positionUs -= adPlaybackState.adGroupTimesUs[adGroupIndex];
+    AdPlaybackState.AdGroup currentAdGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    positionUs -= currentAdGroup.timeUs;
     for (int i = 0; i < adGroupIndex; i++) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
       for (int j = 0; j < getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i); j++) {
-        positionUs -= adPlaybackState.adGroups[i].durationsUs[j];
+        positionUs -= adGroup.durationsUs[j];
       }
-      positionUs += adPlaybackState.adGroups[i].contentResumeOffsetUs;
+      positionUs += adGroup.contentResumeOffsetUs;
     }
     if (adIndexInAdGroup < getAdCountInGroup(adPlaybackState, adGroupIndex)) {
       for (int i = 0; i < adIndexInAdGroup; i++) {
-        positionUs -= adPlaybackState.adGroups[adGroupIndex].durationsUs[i];
+        positionUs -= currentAdGroup.durationsUs[i];
       }
     }
     return positionUs;
@@ -243,18 +247,16 @@ public final class ServerSideInsertedAdsUtil {
       nextAdGroupIndex = adPlaybackState.adGroupCount;
     }
     for (int i = 0; i < nextAdGroupIndex; i++) {
-      if (adPlaybackState.adGroupTimesUs[i] == C.TIME_END_OF_SOURCE
-          || adPlaybackState.adGroupTimesUs[i] > positionUs) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
+      if (adGroup.timeUs == C.TIME_END_OF_SOURCE || adGroup.timeUs > positionUs) {
         break;
       }
-      long adGroupStreamStartPositionUs =
-          adPlaybackState.adGroupTimesUs[i] + totalAdDurationBeforePositionUs;
+      long adGroupStreamStartPositionUs = adGroup.timeUs + totalAdDurationBeforePositionUs;
       for (int j = 0; j < getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i); j++) {
-        totalAdDurationBeforePositionUs += adPlaybackState.adGroups[i].durationsUs[j];
+        totalAdDurationBeforePositionUs += adGroup.durationsUs[j];
       }
-      totalAdDurationBeforePositionUs -= adPlaybackState.adGroups[i].contentResumeOffsetUs;
-      long adGroupResumePositionUs =
-          adPlaybackState.adGroupTimesUs[i] + adPlaybackState.adGroups[i].contentResumeOffsetUs;
+      totalAdDurationBeforePositionUs -= adGroup.contentResumeOffsetUs;
+      long adGroupResumePositionUs = adGroup.timeUs + adGroup.contentResumeOffsetUs;
       if (adGroupResumePositionUs > positionUs) {
         // The position is inside the ad group.
         return max(adGroupStreamStartPositionUs, positionUs + totalAdDurationBeforePositionUs);
@@ -282,19 +284,19 @@ public final class ServerSideInsertedAdsUtil {
       nextAdGroupIndex = adPlaybackState.adGroupCount;
     }
     for (int i = 0; i < nextAdGroupIndex; i++) {
-      if (adPlaybackState.adGroupTimesUs[i] == C.TIME_END_OF_SOURCE
-          || adPlaybackState.adGroupTimesUs[i] > positionUs - totalAdDurationBeforePositionUs) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
+      if (adGroup.timeUs == C.TIME_END_OF_SOURCE
+          || adGroup.timeUs > positionUs - totalAdDurationBeforePositionUs) {
         break;
       }
       for (int j = 0; j < getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i); j++) {
-        totalAdDurationBeforePositionUs += adPlaybackState.adGroups[i].durationsUs[j];
+        totalAdDurationBeforePositionUs += adGroup.durationsUs[j];
       }
-      totalAdDurationBeforePositionUs -= adPlaybackState.adGroups[i].contentResumeOffsetUs;
-      long adGroupResumePositionUs =
-          adPlaybackState.adGroupTimesUs[i] + adPlaybackState.adGroups[i].contentResumeOffsetUs;
+      totalAdDurationBeforePositionUs -= adGroup.contentResumeOffsetUs;
+      long adGroupResumePositionUs = adGroup.timeUs + adGroup.contentResumeOffsetUs;
       if (adGroupResumePositionUs > positionUs - totalAdDurationBeforePositionUs) {
         // The position is inside the ad group.
-        return max(adPlaybackState.adGroupTimesUs[i], positionUs - totalAdDurationBeforePositionUs);
+        return max(adGroup.timeUs, positionUs - totalAdDurationBeforePositionUs);
       }
     }
     return positionUs - totalAdDurationBeforePositionUs;
@@ -308,8 +310,7 @@ public final class ServerSideInsertedAdsUtil {
    * @return The number of ads in the ad group.
    */
   public static int getAdCountInGroup(AdPlaybackState adPlaybackState, int adGroupIndex) {
-    return adPlaybackState.adGroups[adGroupIndex].count == C.LENGTH_UNSET
-        ? 0
-        : adPlaybackState.adGroups[adGroupIndex].count;
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    return adGroup.count == C.LENGTH_UNSET ? 0 : adGroup.count;
   }
 }

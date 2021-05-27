@@ -797,7 +797,9 @@ public final class MediaPeriodQueueTest {
     long[][] newDurations = new long[adPlaybackState.adGroupCount][];
     for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
       newDurations[i] =
-          i == adGroupIndex ? new long[] {AD_DURATION_US} : adPlaybackState.adGroups[i].durationsUs;
+          i == adGroupIndex
+              ? new long[] {AD_DURATION_US}
+              : adPlaybackState.getAdGroup(i).durationsUs;
     }
     adPlaybackState =
         adPlaybackState
@@ -808,7 +810,7 @@ public final class MediaPeriodQueueTest {
   }
 
   private void setAdGroupPlayed(int adGroupIndex) {
-    for (int i = 0; i < adPlaybackState.adGroups[adGroupIndex].count; i++) {
+    for (int i = 0; i < adPlaybackState.getAdGroup(adGroupIndex).count; i++) {
       adPlaybackState = adPlaybackState.withPlayedAd(adGroupIndex, /* adIndexInAdGroup= */ i);
     }
     updateTimeline();

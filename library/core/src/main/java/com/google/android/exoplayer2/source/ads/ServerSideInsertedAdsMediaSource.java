@@ -122,13 +122,14 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
   public void setAdPlaybackState(AdPlaybackState adPlaybackState) {
     checkArgument(adPlaybackState.adGroupCount >= this.adPlaybackState.adGroupCount);
     for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
-      checkArgument(adPlaybackState.adGroups[i].isServerSideInserted);
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
+      checkArgument(adGroup.isServerSideInserted);
       if (i < this.adPlaybackState.adGroupCount) {
         checkArgument(
             getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i)
                 >= getAdCountInGroup(this.adPlaybackState, /* adGroupIndex= */ i));
       }
-      if (adPlaybackState.adGroupTimesUs[i] == C.TIME_END_OF_SOURCE) {
+      if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
         checkArgument(getAdCountInGroup(adPlaybackState, /* adGroupIndex= */ i) == 0);
       }
     }
@@ -482,14 +483,14 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
       MediaPeriodImpl mediaPeriod, AdPlaybackState adPlaybackState) {
     MediaPeriodId id = mediaPeriod.mediaPeriodId;
     if (id.isAd()) {
-      return adPlaybackState.adGroups[id.adGroupIndex].count == C.LENGTH_UNSET
-          ? 0
-          : adPlaybackState.adGroups[id.adGroupIndex].durationsUs[id.adIndexInAdGroup];
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(id.adGroupIndex);
+      return adGroup.count == C.LENGTH_UNSET ? 0 : adGroup.durationsUs[id.adIndexInAdGroup];
     }
-    return id.nextAdGroupIndex == C.INDEX_UNSET
-            || adPlaybackState.adGroupTimesUs[id.nextAdGroupIndex] == C.TIME_END_OF_SOURCE
-        ? Long.MAX_VALUE
-        : adPlaybackState.adGroupTimesUs[id.nextAdGroupIndex];
+    if (id.nextAdGroupIndex == C.INDEX_UNSET) {
+      return Long.MAX_VALUE;
+    }
+    AdPlaybackState.AdGroup nextAdGroup = adPlaybackState.getAdGroup(id.nextAdGroupIndex);
+    return nextAdGroup.timeUs == C.TIME_END_OF_SOURCE ? Long.MAX_VALUE : nextAdGroup.timeUs;
   }
 
   private static MediaLoadData correctMediaLoadData(
