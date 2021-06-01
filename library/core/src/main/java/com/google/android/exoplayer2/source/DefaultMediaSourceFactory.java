@@ -67,8 +67,7 @@ import java.util.List;
  *       exoplayer-smoothstreaming module to be added</a> to the app).
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
  *       MediaItem.PlaybackProperties#uri uri} doesn't match one of the above. It tries to infer the
- *       required extractor by using the {@link
- *       com.google.android.exoplayer2.extractor.DefaultExtractorsFactory} or the {@link
+ *       required extractor by using the {@link DefaultExtractorsFactory} or the {@link
  *       ExtractorsFactory} provided in the constructor. An {@link UnrecognizedInputFormatException}
  *       is thrown if none of the available extractors can read the stream.
  * </ul>
