@@ -25,6 +25,13 @@
         must be released without restoring them first.
     *   Ensure `DefaultDrmSession` instances keep working even after their
         `DefaultDrmSessionManager` instance is released.
+    *   Keep secure `MediaCodec` instances initialized when disabling (but not
+        resetting) `MediaCodecRenderer`. This helps re-use secure decoders in
+        more contexts, which avoids the 'black flash' caused by detaching a
+        `Surface` from a secure decoder on some devices
+        ([#8842](https://github.com/google/ExoPlayer/issues/8842)). It will also
+        result in DRM license refresh network requests while the player is
+        stopped if `Player#setForegroundMode` is true.
 *   UI:
     *   Keep subtitle language features embedded (e.g. rubies & tate-chu-yoko)
         in `Cue.text` even when `SubtitleView#setApplyEmbeddedStyles()` is
