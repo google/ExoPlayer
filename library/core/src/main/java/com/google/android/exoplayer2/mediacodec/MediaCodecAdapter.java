@@ -214,4 +214,7 @@ public interface MediaCodecAdapter {
    * @see MediaCodec#setVideoScalingMode(int)
    */
   void setVideoScalingMode(@C.VideoScalingMode int scalingMode);
+
+  /** Whether the adapter needs to be reconfigured before it is used. */
+  boolean needsReconfiguration();
 }

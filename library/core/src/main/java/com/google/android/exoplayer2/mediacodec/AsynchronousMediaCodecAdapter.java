@@ -185,6 +185,11 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  public boolean needsReconfiguration() {
+    return false;
+  }
+
+  @Override
   public void queueInputBuffer(
       int index, int offset, int size, long presentationTimeUs, int flags) {
     bufferEnqueuer.queueInputBuffer(index, offset, size, presentationTimeUs, flags);

@@ -6,6 +6,7 @@
     *   Fix gradle config to allow specifying a relative path for
         `exoplayerRoot` when [depending on ExoPlayer locally](README.md#locally)
         ([#8927](https://github.com/google/ExoPlayer/issues/8927)).
+    *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
     *   Update `MediaItem.Builder` javadoc to discourage calling setters that
         will be (currently) ignored if another setter is not also called.
 *   Extractors:

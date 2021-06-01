@@ -1141,6 +1141,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecNeedsMonoChannelCountWorkaround(codecName, codecInputFormat);
     codecNeedsEosPropagation =
         codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
+    if (codecAdapter.needsReconfiguration()) {
+      this.codecReconfigured = true;
+      this.codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+      this.codecNeedsAdaptationWorkaroundBuffer =
+          codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER;
+    }
     if ("c2.android.mp3.decoder".equals(codecInfo.name)) {
       c2Mp3TimestampTracker = new C2Mp3TimestampTracker();
     }
