@@ -22,9 +22,11 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link RawCcExtractor}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@DoNotInstrument
 public final class RawCcExtractorTest {
 
   @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")

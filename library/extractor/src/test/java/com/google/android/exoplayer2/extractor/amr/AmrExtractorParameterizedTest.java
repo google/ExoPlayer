@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Unit tests for {@link AmrExtractor} that use parameterization to test a range of behaviours.
@@ -30,6 +31,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
  * AmrExtractorNonParameterizedTest}.
  */
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@DoNotInstrument
 public final class AmrExtractorParameterizedTest {
 
   @Parameters(name = "{0}")
