@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
@@ -42,6 +43,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.rtsp");
+  }
 
   /**
    * Factory for {@link RtspMediaSource}
