@@ -21,7 +21,6 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -245,7 +244,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPlayerError(EventTime eventTime, ExoPlaybackException e) {
+  public void onPlayerError(EventTime eventTime, PlaybackException e) {
     loge(eventTime, "playerFailed", e);
   }
 

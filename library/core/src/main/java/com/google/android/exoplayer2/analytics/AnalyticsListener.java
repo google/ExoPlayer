@@ -26,10 +26,10 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -617,7 +617,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param error The error.
    */
-  default void onPlayerError(EventTime eventTime, ExoPlaybackException error) {}
+  default void onPlayerError(EventTime eventTime, PlaybackException error) {}
 
   /**
    * Called when the available or selected tracks for the renderers changed.

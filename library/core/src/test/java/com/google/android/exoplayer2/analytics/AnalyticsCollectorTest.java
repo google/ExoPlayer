@@ -71,6 +71,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
@@ -1942,7 +1943,7 @@ public final class AnalyticsCollectorTest {
         spy(
             new AnalyticsListener() {
               @Override
-              public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
+              public void onPlayerError(EventTime eventTime, PlaybackException error) {
                 analyticsCollector.onSurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
               }
             });
@@ -2141,7 +2142,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
+    public void onPlayerError(EventTime eventTime, PlaybackException error) {
       reportedEvents.add(new ReportedEvent(EVENT_PLAYER_ERROR, eventTime));
     }
 

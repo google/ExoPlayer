@@ -7161,8 +7161,7 @@ public final class ExoPlayerTest {
                     player.addAnalyticsListener(
                         new AnalyticsListener() {
                           @Override
-                          public void onPlayerError(
-                              EventTime eventTime, ExoPlaybackException error) {
+                          public void onPlayerError(EventTime eventTime, PlaybackException error) {
                             timelineAfterError.set(player.getCurrentTimeline());
                             trackGroupsAfterError.set(player.getCurrentTrackGroups());
                             trackSelectionsAfterError.set(player.getCurrentTrackSelections());
