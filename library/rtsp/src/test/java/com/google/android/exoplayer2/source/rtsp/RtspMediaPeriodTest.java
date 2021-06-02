@@ -28,9 +28,11 @@ import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class RtspMediaPeriodTest {
 
   private static final RtspClient PLACEHOLDER_RTSP_CLIENT =

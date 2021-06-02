@@ -39,9 +39,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.SocketFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspMessageChannel}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class RtspMessageChannelTest {
 
   @Test
