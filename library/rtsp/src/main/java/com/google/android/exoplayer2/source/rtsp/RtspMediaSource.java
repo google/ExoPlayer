@@ -41,6 +41,10 @@ import java.io.IOException;
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
 
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.rtsp");
+  }
+
   /**
    * Factory for {@link RtspMediaSource}
    *
