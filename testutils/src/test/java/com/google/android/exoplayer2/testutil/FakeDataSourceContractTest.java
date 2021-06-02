@@ -21,9 +21,11 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** {@link DataSource} contract tests for {@link FakeDataSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class FakeDataSourceContractTest extends DataSourceContractTest {
 
   private Uri simpleUri;

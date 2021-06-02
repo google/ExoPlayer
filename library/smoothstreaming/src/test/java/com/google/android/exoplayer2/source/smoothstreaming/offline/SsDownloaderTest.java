@@ -32,9 +32,11 @@ import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link SsDownloader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class SsDownloaderTest {
 
   @Test

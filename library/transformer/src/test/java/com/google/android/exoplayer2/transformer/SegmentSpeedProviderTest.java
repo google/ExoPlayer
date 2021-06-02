@@ -29,9 +29,11 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link SegmentSpeedProvider}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class SegmentSpeedProviderTest {
 
   private static final SmtaMetadataEntry SMTA_SPEED_8 =

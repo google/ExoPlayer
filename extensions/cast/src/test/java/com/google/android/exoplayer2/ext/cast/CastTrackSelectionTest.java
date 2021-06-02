@@ -23,9 +23,11 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Test for {@link CastTrackSelection}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class CastTrackSelectionTest {
 
   private static final TrackGroup TRACK_GROUP =
