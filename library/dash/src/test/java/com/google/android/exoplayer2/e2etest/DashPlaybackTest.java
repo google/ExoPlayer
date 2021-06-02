@@ -36,11 +36,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** End-to-end tests using DASH samples. */
 // TODO(b/143232359): Remove once https://issuetracker.google.com/143232359 is resolved.
 @Config(sdk = 29)
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class DashPlaybackTest {
 
   @Rule
