@@ -1400,7 +1400,7 @@ public abstract class Timeline implements Bundleable {
    * A concrete class of {@link Timeline} to restore a {@link Timeline} instance from a {@link
    * Bundle} sent by another process via {@link IBinder}.
    */
-  private static final class RemotableTimeline extends Timeline {
+  public static final class RemotableTimeline extends Timeline {
 
     private final ImmutableList<Window> windows;
     private final ImmutableList<Period> periods;
