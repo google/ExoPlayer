@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -345,14 +345,14 @@ public interface Player {
   /** A set of {@link EventFlags}. */
   final class Events {
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
 
     /**
      * Creates an instance.
      *
-     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link EventFlags} in the set.
      */
-    public Events(ExoFlags flags) {
+    public Events(FlagSet flags) {
       this.flags = flags;
     }
 
@@ -608,15 +608,15 @@ public interface Player {
         COMMAND_GET_TEXT
       };
 
-      private final ExoFlags.Builder flagsBuilder;
+      private final FlagSet.Builder flagsBuilder;
 
       /** Creates a builder. */
       public Builder() {
-        flagsBuilder = new ExoFlags.Builder();
+        flagsBuilder = new FlagSet.Builder();
       }
 
       private Builder(Commands commands) {
-        flagsBuilder = new ExoFlags.Builder();
+        flagsBuilder = new FlagSet.Builder();
         flagsBuilder.addAll(commands.flags);
       }
 
@@ -730,9 +730,9 @@ public interface Player {
     /** An empty set of commands. */
     public static final Commands EMPTY = new Builder().build();
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
 
-    private Commands(ExoFlags flags) {
+    private Commands(FlagSet flags) {
       this.flags = flags;
     }
 

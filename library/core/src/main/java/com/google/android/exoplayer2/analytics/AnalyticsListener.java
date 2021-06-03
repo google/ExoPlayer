@@ -49,7 +49,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
@@ -76,18 +76,18 @@ public interface AnalyticsListener {
   /** A set of {@link EventFlags}. */
   final class Events {
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
     private final SparseArray<EventTime> eventTimes;
 
     /**
      * Creates an instance.
      *
-     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link EventFlags} in the set.
      * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
      *     all the events recorded in {@code flags}. Events that are not recorded in {@code flags}
      *     are ignored.
      */
-    public Events(ExoFlags flags, SparseArray<EventTime> eventTimes) {
+    public Events(FlagSet flags, SparseArray<EventTime> eventTimes) {
       this.flags = flags;
       SparseArray<EventTime> flagsToTimes = new SparseArray<>(/* initialCapacity= */ flags.size());
       for (int i = 0; i < flags.size(); i++) {

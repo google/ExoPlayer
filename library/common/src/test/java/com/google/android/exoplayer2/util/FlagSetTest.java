@@ -24,13 +24,13 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link ExoFlags}. */
+/** Unit test for {@link FlagSet}. */
 @RunWith(AndroidJUnit4.class)
-public final class ExoFlagsTest {
+public final class FlagSetTest {
 
   @Test
   public void contains_withoutAdd_returnsFalseForAllValues() {
-    ExoFlags flags = new ExoFlags.Builder().build();
+    FlagSet flags = new FlagSet.Builder().build();
 
     assertThat(flags.contains(/* flag= */ -1234)).isFalse();
     assertThat(flags.contains(/* flag= */ 0)).isFalse();
@@ -40,8 +40,8 @@ public final class ExoFlagsTest {
 
   @Test
   public void contains_afterAdd_returnsTrueForAddedValues() {
-    ExoFlags flags =
-        new ExoFlags.Builder()
+    FlagSet flags =
+        new FlagSet.Builder()
             .add(/* flag= */ -1234)
             .add(/* flag= */ 0)
             .add(/* flag= */ 2)
@@ -59,8 +59,8 @@ public final class ExoFlagsTest {
 
   @Test
   public void contains_afterAddIf_returnsTrueForAddedValues() {
-    ExoFlags flags =
-        new ExoFlags.Builder()
+    FlagSet flags =
+        new FlagSet.Builder()
             .addIf(/* flag= */ -1234, /* condition= */ true)
             .addIf(/* flag= */ 0, /* condition= */ false)
             .addIf(/* flag= */ 2, /* condition= */ true)
@@ -78,15 +78,15 @@ public final class ExoFlagsTest {
 
   @Test
   public void containsAny_withoutAdd_returnsFalseForAllValues() {
-    ExoFlags flags = new ExoFlags.Builder().build();
+    FlagSet flags = new FlagSet.Builder().build();
 
     assertThat(flags.containsAny(/* flags...= */ -1234, 0, 2, Integer.MAX_VALUE)).isFalse();
   }
 
   @Test
   public void containsAny_afterAdd_returnsTrueForAddedValues() {
-    ExoFlags flags =
-        new ExoFlags.Builder()
+    FlagSet flags =
+        new FlagSet.Builder()
             .add(/* flag= */ -1234)
             .add(/* flag= */ 0)
             .add(/* flag= */ 2)
@@ -102,15 +102,15 @@ public final class ExoFlagsTest {
 
   @Test
   public void size_withoutAdd_returnsZero() {
-    ExoFlags flags = new ExoFlags.Builder().build();
+    FlagSet flags = new FlagSet.Builder().build();
 
     assertThat(flags.size()).isEqualTo(0);
   }
 
   @Test
   public void size_afterAdd_returnsNumberUniqueOfElements() {
-    ExoFlags flags =
-        new ExoFlags.Builder()
+    FlagSet flags =
+        new FlagSet.Builder()
             .add(/* flag= */ 0)
             .add(/* flag= */ 0)
             .add(/* flag= */ 0)
@@ -123,22 +123,22 @@ public final class ExoFlagsTest {
 
   @Test
   public void get_withNegativeIndex_throwsIndexOutOfBoundsException() {
-    ExoFlags flags = new ExoFlags.Builder().build();
+    FlagSet flags = new FlagSet.Builder().build();
 
     assertThrows(IndexOutOfBoundsException.class, () -> flags.get(/* index= */ -1));
   }
 
   @Test
   public void get_withIndexExceedingSize_throwsIndexOutOfBoundsException() {
-    ExoFlags flags = new ExoFlags.Builder().add(/* flag= */ 0).add(/* flag= */ 123).build();
+    FlagSet flags = new FlagSet.Builder().add(/* flag= */ 0).add(/* flag= */ 123).build();
 
     assertThrows(IndexOutOfBoundsException.class, () -> flags.get(/* index= */ 2));
   }
 
   @Test
   public void get_afterAdd_returnsAllUniqueValues() {
-    ExoFlags flags =
-        new ExoFlags.Builder()
+    FlagSet flags =
+        new FlagSet.Builder()
             .add(/* flag= */ 0)
             .add(/* flag= */ 0)
             .add(/* flag= */ 0)

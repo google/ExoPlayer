@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
@@ -123,7 +123,7 @@ public class ForwardingPlayerTest {
     forwardingListener.onEvents(
         player,
         new Player.Events(
-            new ExoFlags.Builder()
+            new FlagSet.Builder()
                 .addAll(
                     EVENT_TIMELINE_CHANGED, EVENT_MEDIA_ITEM_TRANSITION, EVENT_IS_PLAYING_CHANGED)
                 .build()));
