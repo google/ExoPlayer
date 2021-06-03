@@ -85,7 +85,7 @@ public final class AvcConfig {
           pixelWidthAspectRatio,
           codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
-      throw new ParserException("Error parsing AVC config", e);
+      throw ParserException.createForMalformedContainer("Error parsing AVC config", e);
     }
   }
 

@@ -90,7 +90,7 @@ public final class HevcConfig {
       List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
       return new HevcConfig(initializationData, lengthSizeMinusOne + 1, codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
-      throw new ParserException("Error parsing HEVC config", e);
+      throw ParserException.createForMalformedContainer("Error parsing HEVC config", e);
     }
   }
 

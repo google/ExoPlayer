@@ -24,6 +24,19 @@ public class ParserException extends IOException {
 
   /**
    * Creates a new instance for which {@link #contentIsMalformed} is true and {@link #dataType} is
+   * {@link C#DATA_TYPE_UNKNOWN}.
+   *
+   * @param message See {@link #getMessage()}.
+   * @param cause See {@link #getCause()}.
+   * @return The created instance.
+   */
+  public static ParserException createForMalformedDataOfUnknownType(
+      @Nullable String message, @Nullable Throwable cause) {
+    return new ParserException(message, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
+  }
+
+  /**
+   * Creates a new instance for which {@link #contentIsMalformed} is true and {@link #dataType} is
    * {@link C#DATA_TYPE_MEDIA}.
    *
    * @param message See {@link #getMessage()}.
@@ -91,7 +104,11 @@ public class ParserException extends IOException {
    */
   @Deprecated
   public ParserException() {
-    this(/* message= */ null, /* cause= */ null);
+    this(
+        /* message= */ null,
+        /* cause= */ null,
+        /* contentIsMalformed= */ true,
+        C.DATA_TYPE_UNKNOWN);
   }
 
   /**
@@ -103,7 +120,7 @@ public class ParserException extends IOException {
    */
   @Deprecated
   public ParserException(String message) {
-    this(message, /* cause= */ null);
+    this(message, /* cause= */ null, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
   }
 
   /**
@@ -115,20 +132,7 @@ public class ParserException extends IOException {
    */
   @Deprecated
   public ParserException(Throwable cause) {
-    this(/* message= */ null, cause);
-  }
-
-  /**
-   * Creates a new instance.
-   *
-   * @param message The detail message for the exception.
-   * @param cause The cause for the exception.
-   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
-   *     #dataType} instead.
-   */
-  @Deprecated
-  public ParserException(@Nullable String message, @Nullable Throwable cause) {
-    this(message, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
+    this(/* message= */ null, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
   }
 
   private ParserException(
