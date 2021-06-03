@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry.VariantInfo;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
@@ -255,8 +254,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     try {
       if (!checkPlaylistHeader(reader)) {
-        throw new UnrecognizedInputFormatException(
-            "Input does not start with the #EXTM3U header.", uri);
+        throw ParserException.createForMalformedManifest(
+            /* message= */ "Input does not start with the #EXTM3U header.", /* cause= */ null);
       }
       while ((line = reader.readLine()) != null) {
         line = line.trim();

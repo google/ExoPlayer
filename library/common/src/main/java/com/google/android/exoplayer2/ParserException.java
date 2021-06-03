@@ -135,7 +135,7 @@ public class ParserException extends IOException {
     this(/* message= */ null, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
   }
 
-  private ParserException(
+  protected ParserException(
       @Nullable String message,
       @Nullable Throwable cause,
       boolean contentIsMalformed,
