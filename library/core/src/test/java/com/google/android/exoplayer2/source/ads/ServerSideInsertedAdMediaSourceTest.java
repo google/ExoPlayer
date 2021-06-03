@@ -52,11 +52,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 /** Unit test for {@link ServerSideInsertedAdsMediaSource}. */
-// TODO(b/143232359): Remove once https://issuetracker.google.com/143232359 is resolved.
-@Config(sdk = 29)
 @RunWith(AndroidJUnit4.class)
 public final class ServerSideInsertedAdMediaSourceTest {
 

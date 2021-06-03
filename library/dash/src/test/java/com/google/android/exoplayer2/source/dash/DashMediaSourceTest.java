@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.dash;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.fail;
-import static org.robolectric.annotation.LooperMode.Mode.PAUSED;
 
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
@@ -44,13 +43,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link DashMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(PAUSED)
 @DoNotInstrument
 public final class DashMediaSourceTest {
 

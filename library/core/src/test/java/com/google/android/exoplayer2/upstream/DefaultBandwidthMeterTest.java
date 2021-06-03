@@ -183,6 +183,7 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimateEthernet).isGreaterThan(initialEstimate3g);
   }
 
+  @Config(sdk = 28) // TODO(b/190021699): Fix 4G tests to work on newer API levels
   @Test
   public void defaultInitialBitrateEstimate_for4G_isGreaterThanEstimateFor2G() {
     setActiveNetworkInfo(networkInfo4g);
@@ -198,6 +199,7 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate4g).isGreaterThan(initialEstimate2g);
   }
 
+  @Config(sdk = 28) // TODO(b/190021699): Fix 4G tests to work on newer API levels
   @Test
   public void defaultInitialBitrateEstimate_for4G_isGreaterThanEstimateFor3G() {
     setActiveNetworkInfo(networkInfo4g);
@@ -228,7 +230,6 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate3g).isGreaterThan(initialEstimate2g);
   }
 
-  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
   @Test
   public void defaultInitialBitrateEstimate_for5gSa_isGreaterThanEstimateFor4g() {
     setActiveNetworkInfo(networkInfo4g);
@@ -323,6 +324,7 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimateFast).isGreaterThan(initialEstimateSlow);
   }
 
+  @Config(sdk = 28) // TODO(b/190021699): Fix 4G tests to work on newer API levels
   @Test
   public void
       defaultInitialBitrateEstimate_for4g_forFastCountry_isGreaterThanEstimateForSlowCountry() {
@@ -340,7 +342,6 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimateFast).isGreaterThan(initialEstimateSlow);
   }
 
-  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
   @Test
   public void
       defaultInitialBitrateEstimate_for5gSa_forFastCountry_isGreaterThanEstimateForSlowCountry() {
@@ -483,6 +484,7 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate).isNotEqualTo(123456789);
   }
 
+  @Config(sdk = 28) // TODO(b/190021699): Fix 4G tests to work on newer API levels
   @Test
   public void initialBitrateEstimateOverwrite_for4G_whileConnectedTo4G_setsInitialEstimate() {
     setActiveNetworkInfo(networkInfo4g);
@@ -495,6 +497,7 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate).isEqualTo(123456789);
   }
 
+  @Config(sdk = 28) // TODO(b/190021699): Fix 4G tests to work on newer API levels
   @Test
   public void
       initialBitrateEstimateOverwrite_for4G_whileConnectedToOtherNetwork_doesNotSetInitialEstimate() {
@@ -508,7 +511,6 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate).isNotEqualTo(123456789);
   }
 
-  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
   @Test
   public void initialBitrateEstimateOverwrite_for5gSa_whileConnectedTo5gSa_setsInitialEstimate() {
     setActiveNetworkInfo(networkInfo5gSa);
@@ -521,7 +523,6 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimate).isEqualTo(123456789);
   }
 
-  @Config(sdk = Config.NEWEST_SDK) // TODO: Remove once targetSDK >= 29
   @Test
   public void
       initialBitrateEstimateOverwrite_for5gSa_whileConnectedToOtherNetwork_doesNotSetInitialEstimate() {

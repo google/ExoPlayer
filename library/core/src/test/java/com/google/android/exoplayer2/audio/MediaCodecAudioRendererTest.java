@@ -55,10 +55,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link MediaCodecAudioRenderer} */
-@Config(sdk = 29)
 @RunWith(AndroidJUnit4.class)
 public class MediaCodecAudioRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();

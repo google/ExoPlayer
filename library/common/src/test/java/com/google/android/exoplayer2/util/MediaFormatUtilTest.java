@@ -25,11 +25,9 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link MediaFormatUtil}. */
 @RunWith(AndroidJUnit4.class)
-@Config(sdk = 29) // Allows using MediaFormat.getKeys() to make assertions over the expected keys.
 public class MediaFormatUtilTest {
 
   @Test

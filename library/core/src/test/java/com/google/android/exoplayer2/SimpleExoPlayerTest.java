@@ -46,9 +46,8 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(AndroidJUnit4.class)
 public class SimpleExoPlayerTest {
 
-  // TODO(b/143232359): Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void builder_inBackgroundThread_doesNotThrow() throws Exception {
     Thread builderThread =
         new Thread(
