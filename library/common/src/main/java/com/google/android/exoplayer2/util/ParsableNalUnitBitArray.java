@@ -35,7 +35,11 @@ public final class ParsableNalUnitBitArray {
    * @param offset The byte offset in {@code data} to start reading from.
    * @param limit The byte offset of the end of the bitstream in {@code data}.
    */
-  @SuppressWarnings({"initialization.fields.uninitialized", "method.invocation.invalid"})
+  @SuppressWarnings({
+    "initialization.fields.uninitialized",
+    "method.invocation.invalid",
+    "nullness:method.invocation"
+  })
   public ParsableNalUnitBitArray(byte[] data, int offset, int limit) {
     reset(data, offset, limit);
   }

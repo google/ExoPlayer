@@ -335,14 +335,24 @@ public final class Util {
    *
    * <p>Use {@link Assertions#checkNotNull(Object)} to throw if the value is null.
    */
-  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @SuppressWarnings({
+    "contracts.postcondition.not.satisfied",
+    "nullness:contracts.postcondition",
+    "return.type.incompatible",
+    "nullness:return"
+  })
   @EnsuresNonNull("#1")
   public static <T> T castNonNull(@Nullable T value) {
     return value;
   }
 
   /** Casts a nullable type array to a non-null type array without runtime null check. */
-  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @SuppressWarnings({
+    "contracts.postcondition.not.satisfied",
+    "nullness:contracts.postcondition",
+    "return.type.incompatible",
+    "nullness:return"
+  })
   @EnsuresNonNull("#1")
   public static <T> T[] castNonNullTypeArray(@NullableType T[] value) {
     return value;
@@ -356,7 +366,12 @@ public final class Util {
    * @param length The output array length. Must be less or equal to the length of the input array.
    * @return The copied array.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:argument",
+    "nullness:return.type.incompatible",
+    "nullness:return"
+  })
   public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
     Assertions.checkArgument(length <= input.length);
     return Arrays.copyOf(input, length);
@@ -370,7 +385,12 @@ public final class Util {
    * @param to The end of the range to be copied, exclusive.
    * @return The copied array.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:argument",
+    "nullness:return.type.incompatible",
+    "nullness:return"
+  })
   public static <T> T[] nullSafeArrayCopyOfRange(T[] input, int from, int to) {
     Assertions.checkArgument(0 <= from);
     Assertions.checkArgument(to <= input.length);
@@ -397,7 +417,7 @@ public final class Util {
    * @param second The second array.
    * @return The concatenated result.
    */
-  @SuppressWarnings({"nullness:assignment.type.incompatible"})
+  @SuppressWarnings({"nullness:assignment.type.incompatible", "nullness:assignment"})
   public static <T> T[] nullSafeArrayConcatenation(T[] first, T[] second) {
     T[] concatenation = Arrays.copyOf(first, first.length + second.length);
     System.arraycopy(
@@ -491,7 +511,12 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:argument",
+    "nullness:return.type.incompatible",
+    "nullness:return"
+  })
   public static Handler createHandler(
       Looper looper, @Nullable Handler.@UnknownInitialization Callback callback) {
     return new Handler(looper, callback);
@@ -1212,7 +1237,11 @@ public final class Util {
    */
   // incompatible types in argument.
   // dereference of possibly-null reference matcher.group(9)
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:dereference.of.nullable"})
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:argument",
+    "nullness:dereference.of.nullable"
+  })
   public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {

@@ -102,7 +102,7 @@ public final class ListenerSet<T> {
     flushingEvents = new ArrayDeque<>();
     queuedEvents = new ArrayDeque<>();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
-    @SuppressWarnings("methodref.receiver.bound.invalid")
+    @SuppressWarnings({"methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"})
     HandlerWrapper handler = clock.createHandler(looper, this::handleMessage);
     this.handler = handler;
   }
