@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
@@ -61,8 +62,9 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
      *
      * @param frameTexture The ID of a GL texture containing a video frame.
      * @param frameTimestampUs The presentation timestamp of the frame, in microseconds.
+     * @param transformMatrix The 4 * 4 transform matrix to be applied to the texture.
      */
-    void draw(int frameTexture, long frameTimestampUs);
+    void draw(int frameTexture, long frameTimestampUs, float[] transformMatrix);
   }
 
   private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;
@@ -214,6 +216,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
     private final VideoProcessor videoProcessor;
     private final AtomicBoolean frameAvailable;
     private final TimedValueQueue<Long> sampleTimestampQueue;
+    private final float[] transformMatrix;
 
     private int texture;
     @Nullable private SurfaceTexture surfaceTexture;
@@ -229,6 +232,8 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
       sampleTimestampQueue = new TimedValueQueue<>();
       width = -1;
       height = -1;
+      frameTimestampUs = C.TIME_UNSET;
+      transformMatrix = new float[16];
     }
 
     @Override
@@ -271,13 +276,14 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
         SurfaceTexture surfaceTexture = Assertions.checkNotNull(this.surfaceTexture);
         surfaceTexture.updateTexImage();
         long lastFrameTimestampNs = surfaceTexture.getTimestamp();
-        Long frameTimestampUs = sampleTimestampQueue.poll(lastFrameTimestampNs);
+        @Nullable Long frameTimestampUs = sampleTimestampQueue.poll(lastFrameTimestampNs);
         if (frameTimestampUs != null) {
           this.frameTimestampUs = frameTimestampUs;
         }
+        surfaceTexture.getTransformMatrix(transformMatrix);
       }
 
-      videoProcessor.draw(texture, frameTimestampUs);
+      videoProcessor.draw(texture, frameTimestampUs, transformMatrix);
     }
 
     @Override

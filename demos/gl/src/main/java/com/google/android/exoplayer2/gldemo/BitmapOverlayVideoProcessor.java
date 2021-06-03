@@ -88,9 +88,9 @@ import javax.microedition.khronos.opengles.GL10;
     GlUtil.Uniform[] uniforms = GlUtil.getUniforms(program);
     for (GlUtil.Attribute attribute : attributes) {
       if (attribute.name.equals("a_position")) {
-        attribute.setBuffer(new float[] {-1, -1, 1, -1, -1, 1, 1, 1}, 2);
+        attribute.setBuffer(new float[] {-1, -1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, 1, 1, 0, 1}, 4);
       } else if (attribute.name.equals("a_texcoord")) {
-        attribute.setBuffer(new float[] {0, 1, 1, 1, 0, 0, 1, 0}, 2);
+        attribute.setBuffer(new float[] {0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1}, 4);
       }
     }
     this.attributes = attributes;
@@ -111,7 +111,7 @@ import javax.microedition.khronos.opengles.GL10;
   }
 
   @Override
-  public void draw(int frameTexture, long frameTimestampUs) {
+  public void draw(int frameTexture, long frameTimestampUs, float[] transformMatrix) {
     // Draw to the canvas and store it in a texture.
     String text = String.format(Locale.US, "%.02f", frameTimestampUs / (float) C.MICROS_PER_SECOND);
     overlayBitmap.eraseColor(Color.TRANSPARENT);
@@ -139,6 +139,9 @@ import javax.microedition.khronos.opengles.GL10;
           break;
         case "scaleY":
           uniform.setFloat(bitmapScaleY);
+          break;
+        case "tex_transform":
+          uniform.setFloats(transformMatrix);
           break;
         default: // fall out
       }

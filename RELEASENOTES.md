@@ -41,6 +41,9 @@
         ([#8985](https://github.com/google/ExoPlayer/issues/8985)).
 *   RTSP:
     *   Add support for RTSP basic and digest authentication.
+*   GL demo app:
+    *   Fix texture transformation to avoid green bars shown on some videos
+        ([#8992](https://github.com/google/ExoPlayer/issues/8992)).
 
 ### 2.14.0 (2021-05-13)
 
