@@ -176,6 +176,23 @@ public class RtspMediaTrackTest {
 
   @Test
   public void
+      generatePayloadFormat_withH264MediaDescriptionMissingProfileLevel_generatesCorrectProfileLevel() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(MEDIA_TYPE_VIDEO, 0, RTP_AVP_PROFILE, 96)
+            .setConnection("IN IP4 0.0.0.0")
+            .setBitrate(500_000)
+            .addAttribute(ATTR_RTPMAP, "96 H264/90000")
+            .addAttribute(
+                ATTR_FMTP,
+                "96 packetization-mode=1;sprop-parameter-sets=Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA")
+            .addAttribute(ATTR_CONTROL, "track1")
+            .build();
+    RtpPayloadFormat rtpPayloadFormat = RtspMediaTrack.generatePayloadFormat(mediaDescription);
+    assertThat(rtpPayloadFormat.format.codecs).isEqualTo("avc1.64001F");
+  }
+
+  @Test
+  public void
       generatePayloadFormat_withAacMediaDescriptionMissingFmtpAttribute_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
         new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 0, RTP_AVP_PROFILE, 97)
@@ -215,24 +232,6 @@ public class RtspMediaTrackTest {
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(500_000)
             .addAttribute(ATTR_RTPMAP, "96 H264/90000")
-            .addAttribute(ATTR_CONTROL, "track1")
-            .build();
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> RtspMediaTrack.generatePayloadFormat(mediaDescription));
-  }
-
-  @Test
-  public void
-      generatePayloadFormat_withH264MediaDescriptionMissingProfileLevel_throwsIllegalArgumentException() {
-    MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_VIDEO, 0, RTP_AVP_PROFILE, 96)
-            .setConnection("IN IP4 0.0.0.0")
-            .setBitrate(500_000)
-            .addAttribute(ATTR_RTPMAP, "96 H264/90000")
-            .addAttribute(
-                ATTR_FMTP,
-                "96 packetization-mode=1;sprop-parameter-sets=Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA")
             .addAttribute(ATTR_CONTROL, "track1")
             .build();
     assertThrows(
