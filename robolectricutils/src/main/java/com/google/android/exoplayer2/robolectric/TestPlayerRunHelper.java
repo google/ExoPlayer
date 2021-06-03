@@ -193,7 +193,7 @@ public class TestPlayerRunHelper {
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static ExoPlaybackException runUntilError(Player player) throws TimeoutException {
+  public static ExoPlaybackException runUntilError(ExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<ExoPlaybackException> receivedError = new AtomicReference<>();
     Player.Listener listener =
