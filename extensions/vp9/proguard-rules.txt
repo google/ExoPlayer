@@ -10,8 +10,3 @@
     *;
 }
 
-# The deprecated VpxOutputBuffer might be used by old binary versions. Remove
-# once VpxOutputBuffer is removed.
--keep class com.google.android.exoplayer2.ext.vp9.VpxOutputBuffer {
-    *;
-}
