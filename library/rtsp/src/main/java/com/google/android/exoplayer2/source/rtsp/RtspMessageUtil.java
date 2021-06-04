@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -107,6 +108,8 @@ import java.util.regex.Pattern;
       Pattern.compile("Basic realm=\"([\\w\\s@.]+)\"");
 
   private static final String RTSP_VERSION = "RTSP/1.0";
+  private static final String LF = new String(new byte[] {Ascii.LF});
+  private static final String CRLF = new String(new byte[] {Ascii.CR, Ascii.LF});
 
   /**
    * Serializes an {@link RtspRequest} to an {@link ImmutableList} of strings.
@@ -167,7 +170,7 @@ import java.util.regex.Pattern;
    *     removed.
    */
   public static byte[] convertMessageToByteArray(List<String> message) {
-    return Joiner.on("\r\n").join(message).getBytes(RtspMessageChannel.CHARSET);
+    return Joiner.on(CRLF).join(message).getBytes(RtspMessageChannel.CHARSET);
   }
 
   /** Removes the user info from the supplied {@link Uri}. */
@@ -211,7 +214,7 @@ import java.util.regex.Pattern;
   /** Returns the corresponding String representation of the {@link RtspRequest.Method} argument. */
   public static String toMethodString(@RtspRequest.Method int method) {
     switch (method) {
-      case RtspRequest.METHOD_ANNOUNCE:
+      case METHOD_ANNOUNCE:
         return "ANNOUNCE";
       case METHOD_DESCRIBE:
         return "DESCRIBE";
@@ -291,7 +294,7 @@ import java.util.regex.Pattern;
     List<String> headerLines = lines.subList(1, messageBodyOffset);
     RtspHeaders headers = new RtspHeaders.Builder().addAll(headerLines).build();
 
-    String messageBody = Joiner.on("\r\n").join(lines.subList(messageBodyOffset + 1, lines.size()));
+    String messageBody = Joiner.on(CRLF).join(lines.subList(messageBodyOffset + 1, lines.size()));
     return new RtspResponse(statusCode, headers, messageBody);
   }
 
@@ -314,7 +317,7 @@ import java.util.regex.Pattern;
     List<String> headerLines = lines.subList(1, messageBodyOffset);
     RtspHeaders headers = new RtspHeaders.Builder().addAll(headerLines).build();
 
-    String messageBody = Joiner.on("\r\n").join(lines.subList(messageBodyOffset + 1, lines.size()));
+    String messageBody = Joiner.on(CRLF).join(lines.subList(messageBodyOffset + 1, lines.size()));
     return new RtspRequest(requestUri, method, headers, messageBody);
   }
 
@@ -322,6 +325,11 @@ import java.util.regex.Pattern;
   public static boolean isRtspStartLine(String line) {
     return REQUEST_LINE_PATTERN.matcher(line).matches()
         || STATUS_LINE_PATTERN.matcher(line).matches();
+  }
+
+  /** Returns the lines in an RTSP message body split by the line terminator used in body. */
+  public static String[] splitRtspMessageBody(String body) {
+    return Util.split(body, body.contains(CRLF) ? CRLF : LF);
   }
 
   /**

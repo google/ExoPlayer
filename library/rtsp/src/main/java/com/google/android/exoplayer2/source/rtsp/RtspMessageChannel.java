@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.rtsp;
 
 import static com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.isRtspStartLine;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.os.Handler;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -251,10 +253,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final class Receiver implements Loadable {
 
     /** ASCII dollar encapsulates the RTP packets in interleaved mode (RFC2326 Section 10.12). */
-    private static final byte RTSP_INTERLEAVED_MESSAGE_MARKER = '$';
+    private static final byte INTERLEAVED_MESSAGE_MARKER = '$';
 
     private final DataInputStream dataInputStream;
-    private final RtspMessageBuilder messageBuilder;
+    private final MessageParser messageParser;
     private volatile boolean loadCanceled;
 
     /**
@@ -266,7 +268,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      */
     public Receiver(InputStream inputStream) {
       dataInputStream = new DataInputStream(inputStream);
-      messageBuilder = new RtspMessageBuilder();
+      messageParser = new MessageParser();
     }
 
     @Override
@@ -279,7 +281,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       while (!loadCanceled) {
         // TODO(internal b/172331505) Use a buffered read.
         byte firstByte = dataInputStream.readByte();
-        if (firstByte == RTSP_INTERLEAVED_MESSAGE_MARKER) {
+        if (firstByte == INTERLEAVED_MESSAGE_MARKER) {
           handleInterleavedBinaryData();
         } else {
           handleRtspMessage(firstByte);
@@ -289,34 +291,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Handles an entire RTSP message. */
     private void handleRtspMessage(byte firstByte) throws IOException {
-      @Nullable
-      ImmutableList<String> messageLines = messageBuilder.addLine(handleRtspMessageLine(firstByte));
-      while (messageLines == null) {
-        messageLines = messageBuilder.addLine(handleRtspMessageLine(dataInputStream.readByte()));
-      }
-
       if (!closed) {
-        messageListener.onRtspMessageReceived(messageLines);
+        messageListener.onRtspMessageReceived(messageParser.parseNext(firstByte, dataInputStream));
       }
-    }
-
-    /** Returns the byte representation of a complete RTSP line, with CRLF line terminator. */
-    private byte[] handleRtspMessageLine(byte firstByte) throws IOException {
-      ByteArrayOutputStream messageByteStream = new ByteArrayOutputStream();
-
-      byte[] peekedBytes = new byte[2];
-      peekedBytes[0] = firstByte;
-      peekedBytes[1] = dataInputStream.readByte();
-      messageByteStream.write(peekedBytes);
-
-      while (peekedBytes[0] != Ascii.CR || peekedBytes[1] != Ascii.LF) {
-        // Shift the CRLF buffer.
-        peekedBytes[0] = peekedBytes[1];
-        peekedBytes[1] = dataInputStream.readByte();
-        messageByteStream.write(peekedBytes[1]);
-      }
-
-      return messageByteStream.toByteArray();
     }
 
     private void handleInterleavedBinaryData() throws IOException {
@@ -354,38 +331,91 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return Loader.DONT_RETRY;
     }
   }
-  /** Processes RTSP messages line-by-line. */
-  private static final class RtspMessageBuilder {
 
-    @IntDef({STATE_READING_FIRST_LINE, STATE_READING_RTSP_HEADER, STATE_READING_RTSP_BODY})
+  /** Processes RTSP messages line-by-line. */
+  private static final class MessageParser {
+
+    @IntDef({STATE_READING_FIRST_LINE, STATE_READING_HEADER, STATE_READING_BODY})
     @interface ReadingState {}
 
     private static final int STATE_READING_FIRST_LINE = 1;
-    private static final int STATE_READING_RTSP_HEADER = 2;
-    private static final int STATE_READING_RTSP_BODY = 3;
+    private static final int STATE_READING_HEADER = 2;
+    private static final int STATE_READING_BODY = 3;
 
     private final List<String> messageLines;
 
     @ReadingState private int state;
     private long messageBodyLength;
-    private long receivedMessageBodyLength;
 
     /** Creates a new instance. */
-    public RtspMessageBuilder() {
+    public MessageParser() {
       messageLines = new ArrayList<>();
       state = STATE_READING_FIRST_LINE;
     }
 
     /**
-     * Add a line to the builder.
+     * Receives and parses an entire RTSP message.
      *
-     * @param lineBytes The complete RTSP message line in UTF-8 byte array, including CRLF.
-     * @return A list of completed RTSP message lines, without the CRLF line terminators; or {@code
-     *     null} if the message is not yet complete.
+     * @param firstByte The first byte received for the RTSP message.
+     * @param dataInputStream The {@link DataInputStream} on which RTSP messages are received.
+     * @return An {@link ImmutableList} of the lines that make up an RTSP message.
+     */
+    public ImmutableList<String> parseNext(byte firstByte, DataInputStream dataInputStream)
+        throws IOException {
+      @Nullable
+      ImmutableList<String> parsedMessageLines =
+          addMessageLine(parseNextLine(firstByte, dataInputStream));
+
+      while (parsedMessageLines == null) {
+        if (state == STATE_READING_BODY) {
+          if (messageBodyLength > 0) {
+            // Message body's format is not regulated under RTSP, so it could use LF (instead of
+            // RTSP's CRLF) as line ending. The length of the message body is included in the RTSP
+            // Content-Length header.
+            // Assume the message body length is within a 32-bit integer.
+            int messageBodyLengthInt = Ints.checkedCast(messageBodyLength);
+            checkState(messageBodyLengthInt != C.LENGTH_UNSET);
+            byte[] messageBodyBytes = new byte[messageBodyLengthInt];
+            dataInputStream.readFully(messageBodyBytes, /* off= */ 0, messageBodyLengthInt);
+            parsedMessageLines = addMessageBody(messageBodyBytes);
+          } else {
+            throw new IllegalStateException("Expects a greater than zero Content-Length.");
+          }
+        } else {
+          parsedMessageLines =
+              addMessageLine(parseNextLine(dataInputStream.readByte(), dataInputStream));
+        }
+      }
+      return parsedMessageLines;
+    }
+
+    /** Returns the byte representation of a complete RTSP line, with CRLF line terminator. */
+    private static byte[] parseNextLine(byte firstByte, DataInputStream dataInputStream)
+        throws IOException {
+      ByteArrayOutputStream messageByteStream = new ByteArrayOutputStream();
+
+      byte[] peekedBytes = new byte[2];
+      peekedBytes[0] = firstByte;
+      peekedBytes[1] = dataInputStream.readByte();
+      messageByteStream.write(peekedBytes);
+
+      while (peekedBytes[0] != Ascii.CR || peekedBytes[1] != Ascii.LF) {
+        // Shift the CRLF buffer.
+        peekedBytes[0] = peekedBytes[1];
+        peekedBytes[1] = dataInputStream.readByte();
+        messageByteStream.write(peekedBytes[1]);
+      }
+
+      return messageByteStream.toByteArray();
+    }
+
+    /**
+     * Returns a list of completed RTSP message lines, without the CRLF line terminators; or {@code
+     * null} if the message is not yet complete.
      */
     @Nullable
-    public ImmutableList<String> addLine(byte[] lineBytes) throws ParserException {
-      // Trim CRLF.
+    private ImmutableList<String> addMessageLine(byte[] lineBytes) throws ParserException {
+      // Trim CRLF. RTSP lists are terminated by a CRLF.
       checkArgument(
           lineBytes.length >= 2
               && lineBytes[lineBytes.length - 2] == Ascii.CR
@@ -397,11 +427,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       switch (state) {
         case STATE_READING_FIRST_LINE:
           if (isRtspStartLine(line)) {
-            state = STATE_READING_RTSP_HEADER;
+            state = STATE_READING_HEADER;
           }
           break;
 
-        case STATE_READING_RTSP_HEADER:
+        case STATE_READING_HEADER:
           // Check if the line contains RTSP Content-Length header.
           long contentLength = RtspMessageUtil.parseContentLengthHeader(line);
           if (contentLength != C.LENGTH_UNSET) {
@@ -411,7 +441,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           if (line.isEmpty()) {
             // An empty line signals the end of the header section.
             if (messageBodyLength > 0) {
-              state = STATE_READING_RTSP_BODY;
+              state = STATE_READING_BODY;
             } else {
               ImmutableList<String> linesToReturn = ImmutableList.copyOf(messageLines);
               reset();
@@ -420,14 +450,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           }
           break;
 
-        case STATE_READING_RTSP_BODY:
-          receivedMessageBodyLength += lineBytes.length;
-          if (receivedMessageBodyLength >= messageBodyLength) {
-            ImmutableList<String> linesToReturn = ImmutableList.copyOf(messageLines);
-            reset();
-            return linesToReturn;
-          }
-          break;
+        case STATE_READING_BODY:
+          // Message body must be handled by addMessageBody().
 
         default:
           throw new IllegalStateException();
@@ -435,11 +459,45 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return null;
     }
 
+    /** Returns a list of completed RTSP message lines, without the line terminators. */
+    private ImmutableList<String> addMessageBody(byte[] messageBodyBytes) {
+      checkState(state == STATE_READING_BODY);
+
+      String messageBody;
+      if (messageBodyBytes.length > 0
+          && messageBodyBytes[messageBodyBytes.length - 1] == Ascii.LF) {
+        if (messageBodyBytes.length > 1
+            && messageBodyBytes[messageBodyBytes.length - 2] == Ascii.CR) {
+          // Line ends with CRLF.
+          messageBody =
+              new String(
+                  messageBodyBytes,
+                  /* offset= */ 0,
+                  /* length= */ messageBodyBytes.length - 2,
+                  CHARSET);
+        } else {
+          // Line ends with LF.
+          messageBody =
+              new String(
+                  messageBodyBytes,
+                  /* offset= */ 0,
+                  /* length= */ messageBodyBytes.length - 1,
+                  CHARSET);
+        }
+      } else {
+        throw new IllegalArgumentException("Message body is empty or does not end with a LF.");
+      }
+
+      messageLines.add(messageBody);
+      ImmutableList<String> linesToReturn = ImmutableList.copyOf(messageLines);
+      reset();
+      return linesToReturn;
+    }
+
     private void reset() {
       messageLines.clear();
       state = STATE_READING_FIRST_LINE;
       messageBodyLength = 0;
-      receivedMessageBodyLength = 0;
     }
   }
 }
