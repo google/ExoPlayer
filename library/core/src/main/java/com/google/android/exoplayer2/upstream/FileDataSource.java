@@ -33,7 +33,7 @@ public final class FileDataSource extends BaseDataSource {
   /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
   public static class FileDataSourceException extends IOException {
 
-    public FileDataSourceException(IOException cause) {
+    public FileDataSourceException(Exception cause) {
       super(cause);
     }
 
@@ -94,7 +94,7 @@ public final class FileDataSource extends BaseDataSource {
       }
     } catch (FileDataSourceException e) {
       throw e;
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new FileDataSourceException(e);
     }
 

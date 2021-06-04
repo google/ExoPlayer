@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -55,6 +56,7 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -572,6 +574,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
+    } catch (FileDataSource.FileDataSourceException e) {
+      @Nullable Throwable cause = e.getCause();
+      int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
+      if (cause instanceof FileNotFoundException) {
+        errorCode = PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND;
+      } else if (cause instanceof SecurityException) {
+        errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
+      }
+      handleIoException(e, errorCode);
     } catch (ParserException e) {
       int errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
       if (e.dataType == C.DATA_TYPE_MEDIA) {
