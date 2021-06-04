@@ -58,6 +58,24 @@ public final class RtspMediaSource extends BaseMediaSource {
    */
   public static final class Factory implements MediaSourceFactory {
 
+    private boolean forceUseRtpTcp;
+
+    /**
+     * Sets whether to force using TCP as the default RTP transport.
+     *
+     * <p>The default value is {@code false}, the source will first try streaming RTSP with UDP. If
+     * no data is received on the UDP channel (for instance, when streaming behind a NAT) for a
+     * while, the source will switch to streaming using TCP. If this value is set to {@code true},
+     * the source will always use TCP for streaming.
+     *
+     * @param forceUseRtpTcp Whether force to use TCP for streaming.
+     * @return This Factory, for convenience.
+     */
+    public Factory setForceUseRtpTcp(boolean forceUseRtpTcp) {
+      this.forceUseRtpTcp = forceUseRtpTcp;
+      return this;
+    }
+
     /** Does nothing. {@link RtspMediaSource} does not support DRM. */
     @Override
     public Factory setDrmSessionManagerProvider(
@@ -122,7 +140,11 @@ public final class RtspMediaSource extends BaseMediaSource {
     @Override
     public RtspMediaSource createMediaSource(MediaItem mediaItem) {
       checkNotNull(mediaItem.playbackProperties);
-      return new RtspMediaSource(mediaItem);
+      return new RtspMediaSource(
+          mediaItem,
+          forceUseRtpTcp
+              ? new TransferRtpDataChannelFactory()
+              : new UdpDataSourceRtpDataChannelFactory());
     }
   }
 
@@ -148,9 +170,9 @@ public final class RtspMediaSource extends BaseMediaSource {
   @Nullable private ImmutableList<RtspMediaTrack> rtspMediaTracks;
   @Nullable private IOException sourcePrepareException;
 
-  private RtspMediaSource(MediaItem mediaItem) {
+  private RtspMediaSource(MediaItem mediaItem, RtpDataChannel.Factory rtpDataChannelFactory) {
     this.mediaItem = mediaItem;
-    rtpDataChannelFactory = new UdpDataSourceRtpDataChannelFactory();
+    this.rtpDataChannelFactory = rtpDataChannelFactory;
   }
 
   @Override

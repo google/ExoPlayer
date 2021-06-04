@@ -84,7 +84,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean prepared;
   private boolean trackSelected;
   private int portBindingRetryCount;
-  private boolean hasRetriedWithRtpTcp;
+  private boolean isUsingRtpTcp;
 
   /**
    * Creates an RTSP media period.
@@ -514,12 +514,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private LoadErrorAction handleSocketTimeout(RtpDataLoadable loadable) {
       // TODO(b/172331505) Allow for retry when loading is not ending.
       if (getBufferedPositionUs() == Long.MIN_VALUE) {
-        // Retry playback with TCP if no sample has been received so far.
-        if (!hasRetriedWithRtpTcp) {
+        if (!isUsingRtpTcp) {
+          // Retry playback with TCP if no sample has been received so far, and we are not already
+          // using TCP. Retrying will setup new loadables, so will not retry with the current
+          // loadables.
           retryWithRtpTcp();
-          hasRetriedWithRtpTcp = true;
+          isUsingRtpTcp = true;
         }
-        // Don't retry with the current UDP backed loadables.
         return Loader.DONT_RETRY;
       }
 
@@ -685,6 +686,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         RtspMediaTrack mediaTrack, int trackId, RtpDataChannel.Factory rtpDataChannelFactory) {
       this.mediaTrack = mediaTrack;
 
+      // This listener runs on the playback thread, posted by the Loader thread.
       RtpDataLoadable.EventListener transportEventListener =
           (transport, rtpDataChannel) -> {
             RtpLoadInfo.this.transport = transport;
@@ -695,8 +697,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             if (interleavedBinaryDataListener != null) {
               rtspClient.registerInterleavedDataChannel(
                   rtpDataChannel.getLocalPort(), interleavedBinaryDataListener);
+              isUsingRtpTcp = true;
             }
-
             maybeSetupTracks();
           };
 
