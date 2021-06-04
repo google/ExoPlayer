@@ -456,35 +456,33 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  private class PlayerErrorMessageProvider implements ErrorMessageProvider<ExoPlaybackException> {
+  private class PlayerErrorMessageProvider implements ErrorMessageProvider<PlaybackException> {
 
     @Override
     @NonNull
-    public Pair<Integer, String> getErrorMessage(@NonNull ExoPlaybackException e) {
+    public Pair<Integer, String> getErrorMessage(@NonNull PlaybackException e) {
       String errorString = getString(R.string.error_generic);
-      if (e.type == ExoPlaybackException.TYPE_RENDERER) {
-        Exception cause = e.getRendererException();
-        if (cause instanceof DecoderInitializationException) {
-          // Special case for decoder initialization failures.
-          DecoderInitializationException decoderInitializationException =
-              (DecoderInitializationException) cause;
-          if (decoderInitializationException.codecInfo == null) {
-            if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
-              errorString = getString(R.string.error_querying_decoders);
-            } else if (decoderInitializationException.secureDecoderRequired) {
-              errorString =
-                  getString(
-                      R.string.error_no_secure_decoder, decoderInitializationException.mimeType);
-            } else {
-              errorString =
-                  getString(R.string.error_no_decoder, decoderInitializationException.mimeType);
-            }
-          } else {
+      Throwable cause = e.getCause();
+      if (cause instanceof DecoderInitializationException) {
+        // Special case for decoder initialization failures.
+        DecoderInitializationException decoderInitializationException =
+            (DecoderInitializationException) cause;
+        if (decoderInitializationException.codecInfo == null) {
+          if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
+            errorString = getString(R.string.error_querying_decoders);
+          } else if (decoderInitializationException.secureDecoderRequired) {
             errorString =
                 getString(
-                    R.string.error_instantiating_decoder,
-                    decoderInitializationException.codecInfo.name);
+                    R.string.error_no_secure_decoder, decoderInitializationException.mimeType);
+          } else {
+            errorString =
+                getString(R.string.error_no_decoder, decoderInitializationException.mimeType);
           }
+        } else {
+          errorString =
+              getString(
+                  R.string.error_instantiating_decoder,
+                  decoderInitializationException.codecInfo.name);
         }
       }
       return Pair.create(0, errorString);
