@@ -47,8 +47,8 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Timeline;
@@ -305,7 +305,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
-  @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  @Nullable private ErrorMessageProvider<? super PlaybackException> errorMessageProvider;
   @Nullable private CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
   private boolean controllerAutoShow;
@@ -754,7 +754,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param errorMessageProvider The error message provider.
    */
   public void setErrorMessageProvider(
-      @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
+      @Nullable ErrorMessageProvider<? super PlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {
       this.errorMessageProvider = errorMessageProvider;
       updateErrorMessage();
@@ -1373,7 +1373,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         errorMessageView.setVisibility(View.VISIBLE);
         return;
       }
-      @Nullable ExoPlaybackException error = player != null ? player.getPlayerError() : null;
+      @Nullable PlaybackException error = player != null ? player.getPlayerError() : null;
       if (error != null && errorMessageProvider != null) {
         CharSequence errorMessage = errorMessageProvider.getErrorMessage(error).second;
         errorMessageView.setText(errorMessage);
