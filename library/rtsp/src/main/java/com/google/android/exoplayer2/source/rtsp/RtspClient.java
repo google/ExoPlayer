@@ -50,10 +50,13 @@ import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspSessionHead
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.net.SocketFactory;
@@ -105,10 +108,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull PlaybackEventListener playbackEventListener;
   @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
+  @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
   private long pendingSeekPositionUs;
-  private @MonotonicNonNull RtspAuthenticationInfo rtspAuthenticationInfo;
 
   /**
    * Creates a new instance.
@@ -219,6 +222,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       messageChannel.open(getSocket(uri));
       sessionId = null;
       receivedAuthorizationRequest = false;
+      rtspAuthenticationInfo = null;
     } catch (IOException e) {
       checkNotNull(playbackEventListener).onPlaybackError(new RtspPlaybackException(e));
     }
@@ -295,6 +299,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final class MessageSender {
 
     private int cSeq;
+    private @MonotonicNonNull RtspRequest lastRequest;
 
     public void sendOptionsRequest(Uri uri, @Nullable String sessionId) {
       sendRequest(
@@ -339,6 +344,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               METHOD_PAUSE, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
     }
 
+    public void retryLastRequest() {
+      checkStateNotNull(lastRequest);
+
+      Multimap<String, String> headersMultiMap = lastRequest.headers.asMultiMap();
+      Map<String, String> lastRequestHeaders = new HashMap<>();
+      for (String headerName : headersMultiMap.keySet()) {
+        if (headerName.equals(RtspHeaders.CSEQ)
+            || headerName.equals(RtspHeaders.USER_AGENT)
+            || headerName.equals(RtspHeaders.SESSION)
+            || headerName.equals(RtspHeaders.AUTHORIZATION)) {
+          // Clear session-specific header values.
+          continue;
+        }
+        // Only include the header value that is written most recently.
+        lastRequestHeaders.put(headerName, Iterables.getLast(headersMultiMap.get(headerName)));
+      }
+
+      sendRequest(
+          getRequestWithCommonHeaders(
+              lastRequest.method, sessionId, lastRequestHeaders, lastRequest.uri));
+    }
+
     private RtspRequest getRequestWithCommonHeaders(
         @RtspRequest.Method int method,
         @Nullable String sessionId,
@@ -346,7 +373,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Uri uri) {
       RtspHeaders.Builder headersBuilder = new RtspHeaders.Builder();
       headersBuilder.add(RtspHeaders.CSEQ, String.valueOf(cSeq++));
-
       if (userAgent != null) {
         headersBuilder.add(RtspHeaders.USER_AGENT, userAgent);
       }
@@ -375,6 +401,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkState(pendingRequests.get(cSeq) == null);
       pendingRequests.append(cSeq, request);
       messageChannel.send(RtspMessageUtil.serializeRequest(request));
+      lastRequest = request;
     }
   }
 
@@ -425,7 +452,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               }
               rtspAuthenticationInfo =
                   RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeader);
-              messageSender.sendDescribeRequest(uri, sessionId);
+              messageSender.retryLastRequest();
               receivedAuthorizationRequest = true;
               return;
             }
