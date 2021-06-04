@@ -1038,6 +1038,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         DecoderInitializationException exception =
             new DecoderInitializationException(
                 inputFormat, e, mediaCryptoRequiresSecureDecoder, codecInfo);
+        onCodecError(exception);
         if (preferredDecoderInitializationException == null) {
           preferredDecoderInitializationException = exception;
         } else {
