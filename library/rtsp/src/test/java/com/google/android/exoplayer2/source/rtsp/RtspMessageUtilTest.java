@@ -482,4 +482,18 @@ public final class RtspMessageUtilTest {
     assertThat(authenticationInfo.realm).isEqualTo("LIVE555 Streaming Media");
     assertThat(authenticationInfo.opaque).isEmpty();
   }
+
+  @Test
+  public void splitRtspMessageBody_withCrLfLineTerminatorMessageBody_splitsMessageBody() {
+    String[] lines = RtspMessageUtil.splitRtspMessageBody("line1\r\nline2\r\nline3");
+
+    assertThat(lines).asList().containsExactly("line1", "line2", "line3").inOrder();
+  }
+
+  @Test
+  public void splitRtspMessageBody_withLfLineTerminatorMessageBody_splitsMessageBody() {
+    String[] lines = RtspMessageUtil.splitRtspMessageBody("line1\nline2\nline3");
+
+    assertThat(lines).asList().containsExactly("line1", "line2", "line3").inOrder();
+  }
 }

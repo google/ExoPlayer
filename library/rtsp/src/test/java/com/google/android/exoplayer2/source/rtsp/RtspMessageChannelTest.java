@@ -68,11 +68,21 @@ public final class RtspMessageChannelTest {
                 .build(),
             "v=安卓アンドロイド\r\n");
 
+    RtspResponse describeResponse2 =
+        new RtspResponse(
+            200,
+            new RtspHeaders.Builder()
+                .add(RtspHeaders.CSEQ, "4")
+                .add(RtspHeaders.CONTENT_TYPE, "application/sdp")
+                .add(RtspHeaders.CONTENT_LENGTH, "73")
+                .build(),
+            "v=安卓アンドロイド\n" + "o=test 2890844526 2890842807 IN IP4 127.0.0.1\n");
+
     RtspResponse setupResponse =
         new RtspResponse(
             200,
             new RtspHeaders.Builder()
-                .add(RtspHeaders.CSEQ, "3")
+                .add(RtspHeaders.CSEQ, "5")
                 .add(RtspHeaders.TRANSPORT, "RTP/AVP/TCP;unicast;interleaved=0-1")
                 .build(),
             "");
@@ -99,6 +109,8 @@ public final class RtspMessageChannelTest {
                     convertMessageToByteArray(serializeResponse(optionsResponse)));
                 serverOutputStream.write(
                     convertMessageToByteArray(serializeResponse(describeResponse)));
+                serverOutputStream.write(
+                    convertMessageToByteArray(serializeResponse(describeResponse2)));
                 serverOutputStream.write(Bytes.concat(new byte[] {'$'}, interleavedData1));
                 serverOutputStream.write(Bytes.concat(new byte[] {'$'}, interleavedData2));
                 serverOutputStream.write(
@@ -120,7 +132,7 @@ public final class RtspMessageChannelTest {
         new RtspMessageChannel(
             message -> {
               receivedRtspResponses.add(message);
-              if (receivedRtspResponses.size() == 3 && receivedInterleavedData.size() == 2) {
+              if (receivedRtspResponses.size() == 4 && receivedInterleavedData.size() == 2) {
                 receivingFinished.set(true);
               }
             });
@@ -150,9 +162,17 @@ public final class RtspMessageChannelTest {
                 "content-length: 28",
                 "",
                 "v=安卓アンドロイド"),
+            /* describeResponse2 */
+            ImmutableList.of(
+                "RTSP/1.0 200 OK",
+                "cseq: 4",
+                "content-type: application/sdp",
+                "content-length: 73",
+                "",
+                "v=安卓アンドロイド\n" + "o=test 2890844526 2890842807 IN IP4 127.0.0.1"),
             /* setupResponse */
             ImmutableList.of(
-                "RTSP/1.0 200 OK", "cseq: 3", "transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
+                "RTSP/1.0 200 OK", "cseq: 5", "transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
         .inOrder();
     assertThat(receivedInterleavedData)
         .containsExactly(
