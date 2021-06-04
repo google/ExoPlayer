@@ -186,7 +186,7 @@ import java.util.regex.Pattern;
 
     try {
       return sessionDescriptionBuilder.build();
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       throw new ParserException(e);
     }
   }
@@ -197,7 +197,7 @@ import java.util.regex.Pattern;
       throws ParserException {
     try {
       sessionDescriptionBuilder.addMediaDescription(mediaDescriptionBuilder.build());
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       throw new ParserException(e);
     }
   }
