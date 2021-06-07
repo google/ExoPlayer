@@ -306,9 +306,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private RtpDataLoadable getLoadableByTrackUri(Uri trackUri) {
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
-      RtpLoadInfo loadInfo = rtspLoaderWrappers.get(i).loadInfo;
-      if (loadInfo.getTrackUri().equals(trackUri)) {
-        return loadInfo.loadable;
+      if (!rtspLoaderWrappers.get(i).canceled) {
+        RtpLoadInfo loadInfo = rtspLoaderWrappers.get(i).loadInfo;
+        if (loadInfo.getTrackUri().equals(trackUri)) {
+          return loadInfo.loadable;
+        }
       }
     }
     return null;
@@ -543,17 +545,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ArrayList<RtspLoaderWrapper> newLoaderWrappers = new ArrayList<>(rtspLoaderWrappers.size());
     ArrayList<RtpLoadInfo> newSelectedLoadInfos = new ArrayList<>(selectedLoadInfos.size());
 
+    // newLoaderWrappers' elements and orders must match those of rtspLoaderWrappers'.
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
       RtspLoaderWrapper loaderWrapper = rtspLoaderWrappers.get(i);
 
-      RtspLoaderWrapper newLoaderWrapper =
-          new RtspLoaderWrapper(
-              loaderWrapper.loadInfo.mediaTrack, /* trackId= */ i, rtpDataChannelFactory);
-      newLoaderWrappers.add(newLoaderWrapper);
-      newLoaderWrapper.startLoading();
-
-      if (selectedLoadInfos.contains(loaderWrapper.loadInfo)) {
-        newSelectedLoadInfos.add(newLoaderWrapper.loadInfo);
+      if (!loaderWrapper.canceled) {
+        RtspLoaderWrapper newLoaderWrapper =
+            new RtspLoaderWrapper(
+                loaderWrapper.loadInfo.mediaTrack, /* trackId= */ i, rtpDataChannelFactory);
+        newLoaderWrappers.add(newLoaderWrapper);
+        newLoaderWrapper.startLoading();
+        if (selectedLoadInfos.contains(loaderWrapper.loadInfo)) {
+          newSelectedLoadInfos.add(newLoaderWrapper.loadInfo);
+        }
+      } else {
+        newLoaderWrappers.add(loaderWrapper);
       }
     }
 
@@ -644,21 +650,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Cancels loading. */
     public void cancelLoad() {
-      if (canceled) {
-        return;
-      }
-      loadInfo.loadable.cancelLoad();
-      canceled = true;
+      if (!canceled) {
+        loadInfo.loadable.cancelLoad();
+        canceled = true;
 
-      // Update loadingFinished every time loading is canceled.
-      updateLoadingFinished();
+        // Update loadingFinished every time loading is canceled.
+        updateLoadingFinished();
+      }
     }
 
     /** Resets the {@link Loadable} and {@link SampleQueue} to prepare for an RTSP seek. */
     public void seekTo(long positionUs) {
-      loadInfo.loadable.resetForSeek();
-      sampleQueue.reset();
-      sampleQueue.setStartTimeUs(positionUs);
+      if (!canceled) {
+        loadInfo.loadable.resetForSeek();
+        sampleQueue.reset();
+        sampleQueue.setStartTimeUs(positionUs);
+      }
     }
 
     /** Releases the instance. */
