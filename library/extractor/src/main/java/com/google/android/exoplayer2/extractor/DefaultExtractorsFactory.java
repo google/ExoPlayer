@@ -103,7 +103,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   static {
     @Nullable Constructor<? extends Extractor> flacExtensionExtractorConstructor = null;
     try {
-      @SuppressWarnings("nullness:argument.type.incompatible")
+      @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
       boolean isFlacNativeLibraryAvailable =
           Boolean.TRUE.equals(
               Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")

@@ -162,8 +162,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   // maybeFinishPrepare is not posted to the handler until initialization completes.
   @SuppressWarnings({
-    "nullness:argument.type.incompatible",
-    "nullness:methodref.receiver.bound.invalid"
+    "nullness:argument.type.incompatible", "nullness:argument",
+    "nullness:methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"
   })
   public ProgressiveMediaPeriod(
       Uri uri,
@@ -980,7 +980,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable private TrackOutput icyTrackOutput;
     private boolean seenIcyMetadata;
 
-    @SuppressWarnings("method.invocation.invalid")
+    @SuppressWarnings({"method.invocation.invalid", "nullness:method.invocation"})
     public ExtractingLoadable(
         Uri uri,
         DataSource dataSource,

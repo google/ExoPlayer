@@ -222,7 +222,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
   }
 
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
   private static void removeSurfaceHolderCallback(SurfaceHolderGlueHost surfaceHolderGlueHost) {
     surfaceHolderGlueHost.setSurfaceHolderCallback(null);
   }

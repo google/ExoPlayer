@@ -357,14 +357,14 @@ public class PlaybackException extends Exception implements Bundleable {
   }
 
   // Creates a new {@link Throwable} with possibly {@code null} message.
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
   private static Throwable createThrowable(Class<?> clazz, @Nullable String message)
       throws Exception {
     return (Throwable) clazz.getConstructor(String.class).newInstance(message);
   }
 
   // Creates a new {@link RemoteException} with possibly {@code null} message.
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
   private static RemoteException createRemoteException(@Nullable String message) {
     return new RemoteException(message);
   }
