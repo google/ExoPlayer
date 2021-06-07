@@ -21,12 +21,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.net.Uri;
 import android.provider.Settings.Global;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /** Represents the set of audio formats that a device is capable of playing. */
 public final class AudioCapabilities {
@@ -67,6 +71,9 @@ public final class AudioCapabilities {
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+    }
+    if (Util.SDK_INT >= 29) {
+      return new AudioCapabilities(getDirectPlaybackSupportedEncodings(), DEFAULT_MAX_CHANNEL_COUNT);
     }
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
@@ -158,5 +165,38 @@ public final class AudioCapabilities {
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {
     return Util.SDK_INT >= 17
         && ("Amazon".equals(Util.MANUFACTURER) || "Xiaomi".equals(Util.MANUFACTURER));
+  }
+
+  @RequiresApi(29)
+  private static int[] getDirectPlaybackSupportedEncodings() {
+      int[] possibleEncodings = new int[]{
+          AudioFormat.ENCODING_AC3,
+          AudioFormat.ENCODING_AC4,
+          AudioFormat.ENCODING_DOLBY_TRUEHD,
+          AudioFormat.ENCODING_DTS,
+          AudioFormat.ENCODING_DTS_HD,
+          AudioFormat.ENCODING_E_AC3,
+          AudioFormat.ENCODING_E_AC3_JOC,
+      };
+      List<Integer> supportedEncodingsList = new ArrayList<>();
+      for (int e : possibleEncodings) {
+          if (AudioTrack.isDirectPlaybackSupported(
+              new AudioFormat.Builder()
+                  .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                  .setEncoding(e)
+                  .setSampleRate(48000)
+                  .build(),
+              new android.media.AudioAttributes.Builder()
+                  .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                  .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MOVIE)
+                  .setFlags(0)
+                  .build())) {
+              supportedEncodingsList.add(e);
+          }
+      }
+      supportedEncodingsList.add(AudioFormat.ENCODING_PCM_16BIT);
+      return supportedEncodingsList.stream()
+          .mapToInt(Integer::intValue)
+          .toArray();
   }
 }
