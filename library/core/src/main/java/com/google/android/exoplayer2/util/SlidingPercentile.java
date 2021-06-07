@@ -24,10 +24,10 @@ import java.util.Comparator;
  * configured. Once the total weight of the values reaches the maximum weight, the oldest value is
  * reduced in weight until it reaches zero and is removed. This maintains a constant total weight,
  * equal to the maximum allowed, at the steady state.
- * <p>
- * This class can be used for bandwidth estimation based on a sliding window of past transfer rate
- * observations. This is an alternative to sliding mean and exponential averaging which suffer from
- * susceptibility to outliers and slow adaptation to step functions.
+ *
+ * <p>This class can be used for bandwidth estimation based on a sliding window of past transfer
+ * rate observations. This is an alternative to sliding mean and exponential averaging which suffer
+ * from susceptibility to outliers and slow adaptation to step functions.
  *
  * @see <a href="http://en.wikipedia.org/wiki/Moving_average">Wiki: Moving average</a>
  * @see <a href="http://en.wikipedia.org/wiki/Selection_algorithm">Wiki: Selection algorithm</a>
@@ -35,19 +35,9 @@ import java.util.Comparator;
 public class SlidingPercentile {
 
   // Orderings.
-  private static final Comparator<Sample> INDEX_COMPARATOR = new Comparator<Sample>() {
-    @Override
-    public int compare(Sample a, Sample b) {
-      return a.index - b.index;
-    }
-  };
-
-  private static final Comparator<Sample> VALUE_COMPARATOR = new Comparator<Sample>() {
-    @Override
-    public int compare(Sample a, Sample b) {
-      return a.value < b.value ? -1 : b.value < a.value ? 1 : 0;
-    }
-  };
+  private static final Comparator<Sample> INDEX_COMPARATOR = (a, b) -> a.index - b.index;
+  private static final Comparator<Sample> VALUE_COMPARATOR =
+      (a, b) -> Float.compare(a.value, b.value);
 
   private static final int SORT_ORDER_NONE = -1;
   private static final int SORT_ORDER_BY_VALUE = 0;
@@ -65,14 +55,20 @@ public class SlidingPercentile {
   private int totalWeight;
   private int recycledSampleCount;
 
-  /**
-   * @param maxWeight The maximum weight.
-   */
+  /** @param maxWeight The maximum weight. */
   public SlidingPercentile(int maxWeight) {
     this.maxWeight = maxWeight;
     recycledSamples = new Sample[MAX_RECYCLED_SAMPLES];
     samples = new ArrayList<>();
     currentSortOrder = SORT_ORDER_NONE;
+  }
+
+  /** Resets the sliding percentile. */
+  public void reset() {
+    samples.clear();
+    currentSortOrder = SORT_ORDER_NONE;
+    nextSampleIndex = 0;
+    totalWeight = 0;
   }
 
   /**
@@ -84,8 +80,8 @@ public class SlidingPercentile {
   public void addSample(int weight, float value) {
     ensureSortedByIndex();
 
-    Sample newSample = recycledSampleCount > 0 ? recycledSamples[--recycledSampleCount]
-        : new Sample();
+    Sample newSample =
+        recycledSampleCount > 0 ? recycledSamples[--recycledSampleCount] : new Sample();
     newSample.index = nextSampleIndex++;
     newSample.weight = weight;
     newSample.value = value;
@@ -129,9 +125,7 @@ public class SlidingPercentile {
     return samples.isEmpty() ? Float.NaN : samples.get(samples.size() - 1).value;
   }
 
-  /**
-   * Sorts the samples by index.
-   */
+  /** Sorts the samples by index. */
   private void ensureSortedByIndex() {
     if (currentSortOrder != SORT_ORDER_BY_INDEX) {
       Collections.sort(samples, INDEX_COMPARATOR);
@@ -139,9 +133,7 @@ public class SlidingPercentile {
     }
   }
 
-  /**
-   * Sorts the samples by value.
-   */
+  /** Sorts the samples by value. */
   private void ensureSortedByValue() {
     if (currentSortOrder != SORT_ORDER_BY_VALUE) {
       Collections.sort(samples, VALUE_COMPARATOR);
@@ -154,7 +146,5 @@ public class SlidingPercentile {
     public int index;
     public int weight;
     public float value;
-
   }
-
 }

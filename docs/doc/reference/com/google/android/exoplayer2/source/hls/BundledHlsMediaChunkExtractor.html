@@ -1,0 +1,462 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>BundledHlsMediaChunkExtractor (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="BundledHlsMediaChunkExtractor (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.hls</a></div>
+<h2 title="Class BundledHlsMediaChunkExtractor" class="title">Class BundledHlsMediaChunkExtractor</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.hls.BundledHlsMediaChunkExtractor</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">BundledHlsMediaChunkExtractor</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></pre>
+<div class="block"><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls"><code>HlsMediaChunkExtractor</code></a> implementation that uses ExoPlayer app-bundled <a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractors</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.Extractor,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.util.TimestampAdjuster)">BundledHlsMediaChunkExtractor</a></span>&#8203;(<a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
+                             <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;masterPlaylistFormat,
+                             <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">init</a></span>&#8203;(<a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</code></th>
+<td class="colLast">
+<div class="block">Initializes the extractor with an <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPackedAudioExtractor()">isPackedAudioExtractor</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether this is a packed audio extractor, as defined in RFC 8216, Section 3.4.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReusable()">isReusable</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether this instance can be used for extracting multiple continuous segments.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTruncatedSegmentParsed()">onTruncatedSegmentParsed</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Resets the sample parsing state.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></span>&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)</code></th>
+<td class="colLast">
+<div class="block">Extracts data read from a provided <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recreate()">recreate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a new instance for extracting the same type of media as this one.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.extractor.Extractor,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.util.TimestampAdjuster)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>BundledHlsMediaChunkExtractor</h4>
+<pre>public&nbsp;BundledHlsMediaChunkExtractor&#8203;(<a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
+                                     <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;masterPlaylistFormat,
+                                     <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extractor</code> - The underlying <a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>.</dd>
+<dd><code>masterPlaylistFormat</code> - The <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> obtained from the master playlist.</dd>
+<dd><code>timestampAdjuster</code> - A <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util"><code>TimestampAdjuster</code></a> to adjust sample timestamps.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="init(com.google.android.exoplayer2.extractor.ExtractorOutput)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>init</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsMediaChunkExtractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Initializes the extractor with an <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>. Called at most once.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="HlsMediaChunkExtractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">init</a></code>&nbsp;in interface&nbsp;<code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extractorOutput</code> - An <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> to receive extracted data.</dd>
+</dl>
+</li>
+</ul>
+<a id="read(com.google.android.exoplayer2.extractor.ExtractorInput)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>read</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;read&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)
+             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsMediaChunkExtractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput)">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Extracts data read from a provided <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="HlsMediaChunkExtractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)"><code>HlsMediaChunkExtractor.init(ExtractorOutput)</code></a>.
+
+ <p>A single call to this method will block until some progress has been made, but will not
+ block for longer than this. Hence each call will consume only a small amount of input data.
+
+ <p>When this method throws an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>, extraction may continue by providing an
+ <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> with an unchanged <a href="../../extractor/ExtractorInput.html#getPosition()"><code>read position</code></a> to
+ a subsequent call to this method.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="HlsMediaChunkExtractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></code>&nbsp;in interface&nbsp;<code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extractorInput</code> - The input to read from.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether there is any data left to extract. Returns false if the end of input has been
+     reached.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurred reading from or parsing the input.</dd>
+</dl>
+</li>
+</ul>
+<a id="isPackedAudioExtractor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isPackedAudioExtractor</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isPackedAudioExtractor()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsMediaChunkExtractor.html#isPackedAudioExtractor()">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Returns whether this is a packed audio extractor, as defined in RFC 8216, Section 3.4.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="HlsMediaChunkExtractor.html#isPackedAudioExtractor()">isPackedAudioExtractor</a></code>&nbsp;in interface&nbsp;<code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="isReusable()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isReusable</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isReusable()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsMediaChunkExtractor.html#isReusable()">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Returns whether this instance can be used for extracting multiple continuous segments.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="HlsMediaChunkExtractor.html#isReusable()">isReusable</a></code>&nbsp;in interface&nbsp;<code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="recreate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recreate</h4>
+<pre class="methodSignature">public&nbsp;<a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a>&nbsp;recreate()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsMediaChunkExtractor.html#recreate()">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Returns a new instance for extracting the same type of media as this one. Can only be called on
+ instances that are not <a href="HlsMediaChunkExtractor.html#isReusable()"><code>reusable</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="HlsMediaChunkExtractor.html#recreate()">recreate</a></code>&nbsp;in interface&nbsp;<code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="onTruncatedSegmentParsed()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onTruncatedSegmentParsed</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onTruncatedSegmentParsed()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsMediaChunkExtractor.html#onTruncatedSegmentParsed()">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Resets the sample parsing state.
+
+ <p>Resetting the parsing state allows support for Fragmented MP4 EXT-X-I-FRAME-STREAM-INF
+ segments. EXT-X-I-FRAME-STREAM-INF segments are truncated to include only a leading key frame.
+ After parsing said keyframe, an extractor may reach an unexpected end of file. By resetting its
+ state, we can continue feeding samples from the following segments to the extractor. See <a href="https://github.com/google/ExoPlayer/issues/7512">#7512</a> for context.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="HlsMediaChunkExtractor.html#onTruncatedSegmentParsed()">onTruncatedSegmentParsed</a></code>&nbsp;in interface&nbsp;<code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

@@ -1,0 +1,28 @@
+seekMap:
+  isSeekable = true
+  duration = 2741000
+  getPosition(0) = [[timeUs=0, position=55284]]
+  getPosition(1) = [[timeUs=0, position=55284], [timeUs=85333, position=60314]]
+  getPosition(1370500) = [[timeUs=1365333, position=137229], [timeUs=1450666, position=143005]]
+  getPosition(2741000) = [[timeUs=2645333, position=215886]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 3829
+  sample count = 2
+  format 0:
+    sampleMimeType = audio/flac
+    maxInputSize = 5776
+    channelCount = 2
+    sampleRate = 48000
+    metadata = entries=[TXXX: description=ID: value=105519843, TIT2: description=null: value=那么爱你为什么, TPE1: description=null: value=阿强, TALB: description=null: value=华丽的外衣, TXXX: description=ID: value=105519843, APIC: mimeType=image/jpeg, description=]
+    initializationData:
+      data = length 42, hash 83F6895
+  sample 0:
+    time = 2645333
+    flags = 1
+    data = length 3384, hash 938BCDD9
+  sample 1:
+    time = 2730666
+    flags = 1
+    data = length 445, hash A388E3D6
+tracksEnded = true

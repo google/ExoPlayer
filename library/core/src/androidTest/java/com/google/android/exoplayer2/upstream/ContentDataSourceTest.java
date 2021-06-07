@@ -15,108 +15,89 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
+import static com.google.common.truth.Truth.assertThat;
+import static junit.framework.Assert.fail;
+
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.test.InstrumentationTestCase;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Unit tests for {@link ContentDataSource}.
- */
-public final class ContentDataSourceTest extends InstrumentationTestCase {
+/** Unit tests for {@link ContentDataSource}. */
+@RunWith(AndroidJUnit4.class)
+public final class ContentDataSourceTest {
 
-  private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
-  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final String DATA_PATH = "media/mp3/1024_incrementing_bytes.mp3";
 
-  public void testReadValidUri() throws Exception {
-    ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
-    Uri contentUri = new Uri.Builder()
-        .scheme(ContentResolver.SCHEME_CONTENT)
-        .authority(AUTHORITY)
-        .path(DATA_PATH).build();
-    DataSpec dataSpec = new DataSpec(contentUri);
-    TestUtil.assertDataSourceContent(dataSource, dataSpec,
-        TestUtil.getByteArray(getInstrumentation(), DATA_PATH));
+  @Test
+  public void read() throws Exception {
+    assertData(0, C.LENGTH_UNSET, false);
   }
 
-  public void testReadInvalidUri() throws Exception {
-    ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
-    Uri contentUri = new Uri.Builder()
-        .scheme(ContentResolver.SCHEME_CONTENT)
-        .authority(AUTHORITY)
-        .build();
+  @Test
+  public void readPipeMode() throws Exception {
+    assertData(0, C.LENGTH_UNSET, true);
+  }
+
+  @Test
+  public void readFixedLength() throws Exception {
+    assertData(0, 100, false);
+  }
+
+  @Test
+  public void readFromOffsetToEndOfInput() throws Exception {
+    assertData(1, C.LENGTH_UNSET, false);
+  }
+
+  @Test
+  public void readFromOffsetToEndOfInputPipeMode() throws Exception {
+    assertData(1, C.LENGTH_UNSET, true);
+  }
+
+  @Test
+  public void readFromOffsetFixedLength() throws Exception {
+    assertData(1, 100, false);
+  }
+
+  @Test
+  public void readInvalidUri() throws Exception {
+    ContentDataSource dataSource =
+        new ContentDataSource(ApplicationProvider.getApplicationContext());
+    Uri contentUri = TestContentProvider.buildUri("does/not.exist", false);
     DataSpec dataSpec = new DataSpec(contentUri);
     try {
       dataSource.open(dataSpec);
       fail();
     } catch (ContentDataSource.ContentDataSourceException e) {
       // Expected.
-      assertTrue(e.getCause() instanceof FileNotFoundException);
+      assertThat(e).hasCauseThat().isInstanceOf(FileNotFoundException.class);
     } finally {
       dataSource.close();
     }
   }
 
-  /**
-   * A {@link ContentProvider} for the test.
-   */
-  public static final class TestContentProvider extends ContentProvider {
-
-    @Override
-    public boolean onCreate() {
-      return true;
+  private static void assertData(int offset, int length, boolean pipeMode) throws IOException {
+    Uri contentUri = TestContentProvider.buildUri(DATA_PATH, pipeMode);
+    ContentDataSource dataSource =
+        new ContentDataSource(ApplicationProvider.getApplicationContext());
+    try {
+      DataSpec dataSpec = new DataSpec(contentUri, offset, length);
+      byte[] completeData =
+          TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), DATA_PATH);
+      byte[] expectedData =
+          Arrays.copyOfRange(
+              completeData,
+              offset,
+              length == C.LENGTH_UNSET ? completeData.length : offset + length);
+      TestUtil.assertDataSourceContent(dataSource, dataSpec, expectedData, !pipeMode);
+    } finally {
+      dataSource.close();
     }
-
-    @Override
-    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
-        String[] selectionArgs, String sortOrder) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
-        throws FileNotFoundException {
-      if (uri.getPath() == null) {
-        return null;
-      }
-      try {
-        return getContext().getAssets().openFd(uri.getPath().replaceFirst("/", ""));
-      } catch (IOException e) {
-        FileNotFoundException exception = new FileNotFoundException(e.getMessage());
-        exception.initCause(e);
-        throw exception;
-      }
-    }
-
-    @Override
-    public String getType(@NonNull Uri uri) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Uri insert(@NonNull Uri uri, ContentValues values) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int delete(@NonNull Uri uri, String selection,
-        String[] selectionArgs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int update(@NonNull Uri uri, ContentValues values,
-        String selection, String[] selectionArgs) {
-      throw new UnsupportedOperationException();
-    }
-
   }
-
 }

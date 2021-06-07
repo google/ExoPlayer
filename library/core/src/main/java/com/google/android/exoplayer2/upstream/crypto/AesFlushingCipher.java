@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.crypto;
 
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -29,8 +30,8 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * A flushing variant of a AES/CTR/NoPadding {@link Cipher}.
  *
- * Unlike a regular {@link Cipher}, the update methods of this class are guaranteed to process all
- * of the bytes input (and hence output the same number of bytes).
+ * <p>Unlike a regular {@link Cipher}, the update methods of this class are guaranteed to process
+ * all of the bytes input (and hence output the same number of bytes).
  */
 public final class AesFlushingCipher {
 
@@ -49,12 +50,16 @@ public final class AesFlushingCipher {
       flushedBlock = new byte[blockSize];
       long counter = offset / blockSize;
       int startPadding = (int) (offset % blockSize);
-      cipher.init(mode, new SecretKeySpec(secretKey, cipher.getAlgorithm().split("/")[0]),
+      cipher.init(
+          mode,
+          new SecretKeySpec(secretKey, Util.splitAtFirst(cipher.getAlgorithm(), "/")[0]),
           new IvParameterSpec(getInitializationVector(nonce, counter)));
       if (startPadding != 0) {
         updateInPlace(new byte[startPadding], 0, startPadding);
       }
-    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+    } catch (NoSuchAlgorithmException
+        | NoSuchPaddingException
+        | InvalidKeyException
         | InvalidAlgorithmParameterException e) {
       // Should never happen.
       throw new RuntimeException(e);
@@ -116,5 +121,4 @@ public final class AesFlushingCipher {
   private byte[] getInitializationVector(long nonce, long counter) {
     return ByteBuffer.allocate(16).putLong(nonce).putLong(counter).array();
   }
-
 }

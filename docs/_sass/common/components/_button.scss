@@ -1,0 +1,163 @@
+@mixin button() {
+  display: inline-block;
+  font-weight: map-get($button, font-weight);
+  line-height: 1 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  outline: none;
+  @include user-select(none);
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  @include disabled() {
+    cursor: not-allowed;
+  }
+}
+
+.button {
+  @include button();
+}
+
+.button--primary {
+  @include clickable($text-color-1, $main-color-1);
+}
+
+.button--secondary {
+  @include clickable($text-color-3, $main-color-3);
+}
+
+.button--success {
+  @include clickable($text-color-function, $green);
+}
+
+.button--info {
+  @include clickable($text-color-function, $blue);
+}
+
+.button--warning {
+  @include clickable($text-color-function, $yellow);
+}
+
+.button--error {
+  @include clickable($text-color-function, $red);
+}
+
+.button--theme-light {
+  @include clickable($text-color-theme-dark, $main-color-theme-light);
+}
+
+.button--theme-dark {
+  @include clickable($text-color-theme-light, $main-color-theme-dark);
+}
+
+.button--outline-primary {
+  color: $main-color-1;
+  border: 1px solid $main-color-1;
+  @include clickable($main-color-1, transparent, $text-color-1, $main-color-1);
+}
+
+.button--outline-secondary {
+  color: $main-color-3;
+  border: 1px solid $main-color-3;
+  @include clickable($main-color-3, transparent, $text-color-3, $main-color-3);
+}
+
+.button--outline-success {
+  color: $green;
+  border: 1px solid $green;
+  @include clickable($green, transparent, $text-color-function, $green);
+}
+
+.button--outline-info {
+  color: $blue;
+  border: 1px solid $blue;
+  @include clickable($blue, transparent, $text-color-function, $blue);
+}
+
+.button--outline-warning {
+  color: $yellow;
+  border: 1px solid $yellow;
+  @include clickable($yellow, transparent, $text-color-function, $yellow);
+}
+
+.button--outline-error {
+  color: $red;
+  border: 1px solid $red;
+  @include clickable($red, transparent, $text-color-function, $red);
+}
+
+.button--outline-theme-light {
+  color: $main-color-theme-light;
+  border: 1px solid $main-color-theme-light;
+  @include clickable($text-color-theme-dark, $main-color-theme-light);
+}
+
+.button--outline-theme-dark {
+  color: $main-color-theme-dark;
+  border: 1px solid $main-color-theme-dark;
+  @include clickable($text-color-theme-light, $main-color-theme-dark);
+}
+
+.button--pill {
+  border-radius: map-get($button, pill-radius);
+  @extend .button--md;
+}
+
+.button--rounded {
+  border-radius: map-get($base, border-radius);
+  @extend .button--md;
+}
+
+.button--circle {
+  @include inline-flex();
+  @include justify-content(center);
+  @include align-items(center);
+  border-radius: 50%;
+  @extend .button--md;
+}
+
+.button--md {
+  padding: map-get($button, padding-y) map-get($button, padding-x);
+  font-size: map-get($base, font-size);
+  &.button--circle {
+    width: map-get($button, circle-diameter);
+    height: map-get($button, circle-diameter);
+  }
+}
+
+.button--xs {
+  padding: map-get($button, padding-y-xs) map-get($button, padding-x-xs);
+  font-size: map-get($base, font-size-xs);
+  &.button--circle {
+    width: map-get($button, circle-diameter-xs);
+    height: map-get($button, circle-diameter-xs);
+  }
+}
+
+.button--sm {
+  padding: map-get($button, padding-y-sm) map-get($button, padding-x-sm);
+  font-size: map-get($base, font-size-sm);
+  &.button--circle {
+    width: map-get($button, circle-diameter-sm);
+    height: map-get($button, circle-diameter-sm);
+  }
+}
+
+.button--lg {
+  padding: map-get($button, padding-y-lg) map-get($button, padding-x-lg);
+  font-size: map-get($base, font-size-lg);
+  &.button--circle {
+    width: map-get($button, circle-diameter-lg);
+    height: map-get($button, circle-diameter-lg);
+  }
+}
+
+.button--xl {
+  padding: map-get($button, padding-y-xl) map-get($button, padding-x-xl);
+  font-size: map-get($base, font-size-xl);
+  &.button--circle {
+    width: map-get($button, circle-diameter-xl);
+    height: map-get($button, circle-diameter-xl);
+  }
+}

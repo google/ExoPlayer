@@ -1,0 +1,598 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DecoderCounters (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DecoderCounters (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.decoder</a></div>
+<h2 title="Class DecoderCounters" class="title">Class DecoderCounters</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.decoder.DecoderCounters</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">DecoderCounters</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Maintains decoder event counts, for debugging purposes only.
+
+ <p>Counters should be written from the playback thread only. Counters may be read from any
+ thread. To ensure that the counter values are made visible across threads, users of this class
+ should invoke <a href="#ensureUpdated()"><code>ensureUpdated()</code></a> prior to reading and after writing.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderInitCount">decoderInitCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of times a decoder has been initialized.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderReleaseCount">decoderReleaseCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of times a decoder has been released.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedBufferCount">droppedBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of dropped buffers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedToKeyframeCount">droppedToKeyframeCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of times all buffers to a keyframe were dropped.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputBufferCount">inputBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of queued input buffers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxConsecutiveDroppedBufferCount">maxConsecutiveDroppedBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderedOutputBufferCount">renderedOutputBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of rendered output buffers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedInputBufferCount">skippedInputBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of skipped input buffers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedOutputBufferCount">skippedOutputBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of skipped output buffers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFrameProcessingOffsetUs">totalVideoFrameProcessingOffsetUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The sum of the video frame processing offsets in microseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoFrameProcessingOffsetCount">videoFrameProcessingOffsetCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of video frame processing offsets added.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DecoderCounters</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addVideoFrameProcessingOffset(long)">addVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;processingOffsetUs)</code></th>
+<td class="colLast">
+<div class="block">Adds a video frame processing offset to <a href="#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
+ increases <a href="#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ensureUpdated()">ensureUpdated</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Should be called to ensure counter values are made visible across threads.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#merge(com.google.android.exoplayer2.decoder.DecoderCounters)">merge</a></span>&#8203;(<a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</code></th>
+<td class="colLast">
+<div class="block">Merges the counts from <code>other</code> into this instance.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="decoderInitCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decoderInitCount</h4>
+<pre>public&nbsp;int decoderInitCount</pre>
+<div class="block">The number of times a decoder has been initialized.</div>
+</li>
+</ul>
+<a id="decoderReleaseCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decoderReleaseCount</h4>
+<pre>public&nbsp;int decoderReleaseCount</pre>
+<div class="block">The number of times a decoder has been released.</div>
+</li>
+</ul>
+<a id="inputBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>inputBufferCount</h4>
+<pre>public&nbsp;int inputBufferCount</pre>
+<div class="block">The number of queued input buffers.</div>
+</li>
+</ul>
+<a id="skippedInputBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skippedInputBufferCount</h4>
+<pre>public&nbsp;int skippedInputBufferCount</pre>
+<div class="block">The number of skipped input buffers.
+ <p>
+ A skipped input buffer is an input buffer that was deliberately not sent to the decoder.</div>
+</li>
+</ul>
+<a id="renderedOutputBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>renderedOutputBufferCount</h4>
+<pre>public&nbsp;int renderedOutputBufferCount</pre>
+<div class="block">The number of rendered output buffers.</div>
+</li>
+</ul>
+<a id="skippedOutputBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skippedOutputBufferCount</h4>
+<pre>public&nbsp;int skippedOutputBufferCount</pre>
+<div class="block">The number of skipped output buffers.
+ <p>
+ A skipped output buffer is an output buffer that was deliberately not rendered.</div>
+</li>
+</ul>
+<a id="droppedBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>droppedBufferCount</h4>
+<pre>public&nbsp;int droppedBufferCount</pre>
+<div class="block">The number of dropped buffers.
+ <p>
+ A dropped buffer is an buffer that was supposed to be decoded/rendered, but was instead
+ dropped because it could not be rendered in time.</div>
+</li>
+</ul>
+<a id="maxConsecutiveDroppedBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxConsecutiveDroppedBufferCount</h4>
+<pre>public&nbsp;int maxConsecutiveDroppedBufferCount</pre>
+<div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.
+ <p>
+ Skipped output buffers are ignored for the purposes of calculating this value.</div>
+</li>
+</ul>
+<a id="droppedToKeyframeCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>droppedToKeyframeCount</h4>
+<pre>public&nbsp;int droppedToKeyframeCount</pre>
+<div class="block">The number of times all buffers to a keyframe were dropped.
+ <p>
+ Each time buffers to a keyframe are dropped, this counter is increased by one, and the dropped
+ buffer counters are increased by one (for the current output buffer) plus the number of buffers
+ dropped from the source to advance to the keyframe.</div>
+</li>
+</ul>
+<a id="totalVideoFrameProcessingOffsetUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalVideoFrameProcessingOffsetUs</h4>
+<pre>public&nbsp;long totalVideoFrameProcessingOffsetUs</pre>
+<div class="block">The sum of the video frame processing offsets in microseconds.
+
+ <p>The processing offset for a video frame is the difference between the time at which the
+ frame became available to render, and the time at which it was scheduled to be rendered. A
+ positive value indicates the frame became available early enough, whereas a negative value
+ indicates that the frame wasn't available until after the time at which it should have been
+ rendered.
+
+ <p>Note: Use <a href="#addVideoFrameProcessingOffset(long)"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
+ updating it directly.</div>
+</li>
+</ul>
+<a id="videoFrameProcessingOffsetCount">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>videoFrameProcessingOffsetCount</h4>
+<pre>public&nbsp;int videoFrameProcessingOffsetCount</pre>
+<div class="block">The number of video frame processing offsets added.
+
+ <p>Note: Use <a href="#addVideoFrameProcessingOffset(long)"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
+ updating it directly.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DecoderCounters</h4>
+<pre>public&nbsp;DecoderCounters()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="ensureUpdated()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ensureUpdated</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;ensureUpdated()</pre>
+<div class="block">Should be called to ensure counter values are made visible across threads. The playback thread
+ should call this method after updating the counter values. Any other thread should call this
+ method before reading the counters.</div>
+</li>
+</ul>
+<a id="merge(com.google.android.exoplayer2.decoder.DecoderCounters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>merge</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;merge&#8203;(<a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</pre>
+<div class="block">Merges the counts from <code>other</code> into this instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>other</code> - The <a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> to merge into this instance.</dd>
+</dl>
+</li>
+</ul>
+<a id="addVideoFrameProcessingOffset(long)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>addVideoFrameProcessingOffset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addVideoFrameProcessingOffset&#8203;(long&nbsp;processingOffsetUs)</pre>
+<div class="block">Adds a video frame processing offset to <a href="#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
+ increases <a href="#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.
+
+ <p>Convenience method to ensure both fields are updated when adding a single offset.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>processingOffsetUs</code> - The video frame processing offset in microseconds.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

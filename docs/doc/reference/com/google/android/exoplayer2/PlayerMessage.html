@@ -1,0 +1,828 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>PlayerMessage (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="PlayerMessage (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class PlayerMessage" class="title">Class PlayerMessage</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.PlayerMessage</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">PlayerMessage</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Defines a player message which can be sent with a <a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Sender</code></a> and received by a <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Sender</a></span></code></th>
+<td class="colLast">
+<div class="block">A sender for messages.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></span></code></th>
+<td class="colLast">
+<div class="block">A target for messages.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.PlayerMessage.Sender,com.google.android.exoplayer2.PlayerMessage.Target,com.google.android.exoplayer2.Timeline,int,com.google.android.exoplayer2.util.Clock,android.os.Looper)">PlayerMessage</a></span>&#8203;(<a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Sender</a>&nbsp;sender,
+             <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+             <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+             int&nbsp;defaultWindowIndex,
+             <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
+             <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;defaultLooper)</code></th>
+<td class="colLast">
+<div class="block">Creates a new message.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilDelivered()">blockUntilDelivered</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Blocks until after the message has been delivered or the player is no longer able to deliver
+ the message.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilDelivered(long)">blockUntilDelivered</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
+<td class="colLast">
+<div class="block">Blocks until after the message has been delivered or the player is no longer able to deliver
+ the message or the specified timeout elapsed.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancel()">cancel</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Cancels the message delivery.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDeleteAfterDelivery()">getDeleteAfterDelivery</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the message will be deleted after delivery.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLooper()">getLooper</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> the message is delivered on.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPayload()">getPayload</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the message payload forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionMs()">getPositionMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns position in window at <a href="#getWindowIndex()"><code>getWindowIndex()</code></a> at which the message will be delivered,
+ in milliseconds.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTarget()">getTarget</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the target the message is sent to.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimeline()">getTimeline</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the timeline used for setting the position with <a href="#setPosition(long)"><code>setPosition(long)</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getType()">getType</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the message type forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindowIndex()">getWindowIndex</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns window index at which the message will be delivered.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCanceled()">isCanceled</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the message delivery has been canceled.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#markAsProcessed(boolean)">markAsProcessed</a></span>&#8203;(boolean&nbsp;isDelivered)</code></th>
+<td class="colLast">
+<div class="block">Marks the message as processed.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#send()">send</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Sends the message.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeleteAfterDelivery(boolean)">setDeleteAfterDelivery</a></span>&#8203;(boolean&nbsp;deleteAfterDelivery)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the message will be deleted after delivery.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHandler(android.os.Handler)">setHandler</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLooper(android.os.Looper)"><code>setLooper(Looper)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLooper(android.os.Looper)">setLooper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> the message is delivered on.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPayload(java.lang.Object)">setPayload</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)</code></th>
+<td class="colLast">
+<div class="block">Sets the message payload forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int,long)">setPosition</a></span>&#8203;(int&nbsp;windowIndex,
+           long&nbsp;positionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets a position in a window at which the message will be delivered.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(long)">setPosition</a></span>&#8203;(long&nbsp;positionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets a position in the current window at which the message will be delivered.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setType(int)">setType</a></span>&#8203;(int&nbsp;messageType)</code></th>
+<td class="colLast">
+<div class="block">Sets the message type forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.PlayerMessage.Sender,com.google.android.exoplayer2.PlayerMessage.Target,com.google.android.exoplayer2.Timeline,int,com.google.android.exoplayer2.util.Clock,android.os.Looper)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>PlayerMessage</h4>
+<pre>public&nbsp;PlayerMessage&#8203;(<a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Sender</a>&nbsp;sender,
+                     <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
+                     <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                     int&nbsp;defaultWindowIndex,
+                     <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
+                     <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;defaultLooper)</pre>
+<div class="block">Creates a new message.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sender</code> - The <a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Sender</code></a> used to send the message.</dd>
+<dd><code>target</code> - The <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a> the message is sent to.</dd>
+<dd><code>timeline</code> - The timeline used when setting the position with <a href="#setPosition(long)"><code>setPosition(long)</code></a>. If
+     set to <a href="Timeline.html#EMPTY"><code>Timeline.EMPTY</code></a>, any position can be specified.</dd>
+<dd><code>defaultWindowIndex</code> - The default window index in the <code>timeline</code> when no other window
+     index is specified.</dd>
+<dd><code>clock</code> - The <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>.</dd>
+<dd><code>defaultLooper</code> - The default <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> to send the message on when no other looper is
+     specified.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getTimeline()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTimeline</h4>
+<pre class="methodSignature">public&nbsp;<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;getTimeline()</pre>
+<div class="block">Returns the timeline used for setting the position with <a href="#setPosition(long)"><code>setPosition(long)</code></a>.</div>
+</li>
+</ul>
+<a id="getTarget()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTarget</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;getTarget()</pre>
+<div class="block">Returns the target the message is sent to.</div>
+</li>
+</ul>
+<a id="setType(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setType</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setType&#8203;(int&nbsp;messageType)</pre>
+<div class="block">Sets the message type forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>messageType</code> - The message type.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="getType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getType</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getType()</pre>
+<div class="block">Returns the message type forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+</li>
+</ul>
+<a id="setPayload(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPayload</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPayload&#8203;(@Nullable
+                                <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)</pre>
+<div class="block">Sets the message payload forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>payload</code> - The message payload.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPayload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPayload</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getPayload()</pre>
+<div class="block">Returns the message payload forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
+</li>
+</ul>
+<a id="setHandler(android.os.Handler)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setHandler</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setHandler&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLooper(android.os.Looper)"><code>setLooper(Looper)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setLooper(android.os.Looper)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLooper</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
+<div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> the message is delivered on.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>looper</code> - A <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="getLooper()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLooper</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;getLooper()</pre>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> the message is delivered on.</div>
+</li>
+</ul>
+<a id="getPositionMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPositionMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getPositionMs()</pre>
+<div class="block">Returns position in window at <a href="#getWindowIndex()"><code>getWindowIndex()</code></a> at which the message will be delivered,
+ in milliseconds. If <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately. If <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>, the message will be delivered at the end of the window at <a href="#getWindowIndex()"><code>getWindowIndex()</code></a>.</div>
+</li>
+</ul>
+<a id="setPosition(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPosition</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(long&nbsp;positionMs)</pre>
+<div class="block">Sets a position in the current window at which the message will be delivered.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionMs</code> - The position in the current window at which the message will be sent, in
+     milliseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to deliver the message at the end of the
+     current window.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPosition(int,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPosition</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(int&nbsp;windowIndex,
+                                 long&nbsp;positionMs)</pre>
+<div class="block">Sets a position in a window at which the message will be delivered.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - The index of the window at which the message will be sent.</dd>
+<dd><code>positionMs</code> - The position in the window with index <code>windowIndex</code> at which the
+     message will be sent, in milliseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to deliver the
+     message at the end of the window with index <code>windowIndex</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="IllegalSeekPositionException.html" title="class in com.google.android.exoplayer2">IllegalSeekPositionException</a></code> - If the timeline returned by <a href="#getTimeline()"><code>getTimeline()</code></a> is not
+     empty and the provided window index is not within the bounds of the timeline.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="getWindowIndex()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getWindowIndex</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getWindowIndex()</pre>
+<div class="block">Returns window index at which the message will be delivered.</div>
+</li>
+</ul>
+<a id="setDeleteAfterDelivery(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDeleteAfterDelivery</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setDeleteAfterDelivery&#8203;(boolean&nbsp;deleteAfterDelivery)</pre>
+<div class="block">Sets whether the message will be deleted after delivery. If false, the message will be resent
+ if playback reaches the specified position again. Only allowed to be false if a position is set
+ with <a href="#setPosition(long)"><code>setPosition(long)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>deleteAfterDelivery</code> - Whether the message is deleted after delivery.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDeleteAfterDelivery()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDeleteAfterDelivery</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;getDeleteAfterDelivery()</pre>
+<div class="block">Returns whether the message will be deleted after delivery.</div>
+</li>
+</ul>
+<a id="send()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>send</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;send()</pre>
+<div class="block">Sends the message. If the target throws an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> then it is propagated
+ out of the player as an error using <a href="Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this message has already been sent.</dd>
+</dl>
+</li>
+</ul>
+<a id="cancel()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cancel</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;cancel()</pre>
+<div class="block">Cancels the message delivery.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This message.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If this method is called before <a href="#send()" target="_top"><code>send()</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="isCanceled()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isCanceled</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isCanceled()</pre>
+<div class="block">Returns whether the message delivery has been canceled.</div>
+</li>
+</ul>
+<a id="markAsProcessed(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>markAsProcessed</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;markAsProcessed&#8203;(boolean&nbsp;isDelivered)</pre>
+<div class="block">Marks the message as processed. Should only be called by a <a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Sender</code></a> and may be called
+ multiple times.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isDelivered</code> - Whether the message has been delivered to its target. The message is
+     considered as being delivered when this method has been called with <code>isDelivered</code> set
+     to true at least once.</dd>
+</dl>
+</li>
+</ul>
+<a id="blockUntilDelivered()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>blockUntilDelivered</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;blockUntilDelivered()
+                            throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
+<div class="block">Blocks until after the message has been delivered or the player is no longer able to deliver
+ the message.
+
+ <p>Note that this method must not be called if the current thread is the same thread used by
+ the message <a href="#getLooper()"><code>looper</code></a> as it would cause a deadlock.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the message was delivered successfully.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If this method is called before <a href="#send()" target="_top"><code>send()</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called on the same thread used by the message
+     <a href="#getLooper()"><code>looper</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></code> - If the current thread is interrupted while waiting for the message
+     to be delivered.</dd>
+</dl>
+</li>
+</ul>
+<a id="blockUntilDelivered(long)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>blockUntilDelivered</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;blockUntilDelivered&#8203;(long&nbsp;timeoutMs)
+                            throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a>,
+                                   <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
+<div class="block">Blocks until after the message has been delivered or the player is no longer able to deliver
+ the message or the specified timeout elapsed.
+
+ <p>Note that this method must not be called if the current thread is the same thread used by
+ the message <a href="#getLooper()"><code>looper</code></a> as it would cause a deadlock.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeoutMs</code> - The timeout in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the message was delivered successfully.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If this method is called before <a href="#send()" target="_top"><code>send()</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method is called on the same thread used by the message
+     <a href="#getLooper()"><code>looper</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></code> - If the <code>timeoutMs</code> elapsed and this message has not been
+     delivered and the player is still able to deliver the message.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></code> - If the current thread is interrupted while waiting for the message
+     to be delivered.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

@@ -11,14 +11,49 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'bintray-release'
 
-publish {
-    artifactId = releaseArtifact
-    description = releaseDescription
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
+apply plugin: 'maven-publish'
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                url = findProperty('mavenRepo') ?: "${buildDir}/repo"
+            }
+        }
+        publications {
+            release(MavenPublication) {
+                from components.release
+                artifact androidSourcesJar
+                groupId = 'com.google.android.exoplayer'
+                artifactId = releaseArtifact
+                version releaseVersion
+                pom {
+                    name = releaseArtifact
+                    description = releaseDescription
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution = 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            name = 'The Android Open Source Project'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/google/ExoPlayer.git'
+                        url = 'https://github.com/google/ExoPlayer'
+                    }
+                }
+            }
+        }
+    }
+}
+tasks.withType(PublishToMavenRepository) { it.dependsOn lint, test }
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }

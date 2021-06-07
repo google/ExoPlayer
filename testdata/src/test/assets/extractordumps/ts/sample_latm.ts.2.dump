@@ -1,0 +1,41 @@
+seekMap:
+  isSeekable = true
+  duration = 0
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 1
+track 256:
+  total output bytes = 1396
+  sample count = 5
+  format 0:
+    id = 1/256
+    sampleMimeType = audio/mp4a-latm
+    codecs = mp4a.40.5
+    channelCount = 1
+    sampleRate = 44100
+    language = und
+    initializationData:
+      data = length 4, hash 1FE978
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 279, hash 79BF9F9B
+  sample 1:
+    time = 23219
+    flags = 1
+    data = length 279, hash C96F4684
+  sample 2:
+    time = 46438
+    flags = 1
+    data = length 279, hash 65670B86
+  sample 3:
+    time = 69657
+    flags = 1
+    data = length 280, hash 1AF29BCE
+  sample 4:
+    time = 92876
+    flags = 1
+    data = length 279, hash C96F4684
+tracksEnded = true

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD availabilityStartTime="2014-06-19T23:07:42" type="dynamic">
+    <Period start="PT6462826.784S" id="0">
+        <AdaptationSet id="0" mimeType="video/mp4">
+            <Representation id="135" bandwidth="1000000" codecs="avc1.42c01f"/>
+        </AdaptationSet>
+    </Period>
+    <Period start="PT7462826.784S" id="1">
+        <AdaptationSet id="100" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="103,104"/>
+            <Representation id="1001" bandwidth="200000" codecs="avc1.42c01f">
+                <InbandEventStream
+                    id="inBandId"
+                    schemeIdUri="urn:mpeg:dash:event:2012"
+                    value="inBandValue"/>
+            </Representation>
+            <Representation id="1002" bandwidth="400000" codecs="avc1.42c01f">
+                <InbandEventStream
+                    id="inBandId"
+                    schemeIdUri="urn:mpeg:dash:event:2012"
+                    value="inBandValue"/>
+            </Representation>
+            <Representation id="1003" bandwidth="600000" codecs="avc1.42c01f">
+                <InbandEventStream
+                    id="inBandId"
+                    schemeIdUri="urn:mpeg:dash:event:2012"
+                    value="inBandValue"/>
+            </Representation>
+        </AdaptationSet>
+        <AdaptationSet id="101" mimeType="audio/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="102"/>
+            <Representation id="1011" bandwidth="48000" codecs="mp4a.40.2"/>
+            <Representation id="1012" bandwidth="96000" codecs="mp4a.40.2"/>
+        </AdaptationSet>
+        <AdaptationSet id="102" mimeType="audio/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="101"/>
+            <Representation id="1021" bandwidth="256000" codecs="mp4a.40.2"/>
+        </AdaptationSet>
+        <AdaptationSet id="103" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="100,104"/>
+            <Representation id="1031" bandwidth="800000" codecs="avc1.42c01f">
+                <InbandEventStream
+                    id="inBandId"
+                    schemeIdUri="urn:mpeg:dash:event:2012"
+                    value="inBandValue"/>
+            </Representation>
+            <Representation id="1032" bandwidth="1000000" codecs="avc1.42c01f">
+                <InbandEventStream
+                    id="inBandId"
+                    schemeIdUri="urn:mpeg:dash:event:2012"
+                    value="inBandValue"/>
+            </Representation>
+        </AdaptationSet>
+        <AdaptationSet id="104" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="100,103"/>
+            <Representation id="1041" bandwidth="2000000" codecs="avc1.42c01f">
+                <InbandEventStream
+                    id="inBandId"
+                    schemeIdUri="urn:mpeg:dash:event:2012"
+                    value="inBandValue"/>
+            </Representation>
+        </AdaptationSet>
+        <AdaptationSet id="105"
+            lang="eng"
+            mimeType="application/mp4"
+            contentType="text"
+            codecs="wvtt">
+          <Representation id="1051" bandwidth="100"/>
+        </AdaptationSet>
+        <AdaptationSet id="106"
+            lang="ger"
+            mimeType="application/mp4"
+            contentType="text"
+            codecs="wvtt">
+          <Representation id="1061" bandwidth="100"/>
+        </AdaptationSet>
+    </Period>
+</MPD>

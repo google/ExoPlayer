@@ -1,0 +1,1036 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>MediaItem.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="MediaItem.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class MediaItem.Builder" class="title">Class MediaItem.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.MediaItem.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">MediaItem.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">A builder for <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instances.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a builder.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a new <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instance with the current builder values.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(android.net.Uri)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(android.net.Uri,java.lang.Object)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri,
+           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> and ads identifier.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(java.lang.String)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adTagUri)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipEndPositionMs(long)">setClipEndPositionMs</a></span>&#8203;(long&nbsp;endPositionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional end position in milliseconds which must be a value larger than or equal to
+ zero, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to end when playback reaches the end of media (Default:
+ <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>).</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipRelativeToDefaultPosition(boolean)">setClipRelativeToDefaultPosition</a></span>&#8203;(boolean&nbsp;relativeToDefaultPosition)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the start position and the end position are relative to the default position in
+ the window (Default: <code>false</code>).</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipRelativeToLiveWindow(boolean)">setClipRelativeToLiveWindow</a></span>&#8203;(boolean&nbsp;relativeToLiveWindow)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the start/end positions should move with the live window for live streams.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipStartPositionMs(long)">setClipStartPositionMs</a></span>&#8203;(long&nbsp;startPositionMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional start position in milliseconds which must be a value larger than or equal
+ to zero (Default: 0).</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipStartsAtKeyFrame(boolean)">setClipStartsAtKeyFrame</a></span>&#8203;(boolean&nbsp;startsAtKeyFrame)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the start point is guaranteed to be a key frame.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCustomCacheKey(java.lang.String)">setCustomCacheKey</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;customCacheKey)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional custom cache key (only used for progressive streams).</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmForceDefaultLicenseUri(boolean)">setDrmForceDefaultLicenseUri</a></span>&#8203;(boolean&nbsp;forceDefaultLicenseUri)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
+ own DRM license server URI.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmKeySetId(byte%5B%5D)">setDrmKeySetId</a></span>&#8203;(byte[]&nbsp;keySetId)</code></th>
+<td class="colLast">
+<div class="block">Sets the key set ID of the offline license.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseRequestHeaders(java.util.Map)">setDrmLicenseRequestHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;licenseRequestHeaders)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional request headers attached to the DRM license request.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseUri(android.net.Uri)">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional default DRM license server URI.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseUri(java.lang.String)">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional default DRM license server URI.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmMultiSession(boolean)">setDrmMultiSession</a></span>&#8203;(boolean&nbsp;multiSession)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the DRM configuration is multi session enabled.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmPlayClearContentWithoutKey(boolean)">setDrmPlayClearContentWithoutKey</a></span>&#8203;(boolean&nbsp;playClearContentWithoutKey)</code></th>
+<td class="colLast">
+<div class="block">Sets whether clear samples within protected content should be played when keys for the
+ encrypted part of the content have yet to be loaded.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearPeriods(boolean)">setDrmSessionForClearPeriods</a></span>&#8203;(boolean&nbsp;sessionForClearPeriods)</code></th>
+<td class="colLast">
+<div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>
+ and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearTypes(java.util.List)">setDrmSessionForClearTypes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;sessionForClearTypes)</code></th>
+<td class="colLast">
+<div class="block">Sets a list of <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constants for which to use a DRM session even
+ when the tracks are in the clear.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUuid(java.util.UUID)">setDrmUuid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top"><code>UUID</code></a> of the protection scheme.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxOffsetMs(long)">setLiveMaxOffsetMs</a></span>&#8203;(long&nbsp;liveMaxOffsetMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional maximum offset from the live edge for live streams, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxPlaybackSpeed(float)">setLiveMaxPlaybackSpeed</a></span>&#8203;(float&nbsp;maxPlaybackSpeed)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional maximum playback speed for live stream speed adjustment.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinOffsetMs(long)">setLiveMinOffsetMs</a></span>&#8203;(long&nbsp;liveMinOffsetMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional minimum offset from the live edge for live streams, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinPlaybackSpeed(float)">setLiveMinPlaybackSpeed</a></span>&#8203;(float&nbsp;minPlaybackSpeed)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional minimum playback speed for live stream speed adjustment.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveTargetOffsetMs(long)">setLiveTargetOffsetMs</a></span>&#8203;(long&nbsp;liveTargetOffsetMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional target offset from the live edge for live streams, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaId(java.lang.String)">setMediaId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaId)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional media ID which identifies the media item.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaMetadata(com.google.android.exoplayer2.MediaMetadata)">setMediaMetadata</a></span>&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</code></th>
+<td class="colLast">
+<div class="block">Sets the media metadata.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMimeType(java.lang.String)">setMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional MIME type.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStreamKeys(java.util.List)">setStreamKeys</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional stream keys by which the manifest is filtered (only used for adaptive
+ streams).</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubtitles(java.util.List)">setSubtitles</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.Subtitle</a>&gt;&nbsp;subtitles)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional subtitles.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTag(java.lang.Object)">setTag</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional tag for custom attributes.</div>
+</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(android.net.Uri)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional URI.</div>
+</td>
+</tr>
+<tr id="i32" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(java.lang.String)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</code></th>
+<td class="colLast">
+<div class="block">Sets the optional URI.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder()</pre>
+<div class="block">Creates a builder.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setMediaId(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaId</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setMediaId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaId)</pre>
+<div class="block">Sets the optional media ID which identifies the media item.
+
+ <p>By default <a href="MediaItem.html#DEFAULT_MEDIA_ID"><code>MediaItem.DEFAULT_MEDIA_ID</code></a> is used.</div>
+</li>
+</ul>
+<a id="setUri(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setUri&#8203;(@Nullable
+                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
+<div class="block">Sets the optional URI.
+
+ <p>If <code>uri</code> is null or unset no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created during
+ <a href="#build()"><code>build()</code></a> and any other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> are ignored.</div>
+</li>
+</ul>
+<a id="setUri(android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setUri&#8203;(@Nullable
+                                <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="block">Sets the optional URI.
+
+ <p>If <code>uri</code> is null or unset no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created during
+ <a href="#build()"><code>build()</code></a> and any other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> are ignored.</div>
+</li>
+</ul>
+<a id="setMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setMimeType&#8203;(@Nullable
+                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Sets the optional MIME type.
+
+ <p>The MIME type may be used as a hint for inferring the type of the media item.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the MIME type is used to create a
+ <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mimeType</code> - The MIME type.</dd>
+</dl>
+</li>
+</ul>
+<a id="setClipStartPositionMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClipStartPositionMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipStartPositionMs&#8203;(long&nbsp;startPositionMs)</pre>
+<div class="block">Sets the optional start position in milliseconds which must be a value larger than or equal
+ to zero (Default: 0).</div>
+</li>
+</ul>
+<a id="setClipEndPositionMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClipEndPositionMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipEndPositionMs&#8203;(long&nbsp;endPositionMs)</pre>
+<div class="block">Sets the optional end position in milliseconds which must be a value larger than or equal to
+ zero, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to end when playback reaches the end of media (Default:
+ <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>).</div>
+</li>
+</ul>
+<a id="setClipRelativeToLiveWindow(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClipRelativeToLiveWindow</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipRelativeToLiveWindow&#8203;(boolean&nbsp;relativeToLiveWindow)</pre>
+<div class="block">Sets whether the start/end positions should move with the live window for live streams. If
+ <code>false</code>, live streams end when playback reaches the end position in live window seen
+ when the media is first loaded (Default: <code>false</code>).</div>
+</li>
+</ul>
+<a id="setClipRelativeToDefaultPosition(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClipRelativeToDefaultPosition</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipRelativeToDefaultPosition&#8203;(boolean&nbsp;relativeToDefaultPosition)</pre>
+<div class="block">Sets whether the start position and the end position are relative to the default position in
+ the window (Default: <code>false</code>).</div>
+</li>
+</ul>
+<a id="setClipStartsAtKeyFrame(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClipStartsAtKeyFrame</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipStartsAtKeyFrame&#8203;(boolean&nbsp;startsAtKeyFrame)</pre>
+<div class="block">Sets whether the start point is guaranteed to be a key frame. If <code>false</code>, the playback
+ transition into the clip may not be seamless (Default: <code>false</code>).</div>
+</li>
+</ul>
+<a id="setDrmLicenseUri(android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmLicenseUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
+                                          <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</pre>
+<div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM license server URI is used to
+ create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setDrmLicenseUri(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmLicenseUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
+                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</pre>
+<div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM license server URI is used to
+ create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setDrmLicenseRequestHeaders(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmLicenseRequestHeaders</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseRequestHeaders&#8203;(@Nullable
+                                                     <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;licenseRequestHeaders)</pre>
+<div class="block">Sets the optional request headers attached to the DRM license request.
+
+ <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink" target="_top"><code>Map</code></a> can be used for a reset.
+
+ <p>If no valid DRM configuration is specified, the DRM license request headers are ignored.</div>
+</li>
+</ul>
+<a id="setDrmUuid(java.util.UUID)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmUuid</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmUuid&#8203;(@Nullable
+                                    <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid)</pre>
+<div class="block">Sets the <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink"><code>UUID</code></a> of the protection scheme. If a DRM system UUID is set, the <a href="MediaItem.DrmConfiguration.html#licenseUri" target="_top"><code>MediaItem.DrmConfiguration.licenseUri</code></a> needs to be set as well.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM system UUID is used to create
+ a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setDrmMultiSession(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmMultiSession</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
+<div class="block">Sets whether the DRM configuration is multi session enabled.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM multi session flag is used to
+ create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setDrmForceDefaultLicenseUri(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmForceDefaultLicenseUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmForceDefaultLicenseUri&#8203;(boolean&nbsp;forceDefaultLicenseUri)</pre>
+<div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
+ own DRM license server URI.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM force default license flag is
+ used to create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setDrmPlayClearContentWithoutKey(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmPlayClearContentWithoutKey</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmPlayClearContentWithoutKey&#8203;(boolean&nbsp;playClearContentWithoutKey)</pre>
+<div class="block">Sets whether clear samples within protected content should be played when keys for the
+ encrypted part of the content have yet to be loaded.</div>
+</li>
+</ul>
+<a id="setDrmSessionForClearPeriods(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmSessionForClearPeriods</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearPeriods&#8203;(boolean&nbsp;sessionForClearPeriods)</pre>
+<div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>
+ and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.
+
+ <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearTypes(java.util.List)"><code>setDrmSessionForClearTypes(List)</code></a>.</div>
+</li>
+</ul>
+<a id="setDrmSessionForClearTypes(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmSessionForClearTypes</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearTypes&#8203;(@Nullable
+                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;sessionForClearTypes)</pre>
+<div class="block">Sets a list of <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constants for which to use a DRM session even
+ when the tracks are in the clear.
+
+ <p>For the common case of using a DRM session for <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a> the <a href="#setDrmSessionForClearPeriods(boolean)"><code>setDrmSessionForClearPeriods(boolean)</code></a> can be used.
+
+ <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearPeriods(boolean)"><code>setDrmSessionForClearPeriods(boolean)</code></a>.
+
+ <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.</div>
+</li>
+</ul>
+<a id="setDrmKeySetId(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmKeySetId</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmKeySetId&#8203;(@Nullable
+                                        byte[]&nbsp;keySetId)</pre>
+<div class="block">Sets the key set ID of the offline license.
+
+ <p>The key set ID identifies an offline license. The ID is required to query, renew or
+ release an existing offline license (see <code>DefaultDrmSessionManager#setMode(int
+ mode,byte[] offlineLicenseKeySetId)</code>).
+
+ <p>If no valid DRM configuration is specified, the key set ID is ignored.</div>
+</li>
+</ul>
+<a id="setStreamKeys(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStreamKeys</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setStreamKeys&#8203;(@Nullable
+                                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="block">Sets the optional stream keys by which the manifest is filtered (only used for adaptive
+ streams).
+
+ <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the stream keys are used to create a
+ <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise they will be ignored.</div>
+</li>
+</ul>
+<a id="setCustomCacheKey(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCustomCacheKey</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setCustomCacheKey&#8203;(@Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;customCacheKey)</pre>
+<div class="block">Sets the optional custom cache key (only used for progressive streams).
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the custom cache key is used to
+ create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setSubtitles(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSubtitles</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setSubtitles&#8203;(@Nullable
+                                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.Subtitle</a>&gt;&nbsp;subtitles)</pre>
+<div class="block">Sets the optional subtitles.
+
+ <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the subtitles are used to create a
+ <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise they will be ignored.</div>
+</li>
+</ul>
+<a id="setAdTagUri(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdTagUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
+                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adTagUri)</pre>
+<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the ad tag URI is used to create a
+ <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.
+
+ <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
+ the same ad playback state. To resume ad playback when recreating the playlist on returning
+ from the background, pass media items with the same ad tag URIs and media IDs to the player.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adTagUri</code> - The ad tag URI to load.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAdTagUri(android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdTagUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
+                                     <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</pre>
+<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the ad tag URI is used to create a
+ <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.
+
+ <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
+ the same ad playback state. To resume ad playback when recreating the playlist on returning
+ from the background, pass media items with the same ad tag URIs and media IDs to the player.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adTagUri</code> - The ad tag URI to load.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAdTagUri(android.net.Uri,java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdTagUri</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
+                                     <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri,
+                                     @Nullable
+                                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId)</pre>
+<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> and ads identifier.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the ad tag URI is used to create a
+ <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.
+
+ <p>Media items in the playlist that have the same ads identifier and ads loader share the
+ same ad playback state. To resume ad playback when recreating the playlist on returning from
+ the background, pass the same ads IDs to the player.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adTagUri</code> - The ad tag URI to load.</dd>
+<dd><code>adsId</code> - An opaque identifier for ad playback state associated with this item. Ad loading
+     and playback state is shared among all media items that have the same ads ID (by <a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>equality</code></a>) and ads loader, so it is important to pass the same
+     identifiers when constructing playlist items each time the player returns to the
+     foreground.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLiveTargetOffsetMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveTargetOffsetMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveTargetOffsetMs&#8203;(long&nbsp;liveTargetOffsetMs)</pre>
+<div class="block">Sets the optional target offset from the live edge for live streams, in milliseconds.
+
+ <p>See <code>Player#getCurrentLiveOffset()</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>liveTargetOffsetMs</code> - The target offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to use
+     the media-defined default.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLiveMinOffsetMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveMinOffsetMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMinOffsetMs&#8203;(long&nbsp;liveMinOffsetMs)</pre>
+<div class="block">Sets the optional minimum offset from the live edge for live streams, in milliseconds.
+
+ <p>See <code>Player#getCurrentLiveOffset()</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>liveMinOffsetMs</code> - The minimum allowed offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+     to use the media-defined default.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLiveMaxOffsetMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveMaxOffsetMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMaxOffsetMs&#8203;(long&nbsp;liveMaxOffsetMs)</pre>
+<div class="block">Sets the optional maximum offset from the live edge for live streams, in milliseconds.
+
+ <p>See <code>Player#getCurrentLiveOffset()</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>liveMaxOffsetMs</code> - The maximum allowed offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+     to use the media-defined default.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLiveMinPlaybackSpeed(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveMinPlaybackSpeed</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMinPlaybackSpeed&#8203;(float&nbsp;minPlaybackSpeed)</pre>
+<div class="block">Sets the optional minimum playback speed for live stream speed adjustment.
+
+ <p>This value is ignored for other stream types.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minPlaybackSpeed</code> - The minimum factor by which playback can be sped up for live streams,
+     or <a href="C.html#RATE_UNSET"><code>C.RATE_UNSET</code></a> to use the media-defined default.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLiveMaxPlaybackSpeed(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveMaxPlaybackSpeed</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMaxPlaybackSpeed&#8203;(float&nbsp;maxPlaybackSpeed)</pre>
+<div class="block">Sets the optional maximum playback speed for live stream speed adjustment.
+
+ <p>This value is ignored for other stream types.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxPlaybackSpeed</code> - The maximum factor by which playback can be sped up for live streams,
+     or <a href="C.html#RATE_UNSET"><code>C.RATE_UNSET</code></a> to use the media-defined default.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTag(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTag</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setTag&#8203;(@Nullable
+                                <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</pre>
+<div class="block">Sets the optional tag for custom attributes. The tag for the media source which will be
+ published in the <code>com.google.android.exoplayer2.Timeline</code> of the source as <code>
+ com.google.android.exoplayer2.Timeline.Window#tag</code>.
+
+ <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the tag is used to create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+</li>
+</ul>
+<a id="setMediaMetadata(com.google.android.exoplayer2.MediaMetadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaMetadata</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setMediaMetadata&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</pre>
+<div class="block">Sets the media metadata.</div>
+</li>
+</ul>
+<a id="build()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;build()</pre>
+<div class="block">Returns a new <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instance with the current builder values.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

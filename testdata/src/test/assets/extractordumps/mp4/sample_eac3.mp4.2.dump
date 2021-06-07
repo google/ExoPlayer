@@ -1,0 +1,91 @@
+seekMap:
+  isSeekable = true
+  duration = 1728000
+  getPosition(0) = [[timeUs=0, position=898]]
+  getPosition(1) = [[timeUs=1, position=898]]
+  getPosition(864000) = [[timeUs=864000, position=108898]]
+  getPosition(1728000) = [[timeUs=1728000, position=212898]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 72000
+  sample count = 18
+  format 0:
+    id = 1
+    sampleMimeType = audio/eac3
+    maxInputSize = 4030
+    channelCount = 6
+    sampleRate = 48000
+    language = und
+  sample 0:
+    time = 1152000
+    flags = 1
+    data = length 4000, hash A12733C9
+  sample 1:
+    time = 1184000
+    flags = 1
+    data = length 4000, hash 95F62E99
+  sample 2:
+    time = 1216000
+    flags = 1
+    data = length 4000, hash A4D858
+  sample 3:
+    time = 1248000
+    flags = 1
+    data = length 4000, hash A4D858
+  sample 4:
+    time = 1280000
+    flags = 1
+    data = length 4000, hash 22C1A129
+  sample 5:
+    time = 1312000
+    flags = 1
+    data = length 4000, hash 2C51E4A1
+  sample 6:
+    time = 1344000
+    flags = 1
+    data = length 4000, hash 3782E8BB
+  sample 7:
+    time = 1376000
+    flags = 1
+    data = length 4000, hash 2C51E4A1
+  sample 8:
+    time = 1408000
+    flags = 1
+    data = length 4000, hash BDB3D129
+  sample 9:
+    time = 1440000
+    flags = 1
+    data = length 4000, hash F642A55
+  sample 10:
+    time = 1472000
+    flags = 1
+    data = length 4000, hash 32F259F4
+  sample 11:
+    time = 1504000
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 12:
+    time = 1536000
+    flags = 1
+    data = length 4000, hash 57C98E1C
+  sample 13:
+    time = 1568000
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 14:
+    time = 1600000
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 15:
+    time = 1632000
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 16:
+    time = 1664000
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 17:
+    time = 1696000
+    flags = 536870913
+    data = length 4000, hash 4C987B7C
+tracksEnded = true

@@ -1,0 +1,810 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>FlacStreamMetadata (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="FlacStreamMetadata (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor</a></div>
+<h2 title="Class FlacStreamMetadata" class="title">Class FlacStreamMetadata</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.extractor.FlacStreamMetadata</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">FlacStreamMetadata</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Holder for FLAC metadata.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
+     METADATA_BLOCK_STREAMINFO</a>, 
+<a href="https://xiph.org/flac/format.html#metadata_block_seektable">FLAC format
+     METADATA_BLOCK_SEEKTABLE</a>, 
+<a href="https://xiph.org/flac/format.html#metadata_block_vorbis_comment">FLAC format
+     METADATA_BLOCK_VORBIS_COMMENT</a>, 
+<a href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC format
+     METADATA_BLOCK_PICTURE</a></dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a></span></code></th>
+<td class="colLast">
+<div class="block">A FLAC seek table.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitsPerSample">bitsPerSample</a></span></code></th>
+<td class="colLast">
+<div class="block">Number of bits per sample.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitsPerSampleLookupKey">bitsPerSampleLookupKey</a></span></code></th>
+<td class="colLast">
+<div class="block">Lookup key corresponding to the number of bits per sample of the stream, or <a href="#NOT_IN_LOOKUP_TABLE"><code>NOT_IN_LOOKUP_TABLE</code></a> if it is not in the lookup table.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#channels">channels</a></span></code></th>
+<td class="colLast">
+<div class="block">Number of audio channels.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxBlockSizeSamples">maxBlockSizeSamples</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum number of samples per block.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxFrameSize">maxFrameSize</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum frame size in bytes, or 0 if the value is unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minBlockSizeSamples">minBlockSizeSamples</a></span></code></th>
+<td class="colLast">
+<div class="block">Minimum number of samples per block.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minFrameSize">minFrameSize</a></span></code></th>
+<td class="colLast">
+<div class="block">Minimum frame size in bytes, or 0 if the value is unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NOT_IN_LOOKUP_TABLE">NOT_IN_LOOKUP_TABLE</a></span></code></th>
+<td class="colLast">
+<div class="block">Indicates that a value is not in the corresponding lookup table.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleRate">sampleRate</a></span></code></th>
+<td class="colLast">
+<div class="block">Sample rate in Hertz.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleRateLookupKey">sampleRateLookupKey</a></span></code></th>
+<td class="colLast">
+<div class="block">Lookup key corresponding to the stream sample rate, or <a href="#NOT_IN_LOOKUP_TABLE"><code>NOT_IN_LOOKUP_TABLE</code></a> if it is
+ not in the lookup table.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTable">seekTable</a></span></code></th>
+<td class="colLast">
+<div class="block">Seek table, or <code>null</code> if it is not provided.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalSamples">totalSamples</a></span></code></th>
+<td class="colLast">
+<div class="block">Total number of samples, or 0 if the value is unknown.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,int)">FlacStreamMetadata</a></span>&#8203;(byte[]&nbsp;data,
+                  int&nbsp;offset)</code></th>
+<td class="colLast">
+<div class="block">Parses binary FLAC stream info metadata.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,int,int,int,int,long,java.util.ArrayList,java.util.ArrayList)">FlacStreamMetadata</a></span>&#8203;(int&nbsp;minBlockSizeSamples,
+                  int&nbsp;maxBlockSizeSamples,
+                  int&nbsp;minFrameSize,
+                  int&nbsp;maxFrameSize,
+                  int&nbsp;sampleRate,
+                  int&nbsp;channels,
+                  int&nbsp;bitsPerSample,
+                  long&nbsp;totalSamples,
+                  <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;vorbisComments,
+                  <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac" target="_top">PictureFrame</a>&gt;&nbsp;pictureFrames)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithPictureFrames(java.util.List)">copyWithPictureFrames</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac" target="_top">PictureFrame</a>&gt;&nbsp;pictureFrames)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of <code>this</code> with the given picture frames added to the metadata.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithSeekTable(com.google.android.exoplayer2.extractor.FlacStreamMetadata.SeekTable)">copyWithSeekTable</a></span>&#8203;(<a href="FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a>&nbsp;seekTable)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of <code>this</code> with the seek table replaced by the one given.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithVorbisComments(java.util.List)">copyWithVorbisComments</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;vorbisComments)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of <code>this</code> with the given Vorbis comments added to the metadata.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getApproxBytesPerFrame()">getApproxBytesPerFrame</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the approximate number of bytes per frame for the current FLAC stream.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecodedBitrate()">getDecodedBitrate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the bitrate of the stream after it's decoded into PCM.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the duration of the FLAC stream in microseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the total
+ number of samples if unknown.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFormat(byte%5B%5D,com.google.android.exoplayer2.metadata.Metadata)">getFormat</a></span>&#8203;(byte[]&nbsp;streamMarkerAndInfoBlock,
+         <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;id3Metadata)</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> extracted from the FLAC stream metadata.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxDecodedFrameSize()">getMaxDecodedFrameSize</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the maximum size for a decoded frame from the FLAC stream.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMetadataCopyWithAppendedEntriesFrom(com.google.android.exoplayer2.metadata.Metadata)">getMetadataCopyWithAppendedEntriesFrom</a></span>&#8203;(<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;other)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of the content metadata with entries from <code>other</code> appended.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSampleNumber(long)">getSampleNumber</a></span>&#8203;(long&nbsp;timeUs)</code></th>
+<td class="colLast">
+<div class="block">Returns the sample number of the sample at a given time.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="NOT_IN_LOOKUP_TABLE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NOT_IN_LOOKUP_TABLE</h4>
+<pre>public static final&nbsp;int NOT_IN_LOOKUP_TABLE</pre>
+<div class="block">Indicates that a value is not in the corresponding lookup table.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.FlacStreamMetadata.NOT_IN_LOOKUP_TABLE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="minBlockSizeSamples">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minBlockSizeSamples</h4>
+<pre>public final&nbsp;int minBlockSizeSamples</pre>
+<div class="block">Minimum number of samples per block.</div>
+</li>
+</ul>
+<a id="maxBlockSizeSamples">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxBlockSizeSamples</h4>
+<pre>public final&nbsp;int maxBlockSizeSamples</pre>
+<div class="block">Maximum number of samples per block.</div>
+</li>
+</ul>
+<a id="minFrameSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minFrameSize</h4>
+<pre>public final&nbsp;int minFrameSize</pre>
+<div class="block">Minimum frame size in bytes, or 0 if the value is unknown.</div>
+</li>
+</ul>
+<a id="maxFrameSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxFrameSize</h4>
+<pre>public final&nbsp;int maxFrameSize</pre>
+<div class="block">Maximum frame size in bytes, or 0 if the value is unknown.</div>
+</li>
+</ul>
+<a id="sampleRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleRate</h4>
+<pre>public final&nbsp;int sampleRate</pre>
+<div class="block">Sample rate in Hertz.</div>
+</li>
+</ul>
+<a id="sampleRateLookupKey">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleRateLookupKey</h4>
+<pre>public final&nbsp;int sampleRateLookupKey</pre>
+<div class="block">Lookup key corresponding to the stream sample rate, or <a href="#NOT_IN_LOOKUP_TABLE"><code>NOT_IN_LOOKUP_TABLE</code></a> if it is
+ not in the lookup table.
+
+ <p>This key is used to indicate the sample rate in the frame header for the most common values.
+
+ <p>The sample rate lookup table is described in https://xiph.org/flac/format.html#frame_header.</div>
+</li>
+</ul>
+<a id="channels">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>channels</h4>
+<pre>public final&nbsp;int channels</pre>
+<div class="block">Number of audio channels.</div>
+</li>
+</ul>
+<a id="bitsPerSample">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bitsPerSample</h4>
+<pre>public final&nbsp;int bitsPerSample</pre>
+<div class="block">Number of bits per sample.</div>
+</li>
+</ul>
+<a id="bitsPerSampleLookupKey">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bitsPerSampleLookupKey</h4>
+<pre>public final&nbsp;int bitsPerSampleLookupKey</pre>
+<div class="block">Lookup key corresponding to the number of bits per sample of the stream, or <a href="#NOT_IN_LOOKUP_TABLE"><code>NOT_IN_LOOKUP_TABLE</code></a> if it is not in the lookup table.
+
+ <p>This key is used to indicate the number of bits per sample in the frame header for the most
+ common values.
+
+ <p>The sample size lookup table is described in https://xiph.org/flac/format.html#frame_header.</div>
+</li>
+</ul>
+<a id="totalSamples">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalSamples</h4>
+<pre>public final&nbsp;long totalSamples</pre>
+<div class="block">Total number of samples, or 0 if the value is unknown.</div>
+</li>
+</ul>
+<a id="seekTable">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>seekTable</h4>
+<pre>@Nullable
+public final&nbsp;<a href="FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a> seekTable</pre>
+<div class="block">Seek table, or <code>null</code> if it is not provided.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FlacStreamMetadata</h4>
+<pre>public&nbsp;FlacStreamMetadata&#8203;(byte[]&nbsp;data,
+                          int&nbsp;offset)</pre>
+<div class="block">Parses binary FLAC stream info metadata.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - An array containing binary FLAC stream info block.</dd>
+<dd><code>offset</code> - The offset of the stream info block in <code>data</code>, excluding the header (i.e.
+     the offset points to the first byte of the minimum block size).</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(int,int,int,int,int,int,int,long,java.util.ArrayList,java.util.ArrayList)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FlacStreamMetadata</h4>
+<pre>public&nbsp;FlacStreamMetadata&#8203;(int&nbsp;minBlockSizeSamples,
+                          int&nbsp;maxBlockSizeSamples,
+                          int&nbsp;minFrameSize,
+                          int&nbsp;maxFrameSize,
+                          int&nbsp;sampleRate,
+                          int&nbsp;channels,
+                          int&nbsp;bitsPerSample,
+                          long&nbsp;totalSamples,
+                          <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;vorbisComments,
+                          <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac" target="_top">PictureFrame</a>&gt;&nbsp;pictureFrames)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getMaxDecodedFrameSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxDecodedFrameSize</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMaxDecodedFrameSize()</pre>
+<div class="block">Returns the maximum size for a decoded frame from the FLAC stream.</div>
+</li>
+</ul>
+<a id="getDecodedBitrate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDecodedBitrate</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getDecodedBitrate()</pre>
+<div class="block">Returns the bitrate of the stream after it's decoded into PCM.</div>
+</li>
+</ul>
+<a id="getDurationUs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDurationUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getDurationUs()</pre>
+<div class="block">Returns the duration of the FLAC stream in microseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the total
+ number of samples if unknown.</div>
+</li>
+</ul>
+<a id="getSampleNumber(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSampleNumber</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getSampleNumber&#8203;(long&nbsp;timeUs)</pre>
+<div class="block">Returns the sample number of the sample at a given time.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeUs</code> - Time position in microseconds in the FLAC stream.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The sample number corresponding to the time position.</dd>
+</dl>
+</li>
+</ul>
+<a id="getApproxBytesPerFrame()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getApproxBytesPerFrame</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getApproxBytesPerFrame()</pre>
+<div class="block">Returns the approximate number of bytes per frame for the current FLAC stream.</div>
+</li>
+</ul>
+<a id="getFormat(byte[],com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFormat</h4>
+<pre class="methodSignature">public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getFormat&#8203;(byte[]&nbsp;streamMarkerAndInfoBlock,
+                        @Nullable
+                        <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;id3Metadata)</pre>
+<div class="block">Returns a <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> extracted from the FLAC stream metadata.
+
+ <p><code>streamMarkerAndInfoBlock</code> is updated to set the bit corresponding to the stream info
+ last metadata block flag to true.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>streamMarkerAndInfoBlock</code> - An array containing the FLAC stream marker followed by the
+     stream info block.</dd>
+<dd><code>id3Metadata</code> - The ID3 metadata of the stream, or <code>null</code> if there is no such data.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The extracted <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMetadataCopyWithAppendedEntriesFrom(com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMetadataCopyWithAppendedEntriesFrom</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;getMetadataCopyWithAppendedEntriesFrom&#8203;(@Nullable
+                                                       <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;other)</pre>
+<div class="block">Returns a copy of the content metadata with entries from <code>other</code> appended.</div>
+</li>
+</ul>
+<a id="copyWithSeekTable(com.google.android.exoplayer2.extractor.FlacStreamMetadata.SeekTable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithSeekTable</h4>
+<pre class="methodSignature">public&nbsp;<a href="FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a>&nbsp;copyWithSeekTable&#8203;(@Nullable
+                                            <a href="FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a>&nbsp;seekTable)</pre>
+<div class="block">Returns a copy of <code>this</code> with the seek table replaced by the one given.</div>
+</li>
+</ul>
+<a id="copyWithVorbisComments(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithVorbisComments</h4>
+<pre class="methodSignature">public&nbsp;<a href="FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a>&nbsp;copyWithVorbisComments&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;vorbisComments)</pre>
+<div class="block">Returns a copy of <code>this</code> with the given Vorbis comments added to the metadata.</div>
+</li>
+</ul>
+<a id="copyWithPictureFrames(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>copyWithPictureFrames</h4>
+<pre class="methodSignature">public&nbsp;<a href="FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a>&nbsp;copyWithPictureFrames&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac" target="_top">PictureFrame</a>&gt;&nbsp;pictureFrames)</pre>
+<div class="block">Returns a copy of <code>this</code> with the given picture frames added to the metadata.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

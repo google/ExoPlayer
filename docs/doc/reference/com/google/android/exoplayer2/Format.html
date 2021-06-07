@@ -1,0 +1,2164 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>Format (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="Format (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":42,"i2":42,"i3":10,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41,"i17":41,"i18":41,"i19":41,"i20":41,"i21":41,"i22":41,"i23":41,"i24":41,"i25":41,"i26":41,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":9,"i33":10,"i34":10,"i35":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class Format" class="title">Class Format</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.Format</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">Format</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
+<div class="block">Represents a media format.
+
+ <p>When building formats, populate all fields whose values are known and relevant to the type of
+ format being constructed. For information about different types of format, see ExoPlayer's <a href="https://exoplayer.dev/supported-formats.html">Supported formats page</a>.
+
+ <h3>Fields commonly relevant to all formats</h3>
+
+ <ul>
+   <li><a href="#id"><code>id</code></a>
+   <li><a href="#label"><code>label</code></a>
+   <li><a href="#language"><code>language</code></a>
+   <li><a href="#selectionFlags"><code>selectionFlags</code></a>
+   <li><a href="#roleFlags"><code>roleFlags</code></a>
+   <li><a href="#averageBitrate"><code>averageBitrate</code></a>
+   <li><a href="#peakBitrate"><code>peakBitrate</code></a>
+   <li><a href="#codecs"><code>codecs</code></a>
+   <li><a href="#metadata"><code>metadata</code></a>
+ </ul>
+
+ <h3 id="container-formats">Fields relevant to container formats</h3>
+
+ <ul>
+   <li><a href="#containerMimeType"><code>containerMimeType</code></a>
+   <li>If the container only contains a single media track, <a href="#sample-formats">fields
+       relevant to sample formats</a> can are also be relevant and can be set to describe the
+       sample format of that track.
+   <li>If the container only contains one track of a given type (possibly alongside tracks of
+       other types), then fields relevant to that track type can be set to describe the properties
+       of the track. See the sections below for <a href="#video-formats">video</a>, <a href="#audio-formats">audio</a> and <a href="#text-formats">text</a> formats.
+ </ul>
+
+ <h3 id="sample-formats">Fields relevant to sample formats</h3>
+
+ <ul>
+   <li><a href="#sampleMimeType"><code>sampleMimeType</code></a>
+   <li><a href="#maxInputSize"><code>maxInputSize</code></a>
+   <li><a href="#initializationData"><code>initializationData</code></a>
+   <li><a href="#drmInitData"><code>drmInitData</code></a>
+   <li><a href="#subsampleOffsetUs"><code>subsampleOffsetUs</code></a>
+   <li>Fields relevant to the sample format's track type are also relevant. See the sections below
+       for <a href="#video-formats">video</a>, <a href="#audio-formats">audio</a> and <a href="#text-formats">text</a> formats.
+ </ul>
+
+ <h3 id="video-formats">Fields relevant to video formats</h3>
+
+ <ul>
+   <li><a href="#width"><code>width</code></a>
+   <li><a href="#height"><code>height</code></a>
+   <li><a href="#frameRate"><code>frameRate</code></a>
+   <li><a href="#rotationDegrees"><code>rotationDegrees</code></a>
+   <li><a href="#pixelWidthHeightRatio"><code>pixelWidthHeightRatio</code></a>
+   <li><a href="#projectionData"><code>projectionData</code></a>
+   <li><a href="#stereoMode"><code>stereoMode</code></a>
+   <li><a href="#colorInfo"><code>colorInfo</code></a>
+ </ul>
+
+ <h3 id="audio-formats">Fields relevant to audio formats</h3>
+
+ <ul>
+   <li><a href="#channelCount"><code>channelCount</code></a>
+   <li><a href="#sampleRate"><code>sampleRate</code></a>
+   <li><a href="#pcmEncoding"><code>pcmEncoding</code></a>
+   <li><a href="#encoderDelay"><code>encoderDelay</code></a>
+   <li><a href="#encoderPadding"><code>encoderPadding</code></a>
+ </ul>
+
+ <h3 id="text-formats">Fields relevant to text formats</h3>
+
+ <ul>
+   <li><a href="#accessibilityChannel"><code>accessibilityChannel</code></a>
+ </ul></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block">Builds <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> instances.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.android.os.Parcelable">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
+<code><a href="https://developer.android.com/reference/android/os/Parcelable.ClassLoaderCreator.html" title="class or interface in android.os" class="externalLink">Parcelable.ClassLoaderCreator</a>&lt;<a href="https://developer.android.com/reference/android/os/Parcelable.ClassLoaderCreator.html?is-external=true" title="class or interface in android.os" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&gt;, <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html?is-external=true" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html?is-external=true" title="class or interface in android.os" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#accessibilityChannel">accessibilityChannel</a></span></code></th>
+<td class="colLast">
+<div class="block">The Accessibility channel, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not known or applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#averageBitrate">averageBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">The average bitrate in bits per second, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitrate">bitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">The bitrate in bits per second.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#channelCount">channelCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of audio channels, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecs">codecs</a></span></code></th>
+<td class="colLast">
+<div class="block">Codecs of the format as described in RFC 6381, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorInfo">colorInfo</a></span></code></th>
+<td class="colLast">
+<div class="block">The color metadata associated with the video, or null if not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containerMimeType">containerMimeType</a></span></code></th>
+<td class="colLast">
+<div class="block">The mime type of the container, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#drmInitData">drmInitData</a></span></code></th>
+<td class="colLast">
+<div class="block">DRM initialization data if the stream is protected, or null otherwise.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encoderDelay">encoderDelay</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of frames to trim from the start of the decoded audio stream, or 0 if not
+ applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encoderPadding">encoderPadding</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exoMediaCryptoType">exoMediaCryptoType</a></span></code></th>
+<td class="colLast">
+<div class="block">The type of <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> that will be associated with the content this format
+ describes, or <code>null</code> if the content is not encrypted.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#frameRate">frameRate</a></span></code></th>
+<td class="colLast">
+<div class="block">The frame rate in frames per second, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
+<td class="colLast">
+<div class="block">The height of the video in pixels, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
+<td class="colLast">
+<div class="block">An identifier for the format, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializationData">initializationData</a></span></code></th>
+<td class="colLast">
+<div class="block">Initialization data that must be provided to the decoder.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#label">label</a></span></code></th>
+<td class="colLast">
+<div class="block">The human readable label, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#language">language</a></span></code></th>
+<td class="colLast">
+<div class="block">The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxInputSize">maxInputSize</a></span></code></th>
+<td class="colLast">
+<div class="block">The maximum size of a buffer of data (typically one sample), or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or
+ not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#metadata">metadata</a></span></code></th>
+<td class="colLast">
+<div class="block">Metadata, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NO_VALUE">NO_VALUE</a></span></code></th>
+<td class="colLast">
+<div class="block">A value for various fields to indicate that the field's value is unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#OFFSET_SAMPLE_RELATIVE">OFFSET_SAMPLE_RELATIVE</a></span></code></th>
+<td class="colLast">
+<div class="block">A value for <a href="#subsampleOffsetUs"><code>subsampleOffsetUs</code></a> to indicate that subsample timestamps are relative to
+ the timestamps of their parent samples.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pcmEncoding">pcmEncoding</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for PCM audio.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peakBitrate">peakBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">The peak bitrate in bits per second, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code></th>
+<td class="colLast">
+<div class="block">The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#projectionData">projectionData</a></span></code></th>
+<td class="colLast">
+<div class="block">The projection data for 360/VR video, or null if not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#roleFlags">roleFlags</a></span></code></th>
+<td class="colLast">
+<div class="block">Track role flags.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rotationDegrees">rotationDegrees</a></span></code></th>
+<td class="colLast">
+<div class="block">The clockwise rotation that should be applied to the video for it to be rendered in the correct
+ orientation, or 0 if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleMimeType">sampleMimeType</a></span></code></th>
+<td class="colLast">
+<div class="block">The sample mime type, or null if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleRate">sampleRate</a></span></code></th>
+<td class="colLast">
+<div class="block">The audio sampling rate in Hz, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectionFlags">selectionFlags</a></span></code></th>
+<td class="colLast">
+<div class="block">Track selection flags.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stereoMode">stereoMode</a></span></code></th>
+<td class="colLast">
+<div class="block">The stereo layout for 360/3D/VR video, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#subsampleOffsetUs">subsampleOffsetUs</a></span></code></th>
+<td class="colLast">
+<div class="block">For samples that contain subsamples, this is an offset that should be added to subsample
+ timestamps.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
+<td class="colLast">
+<div class="block">The width of the video in pixels, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.android.os.Parcelable">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
+<code><a href="https://developer.android.com/reference/android/os/Parcelable.html#CONTENTS_FILE_DESCRIPTOR" title="class or interface in android.os" class="externalLink">CONTENTS_FILE_DESCRIPTOR</a>, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#PARCELABLE_WRITE_RETURN_VALUE" title="class or interface in android.os" class="externalLink" target="_top">PARCELABLE_WRITE_RETURN_VALUE</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a> initialized with the values of this instance.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithBitrate(int)">copyWithBitrate</a></span>&#8203;(int&nbsp;bitrate)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setAverageBitrate(int)"><code>Format.Builder.setAverageBitrate(int)</code></a> and <a href="Format.Builder.html#setPeakBitrate(int)"><code>Format.Builder.setPeakBitrate(int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)">copyWithDrmInitData</a></span>&#8203;(<a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)"><code>Format.Builder.setDrmInitData(DrmInitData)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithExoMediaCryptoType(java.lang.Class)">copyWithExoMediaCryptoType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of this format with the specified <a href="#exoMediaCryptoType"><code>exoMediaCryptoType</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithFrameRate(float)">copyWithFrameRate</a></span>&#8203;(float&nbsp;frameRate)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setFrameRate(float)"><code>Format.Builder.setFrameRate(float)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithGaplessInfo(int,int)">copyWithGaplessInfo</a></span>&#8203;(int&nbsp;encoderDelay,
+                   int&nbsp;encoderPadding)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a>, <a href="Format.Builder.html#setEncoderDelay(int)"><code>Format.Builder.setEncoderDelay(int)</code></a> and <a href="Format.Builder.html#setEncoderPadding(int)"><code>Format.Builder.setEncoderPadding(int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithLabel(java.lang.String)">copyWithLabel</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setLabel(java.lang.String)"><code>Format.Builder.setLabel(String)</code></a> .</div>
+</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithManifestFormatInfo(com.google.android.exoplayer2.Format)">copyWithManifestFormatInfo</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#withManifestFormatInfo(com.google.android.exoplayer2.Format)"><code>withManifestFormatInfo(Format)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithMaxInputSize(int)">copyWithMaxInputSize</a></span>&#8203;(int&nbsp;maxInputSize)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setMaxInputSize(int)"><code>Format.Builder.setMaxInputSize(int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithMetadata(com.google.android.exoplayer2.metadata.Metadata)">copyWithMetadata</a></span>&#8203;(<a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setMetadata(com.google.android.exoplayer2.metadata.Metadata)"><code>Format.Builder.setMetadata(Metadata)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithSubsampleOffsetUs(long)">copyWithSubsampleOffsetUs</a></span>&#8203;(long&nbsp;subsampleOffsetUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setSubsampleOffsetUs(long)"><code>Format.Builder.setSubsampleOffsetUs(long)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithVideoSize(int,int)">copyWithVideoSize</a></span>&#8203;(int&nbsp;width,
+                 int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a>, <a href="Format.Builder.html#setWidth(int)"><code>Format.Builder.setWidth(int)</code></a> and <a href="Format.Builder.html#setHeight(int)"><code>Format.Builder.setHeight(int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,java.util.List,int,int,java.lang.String)">createAudioContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                          <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
+                          int&nbsp;bitrate,
+                          int&nbsp;channelCount,
+                          int&nbsp;sampleRate,
+                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                          int&nbsp;selectionFlags,
+                          int&nbsp;roleFlags,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String,com.google.android.exoplayer2.metadata.Metadata)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                       int&nbsp;bitrate,
+                       int&nbsp;maxInputSize,
+                       int&nbsp;channelCount,
+                       int&nbsp;sampleRate,
+                       int&nbsp;pcmEncoding,
+                       int&nbsp;encoderDelay,
+                       int&nbsp;encoderPadding,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                       int&nbsp;selectionFlags,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                       <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                       int&nbsp;bitrate,
+                       int&nbsp;maxInputSize,
+                       int&nbsp;channelCount,
+                       int&nbsp;sampleRate,
+                       int&nbsp;pcmEncoding,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                       int&nbsp;selectionFlags,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                       int&nbsp;bitrate,
+                       int&nbsp;maxInputSize,
+                       int&nbsp;channelCount,
+                       int&nbsp;sampleRate,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                       int&nbsp;selectionFlags,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">createContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                     int&nbsp;bitrate,
+                     int&nbsp;selectionFlags,
+                     int&nbsp;roleFlags,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createImageSampleFormat(java.lang.String,java.lang.String,int,java.util.List,java.lang.String)">createImageSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       int&nbsp;selectionFlags,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createSampleFormat(java.lang.String,java.lang.String)">createSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">createTextContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                         int&nbsp;bitrate,
+                         int&nbsp;selectionFlags,
+                         int&nbsp;roleFlags,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String,int)">createTextContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                         int&nbsp;bitrate,
+                         int&nbsp;selectionFlags,
+                         int&nbsp;roleFlags,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                         int&nbsp;accessibilityChannel)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String)">createTextSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                      int&nbsp;selectionFlags,
+                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String,int,long,java.util.List)">createTextSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                      int&nbsp;selectionFlags,
+                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                      int&nbsp;accessibilityChannel,
+                      long&nbsp;subsampleOffsetUs,
+                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,float,java.util.List,int,int)">createVideoContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                          <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
+                          int&nbsp;bitrate,
+                          int&nbsp;width,
+                          int&nbsp;height,
+                          float&nbsp;frameRate,
+                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                          int&nbsp;selectionFlags,
+                          int&nbsp;roleFlags)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,byte%5B%5D,int,com.google.android.exoplayer2.video.ColorInfo,com.google.android.exoplayer2.drm.DrmInitData)">createVideoSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                       int&nbsp;bitrate,
+                       int&nbsp;maxInputSize,
+                       int&nbsp;width,
+                       int&nbsp;height,
+                       float&nbsp;frameRate,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       int&nbsp;rotationDegrees,
+                       float&nbsp;pixelWidthHeightRatio,
+                       byte[]&nbsp;projectionData,
+                       int&nbsp;stereoMode,
+                       <a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo,
+                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,com.google.android.exoplayer2.drm.DrmInitData)">createVideoSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                       int&nbsp;bitrate,
+                       int&nbsp;maxInputSize,
+                       int&nbsp;width,
+                       int&nbsp;height,
+                       float&nbsp;frameRate,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       int&nbsp;rotationDegrees,
+                       float&nbsp;pixelWidthHeightRatio,
+                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,com.google.android.exoplayer2.drm.DrmInitData)">createVideoSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                       int&nbsp;bitrate,
+                       int&nbsp;maxInputSize,
+                       int&nbsp;width,
+                       int&nbsp;height,
+                       float&nbsp;frameRate,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPixelCount()">getPixelCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of pixels if this is a video format whose <a href="#width"><code>width</code></a> and <a href="#height"><code>height</code></a>
+ are known, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializationDataEquals(com.google.android.exoplayer2.Format)">initializationDataEquals</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the <a href="#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
+ equal.</div>
+</td>
+</tr>
+<tr id="i32" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toLogString(com.google.android.exoplayer2.Format)">toLogString</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Returns a prettier <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> than <a href="#toString()" target="_top"><code>toString()</code></a>, intended for logging.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i34" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withManifestFormatInfo(com.google.android.exoplayer2.Format)">withManifestFormatInfo</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
+             int&nbsp;flags)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="NO_VALUE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NO_VALUE</h4>
+<pre>public static final&nbsp;int NO_VALUE</pre>
+<div class="block">A value for various fields to indicate that the field's value is unknown or not applicable.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Format.NO_VALUE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="OFFSET_SAMPLE_RELATIVE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>OFFSET_SAMPLE_RELATIVE</h4>
+<pre>public static final&nbsp;long OFFSET_SAMPLE_RELATIVE</pre>
+<div class="block">A value for <a href="#subsampleOffsetUs"><code>subsampleOffsetUs</code></a> to indicate that subsample timestamps are relative to
+ the timestamps of their parent samples.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Format.OFFSET_SAMPLE_RELATIVE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="id">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>id</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> id</pre>
+<div class="block">An identifier for the format, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="label">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>label</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> label</pre>
+<div class="block">The human readable label, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="language">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>language</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> language</pre>
+<div class="block">The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="selectionFlags">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>selectionFlags</h4>
+<pre><a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+public final&nbsp;int selectionFlags</pre>
+<div class="block">Track selection flags.</div>
+</li>
+</ul>
+<a id="roleFlags">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>roleFlags</h4>
+<pre><a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+public final&nbsp;int roleFlags</pre>
+<div class="block">Track role flags.</div>
+</li>
+</ul>
+<a id="averageBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>averageBitrate</h4>
+<pre>public final&nbsp;int averageBitrate</pre>
+<div class="block">The average bitrate in bits per second, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable. The
+ way in which this field is populated depends on the type of media to which the format
+ corresponds:
+
+ <ul>
+   <li>DASH representations: Always <a href="#NO_VALUE"><code>NO_VALUE</code></a>.
+   <li>HLS variants: The <code>AVERAGE-BANDWIDTH</code> attribute defined on the corresponding <code>
+       EXT-X-STREAM-INF</code> tag in the master playlist, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not present.
+   <li>SmoothStreaming track elements: The <code>Bitrate</code> attribute defined on the
+       corresponding <code>TrackElement</code> in the manifest, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not
+       present.
+   <li>Progressive container formats: Often <a href="#NO_VALUE"><code>NO_VALUE</code></a>, but may be populated with
+       the average bitrate of the container if known.
+   <li>Sample formats: Often <a href="#NO_VALUE"><code>NO_VALUE</code></a>, but may be populated with the average
+       bitrate of the stream of samples with type <a href="#sampleMimeType"><code>sampleMimeType</code></a> if known. Note that if
+       <a href="#sampleMimeType"><code>sampleMimeType</code></a> is a compressed format (e.g., <a href="util/MimeTypes.html#AUDIO_AAC"><code>MimeTypes.AUDIO_AAC</code></a>), then
+       this bitrate is for the stream of still compressed samples.
+ </ul></div>
+</li>
+</ul>
+<a id="peakBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>peakBitrate</h4>
+<pre>public final&nbsp;int peakBitrate</pre>
+<div class="block">The peak bitrate in bits per second, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable. The way
+ in which this field is populated depends on the type of media to which the format corresponds:
+
+ <ul>
+   <li>DASH representations: The <code>@bandwidth</code> attribute of the corresponding <code>
+       Representation</code> element in the manifest.
+   <li>HLS variants: The <code>BANDWIDTH</code> attribute defined on the corresponding <code>
+       EXT-X-STREAM-INF</code> tag.
+   <li>SmoothStreaming track elements: Always <a href="#NO_VALUE"><code>NO_VALUE</code></a>.
+   <li>Progressive container formats: Often <a href="#NO_VALUE"><code>NO_VALUE</code></a>, but may be populated with
+       the peak bitrate of the container if known.
+   <li>Sample formats: Often <a href="#NO_VALUE"><code>NO_VALUE</code></a>, but may be populated with the peak bitrate
+       of the stream of samples with type <a href="#sampleMimeType"><code>sampleMimeType</code></a> if known. Note that if <a href="#sampleMimeType"><code>sampleMimeType</code></a> is a compressed format (e.g., <a href="util/MimeTypes.html#AUDIO_AAC"><code>MimeTypes.AUDIO_AAC</code></a>), then this
+       bitrate is for the stream of still compressed samples.
+ </ul></div>
+</li>
+</ul>
+<a id="bitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bitrate</h4>
+<pre>public final&nbsp;int bitrate</pre>
+<div class="block">The bitrate in bits per second. This is the peak bitrate if known, or else the average bitrate
+ if known, or else <a href="#NO_VALUE"><code>NO_VALUE</code></a>. Equivalent to: <code>peakBitrate != NO_VALUE ?
+ peakBitrate : averageBitrate</code>.</div>
+</li>
+</ul>
+<a id="codecs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>codecs</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> codecs</pre>
+<div class="block">Codecs of the format as described in RFC 6381, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="metadata">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>metadata</h4>
+<pre>@Nullable
+public final&nbsp;<a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a> metadata</pre>
+<div class="block">Metadata, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="containerMimeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>containerMimeType</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> containerMimeType</pre>
+<div class="block">The mime type of the container, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="sampleMimeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleMimeType</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> sampleMimeType</pre>
+<div class="block">The sample mime type, or null if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="maxInputSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxInputSize</h4>
+<pre>public final&nbsp;int maxInputSize</pre>
+<div class="block">The maximum size of a buffer of data (typically one sample), or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or
+ not applicable.</div>
+</li>
+</ul>
+<a id="initializationData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initializationData</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt; initializationData</pre>
+<div class="block">Initialization data that must be provided to the decoder. Will not be null, but may be empty
+ if initialization data is not required.</div>
+</li>
+</ul>
+<a id="drmInitData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>drmInitData</h4>
+<pre>@Nullable
+public final&nbsp;<a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
+<div class="block">DRM initialization data if the stream is protected, or null otherwise.</div>
+</li>
+</ul>
+<a id="subsampleOffsetUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subsampleOffsetUs</h4>
+<pre>public final&nbsp;long subsampleOffsetUs</pre>
+<div class="block">For samples that contain subsamples, this is an offset that should be added to subsample
+ timestamps. A value of <a href="#OFFSET_SAMPLE_RELATIVE"><code>OFFSET_SAMPLE_RELATIVE</code></a> indicates that subsample timestamps are
+ relative to the timestamps of their parent samples.</div>
+</li>
+</ul>
+<a id="width">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>width</h4>
+<pre>public final&nbsp;int width</pre>
+<div class="block">The width of the video in pixels, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="height">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>height</h4>
+<pre>public final&nbsp;int height</pre>
+<div class="block">The height of the video in pixels, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="frameRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>frameRate</h4>
+<pre>public final&nbsp;float frameRate</pre>
+<div class="block">The frame rate in frames per second, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="rotationDegrees">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rotationDegrees</h4>
+<pre>public final&nbsp;int rotationDegrees</pre>
+<div class="block">The clockwise rotation that should be applied to the video for it to be rendered in the correct
+ orientation, or 0 if unknown or not applicable. Only 0, 90, 180 and 270 are supported.</div>
+</li>
+</ul>
+<a id="pixelWidthHeightRatio">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pixelWidthHeightRatio</h4>
+<pre>public final&nbsp;float pixelWidthHeightRatio</pre>
+<div class="block">The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="projectionData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projectionData</h4>
+<pre>@Nullable
+public final&nbsp;byte[] projectionData</pre>
+<div class="block">The projection data for 360/VR video, or null if not applicable.</div>
+</li>
+</ul>
+<a id="stereoMode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>stereoMode</h4>
+<pre><a href="C.StereoMode.html" title="annotation in com.google.android.exoplayer2">@StereoMode</a>
+public final&nbsp;int stereoMode</pre>
+<div class="block">The stereo layout for 360/3D/VR video, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not applicable. Valid stereo
+ modes are <a href="C.html#STEREO_MODE_MONO"><code>C.STEREO_MODE_MONO</code></a>, <a href="C.html#STEREO_MODE_TOP_BOTTOM"><code>C.STEREO_MODE_TOP_BOTTOM</code></a>, <a href="C.html#STEREO_MODE_LEFT_RIGHT"><code>C.STEREO_MODE_LEFT_RIGHT</code></a>, <a href="C.html#STEREO_MODE_STEREO_MESH"><code>C.STEREO_MODE_STEREO_MESH</code></a>.</div>
+</li>
+</ul>
+<a id="colorInfo">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorInfo</h4>
+<pre>@Nullable
+public final&nbsp;<a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a> colorInfo</pre>
+<div class="block">The color metadata associated with the video, or null if not applicable.</div>
+</li>
+</ul>
+<a id="channelCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>channelCount</h4>
+<pre>public final&nbsp;int channelCount</pre>
+<div class="block">The number of audio channels, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="sampleRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleRate</h4>
+<pre>public final&nbsp;int sampleRate</pre>
+<div class="block">The audio sampling rate in Hz, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+</li>
+</ul>
+<a id="pcmEncoding">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pcmEncoding</h4>
+<pre><a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+public final&nbsp;int pcmEncoding</pre>
+<div class="block">The <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for PCM audio. Set to <a href="#NO_VALUE"><code>NO_VALUE</code></a> for other media types.</div>
+</li>
+</ul>
+<a id="encoderDelay">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>encoderDelay</h4>
+<pre>public final&nbsp;int encoderDelay</pre>
+<div class="block">The number of frames to trim from the start of the decoded audio stream, or 0 if not
+ applicable.</div>
+</li>
+</ul>
+<a id="encoderPadding">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>encoderPadding</h4>
+<pre>public final&nbsp;int encoderPadding</pre>
+<div class="block">The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.</div>
+</li>
+</ul>
+<a id="accessibilityChannel">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>accessibilityChannel</h4>
+<pre>public final&nbsp;int accessibilityChannel</pre>
+<div class="block">The Accessibility channel, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not known or applicable.</div>
+</li>
+</ul>
+<a id="exoMediaCryptoType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exoMediaCryptoType</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt; exoMediaCryptoType</pre>
+<div class="block">The type of <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> that will be associated with the content this format
+ describes, or <code>null</code> if the content is not encrypted. Cannot be null if <a href="#drmInitData"><code>drmInitData</code></a> is non-null.</div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt; CREATOR</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="createVideoContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,float,java.util.List,int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createVideoContainerFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoContainerFormat&#8203;(@Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                                @Nullable
+                                                <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
+                                                int&nbsp;bitrate,
+                                                int&nbsp;width,
+                                                int&nbsp;height,
+                                                float&nbsp;frameRate,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                                <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                                int&nbsp;selectionFlags,
+                                                <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                                int&nbsp;roleFlags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,com.google.android.exoplayer2.drm.DrmInitData)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createVideoSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                             int&nbsp;bitrate,
+                                             int&nbsp;maxInputSize,
+                                             int&nbsp;width,
+                                             int&nbsp;height,
+                                             float&nbsp;frameRate,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             @Nullable
+                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,com.google.android.exoplayer2.drm.DrmInitData)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createVideoSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                             int&nbsp;bitrate,
+                                             int&nbsp;maxInputSize,
+                                             int&nbsp;width,
+                                             int&nbsp;height,
+                                             float&nbsp;frameRate,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             int&nbsp;rotationDegrees,
+                                             float&nbsp;pixelWidthHeightRatio,
+                                             @Nullable
+                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,byte[],int,com.google.android.exoplayer2.video.ColorInfo,com.google.android.exoplayer2.drm.DrmInitData)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createVideoSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                             int&nbsp;bitrate,
+                                             int&nbsp;maxInputSize,
+                                             int&nbsp;width,
+                                             int&nbsp;height,
+                                             float&nbsp;frameRate,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             int&nbsp;rotationDegrees,
+                                             float&nbsp;pixelWidthHeightRatio,
+                                             @Nullable
+                                             byte[]&nbsp;projectionData,
+                                             <a href="C.StereoMode.html" title="annotation in com.google.android.exoplayer2">@StereoMode</a>
+                                             int&nbsp;stereoMode,
+                                             @Nullable
+                                             <a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo,
+                                             @Nullable
+                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createAudioContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,java.util.List,int,int,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createAudioContainerFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioContainerFormat&#8203;(@Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                                @Nullable
+                                                <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
+                                                int&nbsp;bitrate,
+                                                int&nbsp;channelCount,
+                                                int&nbsp;sampleRate,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                                <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                                int&nbsp;selectionFlags,
+                                                <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                                int&nbsp;roleFlags,
+                                                @Nullable
+                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createAudioSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                             int&nbsp;bitrate,
+                                             int&nbsp;maxInputSize,
+                                             int&nbsp;channelCount,
+                                             int&nbsp;sampleRate,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             @Nullable
+                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                                             <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                             int&nbsp;selectionFlags,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createAudioSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                             int&nbsp;bitrate,
+                                             int&nbsp;maxInputSize,
+                                             int&nbsp;channelCount,
+                                             int&nbsp;sampleRate,
+                                             <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+                                             int&nbsp;pcmEncoding,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             @Nullable
+                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                                             <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                             int&nbsp;selectionFlags,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String,com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createAudioSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                             int&nbsp;bitrate,
+                                             int&nbsp;maxInputSize,
+                                             int&nbsp;channelCount,
+                                             int&nbsp;sampleRate,
+                                             <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+                                             int&nbsp;pcmEncoding,
+                                             int&nbsp;encoderDelay,
+                                             int&nbsp;encoderPadding,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             @Nullable
+                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                                             <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                             int&nbsp;selectionFlags,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                                             @Nullable
+                                             <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTextContainerFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat&#8203;(@Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                               int&nbsp;bitrate,
+                                               <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                               int&nbsp;selectionFlags,
+                                               <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                               int&nbsp;roleFlags,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTextContainerFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat&#8203;(@Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                               int&nbsp;bitrate,
+                                               <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                               int&nbsp;selectionFlags,
+                                               <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                               int&nbsp;roleFlags,
+                                               @Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                                               int&nbsp;accessibilityChannel)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTextSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat&#8203;(@Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                            @Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                            <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                            int&nbsp;selectionFlags,
+                                            @Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String,int,long,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTextSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat&#8203;(@Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                            @Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                            <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                            int&nbsp;selectionFlags,
+                                            @Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                                            int&nbsp;accessibilityChannel,
+                                            long&nbsp;subsampleOffsetUs,
+                                            @Nullable
+                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createImageSampleFormat(java.lang.String,java.lang.String,int,java.util.List,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createImageSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createImageSampleFormat&#8203;(@Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                             <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                             int&nbsp;selectionFlags,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createContainerFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createContainerFormat&#8203;(@Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                           @Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                                           @Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                                           @Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
+                                           @Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                           int&nbsp;bitrate,
+                                           <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                           int&nbsp;selectionFlags,
+                                           <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                           int&nbsp;roleFlags,
+                                           @Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="createSampleFormat(java.lang.String,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createSampleFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createSampleFormat&#8203;(@Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="buildUpon()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildUpon</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;buildUpon()</pre>
+<div class="block">Returns a <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a> initialized with the values of this instance.</div>
+</li>
+</ul>
+<a id="copyWithMaxInputSize(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithMaxInputSize</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithMaxInputSize&#8203;(int&nbsp;maxInputSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setMaxInputSize(int)"><code>Format.Builder.setMaxInputSize(int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithSubsampleOffsetUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithSubsampleOffsetUs</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithSubsampleOffsetUs&#8203;(long&nbsp;subsampleOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setSubsampleOffsetUs(long)"><code>Format.Builder.setSubsampleOffsetUs(long)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithLabel(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithLabel</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithLabel&#8203;(@Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setLabel(java.lang.String)"><code>Format.Builder.setLabel(String)</code></a> .</div>
+</div>
+</li>
+</ul>
+<a id="copyWithManifestFormatInfo(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithManifestFormatInfo</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithManifestFormatInfo&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#withManifestFormatInfo(com.google.android.exoplayer2.Format)"><code>withManifestFormatInfo(Format)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="withManifestFormatInfo(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withManifestFormatInfo</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;withManifestFormatInfo&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</pre>
+</li>
+</ul>
+<a id="copyWithGaplessInfo(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithGaplessInfo</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithGaplessInfo&#8203;(int&nbsp;encoderDelay,
+                                  int&nbsp;encoderPadding)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a>, <a href="Format.Builder.html#setEncoderDelay(int)"><code>Format.Builder.setEncoderDelay(int)</code></a> and <a href="Format.Builder.html#setEncoderPadding(int)"><code>Format.Builder.setEncoderPadding(int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithFrameRate(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithFrameRate</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithFrameRate&#8203;(float&nbsp;frameRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setFrameRate(float)"><code>Format.Builder.setFrameRate(float)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithDrmInitData</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithDrmInitData&#8203;(@Nullable
+                                  <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)"><code>Format.Builder.setDrmInitData(DrmInitData)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithMetadata(com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithMetadata</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithMetadata&#8203;(@Nullable
+                               <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setMetadata(com.google.android.exoplayer2.metadata.Metadata)"><code>Format.Builder.setMetadata(Metadata)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithBitrate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithBitrate</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithBitrate&#8203;(int&nbsp;bitrate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setAverageBitrate(int)"><code>Format.Builder.setAverageBitrate(int)</code></a> and <a href="Format.Builder.html#setPeakBitrate(int)"><code>Format.Builder.setPeakBitrate(int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithVideoSize(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithVideoSize</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithVideoSize&#8203;(int&nbsp;width,
+                                int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a>, <a href="Format.Builder.html#setWidth(int)"><code>Format.Builder.setWidth(int)</code></a> and <a href="Format.Builder.html#setHeight(int)"><code>Format.Builder.setHeight(int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="copyWithExoMediaCryptoType(java.lang.Class)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithExoMediaCryptoType</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithExoMediaCryptoType&#8203;(@Nullable
+                                         <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</pre>
+<div class="block">Returns a copy of this format with the specified <a href="#exoMediaCryptoType"><code>exoMediaCryptoType</code></a>.</div>
+</li>
+</ul>
+<a id="getPixelCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPixelCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPixelCount()</pre>
+<div class="block">Returns the number of pixels if this is a video format whose <a href="#width"><code>width</code></a> and <a href="#height"><code>height</code></a>
+ are known, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="hashCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="equals(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>equals</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="initializationDataEquals(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initializationDataEquals</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;initializationDataEquals&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</pre>
+<div class="block">Returns whether the <a href="#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
+ equal.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>other</code> - The other format whose <a href="#initializationData"><code>initializationData</code></a> is being compared.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the <a href="#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
+     equal.</dd>
+</dl>
+</li>
+</ul>
+<a id="toLogString(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toLogString</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toLogString&#8203;(@Nullable
+                                 <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block">Returns a prettier <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> than <a href="#toString()" target="_top"><code>toString()</code></a>, intended for logging.</div>
+</li>
+</ul>
+<a id="describeContents()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>describeContents</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="writeToParcel(android.os.Parcel,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>writeToParcel</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
+                          int&nbsp;flags)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#writeToParcel(android.os.Parcel,int)" title="class or interface in android.os" class="externalLink">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

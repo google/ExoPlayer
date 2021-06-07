@@ -1,0 +1,626 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>MediaCodecAdapter (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="MediaCodecAdapter (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.mediacodec</a></div>
+<h2 title="Interface MediaCodecAdapter" class="title">Interface MediaCodecAdapter</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec">SynchronousMediaCodecAdapter</a></code></dd>
+</dl>
+<hr>
+<pre>public interface <span class="typeNameLabel">MediaCodecAdapter</span></pre>
+<div class="block">Abstracts <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> operations.
+
+ <p><code>MediaCodecAdapter</code> offers a common interface to interact with a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>
+ regardless of the mode the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is operating in.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a></span></code></th>
+<td class="colLast">
+<div class="block">Configuration parameters for a <a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaCodecAdapter.Factory.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Factory</a></span></code></th>
+<td class="colLast">
+<div class="block">A factory for <a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a></span></code></th>
+<td class="colLast">
+<div class="block">Listener to be called when an output frame has rendered on the output surface.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueInputBufferIndex()">dequeueInputBufferIndex</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the next available input buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> or <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#INFO_TRY_AGAIN_LATER" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.INFO_TRY_AGAIN_LATER</code></a> if no such buffer exists.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueOutputBufferIndex(android.media.MediaCodec.BufferInfo)">dequeueOutputBufferIndex</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a>&nbsp;bufferInfo)</code></th>
+<td class="colLast">
+<div class="block">Returns the next available output buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Flushes the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputBuffer(int)">getInputBuffer</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">
+<div class="block">Returns a writable ByteBuffer object for a dequeued input buffer index.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputBuffer(int)">getOutputBuffer</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">
+<div class="block">Returns a read-only ByteBuffer for a dequeued output buffer index.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputFormat()">getOutputFormat</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> that was output from the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBuffer(int,int,int,long,int)">queueInputBuffer</a></span>&#8203;(int&nbsp;index,
+                int&nbsp;offset,
+                int&nbsp;size,
+                long&nbsp;presentationTimeUs,
+                int&nbsp;flags)</code></th>
+<td class="colLast">
+<div class="block">Submit an input buffer for decoding.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueSecureInputBuffer(int,int,com.google.android.exoplayer2.decoder.CryptoInfo,long,int)">queueSecureInputBuffer</a></span>&#8203;(int&nbsp;index,
+                      int&nbsp;offset,
+                      <a href="../decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder">CryptoInfo</a>&nbsp;info,
+                      long&nbsp;presentationTimeUs,
+                      int&nbsp;flags)</code></th>
+<td class="colLast">
+<div class="block">Submit an input buffer that is potentially encrypted for decoding.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Releases the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(int,boolean)">releaseOutputBuffer</a></span>&#8203;(int&nbsp;index,
+                   boolean&nbsp;render)</code></th>
+<td class="colLast">
+<div class="block">Returns the buffer to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(int,long)">releaseOutputBuffer</a></span>&#8203;(int&nbsp;index,
+                   long&nbsp;renderTimeStampNs)</code></th>
+<td class="colLast">
+<div class="block">Updates the output buffer's surface timestamp and sends it to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> to render
+ it on the output surface.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnFrameRenderedListener(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.OnFrameRenderedListener,android.os.Handler)">setOnFrameRenderedListener</a></span>&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
+                          <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</code></th>
+<td class="colLast">
+<div class="block">Registers a callback to be invoked when an output frame is rendered on the output surface.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputSurface(android.view.Surface)">setOutputSurface</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
+<td class="colLast">
+<div class="block">Dynamically sets the output surface of a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(android.os.Bundle)">setParameters</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</code></th>
+<td class="colLast">
+<div class="block">Communicate additional parameter changes to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instance.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(int)">setVideoScalingMode</a></span>&#8203;(int&nbsp;scalingMode)</code></th>
+<td class="colLast">
+<div class="block">Specifies the scaling mode to use, if a surface was specified when the codec was created.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="dequeueInputBufferIndex()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dequeueInputBufferIndex</h4>
+<pre class="methodSignature">int&nbsp;dequeueInputBufferIndex()</pre>
+<div class="block">Returns the next available input buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> or <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#INFO_TRY_AGAIN_LATER" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.INFO_TRY_AGAIN_LATER</code></a> if no such buffer exists.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> raised an error.</dd>
+</dl>
+</li>
+</ul>
+<a id="dequeueOutputBufferIndex(android.media.MediaCodec.BufferInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dequeueOutputBufferIndex</h4>
+<pre class="methodSignature">int&nbsp;dequeueOutputBufferIndex&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a>&nbsp;bufferInfo)</pre>
+<div class="block">Returns the next available output buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>. If the
+ next available output is a MediaFormat change, it will return <a href="https://developer.android.com/reference/android/media/MediaCodec.html#INFO_OUTPUT_FORMAT_CHANGED" title="class or interface in android.media" class="externalLink"><code>MediaCodec.INFO_OUTPUT_FORMAT_CHANGED</code></a> and you should call <a href="#getOutputFormat()" target="_top"><code>getOutputFormat()</code></a> to get
+ the format. If there is no available output, this method will return <a href="https://developer.android.com/reference/android/media/MediaCodec.html#INFO_TRY_AGAIN_LATER" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.INFO_TRY_AGAIN_LATER</code></a>.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> raised an error.</dd>
+</dl>
+</li>
+</ul>
+<a id="getOutputFormat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOutputFormat</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;getOutputFormat()</pre>
+<div class="block">Gets the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> that was output from the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.
+
+ <p>Call this method if a previous call to <a href="#dequeueOutputBufferIndex(android.media.MediaCodec.BufferInfo)"><code>dequeueOutputBufferIndex(android.media.MediaCodec.BufferInfo)</code></a> returned <a href="https://developer.android.com/reference/android/media/MediaCodec.html#INFO_OUTPUT_FORMAT_CHANGED" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.INFO_OUTPUT_FORMAT_CHANGED</code></a>.</div>
+</li>
+</ul>
+<a id="getInputBuffer(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInputBuffer</h4>
+<pre class="methodSignature">@Nullable
+<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getInputBuffer&#8203;(int&nbsp;index)</pre>
+<div class="block">Returns a writable ByteBuffer object for a dequeued input buffer index.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#getInputBuffer(int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.getInputBuffer(int)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getOutputBuffer(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOutputBuffer</h4>
+<pre class="methodSignature">@Nullable
+<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getOutputBuffer&#8203;(int&nbsp;index)</pre>
+<div class="block">Returns a read-only ByteBuffer for a dequeued output buffer index.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#getOutputBuffer(int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.getOutputBuffer(int)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="queueInputBuffer(int,int,int,long,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueInputBuffer</h4>
+<pre class="methodSignature">void&nbsp;queueInputBuffer&#8203;(int&nbsp;index,
+                      int&nbsp;offset,
+                      int&nbsp;size,
+                      long&nbsp;presentationTimeUs,
+                      int&nbsp;flags)</pre>
+<div class="block">Submit an input buffer for decoding.
+
+ <p>The <code>index</code> must be an input buffer index that has been obtained from a previous call
+ to <a href="#dequeueInputBufferIndex()"><code>dequeueInputBufferIndex()</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#queueInputBuffer(int,int,int,long,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.queueInputBuffer(int, int, int, long, int)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="queueSecureInputBuffer(int,int,com.google.android.exoplayer2.decoder.CryptoInfo,long,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueSecureInputBuffer</h4>
+<pre class="methodSignature">void&nbsp;queueSecureInputBuffer&#8203;(int&nbsp;index,
+                            int&nbsp;offset,
+                            <a href="../decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder">CryptoInfo</a>&nbsp;info,
+                            long&nbsp;presentationTimeUs,
+                            int&nbsp;flags)</pre>
+<div class="block">Submit an input buffer that is potentially encrypted for decoding.
+
+ <p>The <code>index</code> must be an input buffer index that has been obtained from a previous call
+ to <a href="#dequeueInputBufferIndex()"><code>dequeueInputBufferIndex()</code></a>.
+
+ <p>This method behaves like <a href="https://developer.android.com/reference/android/media/MediaCodec.html#queueSecureInputBuffer(int,int,android.media.MediaCodec.CryptoInfo,long,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.queueSecureInputBuffer(int, int, android.media.MediaCodec.CryptoInfo, long, int)</code></a>, with the difference that
+ <code>info</code> is of type <a href="../decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> and not <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#queueSecureInputBuffer(int,int,android.media.MediaCodec.CryptoInfo,long,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.queueSecureInputBuffer(int, int, android.media.MediaCodec.CryptoInfo, long, int)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="releaseOutputBuffer(int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseOutputBuffer</h4>
+<pre class="methodSignature">void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
+                         boolean&nbsp;render)</pre>
+<div class="block">Returns the buffer to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a>. If the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> was configured with an
+ output surface, setting <code>render</code> to <code>true</code> will first send the buffer to the output
+ surface. The surface will release the buffer back to the codec once it is no longer
+ used/displayed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#releaseOutputBuffer(int,boolean)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.releaseOutputBuffer(int, boolean)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="releaseOutputBuffer(int,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseOutputBuffer</h4>
+<pre class="methodSignature">void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
+                         long&nbsp;renderTimeStampNs)</pre>
+<div class="block">Updates the output buffer's surface timestamp and sends it to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> to render
+ it on the output surface. If the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is not configured with an output surface,
+ this call will simply return the buffer to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#releaseOutputBuffer(int,long)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.releaseOutputBuffer(int, long)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="flush()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flush</h4>
+<pre class="methodSignature">void&nbsp;flush()</pre>
+<div class="block">Flushes the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">void&nbsp;release()</pre>
+<div class="block">Releases the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</li>
+</ul>
+<a id="setOnFrameRenderedListener(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.OnFrameRenderedListener,android.os.Handler)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOnFrameRenderedListener</h4>
+<pre class="methodSignature">void&nbsp;setOnFrameRenderedListener&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
+                                <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</pre>
+<div class="block">Registers a callback to be invoked when an output frame is rendered on the output surface.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#setOnFrameRenderedListener(android.media.MediaCodec.OnFrameRenderedListener,android.os.Handler)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setOnFrameRenderedListener(android.media.MediaCodec.OnFrameRenderedListener, android.os.Handler)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setOutputSurface(android.view.Surface)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOutputSurface</h4>
+<pre class="methodSignature">void&nbsp;setOutputSurface&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<div class="block">Dynamically sets the output surface of a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#setOutputSurface(android.view.Surface)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setOutputSurface(Surface)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setParameters(android.os.Bundle)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setParameters</h4>
+<pre class="methodSignature">void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</pre>
+<div class="block">Communicate additional parameter changes to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instance.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#setParameters(android.os.Bundle)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setParameters(Bundle)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setVideoScalingMode(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setVideoScalingMode</h4>
+<pre class="methodSignature">void&nbsp;setVideoScalingMode&#8203;(<a href="../C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
+                         int&nbsp;scalingMode)</pre>
+<div class="block">Specifies the scaling mode to use, if a surface was specified when the codec was created.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#setVideoScalingMode(int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setVideoScalingMode(int)</code></a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

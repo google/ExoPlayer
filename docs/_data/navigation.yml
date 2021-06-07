@@ -1,0 +1,81 @@
+header:
+  - title:      Javadoc
+    url:        doc/reference/
+  - title:      GitHub
+    url:        https://github.com/google/ExoPlayer
+  - title:      Blog
+    url:        https://medium.com/google-exoplayer
+
+en:
+  - title:
+    children:
+      - title:  Home
+        url:    index.html
+      - title:  Pros and cons
+        url:    pros-and-cons.html
+      - title:  Demo application
+        url:    demo-application.html
+      - title:  Supported formats
+        url:    supported-formats.html
+      - title:  Supported devices
+        url:    supported-devices.html
+      - title:  Glossary
+        url:    glossary.html
+  - title:      Getting started
+    children:
+      - title:  Hello world
+        url:    hello-world.html
+      - title:  Player events
+        url:    listening-to-player-events.html
+      - title:  Playlists
+        url:    playlists.html
+      - title:  Media items
+        url:    media-items.html
+      - title:  Media sources
+        url:    media-sources.html
+      - title:  Track selection
+        url:    track-selection.html
+      - title:  UI components
+        url:    ui-components.html
+      - title:  Downloading media
+        url:    downloading-media.html
+      - title:  Ad insertion
+        url:    ad-insertion.html
+      - title:  Retrieving metadata
+        url:    retrieving-metadata.html
+      - title:  Live streaming
+        url:    live-streaming.html
+      - title:  Debug logging
+        url:    debug-logging.html
+      - title:  Analytics
+        url:    analytics.html
+  - title:      Media types
+    children:
+      - title:  DASH
+        url:    dash.html
+      - title:  HLS
+        url:    hls.html
+      - title:  SmoothStreaming
+        url:    smoothstreaming.html
+      - title:  Progressive
+        url:    progressive.html
+      - title:  RTSP
+        url:    rtsp.html
+  - title:      Advanced topics
+    children:
+      - title:  Digital rights management
+        url:    drm.html
+      - title:  Troubleshooting
+        url:    troubleshooting.html
+      - title:  Customization
+        url:    customization.html
+      - title:  Transforming media
+        url:    transforming-media.html
+      - title:  Battery consumption
+        url:    battery-consumption.html
+      - title:  APK shrinking
+        url:    shrinking.html
+      - title:  OEM testing
+        url:    oems.html
+      - title:  Design documents
+        url:    design-documents.html

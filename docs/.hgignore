@@ -1,0 +1,9 @@
+# Mercurial's .hgignore files can only be used in the root directory.
+# You can still apply these rules by adding
+# include:path/to/this/directory/.hgignore to the top-level .hgignore file.
+
+# Ensure same syntax as in .gitignore can be used
+syntax:glob
+
+_site
+Gemfile.lock

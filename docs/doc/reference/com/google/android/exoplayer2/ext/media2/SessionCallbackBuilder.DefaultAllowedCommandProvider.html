@@ -1,0 +1,465 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>SessionCallbackBuilder.DefaultAllowedCommandProvider (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="SessionCallbackBuilder.DefaultAllowedCommandProvider (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ext.media2</a></div>
+<h2 title="Class SessionCallbackBuilder.DefaultAllowedCommandProvider" class="title">Class SessionCallbackBuilder.DefaultAllowedCommandProvider</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.ext.media2.SessionCallbackBuilder.DefaultAllowedCommandProvider</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="SessionCallbackBuilder.AllowedCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2">SessionCallbackBuilder.AllowedCommandProvider</a></code></dd>
+</dl>
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="SessionCallbackBuilder.html" title="class in com.google.android.exoplayer2.ext.media2">SessionCallbackBuilder</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">SessionCallbackBuilder.DefaultAllowedCommandProvider</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="SessionCallbackBuilder.AllowedCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2">SessionCallbackBuilder.AllowedCommandProvider</a></pre>
+<div class="block">Default implementation of <a href="SessionCallbackBuilder.AllowedCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>SessionCallbackBuilder.AllowedCommandProvider</code></a> that behaves as follows:
+
+ <ul>
+   <li>Accepts connection requests from controller if any of the following conditions are met:
+       <ul>
+         <li>Controller is in the same package as the session.
+         <li>Controller is allowed via <a href="#setTrustedPackageNames(java.util.List)"><code>setTrustedPackageNames(List)</code></a>.
+         <li>Controller has package name <code>MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER</code>. See <code>package name limitation</code> for details.
+         <li>Controller is trusted (i.e. has MEDIA_CONTENT_CONTROL permission or has enabled
+             notification manager).
+       </ul>
+   <li>Allows all commands that the current player can handle.
+   <li>Accepts all command requests for allowed commands.
+ </ul>
+
+ <p>Note: this implementation matches the behavior of the ExoPlayer MediaSession extension and
+ <code>MediaSessionCompat</code>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">DefaultAllowedCommandProvider</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acceptConnection(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo)">acceptConnection</a></span>&#8203;(androidx.media2.session.MediaSession&nbsp;session,
+                androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo)</code></th>
+<td class="colLast">
+<div class="block">Called to query whether to allow connection from the controller.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>androidx.media2.session.SessionCommandGroup</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAllowedCommands(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommandGroup)">getAllowedCommands</a></span>&#8203;(androidx.media2.session.MediaSession&nbsp;session,
+                  androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo,
+                  androidx.media2.session.SessionCommandGroup&nbsp;baseAllowedSessionCommands)</code></th>
+<td class="colLast">
+<div class="block">Called to query allowed commands in following cases:
+
+ 
+   A <code>MediaController</code> requests to connect, and allowed commands is required to tell
+       initial allowed commands.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCommandRequest(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommand)">onCommandRequest</a></span>&#8203;(androidx.media2.session.MediaSession&nbsp;session,
+                androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo,
+                androidx.media2.session.SessionCommand&nbsp;command)</code></th>
+<td class="colLast">
+<div class="block">Called when a <code>MediaController</code> has called an API that controls <code>SessionPlayer</code>
+ set to the <code>MediaSession</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrustedPackageNames(java.util.List)">setTrustedPackageNames</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;packageNames)</code></th>
+<td class="colLast">
+<div class="block">Sets the package names from which the session will accept incoming connections.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(android.content.Context)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultAllowedCommandProvider</h4>
+<pre>public&nbsp;DefaultAllowedCommandProvider&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="acceptConnection(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>acceptConnection</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;acceptConnection&#8203;(androidx.media2.session.MediaSession&nbsp;session,
+                                androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SessionCallbackBuilder.AllowedCommandProvider.html#acceptConnection(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo)">SessionCallbackBuilder.AllowedCommandProvider</a></code></span></div>
+<div class="block">Called to query whether to allow connection from the controller.
+
+ <p>If it returns <code>true</code> to accept connection, then <a href="SessionCallbackBuilder.AllowedCommandProvider.html#getAllowedCommands(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommandGroup)"><code>SessionCallbackBuilder.AllowedCommandProvider.getAllowedCommands(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommandGroup)</code></a> will be
+ immediately followed to return initial allowed command.
+
+ <p>Prefer use <a href="SessionCallbackBuilder.PostConnectCallback.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>SessionCallbackBuilder.PostConnectCallback</code></a> for any extra initialization about controller,
+ where controller is connected and session can send commands to the controller.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="SessionCallbackBuilder.AllowedCommandProvider.html#acceptConnection(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo)">acceptConnection</a></code>&nbsp;in interface&nbsp;<code><a href="SessionCallbackBuilder.AllowedCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2">SessionCallbackBuilder.AllowedCommandProvider</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>session</code> - The media session.</dd>
+<dd><code>controllerInfo</code> - The <code>MediaSession.ControllerInfo</code> for the controller that is requesting
+     connect.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd><code>true</code> to accept connection. <code>false</code> otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAllowedCommands(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommandGroup)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAllowedCommands</h4>
+<pre class="methodSignature">public&nbsp;androidx.media2.session.SessionCommandGroup&nbsp;getAllowedCommands&#8203;(androidx.media2.session.MediaSession&nbsp;session,
+                                                                      androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo,
+                                                                      androidx.media2.session.SessionCommandGroup&nbsp;baseAllowedSessionCommands)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SessionCallbackBuilder.AllowedCommandProvider.html#getAllowedCommands(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommandGroup)">SessionCallbackBuilder.AllowedCommandProvider</a></code></span></div>
+<div class="block">Called to query allowed commands in following cases:
+
+ <ul>
+   <li>A <code>MediaController</code> requests to connect, and allowed commands is required to tell
+       initial allowed commands.
+   <li>Underlying <code>SessionPlayer</code> state changes, and allowed commands may be updated via
+       <code>MediaSession.setAllowedCommands(androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommandGroup)</code>.
+ </ul>
+
+ <p>The provided <code>baseAllowedSessionCommand</code> is built automatically based on the state
+ of the <code>SessionPlayer</code>, <a href="SessionCallbackBuilder.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>SessionCallbackBuilder.RatingCallback</code></a>, <a href="SessionCallbackBuilder.MediaItemProvider.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>SessionCallbackBuilder.MediaItemProvider</code></a>, <a href="SessionCallbackBuilder.CustomCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>SessionCallbackBuilder.CustomCommandProvider</code></a>, and <a href="SessionCallbackBuilder.SkipCallback.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>SessionCallbackBuilder.SkipCallback</code></a> so may be a useful starting point for any
+ required customizations.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="SessionCallbackBuilder.AllowedCommandProvider.html#getAllowedCommands(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommandGroup)">getAllowedCommands</a></code>&nbsp;in interface&nbsp;<code><a href="SessionCallbackBuilder.AllowedCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2">SessionCallbackBuilder.AllowedCommandProvider</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>session</code> - The media session.</dd>
+<dd><code>controllerInfo</code> - The <code>MediaSession.ControllerInfo</code> for the controller for which allowed
+     commands are being queried.</dd>
+<dd><code>baseAllowedSessionCommands</code> - Base allowed session commands for customization.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The allowed commands for the controller.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>MediaSession.SessionCallback.onConnect(MediaSession, ControllerInfo)</code></dd>
+</dl>
+</li>
+</ul>
+<a id="onCommandRequest(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommand)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onCommandRequest</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;onCommandRequest&#8203;(androidx.media2.session.MediaSession&nbsp;session,
+                            androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo,
+                            androidx.media2.session.SessionCommand&nbsp;command)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SessionCallbackBuilder.AllowedCommandProvider.html#onCommandRequest(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommand)">SessionCallbackBuilder.AllowedCommandProvider</a></code></span></div>
+<div class="block">Called when a <code>MediaController</code> has called an API that controls <code>SessionPlayer</code>
+ set to the <code>MediaSession</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="SessionCallbackBuilder.AllowedCommandProvider.html#onCommandRequest(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommand)">onCommandRequest</a></code>&nbsp;in interface&nbsp;<code><a href="SessionCallbackBuilder.AllowedCommandProvider.html" title="interface in com.google.android.exoplayer2.ext.media2">SessionCallbackBuilder.AllowedCommandProvider</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>session</code> - The media session.</dd>
+<dd><code>controllerInfo</code> - A <code>MediaSession.ControllerInfo</code> that needs allowed command update.</dd>
+<dd><code>command</code> - A <code>SessionCommand</code> from the controller.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A session result code defined in <code>SessionResult</code>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>MediaSession.SessionCallback.onCommandRequest(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommand)</code></dd>
+</dl>
+</li>
+</ul>
+<a id="setTrustedPackageNames(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setTrustedPackageNames</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setTrustedPackageNames&#8203;(@Nullable
+                                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;packageNames)</pre>
+<div class="block">Sets the package names from which the session will accept incoming connections.
+
+ <p>Apps that have <code>android.Manifest.permission.MEDIA_CONTENT_CONTROL</code>, packages listed
+ in enabled_notification_listeners and the current package are always trusted, even if they
+ are not specified here.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>packageNames</code> - Package names from which the session will accept incoming connections.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>MediaSession.SessionCallback.onConnect(MediaSession, MediaSession.ControllerInfo)</code>, 
+<code>MediaSessionManager.isTrustedForMediaControl(RemoteUserInfo)</code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

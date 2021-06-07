@@ -1,0 +1,60 @@
+seekMap:
+  isSeekable = true
+  duration = 2741000
+  getPosition(0) = [[timeUs=0, position=8230]]
+  getPosition(1) = [[timeUs=0, position=8230]]
+  getPosition(1370500) = [[timeUs=1361454, position=80172], [timeUs=1466181, position=86628]]
+  getPosition(2741000) = [[timeUs=2618181, position=148931]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 169072
+  sample count = 10
+  format 0:
+    averageBitrate = 1408000
+    peakBitrate = 1408000
+    sampleMimeType = audio/raw
+    maxInputSize = 18432
+    channelCount = 2
+    sampleRate = 44000
+    pcmEncoding = 2
+  sample 0:
+    time = 1780363
+    flags = 1
+    data = length 18432, hash E868F171
+  sample 1:
+    time = 1885090
+    flags = 1
+    data = length 18432, hash 849820FB
+  sample 2:
+    time = 1989818
+    flags = 1
+    data = length 18432, hash 7C0F587C
+  sample 3:
+    time = 2094545
+    flags = 1
+    data = length 18432, hash C062C499
+  sample 4:
+    time = 2199272
+    flags = 1
+    data = length 18432, hash 3A5DE9D0
+  sample 5:
+    time = 2304000
+    flags = 1
+    data = length 18432, hash ACADCDDB
+  sample 6:
+    time = 2408727
+    flags = 1
+    data = length 18432, hash EEC815A8
+  sample 7:
+    time = 2513454
+    flags = 1
+    data = length 18432, hash 29FC8C0B
+  sample 8:
+    time = 2618181
+    flags = 1
+    data = length 18432, hash 1C5969B5
+  sample 9:
+    time = 2722909
+    flags = 1
+    data = length 3184, hash 1DB009F7
+tracksEnded = true

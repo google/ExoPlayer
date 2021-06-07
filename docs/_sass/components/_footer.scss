@@ -1,0 +1,33 @@
+/**
+ * Site Info
+ */
+
+.footer {
+  @include flexbox();
+  @include align-items(center);
+  color: $footer-text-color;
+  background: $footer-background;
+  a {
+    @include link-colors ($footer-text-color, $main-color-1);
+  }
+  .site-info {
+    font-size: map-get($base, font-size-xs);
+    text-align: center;
+    .menu {
+      line-height: map-get($base, line-height-xs);
+      & > * {
+        &:not(:last-child) {
+          @include split-line(right, default, $footer-text-color);
+          padding-right: map-get($spacers, 1);
+          margin-right: map-get($spacers, 1);
+        }
+      }
+    }
+  }
+}
+.footer__author-links {
+  @include overflow(auto);
+  .author-links {
+    text-align: center;
+  }
+}

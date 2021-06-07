@@ -17,16 +17,12 @@ package com.google.android.exoplayer2.source.hls;
 
 import com.google.android.exoplayer2.upstream.DataSource;
 
-/**
- * Default implementation of {@link HlsDataSourceFactory}.
- */
+/** Default implementation of {@link HlsDataSourceFactory}. */
 public final class DefaultHlsDataSourceFactory implements HlsDataSourceFactory {
 
   private final DataSource.Factory dataSourceFactory;
 
-  /**
-   * @param dataSourceFactory The {@link DataSource.Factory} to use for all data types.
-   */
+  /** @param dataSourceFactory The {@link DataSource.Factory} to use for all data types. */
   public DefaultHlsDataSourceFactory(DataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
   }
@@ -35,5 +31,4 @@ public final class DefaultHlsDataSourceFactory implements HlsDataSourceFactory {
   public DataSource createDataSource(int dataType) {
     return dataSourceFactory.createDataSource();
   }
-
 }

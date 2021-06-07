@@ -1,0 +1,2294 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>PlaybackStats (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="PlaybackStats (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":9};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.analytics</a></div>
+<h2 title="Class PlaybackStats" class="title">Class PlaybackStats</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.analytics.PlaybackStats</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">PlaybackStats</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Statistics about playbacks.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats.EventTimeAndException</a></span></code></th>
+<td class="colLast">
+<div class="block">Stores an exception with the event time at which it occurred.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats.EventTimeAndFormat</a></span></code></th>
+<td class="colLast">
+<div class="block">Stores a format with the event time at which it started being used, or <code>null</code> to indicate
+ that no format was used.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlaybackStats.EventTimeAndPlaybackState.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats.EventTimeAndPlaybackState</a></span></code></th>
+<td class="colLast">
+<div class="block">Stores a playback state with the event time at which it became active.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#abandonedBeforeReadyCount">abandonedBeforeReadyCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks which were abandoned before they were ready to play.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adPlaybackCount">adPlaybackCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of ad playbacks.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndFormat</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioFormatHistory">audioFormatHistory</a></span></code></th>
+<td class="colLast">
+<div class="block">The audio format history as <a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndFormats</code></a> ordered by <code>
+ EventTime.realTimeMs</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backgroundJoiningCount">backgroundJoiningCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks which were pre-buffered in the background.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
+<td class="colLast">
+<div class="block">Empty playback stats.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#endedCount">endedCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks which reached the ended state at least once.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fatalErrorCount">fatalErrorCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of fatal errors.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndException</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fatalErrorHistory">fatalErrorHistory</a></span></code></th>
+<td class="colLast">
+<div class="block">The history of fatal errors as <a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndExceptions</code></a> ordered by
+ <code>EventTime.realTimeMs</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fatalErrorPlaybackCount">fatalErrorPlaybackCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of playback with at least one fatal error.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#firstReportedTimeMs">firstReportedTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The elapsed real-time as returned by <code>SystemClock.elapsedRealtime()</code> of the first
+ reported playback event, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no event has been reported.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#foregroundPlaybackCount">foregroundPlaybackCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks which were the active foreground playback at some point.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialAudioFormatBitrateCount">initialAudioFormatBitrateCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks with initial audio format bitrate data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialVideoFormatBitrateCount">initialVideoFormatBitrateCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks with initial video format bitrate data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialVideoFormatHeightCount">initialVideoFormatHeightCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks with initial video format height data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxRebufferTimeMs">maxRebufferTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The maximum time spent during a single rebuffer, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
+ rebuffer occurred.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;long[]&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaTimeHistory">mediaTimeHistory</a></span></code></th>
+<td class="colLast">
+<div class="block">The media time history as an ordered list of long[2] arrays with [0] being the realtime as
+ returned by <code>SystemClock.elapsedRealtime()</code> and [1] being the media time at this
+ realtime, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nonFatalErrorCount">nonFatalErrorCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of non-fatal errors.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndException</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nonFatalErrorHistory">nonFatalErrorHistory</a></span></code></th>
+<td class="colLast">
+<div class="block">The history of non-fatal errors as <a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndExceptions</code></a> ordered
+ by <code>EventTime.realTimeMs</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_ABANDONED">PLAYBACK_STATE_ABANDONED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is abandoned before reaching the end of the media.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_BUFFERING">PLAYBACK_STATE_BUFFERING</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is buffering to resume active playback.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_ENDED">PLAYBACK_STATE_ENDED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback has reached the end of the media.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_FAILED">PLAYBACK_STATE_FAILED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is stopped due a fatal error and can be retried.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_INTERRUPTED_BY_AD">PLAYBACK_STATE_INTERRUPTED_BY_AD</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is interrupted by an ad.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_JOINING_BACKGROUND">PLAYBACK_STATE_JOINING_BACKGROUND</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is buffering in the background for initial playback start.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_JOINING_FOREGROUND">PLAYBACK_STATE_JOINING_FOREGROUND</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is buffering in the foreground for initial playback start.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_NOT_STARTED">PLAYBACK_STATE_NOT_STARTED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback has not started (initial state).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_PAUSED">PLAYBACK_STATE_PAUSED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is paused but ready to play.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_PAUSED_BUFFERING">PLAYBACK_STATE_PAUSED_BUFFERING</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is buffering while paused.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_PLAYING">PLAYBACK_STATE_PLAYING</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is actively playing.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_SEEKING">PLAYBACK_STATE_SEEKING</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is handling a seek.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_STOPPED">PLAYBACK_STATE_STOPPED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is stopped and can be restarted.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_SUPPRESSED">PLAYBACK_STATE_SUPPRESSED</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is suppressed (e.g.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_STATE_SUPPRESSED_BUFFERING">PLAYBACK_STATE_SUPPRESSED_BUFFERING</a></span></code></th>
+<td class="colLast">
+<div class="block">Playback is suppressed (e.g.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackCount">playbackCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of individual playbacks for which these stats were collected.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndPlaybackState.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndPlaybackState</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackStateHistory">playbackStateHistory</a></span></code></th>
+<td class="colLast">
+<div class="block">The playback state history as <a href="PlaybackStats.EventTimeAndPlaybackState.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndPlaybackStates</code></a>
+ ordered by <code>EventTime.realTimeMs</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalAudioFormatBitrateTimeProduct">totalAudioFormatBitrateTimeProduct</a></span></code></th>
+<td class="colLast">
+<div class="block">The accumulated sum of all audio format bitrates, in bits per second, times the time the format
+ was used for playback, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalAudioFormatTimeMs">totalAudioFormatTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The total media time for which audio format data is available, in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalAudioUnderruns">totalAudioUnderruns</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of audio underruns.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalBandwidthBytes">totalBandwidthBytes</a></span></code></th>
+<td class="colLast">
+<div class="block">The total bytes transferred during <a href="#totalBandwidthTimeMs"><code>totalBandwidthTimeMs</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalBandwidthTimeMs">totalBandwidthTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The total time for which bandwidth measurement data is available, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalDroppedFrames">totalDroppedFrames</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of dropped video frames.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalInitialAudioFormatBitrate">totalInitialAudioFormatBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">The total initial audio format bitrate for all playbacks, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no initial audio format data is available.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalInitialVideoFormatBitrate">totalInitialVideoFormatBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">The total initial video format bitrate for all playbacks, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no initial video format data is available.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalInitialVideoFormatHeight">totalInitialVideoFormatHeight</a></span></code></th>
+<td class="colLast">
+<div class="block">The total initial video format height for all playbacks, in pixels, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
+ if no initial video format data is available.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalPauseBufferCount">totalPauseBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of times a playback has been paused while rebuffering.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalPauseCount">totalPauseCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of times a playback has been paused.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalRebufferCount">totalRebufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of times a rebuffer occurred.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalSeekCount">totalSeekCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The total number of times a seek occurred.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalValidJoinTimeMs">totalValidJoinTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The total time spent joining the playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no valid
+ join time could be determined.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFormatBitrateTimeMs">totalVideoFormatBitrateTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The total media time for which video format bitrate data is available, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFormatBitrateTimeProduct">totalVideoFormatBitrateTimeProduct</a></span></code></th>
+<td class="colLast">
+<div class="block">The accumulated sum of all video format bitrates, in bits per second, times the time the format
+ was used for playback, in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFormatHeightTimeMs">totalVideoFormatHeightTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The total media time for which video format height data is available, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFormatHeightTimeProduct">totalVideoFormatHeightTimeProduct</a></span></code></th>
+<td class="colLast">
+<div class="block">The accumulated sum of all video format heights, in pixels, times the time the format was used
+ for playback, in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#validJoinTimeCount">validJoinTimeCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of playbacks with a valid join time as documented in <a href="#totalValidJoinTimeMs"><code>totalValidJoinTimeMs</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndFormat</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoFormatHistory">videoFormatHistory</a></span></code></th>
+<td class="colLast">
+<div class="block">The video format history as <a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndFormats</code></a> ordered by <code>
+ EventTime.realTimeMs</code>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAbandonedBeforeReadyRatio()">getAbandonedBeforeReadyRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of foreground playbacks which were abandoned before they were ready to play,
+ or <code>0.0</code> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioUnderrunRate()">getAudioUnderrunRate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean rate at which audio underruns occurred, in underruns per play time second, or
+ <code>0.0</code> if no time was spent playing.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDroppedFramesRate()">getDroppedFramesRate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean rate at which video frames are dropped, in dropped frames per play time
+ second, or <code>0.0</code> if no time was spent playing.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEndedRatio()">getEndedRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of foreground playbacks which reached the ended state at least once, or
+ <code>0.0</code> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFatalErrorRate()">getFatalErrorRate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the rate of fatal errors, in errors per play time second, or <code>0.0</code> if no time was
+ spend playing.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFatalErrorRatio()">getFatalErrorRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of foreground playbacks which experienced fatal errors, or <code>0.0</code> if no
+ playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getJoinTimeRatio()">getJoinTimeRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of foreground join time to the total time spent playing and waiting, or
+ <code>0.0</code> if no time was spend playing or waiting.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanAudioFormatBitrate()">getMeanAudioFormatBitrate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean audio format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no
+ audio format data is available.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanBandwidth()">getMeanBandwidth</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean network bandwidth based on transfer measurements, in bits per second, or
+ <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no transfer data is available.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanElapsedTimeMs()">getMeanElapsedTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time covered by any playback state per playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback was recorded.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanInitialAudioFormatBitrate()">getMeanInitialAudioFormatBitrate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean initial audio format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
+ no audio format data is available.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanInitialVideoFormatBitrate()">getMeanInitialVideoFormatBitrate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean initial video format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
+ no video format data is available.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanInitialVideoFormatHeight()">getMeanInitialVideoFormatHeight</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean initial video format height, in pixels, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no video
+ format data is available.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanJoinTimeMs()">getMeanJoinTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent joining the playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+ no valid join time is available.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanNonFatalErrorCount()">getMeanNonFatalErrorCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean number of non-fatal errors per foreground playback, or <code>0.0</code> if no
+ playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanPauseBufferCount()">getMeanPauseBufferCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean number of times a playback has been paused while rebuffering per foreground
+ playback, or <code>0.0</code> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanPauseCount()">getMeanPauseCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean number of times a playback has been paused per foreground playback, or <code>
+ 0.0</code> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanPausedTimeMs()">getMeanPausedTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent in a paused state per foreground playback, in milliseconds, or
+ <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanPlayAndWaitTimeMs()">getMeanPlayAndWaitTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent playing or actively waiting for playback per foreground playback,
+ in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanPlayTimeMs()">getMeanPlayTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent actively playing per foreground playback, in milliseconds, or
+ <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanRebufferCount()">getMeanRebufferCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean number of times a rebuffer occurred per foreground playback, or <code>0.0</code> if
+ no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanRebufferTimeMs()">getMeanRebufferTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent rebuffering per foreground playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanSeekCount()">getMeanSeekCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean number of times a seek occurred per foreground playback, or <code>0.0</code> if no
+ playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanSeekTimeMs()">getMeanSeekTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent per foreground playback from the start of a seek until playback is
+ ready again, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanSingleRebufferTimeMs()">getMeanSingleRebufferTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent during a single rebuffer, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+ if no rebuffer was recorded.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanSingleSeekTimeMs()">getMeanSingleSeekTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent from the start of a single seek until playback is ready again, in
+ milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no seek occurred.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanTimeBetweenFatalErrors()">getMeanTimeBetweenFatalErrors</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean play time between fatal errors, in seconds.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanTimeBetweenNonFatalErrors()">getMeanTimeBetweenNonFatalErrors</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean play time between non-fatal errors, in seconds.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanTimeBetweenRebuffers()">getMeanTimeBetweenRebuffers</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean play time between rebuffer events, in seconds.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanVideoFormatBitrate()">getMeanVideoFormatBitrate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean video format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no
+ video format data is available.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanVideoFormatHeight()">getMeanVideoFormatHeight</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean video format height, in pixels, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no video format
+ data is available.</div>
+</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMeanWaitTimeMs()">getMeanWaitTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the mean time spent actively waiting for playback per foreground playback, in
+ milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</td>
+</tr>
+<tr id="i32" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaTimeMsAtRealtimeMs(long)">getMediaTimeMsAtRealtimeMs</a></span>&#8203;(long&nbsp;realtimeMs)</code></th>
+<td class="colLast">
+<div class="block">Returns the estimated media time at the given realtime, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the media time history is unknown.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNonFatalErrorRate()">getNonFatalErrorRate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the rate of non-fatal errors, in errors per play time second, or <code>0.0</code> if no time
+ was spend playing.</div>
+</td>
+</tr>
+<tr id="i34" class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackState int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaybackStateAtTime(long)">getPlaybackStateAtTime</a></span>&#8203;(long&nbsp;realtimeMs)</code></th>
+<td class="colLast">
+<div class="block">Returns the <code>PlaybackStats.PlaybackState</code> at the given time.</div>
+</td>
+</tr>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaybackStateDurationMs(@com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackStateint)">getPlaybackStateDurationMs</a></span>&#8203;(@com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackState int&nbsp;playbackState)</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent in a given <code>PlaybackStats.PlaybackState</code>, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i36" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRebufferRate()">getRebufferRate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the rate of rebuffer events, in rebuffers per play time second, or <code>0.0</code> if no
+ time was spend playing.</div>
+</td>
+</tr>
+<tr id="i37" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRebufferTimeRatio()">getRebufferTimeRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of rebuffer time to the total time spent playing and waiting, or <code>0.0</code>
+ if no time was spend playing or waiting.</div>
+</td>
+</tr>
+<tr id="i38" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekTimeRatio()">getSeekTimeRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of seek time to the total time spent playing and waiting, or <code>0.0</code> if
+ no time was spend playing or waiting.</div>
+</td>
+</tr>
+<tr id="i39" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalElapsedTimeMs()">getTotalElapsedTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time covered by any playback state, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i40" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalJoinTimeMs()">getTotalJoinTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent joining the playback in foreground, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i41" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalPausedTimeMs()">getTotalPausedTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent in a paused state, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i42" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalPlayAndWaitTimeMs()">getTotalPlayAndWaitTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent playing or actively waiting for playback, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i43" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalPlayTimeMs()">getTotalPlayTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent actively playing, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i44" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalRebufferTimeMs()">getTotalRebufferTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent rebuffering, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i45" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalSeekTimeMs()">getTotalSeekTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent from the start of a seek until playback is ready again, in
+ milliseconds.</div>
+</td>
+</tr>
+<tr id="i46" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalWaitTimeMs()">getTotalWaitTimeMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total time spent actively waiting for playback, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i47" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWaitTimeRatio()">getWaitTimeRatio</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the ratio of wait times to the total time spent playing and waiting, or <code>0.0</code> if
+ no time was spend playing or waiting.</div>
+</td>
+</tr>
+<tr id="i48" class="altColor">
+<td class="colFirst"><code>static <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#merge(com.google.android.exoplayer2.analytics.PlaybackStats...)">merge</a></span>&#8203;(<a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a>...&nbsp;playbackStats)</code></th>
+<td class="colLast">
+<div class="block">Returns the combined <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> for all input <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="PLAYBACK_STATE_NOT_STARTED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_NOT_STARTED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_NOT_STARTED</pre>
+<div class="block">Playback has not started (initial state).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_NOT_STARTED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_JOINING_BACKGROUND">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_JOINING_BACKGROUND</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_JOINING_BACKGROUND</pre>
+<div class="block">Playback is buffering in the background for initial playback start.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_JOINING_BACKGROUND">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_JOINING_FOREGROUND">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_JOINING_FOREGROUND</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_JOINING_FOREGROUND</pre>
+<div class="block">Playback is buffering in the foreground for initial playback start.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_PLAYING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_PLAYING</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_PLAYING</pre>
+<div class="block">Playback is actively playing.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_PLAYING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_PAUSED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_PAUSED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_PAUSED</pre>
+<div class="block">Playback is paused but ready to play.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_PAUSED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_SEEKING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_SEEKING</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_SEEKING</pre>
+<div class="block">Playback is handling a seek.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_SEEKING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_BUFFERING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_BUFFERING</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_BUFFERING</pre>
+<div class="block">Playback is buffering to resume active playback.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_BUFFERING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_PAUSED_BUFFERING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_PAUSED_BUFFERING</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_PAUSED_BUFFERING</pre>
+<div class="block">Playback is buffering while paused.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_SUPPRESSED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_SUPPRESSED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_SUPPRESSED</pre>
+<div class="block">Playback is suppressed (e.g. due to audio focus loss).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_SUPPRESSED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_SUPPRESSED_BUFFERING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_SUPPRESSED_BUFFERING</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_SUPPRESSED_BUFFERING</pre>
+<div class="block">Playback is suppressed (e.g. due to audio focus loss) while buffering to resume a playback.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_SUPPRESSED_BUFFERING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_ENDED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_ENDED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_ENDED</pre>
+<div class="block">Playback has reached the end of the media.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_ENDED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_STOPPED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_STOPPED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_STOPPED</pre>
+<div class="block">Playback is stopped and can be restarted.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_STOPPED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_FAILED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_FAILED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_FAILED</pre>
+<div class="block">Playback is stopped due a fatal error and can be retried.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_FAILED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_INTERRUPTED_BY_AD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_INTERRUPTED_BY_AD</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_INTERRUPTED_BY_AD</pre>
+<div class="block">Playback is interrupted by an ad.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_INTERRUPTED_BY_AD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PLAYBACK_STATE_ABANDONED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PLAYBACK_STATE_ABANDONED</h4>
+<pre>public static final&nbsp;int PLAYBACK_STATE_ABANDONED</pre>
+<div class="block">Playback is abandoned before reaching the end of the media.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.PlaybackStats.PLAYBACK_STATE_ABANDONED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EMPTY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EMPTY</h4>
+<pre>public static final&nbsp;<a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a> EMPTY</pre>
+<div class="block">Empty playback stats.</div>
+</li>
+</ul>
+<a id="playbackCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playbackCount</h4>
+<pre>public final&nbsp;int playbackCount</pre>
+<div class="block">The number of individual playbacks for which these stats were collected.</div>
+</li>
+</ul>
+<a id="playbackStateHistory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playbackStateHistory</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndPlaybackState.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndPlaybackState</a>&gt; playbackStateHistory</pre>
+<div class="block">The playback state history as <a href="PlaybackStats.EventTimeAndPlaybackState.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndPlaybackStates</code></a>
+ ordered by <code>EventTime.realTimeMs</code>.</div>
+</li>
+</ul>
+<a id="mediaTimeHistory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaTimeHistory</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;long[]&gt; mediaTimeHistory</pre>
+<div class="block">The media time history as an ordered list of long[2] arrays with [0] being the realtime as
+ returned by <code>SystemClock.elapsedRealtime()</code> and [1] being the media time at this
+ realtime, in milliseconds.</div>
+</li>
+</ul>
+<a id="firstReportedTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>firstReportedTimeMs</h4>
+<pre>public final&nbsp;long firstReportedTimeMs</pre>
+<div class="block">The elapsed real-time as returned by <code>SystemClock.elapsedRealtime()</code> of the first
+ reported playback event, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no event has been reported.</div>
+</li>
+</ul>
+<a id="foregroundPlaybackCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>foregroundPlaybackCount</h4>
+<pre>public final&nbsp;int foregroundPlaybackCount</pre>
+<div class="block">The number of playbacks which were the active foreground playback at some point.</div>
+</li>
+</ul>
+<a id="abandonedBeforeReadyCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>abandonedBeforeReadyCount</h4>
+<pre>public final&nbsp;int abandonedBeforeReadyCount</pre>
+<div class="block">The number of playbacks which were abandoned before they were ready to play.</div>
+</li>
+</ul>
+<a id="endedCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>endedCount</h4>
+<pre>public final&nbsp;int endedCount</pre>
+<div class="block">The number of playbacks which reached the ended state at least once.</div>
+</li>
+</ul>
+<a id="backgroundJoiningCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>backgroundJoiningCount</h4>
+<pre>public final&nbsp;int backgroundJoiningCount</pre>
+<div class="block">The number of playbacks which were pre-buffered in the background.</div>
+</li>
+</ul>
+<a id="totalValidJoinTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalValidJoinTimeMs</h4>
+<pre>public final&nbsp;long totalValidJoinTimeMs</pre>
+<div class="block">The total time spent joining the playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no valid
+ join time could be determined.
+
+ <p>Note that this does not include background joining time. A join time may be invalid if the
+ playback never reached <a href="#PLAYBACK_STATE_PLAYING"><code>PLAYBACK_STATE_PLAYING</code></a> or <a href="#PLAYBACK_STATE_PAUSED"><code>PLAYBACK_STATE_PAUSED</code></a>, or
+ joining was interrupted by a seek, stop, or error state.</div>
+</li>
+</ul>
+<a id="validJoinTimeCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>validJoinTimeCount</h4>
+<pre>public final&nbsp;int validJoinTimeCount</pre>
+<div class="block">The number of playbacks with a valid join time as documented in <a href="#totalValidJoinTimeMs"><code>totalValidJoinTimeMs</code></a>.</div>
+</li>
+</ul>
+<a id="totalPauseCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalPauseCount</h4>
+<pre>public final&nbsp;int totalPauseCount</pre>
+<div class="block">The total number of times a playback has been paused.</div>
+</li>
+</ul>
+<a id="totalPauseBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalPauseBufferCount</h4>
+<pre>public final&nbsp;int totalPauseBufferCount</pre>
+<div class="block">The total number of times a playback has been paused while rebuffering.</div>
+</li>
+</ul>
+<a id="totalSeekCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalSeekCount</h4>
+<pre>public final&nbsp;int totalSeekCount</pre>
+<div class="block">The total number of times a seek occurred. This includes seeks happening before playback
+ resumed after another seek.</div>
+</li>
+</ul>
+<a id="totalRebufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalRebufferCount</h4>
+<pre>public final&nbsp;int totalRebufferCount</pre>
+<div class="block">The total number of times a rebuffer occurred. This excludes initial joining and buffering
+ after seek.</div>
+</li>
+</ul>
+<a id="maxRebufferTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxRebufferTimeMs</h4>
+<pre>public final&nbsp;long maxRebufferTimeMs</pre>
+<div class="block">The maximum time spent during a single rebuffer, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
+ rebuffer occurred.</div>
+</li>
+</ul>
+<a id="adPlaybackCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adPlaybackCount</h4>
+<pre>public final&nbsp;int adPlaybackCount</pre>
+<div class="block">The number of ad playbacks.</div>
+</li>
+</ul>
+<a id="videoFormatHistory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>videoFormatHistory</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndFormat</a>&gt; videoFormatHistory</pre>
+<div class="block">The video format history as <a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndFormats</code></a> ordered by <code>
+ EventTime.realTimeMs</code>. The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> may be null if no video format was used.</div>
+</li>
+</ul>
+<a id="audioFormatHistory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>audioFormatHistory</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndFormat</a>&gt; audioFormatHistory</pre>
+<div class="block">The audio format history as <a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndFormats</code></a> ordered by <code>
+ EventTime.realTimeMs</code>. The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> may be null if no audio format was used.</div>
+</li>
+</ul>
+<a id="totalVideoFormatHeightTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalVideoFormatHeightTimeMs</h4>
+<pre>public final&nbsp;long totalVideoFormatHeightTimeMs</pre>
+<div class="block">The total media time for which video format height data is available, in milliseconds.</div>
+</li>
+</ul>
+<a id="totalVideoFormatHeightTimeProduct">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalVideoFormatHeightTimeProduct</h4>
+<pre>public final&nbsp;long totalVideoFormatHeightTimeProduct</pre>
+<div class="block">The accumulated sum of all video format heights, in pixels, times the time the format was used
+ for playback, in milliseconds.</div>
+</li>
+</ul>
+<a id="totalVideoFormatBitrateTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalVideoFormatBitrateTimeMs</h4>
+<pre>public final&nbsp;long totalVideoFormatBitrateTimeMs</pre>
+<div class="block">The total media time for which video format bitrate data is available, in milliseconds.</div>
+</li>
+</ul>
+<a id="totalVideoFormatBitrateTimeProduct">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalVideoFormatBitrateTimeProduct</h4>
+<pre>public final&nbsp;long totalVideoFormatBitrateTimeProduct</pre>
+<div class="block">The accumulated sum of all video format bitrates, in bits per second, times the time the format
+ was used for playback, in milliseconds.</div>
+</li>
+</ul>
+<a id="totalAudioFormatTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalAudioFormatTimeMs</h4>
+<pre>public final&nbsp;long totalAudioFormatTimeMs</pre>
+<div class="block">The total media time for which audio format data is available, in milliseconds.</div>
+</li>
+</ul>
+<a id="totalAudioFormatBitrateTimeProduct">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalAudioFormatBitrateTimeProduct</h4>
+<pre>public final&nbsp;long totalAudioFormatBitrateTimeProduct</pre>
+<div class="block">The accumulated sum of all audio format bitrates, in bits per second, times the time the format
+ was used for playback, in milliseconds.</div>
+</li>
+</ul>
+<a id="initialVideoFormatHeightCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialVideoFormatHeightCount</h4>
+<pre>public final&nbsp;int initialVideoFormatHeightCount</pre>
+<div class="block">The number of playbacks with initial video format height data.</div>
+</li>
+</ul>
+<a id="initialVideoFormatBitrateCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialVideoFormatBitrateCount</h4>
+<pre>public final&nbsp;int initialVideoFormatBitrateCount</pre>
+<div class="block">The number of playbacks with initial video format bitrate data.</div>
+</li>
+</ul>
+<a id="totalInitialVideoFormatHeight">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalInitialVideoFormatHeight</h4>
+<pre>public final&nbsp;int totalInitialVideoFormatHeight</pre>
+<div class="block">The total initial video format height for all playbacks, in pixels, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
+ if no initial video format data is available.</div>
+</li>
+</ul>
+<a id="totalInitialVideoFormatBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalInitialVideoFormatBitrate</h4>
+<pre>public final&nbsp;long totalInitialVideoFormatBitrate</pre>
+<div class="block">The total initial video format bitrate for all playbacks, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no initial video format data is available.</div>
+</li>
+</ul>
+<a id="initialAudioFormatBitrateCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialAudioFormatBitrateCount</h4>
+<pre>public final&nbsp;int initialAudioFormatBitrateCount</pre>
+<div class="block">The number of playbacks with initial audio format bitrate data.</div>
+</li>
+</ul>
+<a id="totalInitialAudioFormatBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalInitialAudioFormatBitrate</h4>
+<pre>public final&nbsp;long totalInitialAudioFormatBitrate</pre>
+<div class="block">The total initial audio format bitrate for all playbacks, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no initial audio format data is available.</div>
+</li>
+</ul>
+<a id="totalBandwidthTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalBandwidthTimeMs</h4>
+<pre>public final&nbsp;long totalBandwidthTimeMs</pre>
+<div class="block">The total time for which bandwidth measurement data is available, in milliseconds.</div>
+</li>
+</ul>
+<a id="totalBandwidthBytes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalBandwidthBytes</h4>
+<pre>public final&nbsp;long totalBandwidthBytes</pre>
+<div class="block">The total bytes transferred during <a href="#totalBandwidthTimeMs"><code>totalBandwidthTimeMs</code></a>.</div>
+</li>
+</ul>
+<a id="totalDroppedFrames">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalDroppedFrames</h4>
+<pre>public final&nbsp;long totalDroppedFrames</pre>
+<div class="block">The total number of dropped video frames.</div>
+</li>
+</ul>
+<a id="totalAudioUnderruns">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalAudioUnderruns</h4>
+<pre>public final&nbsp;long totalAudioUnderruns</pre>
+<div class="block">The total number of audio underruns.</div>
+</li>
+</ul>
+<a id="fatalErrorPlaybackCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fatalErrorPlaybackCount</h4>
+<pre>public final&nbsp;int fatalErrorPlaybackCount</pre>
+<div class="block">The total number of playback with at least one fatal error. Errors are fatal if playback
+ stopped due to this error.</div>
+</li>
+</ul>
+<a id="fatalErrorCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fatalErrorCount</h4>
+<pre>public final&nbsp;int fatalErrorCount</pre>
+<div class="block">The total number of fatal errors. Errors are fatal if playback stopped due to this error.</div>
+</li>
+</ul>
+<a id="nonFatalErrorCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>nonFatalErrorCount</h4>
+<pre>public final&nbsp;int nonFatalErrorCount</pre>
+<div class="block">The total number of non-fatal errors. Error are non-fatal if playback can recover from the
+ error without stopping.</div>
+</li>
+</ul>
+<a id="fatalErrorHistory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fatalErrorHistory</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndException</a>&gt; fatalErrorHistory</pre>
+<div class="block">The history of fatal errors as <a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndExceptions</code></a> ordered by
+ <code>EventTime.realTimeMs</code>. Errors are fatal if playback stopped due to this error.</div>
+</li>
+</ul>
+<a id="nonFatalErrorHistory">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>nonFatalErrorHistory</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics" target="_top">PlaybackStats.EventTimeAndException</a>&gt; nonFatalErrorHistory</pre>
+<div class="block">The history of non-fatal errors as <a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics"><code>EventTimeAndExceptions</code></a> ordered
+ by <code>EventTime.realTimeMs</code>. Errors are non-fatal if playback can recover from the error
+ without stopping.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="merge(com.google.android.exoplayer2.analytics.PlaybackStats...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>merge</h4>
+<pre class="methodSignature">public static&nbsp;<a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a>&nbsp;merge&#8203;(<a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a>...&nbsp;playbackStats)</pre>
+<div class="block">Returns the combined <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> for all input <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a>.
+
+ <p>Note that the full history of events is not kept as the history only makes sense in the
+ context of a single playback.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackStats</code> - Array of <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> to combine.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The combined <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPlaybackStateDurationMs(@com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackStateint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPlaybackStateDurationMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getPlaybackStateDurationMs&#8203;(@com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackState int&nbsp;playbackState)</pre>
+<div class="block">Returns the total time spent in a given <code>PlaybackStats.PlaybackState</code>, in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackState</code> - A <code>PlaybackStats.PlaybackState</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Total spent in the given playback state, in milliseconds</dd>
+</dl>
+</li>
+</ul>
+<a id="getPlaybackStateAtTime(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPlaybackStateAtTime</h4>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackState int&nbsp;getPlaybackStateAtTime&#8203;(long&nbsp;realtimeMs)</pre>
+<div class="block">Returns the <code>PlaybackStats.PlaybackState</code> at the given time.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>realtimeMs</code> - The time as returned by <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <code>PlaybackStats.PlaybackState</code> at that time, or <a href="#PLAYBACK_STATE_NOT_STARTED"><code>PLAYBACK_STATE_NOT_STARTED</code></a> if the
+     given time is before the first known playback state in the history.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMediaTimeMsAtRealtimeMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMediaTimeMsAtRealtimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMediaTimeMsAtRealtimeMs&#8203;(long&nbsp;realtimeMs)</pre>
+<div class="block">Returns the estimated media time at the given realtime, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the media time history is unknown.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>realtimeMs</code> - The realtime as returned by <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The estimated media time in milliseconds at this realtime, <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
+     estimate can be given.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMeanJoinTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanJoinTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanJoinTimeMs()</pre>
+<div class="block">Returns the mean time spent joining the playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+ no valid join time is available. Only includes playbacks with valid join times as documented in
+ <a href="#totalValidJoinTimeMs"><code>totalValidJoinTimeMs</code></a>.</div>
+</li>
+</ul>
+<a id="getTotalJoinTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalJoinTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalJoinTimeMs()</pre>
+<div class="block">Returns the total time spent joining the playback in foreground, in milliseconds. This does
+ include invalid join times where the playback never reached <a href="#PLAYBACK_STATE_PLAYING"><code>PLAYBACK_STATE_PLAYING</code></a> or
+ <a href="#PLAYBACK_STATE_PAUSED"><code>PLAYBACK_STATE_PAUSED</code></a>, or joining was interrupted by a seek, stop, or error state.</div>
+</li>
+</ul>
+<a id="getTotalPlayTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalPlayTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalPlayTimeMs()</pre>
+<div class="block">Returns the total time spent actively playing, in milliseconds.</div>
+</li>
+</ul>
+<a id="getMeanPlayTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanPlayTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanPlayTimeMs()</pre>
+<div class="block">Returns the mean time spent actively playing per foreground playback, in milliseconds, or
+ <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getTotalPausedTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalPausedTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalPausedTimeMs()</pre>
+<div class="block">Returns the total time spent in a paused state, in milliseconds.</div>
+</li>
+</ul>
+<a id="getMeanPausedTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanPausedTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanPausedTimeMs()</pre>
+<div class="block">Returns the mean time spent in a paused state per foreground playback, in milliseconds, or
+ <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getTotalRebufferTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalRebufferTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalRebufferTimeMs()</pre>
+<div class="block">Returns the total time spent rebuffering, in milliseconds. This excludes initial join times,
+ buffer times after a seek and buffering while paused.</div>
+</li>
+</ul>
+<a id="getMeanRebufferTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanRebufferTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanRebufferTimeMs()</pre>
+<div class="block">Returns the mean time spent rebuffering per foreground playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground. This excludes initial join times, buffer
+ times after a seek and buffering while paused.</div>
+</li>
+</ul>
+<a id="getMeanSingleRebufferTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanSingleRebufferTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanSingleRebufferTimeMs()</pre>
+<div class="block">Returns the mean time spent during a single rebuffer, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+ if no rebuffer was recorded. This excludes initial join times and buffer times after a seek.</div>
+</li>
+</ul>
+<a id="getTotalSeekTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalSeekTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalSeekTimeMs()</pre>
+<div class="block">Returns the total time spent from the start of a seek until playback is ready again, in
+ milliseconds.</div>
+</li>
+</ul>
+<a id="getMeanSeekTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanSeekTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanSeekTimeMs()</pre>
+<div class="block">Returns the mean time spent per foreground playback from the start of a seek until playback is
+ ready again, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getMeanSingleSeekTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanSingleSeekTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanSingleSeekTimeMs()</pre>
+<div class="block">Returns the mean time spent from the start of a single seek until playback is ready again, in
+ milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no seek occurred.</div>
+</li>
+</ul>
+<a id="getTotalWaitTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalWaitTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalWaitTimeMs()</pre>
+<div class="block">Returns the total time spent actively waiting for playback, in milliseconds. This includes all
+ join times, rebuffer times and seek times, but excludes times without user intention to play,
+ e.g. all paused states.</div>
+</li>
+</ul>
+<a id="getMeanWaitTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanWaitTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanWaitTimeMs()</pre>
+<div class="block">Returns the mean time spent actively waiting for playback per foreground playback, in
+ milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground. This includes all
+ join times, rebuffer times and seek times, but excludes times without user intention to play,
+ e.g. all paused states.</div>
+</li>
+</ul>
+<a id="getTotalPlayAndWaitTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalPlayAndWaitTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalPlayAndWaitTimeMs()</pre>
+<div class="block">Returns the total time spent playing or actively waiting for playback, in milliseconds.</div>
+</li>
+</ul>
+<a id="getMeanPlayAndWaitTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanPlayAndWaitTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanPlayAndWaitTimeMs()</pre>
+<div class="block">Returns the mean time spent playing or actively waiting for playback per foreground playback,
+ in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getTotalElapsedTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalElapsedTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getTotalElapsedTimeMs()</pre>
+<div class="block">Returns the total time covered by any playback state, in milliseconds.</div>
+</li>
+</ul>
+<a id="getMeanElapsedTimeMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanElapsedTimeMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMeanElapsedTimeMs()</pre>
+<div class="block">Returns the mean time covered by any playback state per playback, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no playback was recorded.</div>
+</li>
+</ul>
+<a id="getAbandonedBeforeReadyRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAbandonedBeforeReadyRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getAbandonedBeforeReadyRatio()</pre>
+<div class="block">Returns the ratio of foreground playbacks which were abandoned before they were ready to play,
+ or <code>0.0</code> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getEndedRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEndedRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getEndedRatio()</pre>
+<div class="block">Returns the ratio of foreground playbacks which reached the ended state at least once, or
+ <code>0.0</code> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getMeanPauseCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanPauseCount</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanPauseCount()</pre>
+<div class="block">Returns the mean number of times a playback has been paused per foreground playback, or <code>
+ 0.0</code> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getMeanPauseBufferCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanPauseBufferCount</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanPauseBufferCount()</pre>
+<div class="block">Returns the mean number of times a playback has been paused while rebuffering per foreground
+ playback, or <code>0.0</code> if no playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getMeanSeekCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanSeekCount</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanSeekCount()</pre>
+<div class="block">Returns the mean number of times a seek occurred per foreground playback, or <code>0.0</code> if no
+ playback has been in foreground. This includes seeks happening before playback resumed after
+ another seek.</div>
+</li>
+</ul>
+<a id="getMeanRebufferCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanRebufferCount</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanRebufferCount()</pre>
+<div class="block">Returns the mean number of times a rebuffer occurred per foreground playback, or <code>0.0</code> if
+ no playback has been in foreground. This excludes initial joining and buffering after seek.</div>
+</li>
+</ul>
+<a id="getWaitTimeRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getWaitTimeRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getWaitTimeRatio()</pre>
+<div class="block">Returns the ratio of wait times to the total time spent playing and waiting, or <code>0.0</code> if
+ no time was spend playing or waiting. This is equivalent to <a href="#getTotalWaitTimeMs()"><code>getTotalWaitTimeMs()</code></a> /
+ <a href="#getTotalPlayAndWaitTimeMs()"><code>getTotalPlayAndWaitTimeMs()</code></a> and also to <a href="#getJoinTimeRatio()"><code>getJoinTimeRatio()</code></a> + <a href="#getRebufferTimeRatio()"><code>getRebufferTimeRatio()</code></a> + <a href="#getSeekTimeRatio()"><code>getSeekTimeRatio()</code></a>.</div>
+</li>
+</ul>
+<a id="getJoinTimeRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getJoinTimeRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getJoinTimeRatio()</pre>
+<div class="block">Returns the ratio of foreground join time to the total time spent playing and waiting, or
+ <code>0.0</code> if no time was spend playing or waiting. This is equivalent to <a href="#getTotalJoinTimeMs()"><code>getTotalJoinTimeMs()</code></a> / <a href="#getTotalPlayAndWaitTimeMs()"><code>getTotalPlayAndWaitTimeMs()</code></a>.</div>
+</li>
+</ul>
+<a id="getRebufferTimeRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRebufferTimeRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getRebufferTimeRatio()</pre>
+<div class="block">Returns the ratio of rebuffer time to the total time spent playing and waiting, or <code>0.0</code>
+ if no time was spend playing or waiting. This is equivalent to <a href="#getTotalRebufferTimeMs()"><code>getTotalRebufferTimeMs()</code></a> / <a href="#getTotalPlayAndWaitTimeMs()"><code>getTotalPlayAndWaitTimeMs()</code></a>.</div>
+</li>
+</ul>
+<a id="getSeekTimeRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSeekTimeRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getSeekTimeRatio()</pre>
+<div class="block">Returns the ratio of seek time to the total time spent playing and waiting, or <code>0.0</code> if
+ no time was spend playing or waiting. This is equivalent to <a href="#getTotalSeekTimeMs()"><code>getTotalSeekTimeMs()</code></a> /
+ <a href="#getTotalPlayAndWaitTimeMs()"><code>getTotalPlayAndWaitTimeMs()</code></a>.</div>
+</li>
+</ul>
+<a id="getRebufferRate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRebufferRate</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getRebufferRate()</pre>
+<div class="block">Returns the rate of rebuffer events, in rebuffers per play time second, or <code>0.0</code> if no
+ time was spend playing. This is equivalent to 1.0 / <a href="#getMeanTimeBetweenRebuffers()"><code>getMeanTimeBetweenRebuffers()</code></a>.</div>
+</li>
+</ul>
+<a id="getMeanTimeBetweenRebuffers()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanTimeBetweenRebuffers</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanTimeBetweenRebuffers()</pre>
+<div class="block">Returns the mean play time between rebuffer events, in seconds. This is equivalent to 1.0 /
+ <a href="#getRebufferRate()"><code>getRebufferRate()</code></a>. Note that this may return <a href="https://developer.android.com/reference/java/lang/Float.html#POSITIVE_INFINITY" title="class or interface in java.lang" class="externalLink" target="_top"><code>Float.POSITIVE_INFINITY</code></a>.</div>
+</li>
+</ul>
+<a id="getMeanInitialVideoFormatHeight()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanInitialVideoFormatHeight</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanInitialVideoFormatHeight()</pre>
+<div class="block">Returns the mean initial video format height, in pixels, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no video
+ format data is available.</div>
+</li>
+</ul>
+<a id="getMeanInitialVideoFormatBitrate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanInitialVideoFormatBitrate</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanInitialVideoFormatBitrate()</pre>
+<div class="block">Returns the mean initial video format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
+ no video format data is available.</div>
+</li>
+</ul>
+<a id="getMeanInitialAudioFormatBitrate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanInitialAudioFormatBitrate</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanInitialAudioFormatBitrate()</pre>
+<div class="block">Returns the mean initial audio format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
+ no audio format data is available.</div>
+</li>
+</ul>
+<a id="getMeanVideoFormatHeight()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanVideoFormatHeight</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanVideoFormatHeight()</pre>
+<div class="block">Returns the mean video format height, in pixels, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no video format
+ data is available. This is a weighted average taking the time the format was used for playback
+ into account.</div>
+</li>
+</ul>
+<a id="getMeanVideoFormatBitrate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanVideoFormatBitrate</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanVideoFormatBitrate()</pre>
+<div class="block">Returns the mean video format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no
+ video format data is available. This is a weighted average taking the time the format was used
+ for playback into account.</div>
+</li>
+</ul>
+<a id="getMeanAudioFormatBitrate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanAudioFormatBitrate</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanAudioFormatBitrate()</pre>
+<div class="block">Returns the mean audio format bitrate, in bits per second, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no
+ audio format data is available. This is a weighted average taking the time the format was used
+ for playback into account.</div>
+</li>
+</ul>
+<a id="getMeanBandwidth()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanBandwidth</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMeanBandwidth()</pre>
+<div class="block">Returns the mean network bandwidth based on transfer measurements, in bits per second, or
+ <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if no transfer data is available.</div>
+</li>
+</ul>
+<a id="getDroppedFramesRate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDroppedFramesRate</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getDroppedFramesRate()</pre>
+<div class="block">Returns the mean rate at which video frames are dropped, in dropped frames per play time
+ second, or <code>0.0</code> if no time was spent playing.</div>
+</li>
+</ul>
+<a id="getAudioUnderrunRate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAudioUnderrunRate</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getAudioUnderrunRate()</pre>
+<div class="block">Returns the mean rate at which audio underruns occurred, in underruns per play time second, or
+ <code>0.0</code> if no time was spent playing.</div>
+</li>
+</ul>
+<a id="getFatalErrorRatio()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFatalErrorRatio</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getFatalErrorRatio()</pre>
+<div class="block">Returns the ratio of foreground playbacks which experienced fatal errors, or <code>0.0</code> if no
+ playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getFatalErrorRate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFatalErrorRate</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getFatalErrorRate()</pre>
+<div class="block">Returns the rate of fatal errors, in errors per play time second, or <code>0.0</code> if no time was
+ spend playing. This is equivalent to 1.0 / <a href="#getMeanTimeBetweenFatalErrors()"><code>getMeanTimeBetweenFatalErrors()</code></a>.</div>
+</li>
+</ul>
+<a id="getMeanTimeBetweenFatalErrors()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanTimeBetweenFatalErrors</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanTimeBetweenFatalErrors()</pre>
+<div class="block">Returns the mean play time between fatal errors, in seconds. This is equivalent to 1.0 / <a href="#getFatalErrorRate()"><code>getFatalErrorRate()</code></a>. Note that this may return <a href="https://developer.android.com/reference/java/lang/Float.html#POSITIVE_INFINITY" title="class or interface in java.lang" class="externalLink" target="_top"><code>Float.POSITIVE_INFINITY</code></a>.</div>
+</li>
+</ul>
+<a id="getMeanNonFatalErrorCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMeanNonFatalErrorCount</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanNonFatalErrorCount()</pre>
+<div class="block">Returns the mean number of non-fatal errors per foreground playback, or <code>0.0</code> if no
+ playback has been in foreground.</div>
+</li>
+</ul>
+<a id="getNonFatalErrorRate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNonFatalErrorRate</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getNonFatalErrorRate()</pre>
+<div class="block">Returns the rate of non-fatal errors, in errors per play time second, or <code>0.0</code> if no time
+ was spend playing. This is equivalent to 1.0 / <a href="#getMeanTimeBetweenNonFatalErrors()"><code>getMeanTimeBetweenNonFatalErrors()</code></a>.</div>
+</li>
+</ul>
+<a id="getMeanTimeBetweenNonFatalErrors()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getMeanTimeBetweenNonFatalErrors</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getMeanTimeBetweenNonFatalErrors()</pre>
+<div class="block">Returns the mean play time between non-fatal errors, in seconds. This is equivalent to 1.0 /
+ <a href="#getNonFatalErrorRate()"><code>getNonFatalErrorRate()</code></a>. Note that this may return <a href="https://developer.android.com/reference/java/lang/Float.html#POSITIVE_INFINITY" title="class or interface in java.lang" class="externalLink" target="_top"><code>Float.POSITIVE_INFINITY</code></a>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

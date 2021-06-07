@@ -1,0 +1,95 @@
+## => Site Settings
+##############################
+text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
+highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
+url: https://exoplayer.dev
+baseurl:
+title: ExoPlayer
+description: An application level media player for Android
+
+
+## => Link roots
+##############################
+release_v2: https://github.com/google/ExoPlayer/tree/release-v2
+exo_sdk: /doc/reference/com/google/android/exoplayer2
+android_sdk: https://developer.android.com/reference
+google_sdk: https://developers.google.com
+
+
+## => GitHub Repository (if the site is hosted by GitHub)
+##############################
+repository: google/ExoPlayer
+repository_tree: gh-pages
+
+
+## => Author and Social
+##############################
+author:
+  type      : "organization"
+  name      : "ExoPlayer"
+  github    : "google/ExoPlayer"
+  medium    : "google-exoplayer"
+
+## => Paths
+##############################
+paths:
+  root    : # title link url, "/" (default)
+  home    : # home layout url, "/" (default)
+  archive : # "/archive.html" (default)
+  rss     : # "/feed.xml" (default)
+
+
+## => Post
+##############################
+excerpt_separator: <!--more-->
+
+
+## => Analytics
+##############################
+analytics:
+  provider: google
+  google:
+    tracking_id : UA-68257324-1
+    anonymize_ip: true
+
+
+## => Search
+##############################
+search:
+  provider: google # "default" (default), false, "google", "custom"
+
+  ## Google Custom Search Engine
+  google:
+    custom_search_engine_id: 009764199895742571316:nuhckqry2_e
+
+
+## => Build
+##############################
+markdown    : kramdown
+highlighter : rouge
+permalink   : date
+
+exclude:
+  - Gemfile
+  - README.md
+  - vendor
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      footer: true
+      show_date: false
+      layout: article
+      sidebar:
+        nav: en
+
+
+## => Plugins
+##############################
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-redirect-from
+  - jemoji

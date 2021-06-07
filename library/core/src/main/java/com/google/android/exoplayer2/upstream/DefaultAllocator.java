@@ -15,26 +15,28 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.max;
+
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * Default implementation of {@link Allocator}.
- */
+/** Default implementation of {@link Allocator}. */
 public final class DefaultAllocator implements Allocator {
 
   private static final int AVAILABLE_EXTRA_CAPACITY = 100;
 
   private final boolean trimOnReset;
   private final int individualAllocationSize;
-  private final byte[] initialAllocationBlock;
+  @Nullable private final byte[] initialAllocationBlock;
   private final Allocation[] singleAllocationReleaseHolder;
 
   private int targetBufferSize;
   private int allocatedCount;
   private int availableCount;
-  private Allocation[] availableAllocations;
+  private @NullableType Allocation[] availableAllocations;
 
   /**
    * Constructs an instance without creating any {@link Allocation}s up front.
@@ -49,16 +51,16 @@ public final class DefaultAllocator implements Allocator {
 
   /**
    * Constructs an instance with some {@link Allocation}s created up front.
-   * <p>
-   * Note: {@link Allocation}s created up front will never be discarded by {@link #trim()}.
+   *
+   * <p>Note: {@link Allocation}s created up front will never be discarded by {@link #trim()}.
    *
    * @param trimOnReset Whether memory is freed when the allocator is reset. Should be true unless
    *     the allocator will be re-used by multiple player instances.
    * @param individualAllocationSize The length of each individual {@link Allocation}.
    * @param initialAllocationCount The number of allocations to create up front.
    */
-  public DefaultAllocator(boolean trimOnReset, int individualAllocationSize,
-      int initialAllocationCount) {
+  public DefaultAllocator(
+      boolean trimOnReset, int individualAllocationSize, int initialAllocationCount) {
     Assertions.checkArgument(individualAllocationSize > 0);
     Assertions.checkArgument(initialAllocationCount >= 0);
     this.trimOnReset = trimOnReset;
@@ -96,7 +98,7 @@ public final class DefaultAllocator implements Allocator {
     allocatedCount++;
     Allocation allocation;
     if (availableCount > 0) {
-      allocation = availableAllocations[--availableCount];
+      allocation = Assertions.checkNotNull(availableAllocations[--availableCount]);
       availableAllocations[availableCount] = null;
     } else {
       allocation = new Allocation(new byte[individualAllocationSize], 0);
@@ -113,13 +115,12 @@ public final class DefaultAllocator implements Allocator {
   @Override
   public synchronized void release(Allocation[] allocations) {
     if (availableCount + allocations.length >= availableAllocations.length) {
-      availableAllocations = Arrays.copyOf(availableAllocations,
-          Math.max(availableAllocations.length * 2, availableCount + allocations.length));
+      availableAllocations =
+          Arrays.copyOf(
+              availableAllocations,
+              max(availableAllocations.length * 2, availableCount + allocations.length));
     }
     for (Allocation allocation : allocations) {
-      // Weak sanity check that the allocation probably originated from this pool.
-      Assertions.checkArgument(allocation.data == initialAllocationBlock
-          || allocation.data.length == individualAllocationSize);
       availableAllocations[availableCount++] = allocation;
     }
     allocatedCount -= allocations.length;
@@ -130,7 +131,7 @@ public final class DefaultAllocator implements Allocator {
   @Override
   public synchronized void trim() {
     int targetAllocationCount = Util.ceilDivide(targetBufferSize, individualAllocationSize);
-    int targetAvailableCount = Math.max(0, targetAllocationCount - allocatedCount);
+    int targetAvailableCount = max(0, targetAllocationCount - allocatedCount);
     if (targetAvailableCount >= availableCount) {
       // We're already at or below the target.
       return;
@@ -143,11 +144,11 @@ public final class DefaultAllocator implements Allocator {
       int lowIndex = 0;
       int highIndex = availableCount - 1;
       while (lowIndex <= highIndex) {
-        Allocation lowAllocation = availableAllocations[lowIndex];
+        Allocation lowAllocation = Assertions.checkNotNull(availableAllocations[lowIndex]);
         if (lowAllocation.data == initialAllocationBlock) {
           lowIndex++;
         } else {
-          Allocation highAllocation = availableAllocations[highIndex];
+          Allocation highAllocation = Assertions.checkNotNull(availableAllocations[highIndex]);
           if (highAllocation.data != initialAllocationBlock) {
             highIndex--;
           } else {
@@ -157,7 +158,7 @@ public final class DefaultAllocator implements Allocator {
         }
       }
       // lowIndex is the index of the first allocation not backed by an initial block.
-      targetAvailableCount = Math.max(targetAvailableCount, lowIndex);
+      targetAvailableCount = max(targetAvailableCount, lowIndex);
       if (targetAvailableCount >= availableCount) {
         // We're already at or below the target.
         return;
@@ -178,5 +179,4 @@ public final class DefaultAllocator implements Allocator {
   public int getIndividualAllocationLength() {
     return individualAllocationSize;
   }
-
 }

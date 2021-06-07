@@ -1,0 +1,385 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>com.google.android.exoplayer2.extractor.ts (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="com.google.android.exoplayer2.extractor.ts (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li class="navBarCell1Rev">Package</li>
+<li>Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<main role="main">
+<div class="header">
+<h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.extractor.ts</h1>
+</div>
+<div class="contentContainer">
+<ul class="blockList">
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a></th>
+<td class="colLast">
+<div class="block">Extracts individual samples from an elementary media stream, preserving original order.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">SectionPayloadReader</a></th>
+<td class="colLast">
+<div class="block">Reads section data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></th>
+<td class="colLast">
+<div class="block">Parses TS packet payload data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a></th>
+<td class="colLast">
+<div class="block">Factory of <a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> instances.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Ac3Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts">Ac3Extractor</a></th>
+<td class="colLast">
+<div class="block">Extracts data from (E-)AC-3 bitstreams.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Ac3Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">Ac3Reader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous (E-)AC-3 byte stream and extracts individual samples.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Ac4Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts">Ac4Extractor</a></th>
+<td class="colLast">
+<div class="block">Extracts data from AC-4 bitstreams.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Ac4Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">Ac4Reader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous AC-4 byte stream and extracts individual samples.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts">AdtsExtractor</a></th>
+<td class="colLast">
+<div class="block">Extracts data from AAC bit streams with ADTS framing.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts">AdtsReader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous ADTS byte stream and extracts individual frames.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts">DefaultTsPayloadReaderFactory</a></th>
+<td class="colLast">
+<div class="block">Default <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.Factory</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts">DtsReader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous DTS byte stream and extracts individual samples.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="DvbSubtitleReader.html" title="class in com.google.android.exoplayer2.extractor.ts">DvbSubtitleReader</a></th>
+<td class="colLast">
+<div class="block">Parses DVB subtitle data and extracts individual frames.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="H262Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H262Reader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous H262 byte stream and extracts individual frames.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="H263Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H263Reader</a></th>
+<td class="colLast">
+<div class="block">Parses an ISO/IEC 14496-2 (MPEG-4 Part 2) or ITU-T Recommendation H.263 byte stream and extracts
+ individual frames.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H264Reader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous H264 byte stream and extracts individual frames.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="H265Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H265Reader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous H.265 byte stream and extracts individual frames.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Id3Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">Id3Reader</a></th>
+<td class="colLast">
+<div class="block">Parses ID3 data and extracts individual text information frames.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts">LatmReader</a></th>
+<td class="colLast">
+<div class="block">Parses and extracts samples from an AAC/LATM elementary stream.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="MpegAudioReader.html" title="class in com.google.android.exoplayer2.extractor.ts">MpegAudioReader</a></th>
+<td class="colLast">
+<div class="block">Parses a continuous MPEG Audio byte stream and extracts individual frames.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="PassthroughSectionPayloadReader.html" title="class in com.google.android.exoplayer2.extractor.ts">PassthroughSectionPayloadReader</a></th>
+<td class="colLast">
+<div class="block">A <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a> that directly outputs the section bytes as sample data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="PesReader.html" title="class in com.google.android.exoplayer2.extractor.ts">PesReader</a></th>
+<td class="colLast">
+<div class="block">Parses PES packet data and extracts samples.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="PsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts">PsExtractor</a></th>
+<td class="colLast">
+<div class="block">Extracts data from the MPEG-2 PS container format.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts">SectionReader</a></th>
+<td class="colLast">
+<div class="block">Reads section data packets and feeds the whole sections to a given <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="SeiReader.html" title="class in com.google.android.exoplayer2.extractor.ts">SeiReader</a></th>
+<td class="colLast">
+<div class="block">Consumes SEI buffers, outputting contained CEA-608/708 messages to a <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts">TsExtractor</a></th>
+<td class="colLast">
+<div class="block">Extracts data from the MPEG-2 TS container format.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TsPayloadReader.DvbSubtitleInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.DvbSubtitleInfo</a></th>
+<td class="colLast">
+<div class="block">Holds information about a DVB subtitle, as defined in ETSI EN 300 468 V1.11.1 section 6.2.41.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a></th>
+<td class="colLast">
+<div class="block">Holds information associated with a PMT entry.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a></th>
+<td class="colLast">
+<div class="block">Generates track ids for initializing <a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a>s' <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TsUtil.html" title="class in com.google.android.exoplayer2.extractor.ts">TsUtil</a></th>
+<td class="colLast">
+<div class="block">Utilities method for extracting MPEG-TS streams.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="AdtsExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">AdtsExtractor.Flags</a></th>
+<td class="colLast">
+<div class="block">Flags controlling the behavior of the extractor.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DefaultTsPayloadReaderFactory.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">DefaultTsPayloadReaderFactory.Flags</a></th>
+<td class="colLast">
+<div class="block">Flags controlling elementary stream readers' behavior.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TsExtractor.Mode.html" title="annotation in com.google.android.exoplayer2.extractor.ts">TsExtractor.Mode</a></th>
+<td class="colLast">
+<div class="block">Modes for the extractor.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Flags</a></th>
+<td class="colLast">
+<div class="block">Contextual flags indicating the presence of indicators in the TS packet or PES packet headers.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li class="navBarCell1Rev">Package</li>
+<li>Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

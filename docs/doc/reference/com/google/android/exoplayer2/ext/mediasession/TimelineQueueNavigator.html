@@ -1,0 +1,648 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>TimelineQueueNavigator (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="TimelineQueueNavigator (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":6,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ext.mediasession</a></div>
+<h2 title="Class TimelineQueueNavigator" class="title">Class TimelineQueueNavigator</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code>, <code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+</dl>
+<hr>
+<pre>public abstract class <span class="typeNameLabel">TimelineQueueNavigator</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></pre>
+<div class="block">An abstract implementation of the <a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueNavigator</code></a> that maps the
+ windows of a <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>'s <a href="../../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> to the media session queue.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_QUEUE_SIZE">DEFAULT_MAX_QUEUE_SIZE</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.QueueNavigator">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.ext.mediasession.<a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></h3>
+<code><a href="MediaSessionConnector.QueueNavigator.html#ACTIONS">ACTIONS</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.support.v4.media.session.MediaSessionCompat)">TimelineQueueNavigator</a></span>&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance for a given <code>MediaSessionCompat</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.support.v4.media.session.MediaSessionCompat,int)">TimelineQueueNavigator</a></span>&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession,
+                      int&nbsp;maxQueueSize)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance for a given <code>MediaSessionCompat</code> and maximum queue size.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getActiveQueueItemId(com.google.android.exoplayer2.Player)">getActiveQueueItemId</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem.UNKNOWN_ID</code> if the active item is unknown.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>abstract android.support.v4.media.MediaDescriptionCompat</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaDescription(com.google.android.exoplayer2.Player,int)">getMediaDescription</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                   int&nbsp;windowIndex)</code></th>
+<td class="colLast">
+<div class="block">Gets the <code>MediaDescriptionCompat</code> for a given timeline window index.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedQueueNavigatorActions(com.google.android.exoplayer2.Player)">getSupportedQueueNavigatorActions</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Returns the actions which are supported by the navigator.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCommand(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">onCommand</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+         <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;command,
+         <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras,
+         <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" title="class or interface in android.os" class="externalLink" target="_top">ResultReceiver</a>&nbsp;cb)</code></th>
+<td class="colLast">
+<div class="block">See <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCurrentWindowIndexChanged(com.google.android.exoplayer2.Player)">onCurrentWindowIndexChanged</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Called when the current window index changed.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipToNext(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">onSkipToNext</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+            <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
+<td class="colLast">
+<div class="block">See <code>MediaSessionCompat.Callback.onSkipToNext()</code>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipToPrevious(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">onSkipToPrevious</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
+<td class="colLast">
+<div class="block">See <code>MediaSessionCompat.Callback.onSkipToPrevious()</code>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipToQueueItem(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,long)">onSkipToQueueItem</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                 <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                 long&nbsp;id)</code></th>
+<td class="colLast">
+<div class="block">See <code>MediaSessionCompat.Callback.onSkipToQueueItem(long)</code>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.Player)">onTimelineChanged</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Called when the timeline of the player has changed.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="DEFAULT_MAX_QUEUE_SIZE">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_MAX_QUEUE_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_MAX_QUEUE_SIZE</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator.DEFAULT_MAX_QUEUE_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(android.support.v4.media.session.MediaSessionCompat)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TimelineQueueNavigator</h4>
+<pre>public&nbsp;TimelineQueueNavigator&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession)</pre>
+<div class="block">Creates an instance for a given <code>MediaSessionCompat</code>.
+ <p>
+ Equivalent to <code>TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaSession</code> - The <code>MediaSessionCompat</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.support.v4.media.session.MediaSessionCompat,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>TimelineQueueNavigator</h4>
+<pre>public&nbsp;TimelineQueueNavigator&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession,
+                              int&nbsp;maxQueueSize)</pre>
+<div class="block">Creates an instance for a given <code>MediaSessionCompat</code> and maximum queue size.
+ <p>
+ If the number of windows in the <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>'s <a href="../../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> exceeds <code>maxQueueSize</code>,
+ the media session queue will correspond to <code>maxQueueSize</code> windows centered on the one
+ currently being played.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaSession</code> - The <code>MediaSessionCompat</code>.</dd>
+<dd><code>maxQueueSize</code> - The maximum queue size.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getMediaDescription(com.google.android.exoplayer2.Player,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMediaDescription</h4>
+<pre class="methodSignature">public abstract&nbsp;android.support.v4.media.MediaDescriptionCompat&nbsp;getMediaDescription&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                                                                    int&nbsp;windowIndex)</pre>
+<div class="block">Gets the <code>MediaDescriptionCompat</code> for a given timeline window index.
+
+ <p>Often artworks and icons need to be loaded asynchronously. In such a case, return a <code>MediaDescriptionCompat</code> without the images, load your images asynchronously off the main thread
+ and then call <a href="MediaSessionConnector.html#invalidateMediaSessionQueue()"><code>MediaSessionConnector.invalidateMediaSessionQueue()</code></a> to make the connector
+ update the queue by calling this method again.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The current player.</dd>
+<dd><code>windowIndex</code> - The timeline window index for which to provide a description.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <code>MediaDescriptionCompat</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getSupportedQueueNavigatorActions(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSupportedQueueNavigatorActions</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getSupportedQueueNavigatorActions&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#getSupportedQueueNavigatorActions(com.google.android.exoplayer2.Player)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">Returns the actions which are supported by the navigator. The supported actions must be a
+ bitmask combined out of <code>PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_NEXT</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#getSupportedQueueNavigatorActions(com.google.android.exoplayer2.Player)">getSupportedQueueNavigatorActions</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The bitmask of the supported media actions.</dd>
+</dl>
+</li>
+</ul>
+<a id="onTimelineChanged(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTimelineChanged</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;onTimelineChanged&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onTimelineChanged(com.google.android.exoplayer2.Player)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">Called when the timeline of the player has changed.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#onTimelineChanged(com.google.android.exoplayer2.Player)">onTimelineChanged</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+</dl>
+</li>
+</ul>
+<a id="onCurrentWindowIndexChanged(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onCurrentWindowIndexChanged</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;onCurrentWindowIndexChanged&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onCurrentWindowIndexChanged(com.google.android.exoplayer2.Player)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">Called when the current window index changed.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#onCurrentWindowIndexChanged(com.google.android.exoplayer2.Player)">onCurrentWindowIndexChanged</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+</dl>
+</li>
+</ul>
+<a id="getActiveQueueItemId(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getActiveQueueItemId</h4>
+<pre class="methodSignature">public final&nbsp;long&nbsp;getActiveQueueItemId&#8203;(@Nullable
+                                       <a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#getActiveQueueItemId(com.google.android.exoplayer2.Player)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem.UNKNOWN_ID</code> if the active item is unknown.
+
+ <p>To let the connector publish metadata for the active queue item, the queue item with the
+ returned id must be available in the list of items returned by <code>MediaControllerCompat.getQueue()</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#getActiveQueueItemId(com.google.android.exoplayer2.Player)">getActiveQueueItemId</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The id of the active queue item.</dd>
+</dl>
+</li>
+</ul>
+<a id="onSkipToPrevious(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSkipToPrevious</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onSkipToPrevious&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                             <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToPrevious(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">See <code>MediaSessionCompat.Callback.onSkipToPrevious()</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToPrevious(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">onSkipToPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+</dl>
+</li>
+</ul>
+<a id="onSkipToQueueItem(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSkipToQueueItem</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onSkipToQueueItem&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                              <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                              long&nbsp;id)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToQueueItem(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,long)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">See <code>MediaSessionCompat.Callback.onSkipToQueueItem(long)</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToQueueItem(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,long)">onSkipToQueueItem</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+</dl>
+</li>
+</ul>
+<a id="onSkipToNext(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSkipToNext</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onSkipToNext&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                         <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToNext(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">MediaSessionConnector.QueueNavigator</a></code></span></div>
+<div class="block">See <code>MediaSessionCompat.Callback.onSkipToNext()</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToNext(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">onSkipToNext</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+</dl>
+</li>
+</ul>
+<a id="onCommand(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onCommand</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;onCommand&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                         <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;command,
+                         @Nullable
+                         <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras,
+                         @Nullable
+                         <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" title="class or interface in android.os" class="externalLink" target="_top">ResultReceiver</a>&nbsp;cb)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CommandReceiver.html#onCommand(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">MediaSessionConnector.CommandReceiver</a></code></span></div>
+<div class="block">See <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>. The
+ receiver may handle the command, but is not required to do so. Changes to the player should
+ be made via the <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="MediaSessionConnector.CommandReceiver.html#onCommand(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">onCommand</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player connected to the media session.</dd>
+<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
+     changes to the player.</dd>
+<dd><code>command</code> - The command name.</dd>
+<dd><code>extras</code> - Optional parameters for the command, may be null.</dd>
+<dd><code>cb</code> - A result receiver to which a result may be sent by the command, may be null.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the receiver handled the command.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

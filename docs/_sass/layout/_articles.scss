@@ -1,0 +1,17 @@
+.layout--articles {
+  margin: map-get($spacers, 4) 0;
+  margin-top: map-get($spacers, 5);
+  @include media-breakpoint-down(md) {
+    margin-top: map-get($spacers, 4);
+  }
+  .card__header {
+    font-size: map-get($base, font-size);
+  }
+  .card__image {
+    & > .overlay {
+      &, .card__header {
+        font-size: map-get($base, font-size-sm);
+      }
+    }
+  }
+}

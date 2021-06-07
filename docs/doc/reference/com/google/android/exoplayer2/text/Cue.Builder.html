@@ -1,0 +1,974 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>Cue.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="Cue.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.text</a></div>
+<h2 title="Class Cue.Builder" class="title">Class Cue.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.text.Cue.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">Cue.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">A builder for <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cue</code></a> objects.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Build the cue.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearWindowColor()">clearWindowColor</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Cue.html#windowColorSet"><code>Cue.windowColorSet</code></a> to false.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBitmap()">getBitmap</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the cue image.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBitmapHeight()">getBitmapHeight</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the bitmap height as a fraction of the viewport size.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLine()">getLine</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the position of the <code>lineAnchor</code> of the cue box within the viewport in the
+ direction orthogonal to the writing direction.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLineAnchor()">getLineAnchor</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLineType()">getLineType</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the type of the value of <a href="#getLine()"><code>getLine()</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionAnchor()">getPositionAnchor</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSize()">getSize</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the size of the cue box in the writing direction specified as a fraction of the viewport
+ size in that direction.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getText()">getText</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the cue text.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTextAlignment()">getTextAlignment</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the alignment of the cue text within the cue box, or null if the alignment is undefined.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTextSize()">getTextSize</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the default text size for this cue's text.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTextSizeType()">getTextSizeType</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the default text size type for this cue's text.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVerticalType()">getVerticalType</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the vertical formatting for this Cue.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindowColor()">getWindowColor</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Gets the fill color of the window.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isWindowColorSet()">isWindowColorSet</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns true if the fill color of the window is set.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBitmap(android.graphics.Bitmap)">setBitmap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;bitmap)</code></th>
+<td class="colLast">
+<div class="block">Sets the cue image.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBitmapHeight(float)">setBitmapHeight</a></span>&#8203;(float&nbsp;bitmapHeight)</code></th>
+<td class="colLast">
+<div class="block">Sets the bitmap height as a fraction of the viewport size.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLine(float,int)">setLine</a></span>&#8203;(float&nbsp;line,
+       int&nbsp;lineType)</code></th>
+<td class="colLast">
+<div class="block">Sets the position of the cue box within the viewport in the direction orthogonal to the
+ writing direction.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLineAnchor(int)">setLineAnchor</a></span>&#8203;(int&nbsp;lineAnchor)</code></th>
+<td class="colLast">
+<div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMultiRowAlignment(android.text.Layout.Alignment)">setMultiRowAlignment</a></span>&#8203;(<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;multiRowAlignment)</code></th>
+<td class="colLast">
+<div class="block">Sets the multi-row alignment of the cue.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(float)">setPosition</a></span>&#8203;(float&nbsp;position)</code></th>
+<td class="colLast">
+<div class="block">Sets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionAnchor(int)">setPositionAnchor</a></span>&#8203;(int&nbsp;positionAnchor)</code></th>
+<td class="colLast">
+<div class="block">Sets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShearDegrees(float)">setShearDegrees</a></span>&#8203;(float&nbsp;shearDegrees)</code></th>
+<td class="colLast">
+<div class="block">Sets the shear angle for this Cue.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSize(float)">setSize</a></span>&#8203;(float&nbsp;size)</code></th>
+<td class="colLast">
+<div class="block">Sets the size of the cue box in the writing direction specified as a fraction of the viewport
+ size in that direction.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setText(java.lang.CharSequence)">setText</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text)</code></th>
+<td class="colLast">
+<div class="block">Sets the cue text.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTextAlignment(android.text.Layout.Alignment)">setTextAlignment</a></span>&#8203;(<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment)</code></th>
+<td class="colLast">
+<div class="block">Sets the alignment of the cue text within the cue box.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTextSize(float,int)">setTextSize</a></span>&#8203;(float&nbsp;textSize,
+           int&nbsp;textSizeType)</code></th>
+<td class="colLast">
+<div class="block">Sets the default text size and type for this cue's text.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVerticalType(int)">setVerticalType</a></span>&#8203;(int&nbsp;verticalType)</code></th>
+<td class="colLast">
+<div class="block">Sets the vertical formatting for this Cue.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWindowColor(int)">setWindowColor</a></span>&#8203;(int&nbsp;windowColor)</code></th>
+<td class="colLast">
+<div class="block">Sets the fill color of the window.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setText(java.lang.CharSequence)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setText</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setText&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text)</pre>
+<div class="block">Sets the cue text.
+
+ <p>Note that <code>text</code> may be decorated with styling spans.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#text"><code>Cue.text</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getText()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getText</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;getText()</pre>
+<div class="block">Gets the cue text.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#text"><code>Cue.text</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setBitmap(android.graphics.Bitmap)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setBitmap</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setBitmap&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;bitmap)</pre>
+<div class="block">Sets the cue image.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#bitmap"><code>Cue.bitmap</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getBitmap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBitmap</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;getBitmap()</pre>
+<div class="block">Gets the cue image.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#bitmap"><code>Cue.bitmap</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setTextAlignment(android.text.Layout.Alignment)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTextAlignment</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextAlignment&#8203;(@Nullable
+                                    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment)</pre>
+<div class="block">Sets the alignment of the cue text within the cue box.
+
+ <p>Passing null means the alignment is undefined.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#textAlignment"><code>Cue.textAlignment</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getTextAlignment()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTextAlignment</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;getTextAlignment()</pre>
+<div class="block">Gets the alignment of the cue text within the cue box, or null if the alignment is undefined.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#textAlignment"><code>Cue.textAlignment</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setMultiRowAlignment(android.text.Layout.Alignment)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMultiRowAlignment</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setMultiRowAlignment&#8203;(@Nullable
+                                        <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;multiRowAlignment)</pre>
+<div class="block">Sets the multi-row alignment of the cue.
+
+ <p>Passing null means the alignment is undefined.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#multiRowAlignment"><code>Cue.multiRowAlignment</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setLine(float,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLine</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLine&#8203;(float&nbsp;line,
+                           <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
+                           int&nbsp;lineType)</pre>
+<div class="block">Sets the position of the cue box within the viewport in the direction orthogonal to the
+ writing direction.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#line"><code>Cue.line</code></a>, 
+<a href="Cue.html#lineType"><code>Cue.lineType</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getLine()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLine</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getLine()</pre>
+<div class="block">Gets the position of the <code>lineAnchor</code> of the cue box within the viewport in the
+ direction orthogonal to the writing direction.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#line"><code>Cue.line</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getLineType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLineType</h4>
+<pre class="methodSignature"><a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
+public&nbsp;int&nbsp;getLineType()</pre>
+<div class="block">Gets the type of the value of <a href="#getLine()"><code>getLine()</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#lineType"><code>Cue.lineType</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setLineAnchor(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLineAnchor</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLineAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+                                 int&nbsp;lineAnchor)</pre>
+<div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#lineAnchor"><code>Cue.lineAnchor</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getLineAnchor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLineAnchor</h4>
+<pre class="methodSignature"><a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+public&nbsp;int&nbsp;getLineAnchor()</pre>
+<div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#lineAnchor"><code>Cue.lineAnchor</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setPosition(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPosition</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPosition&#8203;(float&nbsp;position)</pre>
+<div class="block">Sets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#position"><code>Cue.position</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getPosition()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPosition</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getPosition()</pre>
+<div class="block">Gets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#position"><code>Cue.position</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setPositionAnchor(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPositionAnchor</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPositionAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+                                     int&nbsp;positionAnchor)</pre>
+<div class="block">Sets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#positionAnchor"><code>Cue.positionAnchor</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getPositionAnchor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPositionAnchor</h4>
+<pre class="methodSignature"><a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+public&nbsp;int&nbsp;getPositionAnchor()</pre>
+<div class="block">Gets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#positionAnchor"><code>Cue.positionAnchor</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setTextSize(float,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTextSize</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextSize&#8203;(float&nbsp;textSize,
+                               <a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
+                               int&nbsp;textSizeType)</pre>
+<div class="block">Sets the default text size and type for this cue's text.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#textSize"><code>Cue.textSize</code></a>, 
+<a href="Cue.html#textSizeType"><code>Cue.textSizeType</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getTextSizeType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTextSizeType</h4>
+<pre class="methodSignature"><a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
+public&nbsp;int&nbsp;getTextSizeType()</pre>
+<div class="block">Gets the default text size type for this cue's text.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#textSizeType"><code>Cue.textSizeType</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getTextSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTextSize</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getTextSize()</pre>
+<div class="block">Gets the default text size for this cue's text.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#textSize"><code>Cue.textSize</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setSize(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSize</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setSize&#8203;(float&nbsp;size)</pre>
+<div class="block">Sets the size of the cue box in the writing direction specified as a fraction of the viewport
+ size in that direction.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#size"><code>Cue.size</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSize</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getSize()</pre>
+<div class="block">Gets the size of the cue box in the writing direction specified as a fraction of the viewport
+ size in that direction.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#size"><code>Cue.size</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setBitmapHeight(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setBitmapHeight</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setBitmapHeight&#8203;(float&nbsp;bitmapHeight)</pre>
+<div class="block">Sets the bitmap height as a fraction of the viewport size.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#bitmapHeight"><code>Cue.bitmapHeight</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getBitmapHeight()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBitmapHeight</h4>
+<pre class="methodSignature">public&nbsp;float&nbsp;getBitmapHeight()</pre>
+<div class="block">Gets the bitmap height as a fraction of the viewport size.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#bitmapHeight"><code>Cue.bitmapHeight</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setWindowColor(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setWindowColor</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setWindowColor&#8203;(int&nbsp;windowColor)</pre>
+<div class="block">Sets the fill color of the window.
+
+ <p>Also sets <a href="Cue.html#windowColorSet"><code>Cue.windowColorSet</code></a> to true.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#windowColor"><code>Cue.windowColor</code></a>, 
+<a href="Cue.html#windowColorSet"><code>Cue.windowColorSet</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="clearWindowColor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearWindowColor</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;clearWindowColor()</pre>
+<div class="block">Sets <a href="Cue.html#windowColorSet"><code>Cue.windowColorSet</code></a> to false.</div>
+</li>
+</ul>
+<a id="isWindowColorSet()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isWindowColorSet</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isWindowColorSet()</pre>
+<div class="block">Returns true if the fill color of the window is set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#windowColorSet"><code>Cue.windowColorSet</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getWindowColor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getWindowColor</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getWindowColor()</pre>
+<div class="block">Gets the fill color of the window.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#windowColor"><code>Cue.windowColor</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setVerticalType(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVerticalType</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setVerticalType&#8203;(<a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
+                                   int&nbsp;verticalType)</pre>
+<div class="block">Sets the vertical formatting for this Cue.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#verticalType"><code>Cue.verticalType</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="setShearDegrees(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShearDegrees</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setShearDegrees&#8203;(float&nbsp;shearDegrees)</pre>
+<div class="block">Sets the shear angle for this Cue.</div>
+</li>
+</ul>
+<a id="getVerticalType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVerticalType</h4>
+<pre class="methodSignature"><a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
+public&nbsp;int&nbsp;getVerticalType()</pre>
+<div class="block">Gets the vertical formatting for this Cue.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="Cue.html#verticalType"><code>Cue.verticalType</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="build()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&nbsp;build()</pre>
+<div class="block">Build the cue.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
-/**
- * Thrown when a libvpx decoder error occurs.
- */
-public class VpxDecoderException extends Exception {
+import com.google.android.exoplayer2.decoder.DecoderException;
+
+/** Thrown when a libvpx decoder error occurs. */
+public final class VpxDecoderException extends DecoderException {
 
   /* package */ VpxDecoderException(String message) {
     super(message);

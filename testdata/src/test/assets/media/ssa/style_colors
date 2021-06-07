@@ -1,0 +1,26 @@
+[Script Info]
+Title: Coloring
+Script Type: V4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name                         ,PrimaryColour
+Style: PrimaryColourStyleHexRed      ,&H000000FF
+Style: PrimaryColourStyleHexYellow   ,&H0000FFFF
+Style: PrimaryColourStyleHexGreen    ,&HFF00
+Style: PrimaryColourStyleHexAlpha    ,&HA00000FF
+Style: PrimaryColourStyleDecimal     ,16711680
+Style: PrimaryColourStyleDecimalAlpha,2164195328
+Style: PrimaryColourStyleInvalid     ,blue
+
+
+[Events]
+Format:   Start     ,End       ,Style                         ,Text
+Dialogue: 0:00:01.00,0:00:02.00,PrimaryColourStyleHexRed      ,First line in RED (&H000000FF).
+Dialogue: 0:00:03.00,0:00:04.00,PrimaryColourStyleHexYellow   ,Second line in YELLOW (&H0000FFFF).
+Dialogue: 0:00:05.00,0:00:06.00,PrimaryColourStyleHexGreen    ,Third line in GREEN (leading zeros &HFF00).
+Dialogue: 0:00:07.00,0:00:08.00,PrimaryColourStyleHexAlpha    ,Fourth line in RED with alpha (&H400000FF).
+Dialogue: 0:00:09.00,0:00:10.00,PrimaryColourStyleDecimal     ,Fifth line in BLUE (16711680).
+Dialogue: 0:00:11.00,0:00:12.00,PrimaryColourStyleDecimalAlpha,Sixth line in BLUE with alpha (2164195328).
+Dialogue: 0:00:13.00,0:00:14.00,PrimaryColourInvalid          ,Seventh line with invalid color.

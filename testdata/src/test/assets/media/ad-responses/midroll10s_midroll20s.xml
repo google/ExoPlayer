@@ -1,0 +1,64 @@
+<vmap:VMAP xmlns:vmap="http://www.iab.net/videosuite/vmap" version="1.0">
+  <vmap:AdBreak timeOffset="00:00:10.000" breakType="linear" breakId="midroll-1">
+    <vmap:AdSource id="midroll-1-ad-1" allowMultipleAds="false" followRedirects="true">
+      <vmap:VASTAdData>
+        <VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd" version="3.0">
+          <Ad id="710742616">
+            <InLine>
+              <AdSystem>GDFP</AdSystem>
+              <AdTitle>Midroll</AdTitle>
+              <Description>
+                <![CDATA[ Midroll ad ]]>
+              </Description>
+              <Creatives>
+                <Creative id="57861202456" sequence="1">
+                  <Linear>
+                    <Duration>00:00:05</Duration>
+                    <MediaFiles>
+                      <MediaFile id="GDFP" delivery="progressive" width="640" height="360" type="video/mp4" bitrate="450" scalable="true" maintainAspectRatio="true">
+                        <![CDATA[
+file:///android_asset/media/mp4/midroll-5s.mp4
+]]>
+                      </MediaFile>
+                    </MediaFiles>
+                  </Linear>
+                </Creative>
+              </Creatives>
+            </InLine>
+          </Ad>
+        </VAST>
+      </vmap:VASTAdData>
+    </vmap:AdSource>
+  </vmap:AdBreak>
+  <vmap:AdBreak timeOffset="00:00:20.000" breakType="linear" breakId="midroll-2">
+    <vmap:AdSource id="midroll-2-ad-1" allowMultipleAds="false" followRedirects="true">
+      <vmap:VASTAdData>
+        <VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd" version="3.0">
+          <Ad id="710742616">
+            <InLine>
+              <AdSystem>GDFP</AdSystem>
+              <AdTitle>Midroll</AdTitle>
+              <Description>
+                <![CDATA[ Midroll ad ]]>
+              </Description>
+              <Creatives>
+                <Creative id="57861202456" sequence="1">
+                  <Linear>
+                    <Duration>00:00:05</Duration>
+                    <MediaFiles>
+                      <MediaFile id="GDFP" delivery="progressive" width="640" height="360" type="video/mp4" bitrate="450" scalable="true" maintainAspectRatio="true">
+                        <![CDATA[
+file:///android_asset/media/mp4/midroll-5s.mp4
+]]>
+                      </MediaFile>
+                    </MediaFiles>
+                  </Linear>
+                </Creative>
+              </Creatives>
+            </InLine>
+          </Ad>
+        </VAST>
+      </vmap:VASTAdData>
+    </vmap:AdSource>
+  </vmap:AdBreak>
+</vmap:VMAP>

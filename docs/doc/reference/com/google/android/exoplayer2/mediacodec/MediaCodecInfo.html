@@ -1,0 +1,920 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>MediaCodecInfo (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="MediaCodecInfo (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":9,"i13":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.mediacodec</a></div>
+<h2 title="Class MediaCodecInfo" class="title">Class MediaCodecInfo</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.mediacodec.MediaCodecInfo</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">MediaCodecInfo</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Information about a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> for a given mime type.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adaptive">adaptive</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the decoder supports seamless resolution switches.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecCapabilities</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#capabilities">capabilities</a></span></code></th>
+<td class="colLast">
+<div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if not
+ known.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecMimeType">codecMimeType</a></span></code></th>
+<td class="colLast">
+<div class="block">The MIME type that the codec uses for media of type <a href="#mimeType"><code>mimeType</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hardwareAccelerated">hardwareAccelerated</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the codec is hardware accelerated.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_SUPPORTED_INSTANCES_UNKNOWN">MAX_SUPPORTED_INSTANCES_UNKNOWN</a></span></code></th>
+<td class="colLast">
+<div class="block">The value returned by <a href="#getMaxSupportedInstances()"><code>getMaxSupportedInstances()</code></a> if the upper bound on the maximum
+ number of supported instances is unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mimeType">mimeType</a></span></code></th>
+<td class="colLast">
+<div class="block">The MIME type handled by the codec.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#name">name</a></span></code></th>
+<td class="colLast">
+<div class="block">The name of the decoder.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#secure">secure</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the decoder is secure.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#softwareOnly">softwareOnly</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the codec is software only.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TAG">TAG</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tunneling">tunneling</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the decoder supports tunneling.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#vendor">vendor</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the codec is from the vendor.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/Point.html" title="class or interface in android.graphics" class="externalLink" target="_top">Point</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#alignVideoSizeV21(int,int)">alignVideoSizeV21</a></span>&#8203;(int&nbsp;width,
+                 int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block">Returns the smallest video size greater than or equal to a specified size that also satisfies
+ the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>'s width and height alignment requirements.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#canReuseCodec(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">canReuseCodec</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+             <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code></th>
+<td class="colLast">
+<div class="block">Evaluates whether it's possible to reuse an instance of this decoder that's currently decoding
+ <code>oldFormat</code> to decode <code>newFormat</code> instead.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxSupportedInstances()">getMaxSupportedInstances</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns an upper bound on the maximum number of supported instances, or <a href="#MAX_SUPPORTED_INSTANCES_UNKNOWN"><code>MAX_SUPPORTED_INSTANCES_UNKNOWN</code></a> if unknown.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecProfileLevel</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProfileLevels()">getProfileLevels</a></span>()</code></th>
+<td class="colLast">
+<div class="block">The profile levels supported by the decoder.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAudioChannelCountSupportedV21(int)">isAudioChannelCountSupportedV21</a></span>&#8203;(int&nbsp;channelCount)</code></th>
+<td class="colLast">
+<div class="block">Whether the decoder supports audio with a given channel count.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAudioSampleRateSupportedV21(int)">isAudioSampleRateSupportedV21</a></span>&#8203;(int&nbsp;sampleRate)</code></th>
+<td class="colLast">
+<div class="block">Whether the decoder supports audio with a given sample rate.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCodecSupported(com.google.android.exoplayer2.Format)">isCodecSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Whether the decoder supports the codec of the given <code>format</code>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFormatSupported(com.google.android.exoplayer2.Format)">isFormatSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the decoder may support decoding the given <code>format</code>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isHdr10PlusOutOfBandMetadataSupported()">isHdr10PlusOutOfBandMetadataSupported</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Whether the codec handles HDR10+ out-of-band metadata.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format)">isSeamlessAdaptationSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Returns whether it may be possible to adapt an instance of this decoder to playing a different
+ format when the codec is configured to play media in the specified <code>format</code>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,boolean)">isSeamlessAdaptationSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                             <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
+                             boolean&nbsp;isNewFormatComplete)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#canReuseCodec(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)"><code>canReuseCodec(com.google.android.exoplayer2.Format, com.google.android.exoplayer2.Format)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isVideoSizeAndRateSupportedV21(int,int,double)">isVideoSizeAndRateSupportedV21</a></span>&#8203;(int&nbsp;width,
+                              int&nbsp;height,
+                              double&nbsp;frameRate)</code></th>
+<td class="colLast">
+<div class="block">Whether the decoder supports video with a given width, height and frame rate.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInstance(java.lang.String,java.lang.String,java.lang.String,android.media.MediaCodecInfo.CodecCapabilities,boolean,boolean,boolean,boolean,boolean)">newInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecMimeType,
+           <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecCapabilities</a>&nbsp;capabilities,
+           boolean&nbsp;hardwareAccelerated,
+           boolean&nbsp;softwareOnly,
+           boolean&nbsp;vendor,
+           boolean&nbsp;forceDisableAdaptive,
+           boolean&nbsp;forceSecure)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="TAG">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TAG</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> TAG</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.mediacodec.MediaCodecInfo.TAG">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="MAX_SUPPORTED_INSTANCES_UNKNOWN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_SUPPORTED_INSTANCES_UNKNOWN</h4>
+<pre>public static final&nbsp;int MAX_SUPPORTED_INSTANCES_UNKNOWN</pre>
+<div class="block">The value returned by <a href="#getMaxSupportedInstances()"><code>getMaxSupportedInstances()</code></a> if the upper bound on the maximum
+ number of supported instances is unknown.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.mediacodec.MediaCodecInfo.MAX_SUPPORTED_INSTANCES_UNKNOWN">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="name">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>name</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> name</pre>
+<div class="block">The name of the decoder.
+
+ <p>May be passed to <a href="https://developer.android.com/reference/android/media/MediaCodec.html#createByCodecName(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.createByCodecName(String)</code></a> to create an instance of the
+ decoder.</div>
+</li>
+</ul>
+<a id="mimeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mimeType</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> mimeType</pre>
+<div class="block">The MIME type handled by the codec.</div>
+</li>
+</ul>
+<a id="codecMimeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>codecMimeType</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> codecMimeType</pre>
+<div class="block">The MIME type that the codec uses for media of type <a href="#mimeType"><code>mimeType</code></a>. Equal to <a href="#mimeType"><code>mimeType</code></a> unless the codec is known to use a non-standard MIME type alias.</div>
+</li>
+</ul>
+<a id="capabilities">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>capabilities</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecCapabilities</a> capabilities</pre>
+<div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if not
+ known.</div>
+</li>
+</ul>
+<a id="adaptive">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adaptive</h4>
+<pre>public final&nbsp;boolean adaptive</pre>
+<div class="block">Whether the decoder supports seamless resolution switches.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#isFeatureSupported(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.isFeatureSupported(String)</code></a>, 
+<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#FEATURE_AdaptivePlayback" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.FEATURE_AdaptivePlayback</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="tunneling">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tunneling</h4>
+<pre>public final&nbsp;boolean tunneling</pre>
+<div class="block">Whether the decoder supports tunneling.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#isFeatureSupported(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.isFeatureSupported(String)</code></a>, 
+<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#FEATURE_TunneledPlayback" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.FEATURE_TunneledPlayback</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="secure">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>secure</h4>
+<pre>public final&nbsp;boolean secure</pre>
+<div class="block">Whether the decoder is secure.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#isFeatureSupported(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.isFeatureSupported(String)</code></a>, 
+<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#FEATURE_SecurePlayback" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.FEATURE_SecurePlayback</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="hardwareAccelerated">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hardwareAccelerated</h4>
+<pre>public final&nbsp;boolean hardwareAccelerated</pre>
+<div class="block">Whether the codec is hardware accelerated.
+
+ <p>This could be an approximation as the exact information is only provided in API levels 29+.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html#isHardwareAccelerated()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.isHardwareAccelerated()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="softwareOnly">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>softwareOnly</h4>
+<pre>public final&nbsp;boolean softwareOnly</pre>
+<div class="block">Whether the codec is software only.
+
+ <p>This could be an approximation as the exact information is only provided in API levels 29+.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html#isSoftwareOnly()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.isSoftwareOnly()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="vendor">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>vendor</h4>
+<pre>public final&nbsp;boolean vendor</pre>
+<div class="block">Whether the codec is from the vendor.
+
+ <p>This could be an approximation as the exact information is only provided in API levels 29+.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.html#isVendor()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.isVendor()</code></a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="newInstance(java.lang.String,java.lang.String,java.lang.String,android.media.MediaCodecInfo.CodecCapabilities,boolean,boolean,boolean,boolean,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newInstance</h4>
+<pre class="methodSignature">public static&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;newInstance&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecMimeType,
+                                         @Nullable
+                                         <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecCapabilities</a>&nbsp;capabilities,
+                                         boolean&nbsp;hardwareAccelerated,
+                                         boolean&nbsp;softwareOnly,
+                                         boolean&nbsp;vendor,
+                                         boolean&nbsp;forceDisableAdaptive,
+                                         boolean&nbsp;forceSecure)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>name</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
+<dd><code>mimeType</code> - A mime type supported by the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
+<dd><code>codecMimeType</code> - The MIME type that the codec uses for media of type <code>#mimeType</code>.
+     Equal to <code>mimeType</code> unless the codec is known to use a non-standard MIME type alias.</dd>
+<dd><code>capabilities</code> - The capabilities of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> for the specified mime type, or
+     <code>null</code> if not known.</dd>
+<dd><code>hardwareAccelerated</code> - Whether the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is hardware accelerated.</dd>
+<dd><code>softwareOnly</code> - Whether the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is software only.</dd>
+<dd><code>vendor</code> - Whether the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is provided by the vendor.</dd>
+<dd><code>forceDisableAdaptive</code> - Whether <a href="#adaptive"><code>adaptive</code></a> should be forced to <code>false</code>.</dd>
+<dd><code>forceSecure</code> - Whether <a href="#secure"><code>secure</code></a> should be forced to <code>true</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getProfileLevels()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getProfileLevels</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecProfileLevel</a>[]&nbsp;getProfileLevels()</pre>
+<div class="block">The profile levels supported by the decoder.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The profile levels supported by the decoder.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMaxSupportedInstances()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxSupportedInstances</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMaxSupportedInstances()</pre>
+<div class="block">Returns an upper bound on the maximum number of supported instances, or <a href="#MAX_SUPPORTED_INSTANCES_UNKNOWN"><code>MAX_SUPPORTED_INSTANCES_UNKNOWN</code></a> if unknown. Applications should not expect to operate more
+ instances than the returned maximum.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html#getMaxSupportedInstances()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecCapabilities.getMaxSupportedInstances()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="isFormatSupported(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isFormatSupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isFormatSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
+                          throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="block">Returns whether the decoder may support decoding the given <code>format</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The input media format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the decoder may support decoding the given <code>format</code>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - Thrown if an error occurs while querying decoders.</dd>
+</dl>
+</li>
+</ul>
+<a id="isCodecSupported(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isCodecSupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isCodecSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block">Whether the decoder supports the codec of the given <code>format</code>. If there is insufficient
+ information to decide, returns true.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The input media format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the codec of the given <code>format</code> is supported by the decoder.</dd>
+</dl>
+</li>
+</ul>
+<a id="isHdr10PlusOutOfBandMetadataSupported()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isHdr10PlusOutOfBandMetadataSupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isHdr10PlusOutOfBandMetadataSupported()</pre>
+<div class="block">Whether the codec handles HDR10+ out-of-band metadata.</div>
+</li>
+</ul>
+<a id="isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSeamlessAdaptationSupported</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block">Returns whether it may be possible to adapt an instance of this decoder to playing a different
+ format when the codec is configured to play media in the specified <code>format</code>.
+
+ <p>For adaptation to succeed, the codec must also be configured with appropriate maximum values
+ and <a href="#isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,boolean)"><code>isSeamlessAdaptationSupported(Format, Format, boolean)</code></a> must return <code>true</code>
+ for the old/new formats.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The format of media for which the decoder will be configured.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether adaptation may be possible</dd>
+</dl>
+</li>
+</ul>
+<a id="isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSeamlessAdaptationSupported</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                                             <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
+                                             boolean&nbsp;isNewFormatComplete)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#canReuseCodec(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)"><code>canReuseCodec(com.google.android.exoplayer2.Format, com.google.android.exoplayer2.Format)</code></a>.</div>
+</div>
+<div class="block">Returns whether it is possible to adapt an instance of this decoder seamlessly from <code>
+ oldFormat</code> to <code>newFormat</code>. If <code>newFormat</code> may not be completely populated, pass
+ <code>false</code> for <code>isNewFormatComplete</code>.
+
+ <p>For adaptation to succeed, the codec must also be configured with maximum values that are
+ compatible with the new format.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>oldFormat</code> - The format being decoded.</dd>
+<dd><code>newFormat</code> - The new format.</dd>
+<dd><code>isNewFormatComplete</code> - Whether <code>newFormat</code> is populated with format-specific
+     metadata.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether it is possible to adapt the decoder seamlessly.</dd>
+</dl>
+</li>
+</ul>
+<a id="canReuseCodec(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>canReuseCodec</h4>
+<pre class="methodSignature">public&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;canReuseCodec&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                                            <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
+<div class="block">Evaluates whether it's possible to reuse an instance of this decoder that's currently decoding
+ <code>oldFormat</code> to decode <code>newFormat</code> instead.
+
+ <p>For adaptation to succeed, the codec must also be configured with maximum values that are
+ compatible with the new format.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>oldFormat</code> - The format being decoded.</dd>
+<dd><code>newFormat</code> - The new format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The result of the evaluation.</dd>
+</dl>
+</li>
+</ul>
+<a id="isVideoSizeAndRateSupportedV21(int,int,double)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isVideoSizeAndRateSupportedV21</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isVideoSizeAndRateSupportedV21&#8203;(int&nbsp;width,
+                                              int&nbsp;height,
+                                              double&nbsp;frameRate)</pre>
+<div class="block">Whether the decoder supports video with a given width, height and frame rate.
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>width</code> - Width in pixels.</dd>
+<dd><code>height</code> - Height in pixels.</dd>
+<dd><code>frameRate</code> - Optional frame rate in frames per second. Ignored if set to <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> or any value less than or equal to 0.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the decoder supports video with the given width, height and frame rate.</dd>
+</dl>
+</li>
+</ul>
+<a id="alignVideoSizeV21(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alignVideoSizeV21</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Point.html" title="class or interface in android.graphics" class="externalLink" target="_top">Point</a>&nbsp;alignVideoSizeV21&#8203;(int&nbsp;width,
+                               int&nbsp;height)</pre>
+<div class="block">Returns the smallest video size greater than or equal to a specified size that also satisfies
+ the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>'s width and height alignment requirements.
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>width</code> - Width in pixels.</dd>
+<dd><code>height</code> - Height in pixels.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The smallest video size greater than or equal to the specified size that also satisfies
+     the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>'s width and height alignment requirements, or null if not a video
+     codec.</dd>
+</dl>
+</li>
+</ul>
+<a id="isAudioSampleRateSupportedV21(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAudioSampleRateSupportedV21</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isAudioSampleRateSupportedV21&#8203;(int&nbsp;sampleRate)</pre>
+<div class="block">Whether the decoder supports audio with a given sample rate.
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sampleRate</code> - The sample rate in Hz.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the decoder supports audio with the given sample rate.</dd>
+</dl>
+</li>
+</ul>
+<a id="isAudioChannelCountSupportedV21(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isAudioChannelCountSupportedV21</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isAudioChannelCountSupportedV21&#8203;(int&nbsp;channelCount)</pre>
+<div class="block">Whether the decoder supports audio with a given channel count.
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>channelCount</code> - The channel count.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the decoder supports audio with the given channel count.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

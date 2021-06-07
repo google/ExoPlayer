@@ -15,25 +15,26 @@
  */
 package com.google.android.exoplayer2.text.dvb;
 
+import static java.lang.Math.min;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Region;
-import android.util.Log;
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Parses {@link Cue}s from a DVB subtitle bitstream.
- */
+/** Parses {@link Cue}s from a DVB subtitle bitstream. */
 /* package */ final class DvbParser {
 
   private static final String TAG = "DvbParser";
@@ -69,15 +70,14 @@ import java.util.List;
   private static final int DATA_TYPE_END_LINE = 0xF0;
 
   // Clut mapping tables, as defined by ETSI EN 300 743 10.4, 10.5, 10.6
-  private static final byte[] defaultMap2To4 = {
-      (byte) 0x00, (byte) 0x07, (byte) 0x08, (byte) 0x0F};
-  private static final byte[] defaultMap2To8 = {
-      (byte) 0x00, (byte) 0x77, (byte) 0x88, (byte) 0xFF};
+  private static final byte[] defaultMap2To4 = {(byte) 0x00, (byte) 0x07, (byte) 0x08, (byte) 0x0F};
+  private static final byte[] defaultMap2To8 = {(byte) 0x00, (byte) 0x77, (byte) 0x88, (byte) 0xFF};
   private static final byte[] defaultMap4To8 = {
-      (byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33,
-      (byte) 0x44, (byte) 0x55, (byte) 0x66, (byte) 0x77,
-      (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
-      (byte) 0xCC, (byte) 0xDD, (byte) 0xEE, (byte) 0xFF};
+    (byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33,
+    (byte) 0x44, (byte) 0x55, (byte) 0x66, (byte) 0x77,
+    (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
+    (byte) 0xCC, (byte) 0xDD, (byte) 0xEE, (byte) 0xFF
+  };
 
   private final Paint defaultPaint;
   private final Paint fillRegionPaint;
@@ -86,7 +86,7 @@ import java.util.List;
   private final ClutDefinition defaultClutDefinition;
   private final SubtitleService subtitleService;
 
-  private Bitmap bitmap;
+  private @MonotonicNonNull Bitmap bitmap;
 
   /**
    * Construct an instance for the given subtitle and ancillary page ids.
@@ -105,14 +105,16 @@ import java.util.List;
     fillRegionPaint.setPathEffect(null);
     canvas = new Canvas();
     defaultDisplayDefinition = new DisplayDefinition(719, 575, 0, 719, 0, 575);
-    defaultClutDefinition = new ClutDefinition(0, generateDefault2BitClutEntries(),
-        generateDefault4BitClutEntries(), generateDefault8BitClutEntries());
+    defaultClutDefinition =
+        new ClutDefinition(
+            0,
+            generateDefault2BitClutEntries(),
+            generateDefault4BitClutEntries(),
+            generateDefault8BitClutEntries());
     subtitleService = new SubtitleService(subtitlePageId, ancillaryPageId);
   }
 
-  /**
-   * Resets the parser.
-   */
+  /** Resets the parser. */
   public void reset() {
     subtitleService.reset();
   }
@@ -132,40 +134,49 @@ import java.util.List;
       parseSubtitlingSegment(dataBitArray, subtitleService);
     }
 
-    if (subtitleService.pageComposition == null) {
+    @Nullable PageComposition pageComposition = subtitleService.pageComposition;
+    if (pageComposition == null) {
       return Collections.emptyList();
     }
 
     // Update the canvas bitmap if necessary.
-    DisplayDefinition displayDefinition = subtitleService.displayDefinition != null
-        ? subtitleService.displayDefinition : defaultDisplayDefinition;
-    if (bitmap == null || displayDefinition.width + 1 != bitmap.getWidth()
+    DisplayDefinition displayDefinition =
+        subtitleService.displayDefinition != null
+            ? subtitleService.displayDefinition
+            : defaultDisplayDefinition;
+    if (bitmap == null
+        || displayDefinition.width + 1 != bitmap.getWidth()
         || displayDefinition.height + 1 != bitmap.getHeight()) {
-      bitmap = Bitmap.createBitmap(displayDefinition.width + 1, displayDefinition.height + 1,
-          Bitmap.Config.ARGB_8888);
+      bitmap =
+          Bitmap.createBitmap(
+              displayDefinition.width + 1, displayDefinition.height + 1, Bitmap.Config.ARGB_8888);
       canvas.setBitmap(bitmap);
     }
 
     // Build the cues.
     List<Cue> cues = new ArrayList<>();
-    SparseArray<PageRegion> pageRegions = subtitleService.pageComposition.regions;
+    SparseArray<PageRegion> pageRegions = pageComposition.regions;
     for (int i = 0; i < pageRegions.size(); i++) {
+      // Save clean clipping state.
+      canvas.save();
       PageRegion pageRegion = pageRegions.valueAt(i);
       int regionId = pageRegions.keyAt(i);
       RegionComposition regionComposition = subtitleService.regions.get(regionId);
 
       // Clip drawing to the current region and display definition window.
-      int baseHorizontalAddress = pageRegion.horizontalAddress
-          + displayDefinition.horizontalPositionMinimum;
-      int baseVerticalAddress = pageRegion.verticalAddress
-          + displayDefinition.verticalPositionMinimum;
-      int clipRight = Math.min(baseHorizontalAddress + regionComposition.width,
-          displayDefinition.horizontalPositionMaximum);
-      int clipBottom = Math.min(baseVerticalAddress + regionComposition.height,
-          displayDefinition.verticalPositionMaximum);
-      canvas.clipRect(baseHorizontalAddress, baseVerticalAddress, clipRight, clipBottom,
-          Region.Op.REPLACE);
-
+      int baseHorizontalAddress =
+          pageRegion.horizontalAddress + displayDefinition.horizontalPositionMinimum;
+      int baseVerticalAddress =
+          pageRegion.verticalAddress + displayDefinition.verticalPositionMinimum;
+      int clipRight =
+          min(
+              baseHorizontalAddress + regionComposition.width,
+              displayDefinition.horizontalPositionMaximum);
+      int clipBottom =
+          min(
+              baseVerticalAddress + regionComposition.height,
+              displayDefinition.verticalPositionMaximum);
+      canvas.clipRect(baseHorizontalAddress, baseVerticalAddress, clipRight, clipBottom);
       ClutDefinition clutDefinition = subtitleService.cluts.get(regionComposition.clutId);
       if (clutDefinition == null) {
         clutDefinition = subtitleService.ancillaryCluts.get(regionComposition.clutId);
@@ -183,10 +194,15 @@ import java.util.List;
           objectData = subtitleService.ancillaryObjects.get(objectId);
         }
         if (objectData != null) {
-          Paint paint = objectData.nonModifyingColorFlag ? null : defaultPaint;
-          paintPixelDataSubBlocks(objectData, clutDefinition, regionComposition.depth,
+          @Nullable Paint paint = objectData.nonModifyingColorFlag ? null : defaultPaint;
+          paintPixelDataSubBlocks(
+              objectData,
+              clutDefinition,
+              regionComposition.depth,
               baseHorizontalAddress + regionObject.horizontalPosition,
-              baseVerticalAddress + regionObject.verticalPosition, paint, canvas);
+              baseVerticalAddress + regionObject.verticalPosition,
+              paint,
+              canvas);
         }
       }
 
@@ -200,31 +216,46 @@ import java.util.List;
           color = clutDefinition.clutEntries2Bit[regionComposition.pixelCode2Bit];
         }
         fillRegionPaint.setColor(color);
-        canvas.drawRect(baseHorizontalAddress, baseVerticalAddress,
+        canvas.drawRect(
+            baseHorizontalAddress,
+            baseVerticalAddress,
             baseHorizontalAddress + regionComposition.width,
             baseVerticalAddress + regionComposition.height,
             fillRegionPaint);
       }
 
-      Bitmap cueBitmap = Bitmap.createBitmap(bitmap, baseHorizontalAddress, baseVerticalAddress,
-          regionComposition.width, regionComposition.height);
-      cues.add(new Cue(cueBitmap, (float) baseHorizontalAddress / displayDefinition.width,
-          Cue.ANCHOR_TYPE_START, (float) baseVerticalAddress / displayDefinition.height,
-          Cue.ANCHOR_TYPE_START, (float) regionComposition.width / displayDefinition.width,
-          (float) regionComposition.height / displayDefinition.height));
+      cues.add(
+          new Cue.Builder()
+              .setBitmap(
+                  Bitmap.createBitmap(
+                      bitmap,
+                      baseHorizontalAddress,
+                      baseVerticalAddress,
+                      regionComposition.width,
+                      regionComposition.height))
+              .setPosition((float) baseHorizontalAddress / displayDefinition.width)
+              .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+              .setLine(
+                  (float) baseVerticalAddress / displayDefinition.height, Cue.LINE_TYPE_FRACTION)
+              .setLineAnchor(Cue.ANCHOR_TYPE_START)
+              .setSize((float) regionComposition.width / displayDefinition.width)
+              .setBitmapHeight((float) regionComposition.height / displayDefinition.height)
+              .build());
 
       canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+      // Restore clean clipping state.
+      canvas.restore();
     }
 
-    return cues;
+    return Collections.unmodifiableList(cues);
   }
 
   // Static parsing.
 
   /**
    * Parses a subtitling segment, as defined by ETSI EN 300 743 7.2
-   * <p>
-   * The {@link SubtitleService} is updated with the parsed segment data.
+   *
+   * <p>The {@link SubtitleService} is updated with the parsed segment data.
    */
   private static void parseSubtitlingSegment(ParsableBitArray data, SubtitleService service) {
     int segmentType = data.readBits(8);
@@ -247,7 +278,7 @@ import java.util.List;
         break;
       case SEGMENT_TYPE_PAGE_COMPOSITION:
         if (pageId == service.subtitlePageId) {
-          PageComposition current = service.pageComposition;
+          @Nullable PageComposition current = service.pageComposition;
           PageComposition pageComposition = parsePageComposition(data, dataFieldLength);
           if (pageComposition.state != PAGE_STATE_NORMAL) {
             service.pageComposition = pageComposition;
@@ -260,11 +291,15 @@ import java.util.List;
         }
         break;
       case SEGMENT_TYPE_REGION_COMPOSITION:
-        PageComposition pageComposition = service.pageComposition;
+        @Nullable PageComposition pageComposition = service.pageComposition;
         if (pageId == service.subtitlePageId && pageComposition != null) {
           RegionComposition regionComposition = parseRegionComposition(data, dataFieldLength);
           if (pageComposition.state == PAGE_STATE_NORMAL) {
-            regionComposition.mergeFrom(service.regions.get(regionComposition.id));
+            @Nullable
+            RegionComposition existingRegionComposition = service.regions.get(regionComposition.id);
+            if (existingRegionComposition != null) {
+              regionComposition.mergeFrom(existingRegionComposition);
+            }
           }
           service.regions.put(regionComposition.id, regionComposition);
         }
@@ -296,9 +331,7 @@ import java.util.List;
     data.skipBytes(dataFieldLimit - data.getBytePosition());
   }
 
-  /**
-   * Parses a display definition segment, as defined by ETSI EN 300 743 7.2.1.
-   */
+  /** Parses a display definition segment, as defined by ETSI EN 300 743 7.2.1. */
   private static DisplayDefinition parseDisplayDefinition(ParsableBitArray data) {
     data.skipBits(4); // dds_version_number (4).
     boolean displayWindowFlag = data.readBit();
@@ -322,13 +355,16 @@ import java.util.List;
       verticalPositionMaximum = height;
     }
 
-    return new DisplayDefinition(width, height, horizontalPositionMinimum,
-        horizontalPositionMaximum, verticalPositionMinimum, verticalPositionMaximum);
+    return new DisplayDefinition(
+        width,
+        height,
+        horizontalPositionMinimum,
+        horizontalPositionMaximum,
+        verticalPositionMinimum,
+        verticalPositionMaximum);
   }
 
-  /**
-   * Parses a page composition segment, as defined by ETSI EN 300 743 7.2.2.
-   */
+  /** Parses a page composition segment, as defined by ETSI EN 300 743 7.2.2. */
   private static PageComposition parsePageComposition(ParsableBitArray data, int length) {
     int timeoutSecs = data.readBits(8);
     int version = data.readBits(4);
@@ -349,9 +385,7 @@ import java.util.List;
     return new PageComposition(timeoutSecs, version, state, regions);
   }
 
-  /**
-   * Parses a region composition segment, as defined by ETSI EN 300 743 7.2.3.
-   */
+  /** Parses a region composition segment, as defined by ETSI EN 300 743 7.2.3. */
   private static RegionComposition parseRegionComposition(ParsableBitArray data, int length) {
     int id = data.readBits(8);
     data.skipBits(4); // Skip region_version_number
@@ -387,18 +421,32 @@ import java.util.List;
         remainingLength -= 2;
       }
 
-      regionObjects.put(objectId, new RegionObject(objectType, objectProvider,
-          objectHorizontalPosition, objectVerticalPosition, foregroundPixelCode,
-          backgroundPixelCode));
+      regionObjects.put(
+          objectId,
+          new RegionObject(
+              objectType,
+              objectProvider,
+              objectHorizontalPosition,
+              objectVerticalPosition,
+              foregroundPixelCode,
+              backgroundPixelCode));
     }
 
-    return new RegionComposition(id, fillFlag, width, height, levelOfCompatibility, depth, clutId,
-        pixelCode8Bit, pixelCode4Bit, pixelCode2Bit, regionObjects);
+    return new RegionComposition(
+        id,
+        fillFlag,
+        width,
+        height,
+        levelOfCompatibility,
+        depth,
+        clutId,
+        pixelCode8Bit,
+        pixelCode4Bit,
+        pixelCode2Bit,
+        regionObjects);
   }
 
-  /**
-   * Parses a CLUT definition segment, as defined by ETSI EN 300 743 7.2.4.
-   */
+  /** Parses a CLUT definition segment, as defined by ETSI EN 300 743 7.2.4. */
   private static ClutDefinition parseClutDefinition(ParsableBitArray data, int length) {
     int clutId = data.readBits(8);
     data.skipBits(8); // Skip clut_version_number (4), reserved (4)
@@ -450,8 +498,12 @@ import java.util.List;
       int r = (int) (y + (1.40200 * (cr - 128)));
       int g = (int) (y - (0.34414 * (cb - 128)) - (0.71414 * (cr - 128)));
       int b = (int) (y + (1.77200 * (cb - 128)));
-      clutEntries[entryId] = getColor(a, Util.constrainValue(r, 0, 255),
-          Util.constrainValue(g, 0, 255), Util.constrainValue(b, 0, 255));
+      clutEntries[entryId] =
+          getColor(
+              a,
+              Util.constrainValue(r, 0, 255),
+              Util.constrainValue(g, 0, 255),
+              Util.constrainValue(b, 0, 255));
     }
 
     return new ClutDefinition(clutId, clutEntries2Bit, clutEntries4Bit, clutEntries8Bit);
@@ -469,8 +521,8 @@ import java.util.List;
     boolean nonModifyingColorFlag = data.readBit();
     data.skipBits(1); // Skip reserved.
 
-    byte[] topFieldData = null;
-    byte[] bottomFieldData = null;
+    byte[] topFieldData = Util.EMPTY_BYTE_ARRAY;
+    byte[] bottomFieldData = Util.EMPTY_BYTE_ARRAY;
 
     if (objectCodingMethod == OBJECT_CODING_STRING) {
       int numberOfCodes = data.readBits(8);
@@ -508,17 +560,19 @@ import java.util.List;
     entries[0] = 0x00000000;
     for (int i = 1; i < entries.length; i++) {
       if (i < 8) {
-        entries[i] = getColor(
-            0xFF,
-            ((i & 0x01) != 0 ? 0xFF : 0x00),
-            ((i & 0x02) != 0 ? 0xFF : 0x00),
-            ((i & 0x04) != 0 ? 0xFF : 0x00));
+        entries[i] =
+            getColor(
+                0xFF,
+                ((i & 0x01) != 0 ? 0xFF : 0x00),
+                ((i & 0x02) != 0 ? 0xFF : 0x00),
+                ((i & 0x04) != 0 ? 0xFF : 0x00));
       } else {
-        entries[i] = getColor(
-            0xFF,
-            ((i & 0x01) != 0 ? 0x7F : 0x00),
-            ((i & 0x02) != 0 ? 0x7F : 0x00),
-            ((i & 0x04) != 0 ? 0x7F : 0x00));
+        entries[i] =
+            getColor(
+                0xFF,
+                ((i & 0x01) != 0 ? 0x7F : 0x00),
+                ((i & 0x02) != 0 ? 0x7F : 0x00),
+                ((i & 0x04) != 0 ? 0x7F : 0x00));
       }
     }
     return entries;
@@ -529,40 +583,45 @@ import java.util.List;
     entries[0] = 0x00000000;
     for (int i = 0; i < entries.length; i++) {
       if (i < 8) {
-        entries[i] = getColor(
-            0x3F,
-            ((i & 0x01) != 0 ? 0xFF : 0x00),
-            ((i & 0x02) != 0 ? 0xFF : 0x00),
-            ((i & 0x04) != 0 ? 0xFF : 0x00));
+        entries[i] =
+            getColor(
+                0x3F,
+                ((i & 0x01) != 0 ? 0xFF : 0x00),
+                ((i & 0x02) != 0 ? 0xFF : 0x00),
+                ((i & 0x04) != 0 ? 0xFF : 0x00));
       } else {
         switch (i & 0x88) {
           case 0x00:
-            entries[i] = getColor(
-                0xFF,
-                (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
-                (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
-                (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)));
+            entries[i] =
+                getColor(
+                    0xFF,
+                    (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
+                    (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
+                    (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)));
             break;
           case 0x08:
-            entries[i] = getColor(
-                0x7F,
-                (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
-                (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
-                (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)));
+            entries[i] =
+                getColor(
+                    0x7F,
+                    (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
+                    (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
+                    (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)));
             break;
           case 0x80:
-            entries[i] = getColor(
-                0xFF,
-                (127 + ((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
-                (127 + ((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
-                (127 + ((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)));
+            entries[i] =
+                getColor(
+                    0xFF,
+                    (127 + ((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
+                    (127 + ((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
+                    (127 + ((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)));
             break;
           case 0x88:
-            entries[i] = getColor(
-                0xFF,
-                (((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
-                (((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
-                (((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)));
+            entries[i] =
+                getColor(
+                    0xFF,
+                    (((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
+                    (((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
+                    (((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)));
             break;
         }
       }
@@ -576,11 +635,15 @@ import java.util.List;
 
   // Static drawing.
 
-  /**
-   * Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas.
-   */
-  private static void paintPixelDataSubBlocks(ObjectData objectData, ClutDefinition clutDefinition,
-      int regionDepth, int horizontalAddress, int verticalAddress, Paint paint, Canvas canvas) {
+  /** Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas. */
+  private static void paintPixelDataSubBlocks(
+      ObjectData objectData,
+      ClutDefinition clutDefinition,
+      int regionDepth,
+      int horizontalAddress,
+      int verticalAddress,
+      @Nullable Paint paint,
+      Canvas canvas) {
     int[] clutEntries;
     if (regionDepth == REGION_DEPTH_8_BIT) {
       clutEntries = clutDefinition.clutEntries8Bit;
@@ -589,29 +652,45 @@ import java.util.List;
     } else {
       clutEntries = clutDefinition.clutEntries2Bit;
     }
-    paintPixelDataSubBlock(objectData.topFieldData, clutEntries, regionDepth, horizontalAddress,
-        verticalAddress, paint, canvas);
-    paintPixelDataSubBlock(objectData.bottomFieldData, clutEntries, regionDepth, horizontalAddress,
-        verticalAddress + 1, paint, canvas);
+    paintPixelDataSubBlock(
+        objectData.topFieldData,
+        clutEntries,
+        regionDepth,
+        horizontalAddress,
+        verticalAddress,
+        paint,
+        canvas);
+    paintPixelDataSubBlock(
+        objectData.bottomFieldData,
+        clutEntries,
+        regionDepth,
+        horizontalAddress,
+        verticalAddress + 1,
+        paint,
+        canvas);
   }
 
-  /**
-   * Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas.
-   */
-  private static void paintPixelDataSubBlock(byte[] pixelData, int[] clutEntries, int regionDepth,
-      int horizontalAddress, int verticalAddress, Paint paint, Canvas canvas) {
+  /** Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas. */
+  private static void paintPixelDataSubBlock(
+      byte[] pixelData,
+      int[] clutEntries,
+      int regionDepth,
+      int horizontalAddress,
+      int verticalAddress,
+      @Nullable Paint paint,
+      Canvas canvas) {
     ParsableBitArray data = new ParsableBitArray(pixelData);
     int column = horizontalAddress;
     int line = verticalAddress;
-    byte[] clutMapTable2To4 = null;
-    byte[] clutMapTable2To8 = null;
-    byte[] clutMapTable4To8 = null;
+    @Nullable byte[] clutMapTable2To4 = null;
+    @Nullable byte[] clutMapTable2To8 = null;
+    @Nullable byte[] clutMapTable4To8 = null;
 
     while (data.bitsLeft() != 0) {
       int dataType = data.readBits(8);
       switch (dataType) {
         case DATA_TYPE_2BP_CODE_STRING:
-          byte[] clutMapTable2ToX;
+          @Nullable byte[] clutMapTable2ToX;
           if (regionDepth == REGION_DEPTH_8_BIT) {
             clutMapTable2ToX = clutMapTable2To8 == null ? defaultMap2To8 : clutMapTable2To8;
           } else if (regionDepth == REGION_DEPTH_4_BIT) {
@@ -619,23 +698,27 @@ import java.util.List;
           } else {
             clutMapTable2ToX = null;
           }
-          column = paint2BitPixelCodeString(data, clutEntries, clutMapTable2ToX, column, line,
-              paint, canvas);
+          column =
+              paint2BitPixelCodeString(
+                  data, clutEntries, clutMapTable2ToX, column, line, paint, canvas);
           data.byteAlign();
           break;
         case DATA_TYPE_4BP_CODE_STRING:
-          byte[] clutMapTable4ToX;
+          @Nullable byte[] clutMapTable4ToX;
           if (regionDepth == REGION_DEPTH_8_BIT) {
             clutMapTable4ToX = clutMapTable4To8 == null ? defaultMap4To8 : clutMapTable4To8;
           } else {
             clutMapTable4ToX = null;
           }
-          column = paint4BitPixelCodeString(data, clutEntries, clutMapTable4ToX, column, line,
-              paint, canvas);
+          column =
+              paint4BitPixelCodeString(
+                  data, clutEntries, clutMapTable4ToX, column, line, paint, canvas);
           data.byteAlign();
           break;
         case DATA_TYPE_8BP_CODE_STRING:
-          column = paint8BitPixelCodeString(data, clutEntries, null, column, line, paint, canvas);
+          column =
+              paint8BitPixelCodeString(
+                  data, clutEntries, /* clutMapTable= */ null, column, line, paint, canvas);
           break;
         case DATA_TYPE_24_TABLE_DATA:
           clutMapTable2To4 = buildClutMapTable(4, 4, data);
@@ -644,7 +727,7 @@ import java.util.List;
           clutMapTable2To8 = buildClutMapTable(4, 8, data);
           break;
         case DATA_TYPE_48_TABLE_DATA:
-          clutMapTable2To8 = buildClutMapTable(16, 8, data);
+          clutMapTable4To8 = buildClutMapTable(16, 8, data);
           break;
         case DATA_TYPE_END_LINE:
           column = horizontalAddress;
@@ -657,11 +740,15 @@ import java.util.List;
     }
   }
 
-  /**
-   * Paint a 2-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas.
-   */
-  private static int paint2BitPixelCodeString(ParsableBitArray data, int[] clutEntries,
-      byte[] clutMapTable, int column, int line, Paint paint, Canvas canvas) {
+  /** Paint a 2-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas. */
+  private static int paint2BitPixelCodeString(
+      ParsableBitArray data,
+      int[] clutEntries,
+      @Nullable byte[] clutMapTable,
+      int column,
+      int line,
+      @Nullable Paint paint,
+      Canvas canvas) {
     boolean endOfPixelCodeString = false;
     do {
       int runLength = 0;
@@ -705,11 +792,15 @@ import java.util.List;
     return column;
   }
 
-  /**
-   * Paint a 4-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas.
-   */
-  private static int paint4BitPixelCodeString(ParsableBitArray data, int[] clutEntries,
-      byte[] clutMapTable, int column, int line, Paint paint, Canvas canvas) {
+  /** Paint a 4-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas. */
+  private static int paint4BitPixelCodeString(
+      ParsableBitArray data,
+      int[] clutEntries,
+      @Nullable byte[] clutMapTable,
+      int column,
+      int line,
+      @Nullable Paint paint,
+      Canvas canvas) {
     boolean endOfPixelCodeString = false;
     do {
       int runLength = 0;
@@ -759,11 +850,15 @@ import java.util.List;
     return column;
   }
 
-  /**
-   * Paint an 8-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas.
-   */
-  private static int paint8BitPixelCodeString(ParsableBitArray data, int[] clutEntries,
-      byte[] clutMapTable, int column, int line, Paint paint, Canvas canvas) {
+  /** Paint an 8-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas. */
+  private static int paint8BitPixelCodeString(
+      ParsableBitArray data,
+      int[] clutEntries,
+      @Nullable byte[] clutMapTable,
+      int column,
+      int line,
+      @Nullable Paint paint,
+      Canvas canvas) {
     boolean endOfPixelCodeString = false;
     do {
       int runLength = 0;
@@ -807,26 +902,29 @@ import java.util.List;
 
   // Private inner classes.
 
-  /**
-   * The subtitle service definition.
-   */
+  /** The subtitle service definition. */
   private static final class SubtitleService {
 
     public final int subtitlePageId;
     public final int ancillaryPageId;
 
-    public final SparseArray<RegionComposition> regions = new SparseArray<>();
-    public final SparseArray<ClutDefinition> cluts = new SparseArray<>();
-    public final SparseArray<ObjectData> objects = new SparseArray<>();
-    public final SparseArray<ClutDefinition> ancillaryCluts = new SparseArray<>();
-    public final SparseArray<ObjectData> ancillaryObjects = new SparseArray<>();
+    public final SparseArray<RegionComposition> regions;
+    public final SparseArray<ClutDefinition> cluts;
+    public final SparseArray<ObjectData> objects;
+    public final SparseArray<ClutDefinition> ancillaryCluts;
+    public final SparseArray<ObjectData> ancillaryObjects;
 
-    public DisplayDefinition displayDefinition;
-    public PageComposition pageComposition;
+    @Nullable public DisplayDefinition displayDefinition;
+    @Nullable public PageComposition pageComposition;
 
     public SubtitleService(int subtitlePageId, int ancillaryPageId) {
       this.subtitlePageId = subtitlePageId;
       this.ancillaryPageId = ancillaryPageId;
+      regions = new SparseArray<>();
+      cluts = new SparseArray<>();
+      objects = new SparseArray<>();
+      ancillaryCluts = new SparseArray<>();
+      ancillaryObjects = new SparseArray<>();
     }
 
     public void reset() {
@@ -838,13 +936,12 @@ import java.util.List;
       displayDefinition = null;
       pageComposition = null;
     }
-
   }
 
   /**
    * Contains the geometry and active area of the subtitle service.
-   * <p>
-   * See ETSI EN 300 743 7.2.1
+   *
+   * <p>See ETSI EN 300 743 7.2.1
    */
   private static final class DisplayDefinition {
 
@@ -856,8 +953,13 @@ import java.util.List;
     public final int verticalPositionMinimum;
     public final int verticalPositionMaximum;
 
-    public DisplayDefinition(int width, int height, int horizontalPositionMinimum,
-        int horizontalPositionMaximum, int verticalPositionMinimum, int verticalPositionMaximum) {
+    public DisplayDefinition(
+        int width,
+        int height,
+        int horizontalPositionMinimum,
+        int horizontalPositionMaximum,
+        int verticalPositionMinimum,
+        int verticalPositionMaximum) {
       this.width = width;
       this.height = height;
       this.horizontalPositionMinimum = horizontalPositionMinimum;
@@ -865,13 +967,12 @@ import java.util.List;
       this.verticalPositionMinimum = verticalPositionMinimum;
       this.verticalPositionMaximum = verticalPositionMaximum;
     }
-
   }
 
   /**
-   *  The page is the definition and arrangement of regions in the screen.
-   *  <p>
-   *  See ETSI EN 300 743 7.2.2
+   * The page is the definition and arrangement of regions in the screen.
+   *
+   * <p>See ETSI EN 300 743 7.2.2
    */
   private static final class PageComposition {
 
@@ -880,20 +981,19 @@ import java.util.List;
     public final int state;
     public final SparseArray<PageRegion> regions;
 
-    public PageComposition(int timeoutSecs, int version, int state,
-        SparseArray<PageRegion> regions) {
+    public PageComposition(
+        int timeoutSecs, int version, int state, SparseArray<PageRegion> regions) {
       this.timeOutSecs = timeoutSecs;
       this.version = version;
       this.state = state;
       this.regions = regions;
     }
-
   }
 
   /**
    * A region within a {@link PageComposition}.
-   * <p>
-   * See ETSI EN 300 743 7.2.2
+   *
+   * <p>See ETSI EN 300 743 7.2.2
    */
   private static final class PageRegion {
 
@@ -904,13 +1004,12 @@ import java.util.List;
       this.horizontalAddress = horizontalAddress;
       this.verticalAddress = verticalAddress;
     }
-
   }
 
   /**
    * An area of the page composed of a list of objects and a CLUT.
-   * <p>
-   * See ETSI EN 300 743 7.2.3
+   *
+   * <p>See ETSI EN 300 743 7.2.3
    */
   private static final class RegionComposition {
 
@@ -926,9 +1025,18 @@ import java.util.List;
     public final int pixelCode2Bit;
     public final SparseArray<RegionObject> regionObjects;
 
-    public RegionComposition(int id, boolean fillFlag, int width, int height,
-        int levelOfCompatibility, int depth, int clutId, int pixelCode8Bit, int pixelCode4Bit,
-        int pixelCode2Bit, SparseArray<RegionObject> regionObjects) {
+    public RegionComposition(
+        int id,
+        boolean fillFlag,
+        int width,
+        int height,
+        int levelOfCompatibility,
+        int depth,
+        int clutId,
+        int pixelCode8Bit,
+        int pixelCode4Bit,
+        int pixelCode2Bit,
+        SparseArray<RegionObject> regionObjects) {
       this.id = id;
       this.fillFlag = fillFlag;
       this.width = width;
@@ -943,21 +1051,17 @@ import java.util.List;
     }
 
     public void mergeFrom(RegionComposition otherRegionComposition) {
-      if (otherRegionComposition == null) {
-        return;
-      }
       SparseArray<RegionObject> otherRegionObjects = otherRegionComposition.regionObjects;
       for (int i = 0; i < otherRegionObjects.size(); i++) {
         regionObjects.put(otherRegionObjects.keyAt(i), otherRegionObjects.valueAt(i));
       }
     }
-
   }
 
   /**
    * An object within a {@link RegionComposition}.
-   * <p>
-   * See ETSI EN 300 743 7.2.3
+   *
+   * <p>See ETSI EN 300 743 7.2.3
    */
   private static final class RegionObject {
 
@@ -968,8 +1072,13 @@ import java.util.List;
     public final int foregroundPixelCode; // TODO: Use this or remove it.
     public final int backgroundPixelCode; // TODO: Use this or remove it.
 
-    public RegionObject(int type, int provider, int horizontalPosition,
-        int verticalPosition, int foregroundPixelCode, int backgroundPixelCode) {
+    public RegionObject(
+        int type,
+        int provider,
+        int horizontalPosition,
+        int verticalPosition,
+        int foregroundPixelCode,
+        int backgroundPixelCode) {
       this.type = type;
       this.provider = provider;
       this.horizontalPosition = horizontalPosition;
@@ -977,13 +1086,12 @@ import java.util.List;
       this.foregroundPixelCode = foregroundPixelCode;
       this.backgroundPixelCode = backgroundPixelCode;
     }
-
   }
 
   /**
    * CLUT family definition containing the color tables for the three bit depths defined
-   * <p>
-   * See ETSI EN 300 743 7.2.4
+   *
+   * <p>See ETSI EN 300 743 7.2.4
    */
   private static final class ClutDefinition {
 
@@ -992,20 +1100,19 @@ import java.util.List;
     public final int[] clutEntries4Bit;
     public final int[] clutEntries8Bit;
 
-    public ClutDefinition(int id, int[] clutEntries2Bit, int[] clutEntries4Bit,
-        int[] clutEntries8bit) {
+    public ClutDefinition(
+        int id, int[] clutEntries2Bit, int[] clutEntries4Bit, int[] clutEntries8bit) {
       this.id = id;
       this.clutEntries2Bit = clutEntries2Bit;
       this.clutEntries4Bit = clutEntries4Bit;
       this.clutEntries8Bit = clutEntries8bit;
     }
-
   }
 
   /**
    * The textual or graphical representation of an object.
-   * <p>
-   * See ETSI EN 300 743 7.2.5
+   *
+   * <p>See ETSI EN 300 743 7.2.5
    */
   private static final class ObjectData {
 
@@ -1014,14 +1121,12 @@ import java.util.List;
     public final byte[] topFieldData;
     public final byte[] bottomFieldData;
 
-    public ObjectData(int id, boolean nonModifyingColorFlag, byte[] topFieldData,
-        byte[] bottomFieldData) {
+    public ObjectData(
+        int id, boolean nonModifyingColorFlag, byte[] topFieldData, byte[] bottomFieldData) {
       this.id = id;
       this.nonModifyingColorFlag = nonModifyingColorFlag;
       this.topFieldData = topFieldData;
       this.bottomFieldData = bottomFieldData;
     }
-
   }
-
 }

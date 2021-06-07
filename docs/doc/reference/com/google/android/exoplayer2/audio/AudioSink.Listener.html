@@ -1,0 +1,405 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>AudioSink.Listener (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="AudioSink.Listener (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":6,"i5":6,"i6":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<h2 title="Interface AudioSink.Listener" class="title">Interface AudioSink.Listener</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></dd>
+</dl>
+<hr>
+<pre>public static interface <span class="typeNameLabel">AudioSink.Listener</span></pre>
+<div class="block">Listener for audio sink events.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSinkError(java.lang.Exception)">onAudioSinkError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</code></th>
+<td class="colLast">
+<div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOffloadBufferEmptying()">onOffloadBufferEmptying</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Called when the offload buffer has been partially emptied.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOffloadBufferFull(long)">onOffloadBufferFull</a></span>&#8203;(long&nbsp;bufferEmptyingDeadlineMs)</code></th>
+<td class="colLast">
+<div class="block">Called when the offload buffer has been filled completely.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionAdvancing(long)">onPositionAdvancing</a></span>&#8203;(long&nbsp;playoutStartSystemTimeMs)</code></th>
+<td class="colLast">
+<div class="block">Called when the audio sink's position has increased for the first time since it was last
+ paused or flushed.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity()">onPositionDiscontinuity</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Called when the audio sink handles a buffer whose timestamp is discontinuous with the last
+ buffer handled since it was reset.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colLast">
+<div class="block">Called when skipping silences is enabled or disabled.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onUnderrun(int,long,long)">onUnderrun</a></span>&#8203;(int&nbsp;bufferSize,
+          long&nbsp;bufferSizeMs,
+          long&nbsp;elapsedSinceLastFeedMs)</code></th>
+<td class="colLast">
+<div class="block">Called when the audio sink runs out of data.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="onPositionDiscontinuity()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPositionDiscontinuity</h4>
+<pre class="methodSignature">void&nbsp;onPositionDiscontinuity()</pre>
+<div class="block">Called when the audio sink handles a buffer whose timestamp is discontinuous with the last
+ buffer handled since it was reset.</div>
+</li>
+</ul>
+<a id="onPositionAdvancing(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPositionAdvancing</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onPositionAdvancing&#8203;(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="block">Called when the audio sink's position has increased for the first time since it was last
+ paused or flushed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playoutStartSystemTimeMs</code> - The approximate derived <a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis()" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.currentTimeMillis()</code></a> at
+     which playout started. Only valid if the audio track has not underrun.</dd>
+</dl>
+</li>
+</ul>
+<a id="onUnderrun(int,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onUnderrun</h4>
+<pre class="methodSignature">void&nbsp;onUnderrun&#8203;(int&nbsp;bufferSize,
+                long&nbsp;bufferSizeMs,
+                long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="block">Called when the audio sink runs out of data.
+
+ <p>An audio sink implementation may never call this method (for example, if audio data is
+ consumed in batches rather than based on the sink's own clock).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferSize</code> - The size of the sink's buffer, in bytes.</dd>
+<dd><code>bufferSizeMs</code> - The size of the sink's buffer, in milliseconds, if it is configured for
+     PCM output. <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if it is configured for encoded audio output, as the
+     buffered media can have a variable bitrate so the duration may be unknown.</dd>
+<dd><code>elapsedSinceLastFeedMs</code> - The time since the sink was last fed data, in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="onSkipSilenceEnabledChanged(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSkipSilenceEnabledChanged</h4>
+<pre class="methodSignature">void&nbsp;onSkipSilenceEnabledChanged&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Called when skipping silences is enabled or disabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences is enabled.</dd>
+</dl>
+</li>
+</ul>
+<a id="onOffloadBufferEmptying()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onOffloadBufferEmptying</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onOffloadBufferEmptying()</pre>
+<div class="block">Called when the offload buffer has been partially emptied.</div>
+</li>
+</ul>
+<a id="onOffloadBufferFull(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onOffloadBufferFull</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onOffloadBufferFull&#8203;(long&nbsp;bufferEmptyingDeadlineMs)</pre>
+<div class="block">Called when the offload buffer has been filled completely.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferEmptyingDeadlineMs</code> - Maximum time in milliseconds until <a href="#onOffloadBufferEmptying()"><code>onOffloadBufferEmptying()</code></a> will be called.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioSinkError(java.lang.Exception)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onAudioSinkError</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioSinkError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</pre>
+<div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.
+
+ <p>If the sink writes to a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink"><code>AudioTrack</code></a>, this will called for all <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> errors.
+
+ <p>This method being called does not indicate that playback has failed, or that it will fail.
+ The player may be able to recover from the error (for example by recreating the AudioTrack,
+ possibly with different settings) and continue. Hence applications should <em>not</em>
+ implement this method to display a user visible error or initiate an application level retry
+ (<a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior).
+ This method is called to provide the application with an opportunity to log the error if it
+ wishes to do so.
+
+ <p>Fatal errors that cannot be recovered will be reported wrapped in a <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> by <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioSinkError</code> - The error that occurred. Typically an <a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.InitializationException</code></a>,
+     a <a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.WriteException</code></a>, or an <a href="AudioSink.UnexpectedDiscontinuityException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.UnexpectedDiscontinuityException</code></a>.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

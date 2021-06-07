@@ -1,0 +1,1336 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DownloadHelper (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DownloadHelper (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":9,"i7":41,"i8":41,"i9":41,"i10":41,"i11":9,"i12":9,"i13":9,"i14":9,"i15":41,"i16":41,"i17":41,"i18":41,"i19":41,"i20":9,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":9,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.offline</a></div>
+<h2 title="Class DownloadHelper" class="title">Class DownloadHelper</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.offline.DownloadHelper</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">DownloadHelper</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">A helper for initializing and removing downloads.
+
+ <p>The helper extracts track information from the media, selects tracks for downloading, and
+ creates <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>download requests</code></a> based on the selected tracks.
+
+ <p>A typical usage of DownloadHelper follows these steps:
+
+ <ol>
+   <li>Build the helper using one of the <code>forMediaItem</code> methods.
+   <li>Prepare the helper using <a href="#prepare(com.google.android.exoplayer2.offline.DownloadHelper.Callback)"><code>prepare(Callback)</code></a> and wait for the callback.
+   <li>Optional: Inspect the selected tracks using <a href="#getMappedTrackInfo(int)"><code>getMappedTrackInfo(int)</code></a> and <a href="#getTrackSelections(int,int)"><code>getTrackSelections(int, int)</code></a>, and make adjustments using <a href="#clearTrackSelections(int)"><code>clearTrackSelections(int)</code></a>, <a href="#replaceTrackSelections(int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)"><code>replaceTrackSelections(int, Parameters)</code></a> and <a href="#addTrackSelection(int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)"><code>addTrackSelection(int, Parameters)</code></a>.
+   <li>Create a download request for the selected track using <a href="#getDownloadRequest(byte%5B%5D)"><code>getDownloadRequest(byte[])</code></a>.
+   <li>Release the helper using <a href="#release()"><code>release()</code></a>.
+ </ol></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline">DownloadHelper.Callback</a></span></code></th>
+<td class="colLast">
+<div class="block">A callback to be notified when the <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> is prepared.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper.LiveContentUnsupportedException</a></span></code></th>
+<td class="colLast">
+<div class="block">Thrown at an attempt to download live content.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TRACK_SELECTOR_PARAMETERS">DEFAULT_TRACK_SELECTOR_PARAMETERS</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> constraints.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT">DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT</a></span></code></th>
+<td class="colLast">
+<div class="block">Default track selection parameters for downloading, but without any <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>
+ constraints.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT">DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> constraints.</div>
+</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.source.MediaSource,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RendererCapabilities%5B%5D)">DownloadHelper</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+              <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+              <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+              <a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities)</code></th>
+<td class="colLast">
+<div class="block">Creates download helper.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addAudioLanguagesToSelection(java.lang.String...)">addAudioLanguagesToSelection</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;languages)</code></th>
+<td class="colLast">
+<div class="block">Convenience method to add selections of tracks for all specified audio languages.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTextLanguagesToSelection(boolean,java.lang.String...)">addTextLanguagesToSelection</a></span>&#8203;(boolean&nbsp;selectUndeterminedTextLanguage,
+                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;languages)</code></th>
+<td class="colLast">
+<div class="block">Convenience method to add selections of tracks for all specified text languages.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTrackSelection(int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">addTrackSelection</a></span>&#8203;(int&nbsp;periodIndex,
+                 <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</code></th>
+<td class="colLast">
+<div class="block">Adds a selection of tracks to be downloaded.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTrackSelectionForSingleRenderer(int,int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,java.util.List)">addTrackSelectionForSingleRenderer</a></span>&#8203;(int&nbsp;periodIndex,
+                                  int&nbsp;rendererIndex,
+                                  <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.SelectionOverride</a>&gt;&nbsp;overrides)</code></th>
+<td class="colLast">
+<div class="block">Convenience method to add a selection of tracks to be downloaded for a single renderer.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearTrackSelections(int)">clearTrackSelections</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
+<td class="colLast">
+<div class="block">Clears the selection of tracks for a period.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaSource(com.google.android.exoplayer2.offline.DownloadRequest,com.google.android.exoplayer2.upstream.DataSource.Factory)">createMediaSource</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
+                 <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Equivalent to <a href="#createMediaSource(com.google.android.exoplayer2.offline.DownloadRequest,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>createMediaSource(downloadRequest, dataSourceFactory, null)</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaSource(com.google.android.exoplayer2.offline.DownloadRequest,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)">createMediaSource</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
+                 <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                 <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code></th>
+<td class="colLast">
+<div class="block">Utility method to create a <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> that only exposes the tracks defined in <code>
+ downloadRequest</code>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forDash(android.content.Context,android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">forDash</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+       <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+       <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+       <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forDash(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">forDash</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+       <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+       <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+       <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+       <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory, DrmSessionManager)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forHls(android.content.Context,android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">forHls</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+      <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+      <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+      <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forHls(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">forHls</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+      <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+      <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+      <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+      <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory, DrmSessionManager)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem)">forMediaItem</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+            <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given progressive media item.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)">forMediaItem</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+            <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given media item.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)">forMediaItem</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+            <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given media item.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)">forMediaItem</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+            <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+            <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given media item.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forProgressive(android.content.Context,android.net.Uri)">forProgressive</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+              <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem)"><code>forMediaItem(Context, MediaItem)</code></a></div>
+</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forProgressive(android.content.Context,android.net.Uri,java.lang.String)">forProgressive</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+              <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem)"><code>forMediaItem(Context, MediaItem)</code></a></div>
+</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forSmoothStreaming(android.content.Context,android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">forSmoothStreaming</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                  <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                  <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forSmoothStreaming(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">forSmoothStreaming</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                  <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                  <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>static <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forSmoothStreaming(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">forSmoothStreaming</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                  <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                  <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                  <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                  <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory, DrmSessionManager)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>static <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultTrackSelectorParameters(android.content.Context)">getDefaultTrackSelectorParameters</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
+<td class="colLast">
+<div class="block">Returns the default parameters used for track selection for downloading.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloadRequest(byte%5B%5D)">getDownloadRequest</a></span>&#8203;(byte[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Builds a <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> for downloading the selected tracks.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloadRequest(java.lang.String,byte%5B%5D)">getDownloadRequest</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                  byte[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Builds a <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> for downloading the selected tracks.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getManifest()">getManifest</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the manifest, or null if no manifest is loaded.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="../trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMappedTrackInfo(int)">getMappedTrackInfo</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the mapped track info for the given period.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodCount()">getPeriodCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of periods for which media is available.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>static <a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRendererCapabilities(com.google.android.exoplayer2.RenderersFactory)">getRendererCapabilities</a></span>&#8203;(<a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
+<td class="colLast">
+<div class="block">Extracts renderer capabilities for the renderers created by the provided renderers factory.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackGroups(int)">getTrackGroups</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the track groups for the given period.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection" target="_top">ExoTrackSelection</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackSelections(int,int)">getTrackSelections</a></span>&#8203;(int&nbsp;periodIndex,
+                  int&nbsp;rendererIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns all <a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>track selections</code></a> for a period and renderer.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepare(com.google.android.exoplayer2.offline.DownloadHelper.Callback)">prepare</a></span>&#8203;(<a href="DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline">DownloadHelper.Callback</a>&nbsp;callback)</code></th>
+<td class="colLast">
+<div class="block">Initializes the helper for starting a download.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Releases the helper and all resources it is holding.</div>
+</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceTrackSelections(int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">replaceTrackSelections</a></span>&#8203;(int&nbsp;periodIndex,
+                      <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</code></th>
+<td class="colLast">
+<div class="block">Replaces a selection of tracks to be downloaded.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT</h4>
+<pre>public static final&nbsp;<a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a> DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT</pre>
+<div class="block">Default track selection parameters for downloading, but without any <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>
+ constraints.
+
+ <p>If possible, use <a href="#getDefaultTrackSelectorParameters(android.content.Context)"><code>getDefaultTrackSelectorParameters(Context)</code></a> instead.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../trackselection/DefaultTrackSelector.Parameters.html#DEFAULT_WITHOUT_CONTEXT"><code>DefaultTrackSelector.Parameters.DEFAULT_WITHOUT_CONTEXT</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a> DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink"><code>Context</code></a> constraints. Use <a href="#getDefaultTrackSelectorParameters(android.content.Context)" target="_top"><code>getDefaultTrackSelectorParameters(Context)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="DEFAULT_TRACK_SELECTOR_PARAMETERS">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_TRACK_SELECTOR_PARAMETERS</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a> DEFAULT_TRACK_SELECTOR_PARAMETERS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink"><code>Context</code></a> constraints. Use <a href="#getDefaultTrackSelectorParameters(android.content.Context)" target="_top"><code>getDefaultTrackSelectorParameters(Context)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.source.MediaSource,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RendererCapabilities[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DownloadHelper</h4>
+<pre>public&nbsp;DownloadHelper&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                      @Nullable
+                      <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                      <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+                      <a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities)</pre>
+<div class="block">Creates download helper.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - The media item.</dd>
+<dd><code>mediaSource</code> - A <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> for which tracks are selected, or null if no track
+     selection needs to be made.</dd>
+<dd><code>trackSelectorParameters</code> - <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> for selecting tracks for
+     downloading.</dd>
+<dd><code>rendererCapabilities</code> - The <a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2"><code>RendererCapabilities</code></a> of the renderers for which tracks
+     are selected.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getDefaultTrackSelectorParameters(android.content.Context)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDefaultTrackSelectorParameters</h4>
+<pre class="methodSignature">public static&nbsp;<a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;getDefaultTrackSelectorParameters&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="block">Returns the default parameters used for track selection for downloading.</div>
+</li>
+</ul>
+<a id="getRendererCapabilities(com.google.android.exoplayer2.RenderersFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRendererCapabilities</h4>
+<pre class="methodSignature">public static&nbsp;<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;getRendererCapabilities&#8203;(<a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="block">Extracts renderer capabilities for the renderers created by the provided renderers factory.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderersFactory</code> - A <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2"><code>RendererCapabilities</code></a> for each renderer created by the <code>
+     renderersFactory</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="forProgressive(android.content.Context,android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forProgressive</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forProgressive&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                            <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem)"><code>forMediaItem(Context, MediaItem)</code></a></div>
+</div>
+</li>
+</ul>
+<a id="forProgressive(android.content.Context,android.net.Uri,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forProgressive</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forProgressive&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                            <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                            @Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem)"><code>forMediaItem(Context, MediaItem)</code></a></div>
+</div>
+</li>
+</ul>
+<a id="forDash(android.content.Context,android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forDash</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forDash&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                     <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                     <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                     <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forDash(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forDash</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forDash&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                     <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                     <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                                     @Nullable
+                                     <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                                     <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory, DrmSessionManager)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forHls(android.content.Context,android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forHls</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forHls&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                    <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                    <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                    <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forHls(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forHls</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forHls&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                    <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                    <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                                    @Nullable
+                                    <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                                    <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory, DrmSessionManager)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forSmoothStreaming(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forSmoothStreaming</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forSmoothStreaming&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                                <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                                <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forSmoothStreaming(android.content.Context,android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forSmoothStreaming</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forSmoothStreaming&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                                <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                                <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forSmoothStreaming(android.net.Uri,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forSmoothStreaming</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forSmoothStreaming&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                                <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                                <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                                                @Nullable
+                                                <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                                                <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>forMediaItem(MediaItem, Parameters, RenderersFactory,
+     DataSource.Factory, DrmSessionManager)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forMediaItem</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forMediaItem&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                          <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given progressive media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The context.</dd>
+<dd><code>mediaItem</code> - A <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for progressive streams.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the media item is of type DASH, HLS or SmoothStreaming.</dd>
+</dl>
+</li>
+</ul>
+<a id="forMediaItem(android.content.Context,com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forMediaItem</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forMediaItem&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                          <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                                          @Nullable
+                                          <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                                          @Nullable
+                                          <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The context.</dd>
+<dd><code>mediaItem</code> - A <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dd><code>renderersFactory</code> - A <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> creating the renderers for which tracks are
+     selected.</dd>
+<dd><code>dataSourceFactory</code> - A <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> used to load the manifest for adaptive
+     streams. This argument is required for adaptive streams and ignored for progressive
+     streams.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the corresponding module is missing for DASH, HLS or
+     SmoothStreaming media items.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>dataSourceFactory</code> is null for adaptive streams.</dd>
+</dl>
+</li>
+</ul>
+<a id="forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forMediaItem</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forMediaItem&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                                          <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+                                          @Nullable
+                                          <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                                          @Nullable
+                                          <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - A <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dd><code>renderersFactory</code> - A <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> creating the renderers for which tracks are
+     selected.</dd>
+<dd><code>trackSelectorParameters</code> - <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> for selecting tracks for
+     downloading.</dd>
+<dd><code>dataSourceFactory</code> - A <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> used to load the manifest for adaptive
+     streams. This argument is required for adaptive streams and ignored for progressive
+     streams.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the corresponding module is missing for DASH, HLS or
+     SmoothStreaming media items.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>dataSourceFactory</code> is null for adaptive streams.</dd>
+</dl>
+</li>
+</ul>
+<a id="forMediaItem(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forMediaItem</h4>
+<pre class="methodSignature">public static&nbsp;<a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a>&nbsp;forMediaItem&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                                          <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+                                          @Nullable
+                                          <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                                          @Nullable
+                                          <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                          @Nullable
+                                          <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</pre>
+<div class="block">Creates a <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for the given media item.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - A <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dd><code>renderersFactory</code> - A <a href="../RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> creating the renderers for which tracks are
+     selected.</dd>
+<dd><code>trackSelectorParameters</code> - <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> for selecting tracks for
+     downloading.</dd>
+<dd><code>dataSourceFactory</code> - A <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> used to load the manifest for adaptive
+     streams. This argument is required for adaptive streams and ignored for progressive
+     streams.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. Used to help determine which
+     tracks can be selected.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the corresponding module is missing for DASH, HLS or
+     SmoothStreaming media items.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the <code>dataSourceFactory</code> is null for adaptive streams.</dd>
+</dl>
+</li>
+</ul>
+<a id="createMediaSource(com.google.android.exoplayer2.offline.DownloadRequest,com.google.android.exoplayer2.upstream.DataSource.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createMediaSource</h4>
+<pre class="methodSignature">public static&nbsp;<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;createMediaSource&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
+                                            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="block">Equivalent to <a href="#createMediaSource(com.google.android.exoplayer2.offline.DownloadRequest,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)"><code>createMediaSource(downloadRequest, dataSourceFactory, null)</code></a>.</div>
+</li>
+</ul>
+<a id="createMediaSource(com.google.android.exoplayer2.offline.DownloadRequest,com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.drm.DrmSessionManager)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createMediaSource</h4>
+<pre class="methodSignature">public static&nbsp;<a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;createMediaSource&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
+                                            <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                            @Nullable
+                                            <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</pre>
+<div class="block">Utility method to create a <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> that only exposes the tracks defined in <code>
+ downloadRequest</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>downloadRequest</code> - A <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a>.</dd>
+<dd><code>dataSourceFactory</code> - A factory for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s to read the media.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to be passed to the <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> that only exposes the tracks defined in <code>downloadRequest</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="prepare(com.google.android.exoplayer2.offline.DownloadHelper.Callback)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>prepare</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;prepare&#8203;(<a href="DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline">DownloadHelper.Callback</a>&nbsp;callback)</pre>
+<div class="block">Initializes the helper for starting a download.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>callback</code> - A callback to be notified when preparation completes or fails.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the download helper has already been prepared.</dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="block">Releases the helper and all resources it is holding.</div>
+</li>
+</ul>
+<a id="getManifest()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getManifest</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getManifest()</pre>
+<div class="block">Returns the manifest, or null if no manifest is loaded. Must not be called until after
+ preparation completes.</div>
+</li>
+</ul>
+<a id="getPeriodCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriodCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPeriodCount()</pre>
+<div class="block">Returns the number of periods for which media is available. Must not be called until after
+ preparation completes.</div>
+</li>
+</ul>
+<a id="getTrackGroups(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTrackGroups</h4>
+<pre class="methodSignature">public&nbsp;<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getTrackGroups&#8203;(int&nbsp;periodIndex)</pre>
+<div class="block">Returns the track groups for the given period. Must not be called until after preparation
+ completes.
+
+ <p>Use <a href="#getMappedTrackInfo(int)"><code>getMappedTrackInfo(int)</code></a> to get the track groups mapped to renderers.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The track groups for the period. May be <a href="../source/TrackGroupArray.html#EMPTY"><code>TrackGroupArray.EMPTY</code></a> for single stream
+     content.</dd>
+</dl>
+</li>
+</ul>
+<a id="getMappedTrackInfo(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMappedTrackInfo</h4>
+<pre class="methodSignature">public&nbsp;<a href="../trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;getMappedTrackInfo&#8203;(int&nbsp;periodIndex)</pre>
+<div class="block">Returns the mapped track info for the given period. Must not be called until after preparation
+ completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../trackselection/MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector.MappedTrackInfo</code></a> for the period.</dd>
+</dl>
+</li>
+</ul>
+<a id="getTrackSelections(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTrackSelections</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection" target="_top">ExoTrackSelection</a>&gt;&nbsp;getTrackSelections&#8203;(int&nbsp;periodIndex,
+                                                  int&nbsp;rendererIndex)</pre>
+<div class="block">Returns all <a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>track selections</code></a> for a period and renderer. Must not be
+ called until after preparation completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index.</dd>
+<dd><code>rendererIndex</code> - The renderer index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A list of selected <a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>track selections</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="clearTrackSelections(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearTrackSelections</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;clearTrackSelections&#8203;(int&nbsp;periodIndex)</pre>
+<div class="block">Clears the selection of tracks for a period. Must not be called until after preparation
+ completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index for which track selections are cleared.</dd>
+</dl>
+</li>
+</ul>
+<a id="replaceTrackSelections(int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceTrackSelections</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;replaceTrackSelections&#8203;(int&nbsp;periodIndex,
+                                   <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</pre>
+<div class="block">Replaces a selection of tracks to be downloaded. Must not be called until after preparation
+ completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index for which the track selection is replaced.</dd>
+<dd><code>trackSelectorParameters</code> - The <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> to obtain the new
+     selection of tracks.</dd>
+</dl>
+</li>
+</ul>
+<a id="addTrackSelection(int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addTrackSelection</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addTrackSelection&#8203;(int&nbsp;periodIndex,
+                              <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters)</pre>
+<div class="block">Adds a selection of tracks to be downloaded. Must not be called until after preparation
+ completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index this track selection is added for.</dd>
+<dd><code>trackSelectorParameters</code> - The <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> to obtain the new
+     selection of tracks.</dd>
+</dl>
+</li>
+</ul>
+<a id="addAudioLanguagesToSelection(java.lang.String...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAudioLanguagesToSelection</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addAudioLanguagesToSelection&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;languages)</pre>
+<div class="block">Convenience method to add selections of tracks for all specified audio languages. If an audio
+ track in one of the specified languages is not available, the default fallback audio track is
+ used instead. Must not be called until after preparation completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>languages</code> - A list of audio languages for which tracks should be added to the download
+     selection, as IETF BCP 47 conformant tags.</dd>
+</dl>
+</li>
+</ul>
+<a id="addTextLanguagesToSelection(boolean,java.lang.String...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addTextLanguagesToSelection</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addTextLanguagesToSelection&#8203;(boolean&nbsp;selectUndeterminedTextLanguage,
+                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;languages)</pre>
+<div class="block">Convenience method to add selections of tracks for all specified text languages. Must not be
+ called until after preparation completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>selectUndeterminedTextLanguage</code> - Whether a text track with undetermined language should be
+     selected for downloading if no track with one of the specified <code>languages</code> is
+     available.</dd>
+<dd><code>languages</code> - A list of text languages for which tracks should be added to the download
+     selection, as IETF BCP 47 conformant tags.</dd>
+</dl>
+</li>
+</ul>
+<a id="addTrackSelectionForSingleRenderer(int,int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addTrackSelectionForSingleRenderer</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addTrackSelectionForSingleRenderer&#8203;(int&nbsp;periodIndex,
+                                               int&nbsp;rendererIndex,
+                                               <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;trackSelectorParameters,
+                                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.SelectionOverride</a>&gt;&nbsp;overrides)</pre>
+<div class="block">Convenience method to add a selection of tracks to be downloaded for a single renderer. Must
+ not be called until after preparation completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The period index the track selection is added for.</dd>
+<dd><code>rendererIndex</code> - The renderer index the track selection is added for.</dd>
+<dd><code>trackSelectorParameters</code> - The <a href="../trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> to obtain the new
+     selection of tracks.</dd>
+<dd><code>overrides</code> - A list of <a href="../trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection"><code>SelectionOverrides</code></a> to apply to the <code>
+     trackSelectorParameters</code>. If empty, <code>trackSelectorParameters</code> are used as they are.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDownloadRequest(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDownloadRequest</h4>
+<pre class="methodSignature">public&nbsp;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;getDownloadRequest&#8203;(@Nullable
+                                          byte[]&nbsp;data)</pre>
+<div class="block">Builds a <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> for downloading the selected tracks. Must not be called until
+ after preparation completes. The uri of the <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> will be used as content id.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - Application provided data to store in <a href="DownloadRequest.html#data"><code>DownloadRequest.data</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The built <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDownloadRequest(java.lang.String,byte[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getDownloadRequest</h4>
+<pre class="methodSignature">public&nbsp;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;getDownloadRequest&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                                          @Nullable
+                                          byte[]&nbsp;data)</pre>
+<div class="block">Builds a <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> for downloading the selected tracks. Must not be called until
+ after preparation completes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The unique content id.</dd>
+<dd><code>data</code> - Application provided data to store in <a href="DownloadRequest.html#data"><code>DownloadRequest.data</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The built <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a>.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

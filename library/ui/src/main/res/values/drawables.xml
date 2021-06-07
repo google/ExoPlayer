@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+  <drawable name="exo_controls_play">@drawable/exo_icon_play</drawable>
+  <drawable name="exo_controls_pause">@drawable/exo_icon_pause</drawable>
+  <drawable name="exo_controls_next">@drawable/exo_icon_next</drawable>
+  <drawable name="exo_controls_previous">@drawable/exo_icon_previous</drawable>
+  <drawable name="exo_controls_fastforward">@drawable/exo_icon_fastforward</drawable>
+  <drawable name="exo_controls_rewind">@drawable/exo_icon_rewind</drawable>
+  <drawable name="exo_controls_repeat_all">@drawable/exo_icon_repeat_all</drawable>
+  <drawable name="exo_controls_repeat_off">@drawable/exo_icon_repeat_off</drawable>
+  <drawable name="exo_controls_repeat_one">@drawable/exo_icon_repeat_one</drawable>
+  <drawable name="exo_controls_shuffle_off">@drawable/exo_icon_shuffle_off</drawable>
+  <drawable name="exo_controls_shuffle_on">@drawable/exo_icon_shuffle_on</drawable>
+  <drawable name="exo_controls_fullscreen_enter">@drawable/exo_icon_fullscreen_enter</drawable>
+  <drawable name="exo_controls_fullscreen_exit">@drawable/exo_icon_fullscreen_exit</drawable>
+  <drawable name="exo_controls_vr">@drawable/exo_icon_vr</drawable>
+  <drawable name="exo_notification_play">@drawable/exo_icon_play</drawable>
+  <drawable name="exo_notification_pause">@drawable/exo_icon_pause</drawable>
+  <drawable name="exo_notification_next">@drawable/exo_icon_next</drawable>
+  <drawable name="exo_notification_previous">@drawable/exo_icon_previous</drawable>
+  <drawable name="exo_notification_fastforward">@drawable/exo_icon_fastforward</drawable>
+  <drawable name="exo_notification_rewind">@drawable/exo_icon_rewind</drawable>
+  <drawable name="exo_notification_stop">@drawable/exo_icon_stop</drawable>
+  <drawable name="exo_notification_small_icon">@drawable/exo_icon_circular_play</drawable>
+
+  <drawable name="exo_styled_controls_play">@drawable/exo_ic_play_circle_filled</drawable>
+  <drawable name="exo_styled_controls_pause">@drawable/exo_ic_pause_circle_filled</drawable>
+  <drawable name="exo_styled_controls_next">@drawable/exo_ic_skip_next</drawable>
+  <drawable name="exo_styled_controls_previous">@drawable/exo_ic_skip_previous</drawable>
+  <drawable name="exo_styled_controls_fastforward">@drawable/exo_ic_forward</drawable>
+  <drawable name="exo_styled_controls_rewind">@drawable/exo_ic_rewind</drawable>
+  <drawable name="exo_styled_controls_repeat_all">@drawable/exo_icon_repeat_all</drawable>
+  <drawable name="exo_styled_controls_repeat_off">@drawable/exo_icon_repeat_off</drawable>
+  <drawable name="exo_styled_controls_repeat_one">@drawable/exo_icon_repeat_one</drawable>
+  <drawable name="exo_styled_controls_shuffle_off">@drawable/exo_icon_shuffle_off</drawable>
+  <drawable name="exo_styled_controls_shuffle_on">@drawable/exo_icon_shuffle_on</drawable>
+  <drawable name="exo_styled_controls_fullscreen_enter">@drawable/exo_ic_fullscreen_enter</drawable>
+  <drawable name="exo_styled_controls_fullscreen_exit">@drawable/exo_ic_fullscreen_exit</drawable>
+  <drawable name="exo_styled_controls_vr">@drawable/exo_icon_vr</drawable>
+  <drawable name="exo_styled_controls_subtitle_off">@drawable/exo_ic_subtitle_off</drawable>
+  <drawable name="exo_styled_controls_subtitle_on">@drawable/exo_ic_subtitle_on</drawable>
+  <drawable name="exo_styled_controls_overflow_show">@drawable/exo_ic_chevron_right</drawable>
+  <drawable name="exo_styled_controls_overflow_hide">@drawable/exo_ic_chevron_left</drawable>
+  <drawable name="exo_styled_controls_settings">@drawable/exo_ic_settings</drawable>
+  <drawable name="exo_styled_controls_check">@drawable/exo_ic_check</drawable>
+  <drawable name="exo_styled_controls_audiotrack">@drawable/exo_ic_audiotrack</drawable>
+  <drawable name="exo_styled_controls_speed">@drawable/exo_ic_speed</drawable>
+</resources>

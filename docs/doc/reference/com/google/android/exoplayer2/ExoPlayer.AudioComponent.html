@@ -1,0 +1,505 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>ExoPlayer.AudioComponent (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="ExoPlayer.AudioComponent (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":38,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Interface ExoPlayer.AudioComponent" class="title">Interface ExoPlayer.AudioComponent</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></dd>
+</dl>
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dd>
+</dl>
+<hr>
+<pre>public static interface <span class="typeNameLabel">ExoPlayer.AudioComponent</span></pre>
+<div class="block">The audio component of an <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addAudioListener(com.google.android.exoplayer2.audio.AudioListener)">addAudioListener</a></span>&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearAuxEffectInfo()">clearAuxEffectInfo</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Detaches any previously attached auxiliary audio effect from the underlying audio track.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioAttributes()">getAudioAttributes</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the attributes for audio playback.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioSessionId()">getAudioSessionId</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the audio session identifier, or <a href="C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if not set.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkipSilenceEnabled()">getSkipSilenceEnabled</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether skipping silences in the audio stream is enabled.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVolume()">getVolume</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAudioListener(com.google.android.exoplayer2.audio.AudioListener)">removeAudioListener</a></span>&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">setAudioAttributes</a></span>&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+                  boolean&nbsp;handleAudioFocus)</code></th>
+<td class="colLast">
+<div class="block">Sets the attributes for audio playback, used by the underlying audio track.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioSessionId(int)">setAudioSessionId</a></span>&#8203;(int&nbsp;audioSessionId)</code></th>
+<td class="colLast">
+<div class="block">Sets the ID of the audio session to attach to the underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">setAuxEffectInfo</a></span>&#8203;(<a href="audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code></th>
+<td class="colLast">
+<div class="block">Sets information on an auxiliary audio effect to attach to the underlying audio track.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colLast">
+<div class="block">Sets whether skipping silences in the audio stream is enabled.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVolume(float)">setVolume</a></span>&#8203;(float&nbsp;audioVolume)</code></th>
+<td class="colLast">
+<div class="block">Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="addAudioListener(com.google.android.exoplayer2.audio.AudioListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAudioListener</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;addAudioListener&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
+</div>
+<div class="block">Adds a listener to receive audio events.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to register.</dd>
+</dl>
+</li>
+</ul>
+<a id="removeAudioListener(com.google.android.exoplayer2.audio.AudioListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAudioListener</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
+</div>
+<div class="block">Removes a listener of audio events.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to unregister.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioAttributes</h4>
+<pre class="methodSignature">void&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+                        boolean&nbsp;handleAudioFocus)</pre>
+<div class="block">Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+ default audio attributes will be used. They are suitable for general media playback.
+
+ <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+ the audio track is recreated. A new audio session id will also be generated.
+
+ <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+ ignored, but they will take effect if audio is later played without tunneling.
+
+ <p>If the device is running a build before platform API version 21, audio attributes cannot
+ be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+ equivalent stream type using <a href="util/Util.html#getStreamTypeForAudioUsage(int)"><code>Util.getStreamTypeForAudioUsage(int)</code></a>.
+
+ <p>If audio focus should be handled, the <a href="audio/AudioAttributes.html#usage"><code>AudioAttributes.usage</code></a> must be <a href="C.html#USAGE_MEDIA"><code>C.USAGE_MEDIA</code></a> or <a href="C.html#USAGE_GAME"><code>C.USAGE_GAME</code></a>. Other usages will throw an <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioAttributes</code> - The attributes to use for audio playback.</dd>
+<dd><code>handleAudioFocus</code> - True if the player should handle audio focus, false otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAudioAttributes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAudioAttributes</h4>
+<pre class="methodSignature"><a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;getAudioAttributes()</pre>
+<div class="block">Returns the attributes for audio playback.</div>
+</li>
+</ul>
+<a id="setAudioSessionId(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioSessionId</h4>
+<pre class="methodSignature">void&nbsp;setAudioSessionId&#8203;(int&nbsp;audioSessionId)</pre>
+<div class="block">Sets the ID of the audio session to attach to the underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.
+
+ <p>The audio session ID can be generated using <a href="C.html#generateAudioSessionIdV21(android.content.Context)"><code>C.generateAudioSessionIdV21(Context)</code></a>
+ for API 21+.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioSessionId</code> - The audio session ID, or <a href="C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if it should
+     be generated by the framework.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAudioSessionId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAudioSessionId</h4>
+<pre class="methodSignature">int&nbsp;getAudioSessionId()</pre>
+<div class="block">Returns the audio session identifier, or <a href="C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if not set.</div>
+</li>
+</ul>
+<a id="setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAuxEffectInfo</h4>
+<pre class="methodSignature">void&nbsp;setAuxEffectInfo&#8203;(<a href="audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
+<div class="block">Sets information on an auxiliary audio effect to attach to the underlying audio track.</div>
+</li>
+</ul>
+<a id="clearAuxEffectInfo()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearAuxEffectInfo</h4>
+<pre class="methodSignature">void&nbsp;clearAuxEffectInfo()</pre>
+<div class="block">Detaches any previously attached auxiliary audio effect from the underlying audio track.</div>
+</li>
+</ul>
+<a id="setVolume(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVolume</h4>
+<pre class="methodSignature">void&nbsp;setVolume&#8203;(float&nbsp;audioVolume)</pre>
+<div class="block">Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioVolume</code> - Linear output gain to apply to all audio channels.</dd>
+</dl>
+</li>
+</ul>
+<a id="getVolume()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVolume</h4>
+<pre class="methodSignature">float&nbsp;getVolume()</pre>
+<div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The linear gain applied to all audio channels.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSkipSilenceEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSkipSilenceEnabled</h4>
+<pre class="methodSignature">void&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Sets whether skipping silences in the audio stream is enabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences in the audio stream is enabled.</dd>
+</dl>
+</li>
+</ul>
+<a id="getSkipSilenceEnabled()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getSkipSilenceEnabled</h4>
+<pre class="methodSignature">boolean&nbsp;getSkipSilenceEnabled()</pre>
+<div class="block">Returns whether skipping silences in the audio stream is enabled.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

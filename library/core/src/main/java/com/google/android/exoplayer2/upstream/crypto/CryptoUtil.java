@@ -15,19 +15,19 @@
  */
 package com.google.android.exoplayer2.upstream.crypto;
 
-/**
- * Utility functions for the crypto package.
- */
+import androidx.annotation.Nullable;
+
+/** Utility functions for the crypto package. */
 /* package */ final class CryptoUtil {
 
   private CryptoUtil() {}
 
   /**
    * Returns the hash value of the input as a long using the 64 bit FNV-1a hash function. The hash
-   * values produced by this function are less likely to collide than those produced by
-   * {@link #hashCode()}.
+   * values produced by this function are less likely to collide than those produced by {@link
+   * #hashCode()}.
    */
-  public static long getFNV64Hash(String input) {
+  public static long getFNV64Hash(@Nullable String input) {
     if (input == null) {
       return 0;
     }
@@ -40,5 +40,4 @@ package com.google.android.exoplayer2.upstream.crypto;
     }
     return hash;
   }
-
 }

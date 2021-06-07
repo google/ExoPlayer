@@ -15,17 +15,18 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
 /**
- * Utility class for efficiently tracking regions of data that are stored in a {@link Cache}
- * for a given cache key.
+ * Utility class for efficiently tracking regions of data that are stored in a {@link Cache} for a
+ * given cache key.
  */
 public final class CachedRegionTracker implements Cache.Listener {
 
@@ -50,14 +51,12 @@ public final class CachedRegionTracker implements Cache.Listener {
 
     synchronized (this) {
       NavigableSet<CacheSpan> cacheSpans = cache.addListener(cacheKey, this);
-      if (cacheSpans != null) {
-        // Merge the spans into regions. mergeSpan is more efficient when merging from high to low,
-        // which is why a descending iterator is used here.
-        Iterator<CacheSpan> spanIterator = cacheSpans.descendingIterator();
-        while (spanIterator.hasNext()) {
-          CacheSpan span = spanIterator.next();
-          mergeSpan(span);
-        }
+      // Merge the spans into regions. mergeSpan is more efficient when merging from high to low,
+      // which is why a descending iterator is used here.
+      Iterator<CacheSpan> spanIterator = cacheSpans.descendingIterator();
+      while (spanIterator.hasNext()) {
+        CacheSpan span = spanIterator.next();
+        mergeSpan(span);
       }
     }
   }
@@ -67,19 +66,20 @@ public final class CachedRegionTracker implements Cache.Listener {
   }
 
   /**
-   * When provided with a byte offset, this method locates the cached region within which the
-   * offset falls, and returns the approximate end position in milliseconds of that region. If the
-   * byte offset does not fall within a cached region then {@link #NOT_CACHED} is returned.
-   * If the cached region extends to the end of the stream, {@link #CACHED_TO_END} is returned.
+   * When provided with a byte offset, this method locates the cached region within which the offset
+   * falls, and returns the approximate end position in milliseconds of that region. If the byte
+   * offset does not fall within a cached region then {@link #NOT_CACHED} is returned. If the cached
+   * region extends to the end of the stream, {@link #CACHED_TO_END} is returned.
    *
    * @param byteOffset The byte offset in the underlying stream.
-   * @return The end position of the corresponding cache region, {@link #NOT_CACHED}, or
-   *     {@link #CACHED_TO_END}.
+   * @return The end position of the corresponding cache region, {@link #NOT_CACHED}, or {@link
+   *     #CACHED_TO_END}.
    */
   public synchronized int getRegionEndTimeMs(long byteOffset) {
     lookupRegion.startOffset = byteOffset;
-    Region floorRegion = regions.floor(lookupRegion);
-    if (floorRegion == null || byteOffset > floorRegion.endOffset
+    @Nullable Region floorRegion = regions.floor(lookupRegion);
+    if (floorRegion == null
+        || byteOffset > floorRegion.endOffset
         || floorRegion.endOffsetIndex == -1) {
       return NOT_CACHED;
     }
@@ -88,8 +88,9 @@ public final class CachedRegionTracker implements Cache.Listener {
         && floorRegion.endOffset == (chunkIndex.offsets[index] + chunkIndex.sizes[index])) {
       return CACHED_TO_END;
     }
-    long segmentFractionUs = (chunkIndex.durationsUs[index]
-        * (floorRegion.endOffset - chunkIndex.offsets[index])) / chunkIndex.sizes[index];
+    long segmentFractionUs =
+        (chunkIndex.durationsUs[index] * (floorRegion.endOffset - chunkIndex.offsets[index]))
+            / chunkIndex.sizes[index];
     return (int) ((chunkIndex.timesUs[index] + segmentFractionUs) / 1000);
   }
 
@@ -103,7 +104,7 @@ public final class CachedRegionTracker implements Cache.Listener {
     Region removedRegion = new Region(span.position, span.position + span.length);
 
     // Look up a region this span falls into.
-    Region floorRegion = regions.floor(removedRegion);
+    @Nullable Region floorRegion = regions.floor(removedRegion);
     if (floorRegion == null) {
       Log.e(TAG, "Removed a span we were not aware of");
       return;
@@ -135,8 +136,8 @@ public final class CachedRegionTracker implements Cache.Listener {
 
   private void mergeSpan(CacheSpan span) {
     Region newRegion = new Region(span.position, span.position + span.length);
-    Region floorRegion = regions.floor(newRegion);
-    Region ceilingRegion = regions.ceiling(newRegion);
+    @Nullable Region floorRegion = regions.floor(newRegion);
+    @Nullable Region ceilingRegion = regions.ceiling(newRegion);
     boolean floorConnects = regionsConnect(floorRegion, newRegion);
     boolean ceilingConnects = regionsConnect(newRegion, ceilingRegion);
 
@@ -169,19 +170,15 @@ public final class CachedRegionTracker implements Cache.Listener {
     }
   }
 
-  private boolean regionsConnect(Region lower, Region upper) {
+  private boolean regionsConnect(@Nullable Region lower, @Nullable Region upper) {
     return lower != null && upper != null && lower.endOffset == upper.startOffset;
   }
 
   private static class Region implements Comparable<Region> {
 
-    /**
-     * The first byte of the region (inclusive).
-     */
+    /** The first byte of the region (inclusive). */
     public long startOffset;
-    /**
-     * End offset of the region (exclusive).
-     */
+    /** End offset of the region (exclusive). */
     public long endOffset;
     /**
      * The index in chunkIndex that contains the end offset. May be -1 if the end offset comes
@@ -196,11 +193,8 @@ public final class CachedRegionTracker implements Cache.Listener {
     }
 
     @Override
-    public int compareTo(@NonNull Region another) {
-      return startOffset < another.startOffset ? -1
-          : startOffset == another.startOffset ? 0 : 1;
+    public int compareTo(Region another) {
+      return Util.compareLong(startOffset, another.startOffset);
     }
-
   }
-
 }

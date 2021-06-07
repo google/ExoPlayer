@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Ойноткучту башкаруу элементтерин көрсөтүү</string>
+  <string name="exo_controls_hide">Ойноткучту башкаруу элементтерин жашыруу</string>
+  <string name="exo_controls_seek_bar_description">Ойнотуу көрсөткүчү</string>
+  <string name="exo_controls_settings_description">Жөндөөлөр</string>
+  <string name="exo_controls_overflow_hide_description">Кошумча жөндөөлөрдү жашыруу</string>
+  <string name="exo_controls_overflow_show_description">Кошумча жөндөөлөрдү көрсөтүү</string>
+  <string name="exo_controls_fullscreen_enter_description">Толук экранга кирүү</string>
+  <string name="exo_controls_fullscreen_exit_description">Толук экран режиминен чыгуу</string>
+  <string name="exo_controls_previous_description">Мурунку</string>
+  <string name="exo_controls_next_description">Кийинки</string>
+  <string name="exo_controls_pause_description">Тындыруу</string>
+  <string name="exo_controls_play_description">Ойнотуу</string>
+  <string name="exo_controls_stop_description">Токтотуу</string>
+  <string name="exo_controls_rewind_description">Артка түрүү</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d секунд артка түрдүрүү</item>
+    <item quantity="other">%d секунд артка түрдүрүү</item>
+  </plurals>
+  <string name="exo_controls_fastforward_description">Алдыга түрүү</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d секунд алдыга түрдүрүү</item>
+    <item quantity="other">%d секунд алдыга түрдүрүү</item>
+  </plurals>
+  <string name="exo_controls_repeat_off_description">Кайталанбасын</string>
+  <string name="exo_controls_repeat_one_description">Бирөөнү кайталоо</string>
+  <string name="exo_controls_repeat_all_description">Баарын кайталоо</string>
+  <string name="exo_controls_shuffle_on_description">Аралаштыруу күйүк</string>
+  <string name="exo_controls_shuffle_off_description">Аралаштыруу өчүк</string>
+  <string name="exo_controls_vr_description">VR режими</string>
+  <string name="exo_controls_cc_enabled_description">Коштомо жазууларды өчүрүү</string>
+  <string name="exo_controls_cc_disabled_description">Коштомо жазууларды иштетүү</string>
+  <string name="exo_controls_playback_speed">Ылдамдык</string>
+  <string name="exo_controls_playback_speed_normal">Орточо</string>
+  <string name="exo_download_description">Жүктөп алуу</string>
+  <string name="exo_download_notification_channel_name">Жүктөлүп алынгандар</string>
+  <string name="exo_download_downloading">Жүктөлүп алынууда</string>
+  <string name="exo_download_completed">Жүктөп алуу аяктады</string>
+  <string name="exo_download_failed">Жүктөлүп алынбай калды</string>
+  <string name="exo_download_removing">Жүктөлүп алынгандар өчүрүлүүдө</string>
+  <string name="exo_track_selection_title_video">Видео</string>
+  <string name="exo_track_selection_title_audio">Аудио</string>
+  <string name="exo_track_selection_title_text">Текст</string>
+  <string name="exo_track_selection_none">Жок</string>
+  <string name="exo_track_selection_auto">Авто</string>
+  <string name="exo_track_unknown">Белгисиз</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Моно</string>
+  <string name="exo_track_stereo">Стерео</string>
+  <string name="exo_track_surround">Көлөмдүү үн</string>
+  <string name="exo_track_surround_5_point_1">5.1 көлөмдүү добуш</string>
+  <string name="exo_track_surround_7_point_1">7.1 көлөмдүү добуш</string>
+  <string name="exo_track_role_alternate">Альтернативдүү трек</string>
+  <string name="exo_track_role_supplementary">Кошумча трек</string>
+  <string name="exo_track_role_commentary">Пикир</string>
+  <string name="exo_track_role_closed_captions">Коштомо жазуулар</string>
+  <string name="exo_track_bitrate">%1$.2f Мб/сек.</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

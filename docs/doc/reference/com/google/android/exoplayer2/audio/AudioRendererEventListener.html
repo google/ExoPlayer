@@ -1,0 +1,536 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>AudioRendererEventListener (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="AudioRendererEventListener (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":50,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<h2 title="Interface AudioRendererEventListener" class="title">Interface AudioRendererEventListener</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="../analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code></dd>
+</dl>
+<hr>
+<pre>public interface <span class="typeNameLabel">AudioRendererEventListener</span></pre>
+<div class="block">Listener of audio <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events. All methods have no-op default implementations to
+ allow selective overrides.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></span></code></th>
+<td class="colLast">
+<div class="block">Dispatches events to an <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioCodecError(java.lang.Exception)">onAudioCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</code></th>
+<td class="colLast">
+<div class="block">Called when an audio decoder encounters an error.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderInitialized(java.lang.String,long,long)">onAudioDecoderInitialized</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+                         long&nbsp;initializedTimestampMs,
+                         long&nbsp;initializationDurationMs)</code></th>
+<td class="colLast">
+<div class="block">Called when a decoder is created.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderReleased(java.lang.String)">onAudioDecoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
+<td class="colLast">
+<div class="block">Called when a decoder is released.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioDisabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
+<td class="colLast">
+<div class="block">Called when the renderer is disabled.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioEnabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
+<td class="colLast">
+<div class="block">Called when the renderer is enabled.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.Format)">onAudioInputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>onAudioInputFormatChanged(Format, DecoderReuseEvaluation)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onAudioInputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                         <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
+<td class="colLast">
+<div class="block">Called when the format of the media being consumed by the renderer changes.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioPositionAdvancing(long)">onAudioPositionAdvancing</a></span>&#8203;(long&nbsp;playoutStartSystemTimeMs)</code></th>
+<td class="colLast">
+<div class="block">Called when the audio position has increased for the first time since the last pause or
+ position reset.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSinkError(java.lang.Exception)">onAudioSinkError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</code></th>
+<td class="colLast">
+<div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioUnderrun(int,long,long)">onAudioUnderrun</a></span>&#8203;(int&nbsp;bufferSize,
+               long&nbsp;bufferSizeMs,
+               long&nbsp;elapsedSinceLastFeedMs)</code></th>
+<td class="colLast">
+<div class="block">Called when an audio underrun occurs.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colLast">
+<div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="onAudioEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioEnabled</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioEnabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="block">Called when the renderer is enabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>counters</code> - <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> that will be updated by the renderer for as long as it
+     remains enabled.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioDecoderInitialized(java.lang.String,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioDecoderInitialized</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioDecoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+                                       long&nbsp;initializedTimestampMs,
+                                       long&nbsp;initializationDurationMs)</pre>
+<div class="block">Called when a decoder is created.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>decoderName</code> - The decoder that was created.</dd>
+<dd><code>initializedTimestampMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when initialization
+     finished.</dd>
+<dd><code>initializationDurationMs</code> - The time taken to initialize the decoder in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioInputFormatChanged(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioInputFormatChanged</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>onAudioInputFormatChanged(Format, DecoderReuseEvaluation)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="onAudioInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioInputFormatChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                       @Nullable
+                                       <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="block">Called when the format of the media being consumed by the renderer changes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The new format.</dd>
+<dd><code>decoderReuseEvaluation</code> - The result of the evaluation to determine whether an existing
+     decoder instance can be reused for the new format, or <code>null</code> if the renderer did not
+     have a decoder.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioPositionAdvancing(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioPositionAdvancing</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioPositionAdvancing&#8203;(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="block">Called when the audio position has increased for the first time since the last pause or
+ position reset.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playoutStartSystemTimeMs</code> - The approximate derived <a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis()" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.currentTimeMillis()</code></a> at
+     which playout started.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioUnderrun(int,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioUnderrun</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioUnderrun&#8203;(int&nbsp;bufferSize,
+                             long&nbsp;bufferSizeMs,
+                             long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="block">Called when an audio underrun occurs.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferSize</code> - The size of the audio output buffer, in bytes.</dd>
+<dd><code>bufferSizeMs</code> - The size of the audio output buffer, in milliseconds, if it contains PCM
+     encoded audio. <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the output buffer contains non-PCM encoded audio.</dd>
+<dd><code>elapsedSinceLastFeedMs</code> - The time since audio was last written to the output buffer.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioDecoderReleased(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioDecoderReleased</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioDecoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="block">Called when a decoder is released.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>decoderName</code> - The decoder that was released.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioDisabled</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioDisabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="block">Called when the renderer is disabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>counters</code> - <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> that were updated by the renderer.</dd>
+</dl>
+</li>
+</ul>
+<a id="onSkipSilenceEnabledChanged(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSkipSilenceEnabledChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onSkipSilenceEnabledChanged&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences in the audio stream is enabled.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioCodecError(java.lang.Exception)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioCodecError</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</pre>
+<div class="block">Called when an audio decoder encounters an error.
+
+ <p>This method being called does not indicate that playback has failed, or that it will fail.
+ The player may be able to recover from the error. Hence applications should <em>not</em>
+ implement this method to display a user visible error or initiate an application level retry.
+ <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ method is called to provide the application with an opportunity to log the error if it wishes
+ to do so.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioCodecError</code> - The error. Typically a <a href="https://developer.android.com/reference/android/media/MediaCodec.CodecException.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CodecException</code></a> if the renderer uses
+     <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a>, or a <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder" target="_top"><code>DecoderException</code></a> if the renderer uses a software decoder.</dd>
+</dl>
+</li>
+</ul>
+<a id="onAudioSinkError(java.lang.Exception)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onAudioSinkError</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioSinkError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</pre>
+<div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.
+
+ <p>If the sink writes to a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink"><code>AudioTrack</code></a>, this will called for all <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> errors.
+
+ <p>This method being called does not indicate that playback has failed, or that it will fail.
+ The player may be able to recover from the error. Hence applications should <em>not</em>
+ implement this method to display a user visible error or initiate an application level retry.
+ <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ method is called to provide the application with an opportunity to log the error if it wishes
+ to do so.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioSinkError</code> - The error that occurred. Typically an <a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.InitializationException</code></a>, a <a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.WriteException</code></a>, or an <a href="AudioSink.UnexpectedDiscontinuityException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.UnexpectedDiscontinuityException</code></a>.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

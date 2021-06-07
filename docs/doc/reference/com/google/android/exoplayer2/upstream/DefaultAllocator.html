@@ -1,0 +1,505 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DefaultAllocator (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DefaultAllocator (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream</a></div>
+<h2 title="Class DefaultAllocator" class="title">Class DefaultAllocator</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.upstream.DefaultAllocator</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">DefaultAllocator</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></pre>
+<div class="block">Default implementation of <a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,int)">DefaultAllocator</a></span>&#8203;(boolean&nbsp;trimOnReset,
+                int&nbsp;individualAllocationSize)</code></th>
+<td class="colLast">
+<div class="block">Constructs an instance without creating any <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s up front.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,int,int)">DefaultAllocator</a></span>&#8203;(boolean&nbsp;trimOnReset,
+                int&nbsp;individualAllocationSize,
+                int&nbsp;initialAllocationCount)</code></th>
+<td class="colLast">
+<div class="block">Constructs an instance with some <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allocate()">allocate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Obtain an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndividualAllocationLength()">getIndividualAllocationLength</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the length of each individual <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalBytesAllocated()">getTotalBytesAllocated</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the total number of bytes currently allocated.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocation)">release</a></span>&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocation)</code></th>
+<td class="colLast">
+<div class="block">Releases an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a> back to the allocator.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">release</a></span>&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>[]&nbsp;allocations)</code></th>
+<td class="colLast">
+<div class="block">Releases an array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s back to the allocator.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetBufferSize(int)">setTargetBufferSize</a></span>&#8203;(int&nbsp;targetBufferSize)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trim()">trim</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Hints to the allocator that it should make a best effort to release any excess
+ <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(boolean,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultAllocator</h4>
+<pre>public&nbsp;DefaultAllocator&#8203;(boolean&nbsp;trimOnReset,
+                        int&nbsp;individualAllocationSize)</pre>
+<div class="block">Constructs an instance without creating any <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s up front.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trimOnReset</code> - Whether memory is freed when the allocator is reset. Should be true unless
+     the allocator will be re-used by multiple player instances.</dd>
+<dd><code>individualAllocationSize</code> - The length of each individual <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(boolean,int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultAllocator</h4>
+<pre>public&nbsp;DefaultAllocator&#8203;(boolean&nbsp;trimOnReset,
+                        int&nbsp;individualAllocationSize,
+                        int&nbsp;initialAllocationCount)</pre>
+<div class="block">Constructs an instance with some <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front.
+ <p>
+ Note: <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front will never be discarded by <a href="#trim()"><code>trim()</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trimOnReset</code> - Whether memory is freed when the allocator is reset. Should be true unless
+     the allocator will be re-used by multiple player instances.</dd>
+<dd><code>individualAllocationSize</code> - The length of each individual <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</dd>
+<dd><code>initialAllocationCount</code> - The number of allocations to create up front.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="reset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+</li>
+</ul>
+<a id="setTargetBufferSize(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTargetBufferSize</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setTargetBufferSize&#8203;(int&nbsp;targetBufferSize)</pre>
+</li>
+</ul>
+<a id="allocate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocate</h4>
+<pre class="methodSignature">public&nbsp;<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocate()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#allocate()">Allocator</a></code></span></div>
+<div class="block">Obtain an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.
+ <p>
+ When the caller has finished with the <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>, it should be returned by calling
+ <a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation)"><code>Allocator.release(Allocation)</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Allocator.html#allocate()">allocate</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="release(com.google.android.exoplayer2.upstream.Allocation)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocation)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation)">Allocator</a></code></span></div>
+<div class="block">Releases an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a> back to the allocator.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation)">release</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allocation</code> - The <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a> being released.</dd>
+</dl>
+</li>
+</ul>
+<a id="release(com.google.android.exoplayer2.upstream.Allocation[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>[]&nbsp;allocations)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">Allocator</a></code></span></div>
+<div class="block">Releases an array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s back to the allocator.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">release</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allocations</code> - The array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s being released.</dd>
+</dl>
+</li>
+</ul>
+<a id="trim()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>trim</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;trim()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#trim()">Allocator</a></code></span></div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess
+ <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Allocator.html#trim()">trim</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getTotalBytesAllocated()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTotalBytesAllocated</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getTotalBytesAllocated()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#getTotalBytesAllocated()">Allocator</a></code></span></div>
+<div class="block">Returns the total number of bytes currently allocated.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Allocator.html#getTotalBytesAllocated()">getTotalBytesAllocated</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getIndividualAllocationLength()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getIndividualAllocationLength</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getIndividualAllocationLength()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#getIndividualAllocationLength()">Allocator</a></code></span></div>
+<div class="block">Returns the length of each individual <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Allocator.html#getIndividualAllocationLength()">getIndividualAllocationLength</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

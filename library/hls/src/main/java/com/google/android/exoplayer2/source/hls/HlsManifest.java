@@ -18,18 +18,12 @@ package com.google.android.exoplayer2.source.hls;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 
-/**
- * Holds a master playlist along with a snapshot of one of its media playlists.
- */
+/** Holds a master playlist along with a snapshot of one of its media playlists. */
 public final class HlsManifest {
 
-  /**
-   * The master playlist of an HLS stream.
-   */
+  /** The master playlist of an HLS stream. */
   public final HlsMasterPlaylist masterPlaylist;
-  /**
-   * A snapshot of a media playlist referred to by {@link #masterPlaylist}.
-   */
+  /** A snapshot of a media playlist referred to by {@link #masterPlaylist}. */
   public final HlsMediaPlaylist mediaPlaylist;
 
   /**
@@ -40,5 +34,4 @@ public final class HlsManifest {
     this.masterPlaylist = masterPlaylist;
     this.mediaPlaylist = mediaPlaylist;
   }
-
 }

@@ -1,0 +1,519 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DefaultDrmSessionManager.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DefaultDrmSessionManager.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.drm</a></div>
+<h2 title="Class DefaultDrmSessionManager.Builder" class="title">Class DefaultDrmSessionManager.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">DefaultDrmSessionManager.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Builder for <a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instances.
+
+ <p>See <a href="#%3Cinit%3E()"><code>Builder()</code></a> for the list of default values.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a builder with default values.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build(com.google.android.exoplayer2.drm.MediaDrmCallback)">build</a></span>&#8203;(<a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;mediaDrmCallback)</code></th>
+<td class="colLast">
+<div class="block">Builds a <a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instance.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeyRequestParameters(java.util.Map)">setKeyRequestParameters</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</code></th>
+<td class="colLast">
+<div class="block">Sets the key request parameters to pass as the last argument to <a href="ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a> for key and provisioning requests.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMultiSession(boolean)">setMultiSession</a></span>&#8203;(boolean&nbsp;multiSession)</code></th>
+<td class="colLast">
+<div class="block">Sets whether this session manager is allowed to acquire multiple simultaneous sessions.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayClearSamplesWithoutKeys(boolean)">setPlayClearSamplesWithoutKeys</a></span>&#8203;(boolean&nbsp;playClearSamplesWithoutKeys)</code></th>
+<td class="colLast">
+<div class="block">Sets whether clear samples within protected content should be played when keys for the
+ encrypted part of the content have yet to be loaded.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSessionKeepaliveMs(long)">setSessionKeepaliveMs</a></span>&#8203;(long&nbsp;sessionKeepaliveMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the time to keep <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> alive when they're not in use.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseDrmSessionsForClearContent(int...)">setUseDrmSessionsForClearContent</a></span>&#8203;(int...&nbsp;useDrmSessionsForClearContentTrackTypes)</code></th>
+<td class="colLast">
+<div class="block">Sets whether this session manager should attach <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> to the clear
+ sections of the media content.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUuidAndExoMediaDrmProvider(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.Provider)">setUuidAndExoMediaDrmProvider</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
+                             <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&nbsp;exoMediaDrmProvider)</code></th>
+<td class="colLast">
+<div class="block">Sets the UUID of the DRM scheme and the <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm.Provider</code></a> to use.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder()</pre>
+<div class="block">Creates a builder with default values. The default values are:
+
+ <ul>
+   <li><a href="#setKeyRequestParameters(java.util.Map)"><code>keyRequestParameters</code></a>: An empty map.
+   <li><a href="#setUuidAndExoMediaDrmProvider(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.Provider)"><code>UUID</code></a>: <a href="../C.html#WIDEVINE_UUID"><code>C.WIDEVINE_UUID</code></a>.
+   <li><a href="#setUuidAndExoMediaDrmProvider(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.Provider)"><code>ExoMediaDrm.Provider</code></a>: <a href="FrameworkMediaDrm.html#DEFAULT_PROVIDER"><code>FrameworkMediaDrm.DEFAULT_PROVIDER</code></a>.
+   <li><a href="#setMultiSession(boolean)"><code>multiSession</code></a>: <code>false</code>.
+   <li><a href="#setUseDrmSessionsForClearContent(int...)"><code>useDrmSessionsForClearContent</code></a>: No tracks.
+   <li><a href="#setPlayClearSamplesWithoutKeys(boolean)"><code>playClearSamplesWithoutKeys</code></a>: <code>false</code>.
+   <li><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)"><code>LoadErrorHandlingPolicy</code></a>: <a href="../upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultLoadErrorHandlingPolicy</code></a>.
+ </ul></div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setKeyRequestParameters(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setKeyRequestParameters</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setKeyRequestParameters&#8203;(@Nullable
+                                                                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</pre>
+<div class="block">Sets the key request parameters to pass as the last argument to <a href="ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null if not parameters need to
+ be passed.
+
+ <p>Custom data for PlayReady should be set under <a href="DefaultDrmSessionManager.html#PLAYREADY_CUSTOM_DATA_KEY"><code>DefaultDrmSessionManager.PLAYREADY_CUSTOM_DATA_KEY</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>keyRequestParameters</code> - A map with parameters.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUuidAndExoMediaDrmProvider(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.Provider)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUuidAndExoMediaDrmProvider</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setUuidAndExoMediaDrmProvider&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
+                                                                      <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&nbsp;exoMediaDrmProvider)</pre>
+<div class="block">Sets the UUID of the DRM scheme and the <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm.Provider</code></a> to use.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uuid</code> - The UUID of the DRM scheme.</dd>
+<dd><code>exoMediaDrmProvider</code> - The <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm.Provider</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMultiSession(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMultiSession</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
+<div class="block">Sets whether this session manager is allowed to acquire multiple simultaneous sessions.
+
+ <p>Users should pass false when a single key request will obtain all keys required to decrypt
+ the associated content. <code>multiSession</code> is required when content uses key rotation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>multiSession</code> - Whether this session manager is allowed to acquire multiple simultaneous
+     sessions.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUseDrmSessionsForClearContent(int...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseDrmSessionsForClearContent</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setUseDrmSessionsForClearContent&#8203;(int...&nbsp;useDrmSessionsForClearContentTrackTypes)</pre>
+<div class="block">Sets whether this session manager should attach <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> to the clear
+ sections of the media content.
+
+ <p>Using <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> for clear content avoids the recreation of decoders
+ when transitioning between clear and encrypted sections of content.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useDrmSessionsForClearContentTrackTypes</code> - The track types (<a href="../C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>
+     and/or <a href="../C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>) for which to use a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> regardless of
+     whether the content is clear or encrypted.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>useDrmSessionsForClearContentTrackTypes</code> contains
+     track types other than <a href="../C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a> and <a href="../C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlayClearSamplesWithoutKeys(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayClearSamplesWithoutKeys</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setPlayClearSamplesWithoutKeys&#8203;(boolean&nbsp;playClearSamplesWithoutKeys)</pre>
+<div class="block">Sets whether clear samples within protected content should be played when keys for the
+ encrypted part of the content have yet to be loaded.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playClearSamplesWithoutKeys</code> - Whether clear samples within protected content should be
+     played when keys for the encrypted part of the content have yet to be loaded.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLoadErrorHandlingPolicy</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setLoadErrorHandlingPolicy&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="block">Sets the <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a> for key and provisioning requests.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>loadErrorHandlingPolicy</code> - A <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSessionKeepaliveMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSessionKeepaliveMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setSessionKeepaliveMs&#8203;(long&nbsp;sessionKeepaliveMs)</pre>
+<div class="block">Sets the time to keep <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> alive when they're not in use.
+
+ <p>It can be useful to keep sessions alive during playback of short clear sections of media
+ (e.g. ad breaks) to avoid opening new DRM sessions (and re-requesting keys) at the transition
+ back into secure content. This assumes the secure sections before and after the clear section
+ are encrypted with the same keys.
+
+ <p>Defaults to <a href="DefaultDrmSessionManager.html#DEFAULT_SESSION_KEEPALIVE_MS"><code>DefaultDrmSessionManager.DEFAULT_SESSION_KEEPALIVE_MS</code></a>. Pass <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to disable
+ keep-alive.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sessionKeepaliveMs</code> - The time to keep <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>s alive before fully releasing,
+     in milliseconds. Must be &gt; 0 or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to disable keep-alive.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="build(com.google.android.exoplayer2.drm.MediaDrmCallback)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&nbsp;build&#8203;(<a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;mediaDrmCallback)</pre>
+<div class="block">Builds a <a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instance.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

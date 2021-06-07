@@ -1,0 +1,24 @@
+<tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata"
+    xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+    xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+    xmlns="http://www.w3.org/ns/ttml"
+    >
+  <head>
+    <layout>
+      <region id="right-to-left" tts:extent="80% 80%" tts:origin="10% 10%" tts:writingMode="tbrl" />
+      <region id="left-to-right" tts:extent="80% 80%" tts:origin="10% 10%" tts:writingMode="tblr" />
+    </layout>
+  </head>
+
+  <body>
+    <div>
+      <p begin="10s" end="18s" region="right-to-left">Vertical right-to-left (e.g. Japanese)</p>
+    </div>
+    <div>
+      <p begin="20s" end="28s" region="left-to-right">Vertical left-to-right (e.g. Mongolian)</p>
+    </div>
+    <div>
+      <p begin="30s" end="38s">Horizontal text</p>
+    </div>
+  </body>
+</tt>

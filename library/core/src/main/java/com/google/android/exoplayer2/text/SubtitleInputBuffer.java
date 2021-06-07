@@ -15,33 +15,19 @@
  */
 package com.google.android.exoplayer2.text;
 
-import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
-/**
- * A {@link DecoderInputBuffer} for a {@link SubtitleDecoder}.
- */
-public final class SubtitleInputBuffer extends DecoderInputBuffer
-    implements Comparable<SubtitleInputBuffer> {
+/** A {@link DecoderInputBuffer} for a {@link SubtitleDecoder}. */
+public class SubtitleInputBuffer extends DecoderInputBuffer {
 
   /**
-   * An offset that must be added to the subtitle's event times after it's been decoded, or
-   * {@link Format#OFFSET_SAMPLE_RELATIVE} if {@link #timeUs} should be added.
+   * An offset that must be added to the subtitle's event times after it's been decoded, or {@link
+   * Format#OFFSET_SAMPLE_RELATIVE} if {@link #timeUs} should be added.
    */
   public long subsampleOffsetUs;
 
   public SubtitleInputBuffer() {
     super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
-
-  @Override
-  public int compareTo(@NonNull SubtitleInputBuffer other) {
-    long delta = timeUs - other.timeUs;
-    if (delta == 0) {
-      return 0;
-    }
-    return delta > 0 ? 1 : -1;
-  }
-
 }
