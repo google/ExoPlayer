@@ -22,6 +22,8 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.common.primitives.Ints;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -49,13 +51,6 @@ import java.util.HashSet;
    * @return A {@link CastTimeline} that represents the given {@code remoteMediaClient} status.
    */
   public CastTimeline getCastTimeline(RemoteMediaClient remoteMediaClient) {
-    int[] itemIds = remoteMediaClient.getMediaQueue().getItemIds();
-    if (itemIds.length > 0) {
-      // Only remove unused items when there is something in the queue to avoid removing all entries
-      // if the remote media client clears the queue temporarily. See [Internal ref: b/128825216].
-      removeUnusedItemDataEntries(itemIds);
-    }
-
     // TODO: Reset state when the app instance changes [Internal ref: b/129672468].
     MediaStatus mediaStatus = remoteMediaClient.getMediaStatus();
     if (mediaStatus == null) {
@@ -66,9 +61,18 @@ import java.util.HashSet;
     updateItemData(
         currentItemId, mediaStatus.getMediaInfo(), /* defaultPositionUs= */ C.TIME_UNSET);
 
+    ArrayList<Integer> itemIdsList = new ArrayList<>();
     for (MediaQueueItem item : mediaStatus.getQueueItems()) {
+      itemIdsList.add(item.getItemId());
       long defaultPositionUs = (long) (item.getStartTime() * C.MICROS_PER_SECOND);
       updateItemData(item.getItemId(), item.getMedia(), defaultPositionUs);
+    }
+
+    int[] itemIds = Ints.toArray(itemIdsList);
+    if (itemIds.length > 0) {
+      // Only remove unused items when there is something in the queue to avoid removing all entries
+      // if the remote media client clears the queue temporarily. See [Internal ref: b/128825216].
+      removeUnusedItemDataEntries(itemIds);
     }
 
     return new CastTimeline(itemIds, itemIdToData);
