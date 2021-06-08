@@ -16,30 +16,27 @@
 
 package com.google.android.exoplayer2.source.rtsp;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.VERSION_SLASHY;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.source.BaseMediaSource;
+import com.google.android.exoplayer2.source.ForwardingTimeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
-import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
@@ -63,7 +60,12 @@ public final class RtspMediaSource extends BaseMediaSource {
    */
   public static final class Factory implements MediaSourceFactory {
 
+    private String userAgent;
     private boolean forceUseRtpTcp;
+
+    public Factory() {
+      userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
+    }
 
     /**
      * Sets whether to force using TCP as the default RTP transport.
@@ -78,6 +80,17 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     public Factory setForceUseRtpTcp(boolean forceUseRtpTcp) {
       this.forceUseRtpTcp = forceUseRtpTcp;
+      return this;
+    }
+
+    /**
+     * Sets the user agent, the default value is {@link ExoPlayerLibraryInfo#VERSION_SLASHY}.
+     *
+     * @param userAgent The user agent.
+     * @return This Factory, for convenience.
+     */
+    public Factory setUserAgent(String userAgent) {
+      this.userAgent = userAgent;
       return this;
     }
 
@@ -149,7 +162,8 @@ public final class RtspMediaSource extends BaseMediaSource {
           mediaItem,
           forceUseRtpTcp
               ? new TransferRtpDataChannelFactory()
-              : new UdpDataSourceRtpDataChannelFactory());
+              : new UdpDataSourceRtpDataChannelFactory(),
+          userAgent);
     }
   }
 
@@ -170,34 +184,32 @@ public final class RtspMediaSource extends BaseMediaSource {
 
   private final MediaItem mediaItem;
   private final RtpDataChannel.Factory rtpDataChannelFactory;
-  private @MonotonicNonNull RtspClient rtspClient;
+  private final String userAgent;
+  private final Uri uri;
 
-  @Nullable private ImmutableList<RtspMediaTrack> rtspMediaTracks;
-  @Nullable private IOException sourcePrepareException;
+  private long timelineDurationUs;
+  private boolean timelineIsSeekable;
+  private boolean timelineIsLive;
+  private boolean timelineIsPlaceholder;
 
-  private RtspMediaSource(MediaItem mediaItem, RtpDataChannel.Factory rtpDataChannelFactory) {
+  private RtspMediaSource(
+      MediaItem mediaItem, RtpDataChannel.Factory rtpDataChannelFactory, String userAgent) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
+    this.userAgent = userAgent;
+    this.uri = checkNotNull(this.mediaItem.playbackProperties).uri;
+    this.timelineDurationUs = C.TIME_UNSET;
+    this.timelineIsPlaceholder = true;
   }
 
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
-    checkNotNull(mediaItem.playbackProperties);
-    try {
-      rtspClient =
-          new RtspClient(
-              new SessionInfoListenerImpl(),
-              /* userAgent= */ VERSION_SLASHY,
-              mediaItem.playbackProperties.uri);
-      rtspClient.start();
-    } catch (IOException e) {
-      sourcePrepareException = new RtspPlaybackException("RtspClient not opened.", e);
-    }
+    notifySourceInfoRefreshed();
   }
 
   @Override
   protected void releaseSourceInternal() {
-    Util.closeQuietly(rtspClient);
+    // Do nothing.
   }
 
   @Override
@@ -206,16 +218,24 @@ public final class RtspMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    if (sourcePrepareException != null) {
-      throw sourcePrepareException;
-    }
+  public void maybeThrowSourceInfoRefreshError() {
+    // Do nothing.
   }
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     return new RtspMediaPeriod(
-        allocator, checkNotNull(rtspMediaTracks), checkNotNull(rtspClient), rtpDataChannelFactory);
+        allocator,
+        rtpDataChannelFactory,
+        uri,
+        (timing) -> {
+          timelineDurationUs = C.msToUs(timing.getDurationMs());
+          timelineIsSeekable = !timing.isLive();
+          timelineIsLive = timing.isLive();
+          timelineIsPlaceholder = false;
+          notifySourceInfoRefreshed();
+        },
+        userAgent);
   }
 
   @Override
@@ -223,28 +243,36 @@ public final class RtspMediaSource extends BaseMediaSource {
     ((RtspMediaPeriod) mediaPeriod).release();
   }
 
-  private final class SessionInfoListenerImpl implements SessionInfoListener {
-    @Override
-    public void onSessionTimelineUpdated(
-        RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {
-      rtspMediaTracks = tracks;
-      refreshSourceInfo(
-          new SinglePeriodTimeline(
-              /* durationUs= */ C.msToUs(timing.getDurationMs()),
-              /* isSeekable= */ !timing.isLive(),
-              /* isDynamic= */ false,
-              /* useLiveConfiguration= */ timing.isLive(),
-              /* manifest= */ null,
-              mediaItem));
-    }
+  // Internal methods.
 
-    @Override
-    public void onSessionTimelineRequestFailed(String message, @Nullable Throwable cause) {
-      if (cause == null) {
-        sourcePrepareException = new RtspPlaybackException(message);
-      } else {
-        sourcePrepareException = new RtspPlaybackException(message, castNonNull(cause));
-      }
+  private void notifySourceInfoRefreshed() {
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            timelineDurationUs,
+            timelineIsSeekable,
+            /* isDynamic= */ false,
+            /* useLiveConfiguration= */ timelineIsLive,
+            /* manifest= */ null,
+            mediaItem);
+    if (timelineIsPlaceholder) {
+      timeline =
+          new ForwardingTimeline(timeline) {
+            @Override
+            public Window getWindow(
+                int windowIndex, Window window, long defaultPositionProjectionUs) {
+              super.getWindow(windowIndex, window, defaultPositionProjectionUs);
+              window.isPlaceholder = true;
+              return window;
+            }
+
+            @Override
+            public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+              super.getPeriod(periodIndex, period, setIds);
+              period.isPlaceholder = true;
+              return period;
+            }
+          };
     }
+    refreshSourceInfo(timeline);
   }
 }
