@@ -84,8 +84,8 @@ import java.util.List;
   private boolean animationEnabled;
 
   @SuppressWarnings({
-    "nullness:method.invocation.invalid",
-    "nullness:methodref.receiver.bound.invalid"
+    "nullness:method.invocation.invalid", "nullness:method.invocation",
+    "nullness:methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"
   })
   public StyledPlayerControlViewLayoutManager(StyledPlayerControlView styledPlayerControlView) {
     this.styledPlayerControlView = styledPlayerControlView;
