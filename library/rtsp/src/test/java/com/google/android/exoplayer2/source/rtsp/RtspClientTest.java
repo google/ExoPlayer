@@ -22,7 +22,9 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
+import com.google.android.exoplayer2.source.rtsp.RtspClient.PlaybackEventListener;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -73,6 +75,17 @@ public final class RtspClientTest {
               @Override
               public void onSessionTimelineRequestFailed(
                   String message, @Nullable Throwable cause) {}
+            },
+            new PlaybackEventListener() {
+              @Override
+              public void onRtspSetupCompleted() {}
+
+              @Override
+              public void onPlaybackStarted(
+                  long startPositionUs, ImmutableList<RtspTrackTiming> trackTimingList) {}
+
+              @Override
+              public void onPlaybackError(RtspPlaybackException error) {}
             },
             /* userAgent= */ "ExoPlayer:RtspClientTest",
             /* uri= */ Uri.parse(

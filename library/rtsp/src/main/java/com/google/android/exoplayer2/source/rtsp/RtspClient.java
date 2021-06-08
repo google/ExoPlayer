@@ -96,16 +96,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private final SessionInfoListener sessionInfoListener;
+  private final PlaybackEventListener playbackEventListener;
   private final Uri uri;
   @Nullable private final RtspAuthUserInfo rtspAuthUserInfo;
-  @Nullable private final String userAgent;
+  private final String userAgent;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
   private final SparseArray<RtspRequest> pendingRequests;
   private final MessageSender messageSender;
 
   private RtspMessageChannel messageChannel;
-  private @MonotonicNonNull PlaybackEventListener playbackEventListener;
   @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
@@ -123,12 +123,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>Note: all method invocations must be made from the playback thread.
    *
    * @param sessionInfoListener The {@link SessionInfoListener}.
-   * @param userAgent The user agent that will be used if needed, or {@code null} for the fallback
-   *     to use the default user agent of the underlying platform.
+   * @param playbackEventListener The {@link PlaybackEventListener}.
+   * @param userAgent The user agent.
    * @param uri The RTSP playback URI.
    */
-  public RtspClient(SessionInfoListener sessionInfoListener, @Nullable String userAgent, Uri uri) {
+  public RtspClient(
+      SessionInfoListener sessionInfoListener,
+      PlaybackEventListener playbackEventListener,
+      String userAgent,
+      Uri uri) {
     this.sessionInfoListener = sessionInfoListener;
+    this.playbackEventListener = playbackEventListener;
     this.uri = RtspMessageUtil.removeUserInfo(uri);
     this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
     this.userAgent = userAgent;
@@ -157,17 +162,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     messageSender.sendOptionsRequest(uri, sessionId);
   }
 
-  /** Sets the {@link PlaybackEventListener} to receive playback events. */
-  public void setPlaybackEventListener(PlaybackEventListener playbackEventListener) {
-    this.playbackEventListener = playbackEventListener;
-  }
-
   /**
    * Triggers RTSP SETUP requests after track selection.
    *
-   * <p>A {@link PlaybackEventListener} must be set via {@link #setPlaybackEventListener} before
-   * calling this method. All selected tracks (represented by {@link RtpLoadInfo}) must have valid
-   * transport.
+   * <p>All selected tracks (represented by {@link RtpLoadInfo}) must have valid transport.
    *
    * @param loadInfos A list of selected tracks represented by {@link RtpLoadInfo}.
    */
@@ -224,7 +222,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       receivedAuthorizationRequest = false;
       rtspAuthenticationInfo = null;
     } catch (IOException e) {
-      checkNotNull(playbackEventListener).onPlaybackError(new RtspPlaybackException(e));
+      playbackEventListener.onPlaybackError(new RtspPlaybackException(e));
     }
   }
 
@@ -237,7 +235,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void continueSetupRtspTrack() {
     @Nullable RtpLoadInfo loadInfo = pendingSetupRtpLoadInfos.pollFirst();
     if (loadInfo == null) {
-      checkNotNull(playbackEventListener).onRtspSetupCompleted();
+      playbackEventListener.onRtspSetupCompleted();
       return;
     }
     messageSender.sendSetupRequest(loadInfo.getTrackUri(), loadInfo.getTransport(), sessionId);
@@ -258,7 +256,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     if (hasUpdatedTimelineAndTracks) {
       // Playback event listener must be non-null after timeline has been updated.
-      checkNotNull(playbackEventListener).onPlaybackError(playbackException);
+      playbackEventListener.onPlaybackError(playbackException);
     } else {
       sessionInfoListener.onSessionTimelineRequestFailed(nullToEmpty(error.getMessage()), error);
     }
@@ -373,9 +371,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Uri uri) {
       RtspHeaders.Builder headersBuilder = new RtspHeaders.Builder();
       headersBuilder.add(RtspHeaders.CSEQ, String.valueOf(cSeq++));
-      if (userAgent != null) {
-        headersBuilder.add(RtspHeaders.USER_AGENT, userAgent);
-      }
+      headersBuilder.add(RtspHeaders.USER_AGENT, userAgent);
 
       if (sessionId != null) {
         headersBuilder.add(RtspHeaders.SESSION, sessionId);
@@ -572,9 +568,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         keepAliveMonitor.start();
       }
 
-      checkNotNull(playbackEventListener)
-          .onPlaybackStarted(
-              C.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
+      playbackEventListener.onPlaybackStarted(
+          C.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
       pendingSeekPositionUs = C.TIME_UNSET;
     }
 
