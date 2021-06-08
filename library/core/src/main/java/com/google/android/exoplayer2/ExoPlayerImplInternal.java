@@ -25,9 +25,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import android.util.Pair;
 import androidx.annotation.CheckResult;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParametersListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
@@ -578,7 +582,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       @Nullable Throwable cause = e.getCause();
       int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
       if (cause instanceof FileNotFoundException) {
-        errorCode = PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND;
+        if (Util.SDK_INT >= 21 && ErrnoExceptionWrapperV21.isPermissionError(cause.getCause())) {
+          errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
+        } else {
+          errorCode = PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND;
+        }
       } else if (cause instanceof SecurityException) {
         errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
       }
@@ -3024,6 +3032,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
       this.toIndex = toIndex;
       this.newFromIndex = newFromIndex;
       this.shuffleOrder = shuffleOrder;
+    }
+  }
+
+  @RequiresApi(21)
+  private static final class ErrnoExceptionWrapperV21 {
+
+    @DoNotInline
+    public static boolean isPermissionError(@Nullable Throwable e) {
+      return e instanceof ErrnoException && ((ErrnoException) e).errno == OsConstants.EACCES;
     }
   }
 }
