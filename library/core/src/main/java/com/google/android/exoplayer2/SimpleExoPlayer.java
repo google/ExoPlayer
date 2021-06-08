@@ -1553,6 +1553,30 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    verifyApplicationThread();
+    player.setFastForwardIncrement(fastForwardIncrementMs);
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    verifyApplicationThread();
+    return player.getFastForwardIncrement();
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    verifyApplicationThread();
+    player.setRewindIncrement(rewindIncrementMs);
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    verifyApplicationThread();
+    return player.getRewindIncrement();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);

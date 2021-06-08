@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
@@ -116,6 +119,16 @@ public abstract class BasePlayer implements Player {
   @Override
   public final void seekTo(long positionMs) {
     seekTo(getCurrentWindowIndex(), positionMs);
+  }
+
+  @Override
+  public final void fastForward() {
+    seekToOffset(getFastForwardIncrement());
+  }
+
+  @Override
+  public final void rewind() {
+    seekToOffset(-getRewindIncrement());
   }
 
   @Override
@@ -246,12 +259,6 @@ public abstract class BasePlayer implements Player {
         : timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
-  @RepeatMode
-  private int getRepeatModeForNavigation() {
-    @RepeatMode int repeatMode = getRepeatMode();
-    return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
-  }
-
   protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
@@ -261,5 +268,21 @@ public abstract class BasePlayer implements Player {
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
         .build();
+  }
+
+  @RepeatMode
+  private int getRepeatModeForNavigation() {
+    @RepeatMode int repeatMode = getRepeatMode();
+    return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
+  }
+
+  private void seekToOffset(long offsetMs) {
+    long positionMs = getCurrentPosition() + offsetMs;
+    long durationMs = getDuration();
+    if (durationMs != C.TIME_UNSET) {
+      positionMs = min(positionMs, durationMs);
+    }
+    positionMs = max(positionMs, 0);
+    seekTo(positionMs);
   }
 }

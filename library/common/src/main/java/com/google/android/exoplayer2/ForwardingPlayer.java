@@ -248,6 +248,36 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    player.setFastForwardIncrement(fastForwardIncrementMs);
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    return player.getFastForwardIncrement();
+  }
+
+  @Override
+  public void fastForward() {
+    player.fastForward();
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    player.setRewindIncrement(rewindIncrementMs);
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    return player.getRewindIncrement();
+  }
+
+  @Override
+  public void rewind() {
+    player.rewind();
+  }
+
+  @Override
   public boolean hasPrevious() {
     return player.hasPrevious();
   }

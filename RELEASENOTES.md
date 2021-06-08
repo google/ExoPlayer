@@ -9,6 +9,7 @@
     *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
     *   Update `MediaItem.Builder` javadoc to discourage calling setters that
         will be (currently) ignored if another setter is not also called.
+    *   Add `fastForward` and `rewind` methods to `Player`.
 *   Extractors:
     *   Add support for MPEG-H 3D Audio in MP4 extractors
         ([#8860](https://github.com/google/ExoPlayer/pull/8860)).

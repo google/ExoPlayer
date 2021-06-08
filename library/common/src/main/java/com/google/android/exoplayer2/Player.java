@@ -22,6 +22,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -842,6 +843,11 @@ public interface Player {
     default void onMetadata(Metadata metadata) {}
   }
 
+  /** The default {@link #fastForward()} increment, in milliseconds. */
+  long DEFAULT_FAST_FORWARD_INCREMENT_MS = 15_000;
+  /** The default {@link #rewind()} increment, in milliseconds. */
+  long DEFAULT_REWIND_INCREMENT_MS = 5000;
+
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
    * {@link #STATE_ENDED}.
@@ -1535,6 +1541,46 @@ public interface Player {
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
   void seekTo(int windowIndex, long positionMs);
+
+  /**
+   * Sets the {@link #fastForward()} increment.
+   *
+   * @param fastForwardIncrementMs The fast forward increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code fastForwardIncrementMs} is non-positive.
+   */
+  void setFastForwardIncrement(@IntRange(from = 1) long fastForwardIncrementMs);
+
+  /**
+   * Returns the {@link #fastForward()} increment.
+   *
+   * <p>The default value is {@link #DEFAULT_FAST_FORWARD_INCREMENT_MS}.
+   *
+   * @return The fast forward increment, in milliseconds.
+   */
+  long getFastForwardIncrement();
+
+  /** Seeks forward in the current window by {@link #getFastForwardIncrement()} milliseconds. */
+  void fastForward();
+
+  /**
+   * Sets the {@link #rewind()} increment.
+   *
+   * @param rewindIncrementMs The rewind increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code rewindIncrementMs} is non-positive.
+   */
+  void setRewindIncrement(@IntRange(from = 1) long rewindIncrementMs);
+
+  /**
+   * Returns the {@link #rewind()} increment.
+   *
+   * <p>The default value is {@link #DEFAULT_REWIND_INCREMENT_MS}.
+   *
+   * @return The rewind increment, in milliseconds.
+   */
+  long getRewindIncrement();
+
+  /** Seeks back in the current window by {@link #getRewindIncrement()} milliseconds. */
+  void rewind();
 
   /**
    * Returns whether a previous window exists, which may depend on the current repeat mode and

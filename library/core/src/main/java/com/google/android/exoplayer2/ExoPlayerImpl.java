@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
@@ -102,6 +103,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean pauseAtEndOfMediaItems;
   private Commands availableCommands;
   private MediaMetadata mediaMetadata;
+  private long fastForwardIncrementMs;
+  private long rewindIncrementMs;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -210,6 +213,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
+    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
+    rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -708,6 +713,28 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
         /* discontinuityWindowStartPositionUs= */ getCurrentPositionUsInternal(newPlaybackInfo),
         oldMaskingWindowIndex);
+  }
+
+  @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    checkArgument(fastForwardIncrementMs > 0);
+    this.fastForwardIncrementMs = fastForwardIncrementMs;
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    return fastForwardIncrementMs;
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    checkArgument(rewindIncrementMs > 0);
+    this.rewindIncrementMs = rewindIncrementMs;
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    return rewindIncrementMs;
   }
 
   @Override

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -141,6 +142,8 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
+  private long fastForwardIncrementMs;
+  private long rewindIncrementMs;
 
   /**
    * Creates a new cast player that uses a {@link DefaultMediaItemConverter}.
@@ -178,6 +181,8 @@ public final class CastPlayer extends BasePlayer {
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
+    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
+    rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
 
     SessionManager sessionManager = castContext.getSessionManager();
     sessionManager.addSessionManagerListener(statusListener, CastSession.class);
@@ -409,6 +414,28 @@ public final class CastPlayer extends BasePlayer {
       listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
     listeners.flushEvents();
+  }
+
+  @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    checkArgument(fastForwardIncrementMs > 0);
+    this.fastForwardIncrementMs = fastForwardIncrementMs;
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    return fastForwardIncrementMs;
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    checkArgument(rewindIncrementMs > 0);
+    this.rewindIncrementMs = rewindIncrementMs;
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    return rewindIncrementMs;
   }
 
   @Override

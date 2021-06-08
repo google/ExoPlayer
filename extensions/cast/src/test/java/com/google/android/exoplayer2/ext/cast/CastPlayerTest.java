@@ -38,6 +38,8 @@ import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
+import static com.google.android.exoplayer2.Player.DEFAULT_FAST_FORWARD_INCREMENT_MS;
+import static com.google.android.exoplayer2.Player.DEFAULT_REWIND_INCREMENT_MS;
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_REMOVE;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
 import static com.google.common.truth.Truth.assertThat;
@@ -1098,6 +1100,98 @@ public class CastPlayerTest {
         .verify(mockListener)
         .onPositionDiscontinuity(
             eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
+  public void fastForward_notifiesPositionDiscontinuity() {
+    when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
+    int[] mediaQueueItemIds = new int[] {1};
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    int currentItemId = 1;
+    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
+    long[] durationsMs = new long[] {2 * DEFAULT_FAST_FORWARD_INCREMENT_MS};
+    long positionMs = 0;
+
+    castPlayer.addMediaItems(mediaItems);
+    updateTimeLine(
+        mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
+    castPlayer.fastForward();
+
+    Player.PositionInfo oldPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 0,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    Player.PositionInfo newPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ DEFAULT_FAST_FORWARD_INCREMENT_MS,
+            /* contentPositionMs= */ DEFAULT_FAST_FORWARD_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    InOrder inOrder = Mockito.inOrder(mockListener);
+    inOrder.verify(mockListener).onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(
+            eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
+  public void rewind_notifiesPositionDiscontinuity() {
+    when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
+    int[] mediaQueueItemIds = new int[] {1};
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    int currentItemId = 1;
+    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
+    long[] durationsMs = new long[] {3 * DEFAULT_REWIND_INCREMENT_MS};
+    long positionMs = 2 * DEFAULT_REWIND_INCREMENT_MS;
+
+    castPlayer.addMediaItems(mediaItems);
+    updateTimeLine(
+        mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
+    castPlayer.rewind();
+
+    Player.PositionInfo oldPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 2 * DEFAULT_REWIND_INCREMENT_MS,
+            /* contentPositionMs= */ 2 * DEFAULT_REWIND_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    Player.PositionInfo newPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ DEFAULT_REWIND_INCREMENT_MS,
+            /* contentPositionMs= */ DEFAULT_REWIND_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    InOrder inOrder = Mockito.inOrder(mockListener);
+    inOrder.verify(mockListener).onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(
+            eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
   }
