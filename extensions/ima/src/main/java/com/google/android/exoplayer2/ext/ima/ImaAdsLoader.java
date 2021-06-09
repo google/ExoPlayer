@@ -121,6 +121,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     private int mediaBitrate;
     private boolean focusSkipButtonWhenAvailable;
     private boolean playAdBeforeStartPosition;
+    private boolean skipAdGroupOnSkipAd;
     private boolean debugModeEnabled;
     private ImaUtil.ImaFactory imaFactory;
 
@@ -137,6 +138,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
       mediaBitrate = BITRATE_UNSET;
       focusSkipButtonWhenAvailable = true;
       playAdBeforeStartPosition = true;
+      skipAdGroupOnSkipAd = false;
       imaFactory = new DefaultImaFactory();
     }
 
@@ -338,6 +340,19 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     }
 
     /**
+     * Sets whether to skip all remaining ads in ad group when current ad is skipped. The default
+     * setting is {@code false}.
+     *
+     * @param skipAdGroupOnSkipAd Whether to skip all remaining ads in ad group when current ad
+     *     is skipped.
+     * @return This builder, for convenience.
+     */
+    public Builder setSkipAdGroupOnSkipAd(boolean skipAdGroupOnSkipAd) {
+      this.skipAdGroupOnSkipAd = skipAdGroupOnSkipAd;
+      return this;
+    }
+
+    /**
      * Sets whether to enable outputting verbose logs for the IMA extension and IMA SDK. The default
      * value is {@code false}. This setting is intended for debugging only, and should not be
      * enabled in production applications.
@@ -368,6 +383,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
               mediaLoadTimeoutMs,
               focusSkipButtonWhenAvailable,
               playAdBeforeStartPosition,
+              skipAdGroupOnSkipAd,
               mediaBitrate,
               enableContinuousPlayback,
               adMediaMimeTypes,
