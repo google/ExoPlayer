@@ -325,7 +325,12 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:method.invocation.invalid"})
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:argument",
+    "nullness:method.invocation.invalid",
+    "nullness:method.invocation"
+  })
   public StyledPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
