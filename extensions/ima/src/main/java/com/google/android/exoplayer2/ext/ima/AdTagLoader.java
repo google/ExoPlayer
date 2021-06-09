@@ -936,9 +936,12 @@ import java.util.Map;
       }
     }
 
-    Uri adUri = Uri.parse(adMediaInfo.getUrl());
-    adPlaybackState =
-        adPlaybackState.withAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
+    // Only play this ad if it hasn't previously been skipped
+    if (adGroup.states[adIndexInAdGroup] != AdPlaybackState.AD_STATE_SKIPPED) {
+      Uri adUri = Uri.parse(adMediaInfo.getUrl());
+      adPlaybackState =
+          adPlaybackState.withAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
+    }
     updateAdPlaybackState();
   }
 
@@ -1044,9 +1047,34 @@ import java.util.Map;
       // We have already marked this ad as having failed to load, so ignore the request.
       return;
     }
-    adPlaybackState =
-        adPlaybackState.withPlayedAd(adGroupIndex, adIndexInAdGroup).withAdResumePositionUs(0);
-    updateAdPlaybackState();
+    if (!configuration.skipAdGroupOnSkipAd) {
+      adPlaybackState =
+          adPlaybackState.withPlayedAd(adGroupIndex, adIndexInAdGroup).withAdResumePositionUs(0);
+      updateAdPlaybackState();
+    } else {
+      int adState = adPlaybackState.getAdGroup(adGroupIndex).states[adIndexInAdGroup];
+      if (new ArrayList<Integer>() {{
+        add(AdPlaybackState.AD_STATE_UNAVAILABLE);
+        add(AdPlaybackState.AD_STATE_AVAILABLE);
+        add(AdPlaybackState.AD_STATE_PLAYED);
+      }}.contains(adState)) {
+        adPlaybackState = adPlaybackState.withPlayedAd(adGroupIndex, adIndexInAdGroup);
+        if (player.getCurrentAdIndexInAdGroup() == adIndexInAdGroup) {
+          // Calling stop on current ad, indicating ad was skipped, so skip the remaining ads as well
+          if (configuration.debugModeEnabled) {
+            Log.d(TAG, "skipping remaining ads");
+          }
+          int adGroupCount = adPlaybackState.getAdGroup(adGroupIndex).count;
+          for (int i = adIndexInAdGroup + 1; i < adGroupCount; i += 1) {
+            adPlaybackState = adPlaybackState.withSkippedAd(adGroupIndex, i);
+          }
+        } else {
+          // Presumably calling stop on previous ad, which indicates previous ad finished and was not skipped
+          adPlaybackState = adPlaybackState.withAdResumePositionUs(0);
+        }
+        updateAdPlaybackState();
+      }
+    }
     if (!playingAd) {
       imaAdMediaInfo = null;
       imaAdInfo = null;
