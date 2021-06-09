@@ -749,6 +749,15 @@ public class AnalyticsCollector
         listener -> listener.onMediaMetadataChanged(eventTime, mediaMetadata));
   }
 
+  @Override
+  public void onPlaylistMediaMetadataChanged(MediaMetadata playlistMediaMetadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+        listener -> listener.onPlaylistMediaMetadataChanged(eventTime, playlistMediaMetadata));
+  }
+
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public final void onSeekProcessed() {

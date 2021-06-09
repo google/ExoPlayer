@@ -170,6 +170,7 @@ public interface AnalyticsListener {
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -248,6 +249,8 @@ public interface AnalyticsListener {
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
   /** {@link Player#getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
+  /** {@link Player#getPlaylistMediaMetadata()} changed. */
+  int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = Player.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -657,6 +660,15 @@ public interface AnalyticsListener {
    * @param mediaMetadata The combined {@link MediaMetadata}.
    */
   default void onMediaMetadataChanged(EventTime eventTime, MediaMetadata mediaMetadata) {}
+
+  /**
+   * Called when the playlist {@link MediaMetadata} changes.
+   *
+   * @param eventTime The event time.
+   * @param playlistMediaMetadata The playlist {@link MediaMetadata}.
+   */
+  default void onPlaylistMediaMetadataChanged(
+      EventTime eventTime, MediaMetadata playlistMediaMetadata) {}
 
   /**
    * Called when a media source started loading data.

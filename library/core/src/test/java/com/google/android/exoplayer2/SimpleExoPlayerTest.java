@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -59,6 +60,22 @@ public class SimpleExoPlayerTest {
     builderThread.join();
 
     assertThat(builderThrow.get()).isNull();
+  }
+
+  @Test
+  public void onPlaybackMediaMetadataChanged_calledWhenPlaybackMediaMetadataSet() {
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener playerListener = mock(Player.Listener.class);
+    player.addListener(playerListener);
+    AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(analyticsListener);
+
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("test").build();
+    player.setPlaylistMediaMetadata(mediaMetadata);
+
+    verify(playerListener).onPlaylistMediaMetadataChanged(mediaMetadata);
+    verify(analyticsListener).onPlaylistMediaMetadataChanged(any(), eq(mediaMetadata));
   }
 
   @Test
