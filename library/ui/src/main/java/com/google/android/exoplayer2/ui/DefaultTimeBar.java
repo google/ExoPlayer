@@ -243,7 +243,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   // Suppress warnings due to usage of View methods in the constructor.
-  @SuppressWarnings("nullness:method.invocation.invalid")
+  @SuppressWarnings({"nullness:method.invocation.invalid", "nullness:method.invocation"})
   public DefaultTimeBar(
       Context context,
       @Nullable AttributeSet attrs,
