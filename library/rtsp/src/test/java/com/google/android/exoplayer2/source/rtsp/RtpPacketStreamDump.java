@@ -83,7 +83,7 @@ import org.json.JSONObject;
           mediaDescription,
           packetsBuilder.build());
     } catch (JSONException e) {
-      throw ParserException.createForMalformedManifest(/* message= */ null, e);
+      throw new ParserException(e);
     }
   }
 
