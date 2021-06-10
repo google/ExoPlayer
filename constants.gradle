@@ -19,7 +19,7 @@ project.ext {
     appTargetSdkVersion = 29
     targetSdkVersion = 30
     compileSdkVersion = 30
-    dexmakerVersion = '2.21.0'
+    dexmakerVersion = '2.28.1'
     junitVersion = '4.13.2'
     guavaVersion = '27.1-android'
     mockitoVersion = '3.4.0'
