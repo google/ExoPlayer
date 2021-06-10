@@ -765,6 +765,9 @@ public class DashManifestParser extends DefaultHandler
     @Nullable String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
       sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
+      if (MimeTypes.AUDIO_E_AC3_JOC.equals(sampleMimeType)) {
+        codecs = "ec+3";
+      }
     }
     @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);
     @C.RoleFlags int roleFlags = parseRoleFlagsFromRoleDescriptors(roleDescriptors);
