@@ -240,7 +240,7 @@ import java.util.List;
         int speedDivisor = 1 << (speedMode - 1);
         segments.add(new SlowMotionData.Segment(startTimeMs, endTimeMs, speedDivisor));
       } catch (NumberFormatException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ e);
       }
     }
     return new SlowMotionData(segments);

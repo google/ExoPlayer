@@ -103,7 +103,7 @@ public class DashManifestParser extends DefaultHandler
       }
       return parseMediaPresentationDescription(xpp, uri.toString());
     } catch (XmlPullParserException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
     }
   }
 

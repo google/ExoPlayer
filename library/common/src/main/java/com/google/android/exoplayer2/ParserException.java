@@ -123,18 +123,6 @@ public class ParserException extends IOException {
     this(message, /* cause= */ null, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
   }
 
-  /**
-   * Creates a new instance.
-   *
-   * @param cause The cause for the exception.
-   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
-   *     #dataType} instead.
-   */
-  @Deprecated
-  public ParserException(Throwable cause) {
-    this(/* message= */ null, cause, /* contentIsMalformed= */ true, C.DATA_TYPE_UNKNOWN);
-  }
-
   protected ParserException(
       @Nullable String message,
       @Nullable Throwable cause,

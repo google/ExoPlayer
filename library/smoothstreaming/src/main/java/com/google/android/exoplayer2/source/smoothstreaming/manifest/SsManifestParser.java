@@ -74,7 +74,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
           new SmoothStreamingMediaParser(null, uri.toString());
       return (SsManifest) smoothStreamingMediaParser.parse(xmlParser);
     } catch (XmlPullParserException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
     }
   }
 
@@ -253,7 +253,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         try {
           return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-          throw new ParserException(e);
+          throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
         }
       } else {
         return defaultValue;
@@ -266,7 +266,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         try {
           return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-          throw new ParserException(e);
+          throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
         }
       } else {
         throw new MissingFieldException(key);
@@ -280,7 +280,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         try {
           return Long.parseLong(value);
         } catch (NumberFormatException e) {
-          throw new ParserException(e);
+          throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
         }
       } else {
         return defaultValue;
@@ -294,7 +294,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         try {
           return Long.parseLong(value);
         } catch (NumberFormatException e) {
-          throw new ParserException(e);
+          throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
         }
       } else {
         throw new MissingFieldException(key);

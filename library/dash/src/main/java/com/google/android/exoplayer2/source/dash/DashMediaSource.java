@@ -1464,7 +1464,7 @@ public final class DashMediaSource extends BaseMediaSource {
         }
         return timestampMs;
       } catch (ParseException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
       }
     }
   }
