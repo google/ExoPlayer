@@ -3,16 +3,8 @@
 ### dev-v2 (not yet released)
 
 *   Core Library:
-    *   Fix gradle config to allow specifying a relative path for
-        `exoplayerRoot` when [depending on ExoPlayer locally](README.md#locally)
-        ([#8927](https://github.com/google/ExoPlayer/issues/8927)).
     *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
-    *   Update `MediaItem.Builder` javadoc to discourage calling setters that
-        will be (currently) ignored if another setter is not also called.
     *   Add `fastForward` and `rewind` methods to `Player`.
-*   Extractors:
-    *   Add support for MPEG-H 3D Audio in MP4 extractors
-        ([#8860](https://github.com/google/ExoPlayer/pull/8860)).
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
@@ -50,33 +42,42 @@
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
 *   Video:
-    *   Fix bug that could cause `CodecException: Error 0xffffffff` to be thrown
-        from `MediaCodec.native_setSurface` in use cases that involve both
-        swapping the output `Surface` and a mixture of secure and non-secure
-        content being played
-        ([#8776](https://github.com/google/ExoPlayer/issues/8776)).
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
     *   Support resuming content with an offset after an ad group.
-*   HLS
-    *   Use the PRECISE attribute in EXT-X-START to select the default start
-        position.
-    *   Fix a bug where skipping into spliced-in chunks triggered an assertion
-        error ([#8937](https://github.com/google/ExoPlayer/issues/8937).
 *   PlayerNotificationManager:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
         Android 12.
     *   Add `setUseFastForwardActionInCompactView(boolean)` and
         `setUseRewindActionInCompactView(boolean)` to make it possible to show
         seek actions in compact view mode.
+
+### 2.14.1 (2021-06-11)
+
+*   Core Library:
+    *   Fix gradle config to allow specifying a relative path for
+        `exoplayerRoot` when [depending on ExoPlayer locally](README.md#locally)
+        ([#8927](https://github.com/google/ExoPlayer/issues/8927)).
+    *   Update `MediaItem.Builder` javadoc to discourage calling setters that
+        will be (currently) ignored if another setter is not also called.
+*   Extractors:
+    *   Add support for MPEG-H 3D Audio in MP4 extractors
+        ([#8860](https://github.com/google/ExoPlayer/pull/8860)).
+*   Video:
+    *   Fix bug that could cause `CodecException: Error 0xffffffff` to be thrown
+        from `MediaCodec.native_setSurface` in use cases that involve both
+        swapping the output `Surface` and a mixture of secure and non-secure
+        content being played
+        ([#8776](https://github.com/google/ExoPlayer/issues/8776)).
+*   HLS:
+    *   Use the `PRECISE` attribute in `EXT-X-START` to select the default start
+        position.
+    *   Fix a bug where skipping into spliced-in chunks triggered an assertion
+        error ([#8937](https://github.com/google/ExoPlayer/issues/8937)).
 *   DRM:
-    *   Don't restore offline keys before releasing them. In OEMCrypto v16+ keys
-        must be released without restoring them first.
-    *   Ensure `DefaultDrmSession` instances keep working even after their
-        `DefaultDrmSessionManager` instance is released.
     *   Keep secure `MediaCodec` instances initialized when disabling (but not
         resetting) `MediaCodecRenderer`. This helps re-use secure decoders in
         more contexts, which avoids the 'black flash' caused by detaching a
@@ -84,19 +85,26 @@
         ([#8842](https://github.com/google/ExoPlayer/issues/8842)). It will also
         result in DRM license refresh network requests while the player is
         stopped if `Player#setForegroundMode` is true.
+    *   Fix issue where offline keys were unnecessarily (and incorrectly)
+        restored into a session before being released. This call sequence is
+        explicitly disallowed in OEMCrypto v16.
 *   UI:
     *   Keep subtitle language features embedded (e.g. rubies & tate-chu-yoko)
         in `Cue.text` even when `SubtitleView#setApplyEmbeddedStyles()` is
-        false.
+        `false`.
     *   Fix `NullPointerException` in `StyledPlayerView` that could occur after
         calling `StyledPlayerView.setPlayer(null)`
         ([#8985](https://github.com/google/ExoPlayer/issues/8985)).
 *   RTSP:
-    *   Add support for RTSP basic and digest authentication.
+    *   Add support for RTSP basic and digest authentication
+        ([#8941](https://github.com/google/ExoPlayer/issues/8941)).
+    *   Enable using repeat mode and playlist with RTSP
+        ([#8994](https://github.com/google/ExoPlayer/issues/8994)).
+    *   Add `RtspMediaSource.Factory` option to set the RTSP user agent.
+    *   Add `RtspMediaSource.Factory` option to force using TCP for streaming.
 *   GL demo app:
     *   Fix texture transformation to avoid green bars shown on some videos
         ([#8992](https://github.com/google/ExoPlayer/issues/8992)).
-    *   Add `RtspMediaSource.Factory` option to force using TCP for streaming.
 
 ### 2.14.0 (2021-05-13)
 
