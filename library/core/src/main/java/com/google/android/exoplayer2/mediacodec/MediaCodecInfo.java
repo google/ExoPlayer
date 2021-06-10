@@ -279,6 +279,9 @@ public final class MediaCodecInfo {
     if (format.codecs == null || mimeType == null) {
       return true;
     }
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
+      return true;
+    }
     String codecMimeType = MimeTypes.getMediaMimeType(format.codecs);
     if (codecMimeType == null) {
       return true;
