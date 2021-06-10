@@ -23,6 +23,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -291,6 +292,38 @@ public class PlaybackException extends Exception implements Bundleable {
     super(message, cause);
     this.errorCode = errorCode;
     this.timestampMs = timestampMs;
+  }
+
+  /**
+   * Returns whether the error data associated to this exception equals the error data associated to
+   * {@code other}.
+   *
+   * <p>Note that this method does not compare the exceptions' stacktraces.
+   */
+  @CallSuper
+  public boolean errorInfoEquals(@Nullable PlaybackException other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+
+    @Nullable Throwable thisCause = getCause();
+    @Nullable Throwable thatCause = other.getCause();
+    if (thisCause != null && thatCause != null) {
+      if (!Util.areEqual(thisCause.getMessage(), thatCause.getMessage())) {
+        return false;
+      }
+      if (!Util.areEqual(thisCause.getClass(), thatCause.getClass())) {
+        return false;
+      }
+    } else if (thisCause != null || thatCause != null) {
+      return false;
+    }
+    return errorCode == other.errorCode
+        && Util.areEqual(getMessage(), other.getMessage())
+        && timestampMs == other.timestampMs;
   }
 
   // Bundleable implementation.

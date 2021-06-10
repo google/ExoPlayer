@@ -344,6 +344,23 @@ public final class ExoPlaybackException extends PlaybackException {
     return (RuntimeException) Assertions.checkNotNull(getCause());
   }
 
+  @Override
+  public boolean errorInfoEquals(@Nullable PlaybackException that) {
+    if (!super.errorInfoEquals(that)) {
+      return false;
+    }
+    // We know that is not null and is an ExoPlaybackException because of the super call returning
+    // true.
+    ExoPlaybackException other = (ExoPlaybackException) Util.castNonNull(that);
+    return type == other.type
+        && Util.areEqual(rendererName, other.rendererName)
+        && rendererIndex == other.rendererIndex
+        && Util.areEqual(rendererFormat, other.rendererFormat)
+        && rendererFormatSupport == other.rendererFormatSupport
+        && Util.areEqual(mediaPeriodId, other.mediaPeriodId)
+        && isRecoverable == other.isRecoverable;
+  }
+
   /**
    * Returns a copy of this exception with the provided {@link MediaPeriodId}.
    *
