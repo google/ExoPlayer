@@ -55,6 +55,8 @@
         swapping the output `Surface` and a mixture of secure and non-secure
         content being played
         ([#8776](https://github.com/google/ExoPlayer/issues/8776)).
+    *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
+        ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
