@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+*   Video:
+    *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
+        ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
 *   UI:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
         in `PlayerNotificationManager`. This is required to avoid an error on

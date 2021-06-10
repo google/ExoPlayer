@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.video;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
@@ -91,9 +90,8 @@ public final class VideoFrameReleaseHelper {
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
 
   private final FixedFrameRateEstimator frameRateEstimator;
-  @Nullable private final WindowManager windowManager;
+  @Nullable private final DisplayHelper displayHelper;
   @Nullable private final VSyncSampler vsyncSampler;
-  @Nullable private final DefaultDisplayListener displayListener;
 
   private boolean started;
   @Nullable private Surface surface;
@@ -127,20 +125,8 @@ public final class VideoFrameReleaseHelper {
    */
   public VideoFrameReleaseHelper(@Nullable Context context) {
     frameRateEstimator = new FixedFrameRateEstimator();
-    if (context != null) {
-      context = context.getApplicationContext();
-      windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    } else {
-      windowManager = null;
-    }
-    if (windowManager != null) {
-      displayListener =
-          Util.SDK_INT >= 17 ? maybeBuildDefaultDisplayListenerV17(checkNotNull(context)) : null;
-      vsyncSampler = VSyncSampler.getInstance();
-    } else {
-      displayListener = null;
-      vsyncSampler = null;
-    }
+    displayHelper = maybeBuildDisplayHelper(context);
+    vsyncSampler = displayHelper != null ? VSyncSampler.getInstance() : null;
     vsyncDurationNs = C.TIME_UNSET;
     vsyncOffsetNs = C.TIME_UNSET;
     formatFrameRate = Format.NO_VALUE;
@@ -148,14 +134,10 @@ public final class VideoFrameReleaseHelper {
   }
 
   /** Called when the renderer is enabled. */
-  @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void onEnabled() {
-    if (windowManager != null) {
+    if (displayHelper != null) {
       checkNotNull(vsyncSampler).addObserver();
-      if (displayListener != null) {
-        displayListener.register();
-      }
-      updateDefaultDisplayRefreshRateParams();
+      displayHelper.register(this::updateDefaultDisplayRefreshRateParams);
     }
   }
 
@@ -233,12 +215,9 @@ public final class VideoFrameReleaseHelper {
   }
 
   /** Called when the renderer is disabled. */
-  @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void onDisabled() {
-    if (windowManager != null) {
-      if (displayListener != null) {
-        displayListener.unregister();
-      }
+    if (displayHelper != null) {
+      displayHelper.unregister();
       checkNotNull(vsyncSampler).removeObserver();
     }
   }
@@ -394,15 +373,7 @@ public final class VideoFrameReleaseHelper {
 
   // Display refresh rate and vsync logic.
 
-  @RequiresApi(17)
-  @Nullable
-  private DefaultDisplayListener maybeBuildDefaultDisplayListenerV17(Context context) {
-    DisplayManager manager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-    return manager == null ? null : new DefaultDisplayListener(manager);
-  }
-
-  private void updateDefaultDisplayRefreshRateParams() {
-    Display defaultDisplay = checkNotNull(windowManager).getDefaultDisplay();
+  private void updateDefaultDisplayRefreshRateParams(@Nullable Display defaultDisplay) {
     if (defaultDisplay != null) {
       double defaultDisplayRefreshRate = defaultDisplay.getRefreshRate();
       vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
@@ -431,21 +402,108 @@ public final class VideoFrameReleaseHelper {
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
   }
 
+  @Nullable
+  private static DisplayHelper maybeBuildDisplayHelper(@Nullable Context context) {
+    @Nullable DisplayHelper displayHelper = null;
+    if (context != null) {
+      context = context.getApplicationContext();
+      if (Util.SDK_INT >= 17) {
+        displayHelper = DisplayHelperV17.maybeBuildNewInstance(context);
+      }
+      if (displayHelper == null) {
+        displayHelper = DisplayHelperV16.maybeBuildNewInstance(context);
+      }
+    }
+    return displayHelper;
+  }
+
+  /** Helper for listening to changes to the default display. */
+  private interface DisplayHelper {
+
+    /** Listener for changes to the default display. */
+    interface Listener {
+
+      /**
+       * Called when the default display changes.
+       *
+       * @param defaultDisplay The default display, or {@code null} if a corresponding {@link
+       *     Display} object could not be obtained.
+       */
+      void onDefaultDisplayChanged(@Nullable Display defaultDisplay);
+    }
+
+    /**
+     * Enables the helper, invoking {@link Listener#onDefaultDisplayChanged(Display)} to pass the
+     * initial default display.
+     */
+    void register(Listener listener);
+
+    /** Disables the helper. */
+    void unregister();
+  }
+
+  private static final class DisplayHelperV16 implements DisplayHelper {
+
+    @Nullable
+    public static DisplayHelper maybeBuildNewInstance(Context context) {
+      WindowManager windowManager =
+          (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+      return windowManager != null ? new DisplayHelperV16(windowManager) : null;
+    }
+
+    private final WindowManager windowManager;
+
+    private DisplayHelperV16(WindowManager windowManager) {
+      this.windowManager = windowManager;
+    }
+
+    @Override
+    public void register(Listener listener) {
+      listener.onDefaultDisplayChanged(windowManager.getDefaultDisplay());
+    }
+
+    @Override
+    public void unregister() {
+      // Do nothing.
+    }
+  }
+
   @RequiresApi(17)
-  private final class DefaultDisplayListener implements DisplayManager.DisplayListener {
+  private static final class DisplayHelperV17
+      implements DisplayHelper, DisplayManager.DisplayListener {
+
+    @Nullable
+    public static DisplayHelper maybeBuildNewInstance(Context context) {
+      DisplayManager displayManager =
+          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+      return displayManager != null ? new DisplayHelperV17(displayManager) : null;
+    }
 
     private final DisplayManager displayManager;
+    @Nullable private Listener listener;
 
-    public DefaultDisplayListener(DisplayManager displayManager) {
+    private DisplayHelperV17(DisplayManager displayManager) {
       this.displayManager = displayManager;
     }
 
-    public void register() {
+    @Override
+    public void register(Listener listener) {
+      this.listener = listener;
       displayManager.registerDisplayListener(this, Util.createHandlerForCurrentLooper());
+      listener.onDefaultDisplayChanged(getDefaultDisplay());
     }
 
+    @Override
     public void unregister() {
       displayManager.unregisterDisplayListener(this);
+      listener = null;
+    }
+
+    @Override
+    public void onDisplayChanged(int displayId) {
+      if (listener != null && displayId == Display.DEFAULT_DISPLAY) {
+        listener.onDefaultDisplayChanged(getDefaultDisplay());
+      }
     }
 
     @Override
@@ -458,11 +516,8 @@ public final class VideoFrameReleaseHelper {
       // Do nothing.
     }
 
-    @Override
-    public void onDisplayChanged(int displayId) {
-      if (displayId == Display.DEFAULT_DISPLAY) {
-        updateDefaultDisplayRefreshRateParams();
-      }
+    private Display getDefaultDisplay() {
+      return displayManager.getDisplay(Display.DEFAULT_DISPLAY);
     }
 
   }
