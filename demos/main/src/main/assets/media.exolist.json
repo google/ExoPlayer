@@ -1,18 +1,5 @@
 [
   {
-    "name": "Nanda Stream",
-    "samples": [
-      {
-        "name": "HLS",
-        "uri": "https://ott.dolby.com/OnDelKits/AC-4/Dolby_AC-4_Online_Delivery_Kit_1.5/Test_Signals/example_streams/HLS/Manifest_fMP4/Holi_25fps_example_2.m3u8"
-      },
-      {
-        "name": "DASH",
-        "uri": "https://ott.dolby.com/OnDelKits/AC-4/Dolby_AC-4_Online_Delivery_Kit_1.5/Test_Signals/example_streams/DASH/OnDemand/MPD/Holi_25fps_example_2.mpd"
-      }
-    ]
-  },
-  {
     "name": "Clear DASH",
     "samples": [
       {
