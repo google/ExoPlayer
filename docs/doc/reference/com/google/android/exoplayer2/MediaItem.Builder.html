@@ -486,8 +486,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
 <div class="block">Sets the optional URI.
 
- <p>If <code>uri</code> is null or unset no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created during
- <a href="#build()"><code>build()</code></a> and any other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> are ignored.</div>
+ <p>If <code>uri</code> is null or unset then no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created
+ during <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> should be called.</div>
 </li>
 </ul>
 <a id="setUri(android.net.Uri)">
@@ -500,8 +500,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                 <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
 <div class="block">Sets the optional URI.
 
- <p>If <code>uri</code> is null or unset no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created during
- <a href="#build()"><code>build()</code></a> and any other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> are ignored.</div>
+ <p>If <code>uri</code> is null or unset then no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created
+ during <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> should be called.</div>
 </li>
 </ul>
 <a id="setMimeType(java.lang.String)">
@@ -516,8 +516,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p>The MIME type may be used as a hint for inferring the type of the media item.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the MIME type is used to create a
- <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The MIME type.</dd>
@@ -591,8 +590,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                           <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</pre>
 <div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM license server URI is used to
- create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmLicenseUri(java.lang.String)">
@@ -605,8 +604,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</pre>
 <div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM license server URI is used to
- create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmLicenseRequestHeaders(java.util.Map)">
@@ -621,7 +620,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink" target="_top"><code>Map</code></a> can be used for a reset.
 
- <p>If no valid DRM configuration is specified, the DRM license request headers are ignored.</div>
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmUuid(java.util.UUID)">
@@ -632,10 +632,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setDrmUuid</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmUuid&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid)</pre>
-<div class="block">Sets the <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink"><code>UUID</code></a> of the protection scheme. If a DRM system UUID is set, the <a href="MediaItem.DrmConfiguration.html#licenseUri" target="_top"><code>MediaItem.DrmConfiguration.licenseUri</code></a> needs to be set as well.
+<div class="block">Sets the <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top"><code>UUID</code></a> of the protection scheme.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM system UUID is used to create
- a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>If <code>uuid</code> is null or unset then no <a href="MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.DrmConfiguration</code></a> object is created during
+ <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.PlaybackProperties.html#drmConfiguration"><code>MediaItem.PlaybackProperties.drmConfiguration</code></a> should be called.
+
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 </li>
 </ul>
 <a id="setDrmMultiSession(boolean)">
@@ -647,8 +649,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
 <div class="block">Sets whether the DRM configuration is multi session enabled.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM multi session flag is used to
- create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmForceDefaultLicenseUri(boolean)">
@@ -661,8 +663,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
  own DRM license server URI.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM force default license flag is
- used to create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmPlayClearContentWithoutKey(boolean)">
@@ -673,7 +675,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setDrmPlayClearContentWithoutKey</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmPlayClearContentWithoutKey&#8203;(boolean&nbsp;playClearContentWithoutKey)</pre>
 <div class="block">Sets whether clear samples within protected content should be played when keys for the
- encrypted part of the content have yet to be loaded.</div>
+ encrypted part of the content have yet to be loaded.
+
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmSessionForClearPeriods(boolean)">
@@ -686,7 +691,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>
  and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.
 
- <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearTypes(java.util.List)"><code>setDrmSessionForClearTypes(List)</code></a>.</div>
+ <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearTypes(java.util.List)"><code>setDrmSessionForClearTypes(List)</code></a>.
+
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmSessionForClearTypes(java.util.List)">
@@ -704,7 +712,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearPeriods(boolean)"><code>setDrmSessionForClearPeriods(boolean)</code></a>.
 
- <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.</div>
+ <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
+
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setDrmKeySetId(byte[])">
@@ -721,7 +732,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  release an existing offline license (see <code>DefaultDrmSessionManager#setMode(int
  mode,byte[] offlineLicenseKeySetId)</code>).
 
- <p>If no valid DRM configuration is specified, the key set ID is ignored.</div>
+ <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
+ are passed non-null values.</div>
 </li>
 </ul>
 <a id="setStreamKeys(java.util.List)">
@@ -751,8 +763,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;customCacheKey)</pre>
 <div class="block">Sets the optional custom cache key (only used for progressive streams).
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the custom cache key is used to
- create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 </li>
 </ul>
 <a id="setSubtitles(java.util.List)">
@@ -767,8 +778,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the subtitles are used to create a
- <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise they will be ignored.</div>
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 </li>
 </ul>
 <a id="setAdTagUri(java.lang.String)">
@@ -781,12 +791,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adTagUri)</pre>
 <div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the ad tag URI is used to create a
- <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.
-
  <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
  the same ad playback state. To resume ad playback when recreating the playlist on returning
- from the background, pass media items with the same ad tag URIs and media IDs to the player.</div>
+ from the background, pass media items with the same ad tag URIs and media IDs to the player.
+
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adTagUri</code> - The ad tag URI to load.</dd>
@@ -803,12 +812,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                      <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</pre>
 <div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the ad tag URI is used to create a
- <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.
-
  <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
  the same ad playback state. To resume ad playback when recreating the playlist on returning
- from the background, pass media items with the same ad tag URIs and media IDs to the player.</div>
+ from the background, pass media items with the same ad tag URIs and media IDs to the player.
+
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adTagUri</code> - The ad tag URI to load.</dd>
@@ -827,12 +835,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId)</pre>
 <div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> and ads identifier.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the ad tag URI is used to create a
- <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.
-
  <p>Media items in the playlist that have the same ads identifier and ads loader share the
  same ad playback state. To resume ad playback when recreating the playlist on returning from
- the background, pass the same ads IDs to the player.</div>
+ the background, pass the same ads IDs to the player.
+
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adTagUri</code> - The ad tag URI to load.</dd>
@@ -940,7 +947,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  published in the <code>com.google.android.exoplayer2.Timeline</code> of the source as <code>
  com.google.android.exoplayer2.Timeline.Window#tag</code>.
 
- <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the tag is used to create a <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 </li>
 </ul>
 <a id="setMediaMetadata(com.google.android.exoplayer2.MediaMetadata)">
