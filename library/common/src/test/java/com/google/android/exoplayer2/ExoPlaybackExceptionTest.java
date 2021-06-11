@@ -35,6 +35,14 @@ public class ExoPlaybackExceptionTest {
   }
 
   @Test
+  public void roundTripViaBundle_usingPlaybackExceptionCreator_yieldsEqualInstance() {
+    ExoPlaybackException before = ExoPlaybackException.createForRemote(/* message= */ "test");
+    ExoPlaybackException after =
+        (ExoPlaybackException) PlaybackException.CREATOR.fromBundle(before.toBundle());
+    assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
+  }
+
+  @Test
   public void roundTripViaBundle_ofExoPlaybackExceptionTypeRenderer_yieldsEqualInstance() {
     ExoPlaybackException before =
         ExoPlaybackException.createForRenderer(
