@@ -72,7 +72,7 @@ import java.util.List;
  *       is thrown if none of the available extractors can read the stream.
  * </ul>
  *
- * <h3>Ad support for media items with ad tag URIs</h3>
+ * <h2>Ad support for media items with ad tag URIs</h2>
  *
  * <p>To support media items with {@link MediaItem.PlaybackProperties#adsConfiguration ads
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to

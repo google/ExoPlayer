@@ -34,7 +34,7 @@ import java.io.InputStream;
  *       wants to read an entire block/frame/header of known length.
  * </ul>
  *
- * <h3>{@link InputStream}-like methods</h3>
+ * <h2>{@link InputStream}-like methods</h2>
  *
  * <p>The {@code read()/peek()} and {@code skip()} methods provide {@link InputStream}-like
  * byte-level access operations. The {@code length} parameter is a maximum, and each method returns
@@ -42,7 +42,7 @@ import java.io.InputStream;
  * the input was reached, or the method was interrupted, or the operation was aborted early for
  * another reason.
  *
- * <h3>Block-based methods</h3>
+ * <h2>Block-based methods</h2>
  *
  * <p>The {@code read/skip/peekFully()} and {@code advancePeekPosition()} methods assume the user
  * wants to read an entire block/frame/header of known length.

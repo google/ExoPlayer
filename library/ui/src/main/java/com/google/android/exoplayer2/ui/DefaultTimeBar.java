@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>A DefaultTimeBar can be customized by setting attributes, as outlined below.
  *
- * <h3>Attributes</h3>
+ * <h2>Attributes</h2>
  *
  * The following attributes can be set on a DefaultTimeBar when used in a layout XML file:
  *

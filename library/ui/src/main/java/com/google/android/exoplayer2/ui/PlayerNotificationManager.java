@@ -75,7 +75,7 @@ import java.util.Map;
  * <p>If the player is released it must be removed from the manager by calling {@code
  * setPlayer(null)}.
  *
- * <h3>Action customization</h3>
+ * <h2>Action customization</h2>
  *
  * Playback actions can be included or omitted as follows:
  *
@@ -140,7 +140,7 @@ import java.util.Map;
  *       </ul>
  * </ul>
  *
- * <h3>Overriding drawables</h3>
+ * <h2>Overriding drawables</h2>
  *
  * The drawables used by PlayerNotificationManager can be overridden by drawables with the same
  * names defined in your application. The drawables that can be overridden are:

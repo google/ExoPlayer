@@ -84,7 +84,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
  * file.
  *
- * <h3>Attributes</h3>
+ * <h2>Attributes</h2>
  *
  * The following attributes can be set on a StyledPlayerView when used in a layout XML file:
  *
@@ -176,13 +176,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       custom {@code exo_controller} (see below).
  * </ul>
  *
- * <h3>Overriding drawables</h3>
+ * <h2>Overriding drawables</h2>
  *
  * The drawables used by {@link StyledPlayerControlView} (with its default layout file) can be
  * overridden by drawables with the same names defined in your application. See the {@link
  * StyledPlayerControlView} documentation for a list of drawables that can be overridden.
  *
- * <h3>Overriding the layout file</h3>
+ * <h2>Overriding the layout file</h2>
  *
  * To customize the layout of StyledPlayerView throughout your app, or just for certain
  * configurations, you can define {@code exo_styled_player_view.xml} layout files in your
@@ -249,7 +249,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>All child views are optional and so can be omitted if not required, however where defined they
  * must be of the expected type.
  *
- * <h3>Specifying a custom layout file</h3>
+ * <h2>Specifying a custom layout file</h2>
  *
  * Defining your own {@code exo_styled_player_view.xml} is useful to customize the layout of
  * StyledPlayerView throughout your application. It's also possible to customize the layout for a

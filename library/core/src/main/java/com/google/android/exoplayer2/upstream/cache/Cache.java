@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * A cache that supports partial caching of resources.
  *
- * <h3>Terminology</h3>
+ * <h2>Terminology</h2>
  *
  * <ul>
  *   <li>A <em>resource</em> is a complete piece of logical data, for example a complete media file.

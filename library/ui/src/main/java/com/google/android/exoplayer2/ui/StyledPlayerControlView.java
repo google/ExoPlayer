@@ -88,7 +88,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
  * layout file.
  *
- * <h3>Attributes</h3>
+ * <h2>Attributes</h2>
  *
  * The following attributes can be set on a StyledPlayerControlView when used in a layout XML file:
  *
@@ -171,7 +171,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       unless the layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
- * <h3>Overriding drawables</h3>
+ * <h2>Overriding drawables</h2>
  *
  * The drawables used by StyledPlayerControlView (with its default layout file) can be overridden by
  * drawables with the same names defined in your application. The drawables that can be overridden
@@ -196,7 +196,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code exo_styled_controls_vr}</b> - The VR icon.
  * </ul>
  *
- * <h3>Overriding the layout file</h3>
+ * <h2>Overriding the layout file</h2>
  *
  * To customize the layout of StyledPlayerControlView throughout your app, or just for certain
  * configurations, you can define {@code exo_styled_player_control_view.xml} layout files in your
@@ -301,7 +301,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>All child views are optional and so can be omitted if not required, however where defined they
  * must be of the expected type.
  *
- * <h3 id="CustomLayout">Specifying a custom layout file</h3>
+ * <h2 id="CustomLayout">Specifying a custom layout file</h2>
  *
  * Defining your own {@code exo_styled_player_control_view.xml} is useful to customize the layout of
  * StyledPlayerControlView throughout your application. It's also possible to customize the layout

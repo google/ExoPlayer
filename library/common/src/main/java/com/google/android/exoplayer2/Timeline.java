@@ -58,7 +58,7 @@ import java.util.List;
  *
  * <p>The following examples illustrate timelines for various use cases.
  *
- * <h3 id="single-file">Single media file or on-demand stream</h3>
+ * <h2 id="single-file">Single media file or on-demand stream</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-single-file.svg" alt="Example timeline for a
  * single file">
@@ -68,7 +68,7 @@ import java.util.List;
  * playback. The window's default position is typically at the start of the period (indicated by the
  * black dot in the figure above).
  *
- * <h3>Playlist of media files or on-demand streams</h3>
+ * <h2>Playlist of media files or on-demand streams</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-playlist.svg" alt="Example timeline for a
  * playlist of files">
@@ -79,7 +79,7 @@ import java.util.List;
  * (e.g. their durations and whether the window is seekable) will often only become known when the
  * player starts buffering the corresponding file or stream.
  *
- * <h3 id="live-limited">Live stream with limited availability</h3>
+ * <h2 id="live-limited">Live stream with limited availability</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-limited.svg" alt="Example timeline for
  * a live stream with limited availability">
@@ -92,7 +92,7 @@ import java.util.List;
  * changes to the live window. Its default position is typically near to the live edge (indicated by
  * the black dot in the figure above).
  *
- * <h3>Live stream with indefinite availability</h3>
+ * <h2>Live stream with indefinite availability</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-indefinite.svg" alt="Example timeline
  * for a live stream with indefinite availability">
@@ -102,7 +102,7 @@ import java.util.List;
  * starts at the beginning of the period to indicate that all of the previously broadcast content
  * can still be played.
  *
- * <h3 id="live-multi-period">Live stream with multiple periods</h3>
+ * <h2 id="live-multi-period">Live stream with multiple periods</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-multi-period.svg" alt="Example timeline
  * for a live stream with multiple periods">
@@ -112,7 +112,7 @@ import java.util.List;
  * limited availability</a> case, except that the window may span more than one period. Multiple
  * periods are also possible in the indefinite availability case.
  *
- * <h3>On-demand stream followed by live stream</h3>
+ * <h2>On-demand stream followed by live stream</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-advanced.svg" alt="Example timeline for an
  * on-demand stream followed by a live stream">
@@ -122,7 +122,7 @@ import java.util.List;
  * of the on-demand stream ends, playback of the live stream will start from its default position
  * near the live edge.
  *
- * <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
+ * <h2 id="single-file-midrolls">On-demand stream with mid-roll ads</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-single-file-midrolls.svg" alt="Example
  * timeline for an on-demand stream with mid-roll ad groups">

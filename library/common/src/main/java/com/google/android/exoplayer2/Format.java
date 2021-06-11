@@ -38,7 +38,7 @@ import java.util.List;
  * format being constructed. For information about different types of format, see ExoPlayer's <a
  * href="https://exoplayer.dev/supported-formats.html">Supported formats page</a>.
  *
- * <h3>Fields commonly relevant to all formats</h3>
+ * <h2>Fields commonly relevant to all formats</h2>
  *
  * <ul>
  *   <li>{@link #id}
@@ -52,7 +52,7 @@ import java.util.List;
  *   <li>{@link #metadata}
  * </ul>
  *
- * <h3 id="container-formats">Fields relevant to container formats</h3>
+ * <h2 id="container-formats">Fields relevant to container formats</h2>
  *
  * <ul>
  *   <li>{@link #containerMimeType}
@@ -65,7 +65,7 @@ import java.util.List;
  *       href="#audio-formats">audio</a> and <a href="#text-formats">text</a> formats.
  * </ul>
  *
- * <h3 id="sample-formats">Fields relevant to sample formats</h3>
+ * <h2 id="sample-formats">Fields relevant to sample formats</h2>
  *
  * <ul>
  *   <li>{@link #sampleMimeType}
@@ -78,7 +78,7 @@ import java.util.List;
  *       href="#text-formats">text</a> formats.
  * </ul>
  *
- * <h3 id="video-formats">Fields relevant to video formats</h3>
+ * <h2 id="video-formats">Fields relevant to video formats</h2>
  *
  * <ul>
  *   <li>{@link #width}
@@ -91,7 +91,7 @@ import java.util.List;
  *   <li>{@link #colorInfo}
  * </ul>
  *
- * <h3 id="audio-formats">Fields relevant to audio formats</h3>
+ * <h2 id="audio-formats">Fields relevant to audio formats</h2>
  *
  * <ul>
  *   <li>{@link #channelCount}
@@ -101,7 +101,7 @@ import java.util.List;
  *   <li>{@link #encoderPadding}
  * </ul>
  *
- * <h3 id="text-formats">Fields relevant to text formats</h3>
+ * <h2 id="text-formats">Fields relevant to text formats</h2>
  *
  * <ul>
  *   <li>{@link #accessibilityChannel}
