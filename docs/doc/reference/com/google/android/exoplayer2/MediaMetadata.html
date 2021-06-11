@@ -164,6 +164,13 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">A builder for <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> instances.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2">MediaMetadata.FolderType</a></span></code></th>
+<td class="colLast">
+<div class="block">The folder type of the media item.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
@@ -211,6 +218,20 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkData">artworkData</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional artwork data as a compressed byte array.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkUri">artworkUri</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional artwork <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
@@ -236,6 +257,76 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
 <div class="block">Empty <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extras">extras</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional extras <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_ALBUMS">FOLDER_TYPE_ALBUMS</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing media categorized by album.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_ARTISTS">FOLDER_TYPE_ARTISTS</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing media categorized by artist.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_GENRES">FOLDER_TYPE_GENRES</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing media categorized by genre.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_MIXED">FOLDER_TYPE_MIXED</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing media of mixed types.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_PLAYLISTS">FOLDER_TYPE_PLAYLISTS</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing a playlist.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_TITLES">FOLDER_TYPE_TITLES</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing only playable media.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_YEARS">FOLDER_TYPE_YEARS</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for a folder containing media categorized by year.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#folderType">folderType</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional <a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.FolderType</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlayable">isPlayable</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional boolean for media playability.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -267,10 +358,31 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalTrackCount">totalTrackCount</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional total number of tracks.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackNumber">trackNumber</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional track number.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#userRating">userRating</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional user <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#year">year</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional year.</div>
 </td>
 </tr>
 </table>
@@ -339,6 +451,104 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a id="FOLDER_TYPE_MIXED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_MIXED</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_MIXED</pre>
+<div class="block">Type for a folder containing media of mixed types.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_MIXED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FOLDER_TYPE_TITLES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_TITLES</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_TITLES</pre>
+<div class="block">Type for a folder containing only playable media.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_TITLES">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FOLDER_TYPE_ALBUMS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_ALBUMS</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_ALBUMS</pre>
+<div class="block">Type for a folder containing media categorized by album.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_ALBUMS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FOLDER_TYPE_ARTISTS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_ARTISTS</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_ARTISTS</pre>
+<div class="block">Type for a folder containing media categorized by artist.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_ARTISTS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FOLDER_TYPE_GENRES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_GENRES</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_GENRES</pre>
+<div class="block">Type for a folder containing media categorized by genre.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_GENRES">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FOLDER_TYPE_PLAYLISTS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_PLAYLISTS</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_PLAYLISTS</pre>
+<div class="block">Type for a folder containing a playlist.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_PLAYLISTS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FOLDER_TYPE_YEARS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_YEARS</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_YEARS</pre>
+<div class="block">Type for a folder containing media categorized by year.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_YEARS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="EMPTY">
 <!--   -->
 </a>
@@ -459,6 +669,98 @@ public final&nbsp;<a href="Rating.html" title="class in com.google.android.exopl
 <pre>@Nullable
 public final&nbsp;<a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a> overallRating</pre>
 <div class="block">Optional overall <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
+</li>
+</ul>
+<a id="artworkData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>artworkData</h4>
+<pre>@Nullable
+public final&nbsp;byte[] artworkData</pre>
+<div class="block">Optional artwork data as a compressed byte array.</div>
+</li>
+</ul>
+<a id="artworkUri">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>artworkUri</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> artworkUri</pre>
+<div class="block">Optional artwork <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+</li>
+</ul>
+<a id="trackNumber">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>trackNumber</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> trackNumber</pre>
+<div class="block">Optional track number.</div>
+</li>
+</ul>
+<a id="totalTrackCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalTrackCount</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> totalTrackCount</pre>
+<div class="block">Optional total number of tracks.</div>
+</li>
+</ul>
+<a id="folderType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>folderType</h4>
+<pre>@Nullable
+<a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2">@FolderType</a>
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> folderType</pre>
+<div class="block">Optional <a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.FolderType</code></a>.</div>
+</li>
+</ul>
+<a id="isPlayable">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isPlayable</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a> isPlayable</pre>
+<div class="block">Optional boolean for media playability.</div>
+</li>
+</ul>
+<a id="year">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>year</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> year</pre>
+<div class="block">Optional year.</div>
+</li>
+</ul>
+<a id="extras">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>extras</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a> extras</pre>
+<div class="block">Optional extras <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
+
+ <p>Given the complexities of checking the equality of two <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>s, this is not
+ considered in the <a href="#equals(java.lang.Object)"><code>equals(Object)</code></a> or <a href="#hashCode()"><code>hashCode()</code></a>.</div>
 </li>
 </ul>
 <a id="CREATOR">

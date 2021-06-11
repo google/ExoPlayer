@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -342,13 +342,18 @@ implements <a href="../drm/ExoMediaDrm.html" title="interface in com.google.andr
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReferenceCount()">getReferenceCount</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#openSession()">openSession</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Opens a new DRM session.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#provideKeyResponse(byte%5B%5D,byte%5B%5D)">provideKeyResponse</a></span>&#8203;(byte[]&nbsp;scope,
                   byte[]&nbsp;response)</code></th>
@@ -356,28 +361,28 @@ implements <a href="../drm/ExoMediaDrm.html" title="interface in com.google.andr
 <div class="block">Provides a key response for the last request to be generated using <a href="../drm/ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], java.util.List&lt;com.google.android.exoplayer2.drm.DrmInitData.SchemeData&gt;, int, java.util.HashMap&lt;java.lang.String, java.lang.String&gt;)</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#provideProvisionResponse(byte%5B%5D)">provideProvisionResponse</a></span>&#8203;(byte[]&nbsp;response)</code></th>
 <td class="colLast">
 <div class="block">Provides a provisioning response for the last request to be generated using <a href="../drm/ExoMediaDrm.html#getProvisionRequest()"><code>ExoMediaDrm.getProvisionRequest()</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queryKeyStatus(byte%5B%5D)">queryKeyStatus</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
 <div class="block">Returns the key status for a given session, as {name, value} pairs.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Decrements the reference count.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#restoreKeys(byte%5B%5D,byte%5B%5D)">restoreKeys</a></span>&#8203;(byte[]&nbsp;sessionId,
            byte[]&nbsp;keySetId)</code></th>
@@ -385,28 +390,28 @@ implements <a href="../drm/ExoMediaDrm.html" title="interface in com.google.andr
 <div class="block">Restores persisted offline keys into a session.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnEventListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener)">setOnEventListener</a></span>&#8203;(<a href="../drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the listener for DRM events.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnExpirationUpdateListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnExpirationUpdateListener)">setOnExpirationUpdateListener</a></span>&#8203;(<a href="../drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the listener for session expiration events.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnKeyStatusChangeListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener)">setOnKeyStatusChangeListener</a></span>&#8203;(<a href="../drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the listener for key status change events.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyByteArray(java.lang.String,byte%5B%5D)">setPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                     byte[]&nbsp;value)</code></th>
@@ -414,12 +419,24 @@ implements <a href="../drm/ExoMediaDrm.html" title="interface in com.google.andr
 <div class="block">Sets the value of a byte array property.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyString(java.lang.String,java.lang.String)">setPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
 <div class="block">Sets the value of a string property.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#triggerEvent(com.google.common.base.Predicate,int,int,byte%5B%5D)">triggerEvent</a></span>&#8203;(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;byte[]&gt;&nbsp;sessionIdPredicate,
+            int&nbsp;event,
+            int&nbsp;extra,
+            byte[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Calls <a href="../drm/ExoMediaDrm.OnEventListener.html#onEvent(com.google.android.exoplayer2.drm.ExoMediaDrm,byte%5B%5D,int,int,byte%5B%5D)"><code>ExoMediaDrm.OnEventListener.onEvent(ExoMediaDrm, byte[], int, int, byte[])</code></a> on the attached
+ listener (if present) once for each open session ID which passes <code>sessionIdPredicate</code>,
+ passing the provided values for <code>event</code>, <code>extra</code> and <code>data</code>.</div>
 </td>
 </tr>
 </table>
@@ -947,7 +964,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <a id="getExoMediaCryptoType()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getExoMediaCryptoType</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink" target="_top">Class</a>&lt;com.google.android.exoplayer2.testutil.FakeExoMediaDrm.FakeExoMediaCrypto&gt;&nbsp;getExoMediaCryptoType()</pre>
@@ -957,6 +974,31 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../drm/ExoMediaDrm.html#getExoMediaCryptoType()">getExoMediaCryptoType</a></code>&nbsp;in interface&nbsp;<code><a href="../drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 </dl>
+</li>
+</ul>
+<a id="getReferenceCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReferenceCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getReferenceCount()</pre>
+</li>
+</ul>
+<a id="triggerEvent(com.google.common.base.Predicate,int,int,byte[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>triggerEvent</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;triggerEvent&#8203;(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;byte[]&gt;&nbsp;sessionIdPredicate,
+                         int&nbsp;event,
+                         int&nbsp;extra,
+                         @Nullable
+                         byte[]&nbsp;data)</pre>
+<div class="block">Calls <a href="../drm/ExoMediaDrm.OnEventListener.html#onEvent(com.google.android.exoplayer2.drm.ExoMediaDrm,byte%5B%5D,int,int,byte%5B%5D)"><code>ExoMediaDrm.OnEventListener.onEvent(ExoMediaDrm, byte[], int, int, byte[])</code></a> on the attached
+ listener (if present) once for each open session ID which passes <code>sessionIdPredicate</code>,
+ passing the provided values for <code>event</code>, <code>extra</code> and <code>data</code>.</div>
 </li>
 </ul>
 </li>

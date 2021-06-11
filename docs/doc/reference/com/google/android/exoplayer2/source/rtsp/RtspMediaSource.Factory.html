@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":10,"i5":42,"i6":10};
+var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":10,"i5":42,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -243,9 +243,23 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setForceUseRtpTcp(boolean)">setForceUseRtpTcp</a></span>&#8203;(boolean&nbsp;forceUseRtpTcp)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to force using TCP as the default RTP transport.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Does nothing.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserAgent(java.lang.String)">setUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
+<td class="colLast">
+<div class="block">Sets the user agent, the default value is <a href="../../ExoPlayerLibraryInfo.html#VERSION_SLASHY"><code>ExoPlayerLibraryInfo.VERSION_SLASHY</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -298,6 +312,43 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setForceUseRtpTcp(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setForceUseRtpTcp</h4>
+<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setForceUseRtpTcp&#8203;(boolean&nbsp;forceUseRtpTcp)</pre>
+<div class="block">Sets whether to force using TCP as the default RTP transport.
+
+ <p>The default value is <code>false</code>, the source will first try streaming RTSP with UDP. If
+ no data is received on the UDP channel (for instance, when streaming behind a NAT) for a
+ while, the source will switch to streaming using TCP. If this value is set to <code>true</code>,
+ the source will always use TCP for streaming.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>forceUseRtpTcp</code> - Whether force to use TCP for streaming.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This Factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUserAgent(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUserAgent</h4>
+<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setUserAgent&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
+<div class="block">Sets the user agent, the default value is <a href="../../ExoPlayerLibraryInfo.html#VERSION_SLASHY"><code>ExoPlayerLibraryInfo.VERSION_SLASHY</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>userAgent</code> - The user agent.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This Factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a id="setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">
 <!--   -->
 </a>
