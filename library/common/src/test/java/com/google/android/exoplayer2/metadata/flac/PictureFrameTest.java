@@ -19,6 +19,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,5 +41,26 @@ public final class PictureFrameTest {
     assertThat(pictureFrameFromParcel).isEqualTo(pictureFrameToParcel);
 
     parcel.recycle();
+  }
+
+  @Test
+  public void populateMediaMetadata_setsMediaMetadataValue() {
+    byte[] pictureData = new byte[] {-12, 52, 33, 85, 34, 22, 1, -55};
+    Metadata.Entry entry =
+        new PictureFrame(
+            /* pictureType= */ 0x03,
+            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+            /* description= */ "an image",
+            /* width= */ 4,
+            /* height= */ 2,
+            /* depth= */ 1,
+            /* colors= */ 1,
+            pictureData);
+
+    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
+    entry.populateMediaMetadata(builder);
+
+    MediaMetadata mediaMetadata = builder.build();
+    assertThat(mediaMetadata.artworkData).isEqualTo(pictureData);
   }
 }
