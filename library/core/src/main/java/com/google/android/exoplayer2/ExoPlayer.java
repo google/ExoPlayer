@@ -834,6 +834,13 @@ public interface ExoPlayer extends Player {
     }
   }
 
+  /**
+   * Equivalent to {@link Player#getPlayerError()}, except the exception is guaranteed to be an
+   * {@link ExoPlaybackException}.
+   */
+  @Override
+  ExoPlaybackException getPlayerError();
+
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
   AudioComponent getAudioComponent();

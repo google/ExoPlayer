@@ -1472,7 +1472,7 @@ public interface Player {
    * @see Listener#onPlayerError(ExoPlaybackException)
    */
   @Nullable
-  ExoPlaybackException getPlayerError();
+  PlaybackException getPlayerError();
 
   /**
    * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to

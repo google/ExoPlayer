@@ -178,7 +178,7 @@ public class ForwardingPlayer implements Player {
 
   @Nullable
   @Override
-  public ExoPlaybackException getPlayerError() {
+  public PlaybackException getPlayerError() {
     return player.getPlayerError();
   }
 

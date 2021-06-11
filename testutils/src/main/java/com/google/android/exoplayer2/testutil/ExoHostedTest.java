@@ -195,7 +195,9 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       }
     }
     if (events.contains(EVENT_PLAYER_ERROR)) {
-      playerError = checkNotNull(player.getPlayerError());
+      // The exception is guaranteed to be an ExoPlaybackException because the underlying player is
+      // an ExoPlayer instance.
+      playerError = (ExoPlaybackException) checkNotNull(player.getPlayerError());
       onPlayerErrorInternal(playerError);
     }
     if (events.contains(EVENT_PLAYBACK_STATE_CHANGED)) {
