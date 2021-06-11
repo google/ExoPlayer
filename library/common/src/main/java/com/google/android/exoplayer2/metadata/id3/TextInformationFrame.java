@@ -81,6 +81,18 @@ public final class TextInformationFrame extends Id3Frame {
           // Do nothing, invalid input.
         }
         break;
+      case "TCM":
+      case "TCOM":
+        builder.setComposer(value);
+        break;
+      case "TP3":
+      case "TPE3":
+        builder.setConductor(value);
+        break;
+      case "TXT":
+      case "TEXT":
+        builder.setWriter(value);
+        break;
       default:
         break;
     }

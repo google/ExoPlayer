@@ -54,6 +54,9 @@ public final class MediaMetadata implements Bundleable {
     @Nullable @FolderType private Integer folderType;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer year;
+    @Nullable private CharSequence writer;
+    @Nullable private CharSequence composer;
+    @Nullable private CharSequence conductor;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -76,6 +79,9 @@ public final class MediaMetadata implements Bundleable {
       this.folderType = mediaMetadata.folderType;
       this.isPlayable = mediaMetadata.isPlayable;
       this.year = mediaMetadata.year;
+      this.writer = mediaMetadata.writer;
+      this.composer = mediaMetadata.composer;
+      this.conductor = mediaMetadata.conductor;
       this.extras = mediaMetadata.extras;
     }
 
@@ -182,6 +188,24 @@ public final class MediaMetadata implements Bundleable {
     /** Sets the year. */
     public Builder setYear(@Nullable Integer year) {
       this.year = year;
+      return this;
+    }
+
+    /** Sets the writer. */
+    public Builder setWriter(@Nullable CharSequence writer) {
+      this.writer = writer;
+      return this;
+    }
+
+    /** Sets the composer. */
+    public Builder setComposer(@Nullable CharSequence composer) {
+      this.composer = composer;
+      return this;
+    }
+
+    /** Sets the conductor. */
+    public Builder setConductor(@Nullable CharSequence conductor) {
+      this.conductor = conductor;
       return this;
     }
 
@@ -314,6 +338,13 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Boolean isPlayable;
   /** Optional year. */
   @Nullable public final Integer year;
+  /** Optional writer. */
+  @Nullable public final CharSequence writer;
+  /** Optional composer. */
+  @Nullable public final CharSequence composer;
+  /** Optional conductor. */
+  @Nullable public final CharSequence conductor;
+
   /**
    * Optional extras {@link Bundle}.
    *
@@ -340,6 +371,9 @@ public final class MediaMetadata implements Bundleable {
     this.folderType = builder.folderType;
     this.isPlayable = builder.isPlayable;
     this.year = builder.year;
+    this.writer = builder.writer;
+    this.composer = builder.composer;
+    this.conductor = builder.conductor;
     this.extras = builder.extras;
   }
 
@@ -373,7 +407,10 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(totalTrackCount, that.totalTrackCount)
         && Util.areEqual(folderType, that.folderType)
         && Util.areEqual(isPlayable, that.isPlayable)
-        && Util.areEqual(year, that.year);
+        && Util.areEqual(year, that.year)
+        && Util.areEqual(writer, that.writer)
+        && Util.areEqual(composer, that.composer)
+        && Util.areEqual(conductor, that.conductor);
   }
 
   @Override
@@ -395,6 +432,9 @@ public final class MediaMetadata implements Bundleable {
         totalTrackCount,
         folderType,
         isPlayable,
+        writer,
+        composer,
+        conductor,
         year);
   }
 
@@ -420,6 +460,9 @@ public final class MediaMetadata implements Bundleable {
     FIELD_FOLDER_TYPE,
     FIELD_IS_PLAYABLE,
     FIELD_YEAR,
+    FIELD_WRITER,
+    FIELD_COMPOSER,
+    FIELD_CONDUCTOR,
     FIELD_EXTRAS
   })
   private @interface FieldNumber {}
@@ -441,6 +484,9 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_FOLDER_TYPE = 14;
   private static final int FIELD_IS_PLAYABLE = 15;
   private static final int FIELD_YEAR = 16;
+  private static final int FIELD_WRITER = 17;
+  private static final int FIELD_COMPOSER = 18;
+  private static final int FIELD_CONDUCTOR = 19;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -456,6 +502,9 @@ public final class MediaMetadata implements Bundleable {
     bundle.putParcelable(keyForField(FIELD_MEDIA_URI), mediaUri);
     bundle.putByteArray(keyForField(FIELD_ARTWORK_DATA), artworkData);
     bundle.putParcelable(keyForField(FIELD_ARTWORK_URI), artworkUri);
+    bundle.putCharSequence(keyForField(FIELD_WRITER), writer);
+    bundle.putCharSequence(keyForField(FIELD_COMPOSER), composer);
+    bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
 
     if (userRating != null) {
       bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
@@ -500,6 +549,9 @@ public final class MediaMetadata implements Bundleable {
         .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
         .setArtworkData(bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)))
         .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)))
+        .setWriter(bundle.getCharSequence(keyForField(FIELD_WRITER)))
+        .setComposer(bundle.getCharSequence(keyForField(FIELD_COMPOSER)))
+        .setConductor(bundle.getCharSequence(keyForField(FIELD_CONDUCTOR)))
         .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
 
     if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {
