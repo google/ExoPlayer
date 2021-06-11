@@ -169,6 +169,7 @@ public interface AnalyticsListener {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
     EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
     EVENT_LOAD_STARTED,
@@ -247,6 +248,8 @@ public interface AnalyticsListener {
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** {@link Player#getAvailableCommands()} changed. */
+  int EVENT_AVAILABLE_COMMANDS_CHANGED = Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
   /** {@link Player#getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
   /** {@link Player#getPlaylistMediaMetadata()} changed. */
@@ -613,6 +616,14 @@ public interface AnalyticsListener {
   /** @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead. */
   @Deprecated
   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
+
+  /**
+   * Called when the player's available commands changed.
+   *
+   * @param eventTime The event time.
+   * @param availableCommands The available commands.
+   */
+  default void onAvailableCommandsChanged(EventTime eventTime, Player.Commands availableCommands) {}
 
   /**
    * Called when a fatal player error occurred.

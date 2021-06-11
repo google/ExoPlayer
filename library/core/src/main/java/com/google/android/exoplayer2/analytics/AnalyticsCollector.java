@@ -631,6 +631,15 @@ public class AnalyticsCollector
         });
   }
 
+  @Override
+  public void onAvailableCommandsChanged(Player.Commands availableCommands) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AVAILABLE_COMMANDS_CHANGED,
+        listener -> listener.onAvailableCommandsChanged(eventTime, availableCommands));
+  }
+
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
