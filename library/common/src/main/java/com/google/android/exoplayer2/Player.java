@@ -965,15 +965,15 @@ public interface Player {
   })
   @interface DiscontinuityReason {}
   /**
-   * Automatic playback transition from one period in the timeline to the next without explicit
-   * interaction by this player. The period index may be the same as it was before the discontinuity
-   * in case the current period is repeated.
+   * Automatic playback transition from one period in the timeline to the next. The period index may
+   * be the same as it was before the discontinuity in case the current period is repeated.
    *
    * <p>This reason also indicates an automatic transition from the content period to an inserted ad
-   * period or vice versa.
+   * period or vice versa. Or a transition caused by another player (e.g. multiple controllers can
+   * control the same playback on a remote device).
    */
   int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
-  /** Seek within the current period or to another period by this player. */
+  /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
@@ -997,7 +997,13 @@ public interface Player {
   @interface TimelineChangeReason {}
   /** Timeline changed as a result of a change of the playlist items or the order of the items. */
   int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
-  /** Timeline changed as a result of a dynamic update introduced by the played media. */
+  /**
+   * Timeline changed as a result of a source update (e.g. result of a dynamic update by the played
+   * media).
+   *
+   * <p>This reason also indicates a change caused by another player (e.g. multiple controllers can
+   * control the same playback on the remote device).
+   */
   int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
   /**
@@ -1016,7 +1022,12 @@ public interface Player {
   @interface MediaItemTransitionReason {}
   /** The media item has been repeated. */
   int MEDIA_ITEM_TRANSITION_REASON_REPEAT = 0;
-  /** Playback has automatically transitioned to the next media item. */
+  /**
+   * Playback has automatically transitioned to the next media item.
+   *
+   * <p>This reason also indicates a transition caused by another player (e.g. multiple controllers
+   * can control the same playback on a remote device).
+   */
   int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
   /** A seek to another media item has occurred. */
   int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
