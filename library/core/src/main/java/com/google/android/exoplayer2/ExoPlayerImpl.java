@@ -197,6 +197,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .addAll(
                 COMMAND_PLAY_PAUSE,
                 COMMAND_PREPARE_STOP,
+                COMMAND_SET_FAST_FORWARD_INCREMENT,
+                COMMAND_SET_REWIND_INCREMENT,
                 COMMAND_SET_SPEED_AND_PITCH,
                 COMMAND_SET_SHUFFLE_MODE,
                 COMMAND_SET_REPEAT_MODE,

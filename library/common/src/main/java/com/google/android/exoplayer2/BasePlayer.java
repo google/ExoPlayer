@@ -267,6 +267,8 @@ public abstract class BasePlayer implements Player {
         .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
+        .addIf(COMMAND_FAST_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_REWIND, isCurrentWindowSeekable() && !isPlayingAd())
         .build();
   }
 

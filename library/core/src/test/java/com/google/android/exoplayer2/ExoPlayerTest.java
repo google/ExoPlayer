@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.Player.COMMAND_ADJUST_DEVICE_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static com.google.android.exoplayer2.Player.COMMAND_FAST_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_DEVICE_VOLUME;
@@ -26,14 +27,17 @@ import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP;
+import static com.google.android.exoplayer2.Player.COMMAND_REWIND;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_DEVICE_VOLUME;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_FAST_FORWARD_INCREMENT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_REWIND_INCREMENT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
@@ -8130,6 +8134,10 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_FAST_FORWARD_INCREMENT)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_FAST_FORWARD)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SET_REWIND_INCREMENT)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_REWIND)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)).isTrue();
@@ -8177,10 +8185,13 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_FAST_FORWARD)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_REWIND)).isFalse();
   }
 
   @Test
-  public void isCommandAvailable_duringUnseekableItem_isFalseForSeekInCurrent() throws Exception {
+  public void isCommandAvailable_duringUnseekableItem_isFalseForSeekInCurrentCommands()
+      throws Exception {
     Timeline timelineWithUnseekableWindow =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -8194,6 +8205,8 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_READY);
 
     assertThat(player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_FAST_FORWARD)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_REWIND)).isFalse();
   }
 
   @Test
@@ -8285,13 +8298,21 @@ public final class ExoPlayerTest {
         createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekInCurrentAndToNext =
         createWithDefaultCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+            COMMAND_FAST_FORWARD,
+            COMMAND_REWIND,
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
         createWithDefaultCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+            COMMAND_FAST_FORWARD,
+            COMMAND_REWIND,
+            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekAnywhere =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+            COMMAND_FAST_FORWARD,
+            COMMAND_REWIND,
             COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
             COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Listener mockListener = mock(Player.Listener.class);
@@ -10682,6 +10703,8 @@ public final class ExoPlayerTest {
     builder.addAll(
         COMMAND_PLAY_PAUSE,
         COMMAND_PREPARE_STOP,
+        COMMAND_SET_FAST_FORWARD_INCREMENT,
+        COMMAND_SET_REWIND_INCREMENT,
         COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_SET_SHUFFLE_MODE,
         COMMAND_SET_REPEAT_MODE,

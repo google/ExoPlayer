@@ -94,6 +94,8 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_PREPARE_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_MEDIA_ITEM,
+              COMMAND_SET_FAST_FORWARD_INCREMENT,
+              COMMAND_SET_REWIND_INCREMENT,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
               COMMAND_GET_MEDIA_ITEMS,
