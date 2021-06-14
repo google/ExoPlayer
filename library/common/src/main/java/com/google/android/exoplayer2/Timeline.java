@@ -440,18 +440,11 @@ public abstract class Timeline implements Bundleable {
     private static final int FIELD_LAST_PERIOD_INDEX = 12;
     private static final int FIELD_POSITION_IN_FIRST_PERIOD_US = 13;
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
-     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
-     * instance will be {@code null}.
-     */
-    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
-    @Override
-    public Bundle toBundle() {
+    private final Bundle toBundle(boolean excludeMediaItem) {
       Bundle bundle = new Bundle();
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      bundle.putBundle(
+          keyForField(FIELD_MEDIA_ITEM),
+          excludeMediaItem ? MediaItem.EMPTY.toBundle() : mediaItem.toBundle());
       bundle.putLong(keyForField(FIELD_PRESENTATION_START_TIME_MS), presentationStartTimeMs);
       bundle.putLong(keyForField(FIELD_WINDOW_START_TIME_MS), windowStartTimeMs);
       bundle.putLong(
@@ -469,6 +462,19 @@ public abstract class Timeline implements Bundleable {
       bundle.putInt(keyForField(FIELD_LAST_PERIOD_INDEX), lastPeriodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), positionInFirstPeriodUs);
       return bundle;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
+     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
+     * instance will be {@code null}.
+     */
+    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
+    @Override
+    public Bundle toBundle() {
+      return toBundle(/* excludeMediaItem= */ false);
     }
 
     /**
@@ -1309,14 +1315,17 @@ public abstract class Timeline implements Bundleable {
    * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
    * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
    * Window#toBundle()} and {@link Period#toBundle()}.
+   *
+   * @param excludeMediaItems Whether to exclude all {@link Window#mediaItem media items} of windows
+   *     in the timeline.
    */
-  @Override
-  public final Bundle toBundle() {
+  public final Bundle toBundle(boolean excludeMediaItems) {
     List<Bundle> windowBundles = new ArrayList<>();
     int windowCount = getWindowCount();
     Window window = new Window();
     for (int i = 0; i < windowCount; i++) {
-      windowBundles.add(getWindow(i, window, /* defaultPositionProjectionUs= */ 0).toBundle());
+      windowBundles.add(
+          getWindow(i, window, /* defaultPositionProjectionUs= */ 0).toBundle(excludeMediaItems));
     }
 
     List<Bundle> periodBundles = new ArrayList<>();
@@ -1343,6 +1352,18 @@ public abstract class Timeline implements Bundleable {
         bundle, keyForField(FIELD_PERIODS), new BundleListRetriever(periodBundles));
     bundle.putIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES), shuffledWindowIndices);
     return bundle;
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
+   * Window#toBundle()} and {@link Period#toBundle()}.
+   */
+  @Override
+  public final Bundle toBundle() {
+    return toBundle(/* excludeMediaItems= */ false);
   }
 
   /**

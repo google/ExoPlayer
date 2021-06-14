@@ -1203,6 +1203,9 @@ public final class MediaItem implements Bundleable {
    */
   public static final String DEFAULT_MEDIA_ID = "";
 
+  /** Empty {@link MediaItem}. */
+  public static final MediaItem EMPTY = new MediaItem.Builder().build();
+
   /** Identifies the media item. */
   public final String mediaId;
 
