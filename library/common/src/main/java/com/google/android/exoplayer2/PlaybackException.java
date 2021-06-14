@@ -375,7 +375,7 @@ public class PlaybackException extends Exception implements Bundleable {
           try {
             Field creatorField = Class.forName(className).getField("CREATOR");
             // It is ok to pass null to Field.get for static fields.
-            @SuppressWarnings("argument.type.incompatible")
+            @SuppressWarnings({"argument.type.incompatible", "nullness:argument"})
             Creator<PlaybackException> creator =
                 (Creator<PlaybackException>) creatorField.get(/* obj= */ null);
             if (creator != null) {
