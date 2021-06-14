@@ -55,8 +55,7 @@ public final class RtspMessageChannelTest {
             new RtspHeaders.Builder()
                 .add(RtspHeaders.CSEQ, "2")
                 .add(RtspHeaders.PUBLIC, "OPTIONS")
-                .build(),
-            "");
+                .build());
 
     RtspResponse describeResponse =
         new RtspResponse(
@@ -84,8 +83,7 @@ public final class RtspMessageChannelTest {
             new RtspHeaders.Builder()
                 .add(RtspHeaders.CSEQ, "5")
                 .add(RtspHeaders.TRANSPORT, "RTP/AVP/TCP;unicast;interleaved=0-1")
-                .build(),
-            "");
+                .build());
 
     // Channel: 0, size: 5, data: 01 02 03 04 05.
     byte[] interleavedData1 = Util.getBytesFromHexString("0000050102030405");

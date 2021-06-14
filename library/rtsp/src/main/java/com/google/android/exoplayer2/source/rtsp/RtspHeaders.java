@@ -66,6 +66,9 @@ import java.util.Map;
   public static final String VIA = "via";
   public static final String WWW_AUTHENTICATE = "www-authenticate";
 
+  /** An empty header object. */
+  public static final RtspHeaders EMPTY = new RtspHeaders.Builder().build();
+
   /** Builds {@link RtspHeaders} instances. */
   public static final class Builder {
     private final ImmutableListMultimap.Builder<String, String> namesAndValuesBuilder;
@@ -73,6 +76,16 @@ import java.util.Map;
     /** Creates a new instance. */
     public Builder() {
       namesAndValuesBuilder = new ImmutableListMultimap.Builder<>();
+    }
+
+    /**
+     * Creates a new instance to build upon the provided {@link RtspHeaders}.
+     *
+     * @param namesAndValuesBuilder A {@link ImmutableListMultimap.Builder} that this builder builds
+     *     upon.
+     */
+    private Builder(ImmutableListMultimap.Builder<String, String> namesAndValuesBuilder) {
+      this.namesAndValuesBuilder = namesAndValuesBuilder;
     }
 
     /**
@@ -129,6 +142,31 @@ import java.util.Map;
   }
 
   private final ImmutableListMultimap<String, String> namesAndValues;
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof RtspHeaders)) {
+      return false;
+    }
+    RtspHeaders headers = (RtspHeaders) obj;
+    return namesAndValues.equals(headers.namesAndValues);
+  }
+
+  @Override
+  public int hashCode() {
+    return namesAndValues.hashCode();
+  }
+
+  /** Returns a {@link Builder} initialized with the values of this instance. */
+  public Builder buildUpon() {
+    ImmutableListMultimap.Builder<String, String> namesAndValuesBuilder =
+        new ImmutableListMultimap.Builder<>();
+    namesAndValuesBuilder.putAll(namesAndValues);
+    return new Builder(namesAndValuesBuilder);
+  }
 
   /**
    * Returns a map that associates header names to the list of values associated with the

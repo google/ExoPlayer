@@ -41,4 +41,14 @@ package com.google.android.exoplayer2.source.rtsp;
     this.headers = headers;
     this.messageBody = messageBody;
   }
+
+  /**
+   * Creates a new instance with an empty {@link #messageBody}.
+   *
+   * @param status The status code of this response, as defined in RFC 2326 section 11.
+   * @param headers The headers of this response.
+   */
+  public RtspResponse(int status, RtspHeaders headers) {
+    this(status, headers, /* messageBody= */ "");
+  }
 }
