@@ -75,6 +75,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param mediaSegmentKey The media segment decryption key, if fully encrypted. Null otherwise.
    * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
    *     otherwise.
+   * @param shouldSpliceIn Whether samples for this chunk should be spliced into existing samples.
    */
   public static HlsMediaChunk createInstance(
       HlsExtractorFactory extractorFactory,
@@ -91,7 +92,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       TimestampAdjusterProvider timestampAdjusterProvider,
       @Nullable HlsMediaChunk previousChunk,
       @Nullable byte[] mediaSegmentKey,
-      @Nullable byte[] initSegmentKey) {
+      @Nullable byte[] initSegmentKey,
+      boolean shouldSpliceIn) {
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
     DataSpec dataSpec =
@@ -135,17 +137,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @Nullable HlsMediaChunkExtractor previousExtractor = null;
     Id3Decoder id3Decoder;
     ParsableByteArray scratchId3Data;
-    boolean shouldSpliceIn;
+
     if (previousChunk != null) {
       boolean isFollowingChunk =
           playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted;
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
-      boolean isIndependent = isIndependent(segmentBaseHolder, mediaPlaylist);
-      boolean canContinueWithoutSplice =
-          isFollowingChunk
-              || (isIndependent && segmentStartTimeInPeriodUs >= previousChunk.endTimeUs);
-      shouldSpliceIn = !canContinueWithoutSplice;
       previousExtractor =
           isFollowingChunk
                   && !previousChunk.extractorInvalidated
@@ -155,7 +152,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } else {
       id3Decoder = new Id3Decoder();
       scratchId3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
-      shouldSpliceIn = false;
     }
     return new HlsMediaChunk(
         extractorFactory,
@@ -184,6 +180,41 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         id3Decoder,
         scratchId3Data,
         shouldSpliceIn);
+  }
+
+  /**
+   * Returns whether samples of a new HLS media chunk should be spliced into existing samples.
+   *
+   * @param previousChunk The previous existing media chunk, or null if the new chunk is the first
+   *     in the queue.
+   * @param playlistUrl The URL of the playlist from which the new chunk will be obtained.
+   * @param mediaPlaylist The {@link HlsMediaPlaylist} containing the new chunk.
+   * @param segmentBaseHolder The {@link HlsChunkSource.SegmentBaseHolder} with information about
+   *     the new chunk.
+   * @param startOfPlaylistInPeriodUs The start time of the playlist in the period, in microseconds.
+   * @return Whether samples of the new chunk should be spliced into existing samples.
+   */
+  public static boolean shouldSpliceIn(
+      @Nullable HlsMediaChunk previousChunk,
+      Uri playlistUrl,
+      HlsMediaPlaylist mediaPlaylist,
+      HlsChunkSource.SegmentBaseHolder segmentBaseHolder,
+      long startOfPlaylistInPeriodUs) {
+    if (previousChunk == null) {
+      // First chunk doesn't require splicing.
+      return false;
+    }
+    if (playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted) {
+      // Continuing with the next chunk in the same playlist after fully loading the previous chunk
+      // (i.e. the load wasn't cancelled or failed) is always possible.
+      return false;
+    }
+    // Changing playlists or continuing after a chunk cancellation/failure requires independent,
+    // non-overlapping segments to avoid the splice.
+    long segmentStartTimeInPeriodUs =
+        startOfPlaylistInPeriodUs + segmentBaseHolder.segmentBase.relativeStartTimeUs;
+    return !isIndependent(segmentBaseHolder, mediaPlaylist)
+        || segmentStartTimeInPeriodUs < previousChunk.endTimeUs;
   }
 
   public static final String PRIV_TIMESTAMP_FRAME_OWNER =

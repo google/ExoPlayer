@@ -24,24 +24,11 @@ These steps are described in more detail below. For a complete example, refer to
 
 ## Adding ExoPlayer as a dependency ##
 
-### Add repositories ###
-
-The first step to getting started is to make sure you have the Google and
-JCenter repositories included in the `build.gradle` file in the root of your
-project.
-
-~~~
-repositories {
-    google()
-    jcenter()
-}
-~~~
-{: .language-gradle}
-
 ### Add ExoPlayer modules ###
 
-Next add a dependency in the `build.gradle` file of your app module. The
-following will add a dependency to the full ExoPlayer library:
+The easiest way to get started using ExoPlayer is to add it as a gradle
+dependency in the `build.gradle` file of your app module. The following will add
+a dependency to the full library:
 
 ~~~
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
@@ -75,9 +62,13 @@ modules individually.
 * `exoplayer-transformer`: Media transformation functionality.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
 
-In addition to library modules, ExoPlayer has multiple extension modules that
-depend on external libraries to provide additional functionality. Browse the
-[extensions directory][] and their individual READMEs for details.
+In addition to library modules, ExoPlayer has extension modules that depend on
+external libraries to provide additional functionality. Some extensions are
+available from the Maven repository, whereas others must be built manually.
+Browse the [extensions directory][] and their individual READMEs for details.
+
+More information on the library and extension modules that are available can be
+found on the [Google Maven ExoPlayer page][].
 
 ### Turn on Java 8 support ###
 
@@ -239,4 +230,4 @@ can be done by calling `ExoPlayer.release`.
 [Playlists page]: {{ site.baseurl }}/playlists.html
 [Media items page]: {{ site.baseurl }}/media-items.html
 [Media sources page]: {{ site.baseurl }}/media-sources.html
-
+[Google Maven ExoPlayer page]: https://maven.google.com/web/index.html#com.google.android.exoplayer

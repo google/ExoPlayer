@@ -19,9 +19,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
+import com.google.android.exoplayer2.source.rtsp.RtspClient.PlaybackEventListener;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,8 +43,12 @@ public final class RtspClientTest {
   private @MonotonicNonNull RtspServer rtspServer;
 
   @Before
-  public void setUp() {
-    rtspServer = new RtspServer();
+  public void setUp() throws Exception {
+    rtspServer =
+        new RtspServer(
+            RtpPacketStreamDump.parse(
+                TestUtil.getString(
+                    ApplicationProvider.getApplicationContext(), "media/rtsp/aac-dump.json")));
   }
 
   @After
@@ -50,7 +58,7 @@ public final class RtspClientTest {
   }
 
   @Test
-  public void connectServerAndClient_withServerSupportsOnlyOptions_sessionTimelineRequestFails()
+  public void connectServerAndClient_withServerSupportsDescribe_updatesSessionTimeline()
       throws Exception {
     int serverRtspPortNumber = checkNotNull(rtspServer).startAndGetPortNumber();
 
@@ -60,13 +68,24 @@ public final class RtspClientTest {
             new SessionInfoListener() {
               @Override
               public void onSessionTimelineUpdated(
-                  RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {}
+                  RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {
+                sessionTimelineUpdateEventReceived.set(!tracks.isEmpty());
+              }
 
               @Override
               public void onSessionTimelineRequestFailed(
-                  String message, @Nullable Throwable cause) {
-                sessionTimelineUpdateEventReceived.set(true);
-              }
+                  String message, @Nullable Throwable cause) {}
+            },
+            new PlaybackEventListener() {
+              @Override
+              public void onRtspSetupCompleted() {}
+
+              @Override
+              public void onPlaybackStarted(
+                  long startPositionUs, ImmutableList<RtspTrackTiming> trackTimingList) {}
+
+              @Override
+              public void onPlaybackError(RtspPlaybackException error) {}
             },
             /* userAgent= */ "ExoPlayer:RtspClientTest",
             /* uri= */ Uri.parse(

@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
-import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.MessageListener;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
@@ -67,11 +66,21 @@ public final class RtspMessageChannelTest {
                 .build(),
             "v=安卓アンドロイド\r\n");
 
+    RtspResponse describeResponse2 =
+        new RtspResponse(
+            200,
+            new RtspHeaders.Builder()
+                .add(RtspHeaders.CSEQ, "4")
+                .add(RtspHeaders.CONTENT_TYPE, "application/sdp")
+                .add(RtspHeaders.CONTENT_LENGTH, "73")
+                .build(),
+            "v=安卓アンドロイド\n" + "o=test 2890844526 2890842807 IN IP4 127.0.0.1\n");
+
     RtspResponse setupResponse =
         new RtspResponse(
             200,
             new RtspHeaders.Builder()
-                .add(RtspHeaders.CSEQ, "3")
+                .add(RtspHeaders.CSEQ, "5")
                 .add(RtspHeaders.TRANSPORT, "RTP/AVP/TCP;unicast;interleaved=0-1")
                 .build(),
             "");
@@ -84,6 +93,7 @@ public final class RtspMessageChannelTest {
     AtomicBoolean receivingFinished = new AtomicBoolean();
     AtomicReference<Exception> sendingException = new AtomicReference<>();
     List<List<String>> receivedRtspResponses = new ArrayList<>(/* initialCapacity= */ 3);
+    // Key: channel number, Value: a list of received byte arrays.
     Multimap<Integer, List<Byte>> receivedInterleavedData = LinkedListMultimap.create();
     ServerSocket serverSocket =
         new ServerSocket(/* port= */ 0, /* backlog= */ 1, InetAddress.getByName(/* host= */ null));
@@ -97,6 +107,8 @@ public final class RtspMessageChannelTest {
                     convertMessageToByteArray(serializeResponse(optionsResponse)));
                 serverOutputStream.write(
                     convertMessageToByteArray(serializeResponse(describeResponse)));
+                serverOutputStream.write(
+                    convertMessageToByteArray(serializeResponse(describeResponse2)));
                 serverOutputStream.write(Bytes.concat(new byte[] {'$'}, interleavedData1));
                 serverOutputStream.write(Bytes.concat(new byte[] {'$'}, interleavedData2));
                 serverOutputStream.write(
@@ -116,21 +128,19 @@ public final class RtspMessageChannelTest {
 
     RtspMessageChannel rtspMessageChannel =
         new RtspMessageChannel(
-            new MessageListener() {
-              @Override
-              public void onRtspMessageReceived(List<String> message) {
-                receivedRtspResponses.add(message);
-                if (receivedRtspResponses.size() == 3 && receivedInterleavedData.size() == 2) {
-                  receivingFinished.set(true);
-                }
-              }
-
-              @Override
-              public void onInterleavedBinaryDataReceived(byte[] data, int channel) {
-                receivedInterleavedData.put(channel, Bytes.asList(data));
+            message -> {
+              receivedRtspResponses.add(message);
+              if (receivedRtspResponses.size() == 4 && receivedInterleavedData.size() == 2) {
+                receivingFinished.set(true);
               }
             });
-    rtspMessageChannel.openSocket(clientSideSocket);
+
+    rtspMessageChannel.registerInterleavedBinaryDataListener(
+        /* channel= */ 0, data -> receivedInterleavedData.put(0, Bytes.asList(data)));
+    rtspMessageChannel.registerInterleavedBinaryDataListener(
+        /* channel= */ 1, data -> receivedInterleavedData.put(1, Bytes.asList(data)));
+
+    rtspMessageChannel.open(clientSideSocket);
 
     RobolectricUtil.runMainLooperUntil(receivingFinished::get);
     Util.closeQuietly(rtspMessageChannel);
@@ -141,18 +151,26 @@ public final class RtspMessageChannelTest {
     assertThat(receivedRtspResponses)
         .containsExactly(
             /* optionsResponse */
-            ImmutableList.of("RTSP/1.0 200 OK", "CSeq: 2", "Public: OPTIONS", ""),
+            ImmutableList.of("RTSP/1.0 200 OK", "cseq: 2", "public: OPTIONS", ""),
             /* describeResponse */
             ImmutableList.of(
                 "RTSP/1.0 200 OK",
-                "CSeq: 3",
-                "Content-Type: application/sdp",
-                "Content-Length: 28",
+                "cseq: 3",
+                "content-type: application/sdp",
+                "content-length: 28",
                 "",
                 "v=安卓アンドロイド"),
+            /* describeResponse2 */
+            ImmutableList.of(
+                "RTSP/1.0 200 OK",
+                "cseq: 4",
+                "content-type: application/sdp",
+                "content-length: 73",
+                "",
+                "v=安卓アンドロイド\n" + "o=test 2890844526 2890842807 IN IP4 127.0.0.1"),
             /* setupResponse */
             ImmutableList.of(
-                "RTSP/1.0 200 OK", "CSeq: 3", "Transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
+                "RTSP/1.0 200 OK", "cseq: 5", "transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
         .inOrder();
     assertThat(receivedInterleavedData)
         .containsExactly(

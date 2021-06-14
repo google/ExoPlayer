@@ -30,6 +30,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -147,6 +148,35 @@ public class SessionDescriptionTest {
             .build();
 
     assertThat(sessionDescription).isEqualTo(expectedSession);
+  }
+
+  @Test
+  public void parse_sdpStringWithDuplicatedMediaAttribute_throwsParserException() {
+    String testMediaSdpInfo =
+        "v=0\r\n"
+            + "o=MNobody 2890844526 2890842807 IN IP4 192.0.2.46\r\n"
+            + "s=SDP Seminar\r\n"
+            + "i=A Seminar on the session description protocol\r\n"
+            + "m=audio 3456 RTP/AVP 0\r\n"
+            + "a=control:audio\r\n"
+            + "a=control:audio\r\n";
+
+    assertThrows(ParserException.class, () -> SessionDescriptionParser.parse(testMediaSdpInfo));
+  }
+
+  @Test
+  public void parse_sdpStringWithDuplicatedSessionAttribute_throwsParserException() {
+    String testMediaSdpInfo =
+        "v=0\r\n"
+            + "o=MNobody 2890844526 2890842807 IN IP4 192.0.2.46\r\n"
+            + "s=SDP Seminar\r\n"
+            + "a=control:*\r\n"
+            + "a=control:*\r\n"
+            + "i=A Seminar on the session description protocol\r\n"
+            + "m=audio 3456 RTP/AVP 0\r\n"
+            + "a=control:audio\r\n";
+
+    assertThrows(ParserException.class, () -> SessionDescriptionParser.parse(testMediaSdpInfo));
   }
 
   @Test

@@ -296,62 +296,70 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preciseStart">preciseStart</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the start position should be precise, as defined by #EXT-X-START.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#protectionSchemes">protectionSchemes</a></span></code></th>
 <td class="colLast">
 <div class="block">Contains the CDM protection schemes used by segments in this playlist.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink">Uri</a>,&#8203;<a href="HlsMediaPlaylist.RenditionReport.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMediaPlaylist.RenditionReport</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renditionReports">renditionReports</a></span></code></th>
 <td class="colLast">
 <div class="block">The rendition reports of alternative rendition playlists.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMediaPlaylist.Segment</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#segments">segments</a></span></code></th>
 <td class="colLast">
 <div class="block">The list of segments in the playlist.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="HlsMediaPlaylist.ServerControl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.ServerControl</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#serverControl">serverControl</a></span></code></th>
 <td class="colLast">
 <div class="block">The attributes of the #EXT-X-SERVER-CONTROL header.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startOffsetUs">startOffsetUs</a></span></code></th>
 <td class="colLast">
-<div class="block">The start offset in microseconds, as defined by #EXT-X-START.</div>
+<div class="block">The start offset in microseconds from the beginning of the playlist, as defined by
+ #EXT-X-START, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if undefined.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startTimeUs">startTimeUs</a></span></code></th>
 <td class="colLast">
 <div class="block">If <a href="#hasProgramDateTime"><code>hasProgramDateTime</code></a> is true, contains the datetime as microseconds since epoch.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetDurationUs">targetDurationUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The target duration in microseconds, as defined by #EXT-X-TARGETDURATION.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMediaPlaylist.Part.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMediaPlaylist.Part</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trailingParts">trailingParts</a></span></code></th>
 <td class="colLast">
 <div class="block">The list of parts at the end of the playlist for which the segment is not in the playlist yet.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#version">version</a></span></code></th>
 <td class="colLast">
@@ -383,10 +391,11 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.util.List,long,long,boolean,int,long,int,long,long,boolean,boolean,boolean,com.google.android.exoplayer2.drm.DrmInitData,java.util.List,java.util.List,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.ServerControl,java.util.Map)">HlsMediaPlaylist</a></span>&#8203;(int&nbsp;playlistType,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.util.List,long,boolean,long,boolean,int,long,int,long,long,boolean,boolean,boolean,com.google.android.exoplayer2.drm.DrmInitData,java.util.List,java.util.List,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.ServerControl,java.util.Map)">HlsMediaPlaylist</a></span>&#8203;(int&nbsp;playlistType,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUri,
                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;tags,
                 long&nbsp;startOffsetUs,
+                boolean&nbsp;preciseStart,
                 long&nbsp;startTimeUs,
                 boolean&nbsp;hasDiscontinuitySequence,
                 int&nbsp;discontinuitySequence,
@@ -540,7 +549,19 @@ public final&nbsp;int playlistType</pre>
 <li class="blockList">
 <h4>startOffsetUs</h4>
 <pre>public final&nbsp;long startOffsetUs</pre>
-<div class="block">The start offset in microseconds, as defined by #EXT-X-START.</div>
+<div class="block">The start offset in microseconds from the beginning of the playlist, as defined by
+ #EXT-X-START, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if undefined. The value is guaranteed to be between 0 and
+ <a href="#durationUs"><code>durationUs</code></a>, inclusive.</div>
+</li>
+</ul>
+<a id="preciseStart">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preciseStart</h4>
+<pre>public final&nbsp;boolean preciseStart</pre>
+<div class="block">Whether the start position should be precise, as defined by #EXT-X-START.</div>
 </li>
 </ul>
 <a id="startTimeUs">
@@ -710,7 +731,7 @@ public final&nbsp;<a href="../../../drm/DrmInitData.html" title="class in com.go
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,java.lang.String,java.util.List,long,long,boolean,int,long,int,long,long,boolean,boolean,boolean,com.google.android.exoplayer2.drm.DrmInitData,java.util.List,java.util.List,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.ServerControl,java.util.Map)">
+<a id="&lt;init&gt;(int,java.lang.String,java.util.List,long,boolean,long,boolean,int,long,int,long,long,boolean,boolean,boolean,com.google.android.exoplayer2.drm.DrmInitData,java.util.List,java.util.List,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.ServerControl,java.util.Map)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -721,6 +742,7 @@ public final&nbsp;<a href="../../../drm/DrmInitData.html" title="class in com.go
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUri,
                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;tags,
                         long&nbsp;startOffsetUs,
+                        boolean&nbsp;preciseStart,
                         long&nbsp;startTimeUs,
                         boolean&nbsp;hasDiscontinuitySequence,
                         int&nbsp;discontinuitySequence,

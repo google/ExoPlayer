@@ -338,18 +338,13 @@ extends <a href="../BaseMediaSource.html" title="class in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowSourceInfoRefreshError</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()
-                                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.html#maybeThrowSourceInfoRefreshError()">MediaSource</a></code></span></div>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.
 
  <p>Should not be called directly from application code.
 
  <p>Must only be called after <a href="../MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener)</code></a>.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
-</dl>
 </li>
 </ul>
 <a id="createPeriod(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.upstream.Allocator,long)">

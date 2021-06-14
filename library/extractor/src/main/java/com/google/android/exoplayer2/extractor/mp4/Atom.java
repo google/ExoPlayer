@@ -122,6 +122,15 @@ import java.util.List;
   public static final int TYPE__mp3 = 0x2e6d7033;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mha1 = 0x6d686131;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mhm1 = 0x6d686d31;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mhaC = 0x6d686143;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_wave = 0x77617665;
 
   @SuppressWarnings("ConstantCaseForConstants")

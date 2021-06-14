@@ -152,7 +152,7 @@ public class HlsMediaSourceTest {
   }
 
   @Test
-  public void loadPlaylist_noTargetLiveOffsetDefined_fallbackToThreeTargetDuration()
+  public void loadLivePlaylist_noTargetLiveOffsetDefined_fallbackToThreeTargetDuration()
       throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a duration of 16 seconds but not hold back or part hold back.
@@ -188,7 +188,7 @@ public class HlsMediaSourceTest {
   }
 
   @Test
-  public void loadPlaylist_holdBackInPlaylist_targetLiveOffsetFromHoldBack()
+  public void loadLivePlaylist_holdBackInPlaylist_targetLiveOffsetFromHoldBack()
       throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a duration of 16 seconds and a hold back of 12 seconds.
@@ -225,7 +225,7 @@ public class HlsMediaSourceTest {
 
   @Test
   public void
-      loadPlaylist_partHoldBackWithoutPartInformationInPlaylist_targetLiveOffsetFromHoldBack()
+      loadLivePlaylist_partHoldBackWithoutPartInformationInPlaylist_targetLiveOffsetFromHoldBack()
           throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a part hold back but not EXT-X-PART-INF. We should pick up the hold back.
@@ -263,7 +263,7 @@ public class HlsMediaSourceTest {
 
   @Test
   public void
-      loadPlaylist_partHoldBackWithPartInformationInPlaylist_targetLiveOffsetFromPartHoldBack()
+      loadLivePlaylist_partHoldBackWithPartInformationInPlaylist_targetLiveOffsetFromPartHoldBack()
           throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a duration of 4 seconds, part hold back and EXT-X-PART-INF defined.
@@ -293,7 +293,44 @@ public class HlsMediaSourceTest {
   }
 
   @Test
-  public void loadPlaylist_withPlaylistStartTime_targetLiveOffsetFromStartTime()
+  public void loadLivePlaylist_withParts_defaultPositionPointsAtClosestIndependentPart()
+      throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has a duration of 7 seconds, part hold back and EXT-X-PART-INF defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts\n"
+            + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=2\n"
+            + "#EXT-X-PART-INF:PART-TARGET=0.5\n"
+            + "#EXT-X-PART:DURATION=0.5000,URI=\"fileSequence1.0.ts\",INDEPENDENT=YES\n"
+            + "#EXT-X-PART:DURATION=0.5000,URI=\"fileSequence1.1.ts\"\n"
+            + "#EXT-X-PART:DURATION=0.5000,URI=\"fileSequence1.2.ts\",INDEPENDENT=YES\n"
+            + "#EXT-X-PART:DURATION=0.5000,URI=\"fileSequence1.3.ts\"\n"
+            + "#EXT-X-PART:DURATION=0.5000,URI=\"fileSequence1.4.ts\",INDEPENDENT=YES\n"
+            + "#EXT-X-PART:DURATION=0.5000,URI=\"fileSequence1.5.ts\"";
+    // The playlist finishes 1 second before the current time.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:08.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = MediaItem.fromUri(playlistUri);
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    // The target live offset is picked from part hold back and then expressed in relation to the
+    // live edge (+1 seconds).
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(3000);
+    // The default position points the closest preceding independent part.
+    assertThat(window.defaultPositionUs).isEqualTo(5000000);
+  }
+
+  @Test
+  public void loadLivePlaylist_withNonPreciseStartTime_targetLiveOffsetFromStartTime()
       throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a duration of 16 seconds, and part hold back, hold back and start time
@@ -303,7 +340,7 @@ public class HlsMediaSourceTest {
             + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
             + "#EXT-X-TARGETDURATION:4\n"
             + "#EXT-X-VERSION:3\n"
-            + "#EXT-X-START:TIME-OFFSET=-15"
+            + "#EXT-X-START:TIME-OFFSET=-10\n"
             + "#EXT-X-MEDIA-SEQUENCE:0\n"
             + "#EXTINF:4.00000,\n"
             + "fileSequence0.ts\n"
@@ -313,7 +350,82 @@ public class HlsMediaSourceTest {
             + "fileSequence2.ts\n"
             + "#EXTINF:4.00000,\n"
             + "fileSequence3.ts\n"
-            + "#EXT-X-PART-INF:PART-TARGET=0.5\n"
+            + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3\n";
+    // The playlist finishes 1 second before the current time.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = MediaItem.fromUri(playlistUri);
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    // The target live offset is picked from start time (16 - 10 = 6) and then expressed in relation
+    // to the live edge (17 - 6 = 11 seconds).
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(11000);
+    // The default position points to the segment containing the start time.
+    assertThat(window.defaultPositionUs).isEqualTo(4000000);
+  }
+
+  @Test
+  public void
+      loadLivePlaylist_withNonPreciseStartTimeAndUserDefinedLiveOffset_startsFromPrecedingSegment()
+          throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has a duration of 16 seconds, and part hold back, hold back and start time
+    // defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-START:TIME-OFFSET=-10\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence2.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence3.ts\n"
+            + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3\n";
+    // The playlist finishes 1 second before the current time.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(3000).build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(3000);
+    // The default position points to the segment containing the start time.
+    assertThat(window.defaultPositionUs).isEqualTo(4000000);
+  }
+
+  @Test
+  public void loadLivePlaylist_withPreciseStartTime_targetLiveOffsetFromStartTime()
+      throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has a duration of 16 seconds, and part hold back, hold back and start time
+    // defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-START:TIME-OFFSET=-10,PRECISE=YES\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence2.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence3.ts\n"
             + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3";
     // The playlist finishes 1 second before the current time.
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
@@ -324,14 +436,52 @@ public class HlsMediaSourceTest {
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
 
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
-    // The target live offset is picked from start time and then expressed in relation to the live
-    // edge (+1 seconds).
-    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(16000);
-    assertThat(window.defaultPositionUs).isEqualTo(0);
+    // The target live offset is picked from start time (16 - 10 = 6) and then expressed in relation
+    // to the live edge (17 - 7 = 11 seconds).
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(11000);
+    // The default position points to the start time.
+    assertThat(window.defaultPositionUs).isEqualTo(6000000);
   }
 
   @Test
-  public void loadPlaylist_targetLiveOffsetInMediaItem_targetLiveOffsetPickedFromMediaItem()
+  public void loadLivePlaylist_withPreciseStartTimeAndUserDefinedLiveOffset_startsFromStartTime()
+      throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has a duration of 16 seconds, and part hold back, hold back and start time
+    // defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-START:TIME-OFFSET=-10,PRECISE=YES\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence2.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence3.ts\n"
+            + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3";
+    // The playlist finishes 1 second before the current time.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(3000).build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(3000);
+    // The default position points to the start time.
+    assertThat(window.defaultPositionUs).isEqualTo(6000000);
+  }
+
+  @Test
+  public void loadLivePlaylist_targetLiveOffsetInMediaItem_targetLiveOffsetPickedFromMediaItem()
       throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a hold back of 12 seconds and a part hold back of 3 seconds.
@@ -361,8 +511,9 @@ public class HlsMediaSourceTest {
   }
 
   @Test
-  public void loadPlaylist_targetLiveOffsetLargerThanLiveWindow_targetLiveOffsetIsWithinLiveWindow()
-      throws TimeoutException, ParserException {
+  public void
+      loadLivePlaylist_targetLiveOffsetLargerThanLiveWindow_targetLiveOffsetIsWithinLiveWindow()
+          throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a duration of 8 seconds and a hold back of 12 seconds.
     String playlist =
@@ -394,7 +545,7 @@ public class HlsMediaSourceTest {
 
   @Test
   public void
-      loadPlaylist_withoutProgramDateTime_targetLiveOffsetFromPlaylistNotAdjustedToLiveEdge()
+      loadLivePlaylist_withoutProgramDateTime_targetLiveOffsetFromPlaylistNotAdjustedToLiveEdge()
           throws TimeoutException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
     // The playlist has a duration of 16 seconds and a hold back of 12 seconds.
@@ -425,6 +576,119 @@ public class HlsMediaSourceTest {
     // program date time.
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(12000);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
+  }
+
+  @Test
+  public void loadOnDemandPlaylist_withPreciseStartTime_setsDefaultPosition()
+      throws TimeoutException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-START:TIME-OFFSET=15.000,PRECISE=YES"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence2.ts\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(playlistUri).build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    // The target live offset is not adjusted to the live edge because the list does not have
+    // program date time.
+    assertThat(window.liveConfiguration).isNull();
+    assertThat(window.defaultPositionUs).isEqualTo(15000000);
+  }
+
+  @Test
+  public void loadOnDemandPlaylist_withNonPreciseStartTime_setsDefaultPosition()
+      throws TimeoutException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-START:TIME-OFFSET=15.000"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence2.ts\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(playlistUri).build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    // The target live offset is not adjusted to the live edge because the list does not have
+    // program date time.
+    assertThat(window.liveConfiguration).isNull();
+    assertThat(window.defaultPositionUs).isEqualTo(10000000);
+  }
+
+  @Test
+  public void
+      loadOnDemandPlaylist_withStartTimeBeforeTheBeginning_setsDefaultPositionToTheBeginning()
+          throws TimeoutException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-START:TIME-OFFSET=-35.000"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence2.ts\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(playlistUri).build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    assertThat(window.liveConfiguration).isNull();
+    assertThat(window.defaultPositionUs).isEqualTo(0);
+  }
+
+  @Test
+  public void loadOnDemandPlaylist_withStartTimeAfterTheNed_setsDefaultPositionToTheEnd()
+      throws TimeoutException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-START:TIME-OFFSET=35.000"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:10.0,\n"
+            + "fileSequence2.ts\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = new MediaItem.Builder().setUri(playlistUri).build();
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    assertThat(window.liveConfiguration).isNull();
+    assertThat(window.defaultPositionUs).isEqualTo(20000000);
   }
 
   @Test

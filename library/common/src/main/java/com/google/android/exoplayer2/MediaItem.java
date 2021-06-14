@@ -159,9 +159,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional URI.
      *
-     * <p>If {@code uri} is null or unset no {@link PlaybackProperties} object is created during
-     * {@link #build()} and any other {@code Builder} methods that would populate {@link
-     * MediaItem#playbackProperties} are ignored.
+     * <p>If {@code uri} is null or unset then no {@link PlaybackProperties} object is created
+     * during {@link #build()} and no other {@code Builder} methods that would populate {@link
+     * MediaItem#playbackProperties} should be called.
      */
     public Builder setUri(@Nullable String uri) {
       return setUri(uri == null ? null : Uri.parse(uri));
@@ -170,9 +170,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional URI.
      *
-     * <p>If {@code uri} is null or unset no {@link PlaybackProperties} object is created during
-     * {@link #build()} and any other {@code Builder} methods that would populate {@link
-     * MediaItem#playbackProperties} are ignored.
+     * <p>If {@code uri} is null or unset then no {@link PlaybackProperties} object is created
+     * during {@link #build()} and no other {@code Builder} methods that would populate {@link
+     * MediaItem#playbackProperties} should be called.
      */
     public Builder setUri(@Nullable Uri uri) {
       this.uri = uri;
@@ -184,8 +184,7 @@ public final class MediaItem implements Bundleable {
      *
      * <p>The MIME type may be used as a hint for inferring the type of the media item.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the MIME type is used to create a
-     * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      *
      * @param mimeType The MIME type.
      */
@@ -247,8 +246,8 @@ public final class MediaItem implements Bundleable {
      * Sets the optional default DRM license server URI. If this URI is set, the {@link
      * DrmConfiguration#uuid} needs to be specified as well.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM license server URI is used to
-     * create a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmLicenseUri(@Nullable Uri licenseUri) {
       drmLicenseUri = licenseUri;
@@ -259,8 +258,8 @@ public final class MediaItem implements Bundleable {
      * Sets the optional default DRM license server URI. If this URI is set, the {@link
      * DrmConfiguration#uuid} needs to be specified as well.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM license server URI is used to
-     * create a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmLicenseUri(@Nullable String licenseUri) {
       drmLicenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
@@ -272,7 +271,8 @@ public final class MediaItem implements Bundleable {
      *
      * <p>{@code null} or an empty {@link Map} can be used for a reset.
      *
-     * <p>If no valid DRM configuration is specified, the DRM license request headers are ignored.
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmLicenseRequestHeaders(
         @Nullable Map<String, String> licenseRequestHeaders) {
@@ -284,11 +284,13 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets the {@link UUID} of the protection scheme. If a DRM system UUID is set, the {@link
-     * DrmConfiguration#licenseUri} needs to be set as well.
+     * Sets the {@link UUID} of the protection scheme.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM system UUID is used to create
-     * a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>If {@code uuid} is null or unset then no {@link DrmConfiguration} object is created during
+     * {@link #build()} and no other {@code Builder} methods that would populate {@link
+     * MediaItem.PlaybackProperties#drmConfiguration} should be called.
+     *
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
     public Builder setDrmUuid(@Nullable UUID uuid) {
       drmUuid = uuid;
@@ -298,8 +300,8 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets whether the DRM configuration is multi session enabled.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM multi session flag is used to
-     * create a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmMultiSession(boolean multiSession) {
       drmMultiSession = multiSession;
@@ -310,8 +312,8 @@ public final class MediaItem implements Bundleable {
      * Sets whether to force use the default DRM license server URI even if the media specifies its
      * own DRM license server URI.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM force default license flag is
-     * used to create a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
       this.drmForceDefaultLicenseUri = forceDefaultLicenseUri;
@@ -321,6 +323,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets whether clear samples within protected content should be played when keys for the
      * encrypted part of the content have yet to be loaded.
+     *
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
       this.drmPlayClearContentWithoutKey = playClearContentWithoutKey;
@@ -333,6 +338,9 @@ public final class MediaItem implements Bundleable {
      *
      * <p>This method overrides what has been set by previously calling {@link
      * #setDrmSessionForClearTypes(List)}.
+     *
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
       this.setDrmSessionForClearTypes(
@@ -353,6 +361,9 @@ public final class MediaItem implements Bundleable {
      * #setDrmSessionForClearPeriods(boolean)}.
      *
      * <p>{@code null} or an empty {@link List} can be used for a reset.
+     *
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
       this.drmSessionForClearTypes =
@@ -369,7 +380,8 @@ public final class MediaItem implements Bundleable {
      * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
      * mode,byte[] offlineLicenseKeySetId)}).
      *
-     * <p>If no valid DRM configuration is specified, the key set ID is ignored.
+     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
+     * are passed non-null values.
      */
     public Builder setDrmKeySetId(@Nullable byte[] keySetId) {
       this.drmKeySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
@@ -396,8 +408,7 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional custom cache key (only used for progressive streams).
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the custom cache key is used to
-     * create a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
     public Builder setCustomCacheKey(@Nullable String customCacheKey) {
       this.customCacheKey = customCacheKey;
@@ -409,8 +420,7 @@ public final class MediaItem implements Bundleable {
      *
      * <p>{@code null} or an empty {@link List} can be used for a reset.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the subtitles are used to create a
-     * {@link PlaybackProperties} object. Otherwise they will be ignored.
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
     public Builder setSubtitles(@Nullable List<Subtitle> subtitles) {
       this.subtitles =
@@ -423,12 +433,11 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional ad tag {@link Uri}.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
-     * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
      * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
      * the same ad playback state. To resume ad playback when recreating the playlist on returning
      * from the background, pass media items with the same ad tag URIs and media IDs to the player.
+     *
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      *
      * @param adTagUri The ad tag URI to load.
      */
@@ -439,12 +448,11 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional ad tag {@link Uri}.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
-     * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
      * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
      * the same ad playback state. To resume ad playback when recreating the playlist on returning
      * from the background, pass media items with the same ad tag URIs and media IDs to the player.
+     *
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      *
      * @param adTagUri The ad tag URI to load.
      */
@@ -455,12 +463,11 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional ad tag {@link Uri} and ads identifier.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
-     * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
      * <p>Media items in the playlist that have the same ads identifier and ads loader share the
      * same ad playback state. To resume ad playback when recreating the playlist on returning from
      * the background, pass the same ads IDs to the player.
+     *
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      *
      * @param adTagUri The ad tag URI to load.
      * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
@@ -545,8 +552,7 @@ public final class MediaItem implements Bundleable {
      * published in the {@code com.google.android.exoplayer2.Timeline} of the source as {@code
      * com.google.android.exoplayer2.Timeline.Window#tag}.
      *
-     * <p>If {@link #setUri} is passed a non-null {@code uri}, the tag is used to create a {@link
-     * PlaybackProperties} object. Otherwise it will be ignored.
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
     public Builder setTag(@Nullable Object tag) {
       this.tag = tag;

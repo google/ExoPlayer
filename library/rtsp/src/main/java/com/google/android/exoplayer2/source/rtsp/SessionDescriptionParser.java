@@ -41,8 +41,6 @@ import java.util.regex.Pattern;
   private static final Pattern MEDIA_DESCRIPTION_PATTERN =
       Pattern.compile("(\\S+)\\s(\\S+)\\s(\\S+)\\s(\\S+)");
 
-  private static final String CRLF = "\r\n";
-
   private static final String VERSION_TYPE = "v";
   private static final String ORIGIN_TYPE = "o";
   private static final String SESSION_TYPE = "s";
@@ -71,7 +69,7 @@ import java.util.regex.Pattern;
     @Nullable MediaDescription.Builder mediaDescriptionBuilder = null;
 
     // Lines are separated by an CRLF.
-    for (String line : Util.split(sdpString, CRLF)) {
+    for (String line : RtspMessageUtil.splitRtspMessageBody(sdpString)) {
       if ("".equals(line)) {
         continue;
       }
@@ -188,7 +186,7 @@ import java.util.regex.Pattern;
 
     try {
       return sessionDescriptionBuilder.build();
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       throw new ParserException(e);
     }
   }
@@ -199,7 +197,7 @@ import java.util.regex.Pattern;
       throws ParserException {
     try {
       sessionDescriptionBuilder.addMediaDescription(mediaDescriptionBuilder.build());
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       throw new ParserException(e);
     }
   }

@@ -19,6 +19,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.Layout;
 import android.text.Layout.Alignment;
+import android.text.Spanned;
+import android.text.SpannedString;
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -458,7 +460,13 @@ public final class Cue {
     } else {
       Assertions.checkArgument(bitmap == null);
     }
-    this.text = text;
+    if (text instanceof Spanned) {
+      this.text = SpannedString.valueOf(text);
+    } else if (text != null) {
+      this.text = text.toString();
+    } else {
+      this.text = null;
+    }
     this.textAlignment = textAlignment;
     this.multiRowAlignment = multiRowAlignment;
     this.bitmap = bitmap;

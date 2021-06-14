@@ -25,6 +25,8 @@ and extend, and can be updated through Play Store application updates.
 ExoPlayer modules can be obtained from [the Google Maven repository][]. It's
 also possible to clone the repository and depend on the modules locally.
 
+[the Google Maven repository]: https://developer.android.com/studio/build/dependencies#google-maven
+
 ### From the Google Maven repository
 
 #### 1. Add ExoPlayer module dependencies ####
@@ -39,13 +41,10 @@ implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 
 where `2.X.X` is your preferred version.
 
-Note: old versions of ExoPlayer are available via JCenter. To use them, you need
-to add `jcenter()` to your project's root build.gradle `repositories` block.
-
 As an alternative to the full library, you can depend on only the library
 modules that you actually need. For example the following will add dependencies
 on the Core, DASH and UI library modules, as might be required for an app that
-plays DASH content:
+only plays DASH content:
 
 ```gradle
 implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
@@ -54,13 +53,15 @@ implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ```
 
 The available library modules are listed below. Adding a dependency to the full
-library is equivalent to adding dependencies on all of the library modules
-individually.
+ExoPlayer library is equivalent to adding dependencies on all of the library
+modules individually.
 
 * `exoplayer-core`: Core functionality (required).
 * `exoplayer-dash`: Support for DASH content.
 * `exoplayer-hls`: Support for HLS content.
+* `exoplayer-rtsp`: Support for RTSP content.
 * `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
+* `exoplayer-transformer`: Media transformation functionality.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
 
 In addition to library modules, ExoPlayer has extension modules that depend on
@@ -72,7 +73,6 @@ More information on the library and extension modules that are available can be
 found on the [Google Maven ExoPlayer page][].
 
 [extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
-[the Google Maven repository]: https://developer.android.com/studio/build/dependencies#google-maven
 [Google Maven ExoPlayer page]: https://maven.google.com/web/index.html#com.google.android.exoplayer
 
 #### 2. Turn on Java 8 support ####
@@ -86,6 +86,12 @@ compileOptions {
   targetCompatibility JavaVersion.VERSION_1_8
 }
 ```
+
+#### 3. Enable multidex ####
+
+If your Gradle `minSdkVersion` is 20 or lower, you should
+[enable multidex](https://developer.android.com/studio/build/multidex) in order
+to prevent build errors.
 
 ### Locally ###
 
@@ -104,12 +110,12 @@ git checkout release-v2
 ```
 
 Next, add the following to your project's `settings.gradle` file, replacing
-`/absolute/path/to/exoplayer` with the absolute path to your local copy:
+`path/to/exoplayer` with the path to your local copy:
 
 ```gradle
-gradle.ext.exoplayerRoot = '/absolute/path/to/exoplayer'
+gradle.ext.exoplayerRoot = 'path/to/exoplayer'
 gradle.ext.exoplayerModulePrefix = 'exoplayer-'
-apply from: new File(gradle.ext.exoplayerRoot, 'core_settings.gradle')
+apply from: file("$gradle.ext.exoplayerRoot/core_settings.gradle")
 ```
 
 You should now see the ExoPlayer modules appear as part of your project. You can

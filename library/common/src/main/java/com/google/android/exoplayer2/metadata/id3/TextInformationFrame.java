@@ -60,6 +60,27 @@ public final class TextInformationFrame extends Id3Frame {
       case "TALB":
         builder.setAlbumTitle(value);
         break;
+      case "TRK":
+      case "TRCK":
+        String[] trackNumbers = Util.split(value, "/");
+        try {
+          int trackNumber = Integer.parseInt(trackNumbers[0]);
+          @Nullable
+          Integer totalTrackCount =
+              trackNumbers.length > 1 ? Integer.parseInt(trackNumbers[1]) : null;
+          builder.setTrackNumber(trackNumber).setTotalTrackCount(totalTrackCount);
+        } catch (NumberFormatException e) {
+          // Do nothing, invalid input.
+        }
+        break;
+      case "TYE":
+      case "TYER":
+        try {
+          builder.setYear(Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+          // Do nothing, invalid input.
+        }
+        break;
       default:
         break;
     }

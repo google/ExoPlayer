@@ -21,10 +21,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.RelativeSizeSpan;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -380,37 +376,13 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
   }
 
   private Cue removeEmbeddedStyling(Cue cue) {
-    @Nullable CharSequence cueText = cue.text;
+    Cue.Builder strippedCue = cue.buildUpon();
     if (!applyEmbeddedStyles) {
-      Cue.Builder strippedCue =
-          cue.buildUpon().setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET).clearWindowColor();
-      if (cueText != null) {
-        // Remove all spans, regardless of type.
-        strippedCue.setText(cueText.toString());
-      }
-      return strippedCue.build();
+      SubtitleViewUtils.removeAllEmbeddedStyling(strippedCue);
     } else if (!applyEmbeddedFontSizes) {
-      if (cueText == null) {
-        return cue;
-      }
-      Cue.Builder strippedCue = cue.buildUpon().setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET);
-      if (cueText instanceof Spanned) {
-        SpannableString spannable = SpannableString.valueOf(cueText);
-        AbsoluteSizeSpan[] absSpans =
-            spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class);
-        for (AbsoluteSizeSpan absSpan : absSpans) {
-          spannable.removeSpan(absSpan);
-        }
-        RelativeSizeSpan[] relSpans =
-            spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class);
-        for (RelativeSizeSpan relSpan : relSpans) {
-          spannable.removeSpan(relSpan);
-        }
-        strippedCue.setText(spannable);
-      }
-      return strippedCue.build();
+      SubtitleViewUtils.removeEmbeddedFontSizes(strippedCue);
     }
-    return cue;
+    return strippedCue.build();
   }
 
 }

@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.upstream.DataSource;
 import java.io.IOException;
 
@@ -43,17 +45,9 @@ import java.io.IOException;
   int getLocalPort();
 
   /**
-   * Returns whether the data channel is using sideband binary data to transmit RTP packets. For
-   * example, RTP-over-RTSP.
+   * Returns a {@link InterleavedBinaryDataListener} if the implementation supports receiving RTP
+   * packets on a side-band protocol, for example RTP-over-RTSP; otherwise {@code null}.
    */
-  boolean usesSidebandBinaryData();
-
-  /**
-   * Writes data to the channel.
-   *
-   * <p>The channel owns the written buffer, the user must not alter its content after writing.
-   *
-   * @param buffer The buffer from which data should be written. The buffer should be full.
-   */
-  void write(byte[] buffer);
+  @Nullable
+  InterleavedBinaryDataListener getInterleavedBinaryDataListener();
 }

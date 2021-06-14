@@ -758,12 +758,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputStreamStartPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
     pendingOutputStreamOffsetCount = 0;
-    if (sourceDrmSession != null || codecDrmSession != null) {
-      // TODO: Do something better with this case.
-      onReset();
-    } else {
-      flushOrReleaseCodec();
-    }
+    flushOrReleaseCodec();
   }
 
   @Override

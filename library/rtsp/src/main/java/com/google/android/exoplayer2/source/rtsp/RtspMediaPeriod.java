@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.rtsp.RtspClient.PlaybackEventListener;
+import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -62,57 +63,68 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** A {@link MediaPeriod} that loads an RTSP stream. */
 /* package */ final class RtspMediaPeriod implements MediaPeriod {
 
+  /** Listener for information about the period. */
+  interface Listener {
+
+    /** Called when the {@link RtspSessionTiming} is available. */
+    void onSourceInfoRefreshed(RtspSessionTiming timing);
+  }
+
   /** The maximum times to retry if the underlying data channel failed to bind. */
   private static final int PORT_BINDING_MAX_RETRY_COUNT = 3;
 
   private final Allocator allocator;
   private final Handler handler;
-
   private final InternalListener internalListener;
   private final RtspClient rtspClient;
   private final List<RtspLoaderWrapper> rtspLoaderWrappers;
   private final List<RtpLoadInfo> selectedLoadInfos;
+  private final Listener listener;
+  private final RtpDataChannel.Factory rtpDataChannelFactory;
 
   private @MonotonicNonNull Callback callback;
   private @MonotonicNonNull ImmutableList<TrackGroup> trackGroups;
   @Nullable private IOException preparationError;
   @Nullable private RtspPlaybackException playbackException;
 
+  private long lastSeekPositionUs;
   private long pendingSeekPositionUs;
   private boolean loadingFinished;
   private boolean released;
   private boolean prepared;
   private boolean trackSelected;
   private int portBindingRetryCount;
-  private boolean hasRetriedWithRtpTcp;
+  private boolean isUsingRtpTcp;
 
   /**
    * Creates an RTSP media period.
    *
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
-   * @param rtspTracks A list of tracks in an RTSP playback session.
-   * @param rtspClient The {@link RtspClient} for the current RTSP playback.
    * @param rtpDataChannelFactory A {@link RtpDataChannel.Factory} for {@link RtpDataChannel}.
+   * @param uri The RTSP playback {@link Uri}.
+   * @param listener A {@link Listener} to receive session information updates.
    */
   public RtspMediaPeriod(
       Allocator allocator,
-      List<RtspMediaTrack> rtspTracks,
-      RtspClient rtspClient,
-      RtpDataChannel.Factory rtpDataChannelFactory) {
+      RtpDataChannel.Factory rtpDataChannelFactory,
+      Uri uri,
+      Listener listener,
+      String userAgent) {
     this.allocator = allocator;
+    this.rtpDataChannelFactory = rtpDataChannelFactory;
+    this.listener = listener;
+
     handler = Util.createHandlerForCurrentLooper();
-
     internalListener = new InternalListener();
-    rtspLoaderWrappers = new ArrayList<>(rtspTracks.size());
-    this.rtspClient = rtspClient;
-    this.rtspClient.setPlaybackEventListener(internalListener);
+    rtspClient =
+        new RtspClient(
+            /* sessionInfoListener= */ internalListener,
+            /* playbackEventListener= */ internalListener,
+            /* userAgent= */ userAgent,
+            /* uri= */ uri);
+    rtspLoaderWrappers = new ArrayList<>();
+    selectedLoadInfos = new ArrayList<>();
 
-    for (int i = 0; i < rtspTracks.size(); i++) {
-      RtspMediaTrack rtspMediaTrack = rtspTracks.get(i);
-      rtspLoaderWrappers.add(
-          new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ i, rtpDataChannelFactory));
-    }
-    selectedLoadInfos = new ArrayList<>(rtspTracks.size());
     pendingSeekPositionUs = C.TIME_UNSET;
   }
 
@@ -121,6 +133,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
       rtspLoaderWrappers.get(i).release();
     }
+    Util.closeQuietly(rtspClient);
     released = true;
   }
 
@@ -128,8 +141,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
 
-    for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
-      rtspLoaderWrappers.get(i).startLoading();
+    try {
+      rtspClient.start();
+    } catch (IOException e) {
+      preparationError = e;
+      Util.closeQuietly(rtspClient);
     }
   }
 
@@ -233,6 +249,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return positionUs;
     }
 
+    lastSeekPositionUs = positionUs;
     pendingSeekPositionUs = positionUs;
     rtspClient.seekToUs(positionUs);
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
@@ -256,14 +273,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return pendingSeekPositionUs;
     }
 
-    long bufferedPositionUs = rtspLoaderWrappers.get(0).sampleQueue.getLargestQueuedTimestampUs();
-    for (int i = 1; i < rtspLoaderWrappers.size(); i++) {
-      bufferedPositionUs =
-          min(
-              bufferedPositionUs,
-              checkNotNull(rtspLoaderWrappers.get(i)).sampleQueue.getLargestQueuedTimestampUs());
+    boolean allLoaderWrappersAreCanceled = true;
+    long bufferedPositionUs = Long.MAX_VALUE;
+    for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
+      RtspLoaderWrapper loaderWrapper = rtspLoaderWrappers.get(i);
+      if (!loaderWrapper.canceled) {
+        bufferedPositionUs = min(bufferedPositionUs, loaderWrapper.getBufferedPositionUs());
+        allLoaderWrappersAreCanceled = false;
+      }
     }
-    return bufferedPositionUs;
+
+    return allLoaderWrappersAreCanceled || bufferedPositionUs == Long.MIN_VALUE
+        ? lastSeekPositionUs
+        : bufferedPositionUs;
   }
 
   @Override
@@ -306,9 +328,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private RtpDataLoadable getLoadableByTrackUri(Uri trackUri) {
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
-      RtpLoadInfo loadInfo = rtspLoaderWrappers.get(i).loadInfo;
-      if (loadInfo.getTrackUri().equals(trackUri)) {
-        return loadInfo.loadable;
+      if (!rtspLoaderWrappers.get(i).canceled) {
+        RtpLoadInfo loadInfo = rtspLoaderWrappers.get(i).loadInfo;
+        if (loadInfo.getTrackUri().equals(trackUri)) {
+          return loadInfo.loadable;
+        }
       }
     }
     return null;
@@ -384,6 +408,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       implements ExtractorOutput,
           Loader.Callback<RtpDataLoadable>,
           UpstreamFormatChangedListener,
+          SessionInfoListener,
           PlaybackEventListener {
 
     // ExtractorOutput implementation.
@@ -513,13 +538,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     /** Handles the {@link Loadable} whose {@link RtpDataChannel} timed out. */
     private LoadErrorAction handleSocketTimeout(RtpDataLoadable loadable) {
       // TODO(b/172331505) Allow for retry when loading is not ending.
-      if (getBufferedPositionUs() == Long.MIN_VALUE) {
-        // Retry playback with TCP if no sample has been received so far.
-        if (!hasRetriedWithRtpTcp) {
+      if (getBufferedPositionUs() == 0) {
+        if (!isUsingRtpTcp) {
+          // Retry playback with TCP if no sample has been received so far, and we are not already
+          // using TCP. Retrying will setup new loadables, so will not retry with the current
+          // loadables.
           retryWithRtpTcp();
-          hasRetriedWithRtpTcp = true;
+          isUsingRtpTcp = true;
         }
-        // Don't retry with the current UDP backed loadables.
         return Loader.DONT_RETRY;
       }
 
@@ -530,8 +556,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           break;
         }
       }
-      playbackException = new RtspPlaybackException("Unknown loadable timed out.");
       return Loader.DONT_RETRY;
+    }
+
+    @Override
+    public void onSessionTimelineUpdated(
+        RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {
+      for (int i = 0; i < tracks.size(); i++) {
+        RtspMediaTrack rtspMediaTrack = tracks.get(i);
+        RtspLoaderWrapper loaderWrapper =
+            new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ i, rtpDataChannelFactory);
+        loaderWrapper.startLoading();
+        rtspLoaderWrappers.add(loaderWrapper);
+      }
+
+      listener.onSourceInfoRefreshed(timing);
+    }
+
+    @Override
+    public void onSessionTimelineRequestFailed(String message, @Nullable Throwable cause) {
+      preparationError = cause == null ? new IOException(message) : new IOException(message, cause);
     }
   }
 
@@ -542,17 +586,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ArrayList<RtspLoaderWrapper> newLoaderWrappers = new ArrayList<>(rtspLoaderWrappers.size());
     ArrayList<RtpLoadInfo> newSelectedLoadInfos = new ArrayList<>(selectedLoadInfos.size());
 
+    // newLoaderWrappers' elements and orders must match those of rtspLoaderWrappers'.
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
       RtspLoaderWrapper loaderWrapper = rtspLoaderWrappers.get(i);
 
-      RtspLoaderWrapper newLoaderWrapper =
-          new RtspLoaderWrapper(
-              loaderWrapper.loadInfo.mediaTrack, /* trackId= */ i, rtpDataChannelFactory);
-      newLoaderWrappers.add(newLoaderWrapper);
-      newLoaderWrapper.startLoading();
-
-      if (selectedLoadInfos.contains(loaderWrapper.loadInfo)) {
-        newSelectedLoadInfos.add(newLoaderWrapper.loadInfo);
+      if (!loaderWrapper.canceled) {
+        RtspLoaderWrapper newLoaderWrapper =
+            new RtspLoaderWrapper(
+                loaderWrapper.loadInfo.mediaTrack, /* trackId= */ i, rtpDataChannelFactory);
+        newLoaderWrappers.add(newLoaderWrapper);
+        newLoaderWrapper.startLoading();
+        if (selectedLoadInfos.contains(loaderWrapper.loadInfo)) {
+          newSelectedLoadInfos.add(newLoaderWrapper.loadInfo);
+        }
+      } else {
+        newLoaderWrappers.add(loaderWrapper);
       }
     }
 
@@ -625,6 +673,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       sampleQueue.setUpstreamFormatChangeListener(internalListener);
     }
 
+    /**
+     * Returns the largest buffered position in microseconds; or {@link Long#MIN_VALUE} if no sample
+     * has been queued.
+     */
+    public long getBufferedPositionUs() {
+      return sampleQueue.getLargestQueuedTimestampUs();
+    }
+
     /** Starts loading. */
     public void startLoading() {
       loader.startLoading(
@@ -643,21 +699,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Cancels loading. */
     public void cancelLoad() {
-      if (canceled) {
-        return;
-      }
-      loadInfo.loadable.cancelLoad();
-      canceled = true;
+      if (!canceled) {
+        loadInfo.loadable.cancelLoad();
+        canceled = true;
 
-      // Update loadingFinished every time loading is canceled.
-      updateLoadingFinished();
+        // Update loadingFinished every time loading is canceled.
+        updateLoadingFinished();
+      }
     }
 
     /** Resets the {@link Loadable} and {@link SampleQueue} to prepare for an RTSP seek. */
     public void seekTo(long positionUs) {
-      loadInfo.loadable.resetForSeek();
-      sampleQueue.reset();
-      sampleQueue.setStartTimeUs(positionUs);
+      if (!canceled) {
+        loadInfo.loadable.resetForSeek();
+        sampleQueue.reset();
+        sampleQueue.setStartTimeUs(positionUs);
+      }
     }
 
     /** Releases the instance. */
@@ -685,14 +742,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         RtspMediaTrack mediaTrack, int trackId, RtpDataChannel.Factory rtpDataChannelFactory) {
       this.mediaTrack = mediaTrack;
 
+      // This listener runs on the playback thread, posted by the Loader thread.
       RtpDataLoadable.EventListener transportEventListener =
           (transport, rtpDataChannel) -> {
             RtpLoadInfo.this.transport = transport;
 
-            if (rtpDataChannel.usesSidebandBinaryData()) {
-              rtspClient.registerInterleavedDataChannel(rtpDataChannel);
+            @Nullable
+            RtspMessageChannel.InterleavedBinaryDataListener interleavedBinaryDataListener =
+                rtpDataChannel.getInterleavedBinaryDataListener();
+            if (interleavedBinaryDataListener != null) {
+              rtspClient.registerInterleavedDataChannel(
+                  rtpDataChannel.getLocalPort(), interleavedBinaryDataListener);
+              isUsingRtpTcp = true;
             }
-
             maybeSetupTracks();
           };
 

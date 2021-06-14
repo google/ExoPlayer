@@ -16,7 +16,16 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.RelativeSizeSpan;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.span.LanguageFeatureSpan;
+import com.google.common.base.Predicate;
 
 /** Utility class for subtitle layout logic. */
 /* package */ final class SubtitleViewUtils {
@@ -45,6 +54,51 @@ import com.google.android.exoplayer2.text.Cue;
       case Cue.TYPE_UNSET:
       default:
         return Cue.DIMEN_UNSET;
+    }
+  }
+
+  /** Removes all styling information from {@code cue}. */
+  public static void removeAllEmbeddedStyling(Cue.Builder cue) {
+    cue.clearWindowColor();
+    if (cue.getText() instanceof Spanned) {
+      if (!(cue.getText() instanceof Spannable)) {
+        cue.setText(SpannableString.valueOf(cue.getText()));
+      }
+      removeSpansIf(
+          (Spannable) checkNotNull(cue.getText()), span -> !(span instanceof LanguageFeatureSpan));
+    }
+    removeEmbeddedFontSizes(cue);
+  }
+
+  /**
+   * Removes all font size information from {@code cue}.
+   *
+   * <p>This involves:
+   *
+   * <ul>
+   *   <li>Clearing {@link Cue.Builder#setTextSize(float, int)}.
+   *   <li>Removing all {@link AbsoluteSizeSpan} and {@link RelativeSizeSpan} spans from {@link
+   *       Cue#text}.
+   * </ul>
+   */
+  public static void removeEmbeddedFontSizes(Cue.Builder cue) {
+    cue.setTextSize(Cue.DIMEN_UNSET, Cue.TYPE_UNSET);
+    if (cue.getText() instanceof Spanned) {
+      if (!(cue.getText() instanceof Spannable)) {
+        cue.setText(SpannableString.valueOf(cue.getText()));
+      }
+      removeSpansIf(
+          (Spannable) checkNotNull(cue.getText()),
+          span -> span instanceof AbsoluteSizeSpan || span instanceof RelativeSizeSpan);
+    }
+  }
+
+  private static void removeSpansIf(Spannable spannable, Predicate<Object> removeFilter) {
+    Object[] spans = spannable.getSpans(0, spannable.length(), Object.class);
+    for (Object span : spans) {
+      if (removeFilter.apply(span)) {
+        spannable.removeSpan(span);
+      }
     }
   }
 

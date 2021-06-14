@@ -22,6 +22,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
@@ -31,7 +32,8 @@ import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /** An {@link RtpDataChannel} that transfers received data in-memory. */
-/* package */ final class TransferRtpDataChannel extends BaseDataSource implements RtpDataChannel {
+/* package */ final class TransferRtpDataChannel extends BaseDataSource
+    implements RtpDataChannel, RtspMessageChannel.InterleavedBinaryDataListener {
 
   private static final String DEFAULT_TCP_TRANSPORT_FORMAT =
       "RTP/AVP/TCP;unicast;interleaved=%d-%d";
@@ -62,8 +64,8 @@ import java.util.concurrent.LinkedBlockingQueue;
   }
 
   @Override
-  public boolean usesSidebandBinaryData() {
-    return true;
+  public InterleavedBinaryDataListener getInterleavedBinaryDataListener() {
+    return this;
   }
 
   @Override
@@ -119,7 +121,7 @@ import java.util.concurrent.LinkedBlockingQueue;
   }
 
   @Override
-  public void write(byte[] buffer) {
-    packetQueue.add(buffer);
+  public void onInterleavedBinaryDataReceived(byte[] data) {
+    packetQueue.add(data);
   }
 }

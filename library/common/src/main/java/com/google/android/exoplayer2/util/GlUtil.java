@@ -141,7 +141,7 @@ public final class GlUtil {
       location = GLES20.glGetUniformLocation(program, this.name);
       this.type = type[0];
 
-      value = new float[1];
+      value = new float[16];
     }
 
     /**
@@ -160,15 +160,26 @@ public final class GlUtil {
       this.value[0] = value;
     }
 
+    /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
+    public void setFloats(float[] value) {
+      System.arraycopy(value, 0, this.value, 0, value.length);
+    }
+
     /**
-     * Sets the uniform to whatever value was passed via {@link #setSamplerTexId(int, int)} or
-     * {@link #setFloat(float)}.
+     * Sets the uniform to whatever value was passed via {@link #setSamplerTexId(int, int)}, {@link
+     * #setFloat(float)} or {@link #setFloats(float[])}.
      *
      * <p>Should be called before each drawing call.
      */
     public void bind() {
       if (type == GLES20.GL_FLOAT) {
         GLES20.glUniform1fv(location, 1, value, 0);
+        checkGlError();
+        return;
+      }
+
+      if (type == GLES20.GL_FLOAT_MAT4) {
+        GLES20.glUniformMatrix4fv(location, 1, false, value, 0);
         checkGlError();
         return;
       }

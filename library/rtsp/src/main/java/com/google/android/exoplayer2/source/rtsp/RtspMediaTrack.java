@@ -31,6 +31,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AacUtil;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -171,10 +172,6 @@ import com.google.common.collect.ImmutableMap;
 
   private static void processH264FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_PROFILE_LEVEL_ID));
-    String profileLevel = checkNotNull(fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID));
-    formatBuilder.setCodecs(H264_CODECS_PREFIX + profileLevel);
-
     checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_PARAMS));
     String spropParameterSets = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_PARAMS));
     String[] parameterSets = Util.split(spropParameterSets, ",");
@@ -193,6 +190,15 @@ import com.google.common.collect.ImmutableMap;
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthAspectRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);
+
+    @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
+    if (profileLevel != null) {
+      formatBuilder.setCodecs(H264_CODECS_PREFIX + profileLevel);
+    } else {
+      formatBuilder.setCodecs(
+          CodecSpecificDataUtil.buildAvcCodecString(
+              spsData.profileIdc, spsData.constraintsFlagsAndReservedZero2Bits, spsData.levelIdc));
+    }
   }
 
   private static byte[] getH264InitializationDataFromParameterSet(String parameterSet) {

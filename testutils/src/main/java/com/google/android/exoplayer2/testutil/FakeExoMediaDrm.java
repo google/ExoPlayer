@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallbackException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -81,6 +82,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   private final AtomicInteger sessionIdGenerator;
 
   private int referenceCount;
+  @Nullable private OnEventListener onEventListener;
 
   /**
    * Constructs an instance that returns random and unique {@code sessionIds} for subsequent calls
@@ -107,11 +109,11 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
     referenceCount = 1;
   }
 
-  // ExoMediaCrypto implementation
+  // ExoMediaDrm implementation
 
   @Override
   public void setOnEventListener(@Nullable OnEventListener listener) {
-    // Do nothing.
+    this.onEventListener = listener;
   }
 
   @Override
@@ -277,6 +279,31 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public Class<FakeExoMediaCrypto> getExoMediaCryptoType() {
     return FakeExoMediaCrypto.class;
+  }
+
+  // Methods to facilitate testing
+
+  public int getReferenceCount() {
+    return referenceCount;
+  }
+
+  /**
+   * Calls {@link OnEventListener#onEvent(ExoMediaDrm, byte[], int, int, byte[])} on the attached
+   * listener (if present) once for each open session ID which passes {@code sessionIdPredicate},
+   * passing the provided values for {@code event}, {@code extra} and {@code data}.
+   */
+  public void triggerEvent(
+      Predicate<byte[]> sessionIdPredicate, int event, int extra, @Nullable byte[] data) {
+    @Nullable OnEventListener onEventListener = this.onEventListener;
+    if (onEventListener == null) {
+      return;
+    }
+    for (List<Byte> sessionId : openSessionIds) {
+      byte[] sessionIdArray = Bytes.toArray(sessionId);
+      if (sessionIdPredicate.apply(sessionIdArray)) {
+        onEventListener.onEvent(this, sessionIdArray, event, extra, data);
+      }
+    }
   }
 
   private static ImmutableList<Byte> toByteList(byte[] byteArray) {

@@ -457,9 +457,15 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     if (prepareCallsCount++ != 0) {
       return;
     }
-    checkState(exoMediaDrm == null);
-    exoMediaDrm = exoMediaDrmProvider.acquireExoMediaDrm(uuid);
-    exoMediaDrm.setOnEventListener(new MediaDrmEventListener());
+    if (exoMediaDrm == null) {
+      exoMediaDrm = exoMediaDrmProvider.acquireExoMediaDrm(uuid);
+      exoMediaDrm.setOnEventListener(new MediaDrmEventListener());
+    } else if (sessionKeepaliveMs != C.TIME_UNSET) {
+      // Re-acquire the keepalive references for any sessions that are still active.
+      for (int i = 0; i < sessions.size(); i++) {
+        sessions.get(i).acquire(/* eventDispatcher= */ null);
+      }
+    }
   }
 
   @Override
@@ -478,8 +484,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     }
     releaseAllPreacquiredSessions();
 
-    checkNotNull(exoMediaDrm).release();
-    exoMediaDrm = null;
+    maybeReleaseMediaDrm();
   }
 
   @Override
@@ -487,6 +492,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
+    checkState(prepareCallsCount > 0);
     initPlaybackLooper(playbackLooper);
     PreacquiredSessionReference preacquiredSessionReference =
         new PreacquiredSessionReference(eventDispatcher);
@@ -500,6 +506,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
+    checkState(prepareCallsCount > 0);
     initPlaybackLooper(playbackLooper);
     return acquireSession(
         playbackLooper,
@@ -774,6 +781,17 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     return session;
   }
 
+  private void maybeReleaseMediaDrm() {
+    if (exoMediaDrm != null
+        && prepareCallsCount == 0
+        && sessions.isEmpty()
+        && preacquiredSessionReferences.isEmpty()) {
+      // This manager and all its sessions are fully released so we can release exoMediaDrm.
+      checkNotNull(exoMediaDrm).release();
+      exoMediaDrm = null;
+    }
+  }
+
   /**
    * Extracts {@link SchemeData} instances suitable for the given DRM scheme {@link UUID}.
    *
@@ -895,6 +913,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
           keepaliveSessions.remove(session);
         }
       }
+      maybeReleaseMediaDrm();
     }
   }
 

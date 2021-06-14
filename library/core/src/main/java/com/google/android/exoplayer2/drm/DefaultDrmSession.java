@@ -430,11 +430,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       case DefaultDrmSessionManager.MODE_RELEASE:
         Assertions.checkNotNull(offlineLicenseKeySetId);
         Assertions.checkNotNull(this.sessionId);
-        // It's not necessary to restore the key before releasing it but this serves as a good
-        // fast-failure check.
-        if (restoreKeys()) {
-          postKeyRequest(offlineLicenseKeySetId, ExoMediaDrm.KEY_TYPE_RELEASE, allowRetry);
-        }
+        postKeyRequest(offlineLicenseKeySetId, ExoMediaDrm.KEY_TYPE_RELEASE, allowRetry);
         break;
       default:
         break;

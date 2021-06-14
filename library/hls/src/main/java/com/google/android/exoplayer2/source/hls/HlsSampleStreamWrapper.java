@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import static com.google.android.exoplayer2.source.hls.HlsChunkSource.CHUNK_PUBLICATION_STATE_PUBLISHED;
 import static com.google.android.exoplayer2.source.hls.HlsChunkSource.CHUNK_PUBLICATION_STATE_REMOVED;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -636,17 +637,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int skipCount = sampleQueue.getSkipCount(positionUs, loadingFinished);
 
     // Ensure we don't skip into preload chunks until we can be sure they are permanently published.
-    int readIndex = sampleQueue.getReadIndex();
-    for (int i = 0; i < mediaChunks.size(); i++) {
-      HlsMediaChunk mediaChunk = mediaChunks.get(i);
-      int firstSampleIndex = mediaChunks.get(i).getFirstSampleIndex(sampleQueueIndex);
-      if (readIndex + skipCount <= firstSampleIndex) {
-        break;
-      }
-      if (!mediaChunk.isPublished()) {
-        skipCount = firstSampleIndex - readIndex;
-        break;
-      }
+    @Nullable HlsMediaChunk lastChunk = Iterables.getLast(mediaChunks, /* defaultValue= */ null);
+    if (lastChunk != null && !lastChunk.isPublished()) {
+      int readIndex = sampleQueue.getReadIndex();
+      int firstSampleIndex = lastChunk.getFirstSampleIndex(sampleQueueIndex);
+      skipCount = min(skipCount, firstSampleIndex - readIndex);
     }
 
     sampleQueue.skip(skipCount);
@@ -709,6 +704,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               ? lastMediaChunk.endTimeUs
               : max(lastSeekPositionUs, lastMediaChunk.startTimeUs);
     }
+    nextChunkHolder.clear();
     chunkSource.getNextChunk(
         positionUs,
         loadPositionUs,
@@ -718,7 +714,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     boolean endOfStream = nextChunkHolder.endOfStream;
     @Nullable Chunk loadable = nextChunkHolder.chunk;
     @Nullable Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
-    nextChunkHolder.clear();
 
     if (endOfStream) {
       pendingResetPositionUs = C.TIME_UNSET;

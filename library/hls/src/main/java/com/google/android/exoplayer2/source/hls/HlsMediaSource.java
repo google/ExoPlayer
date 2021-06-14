@@ -514,9 +514,8 @@ public final class HlsMediaSource extends BaseMediaSource
 
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
-    SinglePeriodTimeline timeline;
-    long windowStartTimeMs = playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs)
-        : C.TIME_UNSET;
+    long windowStartTimeMs =
+        playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs) : C.TIME_UNSET;
     // For playlist types EVENT and VOD we know segments are never removed, so the presentation
     // started at the same time as the window. Otherwise, we don't know the presentation start time.
     long presentationStartTimeMs =
@@ -524,66 +523,87 @@ public final class HlsMediaSource extends BaseMediaSource
                 || playlist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
             ? windowStartTimeMs
             : C.TIME_UNSET;
-    long windowDefaultStartPositionUs = playlist.startOffsetUs;
-    // masterPlaylist is non-null because the first playlist has been fetched by now.
+    // The master playlist is non-null because the first playlist has been fetched by now.
     HlsManifest manifest =
         new HlsManifest(checkNotNull(playlistTracker.getMasterPlaylist()), playlist);
-    if (playlistTracker.isLive()) {
-      long liveEdgeOffsetUs = getLiveEdgeOffsetUs(playlist);
-      long targetLiveOffsetUs =
-          liveConfiguration.targetOffsetMs != C.TIME_UNSET
-              ? C.msToUs(liveConfiguration.targetOffsetMs)
-              : getTargetLiveOffsetUs(playlist, liveEdgeOffsetUs);
-      // Ensure target live offset is within the live window and greater than the live edge offset.
-      targetLiveOffsetUs =
-          Util.constrainValue(
-              targetLiveOffsetUs, liveEdgeOffsetUs, playlist.durationUs + liveEdgeOffsetUs);
-      maybeUpdateMediaItem(targetLiveOffsetUs);
-
-      long offsetFromInitialStartTimeUs =
-          playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
-      long periodDurationUs =
-          playlist.hasEndTag ? offsetFromInitialStartTimeUs + playlist.durationUs : C.TIME_UNSET;
-      List<HlsMediaPlaylist.Segment> segments = playlist.segments;
-      if (!segments.isEmpty()) {
-        windowDefaultStartPositionUs = getWindowDefaultStartPosition(playlist, liveEdgeOffsetUs);
-      } else if (windowDefaultStartPositionUs == C.TIME_UNSET) {
-        windowDefaultStartPositionUs = 0;
-      }
-      timeline =
-          new SinglePeriodTimeline(
-              presentationStartTimeMs,
-              windowStartTimeMs,
-              /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
-              periodDurationUs,
-              /* windowDurationUs= */ playlist.durationUs,
-              /* windowPositionInPeriodUs= */ offsetFromInitialStartTimeUs,
-              windowDefaultStartPositionUs,
-              /* isSeekable= */ true,
-              /* isDynamic= */ !playlist.hasEndTag,
-              manifest,
-              mediaItem,
-              liveConfiguration);
-    } else /* not live */ {
-      if (windowDefaultStartPositionUs == C.TIME_UNSET) {
-        windowDefaultStartPositionUs = 0;
-      }
-      timeline =
-          new SinglePeriodTimeline(
-              presentationStartTimeMs,
-              windowStartTimeMs,
-              /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
-              /* periodDurationUs= */ playlist.durationUs,
-              /* windowDurationUs= */ playlist.durationUs,
-              /* windowPositionInPeriodUs= */ 0,
-              windowDefaultStartPositionUs,
-              /* isSeekable= */ true,
-              /* isDynamic= */ false,
-              manifest,
-              mediaItem,
-              /* liveConfiguration= */ null);
-    }
+    SinglePeriodTimeline timeline =
+        playlistTracker.isLive()
+            ? createTimelineForLive(playlist, presentationStartTimeMs, windowStartTimeMs, manifest)
+            : createTimelineForOnDemand(
+                playlist, presentationStartTimeMs, windowStartTimeMs, manifest);
     refreshSourceInfo(timeline);
+  }
+
+  private SinglePeriodTimeline createTimelineForLive(
+      HlsMediaPlaylist playlist,
+      long presentationStartTimeMs,
+      long windowStartTimeMs,
+      HlsManifest manifest) {
+    long offsetFromInitialStartTimeUs =
+        playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+    long periodDurationUs =
+        playlist.hasEndTag ? offsetFromInitialStartTimeUs + playlist.durationUs : C.TIME_UNSET;
+    long liveEdgeOffsetUs = getLiveEdgeOffsetUs(playlist);
+    long targetLiveOffsetUs;
+    if (liveConfiguration.targetOffsetMs != C.TIME_UNSET) {
+      // Media item has a defined target offset.
+      targetLiveOffsetUs = C.msToUs(liveConfiguration.targetOffsetMs);
+    } else {
+      // Decide target offset from playlist.
+      targetLiveOffsetUs = getTargetLiveOffsetUs(playlist, liveEdgeOffsetUs);
+    }
+    // Ensure target live offset is within the live window and greater than the live edge offset.
+    targetLiveOffsetUs =
+        Util.constrainValue(
+            targetLiveOffsetUs, liveEdgeOffsetUs, playlist.durationUs + liveEdgeOffsetUs);
+    maybeUpdateLiveConfiguration(targetLiveOffsetUs);
+    long windowDefaultStartPositionUs =
+        getLiveWindowDefaultStartPositionUs(playlist, liveEdgeOffsetUs);
+    return new SinglePeriodTimeline(
+        presentationStartTimeMs,
+        windowStartTimeMs,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        periodDurationUs,
+        /* windowDurationUs= */ playlist.durationUs,
+        /* windowPositionInPeriodUs= */ offsetFromInitialStartTimeUs,
+        windowDefaultStartPositionUs,
+        /* isSeekable= */ true,
+        /* isDynamic= */ !playlist.hasEndTag,
+        manifest,
+        mediaItem,
+        liveConfiguration);
+  }
+
+  private SinglePeriodTimeline createTimelineForOnDemand(
+      HlsMediaPlaylist playlist,
+      long presentationStartTimeMs,
+      long windowStartTimeMs,
+      HlsManifest manifest) {
+    long windowDefaultStartPositionUs;
+    if (playlist.startOffsetUs == C.TIME_UNSET || playlist.segments.isEmpty()) {
+      windowDefaultStartPositionUs = 0;
+    } else {
+      if (playlist.preciseStart || playlist.startOffsetUs == playlist.durationUs) {
+        windowDefaultStartPositionUs = playlist.startOffsetUs;
+      } else {
+        windowDefaultStartPositionUs =
+            findClosestPrecedingSegment(playlist.segments, playlist.startOffsetUs)
+                .relativeStartTimeUs;
+      }
+    }
+    return new SinglePeriodTimeline(
+        presentationStartTimeMs,
+        windowStartTimeMs,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        /* periodDurationUs= */ playlist.durationUs,
+        /* windowDurationUs= */ playlist.durationUs,
+        /* windowPositionInPeriodUs= */ 0,
+        windowDefaultStartPositionUs,
+        /* isSeekable= */ true,
+        /* isDynamic= */ false,
+        manifest,
+        mediaItem,
+        /* liveConfiguration= */ null);
   }
 
   private long getLiveEdgeOffsetUs(HlsMediaPlaylist playlist) {
@@ -592,19 +612,34 @@ public final class HlsMediaSource extends BaseMediaSource
         : 0;
   }
 
-  private long getWindowDefaultStartPosition(HlsMediaPlaylist playlist, long liveEdgeOffsetUs) {
-    List<HlsMediaPlaylist.Segment> segments = playlist.segments;
-    int segmentIndex = segments.size() - 1;
-    long minStartPositionUs =
-        playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
-    while (segmentIndex > 0
-        && segments.get(segmentIndex).relativeStartTimeUs > minStartPositionUs) {
-      segmentIndex--;
+  private long getLiveWindowDefaultStartPositionUs(
+      HlsMediaPlaylist playlist, long liveEdgeOffsetUs) {
+    long startPositionUs =
+        playlist.startOffsetUs != C.TIME_UNSET
+            ? playlist.startOffsetUs
+            : playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
+    if (playlist.preciseStart) {
+      return startPositionUs;
     }
-    return segments.get(segmentIndex).relativeStartTimeUs;
+    @Nullable
+    HlsMediaPlaylist.Part part =
+        findClosestPrecedingIndependentPart(playlist.trailingParts, startPositionUs);
+    if (part != null) {
+      return part.relativeStartTimeUs;
+    }
+    if (playlist.segments.isEmpty()) {
+      return 0;
+    }
+    HlsMediaPlaylist.Segment segment =
+        findClosestPrecedingSegment(playlist.segments, startPositionUs);
+    part = findClosestPrecedingIndependentPart(segment.parts, startPositionUs);
+    if (part != null) {
+      return part.relativeStartTimeUs;
+    }
+    return segment.relativeStartTimeUs;
   }
 
-  private void maybeUpdateMediaItem(long targetLiveOffsetUs) {
+  private void maybeUpdateLiveConfiguration(long targetLiveOffsetUs) {
     long targetLiveOffsetMs = C.usToMs(targetLiveOffsetUs);
     if (targetLiveOffsetMs != liveConfiguration.targetOffsetMs) {
       liveConfiguration =
@@ -612,21 +647,64 @@ public final class HlsMediaSource extends BaseMediaSource
     }
   }
 
+  /**
+   * Gets the target live offset, in microseconds, for a live playlist.
+   *
+   * <p>The target offset is derived by checking the following in this order:
+   *
+   * <ol>
+   *   <li>The playlist defines a start offset.
+   *   <li>The playlist defines a part hold back in server control and has part duration.
+   *   <li>The playlist defines a hold back in server control.
+   *   <li>Fallback to {@code 3 x target duration}.
+   * </ol>
+   *
+   * @param playlist The playlist.
+   * @param liveEdgeOffsetUs The current live edge offset.
+   * @return The selected target live offset, in microseconds.
+   */
   private static long getTargetLiveOffsetUs(HlsMediaPlaylist playlist, long liveEdgeOffsetUs) {
     HlsMediaPlaylist.ServerControl serverControl = playlist.serverControl;
-    // Select part hold back only if the playlist has a part target duration.
-    long offsetToEndOfPlaylistUs;
+    long targetOffsetUs;
     if (playlist.startOffsetUs != C.TIME_UNSET) {
-      offsetToEndOfPlaylistUs = playlist.durationUs - playlist.startOffsetUs;
+      targetOffsetUs = playlist.durationUs - playlist.startOffsetUs;
     } else if (serverControl.partHoldBackUs != C.TIME_UNSET
         && playlist.partTargetDurationUs != C.TIME_UNSET) {
-      offsetToEndOfPlaylistUs = serverControl.partHoldBackUs;
+      // Select part hold back only if the playlist has a part target duration.
+      targetOffsetUs = serverControl.partHoldBackUs;
     } else if (serverControl.holdBackUs != C.TIME_UNSET) {
-      offsetToEndOfPlaylistUs = serverControl.holdBackUs;
+      targetOffsetUs = serverControl.holdBackUs;
     } else {
       // Fallback, see RFC 8216, Section 4.4.3.8.
-      offsetToEndOfPlaylistUs = 3 * playlist.targetDurationUs;
+      targetOffsetUs = 3 * playlist.targetDurationUs;
     }
-    return offsetToEndOfPlaylistUs + liveEdgeOffsetUs;
+    return targetOffsetUs + liveEdgeOffsetUs;
+  }
+
+  @Nullable
+  private static HlsMediaPlaylist.Part findClosestPrecedingIndependentPart(
+      List<HlsMediaPlaylist.Part> parts, long positionUs) {
+    @Nullable HlsMediaPlaylist.Part closestPart = null;
+    for (int i = 0; i < parts.size(); i++) {
+      HlsMediaPlaylist.Part part = parts.get(i);
+      if (part.relativeStartTimeUs <= positionUs && part.isIndependent) {
+        closestPart = part;
+      } else if (part.relativeStartTimeUs > positionUs) {
+        break;
+      }
+    }
+    return closestPart;
+  }
+
+  /**
+   * Gets the segment that contains {@code positionUs}, or the last segment if the position is
+   * beyond the segments list.
+   */
+  private static HlsMediaPlaylist.Segment findClosestPrecedingSegment(
+      List<HlsMediaPlaylist.Segment> segments, long positionUs) {
+    int segmentIndex =
+        Util.binarySearchFloor(
+            segments, positionUs, /* inclusive= */ true, /* stayInBounds= */ true);
+    return segments.get(segmentIndex);
   }
 }
