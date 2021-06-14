@@ -662,7 +662,7 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onPlaybackSuppressionReasonChanged(
         @PlayWhenReadyChangeReason int playbackSuppressionReason) {
-      eventListener.onPlaybackStateChanged(playbackSuppressionReason);
+      eventListener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);
     }
 
     @Override
