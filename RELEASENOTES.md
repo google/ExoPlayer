@@ -45,6 +45,7 @@
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
 *   Audio:
+    *   Fix track selection for E-AC-3 streams.
     *   Use `AudioTrack.isDirectPlaybackSupported` to check for encoded audio
         passthrough capability from API 29 onwards, instead of using the HDMI
         audio plug intent
