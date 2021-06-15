@@ -50,6 +50,14 @@
         passthrough capability from API 29 onwards, instead of using the HDMI
         audio plug intent
         ([#6500](https://github.com/google/ExoPlayer/pull/6500)).
+*   Extractors:
+    *   Fix issue where a `trun` atom could be associated with the wrong track
+        in an FMP4 stream
+        ([#9056](https://github.com/google/ExoPlayer/pull/9056)). The fix
+        removes a previous workaround to handle content in which the `track_ID`
+        is set incorrectly
+        ([#4083](https://github.com/google/ExoPlayer/issues/4083)). Such content
+        is malformed and should be re-encoded.
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
