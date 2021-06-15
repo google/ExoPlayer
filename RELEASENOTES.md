@@ -58,6 +58,11 @@
         is set incorrectly
         ([#4083](https://github.com/google/ExoPlayer/issues/4083)). Such content
         is malformed and should be re-encoded.
+*   HLS:
+    *   Fix issue where a new initialization segment, as specified by an
+        `EXT-X-MAP` tag in a media playlist, would not be loaded when
+        encountered during playback
+        ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
