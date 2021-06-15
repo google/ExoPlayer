@@ -100,6 +100,13 @@ public final class Ac3Util {
 
   }
 
+  /**
+   * A non-standard codec string for E-AC-3. Use of this constant allows for disambiguation between
+   * regular AC-3 ("ec-3") and E-AC-3 ("ec+3") streams from the codec string alone. The standard is
+   * to use "ec-3" for both, as per the <a href="https://mp4ra.org/#/codecs">MP4RA registered codec
+   * types</a>.
+   */
+  public static final String E_AC_3_CODEC_STRING = "ec+3";
   /** Maximum rate for an AC-3 audio stream, in bytes per second. */
   public static final int AC3_MAX_RATE_BYTES_PER_SECOND = 640 * 1000 / 8;
   /** Maximum rate for an E-AC-3 audio stream, in bytes per second. */
