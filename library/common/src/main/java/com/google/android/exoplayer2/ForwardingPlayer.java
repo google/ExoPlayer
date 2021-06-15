@@ -702,6 +702,16 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
+    public void onFastForwardIncrementChanged(long fastForwardIncrementMs) {
+      eventListener.onFastForwardIncrementChanged(fastForwardIncrementMs);
+    }
+
+    @Override
+    public void onRewindIncrementChanged(long rewindIncrementMs) {
+      eventListener.onRewindIncrementChanged(rewindIncrementMs);
+    }
+
+    @Override
     public void onSeekProcessed() {
       eventListener.onSeekProcessed();
     }

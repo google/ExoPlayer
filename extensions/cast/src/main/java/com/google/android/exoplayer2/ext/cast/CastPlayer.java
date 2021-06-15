@@ -421,7 +421,13 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public void setFastForwardIncrement(long fastForwardIncrementMs) {
     checkArgument(fastForwardIncrementMs > 0);
-    this.fastForwardIncrementMs = fastForwardIncrementMs;
+    if (this.fastForwardIncrementMs != fastForwardIncrementMs) {
+      this.fastForwardIncrementMs = fastForwardIncrementMs;
+      listeners.queueEvent(
+          Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+          listener -> listener.onFastForwardIncrementChanged(fastForwardIncrementMs));
+      listeners.flushEvents();
+    }
   }
 
   @Override
@@ -432,7 +438,13 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public void setRewindIncrement(long rewindIncrementMs) {
     checkArgument(rewindIncrementMs > 0);
-    this.rewindIncrementMs = rewindIncrementMs;
+    if (this.rewindIncrementMs != rewindIncrementMs) {
+      this.rewindIncrementMs = rewindIncrementMs;
+      listeners.queueEvent(
+          Player.EVENT_REWIND_INCREMENT_CHANGED,
+          listener -> listener.onRewindIncrementChanged(rewindIncrementMs));
+      listeners.flushEvents();
+    }
   }
 
   @Override

@@ -1109,6 +1109,16 @@ public class CastPlayerTest {
   }
 
   @Test
+  public void setFastForwardIncrement_notifiesFastForwardIncrementChanged() {
+    long fastForwardIncrementMs = 1000;
+
+    castPlayer.setFastForwardIncrement(fastForwardIncrementMs);
+
+    verify(mockListener).onFastForwardIncrementChanged(fastForwardIncrementMs);
+    assertThat(castPlayer.getFastForwardIncrement()).isEqualTo(fastForwardIncrementMs);
+  }
+
+  @Test
   @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
   public void fastForward_notifiesPositionDiscontinuity() {
     when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
@@ -1152,6 +1162,16 @@ public class CastPlayerTest {
             eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
+  public void setRewindIncrement_notifiesRewindIncrementChanged() {
+    long rewindIncrementMs = 1000;
+
+    castPlayer.setRewindIncrement(rewindIncrementMs);
+
+    verify(mockListener).onRewindIncrementChanged(rewindIncrementMs);
+    assertThat(castPlayer.getRewindIncrement()).isEqualTo(rewindIncrementMs);
   }
 
   @Test

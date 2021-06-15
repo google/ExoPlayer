@@ -172,6 +172,8 @@ public interface AnalyticsListener {
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
     EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+    EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+    EVENT_REWIND_INCREMENT_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -254,6 +256,10 @@ public interface AnalyticsListener {
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
   /** {@link Player#getPlaylistMediaMetadata()} changed. */
   int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = Player.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED;
+  /** {@link Player#getFastForwardIncrement()} changed. */
+  int EVENT_FAST_FORWARD_INCREMENT_CHANGED = Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED;
+  /** {@link Player#getRewindIncrement()} changed. */
+  int EVENT_REWIND_INCREMENT_CHANGED = Player.EVENT_REWIND_INCREMENT_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -588,6 +594,22 @@ public interface AnalyticsListener {
    */
   default void onPlaybackParametersChanged(
       EventTime eventTime, PlaybackParameters playbackParameters) {}
+
+  /**
+   * Called when the fast forward increment changed.
+   *
+   * @param eventTime The event time.
+   * @param fastForwardIncrementMs The fast forward increment, in milliseconds.
+   */
+  default void onFastForwardIncrementChanged(EventTime eventTime, long fastForwardIncrementMs) {}
+
+  /**
+   * Called when the rewind increment changed.
+   *
+   * @param eventTime The event time.
+   * @param rewindIncrementMs The rewind increment, in milliseconds.
+   */
+  default void onRewindIncrementChanged(EventTime eventTime, long rewindIncrementMs) {}
 
   /**
    * Called when the repeat mode changed.

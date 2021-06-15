@@ -750,6 +750,24 @@ public class AnalyticsCollector
   }
 
   @Override
+  public void onFastForwardIncrementChanged(long fastForwardIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+        listener -> listener.onFastForwardIncrementChanged(eventTime, fastForwardIncrementMs));
+  }
+
+  @Override
+  public void onRewindIncrementChanged(long rewindIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_REWIND_INCREMENT_CHANGED,
+        listener -> listener.onRewindIncrementChanged(eventTime, rewindIncrementMs));
+  }
+
+  @Override
   public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(

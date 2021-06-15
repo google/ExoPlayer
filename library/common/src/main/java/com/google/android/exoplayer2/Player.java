@@ -308,6 +308,26 @@ public interface Player {
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
+     * Called when the value of {@link #getFastForwardIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param fastForwardIncrementMs The {@link #fastForward()} increment, in milliseconds.
+     */
+    default void onFastForwardIncrementChanged(@IntRange(from = 1) long fastForwardIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getRewindIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param rewindIncrementMs The {@link #rewind()} increment, in milliseconds.
+     */
+    default void onRewindIncrementChanged(@IntRange(from = 1) long rewindIncrementMs) {}
+
+    /**
      * @deprecated Seeks are processed without delay. Listen to {@link
      *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
      *     #DISCONTINUITY_REASON_SEEK} instead.
@@ -1066,7 +1086,9 @@ public interface Player {
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
-    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED
+    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+    EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+    EVENT_REWIND_INCREMENT_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1106,6 +1128,10 @@ public interface Player {
   int EVENT_MEDIA_METADATA_CHANGED = 15;
   /** {@link #getPlaylistMediaMetadata()} changed. */
   int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = 16;
+  /** {@link #getFastForwardIncrement()} changed. */
+  int EVENT_FAST_FORWARD_INCREMENT_CHANGED = 17;
+  /** {@link #getRewindIncrement()} changed. */
+  int EVENT_REWIND_INCREMENT_CHANGED = 18;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
@@ -1590,6 +1616,7 @@ public interface Player {
    * <p>The default value is {@link #DEFAULT_FAST_FORWARD_INCREMENT_MS}.
    *
    * @return The fast forward increment, in milliseconds.
+   * @see Listener#onFastForwardIncrementChanged(long)
    */
   long getFastForwardIncrement();
 
@@ -1610,6 +1637,7 @@ public interface Player {
    * <p>The default value is {@link #DEFAULT_REWIND_INCREMENT_MS}.
    *
    * @return The rewind increment, in milliseconds.
+   * @see Listener#onRewindIncrementChanged(long)
    */
   long getRewindIncrement();
 

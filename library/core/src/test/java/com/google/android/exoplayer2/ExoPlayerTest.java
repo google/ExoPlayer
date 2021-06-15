@@ -10358,6 +10358,19 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void setFastForwardIncrement_notifiesFastForwardIncrementChanged() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+    long fastForwardIncrementMs = 1000;
+
+    player.setFastForwardIncrement(fastForwardIncrementMs);
+
+    verify(listener).onFastForwardIncrementChanged(fastForwardIncrementMs);
+    assertThat(player.getFastForwardIncrement()).isEqualTo(fastForwardIncrementMs);
+  }
+
+  @Test
   public void fastForward_callsOnPositionDiscontinuity() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     Player.Listener listener = mock(Player.Listener.class);
@@ -10413,6 +10426,19 @@ public final class ExoPlayerTest {
     assertThat(player.getCurrentPosition()).isEqualTo(DEFAULT_FAST_FORWARD_INCREMENT_MS / 2);
 
     player.release();
+  }
+
+  @Test
+  public void setRewindIncrement_notifiesRewindIncrementChanged() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+    long rewindIncrementMs = 1000;
+
+    player.setRewindIncrement(rewindIncrementMs);
+
+    verify(listener).onRewindIncrementChanged(rewindIncrementMs);
+    assertThat(player.getRewindIncrement()).isEqualTo(rewindIncrementMs);
   }
 
   @Test
