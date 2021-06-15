@@ -58,6 +58,8 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.composer).isNull();
     assertThat(mediaMetadata.conductor).isNull();
     assertThat(mediaMetadata.writer).isNull();
+    assertThat(mediaMetadata.discNumber).isNull();
+    assertThat(mediaMetadata.totalDiscCount).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -107,6 +109,8 @@ public class MediaMetadataTest {
             .setComposer("Composer")
             .setConductor("Conductor")
             .setWriter("Writer")
+            .setDiscNumber(1)
+            .setTotalDiscCount(3)
             .setExtras(extras) // Extras is not implemented in MediaMetadata.equals(Object o).
             .build();
 

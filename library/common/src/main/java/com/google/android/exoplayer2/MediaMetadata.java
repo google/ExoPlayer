@@ -57,6 +57,8 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private CharSequence writer;
     @Nullable private CharSequence composer;
     @Nullable private CharSequence conductor;
+    @Nullable private Integer discNumber;
+    @Nullable private Integer totalDiscCount;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -82,6 +84,8 @@ public final class MediaMetadata implements Bundleable {
       this.writer = mediaMetadata.writer;
       this.composer = mediaMetadata.composer;
       this.conductor = mediaMetadata.conductor;
+      this.discNumber = mediaMetadata.discNumber;
+      this.totalDiscCount = mediaMetadata.totalDiscCount;
       this.extras = mediaMetadata.extras;
     }
 
@@ -206,6 +210,18 @@ public final class MediaMetadata implements Bundleable {
     /** Sets the conductor. */
     public Builder setConductor(@Nullable CharSequence conductor) {
       this.conductor = conductor;
+      return this;
+    }
+
+    /** Sets the disc number. */
+    public Builder setDiscNumber(@Nullable Integer discNumber) {
+      this.discNumber = discNumber;
+      return this;
+    }
+
+    /** Sets the total number of discs. */
+    public Builder setTotalDiscCount(@Nullable Integer totalDiscCount) {
+      this.totalDiscCount = totalDiscCount;
       return this;
     }
 
@@ -344,6 +360,10 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final CharSequence composer;
   /** Optional conductor. */
   @Nullable public final CharSequence conductor;
+  /** Optional disc number. */
+  @Nullable public final Integer discNumber;
+  /** Optional total number of discs. */
+  @Nullable public final Integer totalDiscCount;
 
   /**
    * Optional extras {@link Bundle}.
@@ -374,6 +394,8 @@ public final class MediaMetadata implements Bundleable {
     this.writer = builder.writer;
     this.composer = builder.composer;
     this.conductor = builder.conductor;
+    this.discNumber = builder.discNumber;
+    this.totalDiscCount = builder.totalDiscCount;
     this.extras = builder.extras;
   }
 
@@ -410,7 +432,9 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(year, that.year)
         && Util.areEqual(writer, that.writer)
         && Util.areEqual(composer, that.composer)
-        && Util.areEqual(conductor, that.conductor);
+        && Util.areEqual(conductor, that.conductor)
+        && Util.areEqual(discNumber, that.discNumber)
+        && Util.areEqual(totalDiscCount, that.totalDiscCount);
   }
 
   @Override
@@ -432,10 +456,12 @@ public final class MediaMetadata implements Bundleable {
         totalTrackCount,
         folderType,
         isPlayable,
+        year,
         writer,
         composer,
         conductor,
-        year);
+        discNumber,
+        totalDiscCount);
   }
 
   // Bundleable implementation.
@@ -463,6 +489,8 @@ public final class MediaMetadata implements Bundleable {
     FIELD_WRITER,
     FIELD_COMPOSER,
     FIELD_CONDUCTOR,
+    FIELD_DISC_NUMBER,
+    FIELD_TOTAL_DISC_COUNT,
     FIELD_EXTRAS
   })
   private @interface FieldNumber {}
@@ -487,6 +515,8 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_WRITER = 17;
   private static final int FIELD_COMPOSER = 18;
   private static final int FIELD_CONDUCTOR = 19;
+  private static final int FIELD_DISC_NUMBER = 20;
+  private static final int FIELD_TOTAL_DISC_COUNT = 21;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -526,6 +556,12 @@ public final class MediaMetadata implements Bundleable {
     }
     if (year != null) {
       bundle.putInt(keyForField(FIELD_YEAR), year);
+    }
+    if (discNumber != null) {
+      bundle.putInt(keyForField(FIELD_DISC_NUMBER), discNumber);
+    }
+    if (totalDiscCount != null) {
+      bundle.putInt(keyForField(FIELD_TOTAL_DISC_COUNT), totalDiscCount);
     }
     if (extras != null) {
       bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
@@ -580,6 +616,12 @@ public final class MediaMetadata implements Bundleable {
     }
     if (bundle.containsKey(keyForField(FIELD_YEAR))) {
       builder.setYear(bundle.getInt(keyForField(FIELD_YEAR)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_DISC_NUMBER))) {
+      builder.setDiscNumber(bundle.getInt(keyForField(FIELD_DISC_NUMBER)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_TOTAL_DISC_COUNT))) {
+      builder.setTotalDiscCount(bundle.getInt(keyForField(FIELD_TOTAL_DISC_COUNT)));
     }
 
     return builder.build();
