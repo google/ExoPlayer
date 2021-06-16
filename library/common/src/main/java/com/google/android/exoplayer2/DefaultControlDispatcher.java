@@ -28,7 +28,6 @@ public class DefaultControlDispatcher implements ControlDispatcher {
 
   private static final int MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
-  private final Timeline.Window window;
   private final long rewindIncrementMs;
   private final long fastForwardIncrementMs;
 
@@ -48,7 +47,6 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   public DefaultControlDispatcher(long fastForwardIncrementMs, long rewindIncrementMs) {
     this.fastForwardIncrementMs = fastForwardIncrementMs;
     this.rewindIncrementMs = rewindIncrementMs;
-    window = new Timeline.Window();
   }
 
   @Override
@@ -75,16 +73,14 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return true;
     }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    boolean isUnseekableLiveStream = window.isLive() && !window.isSeekable;
-    if (previousWindowIndex != C.INDEX_UNSET
+    boolean isUnseekableLiveStream =
+        player.isCurrentWindowLive() && !player.isCurrentWindowSeekable();
+    if (player.hasPrevious()
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
             || isUnseekableLiveStream)) {
-      player.seekTo(previousWindowIndex, C.TIME_UNSET);
+      player.previous();
     } else if (!isUnseekableLiveStream) {
-      player.seekTo(windowIndex, /* positionMs= */ 0);
+      player.seekTo(/* positionMs= */ 0);
     }
     return true;
   }
@@ -95,13 +91,10 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return true;
     }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      player.seekTo(nextWindowIndex, C.TIME_UNSET);
-    } else if (window.isLive() && window.isDynamic) {
-      player.seekTo(windowIndex, C.TIME_UNSET);
+    if (player.hasNext()) {
+      player.next();
+    } else if (player.isCurrentWindowLive() && player.isCurrentWindowDynamic()) {
+      player.seekToDefaultPosition();
     }
     return true;
   }
@@ -176,6 +169,6 @@ public class DefaultControlDispatcher implements ControlDispatcher {
       positionMs = min(positionMs, durationMs);
     }
     positionMs = max(positionMs, 0);
-    player.seekTo(player.getCurrentWindowIndex(), positionMs);
+    player.seekTo(positionMs);
   }
 }
