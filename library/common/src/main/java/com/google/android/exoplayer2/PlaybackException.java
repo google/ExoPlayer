@@ -367,7 +367,7 @@ public class PlaybackException extends Exception implements Bundleable {
   protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
   /** Object that can create a {@link PlaybackException} from a {@link Bundle}. */
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings("unchecked")
   public static final Creator<PlaybackException> CREATOR =
       bundle -> {
         String className = bundle.getString(keyForField(FIELD_STRING_CLASS_NAME));
@@ -375,7 +375,7 @@ public class PlaybackException extends Exception implements Bundleable {
           try {
             Field creatorField = Class.forName(className).getField("CREATOR");
             // It is ok to pass null to Field.get for static fields.
-            @SuppressWarnings({"argument.type.incompatible", "nullness:argument"})
+            @SuppressWarnings("nullness:argument")
             Creator<PlaybackException> creator =
                 (Creator<PlaybackException>) creatorField.get(/* obj= */ null);
             if (creator != null) {
@@ -414,14 +414,14 @@ public class PlaybackException extends Exception implements Bundleable {
   }
 
   // Creates a new {@link Throwable} with possibly {@code null} message.
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
+  @SuppressWarnings("nullness:argument")
   private static Throwable createThrowable(Class<?> clazz, @Nullable String message)
       throws Exception {
     return (Throwable) clazz.getConstructor(String.class).newInstance(message);
   }
 
   // Creates a new {@link RemoteException} with possibly {@code null} message.
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
+  @SuppressWarnings("nullness:argument")
   private static RemoteException createRemoteException(@Nullable String message) {
     return new RemoteException(message);
   }

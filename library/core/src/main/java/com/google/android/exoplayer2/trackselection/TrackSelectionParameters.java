@@ -51,11 +51,7 @@ public class TrackSelectionParameters implements Parcelable {
      *
      * @param context Any context.
      */
-    @SuppressWarnings({
-      "deprecation",
-      "nullness:method.invocation.invalid",
-      "nullness:method.invocation"
-    })
+    @SuppressWarnings({"deprecation", "nullness:method.invocation"})
     public Builder(Context context) {
       this();
       setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);

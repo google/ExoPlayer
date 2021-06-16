@@ -526,10 +526,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @EnsuresNonNullIf(result = true, expression = "sessionId")
-  @SuppressWarnings({
-    "contracts.conditional.postcondition.not.satisfied",
-    "nullness:contracts.conditional.postcondition"
-  })
+  @SuppressWarnings("nullness:contracts.conditional.postcondition")
   private boolean isOpen() {
     return state == STATE_OPENED || state == STATE_OPENED_WITH_KEYS;
   }

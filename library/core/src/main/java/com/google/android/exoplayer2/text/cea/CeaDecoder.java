@@ -42,10 +42,7 @@ import java.util.PriorityQueue;
   private long playbackPositionUs;
   private long queuedInputBufferCount;
 
-  @SuppressWarnings({
-    "nullness:methodref.receiver.bound.invalid",
-    "nullness:methodref.receiver.bound"
-  })
+  @SuppressWarnings("nullness:methodref.receiver.bound")
   public CeaDecoder() {
     availableInputBuffers = new ArrayDeque<>();
     for (int i = 0; i < NUM_INPUT_BUFFERS; i++) {

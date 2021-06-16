@@ -52,11 +52,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
    * @param context A {@link Context}.
    * @param attrs Custom attributes.
    */
-  @SuppressWarnings({
-    "nullness:assignment.type.incompatible", "nullness:assignment",
-    "nullness:argument.type.incompatible", "nullness:argument",
-    "nullness:method.invocation.invalid", "nullness:method.invocation"
-  })
+  @SuppressWarnings({"nullness:assignment", "nullness:argument", "nullness:method.invocation"})
   public VideoDecoderGLSurfaceView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     renderer = new Renderer(/* surfaceView= */ this);

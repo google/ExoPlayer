@@ -177,7 +177,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   @EnsuresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Ensures initialized.
-  @SuppressWarnings({"contracts.postcondition.not.satisfied", "nullness:contracts.postcondition"})
+  @SuppressWarnings("nullness:contracts.postcondition")
   private FlacDecoderJni initDecoderJni(ExtractorInput input) {
     FlacDecoderJni decoderJni = Assertions.checkNotNull(this.decoderJni);
     decoderJni.setData(input);
@@ -186,7 +186,7 @@ public final class FlacExtractor implements Extractor {
 
   @RequiresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Requires initialized.
   @EnsuresNonNull({"streamMetadata", "outputFrameHolder"}) // Ensures stream metadata decoded.
-  @SuppressWarnings({"contracts.postcondition.not.satisfied", "nullness:contracts.postcondition"})
+  @SuppressWarnings("nullness:contracts.postcondition")
   private void decodeStreamMetadata(ExtractorInput input) throws IOException {
     if (streamMetadataDecoded) {
       return;

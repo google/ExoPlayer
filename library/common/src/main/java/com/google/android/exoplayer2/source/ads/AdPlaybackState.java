@@ -340,7 +340,7 @@ public final class AdPlaybackState implements Bundleable {
     private static final int FIELD_IS_SERVER_SIDE_INSERTED = 6;
 
     // putParcelableArrayList actually supports null elements.
-    @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
+    @SuppressWarnings("nullness:argument")
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
@@ -359,7 +359,7 @@ public final class AdPlaybackState implements Bundleable {
     public static final Creator<AdGroup> CREATOR = AdGroup::fromBundle;
 
     // getParcelableArrayList may have null elements.
-    @SuppressWarnings({"nullness:type.argument.type.incompatible", "nullness:type.argument"})
+    @SuppressWarnings("nullness:type.argument")
     private static AdGroup fromBundle(Bundle bundle) {
       long timeUs = bundle.getLong(keyForField(FIELD_TIME_US));
       int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);

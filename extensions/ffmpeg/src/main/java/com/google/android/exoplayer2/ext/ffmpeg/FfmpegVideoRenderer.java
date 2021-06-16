@@ -92,7 +92,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
     */
   }
 
-  @SuppressWarnings({"return.type.incompatible", "nullness:return"})
+  @SuppressWarnings("nullness:return")
   @Override
   protected Decoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException>
       createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)

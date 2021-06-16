@@ -169,7 +169,7 @@ public final class CronetEngineWrapper {
 
     // Multi-catch can only be used for API 19+ in this case.
     // Field#get(null) is blocked by the null-checker, but is safe because the field is static.
-    @SuppressWarnings({"UseMultiCatch", "nullness:argument.type.incompatible", "nullness:argument"})
+    @SuppressWarnings({"UseMultiCatch", "nullness:argument"})
     public CronetProviderComparator(boolean preferGMSCoreCronet) {
       // GMSCore CronetProvider classes are only available in some configurations.
       // Thus, we use reflection to copy static name.

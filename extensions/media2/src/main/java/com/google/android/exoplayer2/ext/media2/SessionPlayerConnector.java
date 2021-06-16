@@ -571,7 +571,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
   // TODO(internal b/160846312): Remove this suppress warnings and call onCurrentMediaItemChanged
   // with a null item once we depend on media2 1.2.0.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private void handlePlaylistChangedOnHandler() {
     List<MediaItem> currentPlaylist = player.getPlaylist();
     MediaMetadata playlistMetadata = player.getPlaylistMetadata();

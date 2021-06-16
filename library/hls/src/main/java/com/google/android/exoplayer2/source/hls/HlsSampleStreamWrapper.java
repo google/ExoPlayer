@@ -237,16 +237,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
     // Suppressions are needed because `this` is not initialized here.
-    @SuppressWarnings({
-      "nullness:methodref.receiver.bound.invalid",
-      "nullness:methodref.receiver.bound"
-    })
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     Runnable maybeFinishPrepareRunnable = this::maybeFinishPrepare;
     this.maybeFinishPrepareRunnable = maybeFinishPrepareRunnable;
-    @SuppressWarnings({
-      "nullness:methodref.receiver.bound.invalid",
-      "nullness:methodref.receiver.bound"
-    })
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     Runnable onTracksEndedRunnable = this::onTracksEnded;
     this.onTracksEndedRunnable = onTracksEndedRunnable;
     handler = Util.createHandlerForCurrentLooper();

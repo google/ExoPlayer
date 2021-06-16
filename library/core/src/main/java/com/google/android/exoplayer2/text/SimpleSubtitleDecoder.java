@@ -29,7 +29,7 @@ public abstract class SimpleSubtitleDecoder
   private final String name;
 
   /** @param name The name of the decoder. */
-  @SuppressWarnings({"nullness:method.invocation.invalid", "nullness:method.invocation"})
+  @SuppressWarnings("nullness:method.invocation")
   protected SimpleSubtitleDecoder(String name) {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     this.name = name;

@@ -98,7 +98,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
    * @param mediaSource The {@link MediaSource} to wrap.
    */
   // Calling BaseMediaSource.createEventDispatcher from the constructor.
-  @SuppressWarnings({"nullness:method.invocation.invalid", "nullness:method.invocation"})
+  @SuppressWarnings("nullness:method.invocation")
   public ServerSideInsertedAdsMediaSource(MediaSource mediaSource) {
     this.mediaSource = mediaSource;
     mediaPeriods = ArrayListMultimap.create();

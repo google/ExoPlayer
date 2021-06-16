@@ -211,12 +211,7 @@ import java.util.Map;
   private long waitingForPreloadElapsedRealtimeMs;
 
   /** Creates a new ad tag loader, starting the ad request if the ad tag is valid. */
-  @SuppressWarnings({
-    "methodref.receiver.bound.invalid",
-    "nullness:methodref.receiver.bound",
-    "method.invocation.invalid",
-    "nullness:method.invocation"
-  })
+  @SuppressWarnings({"nullness:methodref.receiver.bound", "nullness:method.invocation"})
   public AdTagLoader(
       Context context,
       ImaUtil.Configuration configuration,
