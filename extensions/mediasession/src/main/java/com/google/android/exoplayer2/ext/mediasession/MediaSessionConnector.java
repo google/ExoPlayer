@@ -487,6 +487,7 @@ public final class MediaSessionConnector {
 
   private long enabledPlaybackActions;
   private boolean metadataDeduplicationEnabled;
+  private boolean dispatchUnsupportedActionsEnabled;
 
   /**
    * Creates an instance.
@@ -726,6 +727,14 @@ public final class MediaSessionConnector {
   }
 
   /**
+   * Sets whether actions that are not advertised to the {@link MediaSessionCompat} will be
+   * dispatched either way. Default value is false.
+   */
+  public void setDispatchUnsupportedActionsEnabled(boolean dispatchUnsupportedActionsEnabled) {
+    this.dispatchUnsupportedActionsEnabled = dispatchUnsupportedActionsEnabled;
+  }
+
+  /**
    * Sets whether {@link MediaMetadataProvider#sameAs(MediaMetadataCompat, MediaMetadataCompat)}
    * should be consulted before calling {@link MediaSessionCompat#setMetadata(MediaMetadataCompat)}.
    *
@@ -949,13 +958,15 @@ public final class MediaSessionConnector {
 
   @EnsuresNonNullIf(result = true, expression = "player")
   private boolean canDispatchPlaybackAction(long action) {
-    return player != null && (enabledPlaybackActions & action) != 0;
+    return player != null
+        && ((enabledPlaybackActions & action) != 0 || dispatchUnsupportedActionsEnabled);
   }
 
   @EnsuresNonNullIf(result = true, expression = "playbackPreparer")
   private boolean canDispatchToPlaybackPreparer(long action) {
     return playbackPreparer != null
-        && (playbackPreparer.getSupportedPrepareActions() & action) != 0;
+        && ((playbackPreparer.getSupportedPrepareActions() & action) != 0
+            || dispatchUnsupportedActionsEnabled);
   }
 
   @EnsuresNonNullIf(
@@ -964,7 +975,8 @@ public final class MediaSessionConnector {
   private boolean canDispatchToQueueNavigator(long action) {
     return player != null
         && queueNavigator != null
-        && (queueNavigator.getSupportedQueueNavigatorActions(player) & action) != 0;
+        && ((queueNavigator.getSupportedQueueNavigatorActions(player) & action) != 0
+            || dispatchUnsupportedActionsEnabled);
   }
 
   @EnsuresNonNullIf(
