@@ -77,7 +77,7 @@ public final class ProgressiveDownloader implements Downloader {
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
-    @SuppressWarnings({"methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"})
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     CacheWriter.ProgressListener progressListener = this::onProgress;
     cacheWriter =
         new CacheWriter(dataSource, dataSpec, /* temporaryBuffer= */ null, progressListener);

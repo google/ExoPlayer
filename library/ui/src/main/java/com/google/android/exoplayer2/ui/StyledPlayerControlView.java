@@ -470,10 +470,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   @SuppressWarnings({
-    "nullness:argument.type.incompatible", "nullness:argument",
-    "nullness:assignment.type.incompatible", "nullness:assignment",
-    "nullness:method.invocation.invalid", "nullness:method.invocation",
-    "nullness:methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"
+    "nullness:argument",
+    "nullness:assignment",
+    "nullness:method.invocation",
+    "nullness:methodref.receiver.bound"
   })
   public StyledPlayerControlView(
       Context context,

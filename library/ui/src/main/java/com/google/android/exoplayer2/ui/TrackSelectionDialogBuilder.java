@@ -256,7 +256,7 @@ public final class TrackSelectionDialogBuilder {
   }
 
   // Reflection calls can't verify null safety of return values or parameters.
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
+  @SuppressWarnings("nullness:argument")
   @Nullable
   private Dialog buildForAndroidX() {
     try {

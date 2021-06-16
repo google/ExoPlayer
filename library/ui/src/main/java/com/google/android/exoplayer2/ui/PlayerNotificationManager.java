@@ -704,10 +704,7 @@ public class PlayerNotificationManager {
     // This fails the nullness checker because handleMessage() is 'called' while `this` is still
     // @UnderInitialization. No tasks are scheduled on mainHandler before the constructor completes,
     // so this is safe and we can suppress the warning.
-    @SuppressWarnings({
-      "nullness:methodref.receiver.bound.invalid",
-      "nullness:methodref.receiver.bound"
-    })
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     Handler mainHandler = Util.createHandler(Looper.getMainLooper(), this::handleMessage);
     this.mainHandler = mainHandler;
     notificationManager = NotificationManagerCompat.from(context);
@@ -1464,7 +1461,7 @@ public class PlayerNotificationManager {
     return PendingIntent.getBroadcast(context, instanceId, intent, pendingFlags);
   }
 
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
+  @SuppressWarnings("nullness:argument")
   private static void setLargeIcon(NotificationCompat.Builder builder, @Nullable Bitmap largeIcon) {
     builder.setLargeIcon(largeIcon);
   }

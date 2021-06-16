@@ -108,12 +108,7 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws IllegalStateException If {@code reference} is null.
    */
-  @SuppressWarnings({
-    "contracts.postcondition.not.satisfied",
-    "nullness:contracts.postcondition",
-    "return.type.incompatible",
-    "nullness:return"
-  })
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull({"#1"})
   @Pure
   public static <T> T checkStateNotNull(@Nullable T reference) {
@@ -133,12 +128,7 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws IllegalStateException If {@code reference} is null.
    */
-  @SuppressWarnings({
-    "contracts.postcondition.not.satisfied",
-    "nullness:contracts.postcondition",
-    "return.type.incompatible",
-    "nullness:return"
-  })
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull({"#1"})
   @Pure
   public static <T> T checkStateNotNull(@Nullable T reference, Object errorMessage) {
@@ -156,12 +146,7 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
-  @SuppressWarnings({
-    "contracts.postcondition.not.satisfied",
-    "nullness:contracts.postcondition",
-    "return.type.incompatible",
-    "nullness:return"
-  })
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull({"#1"})
   @Pure
   public static <T> T checkNotNull(@Nullable T reference) {
@@ -181,12 +166,7 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
-  @SuppressWarnings({
-    "contracts.postcondition.not.satisfied",
-    "nullness:contracts.postcondition",
-    "return.type.incompatible",
-    "nullness:return"
-  })
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull({"#1"})
   @Pure
   public static <T> T checkNotNull(@Nullable T reference, Object errorMessage) {
@@ -203,12 +183,7 @@ public final class Assertions {
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
-  @SuppressWarnings({
-    "contracts.postcondition.not.satisfied",
-    "nullness:contracts.postcondition",
-    "return.type.incompatible",
-    "nullness:return"
-  })
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull({"#1"})
   @Pure
   public static String checkNotEmpty(@Nullable String string) {
@@ -227,12 +202,7 @@ public final class Assertions {
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
-  @SuppressWarnings({
-    "contracts.postcondition.not.satisfied",
-    "nullness:contracts.postcondition",
-    "return.type.incompatible",
-    "nullness:return"
-  })
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull({"#1"})
   @Pure
   public static String checkNotEmpty(@Nullable String string, Object errorMessage) {

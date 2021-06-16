@@ -361,9 +361,9 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @SuppressWarnings({
-    "nullness:argument.type.incompatible", "nullness:argument",
-    "nullness:method.invocation.invalid", "nullness:method.invocation",
-    "nullness:methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"
+    "nullness:argument",
+    "nullness:method.invocation",
+    "nullness:methodref.receiver.bound"
   })
   public PlayerControlView(
       Context context,
