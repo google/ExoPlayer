@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
@@ -51,7 +52,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   private final int updatePeriodMs;
 
   private ControlDispatcher controlDispatcher;
-  @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  @Nullable private ErrorMessageProvider<? super PlaybackException> errorMessageProvider;
   @Nullable private SurfaceHolderGlueHost surfaceHolderGlueHost;
   private boolean hasSurface;
   private boolean lastNotifiedPreparedState;
@@ -91,7 +92,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
    * @param errorMessageProvider The {@link ErrorMessageProvider}.
    */
   public void setErrorMessageProvider(
-      @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
+      @Nullable ErrorMessageProvider<? super PlaybackException> errorMessageProvider) {
     this.errorMessageProvider = errorMessageProvider;
   }
 
@@ -260,11 +261,13 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
         Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(exception);
         callback.onError(LeanbackPlayerAdapter.this, errorMessage.first, errorMessage.second);
       } else {
+        // TODO: Conditionally assign the rendererIndex depending on whether the exception is an
+        // ExoPlaybackException once onPlayerError takes a PlaybackException.
+        int rendererIndex = exception.rendererIndex;
         callback.onError(
             LeanbackPlayerAdapter.this,
-            exception.type,
-            context.getString(
-                R.string.lb_media_player_error, exception.type, exception.rendererIndex));
+            exception.errorCode,
+            context.getString(R.string.lb_media_player_error, exception.errorCode, rendererIndex));
       }
     }
 
