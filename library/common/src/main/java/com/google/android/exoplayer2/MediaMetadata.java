@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -219,13 +217,10 @@ public final class MediaMetadata implements Bundleable {
     /**
      * Sets the month of the recording date.
      *
-     * <p>Value must be between 1 and 12.
+     * <p>Value should be between 1 and 12.
      */
     public Builder setRecordingMonth(
         @Nullable @IntRange(from = 1, to = 12) Integer recordingMonth) {
-      if (recordingMonth != null) {
-        checkArgument(recordingMonth >= 1 && recordingMonth <= 12);
-      }
       this.recordingMonth = recordingMonth;
       return this;
     }
@@ -233,12 +228,9 @@ public final class MediaMetadata implements Bundleable {
     /**
      * Sets the day of the recording date.
      *
-     * <p>Value must be between 1 and 31.
+     * <p>Value should be between 1 and 31.
      */
     public Builder setRecordingDay(@Nullable @IntRange(from = 1, to = 31) Integer recordingDay) {
-      if (recordingDay != null) {
-        checkArgument(recordingDay >= 1 && recordingDay <= 31);
-      }
       this.recordingDay = recordingDay;
       return this;
     }
@@ -252,12 +244,9 @@ public final class MediaMetadata implements Bundleable {
     /**
      * Sets the month of the release date.
      *
-     * <p>Value must be between 1 and 12.
+     * <p>Value should be between 1 and 12.
      */
     public Builder setReleaseMonth(@Nullable @IntRange(from = 1, to = 12) Integer releaseMonth) {
-      if (releaseMonth != null) {
-        checkArgument(releaseMonth >= 1 && releaseMonth <= 12);
-      }
       this.releaseMonth = releaseMonth;
       return this;
     }
@@ -265,12 +254,9 @@ public final class MediaMetadata implements Bundleable {
     /**
      * Sets the day of the release date.
      *
-     * <p>Value must be between 1 and 31.
+     * <p>Value should be between 1 and 31.
      */
     public Builder setReleaseDay(@Nullable @IntRange(from = 1, to = 31) Integer releaseDay) {
-      if (releaseDay != null) {
-        checkArgument(releaseDay >= 1 && releaseDay <= 31);
-      }
       this.releaseDay = releaseDay;
       return this;
     }
