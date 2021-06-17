@@ -43,9 +43,7 @@ import org.robolectric.shadows.ShadowLooper;
 // TODO: Test more branches:
 // - Different sources for licenseServerUrl.
 // - Multiple acquisitions & releases for same keys -> multiple requests.
-// - Provisioning.
 // - Key denial.
-// - Handling of ResourceBusyException (indicating session scarcity).
 @RunWith(AndroidJUnit4.class)
 public class DefaultDrmSessionManagerTest {
 
@@ -539,6 +537,33 @@ public class DefaultDrmSessionManagerTest {
   }
 
   @Test
+  public void deviceNotProvisioned_provisioningDoneAndOpenSessionRetried() {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+
+    DefaultDrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setProvisionsRequired(1).build())
+            .build(/* mediaDrmCallback= */ licenseServer);
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
+    waitForOpenedWithKeys(drmSession);
+
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertThat(drmSession.queryKeyStatus())
+        .containsExactly(FakeExoMediaDrm.KEY_STATUS_KEY, FakeExoMediaDrm.KEY_STATUS_AVAILABLE);
+  }
+
+  @Test
   public void managerNotPrepared_acquireSessionAndPreacquireSessionFail() throws Exception {
     FakeExoMediaDrm.LicenseServer licenseServer =
         FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
@@ -602,10 +627,10 @@ public class DefaultDrmSessionManagerTest {
   }
 
   private static void waitForOpenedWithKeys(DrmSession drmSession) {
-    // Check the error first, so we get a meaningful failure if there's been an error.
-    assertThat(drmSession.getError()).isNull();
-    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED);
     while (drmSession.getState() != DrmSession.STATE_OPENED_WITH_KEYS) {
+      // Check the error first, so we get a meaningful failure if there's been an error.
+      assertThat(drmSession.getError()).isNull();
+      assertThat(drmSession.getState()).isAnyOf(DrmSession.STATE_OPENING, DrmSession.STATE_OPENED);
       // Allow the key response to be handled.
       ShadowLooper.idleMainLooper();
     }
