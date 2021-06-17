@@ -24,6 +24,8 @@
         `EXT-X-MAP` tag in a media playlist, would not be loaded when
         encountered during playback
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
+    *   Forward the FRAME-RATE value from the master playlist to renditions.
+        ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
 *   UI:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
         in `PlayerNotificationManager`. This is required to avoid an error on
