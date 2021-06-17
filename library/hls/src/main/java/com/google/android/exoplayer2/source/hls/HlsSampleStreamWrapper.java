@@ -1506,7 +1506,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             .setPeakBitrate(propagateBitrates ? playlistFormat.peakBitrate : Format.NO_VALUE)
             .setCodecs(codecs)
             .setWidth(playlistFormat.width)
-            .setHeight(playlistFormat.height);
+            .setHeight(playlistFormat.height)
+            .setFrameRate(playlistFormat.frameRate);
 
     if (sampleMimeType != null) {
       formatBuilder.setSampleMimeType(sampleMimeType);

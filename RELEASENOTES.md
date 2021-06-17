@@ -73,6 +73,9 @@
     *   Add `setUseFastForwardActionInCompactView(boolean)` and
         `setUseRewindActionInCompactView(boolean)` to make it possible to show
         seek actions in compact view mode.
+*   HLS
+    *   Forward the FRAME-RATE value from the master playlist to renditions.
+        ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
 
 ### 2.14.1 (2021-06-11)
 
