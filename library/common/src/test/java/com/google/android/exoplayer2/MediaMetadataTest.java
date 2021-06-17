@@ -54,7 +54,12 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.totalTrackCount).isNull();
     assertThat(mediaMetadata.folderType).isNull();
     assertThat(mediaMetadata.isPlayable).isNull();
-    assertThat(mediaMetadata.year).isNull();
+    assertThat(mediaMetadata.recordingYear).isNull();
+    assertThat(mediaMetadata.recordingMonth).isNull();
+    assertThat(mediaMetadata.recordingDay).isNull();
+    assertThat(mediaMetadata.releaseYear).isNull();
+    assertThat(mediaMetadata.releaseMonth).isNull();
+    assertThat(mediaMetadata.releaseDay).isNull();
     assertThat(mediaMetadata.composer).isNull();
     assertThat(mediaMetadata.conductor).isNull();
     assertThat(mediaMetadata.writer).isNull();
@@ -105,7 +110,12 @@ public class MediaMetadataTest {
             .setTotalTrackCount(12)
             .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
             .setIsPlayable(true)
-            .setYear(2000)
+            .setRecordingYear(2000)
+            .setRecordingMonth(11)
+            .setRecordingDay(23)
+            .setReleaseYear(2001)
+            .setReleaseMonth(1)
+            .setReleaseDay(2)
             .setComposer("Composer")
             .setConductor("Conductor")
             .setWriter("Writer")
@@ -126,7 +136,10 @@ public class MediaMetadataTest {
     String albumTitle = "album title";
     String albumArtist = "album Artist";
     String trackNumberInfo = "11/17";
-    String year = "2000";
+    String recordingYear = "2000";
+    String recordingMonth = "07";
+    String recordingDay = "10";
+    String releaseDate = "2001-01-02T00:00:00";
     String composer = "composer";
     String conductor = "conductor";
     String writer = "writer";
@@ -141,7 +154,14 @@ public class MediaMetadataTest {
                 /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
             new TextInformationFrame(
                 /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
-            new TextInformationFrame(/* id= */ "TYE", /* description= */ null, /* value= */ year),
+            new TextInformationFrame(
+                /* id= */ "TYE", /* description= */ null, /* value= */ recordingYear),
+            new TextInformationFrame(
+                /* id= */ "TDA",
+                /* description= */ null,
+                /* value= */ recordingDay + recordingMonth),
+            new TextInformationFrame(
+                /* id= */ "TDRL", /* description= */ null, /* value= */ releaseDate),
             new TextInformationFrame(
                 /* id= */ "TCM", /* description= */ null, /* value= */ composer),
             new TextInformationFrame(
@@ -162,7 +182,12 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.albumArtist.toString()).isEqualTo(albumArtist);
     assertThat(mediaMetadata.trackNumber).isEqualTo(11);
     assertThat(mediaMetadata.totalTrackCount).isEqualTo(17);
-    assertThat(mediaMetadata.year).isEqualTo(2000);
+    assertThat(mediaMetadata.recordingYear).isEqualTo(2000);
+    assertThat(mediaMetadata.recordingMonth).isEqualTo(7);
+    assertThat(mediaMetadata.recordingDay).isEqualTo(10);
+    assertThat(mediaMetadata.releaseYear).isEqualTo(2001);
+    assertThat(mediaMetadata.releaseMonth).isEqualTo(1);
+    assertThat(mediaMetadata.releaseDay).isEqualTo(2);
     assertThat(mediaMetadata.composer.toString()).isEqualTo(composer);
     assertThat(mediaMetadata.conductor.toString()).isEqualTo(conductor);
     assertThat(mediaMetadata.writer.toString()).isEqualTo(writer);

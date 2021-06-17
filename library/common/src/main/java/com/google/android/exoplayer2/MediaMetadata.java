@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
@@ -53,7 +56,12 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer totalTrackCount;
     @Nullable @FolderType private Integer folderType;
     @Nullable private Boolean isPlayable;
-    @Nullable private Integer year;
+    @Nullable private Integer recordingYear;
+    @Nullable private Integer recordingMonth;
+    @Nullable private Integer recordingDay;
+    @Nullable private Integer releaseYear;
+    @Nullable private Integer releaseMonth;
+    @Nullable private Integer releaseDay;
     @Nullable private CharSequence writer;
     @Nullable private CharSequence composer;
     @Nullable private CharSequence conductor;
@@ -80,7 +88,12 @@ public final class MediaMetadata implements Bundleable {
       this.totalTrackCount = mediaMetadata.totalTrackCount;
       this.folderType = mediaMetadata.folderType;
       this.isPlayable = mediaMetadata.isPlayable;
-      this.year = mediaMetadata.year;
+      this.recordingYear = mediaMetadata.recordingYear;
+      this.recordingMonth = mediaMetadata.recordingMonth;
+      this.recordingDay = mediaMetadata.recordingDay;
+      this.releaseYear = mediaMetadata.releaseYear;
+      this.releaseMonth = mediaMetadata.releaseMonth;
+      this.releaseDay = mediaMetadata.releaseDay;
       this.writer = mediaMetadata.writer;
       this.composer = mediaMetadata.composer;
       this.conductor = mediaMetadata.conductor;
@@ -189,9 +202,74 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** Sets the year. */
+    /** @deprecated Use {@link #setRecordingYear(Integer)} instead. */
+    @Deprecated
     public Builder setYear(@Nullable Integer year) {
-      this.year = year;
+      return setRecordingYear(year);
+    }
+
+    /** Sets the year of the recording date. */
+    public Builder setRecordingYear(@Nullable Integer recordingYear) {
+      this.recordingYear = recordingYear;
+      return this;
+    }
+
+    /**
+     * Sets the month of the recording date.
+     *
+     * <p>Value must be between 1 and 12.
+     */
+    public Builder setRecordingMonth(
+        @Nullable @IntRange(from = 1, to = 12) Integer recordingMonth) {
+      if (recordingMonth != null) {
+        checkArgument(recordingMonth >= 1 && recordingMonth <= 12);
+      }
+      this.recordingMonth = recordingMonth;
+      return this;
+    }
+
+    /**
+     * Sets the day of the recording date.
+     *
+     * <p>Value must be between 1 and 31.
+     */
+    public Builder setRecordingDay(@Nullable @IntRange(from = 1, to = 31) Integer recordingDay) {
+      if (recordingDay != null) {
+        checkArgument(recordingDay >= 1 && recordingDay <= 31);
+      }
+      this.recordingDay = recordingDay;
+      return this;
+    }
+
+    /** Sets the year of the release date. */
+    public Builder setReleaseYear(@Nullable Integer releaseYear) {
+      this.releaseYear = releaseYear;
+      return this;
+    }
+
+    /**
+     * Sets the month of the release date.
+     *
+     * <p>Value must be between 1 and 12.
+     */
+    public Builder setReleaseMonth(@Nullable @IntRange(from = 1, to = 12) Integer releaseMonth) {
+      if (releaseMonth != null) {
+        checkArgument(releaseMonth >= 1 && releaseMonth <= 12);
+      }
+      this.releaseMonth = releaseMonth;
+      return this;
+    }
+
+    /**
+     * Sets the day of the release date.
+     *
+     * <p>Value must be between 1 and 31.
+     */
+    public Builder setReleaseDay(@Nullable @IntRange(from = 1, to = 31) Integer releaseDay) {
+      if (releaseDay != null) {
+        checkArgument(releaseDay >= 1 && releaseDay <= 31);
+      }
+      this.releaseDay = releaseDay;
       return this;
     }
 
@@ -352,8 +430,37 @@ public final class MediaMetadata implements Bundleable {
   @Nullable @FolderType public final Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
-  /** Optional year. */
-  @Nullable public final Integer year;
+  /** @deprecated Use {@link #recordingYear} instead. */
+  @Deprecated @Nullable public final Integer year;
+  /** Optional year of the recording date. */
+  @Nullable public final Integer recordingYear;
+  /**
+   * Optional month of the recording date.
+   *
+   * <p>Note that there is no guarantee that the month and day are a valid combination.
+   */
+  @Nullable public final Integer recordingMonth;
+  /**
+   * Optional day of the recording date.
+   *
+   * <p>Note that there is no guarantee that the month and day are a valid combination.
+   */
+  @Nullable public final Integer recordingDay;
+
+  /** Optional year of the release date. */
+  @Nullable public final Integer releaseYear;
+  /**
+   * Optional month of the release date.
+   *
+   * <p>Note that there is no guarantee that the month and day are a valid combination.
+   */
+  @Nullable public final Integer releaseMonth;
+  /**
+   * Optional day of the release date.
+   *
+   * <p>Note that there is no guarantee that the month and day are a valid combination.
+   */
+  @Nullable public final Integer releaseDay;
   /** Optional writer. */
   @Nullable public final CharSequence writer;
   /** Optional composer. */
@@ -390,7 +497,13 @@ public final class MediaMetadata implements Bundleable {
     this.totalTrackCount = builder.totalTrackCount;
     this.folderType = builder.folderType;
     this.isPlayable = builder.isPlayable;
-    this.year = builder.year;
+    this.year = builder.recordingYear;
+    this.recordingYear = builder.recordingYear;
+    this.recordingMonth = builder.recordingMonth;
+    this.recordingDay = builder.recordingDay;
+    this.releaseYear = builder.releaseYear;
+    this.releaseMonth = builder.releaseMonth;
+    this.releaseDay = builder.releaseDay;
     this.writer = builder.writer;
     this.composer = builder.composer;
     this.conductor = builder.conductor;
@@ -429,7 +542,12 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(totalTrackCount, that.totalTrackCount)
         && Util.areEqual(folderType, that.folderType)
         && Util.areEqual(isPlayable, that.isPlayable)
-        && Util.areEqual(year, that.year)
+        && Util.areEqual(recordingYear, that.recordingYear)
+        && Util.areEqual(recordingMonth, that.recordingMonth)
+        && Util.areEqual(recordingDay, that.recordingDay)
+        && Util.areEqual(releaseYear, that.releaseYear)
+        && Util.areEqual(releaseMonth, that.releaseMonth)
+        && Util.areEqual(releaseDay, that.releaseDay)
         && Util.areEqual(writer, that.writer)
         && Util.areEqual(composer, that.composer)
         && Util.areEqual(conductor, that.conductor)
@@ -456,7 +574,12 @@ public final class MediaMetadata implements Bundleable {
         totalTrackCount,
         folderType,
         isPlayable,
-        year,
+        recordingYear,
+        recordingMonth,
+        recordingDay,
+        releaseYear,
+        releaseMonth,
+        releaseDay,
         writer,
         composer,
         conductor,
@@ -485,7 +608,12 @@ public final class MediaMetadata implements Bundleable {
     FIELD_TOTAL_TRACK_COUNT,
     FIELD_FOLDER_TYPE,
     FIELD_IS_PLAYABLE,
-    FIELD_YEAR,
+    FIELD_RECORDING_YEAR,
+    FIELD_RECORDING_MONTH,
+    FIELD_RECORDING_DAY,
+    FIELD_RELEASE_YEAR,
+    FIELD_RELEASE_MONTH,
+    FIELD_RELEASE_DAY,
     FIELD_WRITER,
     FIELD_COMPOSER,
     FIELD_CONDUCTOR,
@@ -511,12 +639,17 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_TOTAL_TRACK_COUNT = 13;
   private static final int FIELD_FOLDER_TYPE = 14;
   private static final int FIELD_IS_PLAYABLE = 15;
-  private static final int FIELD_YEAR = 16;
-  private static final int FIELD_WRITER = 17;
-  private static final int FIELD_COMPOSER = 18;
-  private static final int FIELD_CONDUCTOR = 19;
-  private static final int FIELD_DISC_NUMBER = 20;
-  private static final int FIELD_TOTAL_DISC_COUNT = 21;
+  private static final int FIELD_RECORDING_YEAR = 16;
+  private static final int FIELD_RECORDING_MONTH = 17;
+  private static final int FIELD_RECORDING_DAY = 18;
+  private static final int FIELD_RELEASE_YEAR = 19;
+  private static final int FIELD_RELEASE_MONTH = 20;
+  private static final int FIELD_RELEASE_DAY = 21;
+  private static final int FIELD_WRITER = 22;
+  private static final int FIELD_COMPOSER = 23;
+  private static final int FIELD_CONDUCTOR = 24;
+  private static final int FIELD_DISC_NUMBER = 25;
+  private static final int FIELD_TOTAL_DISC_COUNT = 26;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -554,8 +687,23 @@ public final class MediaMetadata implements Bundleable {
     if (isPlayable != null) {
       bundle.putBoolean(keyForField(FIELD_IS_PLAYABLE), isPlayable);
     }
-    if (year != null) {
-      bundle.putInt(keyForField(FIELD_YEAR), year);
+    if (recordingYear != null) {
+      bundle.putInt(keyForField(FIELD_RECORDING_YEAR), recordingYear);
+    }
+    if (recordingMonth != null) {
+      bundle.putInt(keyForField(FIELD_RECORDING_MONTH), recordingMonth);
+    }
+    if (recordingDay != null) {
+      bundle.putInt(keyForField(FIELD_RECORDING_DAY), recordingDay);
+    }
+    if (releaseYear != null) {
+      bundle.putInt(keyForField(FIELD_RELEASE_YEAR), releaseYear);
+    }
+    if (releaseMonth != null) {
+      bundle.putInt(keyForField(FIELD_RELEASE_MONTH), releaseMonth);
+    }
+    if (releaseDay != null) {
+      bundle.putInt(keyForField(FIELD_RELEASE_DAY), releaseDay);
     }
     if (discNumber != null) {
       bundle.putInt(keyForField(FIELD_DISC_NUMBER), discNumber);
@@ -614,8 +762,23 @@ public final class MediaMetadata implements Bundleable {
     if (bundle.containsKey(keyForField(FIELD_IS_PLAYABLE))) {
       builder.setIsPlayable(bundle.getBoolean(keyForField(FIELD_IS_PLAYABLE)));
     }
-    if (bundle.containsKey(keyForField(FIELD_YEAR))) {
-      builder.setYear(bundle.getInt(keyForField(FIELD_YEAR)));
+    if (bundle.containsKey(keyForField(FIELD_RECORDING_YEAR))) {
+      builder.setRecordingYear(bundle.getInt(keyForField(FIELD_RECORDING_YEAR)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_RECORDING_MONTH))) {
+      builder.setRecordingMonth(bundle.getInt(keyForField(FIELD_RECORDING_MONTH)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_RECORDING_DAY))) {
+      builder.setRecordingDay(bundle.getInt(keyForField(FIELD_RECORDING_DAY)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_RELEASE_YEAR))) {
+      builder.setReleaseYear(bundle.getInt(keyForField(FIELD_RELEASE_YEAR)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_RELEASE_MONTH))) {
+      builder.setReleaseMonth(bundle.getInt(keyForField(FIELD_RELEASE_MONTH)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_RELEASE_DAY))) {
+      builder.setReleaseDay(bundle.getInt(keyForField(FIELD_RELEASE_DAY)));
     }
     if (bundle.containsKey(keyForField(FIELD_DISC_NUMBER))) {
       builder.setDiscNumber(bundle.getInt(keyForField(FIELD_DISC_NUMBER)));
