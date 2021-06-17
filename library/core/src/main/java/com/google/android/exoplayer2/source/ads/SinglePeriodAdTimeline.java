@@ -56,5 +56,4 @@ public final class SinglePeriodAdTimeline extends ForwardingTimeline {
         period.isPlaceholder);
     return period;
   }
-
 }

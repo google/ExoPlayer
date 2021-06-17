@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -93,10 +94,13 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_PREPARE_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_MEDIA_ITEM,
+              COMMAND_SET_FAST_FORWARD_INCREMENT,
+              COMMAND_SET_REWIND_INCREMENT,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
               COMMAND_GET_MEDIA_ITEMS,
               COMMAND_GET_MEDIA_ITEMS_METADATA,
+              COMMAND_SET_MEDIA_ITEMS_METADATA,
               COMMAND_CHANGE_MEDIA_ITEMS)
           .build();
 
@@ -140,6 +144,8 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
+  private long fastForwardIncrementMs;
+  private long rewindIncrementMs;
 
   /**
    * Creates a new cast player that uses a {@link DefaultMediaItemConverter}.
@@ -177,73 +183,14 @@ public final class CastPlayer extends BasePlayer {
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
+    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
+    rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
 
     SessionManager sessionManager = castContext.getSessionManager();
     sessionManager.addSessionManagerListener(statusListener, CastSession.class);
     CastSession session = sessionManager.getCurrentCastSession();
     setRemoteMediaClient(session != null ? session.getRemoteMediaClient() : null);
     updateInternalStateAndNotifyIfChanged();
-  }
-
-  // Media Queue manipulation methods.
-
-  /** @deprecated Use {@link #setMediaItems(List, int, long)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
-    return setMediaItemsInternal(
-        new MediaQueueItem[] {item}, /* startWindowIndex= */ 0, positionMs, repeatMode.value);
-  }
-
-  /**
-   * @deprecated Use {@link #setMediaItems(List, int, long)} and {@link #setRepeatMode(int)}
-   *     instead.
-   */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> loadItems(
-      MediaQueueItem[] items, int startIndex, long positionMs, @RepeatMode int repeatMode) {
-    return setMediaItemsInternal(items, startIndex, positionMs, repeatMode);
-  }
-
-  /** @deprecated Use {@link #addMediaItems(List)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> addItems(MediaQueueItem... items) {
-    return addMediaItemsInternal(items, MediaQueueItem.INVALID_ITEM_ID);
-  }
-
-  /** @deprecated Use {@link #addMediaItems(int, List)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> addItems(int periodId, MediaQueueItem... items) {
-    if (periodId == MediaQueueItem.INVALID_ITEM_ID
-        || currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
-      return addMediaItemsInternal(items, periodId);
-    }
-    return null;
-  }
-
-  /** @deprecated Use {@link #removeMediaItem(int)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> removeItem(int periodId) {
-    if (currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
-      return removeMediaItemsInternal(new int[] {periodId});
-    }
-    return null;
-  }
-
-  /** @deprecated Use {@link #moveMediaItem(int, int)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> moveItem(int periodId, int newIndex) {
-    Assertions.checkArgument(newIndex >= 0 && newIndex < currentTimeline.getWindowCount());
-    int fromIndex = currentTimeline.getIndexOfPeriod(periodId);
-    if (fromIndex != C.INDEX_UNSET && fromIndex != newIndex) {
-      return moveMediaItemsInternal(new int[] {periodId}, fromIndex, newIndex);
-    }
-    return null;
   }
 
   /**
@@ -472,6 +419,40 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    checkArgument(fastForwardIncrementMs > 0);
+    if (this.fastForwardIncrementMs != fastForwardIncrementMs) {
+      this.fastForwardIncrementMs = fastForwardIncrementMs;
+      listeners.queueEvent(
+          Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+          listener -> listener.onFastForwardIncrementChanged(fastForwardIncrementMs));
+      listeners.flushEvents();
+    }
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    return fastForwardIncrementMs;
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    checkArgument(rewindIncrementMs > 0);
+    if (this.rewindIncrementMs != rewindIncrementMs) {
+      this.rewindIncrementMs = rewindIncrementMs;
+      listeners.queueEvent(
+          Player.EVENT_REWIND_INCREMENT_CHANGED,
+          listener -> listener.onRewindIncrementChanged(rewindIncrementMs));
+      listeners.flushEvents();
+    }
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    return rewindIncrementMs;
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     // Unsupported by the RemoteMediaClient API. Do nothing.
   }
@@ -559,6 +540,18 @@ public final class CastPlayer extends BasePlayer {
   public MediaMetadata getMediaMetadata() {
     // CastPlayer does not currently support metadata.
     return MediaMetadata.EMPTY;
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMediaMetadata() {
+    // CastPlayer does not currently support metadata.
+    return MediaMetadata.EMPTY;
+  }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
+    // CastPlayer does not currently support metadata.
   }
 
   @Override
@@ -864,11 +857,8 @@ public final class CastPlayer extends BasePlayer {
       // Call onTimelineChanged.
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> {
-            listener.onTimelineChanged(
-                timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-            listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-          });
+          listener ->
+              listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
 
       // Call onPositionDiscontinuity if required.
       Timeline currentTimeline = getCurrentTimeline();

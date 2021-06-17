@@ -62,16 +62,12 @@ public abstract class SegmentBase {
     return initialization;
   }
 
-  /**
-   * Returns the presentation time offset, in microseconds.
-   */
+  /** Returns the presentation time offset, in microseconds. */
   public long getPresentationTimeOffsetUs() {
     return Util.scaleLargeTimestamp(presentationTimeOffset, C.MICROS_PER_SECOND, timescale);
   }
 
-  /**
-   * A {@link SegmentBase} that defines a single segment.
-   */
+  /** A {@link SegmentBase} that defines a single segment. */
   public static class SingleSegmentBase extends SegmentBase {
 
     /* package */ final long indexStart;
@@ -112,12 +108,9 @@ public abstract class SegmentBase {
           ? null
           : new RangedUri(/* referenceUri= */ null, indexStart, indexLength);
     }
-
   }
 
-  /**
-   * A {@link SegmentBase} that consists of multiple segments.
-   */
+  /** A {@link SegmentBase} that consists of multiple segments. */
   public abstract static class MultiSegmentBase extends SegmentBase {
 
     /* package */ final long startNumber;
@@ -365,7 +358,6 @@ public abstract class SegmentBase {
     public boolean isExplicit() {
       return true;
     }
-
   }
 
   /** A {@link MultiSegmentBase} that uses a SegmentTemplate to define its segments. */
@@ -434,8 +426,9 @@ public abstract class SegmentBase {
     @Nullable
     public RangedUri getInitialization(Representation representation) {
       if (initializationTemplate != null) {
-        String urlString = initializationTemplate.buildUri(representation.format.id, 0,
-            representation.format.bitrate, 0);
+        String urlString =
+            initializationTemplate.buildUri(
+                representation.format.id, 0, representation.format.bitrate, 0);
         return new RangedUri(urlString, 0, C.LENGTH_UNSET);
       } else {
         return super.getInitialization(representation);
@@ -450,8 +443,9 @@ public abstract class SegmentBase {
       } else {
         time = (sequenceNumber - startNumber) * duration;
       }
-      String uriString = mediaTemplate.buildUri(representation.format.id, sequenceNumber,
-          representation.format.bitrate, time);
+      String uriString =
+          mediaTemplate.buildUri(
+              representation.format.id, sequenceNumber, representation.format.bitrate, time);
       return new RangedUri(uriString, 0, C.LENGTH_UNSET);
     }
 
@@ -507,5 +501,4 @@ public abstract class SegmentBase {
       return 31 * (int) startTime + (int) duration;
     }
   }
-
 }

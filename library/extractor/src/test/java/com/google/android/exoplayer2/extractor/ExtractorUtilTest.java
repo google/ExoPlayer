@@ -25,9 +25,11 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link ExtractorUtil}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class ExtractorUtilTest {
 
   private static final String TEST_URI = "http://www.google.com";

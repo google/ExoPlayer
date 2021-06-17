@@ -55,6 +55,11 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.folderType).isNull();
     assertThat(mediaMetadata.isPlayable).isNull();
     assertThat(mediaMetadata.year).isNull();
+    assertThat(mediaMetadata.composer).isNull();
+    assertThat(mediaMetadata.conductor).isNull();
+    assertThat(mediaMetadata.writer).isNull();
+    assertThat(mediaMetadata.discNumber).isNull();
+    assertThat(mediaMetadata.totalDiscCount).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -101,6 +106,11 @@ public class MediaMetadataTest {
             .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
             .setIsPlayable(true)
             .setYear(2000)
+            .setComposer("Composer")
+            .setConductor("Conductor")
+            .setWriter("Writer")
+            .setDiscNumber(1)
+            .setTotalDiscCount(3)
             .setExtras(extras) // Extras is not implemented in MediaMetadata.equals(Object o).
             .build();
 
@@ -117,6 +127,9 @@ public class MediaMetadataTest {
     String albumArtist = "album Artist";
     String trackNumberInfo = "11/17";
     String year = "2000";
+    String composer = "composer";
+    String conductor = "conductor";
+    String writer = "writer";
 
     List<Metadata.Entry> entries =
         ImmutableList.of(
@@ -128,20 +141,31 @@ public class MediaMetadataTest {
                 /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
             new TextInformationFrame(
                 /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
-            new TextInformationFrame(/* id= */ "TYE", /* description= */ null, /* value= */ year));
+            new TextInformationFrame(/* id= */ "TYE", /* description= */ null, /* value= */ year),
+            new TextInformationFrame(
+                /* id= */ "TCM", /* description= */ null, /* value= */ composer),
+            new TextInformationFrame(
+                /* id= */ "TP3", /* description= */ null, /* value= */ conductor),
+            new TextInformationFrame(
+                /* id= */ "TXT", /* description= */ null, /* value= */ writer));
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     for (Metadata.Entry entry : entries) {
       entry.populateMediaMetadata(builder);
     }
 
-    assertThat(builder.build().title.toString()).isEqualTo(title);
-    assertThat(builder.build().artist.toString()).isEqualTo(artist);
-    assertThat(builder.build().albumTitle.toString()).isEqualTo(albumTitle);
-    assertThat(builder.build().albumArtist.toString()).isEqualTo(albumArtist);
-    assertThat(builder.build().trackNumber).isEqualTo(11);
-    assertThat(builder.build().totalTrackCount).isEqualTo(17);
-    assertThat(builder.build().year).isEqualTo(2000);
+    MediaMetadata mediaMetadata = builder.build();
+
+    assertThat(mediaMetadata.title.toString()).isEqualTo(title);
+    assertThat(mediaMetadata.artist.toString()).isEqualTo(artist);
+    assertThat(mediaMetadata.albumTitle.toString()).isEqualTo(albumTitle);
+    assertThat(mediaMetadata.albumArtist.toString()).isEqualTo(albumArtist);
+    assertThat(mediaMetadata.trackNumber).isEqualTo(11);
+    assertThat(mediaMetadata.totalTrackCount).isEqualTo(17);
+    assertThat(mediaMetadata.year).isEqualTo(2000);
+    assertThat(mediaMetadata.composer.toString()).isEqualTo(composer);
+    assertThat(mediaMetadata.conductor.toString()).isEqualTo(conductor);
+    assertThat(mediaMetadata.writer.toString()).isEqualTo(writer);
   }
 
   @Test

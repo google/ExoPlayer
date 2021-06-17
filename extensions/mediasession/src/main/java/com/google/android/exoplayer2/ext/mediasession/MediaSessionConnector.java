@@ -44,9 +44,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
 /**
@@ -420,6 +421,45 @@ public final class MediaSessionConnector {
      * @return The {@link MediaMetadataCompat} to be published to the session.
      */
     MediaMetadataCompat getMetadata(Player player);
+
+    /** Returns whether the old and the new metadata are considered the same. */
+    default boolean sameAs(MediaMetadataCompat oldMetadata, MediaMetadataCompat newMetadata) {
+      if (oldMetadata == newMetadata) {
+        return true;
+      }
+      if (oldMetadata.size() != newMetadata.size()) {
+        return false;
+      }
+      Set<String> oldKeySet = oldMetadata.keySet();
+      Bundle oldMetadataBundle = oldMetadata.getBundle();
+      Bundle newMetadataBundle = newMetadata.getBundle();
+      for (String key : oldKeySet) {
+        Object oldProperty = oldMetadataBundle.get(key);
+        Object newProperty = newMetadataBundle.get(key);
+        if (oldProperty == newProperty) {
+          continue;
+        }
+        if (oldProperty instanceof Bitmap && newProperty instanceof Bitmap) {
+          if (!((Bitmap) oldProperty).sameAs(((Bitmap) newProperty))) {
+            return false;
+          }
+        } else if (oldProperty instanceof RatingCompat && newProperty instanceof RatingCompat) {
+          RatingCompat oldRating = (RatingCompat) oldProperty;
+          RatingCompat newRating = (RatingCompat) newProperty;
+          if (oldRating.hasHeart() != newRating.hasHeart()
+              || oldRating.isRated() != newRating.isRated()
+              || oldRating.isThumbUp() != newRating.isThumbUp()
+              || oldRating.getPercentRating() != newRating.getPercentRating()
+              || oldRating.getStarRating() != newRating.getStarRating()
+              || oldRating.getRatingStyle() != newRating.getRatingStyle()) {
+            return false;
+          }
+        } else if (!Util.areEqual(oldProperty, newProperty)) {
+          return false;
+        }
+      }
+      return true;
+    }
   }
 
   /** The wrapped {@link MediaSessionCompat}. */
@@ -435,7 +475,7 @@ public final class MediaSessionConnector {
   private Map<String, CustomActionProvider> customActionMap;
   @Nullable private MediaMetadataProvider mediaMetadataProvider;
   @Nullable private Player player;
-  @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  @Nullable private ErrorMessageProvider<? super PlaybackException> errorMessageProvider;
   @Nullable private Pair<Integer, CharSequence> customError;
   @Nullable private Bundle customErrorExtras;
   @Nullable private PlaybackPreparer playbackPreparer;
@@ -446,6 +486,7 @@ public final class MediaSessionConnector {
   @Nullable private MediaButtonEventHandler mediaButtonEventHandler;
 
   private long enabledPlaybackActions;
+  private boolean metadataDeduplicationEnabled;
 
   /**
    * Creates an instance.
@@ -552,38 +593,12 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setRewindIncrementMs(int rewindMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
-      invalidateMediaSessionPlaybackState();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setFastForwardIncrementMs(int fastForwardMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
-      invalidateMediaSessionPlaybackState();
-    }
-  }
-
-  /**
    * Sets the optional {@link ErrorMessageProvider}.
    *
    * @param errorMessageProvider The error message provider.
    */
   public void setErrorMessageProvider(
-      @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
+      @Nullable ErrorMessageProvider<? super PlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {
       this.errorMessageProvider = errorMessageProvider;
       invalidateMediaSessionPlaybackState();
@@ -711,6 +726,19 @@ public final class MediaSessionConnector {
   }
 
   /**
+   * Sets whether {@link MediaMetadataProvider#sameAs(MediaMetadataCompat, MediaMetadataCompat)}
+   * should be consulted before calling {@link MediaSessionCompat#setMetadata(MediaMetadataCompat)}.
+   *
+   * <p>Note that this comparison is normally only required when you are using media sources that
+   * may introduce duplicate updates of the metadata for the same media item (e.g. live streams).
+   *
+   * @param metadataDeduplicationEnabled Whether to deduplicate metadata objects on invalidation.
+   */
+  public void setMetadataDeduplicationEnabled(boolean metadataDeduplicationEnabled) {
+    this.metadataDeduplicationEnabled = metadataDeduplicationEnabled;
+  }
+
+  /**
    * Updates the metadata of the media session.
    *
    * <p>Apps normally only need to call this method when the backing data for a given media item has
@@ -724,6 +752,14 @@ public final class MediaSessionConnector {
         mediaMetadataProvider != null && player != null
             ? mediaMetadataProvider.getMetadata(player)
             : METADATA_EMPTY;
+    @Nullable MediaMetadataProvider mediaMetadataProvider = this.mediaMetadataProvider;
+    if (metadataDeduplicationEnabled && mediaMetadataProvider != null) {
+      @Nullable MediaMetadataCompat oldMetadata = mediaSession.getController().getMetadata();
+      if (oldMetadata != null && mediaMetadataProvider.sameAs(oldMetadata, metadata)) {
+        // Do not update if metadata did not change.
+        return;
+      }
+    }
     mediaSession.setMetadata(metadata);
   }
 
@@ -763,7 +799,7 @@ public final class MediaSessionConnector {
     customActionMap = Collections.unmodifiableMap(currentActions);
 
     Bundle extras = new Bundle();
-    @Nullable ExoPlaybackException playbackError = player.getPlayerError();
+    @Nullable PlaybackException playbackError = player.getPlayerError();
     boolean reportError = playbackError != null || customError != null;
     int sessionPlaybackState =
         reportError

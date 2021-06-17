@@ -19,8 +19,6 @@ import static com.google.android.exoplayer2.audio.AudioSink.CURRENT_POSITION_NOT
 import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
 import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
 import static com.google.common.truth.Truth.assertThat;
-import static org.robolectric.annotation.Config.OLDEST_SDK;
-import static org.robolectric.annotation.Config.TARGET_SDK;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -219,7 +217,7 @@ public final class DefaultAudioSinkTest {
         .isEqualTo(SINK_FORMAT_SUPPORTED_WITH_TRANSCODING);
   }
 
-  @Config(minSdk = OLDEST_SDK, maxSdk = 20)
+  @Config(maxSdk = 20)
   @Test
   public void floatPcmNeedsTranscodingIfFloatOutputEnabledBeforeApi21() {
     defaultAudioSink =
@@ -237,7 +235,7 @@ public final class DefaultAudioSinkTest {
         .isEqualTo(SINK_FORMAT_SUPPORTED_WITH_TRANSCODING);
   }
 
-  @Config(minSdk = 21, maxSdk = TARGET_SDK)
+  @Config(minSdk = 21)
   @Test
   public void floatOutputSupportedIfFloatOutputEnabledFromApi21() {
     defaultAudioSink =

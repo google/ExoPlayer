@@ -28,9 +28,11 @@ import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link OggPacket}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class OggPacketTest {
 
   private static final String TEST_FILE = "media/ogg/bear.opus";

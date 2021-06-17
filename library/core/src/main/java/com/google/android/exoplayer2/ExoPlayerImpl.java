@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
@@ -102,6 +103,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean pauseAtEndOfMediaItems;
   private Commands availableCommands;
   private MediaMetadata mediaMetadata;
+  private MediaMetadata playlistMediaMetadata;
+  private long fastForwardIncrementMs;
+  private long rewindIncrementMs;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -193,12 +197,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .addAll(
                 COMMAND_PLAY_PAUSE,
                 COMMAND_PREPARE_STOP,
+                COMMAND_SET_FAST_FORWARD_INCREMENT,
+                COMMAND_SET_REWIND_INCREMENT,
                 COMMAND_SET_SPEED_AND_PITCH,
                 COMMAND_SET_SHUFFLE_MODE,
                 COMMAND_SET_REPEAT_MODE,
                 COMMAND_GET_CURRENT_MEDIA_ITEM,
                 COMMAND_GET_MEDIA_ITEMS,
                 COMMAND_GET_MEDIA_ITEMS_METADATA,
+                COMMAND_SET_MEDIA_ITEMS_METADATA,
                 COMMAND_CHANGE_MEDIA_ITEMS)
             .addAll(additionalPermanentAvailableCommands)
             .build();
@@ -209,6 +216,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
+    playlistMediaMetadata = MediaMetadata.EMPTY;
+    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
+    rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -710,6 +720,40 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    checkArgument(fastForwardIncrementMs > 0);
+    if (this.fastForwardIncrementMs != fastForwardIncrementMs) {
+      this.fastForwardIncrementMs = fastForwardIncrementMs;
+      listeners.queueEvent(
+          Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+          listener -> listener.onFastForwardIncrementChanged(fastForwardIncrementMs));
+      listeners.flushEvents();
+    }
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    return fastForwardIncrementMs;
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    checkArgument(rewindIncrementMs > 0);
+    if (this.rewindIncrementMs != rewindIncrementMs) {
+      this.rewindIncrementMs = rewindIncrementMs;
+      listeners.queueEvent(
+          Player.EVENT_REWIND_INCREMENT_CHANGED,
+          listener -> listener.onRewindIncrementChanged(rewindIncrementMs));
+      listeners.flushEvents();
+    }
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    return rewindIncrementMs;
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (playbackParameters == null) {
       playbackParameters = PlaybackParameters.DEFAULT;
@@ -999,6 +1043,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public MediaMetadata getPlaylistMediaMetadata() {
+    return playlistMediaMetadata;
+  }
+
+  @Override
+  public void setPlaylistMediaMetadata(MediaMetadata playlistMediaMetadata) {
+    checkNotNull(playlistMediaMetadata);
+    if (playlistMediaMetadata.equals(this.playlistMediaMetadata)) {
+      return;
+    }
+    this.playlistMediaMetadata = playlistMediaMetadata;
+    listeners.sendEvent(
+        EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+        listener -> listener.onPlaylistMediaMetadataChanged(this.playlistMediaMetadata));
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     return playbackInfo.timeline;
   }
@@ -1232,16 +1293,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> {
-            @Nullable Object manifest = null;
-            if (newPlaybackInfo.timeline.getWindowCount() == 1) {
-              // Legacy behavior was to report the manifest for single window timelines only.
-              Timeline.Window window = new Timeline.Window();
-              manifest = newPlaybackInfo.timeline.getWindow(0, window).manifest;
-            }
-            listener.onTimelineChanged(newPlaybackInfo.timeline, manifest, timelineChangeReason);
-            listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason);
-          });
+          listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
     }
     if (positionDiscontinuity) {
       PositionInfo previousPositionInfo =

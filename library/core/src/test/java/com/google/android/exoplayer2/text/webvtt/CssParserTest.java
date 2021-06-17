@@ -180,7 +180,7 @@ public final class CssParserTest {
     // Universal selector.
     assertThat(style.getSpecificityScore("", "", Collections.emptySet(), "")).isEqualTo(1);
     // Class match without tag match.
-    style.setTargetClasses(new String[] { "class1", "class2"});
+    style.setTargetClasses(new String[] {"class1", "class2"});
     assertThat(
             style.getSpecificityScore(
                 "", "", new HashSet<>(Arrays.asList("class1", "class2", "class3")), ""))
@@ -265,5 +265,4 @@ public final class CssParserTest {
       assertThat(actualElem.isUnderline()).isEqualTo(expected.isUnderline());
     }
   }
-
 }

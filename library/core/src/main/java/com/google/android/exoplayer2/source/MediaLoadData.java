@@ -17,13 +17,14 @@ package com.google.android.exoplayer2.source;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.DataType;
 import com.google.android.exoplayer2.Format;
 
 /** Descriptor for data being loaded or selected by a {@link MediaSource}. */
 public final class MediaLoadData {
 
-  /** One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data. */
-  public final int dataType;
+  /** The {@link DataType data type}. */
+  @DataType public final int dataType;
   /**
    * One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to media of a
    * specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
@@ -56,7 +57,7 @@ public final class MediaLoadData {
   public final long mediaEndTimeMs;
 
   /** Creates an instance with the given {@link #dataType}. */
-  public MediaLoadData(int dataType) {
+  public MediaLoadData(@DataType int dataType) {
     this(
         dataType,
         /* trackType= */ C.TRACK_TYPE_UNKNOWN,
@@ -79,7 +80,7 @@ public final class MediaLoadData {
    * @param mediaEndTimeMs See {@link #mediaEndTimeMs}.
    */
   public MediaLoadData(
-      int dataType,
+      @DataType int dataType,
       int trackType,
       @Nullable Format trackFormat,
       int trackSelectionReason,

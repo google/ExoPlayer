@@ -42,7 +42,7 @@ public final class FfmpegLibrary {
   /**
    * Override the names of the FFmpeg native libraries. If an application wishes to call this
    * method, it must do so before calling any other method defined by this class, and before
-   * instantiating a {@link FfmpegAudioRenderer} instance.
+   * instantiating a {@link FfmpegAudioRenderer} or {@link FfmpegVideoRenderer} instance.
    *
    * @param libraries The names of the FFmpeg native libraries.
    */
@@ -50,9 +50,7 @@ public final class FfmpegLibrary {
     LOADER.setLibraries(libraries);
   }
 
-  /**
-   * Returns whether the underlying library is available, loading it if necessary.
-   */
+  /** Returns whether the underlying library is available, loading it if necessary. */
   public static boolean isAvailable() {
     return LOADER.isAvailable();
   }
@@ -142,6 +140,10 @@ public final class FfmpegLibrary {
         return "pcm_mulaw";
       case MimeTypes.AUDIO_ALAW:
         return "pcm_alaw";
+      case MimeTypes.VIDEO_H264:
+        return "h264";
+      case MimeTypes.VIDEO_H265:
+        return "hevc";
       default:
         return null;
     }

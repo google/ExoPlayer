@@ -1,5 +1,79 @@
 # Release notes
 
+### dev-v2 (not yet released)
+
+*   Core Library:
+    *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
+    *   Add `fastForward` and `rewind` methods to `Player`.
+*   Remove deprecated symbols:
+    *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
+    *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
+        `MediaItem.PlaybackProperties.tag` instead.
+    *   Remove `Player.Listener.onTimelineChanged(Timeline, Object, int)`. Use
+        `Player.Listener.onTimelineChanged(Timeline, int)` instead. The manifest
+        can be accessed using `Player.getCurrentManifest`.
+    *   Remove `PlaybackPreparer`. UI components that previously had
+        `setPlaybackPreparer` methods will now call `Player.prepare` by default.
+        If this behavior is sufficient, use of `PlaybackPreparer` can be removed
+        from application code without replacement. For custom preparation logic,
+        replace calls to `setPlaybackPreparer` with calls to
+        `setControlDispatcher` on the same components, passing a
+        `ControlDispatcher` that implements custom preparation logic in
+        `dispatchPrepare`. Extend `DefaultControlDispatcher` to avoid having to
+        implement the other `ControlDispatcher` methods.
+    *   Remove `setRewindIncrementMs` and `setFastForwardIncrementMs` from UI
+        components. Use `setControlDispatcher` on the same components, passing a
+        `DefaultControlDispatcher` built using `DefaultControlDispatcher(long,
+        long)`.
+    *   Remove `PlayerNotificationManager` constructors and `createWith`
+        methods. Use `PlayerNotificationManager.Builder` instead.
+    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
+        `PlayerNotificationManager.Builder.setNotificationListener` instead.
+    *   Remove `PlayerNotificationManager` `setUseNavigationActions` and
+        `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
+        `setUsePreviousAction`, `setUseNextActionInCompactView` and
+        `setUsePreviousActionInCompactView` instead.
+    *   Remove `Format.create` methods. Use `Format.Builder` instead.
+    *   Remove `Timeline.getWindow(int, Window, boolean)`. Use
+        `Timeline.getWindow(int, Window)` instead, which will always set tags.
+    *   Remove `MediaSource.getTag`. Use `MediaSource.getMediaItem` and
+        `MediaItem.PlaybackProperties.tag` instead.
+    *   Remove `CastPlayer` specific playlist manipulation methods. Use
+        `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
+        instead.
+*   Video:
+    *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
+        ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
+*   Audio:
+    *   Fix track selection for E-AC-3 streams.
+    *   Use `AudioTrack.isDirectPlaybackSupported` to check for encoded audio
+        passthrough capability from API 29 onwards, instead of using the HDMI
+        audio plug intent
+        ([#6500](https://github.com/google/ExoPlayer/pull/6500)).
+*   Extractors:
+    *   Fix issue where a `trun` atom could be associated with the wrong track
+        in an FMP4 stream
+        ([#9056](https://github.com/google/ExoPlayer/pull/9056)). The fix
+        removes a previous workaround to handle content in which the `track_ID`
+        is set incorrectly
+        ([#4083](https://github.com/google/ExoPlayer/issues/4083)). Such content
+        is malformed and should be re-encoded.
+*   HLS:
+    *   Fix issue where a new initialization segment, as specified by an
+        `EXT-X-MAP` tag in a media playlist, would not be loaded when
+        encountered during playback
+        ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
+*   Ad playback:
+    *   Support changing ad break positions in the player logic
+        ([#5067](https://github.com/google/ExoPlayer/issues/5067).
+    *   Support resuming content with an offset after an ad group.
+*   PlayerNotificationManager:
+    *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
+        Android 12.
+    *   Add `setUseFastForwardActionInCompactView(boolean)` and
+        `setUseRewindActionInCompactView(boolean)` to make it possible to show
+        seek actions in compact view mode.
+
 ### 2.14.1 (2021-06-11)
 
 *   Core Library:

@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
@@ -51,7 +50,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   private final PlayerListener playerListener;
   private final int updatePeriodMs;
 
-  @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
   @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   @Nullable private SurfaceHolderGlueHost surfaceHolderGlueHost;
@@ -77,28 +75,14 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The adapter calls
-   *     {@link ControlDispatcher#dispatchPrepare(Player)} instead of {@link
-   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that the adapter
-   *     uses by default, calls {@link Player#prepare()}. If you wish to customize this behaviour,
-   *     you can provide a custom implementation of {@link
-   *     ControlDispatcher#dispatchPrepare(Player)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    this.playbackPreparer = playbackPreparer;
-  }
-
-  /**
    * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use
-   *     {@link DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
+   *     DefaultControlDispatcher}.
    */
   public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
-    this.controlDispatcher = controlDispatcher == null ? new DefaultControlDispatcher()
-        : controlDispatcher;
+    this.controlDispatcher =
+        controlDispatcher == null ? new DefaultControlDispatcher() : controlDispatcher;
   }
 
   /**
@@ -148,7 +132,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   @Override
   public boolean isPlaying() {
     int playbackState = player.getPlaybackState();
-    return playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED
+    return playbackState != Player.STATE_IDLE
+        && playbackState != Player.STATE_ENDED
         && player.getPlayWhenReady();
   }
 
@@ -168,11 +153,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   @Override
   public void play() {
     if (player.getPlaybackState() == Player.STATE_IDLE) {
-      if (playbackPreparer != null) {
-        playbackPreparer.preparePlayback();
-      } else {
-        controlDispatcher.dispatchPrepare(player);
-      }
+      controlDispatcher.dispatchPrepare(player);
     } else if (player.getPlaybackState() == Player.STATE_ENDED) {
       controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }
@@ -241,7 +222,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
   }
 
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:argument"})
   private static void removeSurfaceHolderCallback(SurfaceHolderGlueHost surfaceHolderGlueHost) {
     surfaceHolderGlueHost.setSurfaceHolderCallback(null);
   }
@@ -279,8 +260,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
         Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(exception);
         callback.onError(LeanbackPlayerAdapter.this, errorMessage.first, errorMessage.second);
       } else {
-        callback.onError(LeanbackPlayerAdapter.this, exception.type, context.getString(
-            R.string.lb_media_player_error, exception.type, exception.rendererIndex));
+        callback.onError(
+            LeanbackPlayerAdapter.this,
+            exception.type,
+            context.getString(
+                R.string.lb_media_player_error, exception.type, exception.rendererIndex));
       }
     }
 
@@ -318,7 +302,5 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     public void onRenderedFirstFrame() {
       // Do nothing.
     }
-
   }
-
 }

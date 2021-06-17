@@ -56,7 +56,6 @@ public interface DrmSession {
     public DrmSessionException(Throwable cause) {
       super(cause);
     }
-
   }
 
   /**
@@ -74,9 +73,7 @@ public interface DrmSession {
    * This is a terminal state.
    */
   int STATE_ERROR = 1;
-  /**
-   * The session is being opened.
-   */
+  /** The session is being opened. */
   int STATE_OPENING = 2;
   /** The session is open, but does not have keys required for decryption. */
   int STATE_OPENED = 3;
@@ -84,11 +81,12 @@ public interface DrmSession {
   int STATE_OPENED_WITH_KEYS = 4;
 
   /**
-   * Returns the current state of the session, which is one of {@link #STATE_ERROR},
-   * {@link #STATE_RELEASED}, {@link #STATE_OPENING}, {@link #STATE_OPENED} and
-   * {@link #STATE_OPENED_WITH_KEYS}.
+   * Returns the current state of the session, which is one of {@link #STATE_ERROR}, {@link
+   * #STATE_RELEASED}, {@link #STATE_OPENING}, {@link #STATE_OPENED} and {@link
+   * #STATE_OPENED_WITH_KEYS}.
    */
-  @State int getState();
+  @State
+  int getState();
 
   /** Returns whether this session allows playback of clear samples prior to keys being loaded. */
   default boolean playClearSamplesWithoutKeys() {

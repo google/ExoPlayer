@@ -21,9 +21,11 @@ import static org.junit.Assert.fail;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link UrlTemplate}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class UrlTemplateTest {
 
   @Test

@@ -631,6 +631,15 @@ public class AnalyticsCollector
         });
   }
 
+  @Override
+  public void onAvailableCommandsChanged(Player.Commands availableCommands) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AVAILABLE_COMMANDS_CHANGED,
+        listener -> listener.onAvailableCommandsChanged(eventTime, availableCommands));
+  }
+
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
@@ -741,12 +750,39 @@ public class AnalyticsCollector
   }
 
   @Override
+  public void onFastForwardIncrementChanged(long fastForwardIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+        listener -> listener.onFastForwardIncrementChanged(eventTime, fastForwardIncrementMs));
+  }
+
+  @Override
+  public void onRewindIncrementChanged(long rewindIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_REWIND_INCREMENT_CHANGED,
+        listener -> listener.onRewindIncrementChanged(eventTime, rewindIncrementMs));
+  }
+
+  @Override
   public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_MEDIA_METADATA_CHANGED,
         listener -> listener.onMediaMetadataChanged(eventTime, mediaMetadata));
+  }
+
+  @Override
+  public void onPlaylistMediaMetadataChanged(MediaMetadata playlistMediaMetadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+        listener -> listener.onPlaylistMediaMetadataChanged(eventTime, playlistMediaMetadata));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.

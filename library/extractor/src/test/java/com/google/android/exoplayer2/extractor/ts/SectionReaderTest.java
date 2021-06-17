@@ -31,9 +31,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Test for {@link SectionReader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class SectionReaderTest {
 
   private byte[] packetPayload;
@@ -46,7 +48,9 @@ public final class SectionReaderTest {
     Arrays.fill(packetPayload, (byte) 0xFF);
     payloadReader = new CustomSectionPayloadReader();
     reader = new SectionReader(payloadReader);
-    reader.init(new TimestampAdjuster(0), new FakeExtractorOutput(),
+    reader.init(
+        new TimestampAdjuster(0),
+        new FakeExtractorOutput(),
         new TsPayloadReader.TrackIdGenerator(0, 1));
   }
 
@@ -157,10 +161,12 @@ public final class SectionReaderTest {
 
   @Test
   public void crcChecks() {
-    byte[] correctCrcPat = new byte[] {
-        (byte) 0x0, (byte) 0x0, (byte) 0xb0, (byte) 0xd, (byte) 0x0, (byte) 0x1, (byte) 0xc1,
-        (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1, (byte) 0xe1, (byte) 0x0, (byte) 0xe8,
-        (byte) 0xf9, (byte) 0x5e, (byte) 0x7d};
+    byte[] correctCrcPat =
+        new byte[] {
+          (byte) 0x0, (byte) 0x0, (byte) 0xb0, (byte) 0xd, (byte) 0x0, (byte) 0x1, (byte) 0xc1,
+          (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1, (byte) 0xe1, (byte) 0x0, (byte) 0xe8,
+          (byte) 0xf9, (byte) 0x5e, (byte) 0x7d
+        };
     byte[] incorrectCrcPat = Arrays.copyOf(correctCrcPat, correctCrcPat.length);
     // Crc field is incorrect, and should not be passed to the payload reader.
     incorrectCrcPat[16]--;
@@ -192,7 +198,9 @@ public final class SectionReaderTest {
     List<Integer> parsedTableIds;
 
     @Override
-    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+    public void init(
+        TimestampAdjuster timestampAdjuster,
+        ExtractorOutput extractorOutput,
         TsPayloadReader.TrackIdGenerator idGenerator) {
       parsedTableIds = new ArrayList<>();
     }
@@ -201,7 +209,5 @@ public final class SectionReaderTest {
     public void consume(ParsableByteArray sectionData) {
       parsedTableIds.add(sectionData.readUnsignedByte());
     }
-
   }
-
 }

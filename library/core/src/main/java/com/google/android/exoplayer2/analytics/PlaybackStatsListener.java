@@ -22,8 +22,8 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -489,7 +489,7 @@ public final class PlaybackStatsListener
         int droppedFrameCount,
         boolean hasAudioUnderun,
         boolean startedLoading,
-        @Nullable ExoPlaybackException fatalError,
+        @Nullable PlaybackException fatalError,
         @Nullable Exception nonFatalException,
         long bandwidthTimeMs,
         long bandwidthBytes,

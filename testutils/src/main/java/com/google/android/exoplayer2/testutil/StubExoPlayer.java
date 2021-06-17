@@ -300,6 +300,26 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }
@@ -367,6 +387,16 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public MediaMetadata getMediaMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMediaMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
     throw new UnsupportedOperationException();
   }
 

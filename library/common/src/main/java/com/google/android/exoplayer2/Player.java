@@ -22,6 +22,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -33,7 +34,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -41,6 +42,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,15 +96,6 @@ public interface Player {
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
-
-    /**
-     * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
-     *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
-     *     window).manifest} for a given window index.
-     */
-    @Deprecated
-    default void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
      * Called when playback transitions to a media item or starts repeating a media item according
@@ -167,6 +160,9 @@ public interface Player {
      * @param mediaMetadata The combined {@link MediaMetadata}.
      */
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    /** Called when the playlist {@link MediaMetadata} changes. */
+    default void onPlaylistMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
      * Called when the player starts or stops loading the source.
@@ -312,6 +308,26 @@ public interface Player {
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
+     * Called when the value of {@link #getFastForwardIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param fastForwardIncrementMs The {@link #fastForward()} increment, in milliseconds.
+     */
+    default void onFastForwardIncrementChanged(@IntRange(from = 1) long fastForwardIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getRewindIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param rewindIncrementMs The {@link #rewind()} increment, in milliseconds.
+     */
+    default void onRewindIncrementChanged(@IntRange(from = 1) long rewindIncrementMs) {}
+
+    /**
      * @deprecated Seeks are processed without delay. Listen to {@link
      *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
      *     #DISCONTINUITY_REASON_SEEK} instead.
@@ -353,14 +369,14 @@ public interface Player {
   /** A set of {@link EventFlags}. */
   final class Events {
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
 
     /**
      * Creates an instance.
      *
-     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link EventFlags} in the set.
      */
-    public Events(ExoFlags flags) {
+    public Events(FlagSet flags) {
       this.flags = flags;
     }
 
@@ -402,6 +418,23 @@ public interface Player {
     @EventFlags
     public int get(int index) {
       return flags.get(index);
+    }
+
+    @Override
+    public int hashCode() {
+      return flags.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Events)) {
+        return false;
+      }
+      Events other = (Events) obj;
+      return flags.equals(other.flags);
     }
   }
 
@@ -567,16 +600,52 @@ public interface Player {
    *
    * <p>Instances are immutable.
    */
-  final class Commands {
+  final class Commands implements Bundleable {
 
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
 
-      private final ExoFlags.Builder flagsBuilder;
+      @Command
+      private static final int[] SUPPORTED_COMMANDS = {
+        COMMAND_PLAY_PAUSE,
+        COMMAND_PREPARE_STOP,
+        COMMAND_SEEK_TO_DEFAULT_POSITION,
+        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+        COMMAND_SEEK_TO_MEDIA_ITEM,
+        COMMAND_SET_FAST_FORWARD_INCREMENT,
+        COMMAND_FAST_FORWARD,
+        COMMAND_SET_REWIND_INCREMENT,
+        COMMAND_REWIND,
+        COMMAND_SET_SPEED_AND_PITCH,
+        COMMAND_SET_SHUFFLE_MODE,
+        COMMAND_SET_REPEAT_MODE,
+        COMMAND_GET_CURRENT_MEDIA_ITEM,
+        COMMAND_GET_MEDIA_ITEMS,
+        COMMAND_GET_MEDIA_ITEMS_METADATA,
+        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_GET_AUDIO_ATTRIBUTES,
+        COMMAND_GET_VOLUME,
+        COMMAND_GET_DEVICE_VOLUME,
+        COMMAND_SET_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_SET_VIDEO_SURFACE,
+        COMMAND_GET_TEXT
+      };
+
+      private final FlagSet.Builder flagsBuilder;
 
       /** Creates a builder. */
       public Builder() {
-        flagsBuilder = new ExoFlags.Builder();
+        flagsBuilder = new FlagSet.Builder();
+      }
+
+      private Builder(Commands commands) {
+        flagsBuilder = new FlagSet.Builder();
+        flagsBuilder.addAll(commands.flags);
       }
 
       /**
@@ -629,6 +698,54 @@ public interface Player {
       }
 
       /**
+       * Adds all existing {@link Command commands}.
+       *
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAllCommands() {
+        flagsBuilder.addAll(SUPPORTED_COMMANDS);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command}.
+       *
+       * @param command A {@link Command}.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder remove(@Command int command) {
+        flagsBuilder.remove(command);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command} if the provided condition is true. Does nothing otherwise.
+       *
+       * @param command A {@link Command}.
+       * @param condition A condition.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeIf(@Command int command, boolean condition) {
+        flagsBuilder.removeIf(command, condition);
+        return this;
+      }
+
+      /**
+       * Removes {@link Command commands}.
+       *
+       * @param commands The {@link Command commands} to remove.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeAll(@Command int... commands) {
+        flagsBuilder.removeAll(commands);
+        return this;
+      }
+
+      /**
        * Builds a {@link Commands} instance.
        *
        * @throws IllegalStateException If this method has already been called.
@@ -641,10 +758,15 @@ public interface Player {
     /** An empty set of commands. */
     public static final Commands EMPTY = new Builder().build();
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
 
-    private Commands(ExoFlags flags) {
+    private Commands(FlagSet flags) {
       this.flags = flags;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     /** Returns whether the set of commands contains the specified {@link Command}. */
@@ -685,6 +807,46 @@ public interface Player {
     public int hashCode() {
       return flags.hashCode();
     }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FIELD_COMMANDS})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_COMMANDS = 0;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      ArrayList<Integer> commandsBundle = new ArrayList<>();
+      for (int i = 0; i < flags.size(); i++) {
+        commandsBundle.add(flags.get(i));
+      }
+      bundle.putIntegerArrayList(keyForField(FIELD_COMMANDS), commandsBundle);
+      return bundle;
+    }
+
+    /** Object that can restore {@link Commands} from a {@link Bundle}. */
+    public static final Creator<Commands> CREATOR = Commands::fromBundle;
+
+    private static Commands fromBundle(Bundle bundle) {
+      @Nullable
+      ArrayList<Integer> commands = bundle.getIntegerArrayList(keyForField(FIELD_COMMANDS));
+      if (commands == null) {
+        return Commands.EMPTY;
+      }
+      Builder builder = new Builder();
+      for (int i = 0; i < commands.size(); i++) {
+        builder.add(commands.get(i));
+      }
+      return builder.build();
+    }
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
   }
 
   /**
@@ -707,6 +869,11 @@ public interface Player {
     @Override
     default void onMetadata(Metadata metadata) {}
   }
+
+  /** The default {@link #fastForward()} increment, in milliseconds. */
+  long DEFAULT_FAST_FORWARD_INCREMENT_MS = 15_000;
+  /** The default {@link #rewind()} increment, in milliseconds. */
+  long DEFAULT_REWIND_INCREMENT_MS = 5000;
 
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
@@ -822,15 +989,15 @@ public interface Player {
   })
   @interface DiscontinuityReason {}
   /**
-   * Automatic playback transition from one period in the timeline to the next without explicit
-   * interaction by this player. The period index may be the same as it was before the discontinuity
-   * in case the current period is repeated.
+   * Automatic playback transition from one period in the timeline to the next. The period index may
+   * be the same as it was before the discontinuity in case the current period is repeated.
    *
    * <p>This reason also indicates an automatic transition from the content period to an inserted ad
-   * period or vice versa.
+   * period or vice versa. Or a transition caused by another player (e.g. multiple controllers can
+   * control the same playback on a remote device).
    */
   int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
-  /** Seek within the current period or to another period by this player. */
+  /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
@@ -854,7 +1021,13 @@ public interface Player {
   @interface TimelineChangeReason {}
   /** Timeline changed as a result of a change of the playlist items or the order of the items. */
   int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
-  /** Timeline changed as a result of a dynamic update introduced by the played media. */
+  /**
+   * Timeline changed as a result of a source update (e.g. result of a dynamic update by the played
+   * media).
+   *
+   * <p>This reason also indicates a change caused by another player (e.g. multiple controllers can
+   * control the same playback on the remote device).
+   */
   int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
   /**
@@ -873,7 +1046,12 @@ public interface Player {
   @interface MediaItemTransitionReason {}
   /** The media item has been repeated. */
   int MEDIA_ITEM_TRANSITION_REASON_REPEAT = 0;
-  /** Playback has automatically transitioned to the next media item. */
+  /**
+   * Playback has automatically transitioned to the next media item.
+   *
+   * <p>This reason also indicates a transition caused by another player (e.g. multiple controllers
+   * can control the same playback on a remote device).
+   */
   int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
   /** A seek to another media item has occurred. */
   int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
@@ -907,7 +1085,10 @@ public interface Player {
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
     EVENT_AVAILABLE_COMMANDS_CHANGED,
-    EVENT_MEDIA_METADATA_CHANGED
+    EVENT_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+    EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+    EVENT_REWIND_INCREMENT_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -945,15 +1126,23 @@ public interface Player {
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
   /** {@link #getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = 15;
+  /** {@link #getPlaylistMediaMetadata()} changed. */
+  int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = 16;
+  /** {@link #getFastForwardIncrement()} changed. */
+  int EVENT_FAST_FORWARD_INCREMENT_CHANGED = 17;
+  /** {@link #getRewindIncrement()} changed. */
+  int EVENT_REWIND_INCREMENT_CHANGED = 18;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
-   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
-   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
+   * #COMMAND_SET_FAST_FORWARD_INCREMENT}, {@link #COMMAND_FAST_FORWARD}, {@link
+   * #COMMAND_SET_REWIND_INCREMENT}, {@link #COMMAND_REWIND}, {@link #COMMAND_SET_SPEED_AND_PITCH},
+   * {@link #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
+   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
    * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
@@ -962,6 +1151,7 @@ public interface Player {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
+    COMMAND_INVALID,
     COMMAND_PLAY_PAUSE,
     COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
@@ -969,12 +1159,17 @@ public interface Player {
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
     COMMAND_SEEK_TO_MEDIA_ITEM,
+    COMMAND_SET_FAST_FORWARD_INCREMENT,
+    COMMAND_FAST_FORWARD,
+    COMMAND_SET_REWIND_INCREMENT,
+    COMMAND_REWIND,
     COMMAND_SET_SPEED_AND_PITCH,
     COMMAND_SET_SHUFFLE_MODE,
     COMMAND_SET_REPEAT_MODE,
     COMMAND_GET_CURRENT_MEDIA_ITEM,
     COMMAND_GET_MEDIA_ITEMS,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_MEDIA_ITEMS_METADATA,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
     COMMAND_GET_VOLUME,
@@ -1000,36 +1195,49 @@ public interface Player {
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
   /** Command to seek anywhere in any window. */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 7;
+  /** Command to set the fast forward increment. */
+  int COMMAND_SET_FAST_FORWARD_INCREMENT = 8;
+  /** Command to fast forward into the current window. */
+  int COMMAND_FAST_FORWARD = 9;
+  /** Command to set the rewind increment. */
+  int COMMAND_SET_REWIND_INCREMENT = 10;
+  /** Command to rewind into the current window. */
+  int COMMAND_REWIND = 11;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 8;
+  int COMMAND_SET_SPEED_AND_PITCH = 12;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 9;
+  int COMMAND_SET_SHUFFLE_MODE = 13;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 10;
+  int COMMAND_SET_REPEAT_MODE = 14;
   /** Command to get the {@link MediaItem} of the current window. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 11;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 15;
   /** Command to get the current timeline and its {@link MediaItem MediaItems}. */
-  int COMMAND_GET_MEDIA_ITEMS = 12;
+  int COMMAND_GET_MEDIA_ITEMS = 16;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 13;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 17;
+  /** Command to set the {@link MediaItem MediaItems} metadata. */
+  int COMMAND_SET_MEDIA_ITEMS_METADATA = 18;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 14;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 19;
   /** Command to get the player current {@link AudioAttributes}. */
-  int COMMAND_GET_AUDIO_ATTRIBUTES = 15;
+  int COMMAND_GET_AUDIO_ATTRIBUTES = 20;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 16;
+  int COMMAND_GET_VOLUME = 21;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 17;
+  int COMMAND_GET_DEVICE_VOLUME = 22;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 18;
+  int COMMAND_SET_VOLUME = 23;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 19;
+  int COMMAND_SET_DEVICE_VOLUME = 24;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 20;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 25;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 21;
+  int COMMAND_SET_VIDEO_SURFACE = 26;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 22;
+  int COMMAND_GET_TEXT = 27;
+
+  /** Represents an invalid {@link Command}. */
+  int COMMAND_INVALID = -1;
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
@@ -1290,12 +1498,7 @@ public interface Player {
    * @see Listener#onPlayerError(ExoPlaybackException)
    */
   @Nullable
-  ExoPlaybackException getPlayerError();
-
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Nullable
-  ExoPlaybackException getPlaybackError();
+  PlaybackException getPlayerError();
 
   /**
    * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to
@@ -1398,6 +1601,48 @@ public interface Player {
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
   void seekTo(int windowIndex, long positionMs);
+
+  /**
+   * Sets the {@link #fastForward()} increment.
+   *
+   * @param fastForwardIncrementMs The fast forward increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code fastForwardIncrementMs} is non-positive.
+   */
+  void setFastForwardIncrement(@IntRange(from = 1) long fastForwardIncrementMs);
+
+  /**
+   * Returns the {@link #fastForward()} increment.
+   *
+   * <p>The default value is {@link #DEFAULT_FAST_FORWARD_INCREMENT_MS}.
+   *
+   * @return The fast forward increment, in milliseconds.
+   * @see Listener#onFastForwardIncrementChanged(long)
+   */
+  long getFastForwardIncrement();
+
+  /** Seeks forward in the current window by {@link #getFastForwardIncrement()} milliseconds. */
+  void fastForward();
+
+  /**
+   * Sets the {@link #rewind()} increment.
+   *
+   * @param rewindIncrementMs The rewind increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code rewindIncrementMs} is non-positive.
+   */
+  void setRewindIncrement(@IntRange(from = 1) long rewindIncrementMs);
+
+  /**
+   * Returns the {@link #rewind()} increment.
+   *
+   * <p>The default value is {@link #DEFAULT_REWIND_INCREMENT_MS}.
+   *
+   * @return The rewind increment, in milliseconds.
+   * @see Listener#onRewindIncrementChanged(long)
+   */
+  long getRewindIncrement();
+
+  /** Seeks back in the current window by {@link #getRewindIncrement()} milliseconds. */
+  void rewind();
 
   /**
    * Returns whether a previous window exists, which may depend on the current repeat mode and
@@ -1541,6 +1786,15 @@ public interface Player {
   MediaMetadata getMediaMetadata();
 
   /**
+   * Returns the playlist {@link MediaMetadata}, as set by {@link
+   * #setPlaylistMediaMetadata(MediaMetadata)}, or {@link MediaMetadata#EMPTY} if not supported.
+   */
+  MediaMetadata getPlaylistMediaMetadata();
+
+  /** Sets the playlist {@link MediaMetadata}. */
+  void setPlaylistMediaMetadata(MediaMetadata mediaMetadata);
+
+  /**
    * Returns the current manifest. The type depends on the type of media being played. May be null.
    */
   @Nullable
@@ -1584,14 +1838,6 @@ public interface Player {
    * details.
    */
   int getPreviousWindowIndex();
-
-  /**
-   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
-   *     instead.
-   */
-  @Deprecated
-  @Nullable
-  Object getCurrentTag();
 
   /**
    * Returns the media item of the current window in the timeline. May be null if the timeline is

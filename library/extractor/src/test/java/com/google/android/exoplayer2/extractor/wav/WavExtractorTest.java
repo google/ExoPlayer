@@ -21,9 +21,11 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link WavExtractor}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@DoNotInstrument
 public final class WavExtractorTest {
 
   @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")

@@ -78,8 +78,8 @@ public final class SpliceInfoDecoder extends SimpleMetadataDecoder {
         command = SpliceScheduleCommand.parseFromSection(sectionData);
         break;
       case TYPE_SPLICE_INSERT:
-        command = SpliceInsertCommand.parseFromSection(sectionData, ptsAdjustment,
-            timestampAdjuster);
+        command =
+            SpliceInsertCommand.parseFromSection(sectionData, ptsAdjustment, timestampAdjuster);
         break;
       case TYPE_TIME_SIGNAL:
         command = TimeSignalCommand.parseFromSection(sectionData, ptsAdjustment, timestampAdjuster);
@@ -93,5 +93,4 @@ public final class SpliceInfoDecoder extends SimpleMetadataDecoder {
     }
     return command == null ? new Metadata() : new Metadata(command);
   }
-
 }

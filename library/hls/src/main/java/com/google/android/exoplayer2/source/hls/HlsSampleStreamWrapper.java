@@ -85,15 +85,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
- * {@link SampleStream}s from which the loaded media can be consumed.
+ * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides {@link
+ * SampleStream}s from which the loaded media can be consumed.
  */
-/* package */ final class HlsSampleStreamWrapper implements Loader.Callback<Chunk>,
-    Loader.ReleaseCallback, SequenceableLoader, ExtractorOutput, UpstreamFormatChangedListener {
+/* package */ final class HlsSampleStreamWrapper
+    implements Loader.Callback<Chunk>,
+        Loader.ReleaseCallback,
+        SequenceableLoader,
+        ExtractorOutput,
+        UpstreamFormatChangedListener {
 
-  /**
-   * A callback to be notified of events.
-   */
+  /** A callback to be notified of events. */
   public interface Callback extends SequenceableLoader.Callback<HlsSampleStreamWrapper> {
 
     /**
@@ -235,10 +237,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
     // Suppressions are needed because `this` is not initialized here.
-    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    @SuppressWarnings({
+      "nullness:methodref.receiver.bound.invalid",
+      "nullness:methodref.receiver.bound"
+    })
     Runnable maybeFinishPrepareRunnable = this::maybeFinishPrepare;
     this.maybeFinishPrepareRunnable = maybeFinishPrepareRunnable;
-    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    @SuppressWarnings({
+      "nullness:methodref.receiver.bound.invalid",
+      "nullness:methodref.receiver.bound"
+    })
     Runnable onTracksEndedRunnable = this::onTracksEnded;
     this.onTracksEndedRunnable = onTracksEndedRunnable;
     handler = Util.createHandlerForCurrentLooper();
@@ -659,8 +667,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } else {
       long bufferedPositionUs = lastSeekPositionUs;
       HlsMediaChunk lastMediaChunk = getLastMediaChunk();
-      HlsMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
-          : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
+      HlsMediaChunk lastCompletedMediaChunk =
+          lastMediaChunk.isLoadCompleted()
+              ? lastMediaChunk
+              : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
         bufferedPositionUs = max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
       }

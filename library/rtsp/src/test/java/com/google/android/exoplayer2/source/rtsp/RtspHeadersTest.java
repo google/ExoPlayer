@@ -23,9 +23,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspHeaders}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class RtspHeadersTest {
 
   @Test
@@ -62,6 +64,31 @@ public final class RtspHeadersTest {
     assertThat(headers.get("CSeq")).isEqualTo("3");
     assertThat(headers.get("Content-Length")).isEqualTo("707");
     assertThat(headers.get("Transport")).isEqualTo("RTP/AVP;unicast;client_port=65458-65459");
+  }
+
+  @Test
+  public void buildUpon_createEqualHeaders() {
+    RtspHeaders headers =
+        new RtspHeaders.Builder()
+            .addAll(
+                ImmutableMap.of(
+                    "Content-Length", "707",
+                    "Transport", "RTP/AVP;unicast;client_port=65458-65459\r\n"))
+            .build();
+
+    assertThat(headers.buildUpon().build()).isEqualTo(headers);
+  }
+
+  @Test
+  public void buildUpon_buildsUponExistingHeaders() {
+    RtspHeaders headers = new RtspHeaders.Builder().add("Content-Length", "707").build();
+
+    assertThat(headers.buildUpon().add("Content-Encoding", "utf-8").build())
+        .isEqualTo(
+            new RtspHeaders.Builder()
+                .add("Content-Length", "707")
+                .add("Content-Encoding", "utf-8")
+                .build());
   }
 
   @Test
@@ -142,7 +169,8 @@ public final class RtspHeadersTest {
   }
 
   @Test
-  public void asMap_withMultipleValuesMappedToTheSameName_getsTheMappedValuesInAdditionOrder() {
+  public void
+      asMultiMap_withMultipleValuesMappedToTheSameName_getsTheMappedValuesInAdditionOrder() {
     RtspHeaders headers =
         new RtspHeaders.Builder()
             .addAll(

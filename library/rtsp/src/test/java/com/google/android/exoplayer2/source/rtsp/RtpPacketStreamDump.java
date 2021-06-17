@@ -20,8 +20,10 @@ import com.google.common.collect.ImmutableList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** A value wrapper for a dumped RTP packet stream. */
+@DoNotInstrument
 /* package */ class RtpPacketStreamDump {
   /** The name of the RTP track. */
   public final String trackName;
@@ -83,7 +85,7 @@ import org.json.JSONObject;
           mediaDescription,
           packetsBuilder.build());
     } catch (JSONException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(/* message= */ null, e);
     }
   }
 

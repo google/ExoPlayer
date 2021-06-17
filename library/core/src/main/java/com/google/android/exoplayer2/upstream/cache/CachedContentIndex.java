@@ -832,7 +832,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         try (Cursor cursor = getCursor()) {
           while (cursor.moveToNext()) {
             int id = cursor.getInt(COLUMN_INDEX_ID);
-            String key = cursor.getString(COLUMN_INDEX_KEY);
+            String key = checkNotNull(cursor.getString(COLUMN_INDEX_KEY));
             byte[] metadataBytes = cursor.getBlob(COLUMN_INDEX_METADATA);
 
             ByteArrayInputStream inputStream = new ByteArrayInputStream(metadataBytes);

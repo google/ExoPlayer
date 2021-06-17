@@ -30,11 +30,8 @@ import com.google.android.exoplayer2.testutil.FakeClock;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 /** End-to-end tests using {@link SilenceMediaSource}. */
-// TODO(b/143232359): Remove once https://issuetracker.google.com/143232359 is resolved.
-@Config(sdk = 29)
 @RunWith(AndroidJUnit4.class)
 public final class SilencePlaybackTest {
 

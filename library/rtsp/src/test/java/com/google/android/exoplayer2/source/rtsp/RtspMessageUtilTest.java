@@ -28,9 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspMessageUtil}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class RtspMessageUtilTest {
 
   @Test
@@ -248,8 +250,7 @@ public final class RtspMessageUtilTest {
                         "4",
                         RtspHeaders.TRANSPORT,
                         "RTP/AVP;unicast;client_port=65458-65459;server_port=5354-5355"))
-                .build(),
-            /* messageBody= */ "");
+                .build());
     List<String> messageLines = RtspMessageUtil.serializeResponse(response);
 
     List<String> expectedLines =
@@ -338,9 +339,7 @@ public final class RtspMessageUtilTest {
   public void serialize_failedResponse_succeeds() {
     RtspResponse response =
         new RtspResponse(
-            /* status= */ 454,
-            new RtspHeaders.Builder().add(RtspHeaders.CSEQ, "4").build(),
-            /* messageBody= */ "");
+            /* status= */ 454, new RtspHeaders.Builder().add(RtspHeaders.CSEQ, "4").build());
     List<String> messageLines = RtspMessageUtil.serializeResponse(response);
 
     List<String> expectedLines = Arrays.asList("RTSP/1.0 454 Session Not Found", "cseq: 4", "", "");

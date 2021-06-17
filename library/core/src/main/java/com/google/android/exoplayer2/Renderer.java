@@ -302,9 +302,9 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * Starts the renderer, meaning that calls to {@link #render(long, long)} will cause media to be
    * rendered.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
@@ -332,16 +332,15 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Returns whether the renderer has read the current {@link SampleStream} to the end.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   boolean hasReadStreamToEnd();
 
   /**
-   * Returns the renderer time up to which the renderer has read samples from the current {@link
-   * SampleStream}, in microseconds, or {@link C#TIME_END_OF_SOURCE} if the renderer has read the
-   * current {@link SampleStream} to the end.
+   * Returns the renderer time up to which the renderer has read samples, in microseconds, or {@link
+   * C#TIME_END_OF_SOURCE} if the renderer has read the current {@link SampleStream} to the end.
    *
    * <p>This method may be called when the renderer is in the following states: {@link
    * #STATE_ENABLED}, {@link #STATE_STARTED}.
@@ -351,9 +350,9 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * Signals to the renderer that the current {@link SampleStream} will be the final one supplied
    * before it is next disabled or reset.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   void setCurrentStreamFinal();
 
@@ -366,9 +365,9 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * Throws an error that's preventing the renderer from reading from its {@link SampleStream}. Does
    * nothing if no such error exists.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @throws IOException An error that's preventing the renderer from making progress or buffering
    *     more data.
@@ -377,12 +376,12 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Signals to the renderer that a position discontinuity has occurred.
-   * <p>
-   * After a position discontinuity, the renderer's {@link SampleStream} is guaranteed to provide
+   *
+   * <p>After a position discontinuity, the renderer's {@link SampleStream} is guaranteed to provide
    * samples starting from a key frame.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param positionUs The new playback position in microseconds.
    * @throws ExoPlaybackException If an error occurs handling the reset.
@@ -433,16 +432,16 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Whether the renderer is able to immediately render media from the current position.
-   * <p>
-   * If the renderer is in the {@link #STATE_STARTED} state then returning true indicates that the
-   * renderer has everything that it needs to continue playback. Returning false indicates that
+   *
+   * <p>If the renderer is in the {@link #STATE_STARTED} state then returning true indicates that
+   * the renderer has everything that it needs to continue playback. Returning false indicates that
    * the player should pause until the renderer is ready.
-   * <p>
-   * If the renderer is in the {@link #STATE_ENABLED} state then returning true indicates that the
-   * renderer is ready for playback to be started. Returning false indicates that it is not.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>If the renderer is in the {@link #STATE_ENABLED} state then returning true indicates that
+   * the renderer is ready for playback to be started. Returning false indicates that it is not.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @return Whether the renderer is ready to render media.
    */
@@ -470,9 +469,9 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Disable the renderer, transitioning it to the {@link #STATE_DISABLED} state.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}.
    */
   void disable();
 

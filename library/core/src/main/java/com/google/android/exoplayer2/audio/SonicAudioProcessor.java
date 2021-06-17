@@ -255,5 +255,4 @@ public final class SonicAudioProcessor implements AudioProcessor {
     outputBytes = 0;
     inputEnded = false;
   }
-
 }

@@ -211,9 +211,7 @@ public class ChunkSampleStream<T extends ChunkSource>
     throw new IllegalStateException();
   }
 
-  /**
-   * Returns the {@link ChunkSource} used by this stream.
-   */
+  /** Returns the {@link ChunkSource} used by this stream. */
   public T getChunkSource() {
     return chunkSource;
   }
@@ -233,8 +231,10 @@ public class ChunkSampleStream<T extends ChunkSource>
     } else {
       long bufferedPositionUs = lastSeekPositionUs;
       BaseMediaChunk lastMediaChunk = getLastMediaChunk();
-      BaseMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
-          : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
+      BaseMediaChunk lastCompletedMediaChunk =
+          lastMediaChunk.isLoadCompleted()
+              ? lastMediaChunk
+              : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
         bufferedPositionUs = max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
       }
@@ -812,9 +812,7 @@ public class ChunkSampleStream<T extends ChunkSource>
     return firstRemovedChunk;
   }
 
-  /**
-   * A {@link SampleStream} embedded in a {@link ChunkSampleStream}.
-   */
+  /** A {@link SampleStream} embedded in a {@link ChunkSampleStream}. */
   public final class EmbeddedSampleStream implements SampleStream {
 
     public final ChunkSampleStream<T> parent;
@@ -895,5 +893,4 @@ public class ChunkSampleStream<T extends ChunkSource>
       }
     }
   }
-
 }

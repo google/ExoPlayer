@@ -39,9 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public class FakeDataSource extends BaseDataSource {
 
-  /**
-   * Factory to create a {@link FakeDataSource}.
-   */
+  /** Factory to create a {@link FakeDataSource}. */
   public static class Factory implements DataSource.Factory {
 
     protected @MonotonicNonNull FakeDataSet fakeDataSet;
@@ -128,8 +126,10 @@ public class FakeDataSource extends BaseDataSource {
     for (Segment segment : fakeData.getSegments()) {
       segment.bytesRead = (int) min(max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
-      findingCurrentSegmentIndex &= segment.isErrorSegment() ? segment.exceptionCleared
-          : (!segment.isActionSegment() && segment.bytesRead == segment.length);
+      findingCurrentSegmentIndex &=
+          segment.isErrorSegment()
+              ? segment.exceptionCleared
+              : (!segment.isActionSegment() && segment.bytesRead == segment.length);
       if (findingCurrentSegmentIndex) {
         currentSegmentIndex++;
       }

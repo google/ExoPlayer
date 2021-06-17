@@ -31,11 +31,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /** End-to-end tests using WAV samples. */
-// TODO(b/143232359): Remove once https://issuetracker.google.com/143232359 is resolved.
-@Config(sdk = 29)
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class WavPlaybackTest {
   @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")

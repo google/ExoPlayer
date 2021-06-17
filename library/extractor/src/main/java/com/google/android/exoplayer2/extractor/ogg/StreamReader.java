@@ -90,9 +90,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     currentGranule = 0;
   }
 
-  /**
-   * @see Extractor#seek(long, long)
-   */
+  /** @see Extractor#seek(long, long) */
   final void seek(long position, long timeUs) {
     oggPacket.reset();
     if (position == 0) {
@@ -294,7 +292,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     public SeekMap createSeekMap() {
       return new SeekMap.Unseekable(C.TIME_UNSET);
     }
-
   }
-
 }

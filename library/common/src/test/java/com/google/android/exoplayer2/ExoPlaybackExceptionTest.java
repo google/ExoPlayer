@@ -31,7 +31,15 @@ public class ExoPlaybackExceptionTest {
   public void roundTripViaBundle_ofExoPlaybackExceptionTypeRemote_yieldsEqualInstance() {
     ExoPlaybackException before = ExoPlaybackException.createForRemote(/* message= */ "test");
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
-    assertThat(areEqual(before, after)).isTrue();
+    assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
+  }
+
+  @Test
+  public void roundTripViaBundle_usingPlaybackExceptionCreator_yieldsEqualInstance() {
+    ExoPlaybackException before = ExoPlaybackException.createForRemote(/* message= */ "test");
+    ExoPlaybackException after =
+        (ExoPlaybackException) PlaybackException.CREATOR.fromBundle(before.toBundle());
+    assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
   }
 
   @Test
@@ -46,7 +54,7 @@ public class ExoPlaybackExceptionTest {
             /* isRecoverable= */ true);
 
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
-    assertThat(areEqual(before, after)).isTrue();
+    assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
   }
 
   @Test
@@ -61,7 +69,8 @@ public class ExoPlaybackExceptionTest {
     assertThat(after.getCause()).hasMessageThat().isEqualTo(before.getCause().getMessage());
   }
 
-  private static boolean areEqual(ExoPlaybackException a, ExoPlaybackException b) {
+  private static boolean areExoPlaybackExceptionsEqual(
+      ExoPlaybackException a, ExoPlaybackException b) {
     if (a == null || b == null) {
       return a == b;
     }
@@ -73,10 +82,10 @@ public class ExoPlaybackExceptionTest {
         && a.rendererFormatSupport == b.rendererFormatSupport
         && a.timestampMs == b.timestampMs
         && a.isRecoverable == b.isRecoverable
-        && areEqual(a.getCause(), b.getCause());
+        && areThrowablesEqual(a.getCause(), b.getCause());
   }
 
-  private static boolean areEqual(Throwable a, Throwable b) {
+  private static boolean areThrowablesEqual(Throwable a, Throwable b) {
     if (a == null || b == null) {
       return a == b;
     }

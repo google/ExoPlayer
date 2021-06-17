@@ -29,9 +29,11 @@ import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link CastTimelineTracker}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class CastTimelineTrackerTest {
 
   private static final long DURATION_2_MS = 2000;

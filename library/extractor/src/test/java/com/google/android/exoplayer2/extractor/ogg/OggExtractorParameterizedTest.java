@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Unit tests for {@link OggExtractor} that use parameterization to test a range of behaviours.
@@ -29,6 +30,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
  * <p>For non-parameterized tests see {@link OggExtractorNonParameterizedTest}.
  */
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@DoNotInstrument
 public final class OggExtractorParameterizedTest {
 
   @Parameters(name = "{0}")

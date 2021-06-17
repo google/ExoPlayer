@@ -88,9 +88,7 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal with only noise.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            TEST_SIGNAL_SILENCE_DURATION_MS,
-            /* noiseDurationMs= */ 0,
-            TEST_SIGNAL_FRAME_COUNT);
+            TEST_SIGNAL_SILENCE_DURATION_MS, /* noiseDurationMs= */ 0, TEST_SIGNAL_FRAME_COUNT);
 
     // When processing the entire signal.
     silenceSkippingAudioProcessor.setEnabled(true);
@@ -110,9 +108,7 @@ public final class SilenceSkippingAudioProcessorTest {
     // Given a signal with only silence.
     InputBufferProvider inputBufferProvider =
         getInputBufferProviderForAlternatingSilenceAndNoise(
-            /* silenceDurationMs= */ 0,
-            TEST_SIGNAL_NOISE_DURATION_MS,
-            TEST_SIGNAL_FRAME_COUNT);
+            /* silenceDurationMs= */ 0, TEST_SIGNAL_NOISE_DURATION_MS, TEST_SIGNAL_FRAME_COUNT);
 
     // When processing the entire signal.
     SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
@@ -287,9 +283,7 @@ public final class SilenceSkippingAudioProcessorTest {
    * between silence/noise of the specified durations to fill {@code totalFrameCount}.
    */
   private static InputBufferProvider getInputBufferProviderForAlternatingSilenceAndNoise(
-      int silenceDurationMs,
-      int noiseDurationMs,
-      int totalFrameCount) {
+      int silenceDurationMs, int noiseDurationMs, int totalFrameCount) {
     int sampleRate = AUDIO_FORMAT.sampleRate;
     int channelCount = AUDIO_FORMAT.channelCount;
     Pcm16BitAudioBuilder audioBuilder = new Pcm16BitAudioBuilder(channelCount, totalFrameCount);

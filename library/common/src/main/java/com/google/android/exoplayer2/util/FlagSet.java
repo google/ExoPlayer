@@ -29,9 +29,9 @@ import androidx.annotation.Nullable;
  *
  * <p>Instances are immutable.
  */
-public final class ExoFlags {
+public final class FlagSet {
 
-  /** A builder for {@link ExoFlags} instances. */
+  /** A builder for {@link FlagSet} instances. */
   public static final class Builder {
 
     private final SparseBooleanArray flags;
@@ -86,13 +86,13 @@ public final class ExoFlags {
     }
 
     /**
-     * Adds {@link ExoFlags flags}.
+     * Adds {@link FlagSet flags}.
      *
      * @param flags The set of flags to add.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
-    public Builder addAll(ExoFlags flags) {
+    public Builder addAll(FlagSet flags) {
       for (int i = 0; i < flags.size(); i++) {
         add(flags.get(i));
       }
@@ -100,21 +100,63 @@ public final class ExoFlags {
     }
 
     /**
-     * Builds an {@link ExoFlags} instance.
+     * Removes a flag.
+     *
+     * @param flag A flag.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder remove(int flag) {
+      checkState(!buildCalled);
+      flags.delete(flag);
+      return this;
+    }
+
+    /**
+     * Removes a flag if the provided condition is true. Does nothing otherwise.
+     *
+     * @param flag A flag.
+     * @param condition A condition.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder removeIf(int flag, boolean condition) {
+      if (condition) {
+        return remove(flag);
+      }
+      return this;
+    }
+
+    /**
+     * Removes flags.
+     *
+     * @param flags The flags to remove.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder removeAll(int... flags) {
+      for (int flag : flags) {
+        remove(flag);
+      }
+      return this;
+    }
+
+    /**
+     * Builds an {@link FlagSet} instance.
      *
      * @throws IllegalStateException If this method has already been called.
      */
-    public ExoFlags build() {
+    public FlagSet build() {
       checkState(!buildCalled);
       buildCalled = true;
-      return new ExoFlags(flags);
+      return new FlagSet(flags);
     }
   }
 
   // A SparseBooleanArray is used instead of a Set to avoid auto-boxing the flag values.
   private final SparseBooleanArray flags;
 
-  private ExoFlags(SparseBooleanArray flags) {
+  private FlagSet(SparseBooleanArray flags) {
     this.flags = flags;
   }
 
@@ -165,10 +207,10 @@ public final class ExoFlags {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof ExoFlags)) {
+    if (!(o instanceof FlagSet)) {
       return false;
     }
-    ExoFlags that = (ExoFlags) o;
+    FlagSet that = (FlagSet) o;
     return flags.equals(that.flags);
   }
 

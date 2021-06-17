@@ -1553,6 +1553,30 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+    verifyApplicationThread();
+    player.setFastForwardIncrement(fastForwardIncrementMs);
+  }
+
+  @Override
+  public long getFastForwardIncrement() {
+    verifyApplicationThread();
+    return player.getFastForwardIncrement();
+  }
+
+  @Override
+  public void setRewindIncrement(long rewindIncrementMs) {
+    verifyApplicationThread();
+    player.setRewindIncrement(rewindIncrementMs);
+  }
+
+  @Override
+  public long getRewindIncrement() {
+    verifyApplicationThread();
+    return player.getRewindIncrement();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);
@@ -1663,6 +1687,16 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public MediaMetadata getMediaMetadata() {
     return player.getMediaMetadata();
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMediaMetadata() {
+    return player.getPlaylistMediaMetadata();
+  }
+
+  @Override
+  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
+    player.setPlaylistMediaMetadata(mediaMetadata);
   }
 
   @Override

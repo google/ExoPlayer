@@ -28,7 +28,7 @@
     <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
         android:value="com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider"/>
 
-    <activity android:name="com.google.android.exoplayer2.castdemo.MainActivity"
+    <activity android:name=".MainActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
         android:launchMode="singleTop" android:label="@string/application_name"
         android:theme="@style/Theme.AppCompat"

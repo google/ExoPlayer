@@ -73,7 +73,6 @@ public final class DefaultAudioSink implements AudioSink {
     private InvalidAudioTrackTimestampException(String message) {
       super(message);
     }
-
   }
 
   /**
@@ -221,7 +220,8 @@ public final class DefaultAudioSink implements AudioSink {
   @IntDef({
     OFFLOAD_MODE_DISABLED,
     OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED,
-    OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED
+    OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED,
+    OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED
   })
   public @interface OffloadMode {}
 
@@ -243,6 +243,13 @@ public final class DefaultAudioSink implements AudioSink {
    * transitions between tracks of the same album.
    */
   public static final int OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED = 2;
+  /**
+   * The audio sink will prefer offload playback, disabling gapless offload support.
+   *
+   * <p>Use this option if gapless has undesirable side effects. For example if it introduces
+   * hardware issues.
+   */
+  public static final int OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED = 3;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -293,8 +300,8 @@ public final class DefaultAudioSink implements AudioSink {
   /**
    * Whether to throw an {@link InvalidAudioTrackTimestampException} when a spurious timestamp is
    * reported from {@link AudioTrack#getTimestamp}.
-   * <p>
-   * The flag must be set before creating a player. Should be set to {@code true} for testing and
+   *
+   * <p>The flag must be set before creating a player. Should be set to {@code true} for testing and
    * debugging purposes only.
    */
   public static boolean failOnSpuriousAudioTimestamp = false;
@@ -653,8 +660,10 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrack = buildAudioTrack();
     if (isOffloadedPlayback(audioTrack)) {
       registerStreamEventCallbackV29(audioTrack);
-      audioTrack.setOffloadDelayPadding(
-          configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
+      if (offloadMode != OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED) {
+        audioTrack.setOffloadDelayPadding(
+            configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
+      }
     }
     audioSessionId = audioTrack.getAudioSessionId();
     audioTrackPositionTracker.setAudioTrack(
@@ -710,7 +719,8 @@ public final class DefaultAudioSink implements AudioSink {
         // The current audio track can be reused for the new configuration.
         configuration = pendingConfiguration;
         pendingConfiguration = null;
-        if (isOffloadedPlayback(audioTrack)) {
+        if (isOffloadedPlayback(audioTrack)
+            && offloadMode != OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED) {
           audioTrack.setOffloadEndOfStream();
           audioTrack.setOffloadDelayPadding(
               configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
@@ -865,8 +875,10 @@ public final class DefaultAudioSink implements AudioSink {
     int count = activeAudioProcessors.length;
     int index = count;
     while (index >= 0) {
-      ByteBuffer input = index > 0 ? outputBuffers[index - 1]
-          : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
+      ByteBuffer input =
+          index > 0
+              ? outputBuffers[index - 1]
+              : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
       if (index == count) {
         writeBuffer(input, avSyncPresentationTimeUs);
       } else {

@@ -62,7 +62,7 @@ import java.util.List;
  * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from {@link
  * SimpleExoPlayer.Builder}.
  *
- * <h3>Player components</h3>
+ * <h2>Player components</h2>
  *
  * <p>ExoPlayer is designed to make few assumptions about (and hence impose few restrictions on) the
  * type of the media being played, how and where it is stored, and how it is rendered. Rather than
@@ -106,7 +106,7 @@ import java.util.List;
  * {@link DataSource} factories to be injected via their constructors. By providing a custom factory
  * it's possible to load data from a non-standard source, or through a different network stack.
  *
- * <h3>Threading model</h3>
+ * <h2>Threading model</h2>
  *
  * <p>The figure below shows ExoPlayer's threading model.
  *
@@ -833,6 +833,13 @@ public interface ExoPlayer extends Player {
       return player;
     }
   }
+
+  /**
+   * Equivalent to {@link Player#getPlayerError()}, except the exception is guaranteed to be an
+   * {@link ExoPlaybackException}.
+   */
+  @Override
+  ExoPlaybackException getPlayerError();
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

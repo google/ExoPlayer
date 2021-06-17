@@ -342,9 +342,9 @@ public final class CacheDataSource implements DataSource {
   public static final int FLAG_BLOCK_ON_CACHE = 1;
 
   /**
-   * A flag indicating whether the cache is bypassed following any cache related error. If set
-   * then cache related exceptions may be thrown for one cycle of open, read and close calls.
-   * Subsequent cycles of these calls will then bypass the cache.
+   * A flag indicating whether the cache is bypassed following any cache related error. If set then
+   * cache related exceptions may be thrown for one cycle of open, read and close calls. Subsequent
+   * cycles of these calls will then bypass the cache.
    */
   public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1; // 2
 
@@ -863,5 +863,4 @@ public final class CacheDataSource implements DataSource {
       totalCachedBytesRead = 0;
     }
   }
-
 }

@@ -35,9 +35,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link IndexSeeker}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class IndexSeekerTest {
 
   private static final String TEST_FILE_NO_SEEK_TABLE = "media/mp3/bear-vbr-no-seek-table.mp3";

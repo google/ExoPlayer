@@ -360,9 +360,7 @@ public final class DataSpec {
   /** The position of the data when read from {@link #uri}. */
   public final long position;
 
-  /**
-   * The length of the data, or {@link C#LENGTH_UNSET}.
-   */
+  /** The length of the data, or {@link C#LENGTH_UNSET}. */
   public final long length;
 
   /**

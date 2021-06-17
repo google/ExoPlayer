@@ -65,7 +65,9 @@ public final class PesReader implements TsPayloadReader {
   }
 
   @Override
-  public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+  public void init(
+      TimestampAdjuster timestampAdjuster,
+      ExtractorOutput extractorOutput,
       TrackIdGenerator idGenerator) {
     this.timestampAdjuster = timestampAdjuster;
     reader.createTracks(extractorOutput, idGenerator);
@@ -208,8 +210,11 @@ public final class PesReader implements TsPayloadReader {
     if (packetLength == 0) {
       payloadSize = C.LENGTH_UNSET;
     } else {
-      payloadSize = packetLength + 6 /* packetLength does not include the first 6 bytes */
-          - HEADER_SIZE - extendedHeaderLength;
+      payloadSize =
+          packetLength
+              + 6 /* packetLength does not include the first 6 bytes */
+              - HEADER_SIZE
+              - extendedHeaderLength;
       if (payloadSize < 0) {
         Log.w(TAG, "Found negative packet payload size: " + payloadSize);
         payloadSize = C.LENGTH_UNSET;
@@ -249,5 +254,4 @@ public final class PesReader implements TsPayloadReader {
       timeUs = timestampAdjuster.adjustTsTimestamp(pts);
     }
   }
-
 }

@@ -34,9 +34,11 @@ import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link SubtitleView}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class SubtitleViewUtilsTest {
 
   private static final Cue CUE = buildCue();

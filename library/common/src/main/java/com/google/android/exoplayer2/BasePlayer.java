@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
@@ -86,14 +89,6 @@ public abstract class BasePlayer implements Player {
     return getAvailableCommands().contains(command);
   }
 
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Override
-  @Nullable
-  public final ExoPlaybackException getPlaybackError() {
-    return getPlayerError();
-  }
-
   @Override
   public final void play() {
     setPlayWhenReady(true);
@@ -124,6 +119,16 @@ public abstract class BasePlayer implements Player {
   @Override
   public final void seekTo(long positionMs) {
     seekTo(getCurrentWindowIndex(), positionMs);
+  }
+
+  @Override
+  public final void fastForward() {
+    seekToOffset(getFastForwardIncrement());
+  }
+
+  @Override
+  public final void rewind() {
+    seekToOffset(-getRewindIncrement());
   }
 
   @Override
@@ -178,24 +183,6 @@ public abstract class BasePlayer implements Player {
         ? C.INDEX_UNSET
         : timeline.getPreviousWindowIndex(
             getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
-  }
-
-  /**
-   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
-   *     instead.
-   */
-  @Deprecated
-  @Override
-  @Nullable
-  public final Object getCurrentTag() {
-    Timeline timeline = getCurrentTimeline();
-    if (timeline.isEmpty()) {
-      return null;
-    }
-    @Nullable
-    MediaItem.PlaybackProperties playbackProperties =
-        timeline.getWindow(getCurrentWindowIndex(), window).mediaItem.playbackProperties;
-    return playbackProperties != null ? playbackProperties.tag : null;
   }
 
   @Override
@@ -272,12 +259,6 @@ public abstract class BasePlayer implements Player {
         : timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
-  @RepeatMode
-  private int getRepeatModeForNavigation() {
-    @RepeatMode int repeatMode = getRepeatMode();
-    return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
-  }
-
   protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
@@ -286,6 +267,24 @@ public abstract class BasePlayer implements Player {
         .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
+        .addIf(COMMAND_FAST_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_REWIND, isCurrentWindowSeekable() && !isPlayingAd())
         .build();
+  }
+
+  @RepeatMode
+  private int getRepeatModeForNavigation() {
+    @RepeatMode int repeatMode = getRepeatMode();
+    return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
+  }
+
+  private void seekToOffset(long offsetMs) {
+    long positionMs = getCurrentPosition() + offsetMs;
+    long durationMs = getDuration();
+    if (durationMs != C.TIME_UNSET) {
+      positionMs = min(positionMs, durationMs);
+    }
+    positionMs = max(positionMs, 0);
+    seekTo(positionMs);
   }
 }

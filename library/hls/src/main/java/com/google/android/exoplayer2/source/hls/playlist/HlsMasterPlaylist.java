@@ -145,7 +145,6 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       this.groupId = groupId;
       this.name = name;
     }
-
   }
 
   /** All of the media playlist URLs referenced by the playlist. */
@@ -214,8 +213,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     this.subtitles = Collections.unmodifiableList(subtitles);
     this.closedCaptions = Collections.unmodifiableList(closedCaptions);
     this.muxedAudioFormat = muxedAudioFormat;
-    this.muxedCaptionFormats = muxedCaptionFormats != null
-        ? Collections.unmodifiableList(muxedCaptionFormats) : null;
+    this.muxedCaptionFormats =
+        muxedCaptionFormats != null ? Collections.unmodifiableList(muxedCaptionFormats) : null;
     this.variableDefinitions = Collections.unmodifiableMap(variableDefinitions);
     this.sessionKeyDrmInitData = Collections.unmodifiableList(sessionKeyDrmInitData);
   }
@@ -317,5 +316,4 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     }
     return copiedStreams;
   }
-
 }

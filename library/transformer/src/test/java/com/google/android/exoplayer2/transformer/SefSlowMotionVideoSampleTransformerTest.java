@@ -31,9 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link SefSlowMotionVideoSampleTransformer}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class SefSlowMotionVideoSampleTransformerTest {
 
   /**
@@ -236,9 +238,7 @@ public class SefSlowMotionVideoSampleTransformerTest {
 
   /** Creates a {@link Format} for an SEF slow motion video track. */
   private static Format createSefSlowMotionFormat(
-      int captureFrameRate,
-      int inputMaxLayer,
-      List<SlowMotionData.Segment> segments) {
+      int captureFrameRate, int inputMaxLayer, List<SlowMotionData.Segment> segments) {
     SmtaMetadataEntry smtaMetadataEntry =
         new SmtaMetadataEntry(captureFrameRate, /* svcTemporalLayerCount= */ inputMaxLayer + 1);
     SlowMotionData slowMotionData = new SlowMotionData(segments);
@@ -259,9 +259,7 @@ public class SefSlowMotionVideoSampleTransformerTest {
    * @return The output layers.
    */
   private static List<Integer> getKeptOutputLayers(
-      SefSlowMotionVideoSampleTransformer sampleTransformer,
-      int[] layerSequence,
-      int frameCount) {
+      SefSlowMotionVideoSampleTransformer sampleTransformer, int[] layerSequence, int frameCount) {
     List<Integer> outputLayers = new ArrayList<>();
     for (int i = 0; i < frameCount; i++) {
       int layer = layerSequence[i % layerSequence.length];
@@ -286,9 +284,7 @@ public class SefSlowMotionVideoSampleTransformerTest {
    * @return The frame output times, in microseconds.
    */
   private static List<Long> getOutputTimesUs(
-      SefSlowMotionVideoSampleTransformer sampleTransformer,
-      int[] layerSequence,
-      int frameCount) {
+      SefSlowMotionVideoSampleTransformer sampleTransformer, int[] layerSequence, int frameCount) {
     List<Long> outputTimesUs = new ArrayList<>();
     for (int i = 0; i < frameCount; i++) {
       int layer = layerSequence[i % layerSequence.length];

@@ -32,7 +32,7 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
    * @param concatenatedUid UID of a period in a concatenated timeline.
    * @return UID of the child timeline this period belongs to.
    */
-  @SuppressWarnings("nullness:return.type.incompatible")
+  @SuppressWarnings({"nullness:return.type.incompatible", "nullness:return"})
   public static Object getChildTimelineUidFromConcatenatedUid(Object concatenatedUid) {
     return ((Pair<?, ?>) concatenatedUid).first;
   }
@@ -43,7 +43,7 @@ public abstract class AbstractConcatenatedTimeline extends Timeline {
    * @param concatenatedUid UID of a period in a concatenated timeline.
    * @return UID of the period in the child timeline.
    */
-  @SuppressWarnings("nullness:return.type.incompatible")
+  @SuppressWarnings({"nullness:return.type.incompatible", "nullness:return"})
   public static Object getChildPeriodUidFromConcatenatedUid(Object concatenatedUid) {
     return ((Pair<?, ?>) concatenatedUid).second;
   }

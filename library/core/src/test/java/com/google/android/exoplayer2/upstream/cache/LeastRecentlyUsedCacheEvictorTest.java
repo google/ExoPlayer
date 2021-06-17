@@ -38,5 +38,4 @@ public class LeastRecentlyUsedCacheEvictorTest {
     evictor.onCacheInitialized();
     evictor.onStartFile(Mockito.mock(Cache.class), "key", 0, maxBytes + 1);
   }
-
 }

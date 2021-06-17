@@ -36,9 +36,11 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link DefaultDashChunkSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class DefaultDashChunkSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW =

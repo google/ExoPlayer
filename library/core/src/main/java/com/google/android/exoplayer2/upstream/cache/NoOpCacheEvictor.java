@@ -52,5 +52,4 @@ public final class NoOpCacheEvictor implements CacheEvictor {
   public void onSpanTouched(Cache cache, CacheSpan oldSpan, CacheSpan newSpan) {
     // Do nothing.
   }
-
 }

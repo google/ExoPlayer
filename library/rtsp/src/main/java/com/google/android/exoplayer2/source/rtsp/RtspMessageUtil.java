@@ -347,7 +347,7 @@ import java.util.regex.Pattern;
         return C.LENGTH_UNSET;
       }
     } catch (NumberFormatException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(line, e);
     }
   }
 
@@ -386,7 +386,7 @@ import java.util.regex.Pattern;
   public static RtspSessionHeader parseSessionHeader(String headerValue) throws ParserException {
     Matcher matcher = SESSION_HEADER_PATTERN.matcher(headerValue);
     if (!matcher.matches()) {
-      throw new ParserException(headerValue);
+      throw ParserException.createForMalformedManifest(headerValue, /* cause= */ null);
     }
 
     String sessionId = checkNotNull(matcher.group(1));
@@ -397,7 +397,7 @@ import java.util.regex.Pattern;
       try {
         timeoutMs = Integer.parseInt(timeoutString) * C.MILLIS_PER_SECOND;
       } catch (NumberFormatException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedManifest(headerValue, e);
       }
     }
 
@@ -434,7 +434,8 @@ import java.util.regex.Pattern;
           /* nonce= */ "",
           /* opaque= */ "");
     }
-    throw new ParserException("Invalid WWW-Authenticate header " + headerValue);
+    throw ParserException.createForMalformedManifest(
+        "Invalid WWW-Authenticate header " + headerValue, /* cause= */ null);
   }
 
   private static String getRtspStatusReasonPhrase(int statusCode) {
@@ -476,7 +477,7 @@ import java.util.regex.Pattern;
     try {
       return Integer.parseInt(intString);
     } catch (NumberFormatException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(intString, e);
     }
   }
 

@@ -233,9 +233,7 @@ public final class ImaPlaybackTest {
 
     @Override
     protected MediaSource buildSource(
-        HostActivity host,
-        DrmSessionManager drmSessionManager,
-        FrameLayout overlayFrameLayout) {
+        HostActivity host, DrmSessionManager drmSessionManager, FrameLayout overlayFrameLayout) {
       Context context = host.getApplicationContext();
       DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context);
       MediaSource contentMediaSource =

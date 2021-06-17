@@ -221,9 +221,14 @@ public final class DashWidevineOfflineTest {
             "License duration should be less than 30 sec. Server settings might have changed.")
         .that(licenseDuration)
         .isLessThan(30);
-    ActionSchedule schedule = new ActionSchedule.Builder(TAG)
-        .waitForPlaybackState(Player.STATE_READY)
-        .delay(3000).pause().delay(licenseDuration * 1000 + 2000).play().build();
+    ActionSchedule schedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .delay(3000)
+            .pause()
+            .delay(licenseDuration * 1000 + 2000)
+            .play()
+            .build();
 
     // DefaultDrmSessionManager should renew the license and stream play fine
     testRunner.setActionSchedule(schedule).run();
@@ -231,8 +236,8 @@ public final class DashWidevineOfflineTest {
 
   private void downloadLicense() throws IOException {
     DataSource dataSource = httpDataSourceFactory.createDataSource();
-    DashManifest dashManifest = DashUtil.loadManifest(dataSource,
-        Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));
+    DashManifest dashManifest =
+        DashUtil.loadManifest(dataSource, Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));
     Format format = DashUtil.loadFormatWithDrmInitData(dataSource, dashManifest.getPeriod(0));
     offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(format);
     assertThat(offlineLicenseKeySetId).isNotNull();
@@ -244,5 +249,4 @@ public final class DashWidevineOfflineTest {
     offlineLicenseHelper.releaseLicense(offlineLicenseKeySetId);
     offlineLicenseKeySetId = null;
   }
-
 }

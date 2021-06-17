@@ -57,9 +57,7 @@ import java.nio.ByteBuffer;
  */
 public interface AudioSink {
 
-  /**
-   * Listener for audio sink events.
-   */
+  /** Listener for audio sink events. */
   interface Listener {
 
     /**
@@ -132,9 +130,7 @@ public interface AudioSink {
     default void onAudioSinkError(Exception audioSinkError) {}
   }
 
-  /**
-   * Thrown when a failure occurs configuring the sink.
-   */
+  /** Thrown when a failure occurs configuring the sink. */
   final class ConfigurationException extends Exception {
 
     /** Input {@link Format} of the sink when the configuration failure occurs. */
@@ -200,8 +196,8 @@ public interface AudioSink {
 
     /**
      * The error value returned from the sink implementation. If the sink writes to a platform
-     * {@link AudioTrack}, this will be the error value returned from
-     * {@link AudioTrack#write(byte[], int, int)} or {@link AudioTrack#write(ByteBuffer, int, int)}.
+     * {@link AudioTrack}, this will be the error value returned from {@link
+     * AudioTrack#write(byte[], int, int)} or {@link AudioTrack#write(ByteBuffer, int, int)}.
      * Otherwise, the meaning of the error code depends on the sink implementation.
      */
     public final int errorCode;
@@ -223,7 +219,6 @@ public interface AudioSink {
       this.errorCode = errorCode;
       this.format = format;
     }
-
   }
 
   /** Thrown when the sink encounters an unexpected timestamp discontinuity. */
@@ -327,9 +322,7 @@ public interface AudioSink {
   void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException;
 
-  /**
-   * Starts or resumes consuming audio if initialized.
-   */
+  /** Starts or resumes consuming audio if initialized. */
   void play();
 
   /** Signals to the sink that the next buffer may be discontinuous with the previous buffer. */
@@ -370,9 +363,7 @@ public interface AudioSink {
    */
   boolean isEnded();
 
-  /**
-   * Returns whether the sink has data pending that has not been consumed yet.
-   */
+  /** Returns whether the sink has data pending that has not been consumed yet. */
   boolean hasPendingData();
 
   /**
@@ -395,8 +386,8 @@ public interface AudioSink {
   /**
    * Sets attributes for audio playback. If the attributes have changed and if the sink is not
    * configured for use with tunneling, then it is reset and the audio session id is cleared.
-   * <p>
-   * If the sink is configured for use with tunneling then the audio attributes are ignored. The
+   *
+   * <p>If the sink is configured for use with tunneling then the audio attributes are ignored. The
    * sink is not reset and the audio session id is not cleared. The passed attributes will be used
    * if the sink is later re-configured into non-tunneled mode.
    *
@@ -432,9 +423,7 @@ public interface AudioSink {
    */
   void setVolume(float volume);
 
-  /**
-   * Pauses playback.
-   */
+  /** Pauses playback. */
   void pause();
 
   /**

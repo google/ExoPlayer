@@ -114,16 +114,11 @@ import java.nio.ByteBuffer;
                 forceQueueingSynchronizationWorkaround,
                 synchronizeCodecInteractionsWithQueueing);
         TraceUtil.endSection();
-        TraceUtil.beginSection("configureCodec");
-        codecAdapter.configure(
+        codecAdapter.initialize(
             configuration.mediaFormat,
             configuration.surface,
             configuration.crypto,
             configuration.flags);
-        TraceUtil.endSection();
-        TraceUtil.beginSection("startCodec");
-        codecAdapter.start();
-        TraceUtil.endSection();
         return codecAdapter;
       } catch (Exception e) {
         if (codecAdapter != null) {
@@ -138,13 +133,12 @@ import java.nio.ByteBuffer;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STATE_CREATED, STATE_CONFIGURED, STATE_STARTED, STATE_SHUT_DOWN})
+  @IntDef({STATE_CREATED, STATE_INITIALIZED, STATE_SHUT_DOWN})
   private @interface State {}
 
   private static final int STATE_CREATED = 0;
-  private static final int STATE_CONFIGURED = 1;
-  private static final int STATE_STARTED = 2;
-  private static final int STATE_SHUT_DOWN = 3;
+  private static final int STATE_INITIALIZED = 1;
+  private static final int STATE_SHUT_DOWN = 2;
 
   private final MediaCodec codec;
   private final AsynchronousMediaCodecCallback asynchronousMediaCodecCallback;
@@ -168,20 +162,25 @@ import java.nio.ByteBuffer;
     this.state = STATE_CREATED;
   }
 
-  private void configure(
+  private void initialize(
       @Nullable MediaFormat mediaFormat,
       @Nullable Surface surface,
       @Nullable MediaCrypto crypto,
       int flags) {
     asynchronousMediaCodecCallback.initialize(codec);
+    TraceUtil.beginSection("configureCodec");
     codec.configure(mediaFormat, surface, crypto, flags);
-    state = STATE_CONFIGURED;
+    TraceUtil.endSection();
+    bufferEnqueuer.start();
+    TraceUtil.beginSection("startCodec");
+    codec.start();
+    TraceUtil.endSection();
+    state = STATE_INITIALIZED;
   }
 
-  private void start() {
-    bufferEnqueuer.start();
-    codec.start();
-    state = STATE_STARTED;
+  @Override
+  public boolean needsReconfiguration() {
+    return false;
   }
 
   @Override
@@ -248,10 +247,8 @@ import java.nio.ByteBuffer;
   @Override
   public void release() {
     try {
-      if (state == STATE_STARTED) {
+      if (state == STATE_INITIALIZED) {
         bufferEnqueuer.shutdown();
-      }
-      if (state == STATE_CONFIGURED || state == STATE_STARTED) {
         asynchronousMediaCodecCallback.shutdown();
       }
       state = STATE_SHUT_DOWN;

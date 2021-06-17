@@ -57,62 +57,62 @@ public final class Cea708Decoder extends CeaDecoder {
   private static final int CC_VALID_FLAG = 0x04;
 
   // Base Commands
-  private static final int GROUP_C0_END = 0x1F;  // Miscellaneous Control Codes
-  private static final int GROUP_G0_END = 0x7F;  // ASCII Printable Characters
-  private static final int GROUP_C1_END = 0x9F;  // Captioning Command Control Codes
-  private static final int GROUP_G1_END = 0xFF;  // ISO 8859-1 LATIN-1 Character Set
+  private static final int GROUP_C0_END = 0x1F; // Miscellaneous Control Codes
+  private static final int GROUP_G0_END = 0x7F; // ASCII Printable Characters
+  private static final int GROUP_C1_END = 0x9F; // Captioning Command Control Codes
+  private static final int GROUP_G1_END = 0xFF; // ISO 8859-1 LATIN-1 Character Set
 
   // Extended Commands
-  private static final int GROUP_C2_END = 0x1F;  // Extended Control Code Set 1
-  private static final int GROUP_G2_END = 0x7F;  // Extended Miscellaneous Characters
-  private static final int GROUP_C3_END = 0x9F;  // Extended Control Code Set 2
-  private static final int GROUP_G3_END = 0xFF;  // Future Expansion
+  private static final int GROUP_C2_END = 0x1F; // Extended Control Code Set 1
+  private static final int GROUP_G2_END = 0x7F; // Extended Miscellaneous Characters
+  private static final int GROUP_C3_END = 0x9F; // Extended Control Code Set 2
+  private static final int GROUP_G3_END = 0xFF; // Future Expansion
 
   // Group C0 Commands
-  private static final int COMMAND_NUL = 0x00;        // Nul
-  private static final int COMMAND_ETX = 0x03;        // EndOfText
-  private static final int COMMAND_BS = 0x08;         // Backspace
-  private static final int COMMAND_FF = 0x0C;         // FormFeed (Flush)
-  private static final int COMMAND_CR = 0x0D;         // CarriageReturn
-  private static final int COMMAND_HCR = 0x0E;        // ClearLine
-  private static final int COMMAND_EXT1 = 0x10;       // Extended Control Code Flag
+  private static final int COMMAND_NUL = 0x00; // Nul
+  private static final int COMMAND_ETX = 0x03; // EndOfText
+  private static final int COMMAND_BS = 0x08; // Backspace
+  private static final int COMMAND_FF = 0x0C; // FormFeed (Flush)
+  private static final int COMMAND_CR = 0x0D; // CarriageReturn
+  private static final int COMMAND_HCR = 0x0E; // ClearLine
+  private static final int COMMAND_EXT1 = 0x10; // Extended Control Code Flag
   private static final int COMMAND_EXT1_START = 0x11;
   private static final int COMMAND_EXT1_END = 0x17;
   private static final int COMMAND_P16_START = 0x18;
   private static final int COMMAND_P16_END = 0x1F;
 
   // Group C1 Commands
-  private static final int COMMAND_CW0 = 0x80;  // SetCurrentWindow to 0
-  private static final int COMMAND_CW1 = 0x81;  // SetCurrentWindow to 1
-  private static final int COMMAND_CW2 = 0x82;  // SetCurrentWindow to 2
-  private static final int COMMAND_CW3 = 0x83;  // SetCurrentWindow to 3
-  private static final int COMMAND_CW4 = 0x84;  // SetCurrentWindow to 4
-  private static final int COMMAND_CW5 = 0x85;  // SetCurrentWindow to 5
-  private static final int COMMAND_CW6 = 0x86;  // SetCurrentWindow to 6
-  private static final int COMMAND_CW7 = 0x87;  // SetCurrentWindow to 7
-  private static final int COMMAND_CLW = 0x88;  // ClearWindows (+1 byte)
-  private static final int COMMAND_DSW = 0x89;  // DisplayWindows (+1 byte)
-  private static final int COMMAND_HDW = 0x8A;  // HideWindows (+1 byte)
-  private static final int COMMAND_TGW = 0x8B;  // ToggleWindows (+1 byte)
-  private static final int COMMAND_DLW = 0x8C;  // DeleteWindows (+1 byte)
-  private static final int COMMAND_DLY = 0x8D;  // Delay (+1 byte)
-  private static final int COMMAND_DLC = 0x8E;  // DelayCancel
-  private static final int COMMAND_RST = 0x8F;  // Reset
-  private static final int COMMAND_SPA = 0x90;  // SetPenAttributes (+2 bytes)
-  private static final int COMMAND_SPC = 0x91;  // SetPenColor (+3 bytes)
-  private static final int COMMAND_SPL = 0x92;  // SetPenLocation (+2 bytes)
-  private static final int COMMAND_SWA = 0x97;  // SetWindowAttributes (+4 bytes)
-  private static final int COMMAND_DF0 = 0x98;  // DefineWindow 0 (+6 bytes)
-  private static final int COMMAND_DF1 = 0x99;  // DefineWindow 1 (+6 bytes)
-  private static final int COMMAND_DF2 = 0x9A;  // DefineWindow 2 (+6 bytes)
-  private static final int COMMAND_DF3 = 0x9B;  // DefineWindow 3 (+6 bytes)
+  private static final int COMMAND_CW0 = 0x80; // SetCurrentWindow to 0
+  private static final int COMMAND_CW1 = 0x81; // SetCurrentWindow to 1
+  private static final int COMMAND_CW2 = 0x82; // SetCurrentWindow to 2
+  private static final int COMMAND_CW3 = 0x83; // SetCurrentWindow to 3
+  private static final int COMMAND_CW4 = 0x84; // SetCurrentWindow to 4
+  private static final int COMMAND_CW5 = 0x85; // SetCurrentWindow to 5
+  private static final int COMMAND_CW6 = 0x86; // SetCurrentWindow to 6
+  private static final int COMMAND_CW7 = 0x87; // SetCurrentWindow to 7
+  private static final int COMMAND_CLW = 0x88; // ClearWindows (+1 byte)
+  private static final int COMMAND_DSW = 0x89; // DisplayWindows (+1 byte)
+  private static final int COMMAND_HDW = 0x8A; // HideWindows (+1 byte)
+  private static final int COMMAND_TGW = 0x8B; // ToggleWindows (+1 byte)
+  private static final int COMMAND_DLW = 0x8C; // DeleteWindows (+1 byte)
+  private static final int COMMAND_DLY = 0x8D; // Delay (+1 byte)
+  private static final int COMMAND_DLC = 0x8E; // DelayCancel
+  private static final int COMMAND_RST = 0x8F; // Reset
+  private static final int COMMAND_SPA = 0x90; // SetPenAttributes (+2 bytes)
+  private static final int COMMAND_SPC = 0x91; // SetPenColor (+3 bytes)
+  private static final int COMMAND_SPL = 0x92; // SetPenLocation (+2 bytes)
+  private static final int COMMAND_SWA = 0x97; // SetWindowAttributes (+4 bytes)
+  private static final int COMMAND_DF0 = 0x98; // DefineWindow 0 (+6 bytes)
+  private static final int COMMAND_DF1 = 0x99; // DefineWindow 1 (+6 bytes)
+  private static final int COMMAND_DF2 = 0x9A; // DefineWindow 2 (+6 bytes)
+  private static final int COMMAND_DF3 = 0x9B; // DefineWindow 3 (+6 bytes)
   private static final int COMMAND_DF4 = 0x9C; // DefineWindow 4 (+6 bytes)
-  private static final int COMMAND_DF5 = 0x9D;  // DefineWindow 5 (+6 bytes)
-  private static final int COMMAND_DF6 = 0x9E;  // DefineWindow 6 (+6 bytes)
-  private static final int COMMAND_DF7 = 0x9F;  // DefineWindow 7 (+6 bytes)
+  private static final int COMMAND_DF5 = 0x9D; // DefineWindow 5 (+6 bytes)
+  private static final int COMMAND_DF6 = 0x9E; // DefineWindow 6 (+6 bytes)
+  private static final int COMMAND_DF7 = 0x9F; // DefineWindow 7 (+6 bytes)
 
   // G0 Table Special Chars
-  private static final int CHARACTER_MN = 0x7F;  // MusicNote
+  private static final int CHARACTER_MN = 0x7F; // MusicNote
 
   // G2 Table Special Chars
   private static final int CHARACTER_TSP = 0x20;
@@ -825,7 +825,6 @@ public final class Cea708Decoder extends CeaDecoder {
       packetData = new byte[2 * packetSize - 1];
       currentIndex = 0;
     }
-
   }
 
   // TODO: There is a lot of overlap between Cea708Decoder.CueInfoBuilder and
@@ -872,45 +871,64 @@ public final class Cea708Decoder extends CeaDecoder {
     private static final int PEN_OFFSET_NORMAL = 1;
 
     // The window style properties are specified in the CEA-708 specification.
-    private static final int[] WINDOW_STYLE_JUSTIFICATION = new int[] {
-        JUSTIFICATION_LEFT, JUSTIFICATION_LEFT, JUSTIFICATION_LEFT,
-        JUSTIFICATION_LEFT, JUSTIFICATION_LEFT, JUSTIFICATION_CENTER,
-        JUSTIFICATION_LEFT
-    };
-    private static final int[] WINDOW_STYLE_PRINT_DIRECTION = new int[] {
-        DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT,
-        DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT,
-        DIRECTION_TOP_TO_BOTTOM
-    };
-    private static final int[] WINDOW_STYLE_SCROLL_DIRECTION = new int[] {
-        DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP,
-        DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP,
-        DIRECTION_RIGHT_TO_LEFT
-    };
-    private static final boolean[] WINDOW_STYLE_WORD_WRAP = new boolean[] {
-        false, false, false, true, true, true, false
-    };
-    private static final int[] WINDOW_STYLE_FILL = new int[] {
-        COLOR_SOLID_BLACK, COLOR_TRANSPARENT, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK,
-        COLOR_TRANSPARENT, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK
-    };
+    private static final int[] WINDOW_STYLE_JUSTIFICATION =
+        new int[] {
+          JUSTIFICATION_LEFT, JUSTIFICATION_LEFT, JUSTIFICATION_LEFT,
+          JUSTIFICATION_LEFT, JUSTIFICATION_LEFT, JUSTIFICATION_CENTER,
+          JUSTIFICATION_LEFT
+        };
+    private static final int[] WINDOW_STYLE_PRINT_DIRECTION =
+        new int[] {
+          DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT,
+          DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT,
+          DIRECTION_TOP_TO_BOTTOM
+        };
+    private static final int[] WINDOW_STYLE_SCROLL_DIRECTION =
+        new int[] {
+          DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP,
+          DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP,
+          DIRECTION_RIGHT_TO_LEFT
+        };
+    private static final boolean[] WINDOW_STYLE_WORD_WRAP =
+        new boolean[] {false, false, false, true, true, true, false};
+    private static final int[] WINDOW_STYLE_FILL =
+        new int[] {
+          COLOR_SOLID_BLACK,
+          COLOR_TRANSPARENT,
+          COLOR_SOLID_BLACK,
+          COLOR_SOLID_BLACK,
+          COLOR_TRANSPARENT,
+          COLOR_SOLID_BLACK,
+          COLOR_SOLID_BLACK
+        };
 
     // The pen style properties are specified in the CEA-708 specification.
-    private static final int[] PEN_STYLE_FONT_STYLE = new int[] {
-        PEN_FONT_STYLE_DEFAULT, PEN_FONT_STYLE_MONOSPACED_WITH_SERIFS,
-        PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITH_SERIFS, PEN_FONT_STYLE_MONOSPACED_WITHOUT_SERIFS,
-        PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITHOUT_SERIFS,
-        PEN_FONT_STYLE_MONOSPACED_WITHOUT_SERIFS,
-        PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITHOUT_SERIFS
-    };
-    private static final int[] PEN_STYLE_EDGE_TYPE = new int[] {
-        BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE,
-        BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_UNIFORM,
-        BORDER_AND_EDGE_TYPE_UNIFORM
-    };
-    private static final int[] PEN_STYLE_BACKGROUND = new int[] {
-        COLOR_SOLID_BLACK, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK,
-        COLOR_SOLID_BLACK, COLOR_TRANSPARENT, COLOR_TRANSPARENT};
+    private static final int[] PEN_STYLE_FONT_STYLE =
+        new int[] {
+          PEN_FONT_STYLE_DEFAULT,
+          PEN_FONT_STYLE_MONOSPACED_WITH_SERIFS,
+          PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITH_SERIFS,
+          PEN_FONT_STYLE_MONOSPACED_WITHOUT_SERIFS,
+          PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITHOUT_SERIFS,
+          PEN_FONT_STYLE_MONOSPACED_WITHOUT_SERIFS,
+          PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITHOUT_SERIFS
+        };
+    private static final int[] PEN_STYLE_EDGE_TYPE =
+        new int[] {
+          BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE,
+          BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_UNIFORM,
+          BORDER_AND_EDGE_TYPE_UNIFORM
+        };
+    private static final int[] PEN_STYLE_BACKGROUND =
+        new int[] {
+          COLOR_SOLID_BLACK,
+          COLOR_SOLID_BLACK,
+          COLOR_SOLID_BLACK,
+          COLOR_SOLID_BLACK,
+          COLOR_SOLID_BLACK,
+          COLOR_TRANSPARENT,
+          COLOR_TRANSPARENT
+        };
 
     private final List<SpannableString> rolledUpCaptions;
     private final SpannableStringBuilder captionStringBuilder;
@@ -992,9 +1010,19 @@ public final class Cea708Decoder extends CeaDecoder {
       return visible;
     }
 
-    public void defineWindow(boolean visible, boolean rowLock, boolean columnLock, int priority,
-        boolean relativePositioning, int verticalAnchor, int horizontalAnchor, int rowCount,
-        int columnCount, int anchorId, int windowStyleId, int penStyleId) {
+    public void defineWindow(
+        boolean visible,
+        boolean rowLock,
+        boolean columnLock,
+        int priority,
+        boolean relativePositioning,
+        int verticalAnchor,
+        int horizontalAnchor,
+        int rowCount,
+        int columnCount,
+        int anchorId,
+        int windowStyleId,
+        int penStyleId) {
       this.defined = true;
       this.visible = visible;
       this.rowLock = rowLock;
@@ -1022,8 +1050,11 @@ public final class Cea708Decoder extends CeaDecoder {
         // windowStyleId is 1-based.
         int windowStyleIdIndex = windowStyleId - 1;
         // Note that Border type and border color are the same for all window styles.
-        setWindowAttributes(WINDOW_STYLE_FILL[windowStyleIdIndex], COLOR_TRANSPARENT,
-            WINDOW_STYLE_WORD_WRAP[windowStyleIdIndex], BORDER_AND_EDGE_TYPE_NONE,
+        setWindowAttributes(
+            WINDOW_STYLE_FILL[windowStyleIdIndex],
+            COLOR_TRANSPARENT,
+            WINDOW_STYLE_WORD_WRAP[windowStyleIdIndex],
+            BORDER_AND_EDGE_TYPE_NONE,
             WINDOW_STYLE_PRINT_DIRECTION[windowStyleIdIndex],
             WINDOW_STYLE_SCROLL_DIRECTION[windowStyleIdIndex],
             WINDOW_STYLE_JUSTIFICATION[windowStyleIdIndex]);
@@ -1035,34 +1066,53 @@ public final class Cea708Decoder extends CeaDecoder {
         int penStyleIdIndex = penStyleId - 1;
         // Note that pen size, offset, italics, underline, foreground color, and foreground
         // opacity are the same for all pen styles.
-        setPenAttributes(0, PEN_OFFSET_NORMAL, PEN_SIZE_STANDARD, false, false,
-            PEN_STYLE_EDGE_TYPE[penStyleIdIndex], PEN_STYLE_FONT_STYLE[penStyleIdIndex]);
+        setPenAttributes(
+            0,
+            PEN_OFFSET_NORMAL,
+            PEN_SIZE_STANDARD,
+            false,
+            false,
+            PEN_STYLE_EDGE_TYPE[penStyleIdIndex],
+            PEN_STYLE_FONT_STYLE[penStyleIdIndex]);
         setPenColor(COLOR_SOLID_WHITE, PEN_STYLE_BACKGROUND[penStyleIdIndex], COLOR_SOLID_BLACK);
       }
     }
 
-
-    public void setWindowAttributes(int fillColor, int borderColor, boolean wordWrapToggle,
-        int borderType, int printDirection, int scrollDirection, int justification) {
+    public void setWindowAttributes(
+        int fillColor,
+        int borderColor,
+        boolean wordWrapToggle,
+        int borderType,
+        int printDirection,
+        int scrollDirection,
+        int justification) {
       this.windowFillColor = fillColor;
       // TODO: Add support for border color and types.
       // TODO: Add support for word wrap.
       // TODO: Add support for other scroll directions.
       // TODO: Add support for other print directions.
       this.justification = justification;
-
     }
 
-    public void setPenAttributes(int textTag, int offset, int penSize, boolean italicsToggle,
-        boolean underlineToggle, int edgeType, int fontStyle) {
+    public void setPenAttributes(
+        int textTag,
+        int offset,
+        int penSize,
+        boolean italicsToggle,
+        boolean underlineToggle,
+        int edgeType,
+        int fontStyle) {
       // TODO: Add support for text tags.
       // TODO: Add support for other offsets.
       // TODO: Add support for other pen sizes.
 
       if (italicsStartPosition != C.POSITION_UNSET) {
         if (!italicsToggle) {
-          captionStringBuilder.setSpan(new StyleSpan(Typeface.ITALIC), italicsStartPosition,
-              captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          captionStringBuilder.setSpan(
+              new StyleSpan(Typeface.ITALIC),
+              italicsStartPosition,
+              captionStringBuilder.length(),
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
           italicsStartPosition = C.POSITION_UNSET;
         }
       } else if (italicsToggle) {
@@ -1071,8 +1121,11 @@ public final class Cea708Decoder extends CeaDecoder {
 
       if (underlineStartPosition != C.POSITION_UNSET) {
         if (!underlineToggle) {
-          captionStringBuilder.setSpan(new UnderlineSpan(), underlineStartPosition,
-              captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          captionStringBuilder.setSpan(
+              new UnderlineSpan(),
+              underlineStartPosition,
+              captionStringBuilder.length(),
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
           underlineStartPosition = C.POSITION_UNSET;
         }
       } else if (underlineToggle) {
@@ -1086,8 +1139,10 @@ public final class Cea708Decoder extends CeaDecoder {
     public void setPenColor(int foregroundColor, int backgroundColor, int edgeColor) {
       if (foregroundColorStartPosition != C.POSITION_UNSET) {
         if (this.foregroundColor != foregroundColor) {
-          captionStringBuilder.setSpan(new ForegroundColorSpan(this.foregroundColor),
-              foregroundColorStartPosition, captionStringBuilder.length(),
+          captionStringBuilder.setSpan(
+              new ForegroundColorSpan(this.foregroundColor),
+              foregroundColorStartPosition,
+              captionStringBuilder.length(),
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
       }
@@ -1098,8 +1153,10 @@ public final class Cea708Decoder extends CeaDecoder {
 
       if (backgroundColorStartPosition != C.POSITION_UNSET) {
         if (this.backgroundColor != backgroundColor) {
-          captionStringBuilder.setSpan(new BackgroundColorSpan(this.backgroundColor),
-              backgroundColorStartPosition, captionStringBuilder.length(),
+          captionStringBuilder.setSpan(
+              new BackgroundColorSpan(this.backgroundColor),
+              backgroundColorStartPosition,
+              captionStringBuilder.length(),
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
       }
@@ -1165,23 +1222,35 @@ public final class Cea708Decoder extends CeaDecoder {
 
       if (length > 0) {
         if (italicsStartPosition != C.POSITION_UNSET) {
-          spannableStringBuilder.setSpan(new StyleSpan(Typeface.ITALIC), italicsStartPosition,
-              length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          spannableStringBuilder.setSpan(
+              new StyleSpan(Typeface.ITALIC),
+              italicsStartPosition,
+              length,
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         if (underlineStartPosition != C.POSITION_UNSET) {
-          spannableStringBuilder.setSpan(new UnderlineSpan(), underlineStartPosition,
-              length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          spannableStringBuilder.setSpan(
+              new UnderlineSpan(),
+              underlineStartPosition,
+              length,
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         if (foregroundColorStartPosition != C.POSITION_UNSET) {
-          spannableStringBuilder.setSpan(new ForegroundColorSpan(foregroundColor),
-              foregroundColorStartPosition, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          spannableStringBuilder.setSpan(
+              new ForegroundColorSpan(foregroundColor),
+              foregroundColorStartPosition,
+              length,
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         if (backgroundColorStartPosition != C.POSITION_UNSET) {
-          spannableStringBuilder.setSpan(new BackgroundColorSpan(backgroundColor),
-              backgroundColorStartPosition, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+          spannableStringBuilder.setSpan(
+              new BackgroundColorSpan(backgroundColor),
+              backgroundColorStartPosition,
+              length,
+              Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
       }
 
@@ -1308,10 +1377,7 @@ public final class Cea708Decoder extends CeaDecoder {
       // TODO: Add support for the Alternative Minimum Color List or the full 64 RGB combinations.
 
       // Return values based on the Minimum Color List
-      return Color.argb(alpha,
-          (red > 1 ? 255 : 0),
-          (green > 1 ? 255 : 0),
-          (blue > 1 ? 255 : 0));
+      return Color.argb(alpha, (red > 1 ? 255 : 0), (green > 1 ? 255 : 0), (blue > 1 ? 255 : 0));
     }
   }
 

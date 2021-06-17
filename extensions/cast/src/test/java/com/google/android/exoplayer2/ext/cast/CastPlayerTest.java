@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.cast;
 
 import static com.google.android.exoplayer2.Player.COMMAND_ADJUST_DEVICE_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static com.google.android.exoplayer2.Player.COMMAND_FAST_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_DEVICE_VOLUME;
@@ -26,17 +27,23 @@ import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP;
+import static com.google.android.exoplayer2.Player.COMMAND_REWIND;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_DEVICE_VOLUME;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_FAST_FORWARD_INCREMENT;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_REWIND_INCREMENT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
+import static com.google.android.exoplayer2.Player.DEFAULT_FAST_FORWARD_INCREMENT_MS;
+import static com.google.android.exoplayer2.Player.DEFAULT_REWIND_INCREMENT_MS;
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_REMOVE;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
 import static com.google.common.truth.Truth.assertThat;
@@ -83,9 +90,11 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link CastPlayer}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class CastPlayerTest {
 
   private CastPlayer castPlayer;
@@ -1100,6 +1109,118 @@ public class CastPlayerTest {
   }
 
   @Test
+  public void setFastForwardIncrement_notifiesFastForwardIncrementChanged() {
+    long fastForwardIncrementMs = 1000;
+
+    castPlayer.setFastForwardIncrement(fastForwardIncrementMs);
+
+    verify(mockListener).onFastForwardIncrementChanged(fastForwardIncrementMs);
+    assertThat(castPlayer.getFastForwardIncrement()).isEqualTo(fastForwardIncrementMs);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
+  public void fastForward_notifiesPositionDiscontinuity() {
+    when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
+    int[] mediaQueueItemIds = new int[] {1};
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    int currentItemId = 1;
+    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
+    long[] durationsMs = new long[] {2 * DEFAULT_FAST_FORWARD_INCREMENT_MS};
+    long positionMs = 0;
+
+    castPlayer.addMediaItems(mediaItems);
+    updateTimeLine(
+        mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
+    castPlayer.fastForward();
+
+    Player.PositionInfo oldPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 0,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    Player.PositionInfo newPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ DEFAULT_FAST_FORWARD_INCREMENT_MS,
+            /* contentPositionMs= */ DEFAULT_FAST_FORWARD_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    InOrder inOrder = Mockito.inOrder(mockListener);
+    inOrder.verify(mockListener).onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(
+            eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
+  public void setRewindIncrement_notifiesRewindIncrementChanged() {
+    long rewindIncrementMs = 1000;
+
+    castPlayer.setRewindIncrement(rewindIncrementMs);
+
+    verify(mockListener).onRewindIncrementChanged(rewindIncrementMs);
+    assertThat(castPlayer.getRewindIncrement()).isEqualTo(rewindIncrementMs);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
+  public void rewind_notifiesPositionDiscontinuity() {
+    when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
+    int[] mediaQueueItemIds = new int[] {1};
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    int currentItemId = 1;
+    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
+    long[] durationsMs = new long[] {3 * DEFAULT_REWIND_INCREMENT_MS};
+    long positionMs = 2 * DEFAULT_REWIND_INCREMENT_MS;
+
+    castPlayer.addMediaItems(mediaItems);
+    updateTimeLine(
+        mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
+    castPlayer.rewind();
+
+    Player.PositionInfo oldPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 2 * DEFAULT_REWIND_INCREMENT_MS,
+            /* contentPositionMs= */ 2 * DEFAULT_REWIND_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    Player.PositionInfo newPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ DEFAULT_REWIND_INCREMENT_MS,
+            /* contentPositionMs= */ DEFAULT_REWIND_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    InOrder inOrder = Mockito.inOrder(mockListener);
+    inOrder.verify(mockListener).onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(
+            eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
   public void isCommandAvailable_isTrueForAvailableCommands() {
     int[] mediaQueueItemIds = new int[] {1, 2};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
@@ -1114,12 +1235,17 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_FAST_FORWARD_INCREMENT)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_FAST_FORWARD)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_REWIND_INCREMENT)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_REWIND)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_REPEAT_MODE)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_MEDIA_ITEMS_METADATA)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_AUDIO_ATTRIBUTES)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_VOLUME)).isFalse();
@@ -1132,7 +1258,7 @@ public class CastPlayerTest {
   }
 
   @Test
-  public void isCommandAvailable_duringUnseekableItem_isFalseForSeekInCurrent() {
+  public void isCommandAvailable_duringUnseekableItem_isFalseForSeekInCurrentCommands() {
     MediaItem mediaItem = createMediaItem(/* mediaQueueItemId= */ 1);
     List<MediaItem> mediaItems = ImmutableList.of(mediaItem);
     int[] mediaQueueItemIds = new int[] {1};
@@ -1149,6 +1275,8 @@ public class CastPlayerTest {
         /* positionMs= */ C.TIME_UNSET);
 
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_FAST_FORWARD)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_REWIND)).isFalse();
   }
 
   @Test
@@ -1156,16 +1284,12 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithSeekInCurrentAndToNext =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekAnywhere =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     int[] mediaQueueItemIds = new int[] {1, 2, 3, 4};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1192,16 +1316,12 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithSeekInCurrentAndToNext =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekAnywhere =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     int[] mediaQueueItemIds = new int[] {1, 2, 3, 4};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1227,8 +1347,7 @@ public class CastPlayerTest {
   @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
   public void seekTo_sameWindow_doesNotNotifyAvailableCommandsChanged() {
     when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
     int[] mediaQueueItemIds = new int[] {1};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1244,11 +1363,10 @@ public class CastPlayerTest {
 
   @Test
   public void addMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
+    ;
     Player.Commands commandsWithSeekInCurrentAndToNext =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1280,11 +1398,10 @@ public class CastPlayerTest {
 
   @Test
   public void addMediaItem_atTheStart_notifiesAvailableCommandsChanged() {
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
+    ;
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1317,11 +1434,10 @@ public class CastPlayerTest {
   @Test
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithoutSeek = createWithPermanentCommands();
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
+    ;
     Player.Commands commandsWithSeekInCurrentAndToNext =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1364,11 +1480,10 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithoutSeek = createWithPermanentCommands();
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
+    ;
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1408,11 +1523,9 @@ public class CastPlayerTest {
 
   @Test
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
     Player.Commands commandsWithSeekInCurrentAndToNext =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
 
@@ -1438,13 +1551,11 @@ public class CastPlayerTest {
   public void setRepeatMode_all_notifiesAvailableCommandsChanged() {
     when(mockRemoteMediaClient.queueSetRepeatMode(anyInt(), eq(null)))
         .thenReturn(mockPendingResult);
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
+    ;
     Player.Commands commandsWithSeekAnywhere =
-        createWithPermanentCommands(
-            COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithPermanentAndSeekInCurrentCommands(
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     int[] mediaQueueItemIds = new int[] {1};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1463,8 +1574,8 @@ public class CastPlayerTest {
   public void setRepeatMode_one_doesNotNotifyAvailableCommandsChanged() {
     when(mockRemoteMediaClient.queueSetRepeatMode(anyInt(), eq(null)))
         .thenReturn(mockPendingResult);
-    Player.Commands commandsWithSeekInCurrent =
-        createWithPermanentCommands(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    Player.Commands commandsWithSeekInCurrent = createWithPermanentAndSeekInCurrentCommands();
+    ;
     int[] mediaQueueItemIds = new int[] {1};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1569,6 +1680,17 @@ public class CastPlayerTest {
       @Player.Command int... additionalCommands) {
     Player.Commands.Builder builder = new Player.Commands.Builder();
     builder.addAll(CastPlayer.PERMANENT_AVAILABLE_COMMANDS);
+    builder.addAll(additionalCommands);
+    return builder.build();
+  }
+
+  private static Player.Commands createWithPermanentAndSeekInCurrentCommands(
+      @Player.Command int... additionalCommands) {
+    Player.Commands.Builder builder = new Player.Commands.Builder();
+    builder.addAll(CastPlayer.PERMANENT_AVAILABLE_COMMANDS);
+    builder.add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    builder.add(COMMAND_FAST_FORWARD);
+    builder.add(COMMAND_REWIND);
     builder.addAll(additionalCommands);
     return builder.build();
   }

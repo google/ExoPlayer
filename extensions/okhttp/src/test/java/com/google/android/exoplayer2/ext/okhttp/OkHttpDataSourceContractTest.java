@@ -24,9 +24,11 @@ import com.google.common.collect.ImmutableList;
 import okhttp3.OkHttpClient;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** {@link DataSource} contract tests for {@link OkHttpDataSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class OkHttpDataSourceContractTest extends DataSourceContractTest {
 
   @Rule public HttpDataSourceTestEnv httpDataSourceTestEnv = new HttpDataSourceTestEnv();

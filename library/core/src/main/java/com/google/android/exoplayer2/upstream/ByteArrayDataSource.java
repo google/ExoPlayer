@@ -33,9 +33,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
   private int bytesRemaining;
   private boolean opened;
 
-  /**
-   * @param data The data to be read.
-   */
+  /** @param data The data to be read. */
   public ByteArrayDataSource(byte[] data) {
     super(/* isNetwork= */ false);
     Assertions.checkNotNull(data);
@@ -90,5 +88,4 @@ public final class ByteArrayDataSource extends BaseDataSource {
     }
     uri = null;
   }
-
 }

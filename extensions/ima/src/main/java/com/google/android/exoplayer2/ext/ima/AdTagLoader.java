@@ -211,7 +211,12 @@ import java.util.Map;
   private long waitingForPreloadElapsedRealtimeMs;
 
   /** Creates a new ad tag loader, starting the ad request if the ad tag is valid. */
-  @SuppressWarnings({"methodref.receiver.bound.invalid", "method.invocation.invalid"})
+  @SuppressWarnings({
+    "methodref.receiver.bound.invalid",
+    "nullness:methodref.receiver.bound",
+    "method.invocation.invalid",
+    "nullness:method.invocation"
+  })
   public AdTagLoader(
       Context context,
       ImaUtil.Configuration configuration,
@@ -602,17 +607,16 @@ import java.util.Map;
     }
 
     // Skip ads based on the start position as required.
-    long[] adGroupTimesUs = adPlaybackState.adGroupTimesUs;
     int adGroupForPositionIndex =
         adPlaybackState.getAdGroupIndexForPositionUs(
             C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
     if (adGroupForPositionIndex != C.INDEX_UNSET) {
       boolean playAdWhenStartingPlayback =
-          configuration.playAdBeforeStartPosition
-              || adGroupTimesUs[adGroupForPositionIndex] == C.msToUs(contentPositionMs);
+          adPlaybackState.getAdGroup(adGroupForPositionIndex).timeUs == C.msToUs(contentPositionMs)
+              || configuration.playAdBeforeStartPosition;
       if (!playAdWhenStartingPlayback) {
         adGroupForPositionIndex++;
-      } else if (hasMidrollAdGroups(adGroupTimesUs)) {
+      } else if (hasMidrollAdGroups(adPlaybackState)) {
         // Provide the player's initial position to trigger loading and playing the ad. If there are
         // no midrolls, we are playing a preroll and any pending content position wouldn't be
         // cleared.
@@ -622,13 +626,14 @@ import java.util.Map;
         for (int i = 0; i < adGroupForPositionIndex; i++) {
           adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
         }
-        if (adGroupForPositionIndex == adGroupTimesUs.length) {
+        if (adGroupForPositionIndex == adPlaybackState.adGroupCount) {
           // We don't need to play any ads. Because setPlayAdsAfterTime does not discard non-VMAP
           // ads, we signal that no ads will render so the caller can destroy the ads manager.
           return null;
         }
-        long adGroupForPositionTimeUs = adGroupTimesUs[adGroupForPositionIndex];
-        long adGroupBeforePositionTimeUs = adGroupTimesUs[adGroupForPositionIndex - 1];
+        long adGroupForPositionTimeUs = adPlaybackState.getAdGroup(adGroupForPositionIndex).timeUs;
+        long adGroupBeforePositionTimeUs =
+            adPlaybackState.getAdGroup(adGroupForPositionIndex - 1).timeUs;
         if (adGroupForPositionTimeUs == C.TIME_END_OF_SOURCE) {
           // Play the postroll by offsetting the start position just past the last non-postroll ad.
           adsRenderingSettings.setPlayAdsAfterTime(
@@ -786,14 +791,14 @@ import java.util.Map;
     if (adGroupIndex == C.INDEX_UNSET) {
       return false;
     }
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     if (adGroup.count != C.LENGTH_UNSET
         && adGroup.count != 0
         && adGroup.states[0] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
       // An ad is available already.
       return false;
     }
-    long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+    long adGroupTimeMs = C.usToMs(adGroup.timeUs);
     long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
     long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
     return timeUntilAdMs < configuration.adPreloadTimeoutMs;
@@ -877,13 +882,13 @@ import java.util.Map;
       }
     }
     if (!sentContentComplete && !wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
-      int adGroupIndex = player.getCurrentAdGroupIndex();
-      if (adPlaybackState.adGroupTimesUs[adGroupIndex] == C.TIME_END_OF_SOURCE) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(player.getCurrentAdGroupIndex());
+      if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
         sendContentComplete();
       } else {
         // IMA hasn't called playAd yet, so fake the content position.
         fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+        fakeContentProgressOffsetMs = C.usToMs(adGroup.timeUs);
         if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
           fakeContentProgressOffsetMs = contentDurationMs;
         }
@@ -919,11 +924,11 @@ import java.util.Map;
     // The ad count may increase on successive loads of ads in the same ad pod, for example, due to
     // separate requests for ad tags with multiple ads within the ad pod completing after an earlier
     // ad has loaded. See also https://github.com/google/ExoPlayer/issues/7477.
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adInfo.adGroupIndex);
     adPlaybackState =
         adPlaybackState.withAdCount(
             adInfo.adGroupIndex, max(adPodInfo.getTotalAds(), adGroup.states.length));
-    adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
+    adGroup = adPlaybackState.getAdGroup(adInfo.adGroupIndex);
     for (int i = 0; i < adIndexInAdGroup; i++) {
       // Any preceding ads that haven't loaded are not going to load.
       if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
@@ -1062,10 +1067,10 @@ import java.util.Map;
 
   private void markAdGroupInErrorStateAndClearPendingContentPosition(int adGroupIndex) {
     // Update the ad playback state so all ads in the ad group are in the error state.
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     if (adGroup.count == C.LENGTH_UNSET) {
       adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, max(1, adGroup.states.length));
-      adGroup = adPlaybackState.adGroups[adGroupIndex];
+      adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     }
     for (int i = 0; i < adGroup.count; i++) {
       if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
@@ -1094,7 +1099,7 @@ import java.util.Map;
       // Send IMA a content position at the ad group so that it will try to play it, at which point
       // we can notify that it failed to load.
       fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+      fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.getAdGroup(adGroupIndex).timeUs);
       if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
         fakeContentProgressOffsetMs = contentDurationMs;
       }
@@ -1109,7 +1114,7 @@ import java.util.Map;
           adCallbacks.get(i).onEnded(adMediaInfo);
         }
       }
-      playingAdIndexInAdGroup = adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
+      playingAdIndexInAdGroup = adPlaybackState.getAdGroup(adGroupIndex).getFirstAdIndexToPlay();
       for (int i = 0; i < adCallbacks.size(); i++) {
         adCallbacks.get(i).onError(checkNotNull(adMediaInfo));
       }
@@ -1138,7 +1143,7 @@ import java.util.Map;
       Log.d(TAG, "adsLoader.contentComplete");
     }
     for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
-      if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
+      if (adPlaybackState.getAdGroup(i).timeUs != C.TIME_END_OF_SOURCE) {
         adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ i);
       }
     }
@@ -1213,7 +1218,7 @@ import java.util.Map;
     float cuePointTimeSecondsFloat = (float) cuePointTimeSeconds;
     long adPodTimeUs = Math.round((double) cuePointTimeSecondsFloat * C.MICROS_PER_SECOND);
     for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
-      long adGroupTimeUs = adPlaybackState.adGroupTimesUs[adGroupIndex];
+      long adGroupTimeUs = adPlaybackState.getAdGroup(adGroupIndex).timeUs;
       if (adGroupTimeUs != C.TIME_END_OF_SOURCE
           && Math.abs(adGroupTimeUs - adPodTimeUs) < THRESHOLD_AD_MATCH_US) {
         return adGroupIndex;
@@ -1242,14 +1247,16 @@ import java.util.Map;
     }
   }
 
-  private static boolean hasMidrollAdGroups(long[] adGroupTimesUs) {
-    int count = adGroupTimesUs.length;
+  private static boolean hasMidrollAdGroups(AdPlaybackState adPlaybackState) {
+    int count = adPlaybackState.adGroupCount;
     if (count == 1) {
-      return adGroupTimesUs[0] != 0 && adGroupTimesUs[0] != C.TIME_END_OF_SOURCE;
+      long adGroupTimeUs = adPlaybackState.getAdGroup(0).timeUs;
+      return adGroupTimeUs != 0 && adGroupTimeUs != C.TIME_END_OF_SOURCE;
     } else if (count == 2) {
-      return adGroupTimesUs[0] != 0 || adGroupTimesUs[1] != C.TIME_END_OF_SOURCE;
+      return adPlaybackState.getAdGroup(0).timeUs != 0
+          || adPlaybackState.getAdGroup(1).timeUs != C.TIME_END_OF_SOURCE;
     } else {
-      // There's at least one midroll ad group, as adGroupTimesUs is never empty.
+      // There's at least one midroll ad group, as adPlaybackState is never empty.
       return true;
     }
   }

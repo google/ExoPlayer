@@ -60,7 +60,8 @@ public final class DataSchemeDataSource extends BaseDataSource {
       try {
         data = Base64.decode(dataString, /* flags= */ Base64.DEFAULT);
       } catch (IllegalArgumentException e) {
-        throw new ParserException("Error while parsing Base64 encoded string: " + dataString, e);
+        throw ParserException.createForMalformedDataOfUnknownType(
+            "Error while parsing Base64 encoded string: " + dataString, e);
       }
     } else {
       // TODO: Add support for other charsets.

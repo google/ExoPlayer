@@ -115,8 +115,10 @@ public final class WebvttExtractor implements Extractor {
 
     // Increase the size of sampleData if necessary.
     if (sampleSize == sampleData.length) {
-      sampleData = Arrays.copyOf(sampleData,
-          (currentFileSize != C.LENGTH_UNSET ? currentFileSize : sampleData.length) * 3 / 2);
+      sampleData =
+          Arrays.copyOf(
+              sampleData,
+              (currentFileSize != C.LENGTH_UNSET ? currentFileSize : sampleData.length) * 3 / 2);
     }
 
     // Consume to the input.
@@ -200,5 +202,4 @@ public final class WebvttExtractor implements Extractor {
     output.endTracks();
     return trackOutput;
   }
-
 }

@@ -57,24 +57,16 @@ public final class EventMessage implements Metadata.Entry {
   /** The message scheme. */
   public final String schemeIdUri;
 
-  /**
-   * The value for the event.
-   */
+  /** The value for the event. */
   public final String value;
 
-  /**
-   * The duration of the event in milliseconds.
-   */
+  /** The duration of the event in milliseconds. */
   public final long durationMs;
 
-  /**
-   * The instance identifier.
-   */
+  /** The instance identifier. */
   public final long id;
 
-  /**
-   * The body of the message.
-   */
+  /** The body of the message. */
   public final byte[] messageData;
 
   // Lazily initialized hashcode.
@@ -185,16 +177,14 @@ public final class EventMessage implements Metadata.Entry {
   public static final Parcelable.Creator<EventMessage> CREATOR =
       new Parcelable.Creator<EventMessage>() {
 
-    @Override
-    public EventMessage createFromParcel(Parcel in) {
-      return new EventMessage(in);
-    }
+        @Override
+        public EventMessage createFromParcel(Parcel in) {
+          return new EventMessage(in);
+        }
 
-    @Override
-    public EventMessage[] newArray(int size) {
-      return new EventMessage[size];
-    }
-
-  };
-
+        @Override
+        public EventMessage[] newArray(int size) {
+          return new EventMessage[size];
+        }
+      };
 }

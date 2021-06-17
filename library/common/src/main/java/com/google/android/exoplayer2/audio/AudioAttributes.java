@@ -41,9 +41,7 @@ public final class AudioAttributes implements Bundleable {
 
   public static final AudioAttributes DEFAULT = new Builder().build();
 
-  /**
-   * Builder for {@link AudioAttributes}.
-   */
+  /** Builder for {@link AudioAttributes}. */
   public static final class Builder {
 
     private @C.AudioContentType int contentType;
@@ -64,25 +62,19 @@ public final class AudioAttributes implements Bundleable {
       allowedCapturePolicy = C.ALLOW_CAPTURE_BY_ALL;
     }
 
-    /**
-     * @see android.media.AudioAttributes.Builder#setContentType(int)
-     */
+    /** @see android.media.AudioAttributes.Builder#setContentType(int) */
     public Builder setContentType(@C.AudioContentType int contentType) {
       this.contentType = contentType;
       return this;
     }
 
-    /**
-     * @see android.media.AudioAttributes.Builder#setFlags(int)
-     */
+    /** @see android.media.AudioAttributes.Builder#setFlags(int) */
     public Builder setFlags(@C.AudioFlags int flags) {
       this.flags = flags;
       return this;
     }
 
-    /**
-     * @see android.media.AudioAttributes.Builder#setUsage(int)
-     */
+    /** @see android.media.AudioAttributes.Builder#setUsage(int) */
     public Builder setUsage(@C.AudioUsage int usage) {
       this.usage = usage;
       return this;
@@ -98,7 +90,6 @@ public final class AudioAttributes implements Bundleable {
     public AudioAttributes build() {
       return new AudioAttributes(contentType, flags, usage, allowedCapturePolicy);
     }
-
   }
 
   public final @C.AudioContentType int contentType;

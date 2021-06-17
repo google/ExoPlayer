@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 public final class SsaDecoderTest {
 
   private static final String EMPTY = "media/ssa/empty";
+  private static final String EMPTY_STYLE_LINE = "media/ssa/empty_style_line";
   private static final String TYPICAL = "media/ssa/typical";
   private static final String TYPICAL_HEADER_ONLY = "media/ssa/typical_header";
   private static final String TYPICAL_DIALOGUE_ONLY = "media/ssa/typical_dialogue";
@@ -60,7 +61,27 @@ public final class SsaDecoderTest {
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
-    assertThat(subtitle.getCues(0).isEmpty()).isTrue();
+  }
+
+  @Test
+  public void decodeEmptyStyleLine() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_STYLE_LINE);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, /* reset= */ false);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
+    Cue cue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    SpannedSubject.assertThat((Spanned) cue.text).hasNoSpans();
+    assertThat(cue.textSize).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.textSizeType).isEqualTo(Cue.TYPE_UNSET);
+    assertThat(cue.textAlignment).isNull();
+    assertThat(cue.positionAnchor).isEqualTo(Cue.TYPE_UNSET);
+    assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.lineAnchor).isEqualTo(Cue.TYPE_UNSET);
+    assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
   }
 
   @Test

@@ -168,5 +168,4 @@ public final class DefaultContentMetadata implements ContentMetadata {
       throw new IllegalArgumentException();
     }
   }
-
 }

@@ -31,15 +31,12 @@ import java.util.PriorityQueue;
  */
 public final class PriorityTaskManager {
 
-  /**
-   * Thrown when task attempts to proceed when another registered task has a higher priority.
-   */
+  /** Thrown when task attempts to proceed when another registered task has a higher priority. */
   public static class PriorityTooLowException extends IOException {
 
     public PriorityTooLowException(int priority, int highestPriority) {
       super("Priority too low [priority=" + priority + ", highest=" + highestPriority + "]");
     }
-
   }
 
   private final Object lock = new Object();
@@ -117,5 +114,4 @@ public final class PriorityTaskManager {
       lock.notifyAll();
     }
   }
-
 }

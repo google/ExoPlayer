@@ -47,8 +47,8 @@ public final class PriorityDataSource implements DataSource {
    * @param priorityTaskManager The priority manager to which the task is registered.
    * @param priority The priority of the task.
    */
-  public PriorityDataSource(DataSource upstream, PriorityTaskManager priorityTaskManager,
-      int priority) {
+  public PriorityDataSource(
+      DataSource upstream, PriorityTaskManager priorityTaskManager, int priority) {
     this.upstream = Assertions.checkNotNull(upstream);
     this.priorityTaskManager = Assertions.checkNotNull(priorityTaskManager);
     this.priority = priority;
@@ -87,5 +87,4 @@ public final class PriorityDataSource implements DataSource {
   public void close() throws IOException {
     upstream.close();
   }
-
 }

@@ -444,7 +444,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               @Nullable
               String wwwAuthenticateHeader = response.headers.get(RtspHeaders.WWW_AUTHENTICATE);
               if (wwwAuthenticateHeader == null) {
-                throw new ParserException("Missing WWW-Authenticate header in a 401 response.");
+                throw ParserException.createForMalformedManifest(
+                    "Missing WWW-Authenticate header in a 401 response.", /* cause= */ null);
               }
               rtspAuthenticationInfo =
                   RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeader);
@@ -479,7 +480,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             @Nullable String sessionHeaderString = response.headers.get(RtspHeaders.SESSION);
             @Nullable String transportHeaderString = response.headers.get(RtspHeaders.TRANSPORT);
             if (sessionHeaderString == null || transportHeaderString == null) {
-              throw new ParserException();
+              throw ParserException.createForMalformedManifest(
+                  "Missing mandatory session or transport header", /* cause= */ null);
             }
 
             RtspSessionHeader sessionHeader =

@@ -60,10 +60,10 @@ public final class ListenerSet<T> {
      * Invokes the iteration finished event.
      *
      * @param listener The listener to invoke the event on.
-     * @param eventFlags The combined event {@link ExoFlags flags} of all events sent in this
+     * @param eventFlags The combined event {@link FlagSet flags} of all events sent in this
      *     iteration.
      */
-    void invoke(T listener, ExoFlags eventFlags);
+    void invoke(T listener, FlagSet eventFlags);
   }
 
   private static final int MSG_ITERATION_FINISHED = 0;
@@ -88,11 +88,7 @@ public final class ListenerSet<T> {
    *     during one {@link Looper} message queue iteration were handled by the listeners.
    */
   public ListenerSet(Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
-    this(
-        /* listeners= */ new CopyOnWriteArraySet<>(),
-        looper,
-        clock,
-        iterationFinishedEvent);
+    this(/* listeners= */ new CopyOnWriteArraySet<>(), looper, clock, iterationFinishedEvent);
   }
 
   private ListenerSet(
@@ -106,7 +102,7 @@ public final class ListenerSet<T> {
     flushingEvents = new ArrayDeque<>();
     queuedEvents = new ArrayDeque<>();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
-    @SuppressWarnings("methodref.receiver.bound.invalid")
+    @SuppressWarnings({"methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"})
     HandlerWrapper handler = clock.createHandler(looper, this::handleMessage);
     this.handler = handler;
   }
@@ -153,6 +149,11 @@ public final class ListenerSet<T> {
         listeners.remove(listenerHolder);
       }
     }
+  }
+
+  /** Returns the number of added listeners. */
+  public int size() {
+    return listeners.size();
   }
 
   /**
@@ -258,13 +259,13 @@ public final class ListenerSet<T> {
 
     @Nonnull public final T listener;
 
-    private ExoFlags.Builder flagsBuilder;
+    private FlagSet.Builder flagsBuilder;
     private boolean needsIterationFinishedEvent;
     private boolean released;
 
     public ListenerHolder(@Nonnull T listener) {
       this.listener = listener;
-      this.flagsBuilder = new ExoFlags.Builder();
+      this.flagsBuilder = new FlagSet.Builder();
     }
 
     public void release(IterationFinishedEvent<T> event) {
@@ -288,8 +289,8 @@ public final class ListenerSet<T> {
       if (!released && needsIterationFinishedEvent) {
         // Reset flags before invoking the listener to ensure we keep all new flags that are set by
         // recursive events triggered from this callback.
-        ExoFlags flagsToNotify = flagsBuilder.build();
-        flagsBuilder = new ExoFlags.Builder();
+        FlagSet flagsToNotify = flagsBuilder.build();
+        flagsBuilder = new FlagSet.Builder();
         needsIterationFinishedEvent = false;
         event.invoke(listener, flagsToNotify);
       }

@@ -34,18 +34,12 @@ public final class Track {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TRANSFORMATION_NONE, TRANSFORMATION_CEA608_CDAT})
   public @interface Transformation {}
-  /**
-   * A no-op sample transformation.
-   */
+  /** A no-op sample transformation. */
   public static final int TRANSFORMATION_NONE = 0;
-  /**
-   * A transformation for caption samples in cdat atoms.
-   */
+  /** A transformation for caption samples in cdat atoms. */
   public static final int TRANSFORMATION_CEA608_CDAT = 1;
 
-  /**
-   * The track identifier.
-   */
+  /** The track identifier. */
   public final int id;
 
   /**
@@ -53,24 +47,16 @@ public final class Track {
    */
   public final int type;
 
-  /**
-   * The track timescale, defined as the number of time units that pass in one second.
-   */
+  /** The track timescale, defined as the number of time units that pass in one second. */
   public final long timescale;
 
-  /**
-   * The movie timescale.
-   */
+  /** The movie timescale. */
   public final long movieTimescale;
 
-  /**
-   * The duration of the track in microseconds, or {@link C#TIME_UNSET} if unknown.
-   */
+  /** The duration of the track in microseconds, or {@link C#TIME_UNSET} if unknown. */
   public final long durationUs;
 
-  /**
-   * The format.
-   */
+  /** The format. */
   public final Format format;
 
   /**
@@ -79,14 +65,10 @@ public final class Track {
    */
   @Transformation public final int sampleTransformation;
 
-  /**
-   * Durations of edit list segments in the movie timescale. Null if there is no edit list.
-   */
+  /** Durations of edit list segments in the movie timescale. Null if there is no edit list. */
   @Nullable public final long[] editListDurations;
 
-  /**
-   * Media times for edit list segments in the track timescale. Null if there is no edit list.
-   */
+  /** Media times for edit list segments in the track timescale. Null if there is no edit list. */
   @Nullable public final long[] editListMediaTimes;
 
   /**
@@ -97,10 +79,18 @@ public final class Track {
 
   @Nullable private final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
 
-  public Track(int id, int type, long timescale, long movieTimescale, long durationUs,
-      Format format, @Transformation int sampleTransformation,
-      @Nullable TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength,
-      @Nullable long[] editListDurations, @Nullable long[] editListMediaTimes) {
+  public Track(
+      int id,
+      int type,
+      long timescale,
+      long movieTimescale,
+      long durationUs,
+      Format format,
+      @Transformation int sampleTransformation,
+      @Nullable TrackEncryptionBox[] sampleDescriptionEncryptionBoxes,
+      int nalUnitLengthFieldLength,
+      @Nullable long[] editListDurations,
+      @Nullable long[] editListMediaTimes) {
     this.id = id;
     this.type = type;
     this.timescale = timescale;
@@ -123,7 +113,8 @@ public final class Track {
    */
   @Nullable
   public TrackEncryptionBox getSampleDescriptionEncryptionBox(int sampleDescriptionIndex) {
-    return sampleDescriptionEncryptionBoxes == null ? null
+    return sampleDescriptionEncryptionBoxes == null
+        ? null
         : sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
   }
 

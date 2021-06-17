@@ -164,8 +164,9 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
       // Assert that if we're seeing a new track we have not seen endTracks.
       Assertions.checkState(sampleFormats == null);
       // TODO: Manifest formats for embedded tracks should also be passed here.
-      bindingTrackOutput = new BindingTrackOutput(id, type,
-          type == primaryTrackType ? primaryTrackManifestFormat : null);
+      bindingTrackOutput =
+          new BindingTrackOutput(
+              id, type, type == primaryTrackType ? primaryTrackManifestFormat : null);
       bindingTrackOutput.bind(trackOutputProvider, endTimeUs);
       bindingTrackOutputs.put(id, bindingTrackOutput);
     }

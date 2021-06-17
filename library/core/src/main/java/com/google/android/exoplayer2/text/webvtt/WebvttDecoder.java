@@ -117,5 +117,4 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
   private static void skipComment(ParsableByteArray parsableWebvttData) {
     while (!TextUtils.isEmpty(parsableWebvttData.readLine())) {}
   }
-
 }

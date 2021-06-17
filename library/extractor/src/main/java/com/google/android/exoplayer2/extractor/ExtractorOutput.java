@@ -66,5 +66,4 @@ public interface ExtractorOutput {
    * @param seekMap The extracted {@link SeekMap}.
    */
   void seekMap(SeekMap seekMap);
-
 }

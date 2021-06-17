@@ -45,8 +45,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private boolean throwRendererExceptionIsExecuting;
 
   /**
-   * @param trackType The track type that the renderer handles. One of the {@link C}
-   * {@code TRACK_TYPE_*} constants.
+   * @param trackType The track type that the renderer handles. One of the {@link C} {@code
+   *     TRACK_TYPE_*} constants.
    */
   public BaseRenderer(int trackType) {
     this.trackType = trackType;
@@ -113,7 +113,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
-    readingPositionUs = offsetUs;
+    if (readingPositionUs == C.TIME_END_OF_SOURCE) {
+      readingPositionUs = startPositionUs;
+    }
     streamFormats = formats;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats, startPositionUs, offsetUs);
@@ -253,8 +255,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is started.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
@@ -273,8 +275,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is disabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    */
   protected void onDisabled() {
     // Do nothing.
@@ -325,9 +327,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return Assertions.checkNotNull(configuration);
   }
 
-  /**
-   * Returns the index of the renderer within the player.
-   */
+  /** Returns the index of the renderer within the player. */
   protected final int getIndex() {
     return index;
   }

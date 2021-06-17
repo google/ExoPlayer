@@ -26,25 +26,21 @@ public final class LibraryLoader {
   private boolean loadAttempted;
   private boolean isAvailable;
 
-  /**
-   * @param libraries The names of the libraries to load.
-   */
+  /** @param libraries The names of the libraries to load. */
   public LibraryLoader(String... libraries) {
     nativeLibraries = libraries;
   }
 
   /**
-   * Overrides the names of the libraries to load. Must be called before any call to
-   * {@link #isAvailable()}.
+   * Overrides the names of the libraries to load. Must be called before any call to {@link
+   * #isAvailable()}.
    */
   public synchronized void setLibraries(String... libraries) {
     Assertions.checkState(!loadAttempted, "Cannot set libraries after loading");
     nativeLibraries = libraries;
   }
 
-  /**
-   * Returns whether the underlying libraries are available, loading them if necessary.
-   */
+  /** Returns whether the underlying libraries are available, loading them if necessary. */
   public synchronized boolean isAvailable() {
     if (loadAttempted) {
       return isAvailable;
@@ -62,5 +58,4 @@ public final class LibraryLoader {
     }
     return isAvailable;
   }
-
 }

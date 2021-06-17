@@ -98,8 +98,14 @@ public final class ByteArrayDataSourceTest {
    * @param maxReadLength The maximum length of each read.
    * @param expectFailOnOpen Whether it is expected that opening the source will fail.
    */
-  private void readTestData(byte[] testData, int dataOffset, int dataLength, int outputBufferLength,
-      int writeOffset, int maxReadLength, boolean expectFailOnOpen) {
+  private void readTestData(
+      byte[] testData,
+      int dataOffset,
+      int dataLength,
+      int outputBufferLength,
+      int writeOffset,
+      int maxReadLength,
+      boolean expectFailOnOpen) {
     int expectedFinalBytesRead = testData.length - dataOffset;
     if (dataLength != C.LENGTH_UNSET) {
       expectedFinalBytesRead = min(expectedFinalBytesRead, dataLength);
@@ -137,8 +143,10 @@ public final class ByteArrayDataSourceTest {
           accumulatedBytesRead += bytesRead;
           assertThat(accumulatedBytesRead).isAtMost(expectedFinalBytesRead);
           // If we haven't read all of the bytes the request should have been satisfied in full.
-          assertThat(accumulatedBytesRead == expectedFinalBytesRead
-              || bytesRead == requestedReadLength).isTrue();
+          assertThat(
+                  accumulatedBytesRead == expectedFinalBytesRead
+                      || bytesRead == requestedReadLength)
+              .isTrue();
         } else {
           // We're done. Check we read the expected number of bytes.
           assertThat(accumulatedBytesRead).isEqualTo(expectedFinalBytesRead);
@@ -154,5 +162,4 @@ public final class ByteArrayDataSourceTest {
       fail();
     }
   }
-
 }

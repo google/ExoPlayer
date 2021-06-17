@@ -19,6 +19,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,5 +42,33 @@ public final class VorbisCommentTest {
     assertThat(vorbisCommentFrameFromParcel).isEqualTo(vorbisCommentFrameToParcel);
 
     parcel.recycle();
+  }
+
+  @Test
+  public void populateMediaMetadata_setsMediaMetadataValues() {
+    String title = "the title";
+    String artist = "artist";
+    String albumTitle = "album title";
+    String albumArtist = "album Artist";
+    String description = "a description about the audio.";
+    List<Metadata.Entry> entries =
+        ImmutableList.of(
+            new VorbisComment("TITLE", title),
+            new VorbisComment("ARTIST", artist),
+            new VorbisComment("ALBUM", albumTitle),
+            new VorbisComment("ALBUMARTIST", albumArtist),
+            new VorbisComment("DESCRIPTION", description));
+    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
+
+    for (Metadata.Entry entry : entries) {
+      entry.populateMediaMetadata(builder);
+    }
+    MediaMetadata mediaMetadata = builder.build();
+
+    assertThat(mediaMetadata.title.toString()).isEqualTo(title);
+    assertThat(mediaMetadata.artist.toString()).isEqualTo(artist);
+    assertThat(mediaMetadata.albumTitle.toString()).isEqualTo(albumTitle);
+    assertThat(mediaMetadata.albumArtist.toString()).isEqualTo(albumArtist);
+    assertThat(mediaMetadata.description.toString()).isEqualTo(description);
   }
 }

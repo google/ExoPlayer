@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.cronet;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.chromium.net.NetworkException.ERROR_HOSTNAME_NOT_RESOLVED;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -74,10 +75,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CronetDataSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class CronetDataSourceTest {
 
   private static final int TEST_CONNECT_TIMEOUT_MS = 100;
@@ -98,7 +101,6 @@ public final class CronetDataSourceTest {
   @Mock private UrlRequest.Builder mockUrlRequestBuilder;
   @Mock private UrlRequest mockUrlRequest;
   @Mock private TransferListener mockTransferListener;
-  @Mock private NetworkException mockNetworkException;
   @Mock private CronetEngine mockCronetEngine;
 
   private ExecutorService executorService;
@@ -240,7 +242,11 @@ public final class CronetDataSourceTest {
             invocation -> {
               // Invoke the callback for the previous request.
               dataSourceUnderTest.urlRequestCallback.onFailed(
-                  mockUrlRequest, testUrlResponseInfo, mockNetworkException);
+                  mockUrlRequest,
+                  testUrlResponseInfo,
+                  createNetworkException(
+                      /* errorCode= */ Integer.MAX_VALUE,
+                      /* cause= */ new IllegalArgumentException()));
               dataSourceUnderTest.urlRequestCallback.onResponseStarted(
                   mockUrlRequest2, testUrlResponseInfo);
               return null;
@@ -334,7 +340,8 @@ public final class CronetDataSourceTest {
 
   @Test
   public void requestOpenFail() {
-    mockResponseStartFailure();
+    mockResponseStartFailure(
+        /* errorCode= */ Integer.MAX_VALUE, /* cause= */ new IllegalArgumentException());
 
     try {
       dataSourceUnderTest.open(testDataSpec);
@@ -370,9 +377,8 @@ public final class CronetDataSourceTest {
 
   @Test
   public void requestOpenFailDueToDnsFailure() {
-    mockResponseStartFailure();
-    when(mockNetworkException.getErrorCode())
-        .thenReturn(NetworkException.ERROR_HOSTNAME_NOT_RESOLVED);
+    mockResponseStartFailure(
+        /* errorCode= */ ERROR_HOSTNAME_NOT_RESOLVED, /* cause= */ new UnknownHostException());
 
     try {
       dataSourceUnderTest.open(testDataSpec);
@@ -1542,13 +1548,13 @@ public final class CronetDataSourceTest {
         .followRedirect();
   }
 
-  private void mockResponseStartFailure() {
+  private void mockResponseStartFailure(int errorCode, Throwable cause) {
     doAnswer(
             invocation -> {
               dataSourceUnderTest.urlRequestCallback.onFailed(
                   mockUrlRequest,
                   createUrlResponseInfo(500), // statusCode
-                  mockNetworkException);
+                  createNetworkException(errorCode, cause));
               return null;
             })
         .when(mockUrlRequest)
@@ -1583,7 +1589,9 @@ public final class CronetDataSourceTest {
               dataSourceUnderTest.urlRequestCallback.onFailed(
                   mockUrlRequest,
                   createUrlResponseInfo(500), // statusCode
-                  mockNetworkException);
+                  createNetworkException(
+                      /* errorCode= */ Integer.MAX_VALUE,
+                      /* cause= */ new IllegalArgumentException()));
               return null;
             })
         .when(mockUrlRequest)
@@ -1660,5 +1668,24 @@ public final class CronetDataSourceTest {
   private static void setSystemClockInMsAndTriggerPendingMessages(long nowMs) {
     SystemClock.setCurrentTimeMillis(nowMs);
     ShadowLooper.idleMainLooper();
+  }
+
+  private static NetworkException createNetworkException(int errorCode, Throwable cause) {
+    return new NetworkException("", cause) {
+      @Override
+      public int getErrorCode() {
+        return errorCode;
+      }
+
+      @Override
+      public int getCronetInternalErrorCode() {
+        return errorCode;
+      }
+
+      @Override
+      public boolean immediatelyRetryable() {
+        return false;
+      }
+    };
   }
 }

@@ -124,8 +124,8 @@ public final class VorbisUtil {
   /**
    * Returns ilog(x), which is the index of the highest set bit in {@code x}.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">
-   *     Vorbis spec</a>
+   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis
+   *     spec</a>
    * @param x the value of which the ilog should be calculated.
    * @return ilog(x)
    */
@@ -346,8 +346,7 @@ public final class VorbisUtil {
     return modes;
   }
 
-  private static void readMappings(int channels, VorbisBitArray bitArray)
-      throws ParserException {
+  private static void readMappings(int channels, VorbisBitArray bitArray) throws ParserException {
     int mappingsCount = bitArray.readBits(6) + 1;
     for (int i = 0; i < mappingsCount; i++) {
       int mappingType = bitArray.readBits(16);
@@ -425,7 +424,7 @@ public final class VorbisUtil {
       int floorType = bitArray.readBits(16);
       switch (floorType) {
         case 0:
-          bitArray.skipBits(8); //order
+          bitArray.skipBits(8); // order
           bitArray.skipBits(16); // rate
           bitArray.skipBits(16); // barkMapSize
           bitArray.skipBits(6); // amplitudeBits
@@ -475,8 +474,8 @@ public final class VorbisUtil {
 
   private static CodeBook readBook(VorbisBitArray bitArray) throws ParserException {
     if (bitArray.readBits(24) != 0x564342) {
-      throw new ParserException("expected code book to start with [0x56, 0x43, 0x42] at "
-          + bitArray.getPosition());
+      throw new ParserException(
+          "expected code book to start with [0x56, 0x43, 0x42] at " + bitArray.getPosition());
     }
     int dimensions = bitArray.readBits(16);
     int entries = bitArray.readBits(24);
@@ -498,7 +497,7 @@ public final class VorbisUtil {
       }
     } else {
       int length = bitArray.readBits(5) + 1;
-      for (int i = 0; i < lengthMap.length;) {
+      for (int i = 0; i < lengthMap.length; ) {
         int num = bitArray.readBits(iLog(entries - i));
         for (int j = 0; j < num && i < lengthMap.length; i++, j++) {
           lengthMap[i] = length;
@@ -550,14 +549,13 @@ public final class VorbisUtil {
     public final int lookupType;
     public final boolean isOrdered;
 
-    public CodeBook(int dimensions, int entries, long[] lengthMap, int lookupType,
-        boolean isOrdered) {
+    public CodeBook(
+        int dimensions, int entries, long[] lengthMap, int lookupType, boolean isOrdered) {
       this.dimensions = dimensions;
       this.entries = entries;
       this.lengthMap = lengthMap;
       this.lookupType = lookupType;
       this.isOrdered = isOrdered;
     }
-
   }
 }

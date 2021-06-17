@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -146,7 +148,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try (Cursor cursor = getCursor()) {
       Map<String, CacheFileMetadata> fileMetadata = new HashMap<>(cursor.getCount());
       while (cursor.moveToNext()) {
-        String name = cursor.getString(COLUMN_INDEX_NAME);
+        String name = checkNotNull(cursor.getString(COLUMN_INDEX_NAME));
         long length = cursor.getLong(COLUMN_INDEX_LENGTH);
         long lastTouchTimestamp = cursor.getLong(COLUMN_INDEX_LAST_TOUCH_TIMESTAMP);
         fileMetadata.put(name, new CacheFileMetadata(length, lastTouchTimestamp));

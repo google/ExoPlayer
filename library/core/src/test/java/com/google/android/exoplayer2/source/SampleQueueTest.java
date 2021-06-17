@@ -1384,9 +1384,7 @@ public final class SampleQueueTest {
 
   // Internal methods.
 
-  /**
-   * Writes standard test data to {@code sampleQueue}.
-   */
+  /** Writes standard test data to {@code sampleQueue}. */
   private void writeTestData() {
     writeTestData(
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, SAMPLE_FLAGS);
@@ -1402,12 +1400,15 @@ public final class SampleQueueTest {
         ENCRYPTED_SAMPLES_FLAGS);
   }
 
-  /**
-   * Writes the specified test data to {@code sampleQueue}.
-   */
+  /** Writes the specified test data to {@code sampleQueue}. */
   @SuppressWarnings("ReferenceEquality")
-  private void writeTestData(byte[] data, int[] sampleSizes, int[] sampleOffsets,
-      long[] sampleTimestamps, Format[] sampleFormats, int[] sampleFlags) {
+  private void writeTestData(
+      byte[] data,
+      int[] sampleSizes,
+      int[] sampleOffsets,
+      long[] sampleTimestamps,
+      Format[] sampleFormats,
+      int[] sampleFlags) {
     sampleQueue.sampleData(new ParsableByteArray(data), data.length);
     Format format = null;
     for (int i = 0; i < sampleTimestamps.length; i++) {
@@ -1440,9 +1441,7 @@ public final class SampleQueueTest {
         (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
   }
 
-  /**
-   * Asserts correct reading of standard test data from {@code sampleQueue}.
-   */
+  /** Asserts correct reading of standard test data from {@code sampleQueue}. */
   private void assertReadTestData() {
     assertReadTestData(/* startFormat= */ null, 0);
   }
@@ -1724,9 +1723,7 @@ public final class SampleQueueTest {
     assertThat(allocator.getTotalBytesAllocated()).isEqualTo(ALLOCATION_SIZE * count);
   }
 
-  /**
-   * Asserts {@code inputBuffer} does not contain any sample data.
-   */
+  /** Asserts {@code inputBuffer} does not contain any sample data. */
   private void assertInputBufferContainsNoSampleData() {
     if (inputBuffer.data == null) {
       return;

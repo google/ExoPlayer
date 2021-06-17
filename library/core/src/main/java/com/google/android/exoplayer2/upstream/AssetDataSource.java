@@ -30,15 +30,12 @@ import java.io.InputStream;
 /** A {@link DataSource} for reading from a local asset. */
 public final class AssetDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when an {@link IOException} is encountered reading a local asset.
-   */
+  /** Thrown when an {@link IOException} is encountered reading a local asset. */
   public static final class AssetDataSourceException extends IOException {
 
     public AssetDataSourceException(IOException cause) {
       super(cause);
     }
-
   }
 
   private final AssetManager assetManager;
@@ -142,5 +139,4 @@ public final class AssetDataSource extends BaseDataSource {
       }
     }
   }
-
 }

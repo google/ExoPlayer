@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * A {@link SampleStream} consisting of serialized {@link EventMessage}s read from an
- * {@link EventStream}.
+ * A {@link SampleStream} consisting of serialized {@link EventMessage}s read from an {@link
+ * EventStream}.
  */
 /* package */ final class EventSampleStream implements SampleStream {
 
@@ -129,5 +129,4 @@ import java.io.IOException;
     currentIndex = newIndex;
     return skipped;
   }
-
 }

@@ -26,14 +26,10 @@ import java.util.Map;
 /** Reads data from URI-identified resources. */
 public interface DataSource extends DataReader {
 
-  /**
-   * A factory for {@link DataSource} instances.
-   */
+  /** A factory for {@link DataSource} instances. */
   interface Factory {
 
-    /**
-     * Creates a {@link DataSource} instance.
-     */
+    /** Creates a {@link DataSource} instance. */
     DataSource createDataSource();
   }
 
@@ -83,7 +79,8 @@ public interface DataSource extends DataReader {
    *
    * @return The {@link Uri} from which data is being read, or null if the source is not open.
    */
-  @Nullable Uri getUri();
+  @Nullable
+  Uri getUri();
 
   /**
    * When the source is open, returns the response headers associated with the last {@link #open}

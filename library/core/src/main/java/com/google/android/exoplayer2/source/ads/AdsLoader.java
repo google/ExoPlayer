@@ -50,7 +50,7 @@ public interface AdsLoader {
 
     /**
      * Called when the ad playback state has been updated. The number of {@link
-     * AdPlaybackState#adGroups ad groups} may not change after the first call.
+     * AdPlaybackState#adGroupCount ad groups} may not change after the first call.
      *
      * @param adPlaybackState The new ad playback state.
      */

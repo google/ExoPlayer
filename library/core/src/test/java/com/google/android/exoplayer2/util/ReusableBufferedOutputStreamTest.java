@@ -32,8 +32,8 @@ public final class ReusableBufferedOutputStreamTest {
   @Test
   public void reset() throws Exception {
     ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream(1000);
-    ReusableBufferedOutputStream outputStream = new ReusableBufferedOutputStream(
-        byteArrayOutputStream1, 1000);
+    ReusableBufferedOutputStream outputStream =
+        new ReusableBufferedOutputStream(byteArrayOutputStream1, 1000);
     outputStream.write(TEST_DATA_1);
     outputStream.close();
 
@@ -45,5 +45,4 @@ public final class ReusableBufferedOutputStreamTest {
     assertThat(byteArrayOutputStream1.toByteArray()).isEqualTo(TEST_DATA_1);
     assertThat(byteArrayOutputStream2.toByteArray()).isEqualTo(TEST_DATA_2);
   }
-
 }

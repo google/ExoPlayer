@@ -24,9 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /** Provides estimates of the currently available bandwidth. */
 public interface BandwidthMeter {
 
-  /**
-   * A listener of {@link BandwidthMeter} events.
-   */
+  /** A listener of {@link BandwidthMeter} events. */
   interface EventListener {
 
     /**

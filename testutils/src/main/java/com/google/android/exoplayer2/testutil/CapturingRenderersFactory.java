@@ -278,6 +278,11 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
       dumper.endBlock();
     }
 
+    @Override
+    public boolean needsReconfiguration() {
+      return false;
+    }
+
     private static byte[] peekBytes(ByteBuffer buffer, int offset, int size) {
       int originalPosition = buffer.position();
       buffer.position(offset);

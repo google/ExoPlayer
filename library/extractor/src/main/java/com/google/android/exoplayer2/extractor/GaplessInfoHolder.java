@@ -33,20 +33,18 @@ public final class GaplessInfoHolder {
       Pattern.compile("^ [0-9a-fA-F]{8} ([0-9a-fA-F]{8}) ([0-9a-fA-F]{8})");
 
   /**
-   * The number of samples to trim from the start of the decoded audio stream, or
-   * {@link Format#NO_VALUE} if not set.
+   * The number of samples to trim from the start of the decoded audio stream, or {@link
+   * Format#NO_VALUE} if not set.
    */
   public int encoderDelay;
 
   /**
-   * The number of samples to trim from the end of the decoded audio stream, or
-   * {@link Format#NO_VALUE} if not set.
+   * The number of samples to trim from the end of the decoded audio stream, or {@link
+   * Format#NO_VALUE} if not set.
    */
   public int encoderPadding;
 
-  /**
-   * Creates a new holder for gapless playback information.
-   */
+  /** Creates a new holder for gapless playback information. */
   public GaplessInfoHolder() {
     encoderDelay = Format.NO_VALUE;
     encoderPadding = Format.NO_VALUE;
@@ -121,11 +119,8 @@ public final class GaplessInfoHolder {
     return false;
   }
 
-  /**
-   * Returns whether {@link #encoderDelay} and {@link #encoderPadding} have been set.
-   */
+  /** Returns whether {@link #encoderDelay} and {@link #encoderPadding} have been set. */
   public boolean hasGaplessInfo() {
     return encoderDelay != Format.NO_VALUE && encoderPadding != Format.NO_VALUE;
   }
-
 }

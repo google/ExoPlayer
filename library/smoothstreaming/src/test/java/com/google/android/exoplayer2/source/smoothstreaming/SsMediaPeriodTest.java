@@ -37,9 +37,11 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link SsMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class SsMediaPeriodTest {
 
   @Test

@@ -29,13 +29,13 @@
 #define ALOGV(...) \
   ((void)__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__))
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                               \
-  extern "C" {                                                             \
-  JNIEXPORT RETURN_TYPE                                                    \
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
+  extern "C" {                                                           \
+  JNIEXPORT RETURN_TYPE                                                  \
       Java_com_google_android_exoplayer2_ext_flac_FlacDecoderJni_##NAME( \
-          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                       \
-  }                                                                        \
-  JNIEXPORT RETURN_TYPE                                                    \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                     \
+  }                                                                      \
+  JNIEXPORT RETURN_TYPE                                                  \
       Java_com_google_android_exoplayer2_ext_flac_FlacDecoderJni_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 

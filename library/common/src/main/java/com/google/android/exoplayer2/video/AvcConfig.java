@@ -66,8 +66,9 @@ public final class AvcConfig {
       @Nullable String codecs = null;
       if (numSequenceParameterSets > 0) {
         byte[] sps = initializationData.get(0);
-        SpsData spsData = NalUnitUtil.parseSpsNalUnit(initializationData.get(0),
-            nalUnitLengthFieldLength, sps.length);
+        SpsData spsData =
+            NalUnitUtil.parseSpsNalUnit(
+                initializationData.get(0), nalUnitLengthFieldLength, sps.length);
         width = spsData.width;
         height = spsData.height;
         pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
@@ -84,7 +85,7 @@ public final class AvcConfig {
           pixelWidthAspectRatio,
           codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
-      throw new ParserException("Error parsing AVC config", e);
+      throw ParserException.createForMalformedContainer("Error parsing AVC config", e);
     }
   }
 
@@ -109,5 +110,4 @@ public final class AvcConfig {
     data.skipBytes(length);
     return CodecSpecificDataUtil.buildNalUnit(data.getData(), offset, length);
   }
-
 }

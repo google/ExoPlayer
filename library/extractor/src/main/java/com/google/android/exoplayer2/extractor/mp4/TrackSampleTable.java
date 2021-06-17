@@ -19,9 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Sample table for a track in an MP4 file.
- */
+/** Sample table for a track in an MP4 file. */
 /* package */ final class TrackSampleTable {
 
   /** The track corresponding to this sample table. */
@@ -101,5 +99,4 @@ import com.google.android.exoplayer2.util.Util;
     }
     return C.INDEX_UNSET;
   }
-
 }

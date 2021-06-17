@@ -41,9 +41,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 
-/**
- * Package internal utility class to render styled <code>TtmlNode</code>s.
- */
+/** Package internal utility class to render styled <code>TtmlNode</code>s. */
 /* package */ final class TtmlRenderUtil {
 
   private static final String TAG = "TtmlRenderUtil";
@@ -92,8 +90,8 @@ import java.util.Map;
       @Cue.VerticalType int verticalType) {
 
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
-      builder.setSpan(new StyleSpan(style.getStyle()), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(
+          new StyleSpan(style.getStyle()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.isLinethrough()) {
       builder.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -313,5 +311,4 @@ import java.util.Map;
   }
 
   private TtmlRenderUtil() {}
-
 }

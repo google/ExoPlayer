@@ -29,5 +29,4 @@ public interface HlsDataSourceFactory {
    * @return A {@link DataSource} for the given data type.
    */
   DataSource createDataSource(int dataType);
-
 }

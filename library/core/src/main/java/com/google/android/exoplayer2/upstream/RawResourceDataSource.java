@@ -53,9 +53,7 @@ import java.nio.channels.FileChannel;
  */
 public final class RawResourceDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when an {@link IOException} is encountered reading from a raw resource.
-   */
+  /** Thrown when an {@link IOException} is encountered reading from a raw resource. */
   public static class RawResourceDataSourceException extends IOException {
     public RawResourceDataSourceException(String message) {
       super(message);
@@ -88,9 +86,7 @@ public final class RawResourceDataSource extends BaseDataSource {
   private long bytesRemaining;
   private boolean opened;
 
-  /**
-   * @param context A context.
-   */
+  /** @param context A context. */
   public RawResourceDataSource(Context context) {
     super(/* isNetwork= */ false);
     this.resources = context.getResources();
@@ -267,5 +263,4 @@ public final class RawResourceDataSource extends BaseDataSource {
       }
     }
   }
-
 }

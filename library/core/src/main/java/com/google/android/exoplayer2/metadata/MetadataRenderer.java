@@ -233,5 +233,4 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private void invokeRendererInternal(Metadata metadata) {
     output.onMetadata(metadata);
   }
-
 }

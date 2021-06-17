@@ -127,7 +127,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
           closedCaptionFormats,
           playerEmsgHandler);
     }
-
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -354,9 +353,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
       }
       if (pendingInitializationUri != null || pendingIndexUri != null) {
         // We have initialization and/or index requests to make.
-        out.chunk = newInitializationChunk(representationHolder, dataSource,
-            trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
-            trackSelection.getSelectionData(), pendingInitializationUri, pendingIndexUri);
+        out.chunk =
+            newInitializationChunk(
+                representationHolder,
+                dataSource,
+                trackSelection.getSelectedFormat(),
+                trackSelection.getSelectionReason(),
+                trackSelection.getSelectionData(),
+                pendingInitializationUri,
+                pendingIndexUri);
         return;
       }
     }
@@ -458,7 +463,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return true;
     }
     // Workaround for missing segment at the end of the period
-    if (!manifest.dynamic && chunk instanceof MediaChunk
+    if (!manifest.dynamic
+        && chunk instanceof MediaChunk
         && e instanceof InvalidResponseCodeException
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
@@ -582,8 +588,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
-      return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
-          trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, trackType, trackFormat);
+      return new SingleSampleMediaChunk(
+          dataSource,
+          dataSpec,
+          trackFormat,
+          trackSelectionReason,
+          trackSelectionData,
+          startTimeUs,
+          endTimeUs,
+          firstSegmentNum,
+          trackType,
+          trackFormat);
     } else {
       int segmentCount = 1;
       for (int i = 1; i < maxSegmentCount; i++) {

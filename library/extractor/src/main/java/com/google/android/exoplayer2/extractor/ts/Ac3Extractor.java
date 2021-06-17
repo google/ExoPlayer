@@ -42,6 +42,7 @@ public final class Ac3Extractor implements Extractor {
    * up.
    */
   private static final int MAX_SNIFF_BYTES = 8 * 1024;
+
   private static final int AC3_SYNC_WORD = 0x0B77;
   private static final int MAX_SYNC_FRAME_SIZE = 2786;
 
@@ -142,5 +143,4 @@ public final class Ac3Extractor implements Extractor {
     reader.consume(sampleData);
     return RESULT_CONTINUE;
   }
-
 }

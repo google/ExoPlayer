@@ -93,10 +93,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
+import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowSystemClock;
 
 /** Tests for {@link ImaAdsLoader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class ImaAdsLoaderTest {
 
   private static final long CONTENT_DURATION_US = 10 * C.MICROS_PER_SECOND;
@@ -1411,7 +1413,8 @@ public final class ImaAdsLoaderTest {
     public void onAdPlaybackState(AdPlaybackState adPlaybackState) {
       long[][] adDurationsUs = new long[adPlaybackState.adGroupCount][];
       for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
-        adDurationsUs[adGroupIndex] = new long[adPlaybackState.adGroups[adGroupIndex].uris.length];
+        adDurationsUs[adGroupIndex] =
+            new long[adPlaybackState.getAdGroup(adGroupIndex).uris.length];
         Arrays.fill(adDurationsUs[adGroupIndex], TEST_AD_DURATION_US);
       }
       adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);

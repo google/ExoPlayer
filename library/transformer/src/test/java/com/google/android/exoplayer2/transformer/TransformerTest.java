@@ -51,10 +51,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowMediaCodec;
 
 /** Unit test for {@link Transformer}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class TransformerTest {
 
   private static final String URI_PREFIX = "asset:///media/";

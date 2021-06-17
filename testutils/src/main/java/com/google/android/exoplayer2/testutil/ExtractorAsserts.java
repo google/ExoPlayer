@@ -355,10 +355,13 @@ public final class ExtractorAsserts {
       boolean simulateUnknownLength,
       boolean simulatePartialReads)
       throws IOException {
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data)
-        .setSimulateIOErrors(simulateIOErrors)
-        .setSimulateUnknownLength(simulateUnknownLength)
-        .setSimulatePartialReads(simulatePartialReads).build();
+    FakeExtractorInput input =
+        new FakeExtractorInput.Builder()
+            .setData(data)
+            .setSimulateIOErrors(simulateIOErrors)
+            .setSimulateUnknownLength(simulateUnknownLength)
+            .setSimulatePartialReads(simulatePartialReads)
+            .build();
 
     if (sniffFirst) {
       assertSniff(extractor, input, /* expectedResult= */ true);
@@ -453,8 +456,9 @@ public final class ExtractorAsserts {
         if (!retryFromStartIfLive) {
           continue;
         }
-        boolean isOnDemand = input.getLength() != C.LENGTH_UNSET
-            || (output.seekMap != null && output.seekMap.getDurationUs() != C.TIME_UNSET);
+        boolean isOnDemand =
+            input.getLength() != C.LENGTH_UNSET
+                || (output.seekMap != null && output.seekMap.getDurationUs() != C.TIME_UNSET);
         if (isOnDemand) {
           continue;
         }

@@ -265,9 +265,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
   }
 
-  /**
-   * Thrown when an error is encountered when trying to open a {@link CronetDataSource}.
-   */
+  /** Thrown when an error is encountered when trying to open a {@link CronetDataSource}. */
   public static final class OpenException extends HttpDataSourceException {
 
     /**
@@ -985,13 +983,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private static int getStatus(UrlRequest request) throws InterruptedException {
     final ConditionVariable conditionVariable = new ConditionVariable();
     final int[] statusHolder = new int[1];
-    request.getStatus(new UrlRequest.StatusListener() {
-      @Override
-      public void onStatus(int status) {
-        statusHolder[0] = status;
-        conditionVariable.open();
-      }
-    });
+    request.getStatus(
+        new UrlRequest.StatusListener() {
+          @Override
+          public void onStatus(int status) {
+            statusHolder[0] = status;
+            conditionVariable.open();
+          }
+        });
     conditionVariable.block();
     return statusHolder[0];
   }

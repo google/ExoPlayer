@@ -33,7 +33,7 @@ public final class FileDataSource extends BaseDataSource {
   /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
   public static class FileDataSourceException extends IOException {
 
-    public FileDataSourceException(IOException cause) {
+    public FileDataSourceException(Exception cause) {
       super(cause);
     }
 
@@ -87,12 +87,14 @@ public final class FileDataSource extends BaseDataSource {
 
       this.file = openLocalFile(uri);
       file.seek(dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
-          : dataSpec.length;
+      bytesRemaining =
+          dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position : dataSpec.length;
       if (bytesRemaining < 0) {
         throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
       }
-    } catch (IOException e) {
+    } catch (FileDataSourceException e) {
+      throw e;
+    } catch (Exception e) {
       throw new FileDataSourceException(e);
     }
 

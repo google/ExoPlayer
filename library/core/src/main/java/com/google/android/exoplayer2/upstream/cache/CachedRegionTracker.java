@@ -66,19 +66,20 @@ public final class CachedRegionTracker implements Cache.Listener {
   }
 
   /**
-   * When provided with a byte offset, this method locates the cached region within which the
-   * offset falls, and returns the approximate end position in milliseconds of that region. If the
-   * byte offset does not fall within a cached region then {@link #NOT_CACHED} is returned.
-   * If the cached region extends to the end of the stream, {@link #CACHED_TO_END} is returned.
+   * When provided with a byte offset, this method locates the cached region within which the offset
+   * falls, and returns the approximate end position in milliseconds of that region. If the byte
+   * offset does not fall within a cached region then {@link #NOT_CACHED} is returned. If the cached
+   * region extends to the end of the stream, {@link #CACHED_TO_END} is returned.
    *
    * @param byteOffset The byte offset in the underlying stream.
-   * @return The end position of the corresponding cache region, {@link #NOT_CACHED}, or
-   *     {@link #CACHED_TO_END}.
+   * @return The end position of the corresponding cache region, {@link #NOT_CACHED}, or {@link
+   *     #CACHED_TO_END}.
    */
   public synchronized int getRegionEndTimeMs(long byteOffset) {
     lookupRegion.startOffset = byteOffset;
     @Nullable Region floorRegion = regions.floor(lookupRegion);
-    if (floorRegion == null || byteOffset > floorRegion.endOffset
+    if (floorRegion == null
+        || byteOffset > floorRegion.endOffset
         || floorRegion.endOffsetIndex == -1) {
       return NOT_CACHED;
     }
@@ -87,8 +88,9 @@ public final class CachedRegionTracker implements Cache.Listener {
         && floorRegion.endOffset == (chunkIndex.offsets[index] + chunkIndex.sizes[index])) {
       return CACHED_TO_END;
     }
-    long segmentFractionUs = (chunkIndex.durationsUs[index]
-        * (floorRegion.endOffset - chunkIndex.offsets[index])) / chunkIndex.sizes[index];
+    long segmentFractionUs =
+        (chunkIndex.durationsUs[index] * (floorRegion.endOffset - chunkIndex.offsets[index]))
+            / chunkIndex.sizes[index];
     return (int) ((chunkIndex.timesUs[index] + segmentFractionUs) / 1000);
   }
 
@@ -174,13 +176,9 @@ public final class CachedRegionTracker implements Cache.Listener {
 
   private static class Region implements Comparable<Region> {
 
-    /**
-     * The first byte of the region (inclusive).
-     */
+    /** The first byte of the region (inclusive). */
     public long startOffset;
-    /**
-     * End offset of the region (exclusive).
-     */
+    /** End offset of the region (exclusive). */
     public long endOffset;
     /**
      * The index in chunkIndex that contains the end offset. May be -1 if the end offset comes
@@ -198,7 +196,5 @@ public final class CachedRegionTracker implements Cache.Listener {
     public int compareTo(Region another) {
       return Util.compareLong(startOffset, another.startOffset);
     }
-
   }
-
 }

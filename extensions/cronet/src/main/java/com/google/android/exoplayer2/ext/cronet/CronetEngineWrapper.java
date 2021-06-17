@@ -49,25 +49,15 @@ public final class CronetEngineWrapper {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SOURCE_NATIVE, SOURCE_GMS, SOURCE_UNKNOWN, SOURCE_USER_PROVIDED, SOURCE_UNAVAILABLE})
   public @interface CronetEngineSource {}
-  /**
-   * Natively bundled Cronet implementation.
-   */
+  /** Natively bundled Cronet implementation. */
   public static final int SOURCE_NATIVE = 0;
-  /**
-   * Cronet implementation from GMSCore.
-   */
+  /** Cronet implementation from GMSCore. */
   public static final int SOURCE_GMS = 1;
-  /**
-   * Other (unknown) Cronet implementation.
-   */
+  /** Other (unknown) Cronet implementation. */
   public static final int SOURCE_UNKNOWN = 2;
-  /**
-   * User-provided Cronet engine.
-   */
+  /** User-provided Cronet engine. */
   public static final int SOURCE_USER_PROVIDED = 3;
-  /**
-   * No Cronet implementation available. Fallback Http provider is used if possible.
-   */
+  /** No Cronet implementation available. Fallback Http provider is used if possible. */
   public static final int SOURCE_UNAVAILABLE = 4;
 
   /**
@@ -124,11 +114,15 @@ public final class CronetEngineWrapper {
         }
         Log.d(TAG, "CronetEngine built using " + providerName);
       } catch (SecurityException e) {
-        Log.w(TAG, "Failed to build CronetEngine. Please check if current process has "
-            + "android.permission.ACCESS_NETWORK_STATE.");
+        Log.w(
+            TAG,
+            "Failed to build CronetEngine. Please check if current process has "
+                + "android.permission.ACCESS_NETWORK_STATE.");
       } catch (UnsatisfiedLinkError e) {
-        Log.w(TAG, "Failed to link Cronet binaries. Please check if native Cronet binaries are "
-            + "bundled into your app.");
+        Log.w(
+            TAG,
+            "Failed to link Cronet binaries. Please check if native Cronet binaries are "
+                + "bundled into your app.");
       }
     }
     if (cronetEngine == null) {
@@ -175,7 +169,7 @@ public final class CronetEngineWrapper {
 
     // Multi-catch can only be used for API 19+ in this case.
     // Field#get(null) is blocked by the null-checker, but is safe because the field is static.
-    @SuppressWarnings({"UseMultiCatch", "nullness:argument.type.incompatible"})
+    @SuppressWarnings({"UseMultiCatch", "nullness:argument.type.incompatible", "nullness:argument"})
     public CronetProviderComparator(boolean preferGMSCoreCronet) {
       // GMSCore CronetProvider classes are only available in some configurations.
       // Thus, we use reflection to copy static name.
@@ -215,8 +209,7 @@ public final class CronetEngineWrapper {
     }
 
     /**
-     * Convert Cronet provider name into a sortable preference value.
-     * Smaller values are preferred.
+     * Convert Cronet provider name into a sortable preference value. Smaller values are preferred.
      */
     private int evaluateCronetProviderType(String providerName) {
       if (isNativeProvider(providerName)) {
@@ -229,9 +222,7 @@ public final class CronetEngineWrapper {
       return -1;
     }
 
-    /**
-     * Compares version strings of format "12.123.35.23".
-     */
+    /** Compares version strings of format "12.123.35.23". */
     private static int compareVersionStrings(String versionLeft, String versionRight) {
       if (versionLeft == null || versionRight == null) {
         return 0;
@@ -253,5 +244,4 @@ public final class CronetEngineWrapper {
       return 0;
     }
   }
-
 }

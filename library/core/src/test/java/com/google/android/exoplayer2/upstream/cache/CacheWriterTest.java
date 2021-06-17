@@ -113,9 +113,12 @@ public final class CacheWriterTest {
 
   @Test
   public void cacheUnknownLength() throws Exception {
-    FakeDataSet fakeDataSet = new FakeDataSet().newData("test_data")
-        .setSimulateUnknownLength(true)
-        .appendReadData(TestUtil.buildTestData(100)).endData();
+    FakeDataSet fakeDataSet =
+        new FakeDataSet()
+            .newData("test_data")
+            .setSimulateUnknownLength(true)
+            .appendReadData(TestUtil.buildTestData(100))
+            .endData();
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     DataSpec dataSpec = new DataSpec(Uri.parse("test_data"));
@@ -135,9 +138,12 @@ public final class CacheWriterTest {
 
   @Test
   public void cacheUnknownLengthPartialCaching() throws Exception {
-    FakeDataSet fakeDataSet = new FakeDataSet().newData("test_data")
-        .setSimulateUnknownLength(true)
-        .appendReadData(TestUtil.buildTestData(100)).endData();
+    FakeDataSet fakeDataSet =
+        new FakeDataSet()
+            .newData("test_data")
+            .setSimulateUnknownLength(true)
+            .appendReadData(TestUtil.buildTestData(100))
+            .endData();
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri testUri = Uri.parse("test_data");

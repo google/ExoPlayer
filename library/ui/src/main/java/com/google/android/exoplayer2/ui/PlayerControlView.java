@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
@@ -67,7 +66,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
  * layout file.
  *
- * <h3>Attributes</h3>
+ * <h2>Attributes</h2>
  *
  * The following attributes can be set on a PlayerControlView when used in a layout XML file:
  *
@@ -139,7 +138,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
- * <h3>Overriding drawables</h3>
+ * <h2>Overriding drawables</h2>
  *
  * The drawables used by PlayerControlView (with its default layout file) can be overridden by
  * drawables with the same names defined in your application. The drawables that can be overridden
@@ -163,7 +162,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code exo_controls_vr}</b> - The VR icon.
  * </ul>
  *
- * <h3>Overriding the layout file</h3>
+ * <h2>Overriding the layout file</h2>
  *
  * To customize the layout of PlayerControlView throughout your app, or just for certain
  * configurations, you can define {@code exo_player_control_view.xml} layout files in your
@@ -242,7 +241,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>All child views are optional and so can be omitted if not required, however where defined they
  * must be of the expected type.
  *
- * <h3>Specifying a custom layout file</h3>
+ * <h2>Specifying a custom layout file</h2>
  *
  * Defining your own {@code exo_player_control_view.xml} is useful to customize the layout of
  * PlayerControlView throughout your application. It's also possible to customize the layout for a
@@ -329,7 +328,6 @@ public class PlayerControlView extends FrameLayout {
   @Nullable private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
   @Nullable private ProgressUpdateListener progressUpdateListener;
-  @Nullable private PlaybackPreparer playbackPreparer;
 
   private boolean isAttachedToWindow;
   private boolean showMultiWindowTimeBar;
@@ -363,9 +361,9 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @SuppressWarnings({
-    "nullness:argument.type.incompatible",
-    "nullness:method.invocation.invalid",
-    "nullness:methodref.receiver.bound.invalid"
+    "nullness:argument.type.incompatible", "nullness:argument",
+    "nullness:method.invocation.invalid", "nullness:method.invocation",
+    "nullness:methodref.receiver.bound.invalid", "nullness:methodref.receiver.bound"
   })
   public PlayerControlView(
       Context context,
@@ -617,20 +615,6 @@ public class PlayerControlView extends FrameLayout {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The view calls {@link
-   *     ControlDispatcher#dispatchPrepare(Player)} instead of {@link
-   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that the view
-   *     uses by default, calls {@link Player#prepare()}. If you wish to customize this behaviour,
-   *     you can provide a custom implementation of {@link
-   *     ControlDispatcher#dispatchPrepare(Player)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    this.playbackPreparer = playbackPreparer;
-  }
-
-  /**
    * Sets the {@link com.google.android.exoplayer2.ControlDispatcher}.
    *
    * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}.
@@ -680,32 +664,6 @@ public class PlayerControlView extends FrameLayout {
   public void setShowNextButton(boolean showNextButton) {
     this.showNextButton = showNextButton;
     updateNavigation();
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setRewindIncrementMs(int rewindMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
-      updateNavigation();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setFastForwardIncrementMs(int fastForwardMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
-      updateNavigation();
-    }
   }
 
   /**
@@ -1024,8 +982,9 @@ public class PlayerControlView extends FrameLayout {
         }
         for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
           timeline.getPeriod(j, period);
-          int periodAdGroupCount = period.getAdGroupCount();
-          for (int adGroupIndex = 0; adGroupIndex < periodAdGroupCount; adGroupIndex++) {
+          int removedGroups = period.getRemovedAdGroupCount();
+          int totalGroups = period.getAdGroupCount();
+          for (int adGroupIndex = removedGroups; adGroupIndex < totalGroups; adGroupIndex++) {
             long adGroupTimeInPeriodUs = period.getAdGroupTimeUs(adGroupIndex);
             if (adGroupTimeInPeriodUs == C.TIME_END_OF_SOURCE) {
               if (period.durationUs == C.TIME_UNSET) {
@@ -1273,11 +1232,7 @@ public class PlayerControlView extends FrameLayout {
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {
-      if (playbackPreparer != null) {
-        playbackPreparer.preparePlayback();
-      } else {
-        controlDispatcher.dispatchPrepare(player);
-      }
+      controlDispatcher.dispatchPrepare(player);
     } else if (state == Player.STATE_ENDED) {
       seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }

@@ -33,11 +33,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
-import org.robolectric.annotation.Config;
 
 /** End-to-end tests using FLAC samples. */
-// TODO(b/143232359): Remove once https://issuetracker.google.com/143232359 is resolved.
-@Config(sdk = 29)
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class FlacPlaybackTest {
 

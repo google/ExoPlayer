@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.dash;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -538,17 +537,6 @@ public final class DashMediaSource extends BaseMediaSource {
 
   // MediaSource implementation.
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return castNonNull(mediaItem.playbackProperties).tag;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaItem;
@@ -648,8 +636,8 @@ public final class DashMediaSource extends BaseMediaSource {
 
   // Loadable callbacks.
 
-  /* package */ void onManifestLoadCompleted(ParsingLoadable<DashManifest> loadable,
-      long elapsedRealtimeMs, long loadDurationMs) {
+  /* package */ void onManifestLoadCompleted(
+      ParsingLoadable<DashManifest> loadable, long elapsedRealtimeMs, long loadDurationMs) {
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -773,8 +761,8 @@ public final class DashMediaSource extends BaseMediaSource {
     return loadErrorAction;
   }
 
-  /* package */ void onUtcTimestampLoadCompleted(ParsingLoadable<Long> loadable,
-      long elapsedRealtimeMs, long loadDurationMs) {
+  /* package */ void onUtcTimestampLoadCompleted(
+      ParsingLoadable<Long> loadable, long elapsedRealtimeMs, long loadDurationMs) {
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -811,8 +799,8 @@ public final class DashMediaSource extends BaseMediaSource {
     return Loader.DONT_RETRY;
   }
 
-  /* package */ void onLoadCanceled(ParsingLoadable<?> loadable, long elapsedRealtimeMs,
-      long loadDurationMs) {
+  /* package */ void onLoadCanceled(
+      ParsingLoadable<?> loadable, long elapsedRealtimeMs, long loadDurationMs) {
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -857,10 +845,13 @@ public final class DashMediaSource extends BaseMediaSource {
     }
   }
 
-  private void resolveUtcTimingElementHttp(UtcTimingElement timingElement,
-      ParsingLoadable.Parser<Long> parser) {
-    startLoading(new ParsingLoadable<>(dataSource, Uri.parse(timingElement.value),
-        C.DATA_TYPE_TIME_SYNCHRONIZATION, parser), new UtcTimestampCallback(), 1);
+  private void resolveUtcTimingElementHttp(
+      UtcTimingElement timingElement, ParsingLoadable.Parser<Long> parser) {
+    startLoading(
+        new ParsingLoadable<>(
+            dataSource, Uri.parse(timingElement.value), C.DATA_TYPE_TIME_SYNCHRONIZATION, parser),
+        new UtcTimestampCallback(),
+        1);
   }
 
   private void loadNtpTimeOffset() {
@@ -1081,8 +1072,10 @@ public final class DashMediaSource extends BaseMediaSource {
     return min((staleManifestReloadAttempt - 1) * 1000, 5000);
   }
 
-  private <T> void startLoading(ParsingLoadable<T> loadable,
-      Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
+  private <T> void startLoading(
+      ParsingLoadable<T> loadable,
+      Loader.Callback<ParsingLoadable<T>> callback,
+      int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
     manifestEventDispatcher.loadStarted(
         new LoadEventInfo(loadable.loadTaskId, loadable.dataSpec, elapsedRealtimeMs),
@@ -1257,7 +1250,11 @@ public final class DashMediaSource extends BaseMediaSource {
       Assertions.checkIndex(periodIndex, 0, getPeriodCount());
       Object id = setIdentifiers ? manifest.getPeriod(periodIndex).id : null;
       Object uid = setIdentifiers ? (firstPeriodId + periodIndex) : null;
-      return period.set(id, uid, 0, manifest.getPeriodDurationUs(periodIndex),
+      return period.set(
+          id,
+          uid,
+          0,
+          manifest.getPeriodDurationUs(periodIndex),
           C.msToUs(manifest.getPeriod(periodIndex).startMs - manifest.getPeriod(0).startMs)
               - offsetInFirstPeriodUs);
     }
@@ -1270,8 +1267,8 @@ public final class DashMediaSource extends BaseMediaSource {
     @Override
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       Assertions.checkIndex(windowIndex, 0, 1);
-      long windowDefaultStartPositionUs = getAdjustedWindowDefaultStartPositionUs(
-          defaultPositionProjectionUs);
+      long windowDefaultStartPositionUs =
+          getAdjustedWindowDefaultStartPositionUs(defaultPositionProjectionUs);
       return window.set(
           Window.SINGLE_WINDOW_UID,
           mediaItem,
@@ -1338,7 +1335,8 @@ public final class DashMediaSource extends BaseMediaSource {
         return windowDefaultStartPositionUs;
       }
       long segmentNum = snapIndex.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
-      return windowDefaultStartPositionUs + snapIndex.getTimeUs(segmentNum)
+      return windowDefaultStartPositionUs
+          + snapIndex.getTimeUs(segmentNum)
           - defaultStartPositionInPeriodUs;
     }
 
@@ -1394,7 +1392,6 @@ public final class DashMediaSource extends BaseMediaSource {
         int errorCount) {
       return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error, errorCount);
     }
-
   }
 
   private final class UtcTimestampCallback implements Loader.Callback<ParsingLoadable<Long>> {
@@ -1423,7 +1420,6 @@ public final class DashMediaSource extends BaseMediaSource {
         int errorCount) {
       return onUtcTimestampLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }
-
   }
 
   private static final class XsDateTimeParser implements ParsingLoadable.Parser<Long> {
@@ -1433,7 +1429,6 @@ public final class DashMediaSource extends BaseMediaSource {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       return Util.parseXsDateTime(firstLine);
     }
-
   }
 
   /* package */ static final class Iso8601Parser implements ParsingLoadable.Parser<Long> {
@@ -1469,10 +1464,9 @@ public final class DashMediaSource extends BaseMediaSource {
         }
         return timestampMs;
       } catch (ParseException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
       }
     }
-
   }
 
   /**

@@ -31,8 +31,8 @@ public final class PriorityDataSourceFactory implements Factory {
    * @param priorityTaskManager The priority manager to which PriorityDataSource task is registered.
    * @param priority The priority of PriorityDataSource task.
    */
-  public PriorityDataSourceFactory(Factory upstreamFactory, PriorityTaskManager priorityTaskManager,
-      int priority) {
+  public PriorityDataSourceFactory(
+      Factory upstreamFactory, PriorityTaskManager priorityTaskManager, int priority) {
     this.upstreamFactory = upstreamFactory;
     this.priorityTaskManager = priorityTaskManager;
     this.priority = priority;
@@ -40,8 +40,7 @@ public final class PriorityDataSourceFactory implements Factory {
 
   @Override
   public PriorityDataSource createDataSource() {
-    return new PriorityDataSource(upstreamFactory.createDataSource(), priorityTaskManager,
-        priority);
+    return new PriorityDataSource(
+        upstreamFactory.createDataSource(), priorityTaskManager, priority);
   }
-
 }

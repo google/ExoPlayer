@@ -21,9 +21,9 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -57,6 +57,7 @@ public class EventLogger implements AnalyticsListener {
   private static final String DEFAULT_TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
   private static final NumberFormat TIME_FORMAT;
+
   static {
     TIME_FORMAT = NumberFormat.getInstance(Locale.US);
     TIME_FORMAT.setMinimumFractionDigits(2);
@@ -243,7 +244,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPlayerError(EventTime eventTime, ExoPlaybackException e) {
+  public void onPlayerError(EventTime eventTime, PlaybackException e) {
     loge(eventTime, "playerFailed", e);
   }
 
@@ -597,6 +598,9 @@ public class EventLogger implements AnalyticsListener {
       @Nullable String eventDescription,
       @Nullable Throwable throwable) {
     String eventString = eventName + " [" + getEventTimeString(eventTime);
+    if (throwable instanceof PlaybackException) {
+      eventString += ", errorCode=" + ((PlaybackException) throwable).getErrorCodeName();
+    }
     if (eventDescription != null) {
       eventString += ", " + eventDescription;
     }
@@ -667,8 +671,10 @@ public class EventLogger implements AnalyticsListener {
   @SuppressWarnings("ReferenceEquality")
   private static String getTrackStatusString(
       @Nullable TrackSelection selection, TrackGroup group, int trackIndex) {
-    return getTrackStatusString(selection != null && selection.getTrackGroup() == group
-        && selection.indexOf(trackIndex) != C.INDEX_UNSET);
+    return getTrackStatusString(
+        selection != null
+            && selection.getTrackGroup() == group
+            && selection.indexOf(trackIndex) != C.INDEX_UNSET);
   }
 
   private static String getTrackStatusString(boolean enabled) {

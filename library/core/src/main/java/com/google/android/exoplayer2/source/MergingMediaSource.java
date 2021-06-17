@@ -44,9 +44,7 @@ import java.util.Map;
  */
 public final class MergingMediaSource extends CompositeMediaSource<Integer> {
 
-  /**
-   * Thrown when a {@link MergingMediaSource} cannot merge its sources.
-   */
+  /** Thrown when a {@link MergingMediaSource} cannot merge its sources. */
   public static final class IllegalMergeException extends IOException {
 
     /** The reason the merge failed. One of {@link #REASON_PERIOD_COUNT_MISMATCH}. */
@@ -54,23 +52,16 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
-    /**
-     * The sources have different period counts.
-     */
+    /** The sources have different period counts. */
     public static final int REASON_PERIOD_COUNT_MISMATCH = 0;
 
-    /**
-     * The reason the merge failed.
-     */
+    /** The reason the merge failed. */
     @Reason public final int reason;
 
-    /**
-     * @param reason The reason the merge failed.
-     */
+    /** @param reason The reason the merge failed. */
     public IllegalMergeException(@Reason int reason) {
       this.reason = reason;
     }
-
   }
 
   private static final int PERIOD_COUNT_UNSET = -1;
@@ -161,17 +152,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     periodTimeOffsetsUs = new long[0][];
     clippedDurationsUs = new HashMap<>();
     clippedMediaPeriods = MultimapBuilder.hashKeys().arrayListValues().build();
-  }
-
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return mediaSources.length > 0 ? mediaSources[0].getTag() : null;
   }
 
   @Override

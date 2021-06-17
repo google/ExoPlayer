@@ -20,9 +20,11 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link JpegExtractor}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@DoNotInstrument
 public final class JpegExtractorTest {
 
   @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")

@@ -314,8 +314,8 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
 
     /**
      * Sets the number of times the test runner is expected to reach the {@link Player#STATE_ENDED}
-     * or {@link Player#STATE_IDLE}. The default is 1. This affects how long
-     * {@link ExoPlayerTestRunner#blockUntilEnded(long)} waits.
+     * or {@link Player#STATE_IDLE}. The default is 1. This affects how long {@link
+     * ExoPlayerTestRunner#blockUntilEnded(long)} waits.
      *
      * @param expectedPlayerEndedCount The number of times the player is expected to reach the ended
      *     or idle state.

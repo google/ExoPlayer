@@ -32,15 +32,12 @@ import java.nio.channels.FileChannel;
 /** A {@link DataSource} for reading from a content URI. */
 public final class ContentDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when an {@link IOException} is encountered reading from a content URI.
-   */
+  /** Thrown when an {@link IOException} is encountered reading from a content URI. */
   public static class ContentDataSourceException extends IOException {
 
     public ContentDataSourceException(IOException cause) {
       super(cause);
     }
-
   }
 
   private final ContentResolver resolver;
@@ -51,9 +48,7 @@ public final class ContentDataSource extends BaseDataSource {
   private long bytesRemaining;
   private boolean opened;
 
-  /**
-   * @param context A context.
-   */
+  /** @param context A context. */
   public ContentDataSource(Context context) {
     super(/* isNetwork= */ false);
     this.resolver = context.getContentResolver();
@@ -188,5 +183,4 @@ public final class ContentDataSource extends BaseDataSource {
       }
     }
   }
-
 }

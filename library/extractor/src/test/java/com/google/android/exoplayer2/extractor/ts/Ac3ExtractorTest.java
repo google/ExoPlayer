@@ -22,9 +22,11 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link Ac3Extractor}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@DoNotInstrument
 public final class Ac3ExtractorTest {
 
   @Parameters(name = "{0}")

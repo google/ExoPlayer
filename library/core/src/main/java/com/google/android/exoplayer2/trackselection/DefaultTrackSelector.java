@@ -60,7 +60,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  * to configurable {@link Parameters}, which can be set by calling {@link
  * #setParameters(Parameters)}.
  *
- * <h3>Modifying parameters</h3>
+ * <h2>Modifying parameters</h2>
  *
  * To modify only some aspects of the parameters currently used by a selector, it's possible to
  * obtain a {@link ParametersBuilder} initialized with the current {@link Parameters}. The desired
@@ -93,7 +93,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  *
  * Selection {@link Parameters} support many different options, some of which are described below.
  *
- * <h3>Selecting specific tracks</h3>
+ * <h2>Selecting specific tracks</h2>
  *
  * Track selection overrides can be used to select specific tracks. To specify an override for a
  * renderer, it's first necessary to obtain the tracks that have been mapped to it:
@@ -120,7 +120,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  *         .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride));
  * }</pre>
  *
- * <h3>Constraint based track selection</h3>
+ * <h2>Constraint based track selection</h2>
  *
  * Whilst track selection overrides make it possible to select specific tracks, the recommended way
  * of controlling which tracks are selected is by specifying constraints. For example consider the
@@ -148,14 +148,14 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  *       only applied to periods whose tracks match those for which the override was set.
  * </ul>
  *
- * <h3>Disabling renderers</h3>
+ * <h2>Disabling renderers</h2>
  *
  * Renderers can be disabled using {@link ParametersBuilder#setRendererDisabled}. Disabling a
  * renderer differs from setting a {@code null} override because the renderer is disabled
  * unconditionally, whereas a {@code null} override is applied only when the track groups available
  * to the renderer match the {@link TrackGroupArray} for which it was specified.
  *
- * <h3>Tunneling</h3>
+ * <h2>Tunneling</h2>
  *
  * Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
  * support it. Tunneled playback is enabled by passing an audio session ID to {@link

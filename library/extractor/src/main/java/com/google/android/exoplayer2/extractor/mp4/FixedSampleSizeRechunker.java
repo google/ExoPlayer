@@ -26,9 +26,7 @@ import com.google.android.exoplayer2.util.Util;
  */
 /* package */ final class FixedSampleSizeRechunker {
 
-  /**
-   * The result of a rechunking operation.
-   */
+  /** The result of a rechunking operation. */
   public static final class Results {
 
     public final long[] offsets;
@@ -52,12 +50,9 @@ import com.google.android.exoplayer2.util.Util;
       this.flags = flags;
       this.duration = duration;
     }
-
   }
 
-  /**
-   * Maximum number of bytes for each buffer in rechunked output.
-   */
+  /** Maximum number of bytes for each buffer in rechunked output. */
   private static final int MAX_SAMPLE_SIZE = 8 * 1024;
 
   /**
@@ -68,7 +63,10 @@ import com.google.android.exoplayer2.util.Util;
    * @param chunkSampleCounts Sample counts for each of the MP4 stream's chunks.
    * @param timestampDeltaInTimeUnits Timestamp delta between each sample in time units.
    */
-  public static Results rechunk(int fixedSampleSize, long[] chunkOffsets, int[] chunkSampleCounts,
+  public static Results rechunk(
+      int fixedSampleSize,
+      long[] chunkOffsets,
+      int[] chunkSampleCounts,
       long timestampDeltaInTimeUnits) {
     int maxSampleCount = MAX_SAMPLE_SIZE / fixedSampleSize;
 

@@ -66,22 +66,14 @@ public class DecoderInputBuffer extends Buffer {
     BUFFER_REPLACEMENT_MODE_DIRECT
   })
   public @interface BufferReplacementMode {}
-  /**
-   * Disallows buffer replacement.
-   */
+  /** Disallows buffer replacement. */
   public static final int BUFFER_REPLACEMENT_MODE_DISABLED = 0;
-  /**
-   * Allows buffer replacement using {@link ByteBuffer#allocate(int)}.
-   */
+  /** Allows buffer replacement using {@link ByteBuffer#allocate(int)}. */
   public static final int BUFFER_REPLACEMENT_MODE_NORMAL = 1;
-  /**
-   * Allows buffer replacement using {@link ByteBuffer#allocateDirect(int)}.
-   */
+  /** Allows buffer replacement using {@link ByteBuffer#allocateDirect(int)}. */
   public static final int BUFFER_REPLACEMENT_MODE_DIRECT = 2;
 
-  /**
-   * {@link CryptoInfo} for encrypted data.
-   */
+  /** {@link CryptoInfo} for encrypted data. */
   public final CryptoInfo cryptoInfo;
 
   /** The buffer's data, or {@code null} if no data has been set. */
@@ -95,9 +87,7 @@ public class DecoderInputBuffer extends Buffer {
    */
   public boolean waitingForKeys;
 
-  /**
-   * The time at which the sample should be presented.
-   */
+  /** The time at which the sample should be presented. */
   public long timeUs;
 
   /**
@@ -194,9 +184,7 @@ public class DecoderInputBuffer extends Buffer {
     data = newData;
   }
 
-  /**
-   * Returns whether the {@link C#BUFFER_FLAG_ENCRYPTED} flag is set.
-   */
+  /** Returns whether the {@link C#BUFFER_FLAG_ENCRYPTED} flag is set. */
   public final boolean isEncrypted() {
     return getFlag(C.BUFFER_FLAG_ENCRYPTED);
   }

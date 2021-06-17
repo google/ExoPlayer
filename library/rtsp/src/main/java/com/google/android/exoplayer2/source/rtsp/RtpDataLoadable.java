@@ -57,7 +57,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     void onTransportReady(String transport, RtpDataChannel rtpDataChannel);
   }
 
-
   /** The track ID associated with the Loadable. */
   public final int trackId;
   /** The {@link RtspMediaTrack} to load. */

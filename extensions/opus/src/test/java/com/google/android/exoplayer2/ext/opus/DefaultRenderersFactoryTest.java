@@ -20,9 +20,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.DefaultRenderersFactoryAsserts;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link DefaultRenderersFactoryTest} with {@link LibopusAudioRenderer}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class DefaultRenderersFactoryTest {
 
   @Test

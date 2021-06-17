@@ -34,9 +34,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Seeking tests for {@link FlvExtractor}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class FlvExtractorSeekTest {
 
   private static final String TEST_FILE_KEY_FRAME_INDEX =

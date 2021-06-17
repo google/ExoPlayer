@@ -262,5 +262,4 @@ public final class BatchBufferTest {
     sampleBuffer.data.putLong(timeUs);
     sampleBuffer.flip();
   }
-
 }

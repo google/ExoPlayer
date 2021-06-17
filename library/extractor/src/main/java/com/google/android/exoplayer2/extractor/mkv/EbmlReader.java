@@ -37,8 +37,8 @@ import java.io.IOException;
 
   /**
    * Resets the state of the reader.
-   * <p>
-   * Subsequent calls to {@link #read(ExtractorInput)} will start reading a new EBML structure
+   *
+   * <p>Subsequent calls to {@link #read(ExtractorInput)} will start reading a new EBML structure
    * from scratch.
    */
   void reset();

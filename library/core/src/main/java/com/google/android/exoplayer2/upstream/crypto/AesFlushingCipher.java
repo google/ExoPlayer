@@ -57,7 +57,9 @@ public final class AesFlushingCipher {
       if (startPadding != 0) {
         updateInPlace(new byte[startPadding], 0, startPadding);
       }
-    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+    } catch (NoSuchAlgorithmException
+        | NoSuchPaddingException
+        | InvalidKeyException
         | InvalidAlgorithmParameterException e) {
       // Should never happen.
       throw new RuntimeException(e);
@@ -119,5 +121,4 @@ public final class AesFlushingCipher {
   private byte[] getInitializationVector(long nonce, long counter) {
     return ByteBuffer.allocate(16).putLong(nonce).putLong(counter).array();
   }
-
 }

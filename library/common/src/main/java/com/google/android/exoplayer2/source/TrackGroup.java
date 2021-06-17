@@ -37,9 +37,7 @@ public final class TrackGroup implements Parcelable {
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /**
-   * @param formats The track formats. At least one {@link Format} must be provided.
-   */
+  /** @param formats The track formats. At least one {@link Format} must be provided. */
   public TrackGroup(Format... formats) {
     Assertions.checkState(formats.length > 0);
     this.formats = formats;

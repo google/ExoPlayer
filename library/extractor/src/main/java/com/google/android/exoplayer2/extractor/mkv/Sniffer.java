@@ -26,10 +26,9 @@ import java.io.IOException;
  */
 /* package */ final class Sniffer {
 
-  /**
-   * The number of bytes to search for a valid header in {@link #sniff(ExtractorInput)}.
-   */
+  /** The number of bytes to search for a valid header in {@link #sniff(ExtractorInput)}. */
   private static final int SEARCH_LENGTH = 1024;
+
   private static final int ID_EBML = 0x1A45DFA3;
 
   private final ParsableByteArray scratch;
@@ -42,8 +41,11 @@ import java.io.IOException;
   /** @see com.google.android.exoplayer2.extractor.Extractor#sniff(ExtractorInput) */
   public boolean sniff(ExtractorInput input) throws IOException {
     long inputLength = input.getLength();
-    int bytesToSearch = (int) (inputLength == C.LENGTH_UNSET || inputLength > SEARCH_LENGTH
-        ? SEARCH_LENGTH : inputLength);
+    int bytesToSearch =
+        (int)
+            (inputLength == C.LENGTH_UNSET || inputLength > SEARCH_LENGTH
+                ? SEARCH_LENGTH
+                : inputLength);
     // Find four bytes equal to ID_EBML near the start of the input.
     input.peekFully(scratch.getData(), 0, 4);
     long tag = scratch.readUnsignedInt();
@@ -106,5 +108,4 @@ import java.io.IOException;
     peekLength += length + 1;
     return value;
   }
-
 }

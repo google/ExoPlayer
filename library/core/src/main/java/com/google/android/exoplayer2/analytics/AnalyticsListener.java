@@ -26,10 +26,10 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -49,7 +49,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
@@ -76,18 +76,18 @@ public interface AnalyticsListener {
   /** A set of {@link EventFlags}. */
   final class Events {
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
     private final SparseArray<EventTime> eventTimes;
 
     /**
      * Creates an instance.
      *
-     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link EventFlags} in the set.
      * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
      *     all the events recorded in {@code flags}. Events that are not recorded in {@code flags}
      *     are ignored.
      */
-    public Events(ExoFlags flags, SparseArray<EventTime> eventTimes) {
+    public Events(FlagSet flags, SparseArray<EventTime> eventTimes) {
       this.flags = flags;
       SparseArray<EventTime> flagsToTimes = new SparseArray<>(/* initialCapacity= */ flags.size());
       for (int i = 0; i < flags.size(); i++) {
@@ -169,7 +169,11 @@ public interface AnalyticsListener {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+    EVENT_FAST_FORWARD_INCREMENT_CHANGED,
+    EVENT_REWIND_INCREMENT_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -246,8 +250,16 @@ public interface AnalyticsListener {
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** {@link Player#getAvailableCommands()} changed. */
+  int EVENT_AVAILABLE_COMMANDS_CHANGED = Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
   /** {@link Player#getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
+  /** {@link Player#getPlaylistMediaMetadata()} changed. */
+  int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = Player.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED;
+  /** {@link Player#getFastForwardIncrement()} changed. */
+  int EVENT_FAST_FORWARD_INCREMENT_CHANGED = Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED;
+  /** {@link Player#getRewindIncrement()} changed. */
+  int EVENT_REWIND_INCREMENT_CHANGED = Player.EVENT_REWIND_INCREMENT_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -584,6 +596,22 @@ public interface AnalyticsListener {
       EventTime eventTime, PlaybackParameters playbackParameters) {}
 
   /**
+   * Called when the fast forward increment changed.
+   *
+   * @param eventTime The event time.
+   * @param fastForwardIncrementMs The fast forward increment, in milliseconds.
+   */
+  default void onFastForwardIncrementChanged(EventTime eventTime, long fastForwardIncrementMs) {}
+
+  /**
+   * Called when the rewind increment changed.
+   *
+   * @param eventTime The event time.
+   * @param rewindIncrementMs The rewind increment, in milliseconds.
+   */
+  default void onRewindIncrementChanged(EventTime eventTime, long rewindIncrementMs) {}
+
+  /**
    * Called when the repeat mode changed.
    *
    * @param eventTime The event time.
@@ -612,12 +640,20 @@ public interface AnalyticsListener {
   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /**
+   * Called when the player's available commands changed.
+   *
+   * @param eventTime The event time.
+   * @param availableCommands The available commands.
+   */
+  default void onAvailableCommandsChanged(EventTime eventTime, Player.Commands availableCommands) {}
+
+  /**
    * Called when a fatal player error occurred.
    *
    * @param eventTime The event time.
    * @param error The error.
    */
-  default void onPlayerError(EventTime eventTime, ExoPlaybackException error) {}
+  default void onPlayerError(EventTime eventTime, PlaybackException error) {}
 
   /**
    * Called when the available or selected tracks for the renderers changed.
@@ -657,6 +693,15 @@ public interface AnalyticsListener {
    * @param mediaMetadata The combined {@link MediaMetadata}.
    */
   default void onMediaMetadataChanged(EventTime eventTime, MediaMetadata mediaMetadata) {}
+
+  /**
+   * Called when the playlist {@link MediaMetadata} changes.
+   *
+   * @param eventTime The event time.
+   * @param playlistMediaMetadata The playlist {@link MediaMetadata}.
+   */
+  default void onPlaylistMediaMetadataChanged(
+      EventTime eventTime, MediaMetadata playlistMediaMetadata) {}
 
   /**
    * Called when a media source started loading data.

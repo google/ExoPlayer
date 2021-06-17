@@ -463,11 +463,11 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
-   * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
-   * index {@code offset}.
-   * <p>
-   * This method blocks until at least one byte of data can be read, the end of the opened range is
-   * detected, or an exception is thrown.
+   * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at index
+   * {@code offset}.
+   *
+   * <p>This method blocks until at least one byte of data can be read, the end of the opened range
+   * is detected, or an exception is thrown.
    *
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
@@ -498,9 +498,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     return read;
   }
 
-  /**
-   * Closes the current connection quietly, if there is one.
-   */
+  /** Closes the current connection quietly, if there is one. */
   private void closeConnectionQuietly() {
     if (response != null) {
       Assertions.checkNotNull(response.body()).close();
@@ -508,5 +506,4 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
     responseByteStream = null;
   }
-
 }

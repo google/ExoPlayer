@@ -134,5 +134,4 @@ public final class ClearKeyUtilTest {
     // Request should be unchanged.
     assertThat(ClearKeyUtil.adjustRequestData(KEY_REQUEST)).isEqualTo(KEY_REQUEST);
   }
-
 }

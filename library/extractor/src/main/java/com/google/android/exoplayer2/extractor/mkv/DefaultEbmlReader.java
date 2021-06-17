@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
-
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -30,9 +29,7 @@ import java.util.ArrayDeque;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Default implementation of {@link EbmlReader}.
- */
+/** Default implementation of {@link EbmlReader}. */
 /* package */ final class DefaultEbmlReader implements EbmlReader {
 
   @Documented
@@ -250,7 +247,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       this.elementId = elementId;
       this.elementEndPosition = elementEndPosition;
     }
-
   }
-
 }

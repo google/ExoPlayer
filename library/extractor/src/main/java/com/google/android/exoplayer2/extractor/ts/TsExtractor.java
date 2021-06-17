@@ -64,13 +64,9 @@ public final class TsExtractor implements Extractor {
   @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}
 
-  /**
-   * Behave as defined in ISO/IEC 13818-1.
-   */
+  /** Behave as defined in ISO/IEC 13818-1. */
   public static final int MODE_MULTI_PMT = 0;
-  /**
-   * Assume only one PMT will be contained in the stream, even if more are declared by the PAT.
-   */
+  /** Assume only one PMT will be contained in the stream, even if more are declared by the PAT. */
   public static final int MODE_SINGLE_PMT = 1;
   /**
    * Enable single PMT mode, map {@link TrackOutput}s by their type (instead of PID) and ignore
@@ -475,9 +471,7 @@ public final class TsExtractor implements Extractor {
     id3Reader = null;
   }
 
-  /**
-   * Parses Program Association Table data.
-   */
+  /** Parses Program Association Table data. */
   private class PatReader implements SectionPayloadReader {
 
     private final ParsableBitArray patScratch;
@@ -487,7 +481,9 @@ public final class TsExtractor implements Extractor {
     }
 
     @Override
-    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+    public void init(
+        TimestampAdjuster timestampAdjuster,
+        ExtractorOutput extractorOutput,
         TrackIdGenerator idGenerator) {
       // Do nothing.
     }
@@ -528,12 +524,9 @@ public final class TsExtractor implements Extractor {
         tsPayloadReaders.remove(TS_PAT_PID);
       }
     }
-
   }
 
-  /**
-   * Parses Program Map Table.
-   */
+  /** Parses Program Map Table. */
   private class PmtReader implements SectionPayloadReader {
 
     private static final int TS_PMT_DESC_REGISTRATION = 0x05;
@@ -560,7 +553,9 @@ public final class TsExtractor implements Extractor {
     }
 
     @Override
-    public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+    public void init(
+        TimestampAdjuster timestampAdjuster,
+        ExtractorOutput extractorOutput,
         TrackIdGenerator idGenerator) {
       // Do nothing.
     }
@@ -577,8 +572,8 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_SINGLE_PMT || mode == MODE_HLS || remainingPmts == 1) {
         timestampAdjuster = timestampAdjusters.get(0);
       } else {
-        timestampAdjuster = new TimestampAdjuster(
-            timestampAdjusters.get(0).getFirstSampleTimestampUs());
+        timestampAdjuster =
+            new TimestampAdjuster(timestampAdjusters.get(0).getFirstSampleTimestampUs());
         timestampAdjusters.add(timestampAdjuster);
       }
 
@@ -615,7 +610,9 @@ public final class TsExtractor implements Extractor {
         // appears intermittently during playback. See [Internal: b/20261500].
         EsInfo id3EsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, Util.EMPTY_BYTE_ARRAY);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, id3EsInfo);
-        id3Reader.init(timestampAdjuster, output,
+        id3Reader.init(
+            timestampAdjuster,
+            output,
             new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
@@ -661,7 +658,9 @@ public final class TsExtractor implements Extractor {
         @Nullable TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
         if (reader != null) {
           if (reader != id3Reader) {
-            reader.init(timestampAdjuster, output,
+            reader.init(
+                timestampAdjuster,
+                output,
                 new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
           }
           tsPayloadReaders.put(trackPid, reader);
@@ -741,8 +740,8 @@ public final class TsExtractor implements Extractor {
             int dvbSubtitlingType = data.readUnsignedByte();
             byte[] initializationData = new byte[4];
             data.readBytes(initializationData, 0, 4);
-            dvbSubtitleInfos.add(new DvbSubtitleInfo(dvbLanguage, dvbSubtitlingType,
-                initializationData));
+            dvbSubtitleInfos.add(
+                new DvbSubtitleInfo(dvbLanguage, dvbSubtitlingType, initializationData));
           }
         } else if (descriptorTag == TS_PMT_DESC_AIT) {
           streamType = TS_STREAM_TYPE_AIT;
@@ -757,7 +756,5 @@ public final class TsExtractor implements Extractor {
           dvbSubtitleInfos,
           Arrays.copyOfRange(data.getData(), descriptorsStartPosition, descriptorsEndPosition));
     }
-
   }
-
 }

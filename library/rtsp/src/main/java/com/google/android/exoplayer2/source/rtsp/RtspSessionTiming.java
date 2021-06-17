@@ -61,7 +61,7 @@ import java.util.regex.Pattern;
       try {
         stopTimeMs = (long) (Float.parseFloat(stopTimeString) * C.MILLIS_PER_SECOND);
       } catch (NumberFormatException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedManifest(stopTimeString, e);
       }
       checkArgument(stopTimeMs > startTimeMs);
     } else {

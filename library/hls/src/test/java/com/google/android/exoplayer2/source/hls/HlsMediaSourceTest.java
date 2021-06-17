@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mock;
 
 import android.net.Uri;
 import android.os.SystemClock;
-import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -81,35 +80,6 @@ public class HlsMediaSourceTest {
     assertThat(hlsMediaItem.playbackProperties).isNotNull();
     assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
     assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(tag);
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factoryCreateMediaSource_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(tag).build();
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(new Object());
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility

@@ -128,5 +128,4 @@ public final class DashDownloadTest {
         new MediaItem.Builder().setUri(MANIFEST_URI).setStreamKeys(keys).build(),
         cacheDataSourceFactory);
   }
-
 }

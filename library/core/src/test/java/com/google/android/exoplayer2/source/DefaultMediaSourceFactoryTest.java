@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,19 +60,6 @@ public final class DefaultMediaSourceFactoryTest {
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
     assertThat(mediaSource).isInstanceOf(ProgressiveMediaSource.class);
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Testing deprecated MediaSource.getTag() still works.
-  public void createMediaSource_withTag_tagInSource_deprecated() {
-    Object tag = new Object();
-    DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).setTag(tag).build();
-
-    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
-
-    assertThat(mediaSource.getTag()).isEqualTo(tag);
   }
 
   @Test
@@ -117,26 +103,6 @@ public final class DefaultMediaSourceFactoryTest {
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
     assertThat(mediaSource).isInstanceOf(MergingMediaSource.class);
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Testing deprecated MediaSource.getTag() still works.
-  public void createMediaSource_withSubtitle_hasTag_deprecated() {
-    DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    Object tag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setTag(tag)
-            .setUri(URI_MEDIA)
-            .setSubtitles(
-                Collections.singletonList(
-                    new MediaItem.Subtitle(Uri.parse(URI_TEXT), MimeTypes.APPLICATION_TTML, "en")))
-            .build();
-
-    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
-
-    assertThat(mediaSource.getTag()).isEqualTo(tag);
   }
 
   @Test

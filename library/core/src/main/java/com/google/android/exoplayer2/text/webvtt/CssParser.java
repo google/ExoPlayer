@@ -146,9 +146,7 @@ import java.util.regex.Pattern;
     return target;
   }
 
-  /**
-   * Reads the contents of ::cue() and returns it as a string.
-   */
+  /** Reads the contents of ::cue() and returns it as a string. */
   private static String readCueTarget(ParsableByteArray input) {
     int position = input.getPosition();
     int limit = input.limit();
@@ -161,8 +159,8 @@ import java.util.regex.Pattern;
     // --offset to return ')' to the input.
   }
 
-  private static void parseStyleDeclaration(ParsableByteArray input, WebvttCssStyle style,
-      StringBuilder stringBuilder) {
+  private static void parseStyleDeclaration(
+      ParsableByteArray input, WebvttCssStyle style, StringBuilder stringBuilder) {
     skipWhitespaceAndComments(input);
     String property = parseIdentifier(input, stringBuilder);
     if ("".equals(property)) {
@@ -243,7 +241,7 @@ import java.util.regex.Pattern;
   }
 
   private static boolean maybeSkipWhitespace(ParsableByteArray input) {
-    switch(peekCharAtPosition(input, input.getPosition())) {
+    switch (peekCharAtPosition(input, input.getPosition())) {
       case '\t':
       case '\r':
       case '\n':
@@ -319,10 +317,15 @@ import java.util.regex.Pattern;
     int position = input.getPosition();
     int limit = input.limit();
     boolean identifierEndFound = false;
-    while (position  < limit && !identifierEndFound) {
+    while (position < limit && !identifierEndFound) {
       char c = (char) input.getData()[position];
-      if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '#'
-          || c == '-' || c == '.' || c == '_') {
+      if ((c >= 'A' && c <= 'Z')
+          || (c >= 'a' && c <= 'z')
+          || (c >= '0' && c <= '9')
+          || c == '#'
+          || c == '-'
+          || c == '.'
+          || c == '_') {
         position++;
         stringBuilder.append(c);
       } else {
@@ -362,5 +365,4 @@ import java.util.regex.Pattern;
       style.setTargetClasses(Util.nullSafeArrayCopyOfRange(classDivision, 1, classDivision.length));
     }
   }
-
 }

@@ -42,7 +42,8 @@ public final class WidevineUtil {
     if (keyStatus == null) {
       return null;
     }
-    return new Pair<>(getDurationRemainingSec(keyStatus, PROPERTY_LICENSE_DURATION_REMAINING),
+    return new Pair<>(
+        getDurationRemainingSec(keyStatus, PROPERTY_LICENSE_DURATION_REMAINING),
         getDurationRemainingSec(keyStatus, PROPERTY_PLAYBACK_DURATION_REMAINING));
   }
 
@@ -59,5 +60,4 @@ public final class WidevineUtil {
     }
     return C.TIME_UNSET;
   }
-
 }
