@@ -26,6 +26,8 @@
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
     *   Forward the FRAME-RATE value from the master playlist to renditions.
         ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
+*   DRM:
+    *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
 *   UI:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
         in `PlayerNotificationManager`. This is required to avoid an error on

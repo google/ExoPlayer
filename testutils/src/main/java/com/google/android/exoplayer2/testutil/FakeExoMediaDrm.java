@@ -78,8 +78,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
      * to be provisioned.
      *
      * <p>An unprovisioned {@link FakeExoMediaDrm} will throw {@link NotProvisionedException} from
-     * {@link FakeExoMediaDrm#openSession()} until enough valid provisioning responses are passed to
-     * {@link FakeExoMediaDrm#provideProvisionResponse(byte[])}.
+     * methods that declare it until enough valid provisioning responses are passed to {@link
+     * FakeExoMediaDrm#provideProvisionResponse(byte[])}.
      *
      * <p>Defaults to 0 (i.e. device is already provisioned).
      */
@@ -182,9 +182,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public byte[] openSession() throws MediaDrmException {
     Assertions.checkState(referenceCount > 0);
-    if (provisionsReceived < provisionsRequired) {
-      throw new NotProvisionedException("Not provisioned.");
-    }
+    assertProvisioned();
     if (openSessionIds.size() >= maxConcurrentSessions) {
       throw new ResourceBusyException("Too many sessions open. max=" + maxConcurrentSessions);
     }
@@ -218,6 +216,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       throw new UnsupportedOperationException("Offline key requests are not supported.");
     }
     Assertions.checkArgument(keyType == KEY_TYPE_STREAMING, "Unrecognised keyType: " + keyType);
+    assertProvisioned();
     Assertions.checkState(openSessionIds.contains(toByteList(scope)));
     Assertions.checkNotNull(schemeDatas);
     KeyRequestData requestData =
@@ -238,6 +237,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
     Assertions.checkState(referenceCount > 0);
+    assertProvisioned();
     List<Byte> responseAsList = Bytes.asList(response);
     if (responseAsList.equals(VALID_KEY_RESPONSE)) {
       sessionIdsWithValidKeys.add(Bytes.asList(scope));
@@ -362,6 +362,21 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       if (sessionIdPredicate.apply(sessionIdArray)) {
         onEventListener.onEvent(this, sessionIdArray, event, extra, data);
       }
+    }
+  }
+
+  /**
+   * Resets the provisioning state of this instance, so it requires {@link
+   * Builder#setProvisionsRequired(int) provisionsRequired} (possibly zero) provision operations
+   * before it's operational again.
+   */
+  public void resetProvisioning() {
+    provisionsReceived = 0;
+  }
+
+  private void assertProvisioned() throws NotProvisionedException {
+    if (provisionsReceived < provisionsRequired) {
+      throw new NotProvisionedException("Not provisioned.");
     }
   }
 
