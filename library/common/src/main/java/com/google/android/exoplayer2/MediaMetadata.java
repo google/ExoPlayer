@@ -66,6 +66,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer discNumber;
     @Nullable private Integer totalDiscCount;
     @Nullable private CharSequence genre;
+    @Nullable private CharSequence playlistTitle;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -99,6 +100,7 @@ public final class MediaMetadata implements Bundleable {
       this.discNumber = mediaMetadata.discNumber;
       this.totalDiscCount = mediaMetadata.totalDiscCount;
       this.genre = mediaMetadata.genre;
+      this.playlistTitle = mediaMetadata.playlistTitle;
       this.extras = mediaMetadata.extras;
     }
 
@@ -297,6 +299,12 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Sets the playlist title. */
+    public Builder setPlaylistTitle(@Nullable CharSequence playlistTitle) {
+      this.playlistTitle = playlistTitle;
+      return this;
+    }
+
     /** Sets the extras {@link Bundle}. */
     public Builder setExtras(@Nullable Bundle extras) {
       this.extras = extras;
@@ -467,6 +475,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Integer totalDiscCount;
   /** Optional genre. */
   @Nullable public final CharSequence genre;
+  /** Optional playlist title. */
+  @Nullable public final CharSequence playlistTitle;
 
   /**
    * Optional extras {@link Bundle}.
@@ -506,6 +516,7 @@ public final class MediaMetadata implements Bundleable {
     this.discNumber = builder.discNumber;
     this.totalDiscCount = builder.totalDiscCount;
     this.genre = builder.genre;
+    this.playlistTitle = builder.playlistTitle;
     this.extras = builder.extras;
   }
 
@@ -550,7 +561,8 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(conductor, that.conductor)
         && Util.areEqual(discNumber, that.discNumber)
         && Util.areEqual(totalDiscCount, that.totalDiscCount)
-        && Util.areEqual(genre, that.genre);
+        && Util.areEqual(genre, that.genre)
+        && Util.areEqual(playlistTitle, that.playlistTitle);
   }
 
   @Override
@@ -583,7 +595,8 @@ public final class MediaMetadata implements Bundleable {
         conductor,
         discNumber,
         totalDiscCount,
-        genre);
+        genre,
+        playlistTitle);
   }
 
   // Bundleable implementation.
@@ -619,6 +632,7 @@ public final class MediaMetadata implements Bundleable {
     FIELD_DISC_NUMBER,
     FIELD_TOTAL_DISC_COUNT,
     FIELD_GENRE,
+    FIELD_PLAYLIST_TITLE,
     FIELD_EXTRAS
   })
   private @interface FieldNumber {}
@@ -651,6 +665,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_DISC_NUMBER = 25;
   private static final int FIELD_TOTAL_DISC_COUNT = 26;
   private static final int FIELD_GENRE = 27;
+  private static final int FIELD_PLAYLIST_TITLE = 28;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -670,6 +685,7 @@ public final class MediaMetadata implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_COMPOSER), composer);
     bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
     bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
+    bundle.putCharSequence(keyForField(FIELD_PLAYLIST_TITLE), playlistTitle);
 
     if (userRating != null) {
       bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
@@ -739,6 +755,7 @@ public final class MediaMetadata implements Bundleable {
         .setComposer(bundle.getCharSequence(keyForField(FIELD_COMPOSER)))
         .setConductor(bundle.getCharSequence(keyForField(FIELD_CONDUCTOR)))
         .setGenre(bundle.getCharSequence(keyForField(FIELD_GENRE)))
+        .setPlaylistTitle(bundle.getCharSequence(keyForField(FIELD_PLAYLIST_TITLE)))
         .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
 
     if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {
