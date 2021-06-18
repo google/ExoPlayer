@@ -67,6 +67,8 @@
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
     *   Support resuming content with an offset after an ad group.
+*   DRM:
+    *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
 *   PlayerNotificationManager:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
         Android 12.

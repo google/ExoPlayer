@@ -564,6 +564,69 @@ public class DefaultDrmSessionManagerTest {
   }
 
   @Test
+  public void deviceNotProvisioned_doubleProvisioningHandledAndOpenSessionRetried() {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+
+    DefaultDrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setProvisionsRequired(2).build())
+            .build(/* mediaDrmCallback= */ licenseServer);
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
+    waitForOpenedWithKeys(drmSession);
+
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertThat(drmSession.queryKeyStatus())
+        .containsExactly(FakeExoMediaDrm.KEY_STATUS_KEY, FakeExoMediaDrm.KEY_STATUS_AVAILABLE);
+  }
+
+  @Test
+  public void provisioningUndoneWhileManagerIsActive_deviceReprovisioned() {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+
+    FakeExoMediaDrm mediaDrm = new FakeExoMediaDrm.Builder().setProvisionsRequired(2).build();
+    DefaultDrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, new AppManagedProvider(mediaDrm))
+            .setSessionKeepaliveMs(C.TIME_UNSET)
+            .build(/* mediaDrmCallback= */ licenseServer);
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
+    waitForOpenedWithKeys(drmSession);
+    drmSession.release(/* eventDispatcher= */ null);
+
+    mediaDrm.resetProvisioning();
+
+    drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
+    waitForOpenedWithKeys(drmSession);
+  }
+
+  @Test
   public void managerNotPrepared_acquireSessionAndPreacquireSessionFail() throws Exception {
     FakeExoMediaDrm.LicenseServer licenseServer =
         FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
