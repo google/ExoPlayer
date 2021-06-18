@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .extensions {
   margin: map-get($spacers, 3) 0;
   @extend .d-print-none;
@@ -17,16 +19,16 @@
 }
 
 .extensions--video {
-  padding-top: percentage(315 / 560);
+  padding-top: percentage(math.div(315, 560));
 }
 
 .extensions--slide {
-  padding-top: percentage(487 / 599);
+  padding-top: percentage(math.div(487, 599));
 }
 
 .extensions--demo {
   min-height: 340px;
-  padding-top: percentage(315 / 560);
+  padding-top: percentage(math.div(315, 560));
 }
 
 .extensions--audio {

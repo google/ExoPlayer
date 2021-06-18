@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 $grid-columns: 12;
 
 .grid-container {
@@ -18,7 +20,7 @@ $grid-columns: 12;
     @include flex(1);
   } @else {
     @include flex(none);
-    width: percentage($columns / $grid-columns);
+    width: percentage(math.div($columns, $grid-columns));
   }
 }
 

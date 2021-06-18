@@ -1,3 +1,5 @@
+@use 'sass:list';
+
 @mixin block-elements {
   h1, h2, h3, h4, h5, h6, p,
   hr, blockquote, figure, pre, .highlighter-rouge,
@@ -33,7 +35,7 @@ html {
 body {
   padding: 0;
   margin: 0;
-  font: map-get($base, font-weight) #{map-get($base, font-size)}/#{map-get($base, line-height)} map-get($base, font-family);
+  font: map-get($base, font-weight) list.slash(map-get($base, font-size), map-get($base, line-height)) map-get($base, font-family);
   ::-moz-selection {
     background: $select-color;
   }
@@ -51,7 +53,7 @@ body {
 }
 
 input, textarea, select, button {
-  font: map-get($base, font-weight) #{map-get($base, font-size)}/#{map-get($base, line-height)} map-get($base, font-family);
+  font: map-get($base, font-weight) list.slash(map-get($base, font-size), map-get($base, line-height)) map-get($base, font-family);
   color: $text-color;
 }
 
