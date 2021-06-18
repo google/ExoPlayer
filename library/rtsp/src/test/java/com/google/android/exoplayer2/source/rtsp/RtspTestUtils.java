@@ -19,11 +19,16 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Joiner;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Utility methods for RTSP tests. */
 /* package */ final class RtspTestUtils {
+
+  private static final String TEST_BASE_URI = "rtsp://localhost:%d/test";
+  private static final String RTP_TIME_FORMAT = "url=rtsp://localhost/test/%s;seq=%d;rtptime=%d";
 
   /** RTSP error Method Not Allowed (RFC2326 Section 7.1.1). */
   public static final RtspResponse RTSP_ERROR_METHOD_NOT_ALLOWED =
@@ -62,7 +67,20 @@ import java.util.List;
 
   /** Returns the test RTSP {@link Uri}. */
   public static Uri getTestUri(int serverRtspPortNumber) {
-    return Uri.parse(Util.formatInvariant("rtsp://localhost:%d/test", serverRtspPortNumber));
+    return Uri.parse(Util.formatInvariant(TEST_BASE_URI, serverRtspPortNumber));
+  }
+
+  public static String getRtpInfoForDumps(List<RtpPacketStreamDump> rtpPacketStreamDumps) {
+    ArrayList<String> rtpInfos = new ArrayList<>(rtpPacketStreamDumps.size());
+    for (RtpPacketStreamDump rtpPacketStreamDump : rtpPacketStreamDumps) {
+      rtpInfos.add(
+          Util.formatInvariant(
+              RTP_TIME_FORMAT,
+              rtpPacketStreamDump.trackName,
+              rtpPacketStreamDump.firstSequenceNumber,
+              rtpPacketStreamDump.firstTimestamp));
+    }
+    return Joiner.on(",").join(rtpInfos);
   }
 
   private RtspTestUtils() {}

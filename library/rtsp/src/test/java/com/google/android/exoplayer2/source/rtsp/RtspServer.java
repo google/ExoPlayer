@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.source.rtsp;
 
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_DESCRIBE;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_OPTIONS;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_PLAY;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_SETUP;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
@@ -43,6 +45,16 @@ public final class RtspServer implements Closeable {
 
     /** Returns an RTSP DESCRIBE {@link RtspResponse response}. */
     default RtspResponse getDescribeResponse(Uri requestedUri) {
+      return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
+    }
+
+    /** Returns an RTSP SETUP {@link RtspResponse response}. */
+    default RtspResponse getSetupResponse(Uri requestedUri, RtspHeaders headers) {
+      return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
+    }
+
+    /** Returns an RTSP PLAY {@link RtspResponse response}. */
+    default RtspResponse getPlayResponse() {
       return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
     }
   }
@@ -124,6 +136,14 @@ public final class RtspServer implements Closeable {
 
         case METHOD_DESCRIBE:
           sendResponse(responseProvider.getDescribeResponse(request.uri), cSeq);
+          break;
+
+        case METHOD_SETUP:
+          sendResponse(responseProvider.getSetupResponse(request.uri, request.headers), cSeq);
+          break;
+
+        case METHOD_PLAY:
+          sendResponse(responseProvider.getPlayResponse(), cSeq);
           break;
 
         default:

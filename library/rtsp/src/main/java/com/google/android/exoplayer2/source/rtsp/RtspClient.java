@@ -543,20 +543,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void onDescribeResponseReceived(RtspDescribeResponse response) {
+      RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
       @Nullable
       String sessionRangeAttributeString =
           response.sessionDescription.attributes.get(SessionDescription.ATTR_RANGE);
-
-      try {
-        sessionInfoListener.onSessionTimelineUpdated(
-            sessionRangeAttributeString != null
-                ? RtspSessionTiming.parseTiming(sessionRangeAttributeString)
-                : RtspSessionTiming.DEFAULT,
-            buildTrackList(response.sessionDescription, uri));
-        hasUpdatedTimelineAndTracks = true;
-      } catch (ParserException e) {
-        sessionInfoListener.onSessionTimelineRequestFailed("SDP format error.", /* cause= */ e);
+      if (sessionRangeAttributeString != null) {
+        try {
+          sessionTiming = RtspSessionTiming.parseTiming(sessionRangeAttributeString);
+        } catch (ParserException e) {
+          sessionInfoListener.onSessionTimelineRequestFailed("SDP format error.", /* cause= */ e);
+          return;
+        }
       }
+
+      ImmutableList<RtspMediaTrack> tracks = buildTrackList(response.sessionDescription, uri);
+      if (tracks.isEmpty()) {
+        sessionInfoListener.onSessionTimelineRequestFailed("No playable track.", /* cause= */ null);
+        return;
+      }
+
+      sessionInfoListener.onSessionTimelineUpdated(sessionTiming, tracks);
+      hasUpdatedTimelineAndTracks = true;
     }
 
     private void onSetupResponseReceived(RtspSetupResponse response) {

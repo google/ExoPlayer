@@ -228,7 +228,7 @@ public final class RtspMediaSource extends BaseMediaSource {
         allocator,
         rtpDataChannelFactory,
         uri,
-        (timing) -> {
+        /* listener= */ timing -> {
           timelineDurationUs = C.msToUs(timing.getDurationMs());
           timelineIsSeekable = !timing.isLive();
           timelineIsLive = timing.isLive();
