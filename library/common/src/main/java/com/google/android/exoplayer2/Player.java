@@ -267,9 +267,12 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
+     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
+     * to this method in order to include more information about the error.
+     *
      * @param error The error.
      */
-    default void onPlayerError(ExoPlaybackException error) {}
+    default void onPlayerError(PlaybackException error) {}
 
     /**
      * @deprecated Use {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} instead.
@@ -1488,14 +1491,14 @@ public interface Player {
 
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
-   * reported via {@link Listener#onPlayerError(ExoPlaybackException)} at the time of failure. It
-   * can be queried using this method until the player is re-prepared.
+   * reported via {@link Listener#onPlayerError(PlaybackException)} at the time of failure. It can
+   * be queried using this method until the player is re-prepared.
    *
    * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
    * {@link #STATE_IDLE}.
    *
    * @return The error, or {@code null}.
-   * @see Listener#onPlayerError(ExoPlaybackException)
+   * @see Listener#onPlayerError(PlaybackException)
    */
   @Nullable
   PlaybackException getPlayerError();

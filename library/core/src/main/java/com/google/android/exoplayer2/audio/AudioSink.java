@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import java.lang.annotation.Documented;
@@ -122,7 +123,7 @@ public interface AudioSink {
      * wishes to do so.
      *
      * <p>Fatal errors that cannot be recovered will be reported wrapped in a {@link
-     * ExoPlaybackException} by {@link Player.Listener#onPlayerError(ExoPlaybackException)}.
+     * ExoPlaybackException} by {@link Player.Listener#onPlayerError(PlaybackException)}.
      *
      * @param audioSinkError The error that occurred. Typically an {@link InitializationException},
      *     a {@link WriteException}, or an {@link UnexpectedDiscontinuityException}.

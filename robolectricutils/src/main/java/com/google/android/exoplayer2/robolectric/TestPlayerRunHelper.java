@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -199,8 +200,9 @@ public class TestPlayerRunHelper {
     Player.Listener listener =
         new Player.Listener() {
           @Override
-          public void onPlayerError(ExoPlaybackException error) {
-            receivedError.set(error);
+          public void onPlayerError(PlaybackException error) {
+            // ExoPlayer is guaranteed to throw an ExoPlaybackException.
+            receivedError.set((ExoPlaybackException) error);
             player.removeListener(this);
           }
         };

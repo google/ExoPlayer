@@ -681,7 +681,7 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       eventListener.onPlayerError(error);
     }
 

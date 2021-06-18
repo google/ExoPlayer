@@ -142,7 +142,7 @@ the demo app exemplifies this approach.
 
 ~~~
 @Override
-public void onPlayerError(ExoPlaybackException e) {
+public void onPlayerError(PlaybackException e) {
   if (e.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
     // Re-initialize player at the current live window default position.
     player.seekToDefaultPosition();

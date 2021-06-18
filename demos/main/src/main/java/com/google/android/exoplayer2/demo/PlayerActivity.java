@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -424,7 +423,7 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayerError(@NonNull ExoPlaybackException e) {
+    public void onPlayerError(@NonNull PlaybackException e) {
       if (e.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
         player.seekToDefaultPosition();
         player.prepare();

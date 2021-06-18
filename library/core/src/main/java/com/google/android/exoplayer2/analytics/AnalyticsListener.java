@@ -650,6 +650,9 @@ public interface AnalyticsListener {
   /**
    * Called when a fatal player error occurred.
    *
+   * <p>Implementations of {@link Player} may pass an instance of a subclass of {@link
+   * PlaybackException} to this method in order to include more information about the error.
+   *
    * @param eventTime The event time.
    * @param error The error.
    */

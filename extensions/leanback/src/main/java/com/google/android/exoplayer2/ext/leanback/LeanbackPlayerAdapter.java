@@ -255,15 +255,16 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException exception) {
+    public void onPlayerError(PlaybackException exception) {
       Callback callback = getCallback();
       if (errorMessageProvider != null) {
         Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(exception);
         callback.onError(LeanbackPlayerAdapter.this, errorMessage.first, errorMessage.second);
       } else {
-        // TODO: Conditionally assign the rendererIndex depending on whether the exception is an
-        // ExoPlaybackException once onPlayerError takes a PlaybackException.
-        int rendererIndex = exception.rendererIndex;
+        int rendererIndex = C.INDEX_UNSET;
+        if (exception instanceof ExoPlaybackException) {
+          rendererIndex = ((ExoPlaybackException) exception).rendererIndex;
+        }
         callback.onError(
             LeanbackPlayerAdapter.this,
             exception.errorCode,

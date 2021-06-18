@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -708,15 +709,22 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onPlayerError(ExoPlaybackException error) {
-    EventTime eventTime =
-        error.mediaPeriodId != null
-            ? generateEventTime(new MediaPeriodId(error.mediaPeriodId))
-            : generateCurrentPlayerMediaPeriodEventTime();
+  public final void onPlayerError(PlaybackException error) {
+    EventTime eventTime = null;
+    if (error instanceof ExoPlaybackException) {
+      ExoPlaybackException exoError = (ExoPlaybackException) error;
+      if (exoError.mediaPeriodId != null) {
+        eventTime = generateEventTime(new MediaPeriodId(exoError.mediaPeriodId));
+      }
+    }
+    if (eventTime == null) {
+      eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    }
+    EventTime finalEventTime = eventTime;
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_PLAYER_ERROR,
-        listener -> listener.onPlayerError(eventTime, error));
+        listener -> listener.onPlayerError(finalEventTime, error));
   }
 
   // Calling deprecated callback.

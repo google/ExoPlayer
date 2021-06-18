@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -692,7 +693,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   }
 
   @Override
-  public void onPlayerError(ExoPlaybackException error) {
+  public void onPlayerError(PlaybackException error) {
     handleException(error);
   }
 

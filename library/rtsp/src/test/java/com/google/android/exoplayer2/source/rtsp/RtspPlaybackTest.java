@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player.Listener;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
@@ -95,7 +95,7 @@ public final class RtspPlaybackTest {
       player.addListener(
           new Listener() {
             @Override
-            public void onPlayerError(ExoPlaybackException error) {
+            public void onPlayerError(PlaybackException error) {
               playbackError.set(error);
             }
           });
