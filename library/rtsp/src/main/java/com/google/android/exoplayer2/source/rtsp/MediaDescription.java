@@ -232,7 +232,6 @@ import java.lang.annotation.RetentionPolicy;
   public final int bitrate;
   /** The assigned media title. */
   @Nullable public final String mediaTitle;
-  // TODO(internal b/172331505) Parse the String representations into objects.
   /** The connection parameters. */
   @Nullable public final String connection;
   /** The encryption parameter. */

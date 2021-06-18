@@ -19,8 +19,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /** Represents an RTSP OPTIONS response. */
-// TODO(b/180434754) Move all classes under message to the parent rtsp package, and change the
-// visibility.
 /* package */ final class RtspOptionsResponse {
   /** The response's status code. */
   public final int status;

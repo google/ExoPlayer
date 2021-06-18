@@ -106,15 +106,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public boolean sniff(ExtractorInput input) {
-    // TODO(b/172331505) Build sniff support.
-    return false;
+    throw new UnsupportedOperationException(
+        "RTP packets are transmitted in a packet stream do not support sniffing.");
   }
 
   @Override
   public void init(ExtractorOutput output) {
     payloadReader.createTracks(output, trackId);
     output.endTracks();
-    // TODO(b/172331505) replace hardcoded unseekable seekmap.
+    // RTP does not embed duration or seek info.
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
     this.output = output;
   }

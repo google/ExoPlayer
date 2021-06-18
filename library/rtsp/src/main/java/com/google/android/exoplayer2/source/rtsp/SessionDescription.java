@@ -237,7 +237,6 @@ import com.google.common.collect.ImmutableMap;
   public final ImmutableList<MediaDescription> mediaDescriptionList;
   /** The name of a session. */
   public final String sessionName;
-  // TODO(internal b/172331505) Parse the String representations into objects.
   /** The origin sender info. */
   public final String origin;
   /** The timing info. */

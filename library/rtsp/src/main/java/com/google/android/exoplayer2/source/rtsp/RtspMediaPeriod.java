@@ -420,12 +420,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void endTracks() {
-      // TODO(b/172331505) Implement this method.
+      handler.post(RtspMediaPeriod.this::maybeFinishPrepare);
     }
 
     @Override
     public void seekMap(SeekMap seekMap) {
-      // TODO(b/172331505) Implement this method.
+      // RTSP does not support seek map.
     }
 
     // Loadable.Callback implementation.
@@ -445,16 +445,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long loadDurationMs,
         IOException error,
         int errorCount) {
-      /* TODO(b/172331505) Sort out the retry policy.
-      Three cases for IOException:
-        - Socket open failure for RTP or RTCP.
-          - RETRY for the RTCP open failure.
-        - ExtractorInput read IOException (socket timeout, etc)
-          - Keep retrying unless playback is stopped.
-        - RtpPayloadReader consume ParserException (mal-formatted RTP packet)
-          - Don't retry? (if a packet is distorted on the fly, the packet is likely discarded by the
-           system, i.e. the server's sent a mal-formatted packet).
-      */
       if (!prepared) {
         preparationError = error;
       } else {

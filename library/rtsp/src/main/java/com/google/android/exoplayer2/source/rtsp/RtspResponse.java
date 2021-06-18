@@ -18,9 +18,6 @@ package com.google.android.exoplayer2.source.rtsp;
 
 /** Represents an RTSP Response. */
 /* package */ final class RtspResponse {
-  // TODO(b/172331505) Move this constant to MimeTypes.
-  /** The MIME type associated with Session Description Protocol (RFC4566). */
-  public static final String SDP_MIME_TYPE = "application/sdp";
 
   /** The status code of this response, as defined in RFC 2326 section 11. */
   public final int status;
