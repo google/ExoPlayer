@@ -25,8 +25,6 @@ import com.google.common.collect.ImmutableList;
 /**
  * Represents an RTSP track's timing info, included as {@link RtspHeaders#RTP_INFO} in an RTSP PLAY
  * response (RFC2326 Section 12.33).
- *
- * <p>The fields {@link #rtpTimestamp} and {@link #sequenceNumber} will not both be {@code null}.
  */
 /* package */ final class RtspTrackTiming {
 
@@ -98,9 +96,17 @@ import com.google.common.collect.ImmutableList;
     return listBuilder.build();
   }
 
-  /** The timestamp of the next RTP packet, {@link C#TIME_UNSET} if not present. */
+  /**
+   * The timestamp of the next RTP packet, {@link C#TIME_UNSET} if not present.
+   *
+   * <p>Cannot be {@link C#TIME_UNSET} if {@link #sequenceNumber} is {@link C#INDEX_UNSET}.
+   */
   public final long rtpTimestamp;
-  /** The sequence number of the next RTP packet, {@link C#INDEX_UNSET} if not present. */
+  /**
+   * The sequence number of the next RTP packet, {@link C#INDEX_UNSET} if not present.
+   *
+   * <p>Cannot be {@link C#INDEX_UNSET} if {@link #rtpTimestamp} is {@link C#TIME_UNSET}.
+   */
   public final int sequenceNumber;
   /** The {@link Uri} that identifies a matching {@link RtspMediaTrack}. */
   public final Uri uri;
