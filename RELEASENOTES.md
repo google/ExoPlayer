@@ -35,6 +35,8 @@
     *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
         popup menus on API levels prior to 26
         ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
+    *   Fix progress bar flickering immediately after the user seeks
+        ([#9049](https://github.com/google/ExoPlayer/pull/9049)).
 
 ### 2.14.1 (2021-06-11)
 

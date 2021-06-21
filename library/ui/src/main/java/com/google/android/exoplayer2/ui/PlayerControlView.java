@@ -1155,12 +1155,8 @@ public class PlayerControlView extends FrameLayout {
     } else {
       windowIndex = player.getCurrentWindowIndex();
     }
-    boolean dispatched = seekTo(player, windowIndex, positionMs);
-    if (!dispatched) {
-      // The seek wasn't dispatched then the progress bar scrubber will be in the wrong position.
-      // Trigger a progress update to snap it back.
-      updateProgress();
-    }
+    seekTo(player, windowIndex, positionMs);
+    updateProgress();
   }
 
   private boolean seekTo(Player player, int windowIndex, long positionMs) {
