@@ -41,6 +41,10 @@
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
+*   UI
+    *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
+        popup menus on API levels prior to 26
+        ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
