@@ -339,9 +339,16 @@ public final class DefaultHlsPlaylistTracker
       return;
     }
     primaryMediaPlaylistUrl = url;
-    playlistBundles
-        .get(primaryMediaPlaylistUrl)
-        .loadPlaylistInternal(getRequestUriForPrimaryChange(url));
+    MediaPlaylistBundle newPrimaryBundle = playlistBundles.get(primaryMediaPlaylistUrl);
+    @Nullable HlsMediaPlaylist newPrimarySnapshot = newPrimaryBundle.playlistSnapshot;
+    if (newPrimarySnapshot != null && newPrimarySnapshot.hasEndTag) {
+      primaryMediaPlaylistSnapshot = newPrimarySnapshot;
+      primaryPlaylistListener.onPrimaryPlaylistRefreshed(newPrimarySnapshot);
+    } else {
+      // The snapshot for the new primary media playlist URL may be stale. Defer updating the
+      // primary snapshot until after we've refreshed it.
+      newPrimaryBundle.loadPlaylistInternal(getRequestUriForPrimaryChange(url));
+    }
   }
 
   private Uri getRequestUriForPrimaryChange(Uri newPrimaryPlaylistUri) {
