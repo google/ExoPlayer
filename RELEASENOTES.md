@@ -32,6 +32,9 @@
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
         in `PlayerNotificationManager`. This is required to avoid an error on
         Android 12.
+    *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
+        popup menus on API levels prior to 26
+        ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
 
 ### 2.14.1 (2021-06-11)
 

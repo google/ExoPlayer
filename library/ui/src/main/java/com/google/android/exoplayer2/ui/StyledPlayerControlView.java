@@ -1945,6 +1945,10 @@ public class StyledPlayerControlView extends FrameLayout {
 
     public SettingViewHolder(View itemView) {
       super(itemView);
+      if (Util.SDK_INT < 26) {
+        // Workaround for https://github.com/google/ExoPlayer/issues/9061.
+        itemView.setFocusable(true);
+      }
       mainTextView = itemView.findViewById(R.id.exo_main_text);
       subTextView = itemView.findViewById(R.id.exo_sub_text);
       iconView = itemView.findViewById(R.id.exo_icon);
@@ -2271,6 +2275,10 @@ public class StyledPlayerControlView extends FrameLayout {
 
     public SubSettingViewHolder(View itemView) {
       super(itemView);
+      if (Util.SDK_INT < 26) {
+        // Workaround for https://github.com/google/ExoPlayer/issues/9061.
+        itemView.setFocusable(true);
+      }
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
     }
