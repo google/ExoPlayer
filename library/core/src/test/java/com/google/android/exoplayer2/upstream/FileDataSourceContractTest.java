@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.Before;
@@ -37,21 +36,19 @@ public class FileDataSourceContractTest extends DataSourceContractTest {
 
   @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
-  private Uri simpleUri;
+  private Uri uri;
 
   @Before
-  public void writeFiles() throws Exception {
-    simpleUri = writeFile(DATA);
+  public void writeFile() throws Exception {
+    File file = tempFolder.newFile();
+    Files.write(Paths.get(file.getAbsolutePath()), DATA);
+    uri = Uri.fromFile(file);
   }
 
   @Override
   protected ImmutableList<TestResource> getTestResources() {
     return ImmutableList.of(
-        new TestResource.Builder()
-            .setName("simple")
-            .setUri(simpleUri)
-            .setExpectedBytes(DATA)
-            .build());
+        new TestResource.Builder().setName("simple").setUri(uri).setExpectedBytes(DATA).build());
   }
 
   @Override
@@ -62,11 +59,5 @@ public class FileDataSourceContractTest extends DataSourceContractTest {
   @Override
   protected DataSource createDataSource() {
     return new FileDataSource();
-  }
-
-  private Uri writeFile(byte[] data) throws IOException {
-    File file = tempFolder.newFile();
-    Files.write(Paths.get(file.getAbsolutePath()), data);
-    return Uri.fromFile(file);
   }
 }
