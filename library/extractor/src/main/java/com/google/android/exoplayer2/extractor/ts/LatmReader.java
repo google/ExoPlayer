@@ -164,7 +164,7 @@ public final class LatmReader implements ElementaryStreamReader {
 
     if (audioMuxVersionA == 0) {
       if (numSubframes != 0) {
-        throw new ParserException();
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
       }
       int muxSlotLengthBytes = parsePayloadLengthInfo(data);
       parsePayloadMux(data, muxSlotLengthBytes);
@@ -172,7 +172,8 @@ public final class LatmReader implements ElementaryStreamReader {
         data.skipBits((int) otherDataLenBits);
       }
     } else {
-      throw new ParserException(); // Not defined by ISO/IEC 14496-3:2009.
+      // Not defined by ISO/IEC 14496-3:2009.
+      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
     }
   }
 
@@ -186,13 +187,13 @@ public final class LatmReader implements ElementaryStreamReader {
         latmGetValue(data); // Skip taraBufferFullness.
       }
       if (!data.readBit()) {
-        throw new ParserException();
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
       }
       numSubframes = data.readBits(6);
       int numProgram = data.readBits(4);
       int numLayer = data.readBits(3);
       if (numProgram != 0 || numLayer != 0) {
-        throw new ParserException();
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
       }
       if (audioMuxVersion == 0) {
         int startPosition = data.getPosition();
@@ -239,7 +240,8 @@ public final class LatmReader implements ElementaryStreamReader {
         data.skipBits(8); // crcCheckSum.
       }
     } else {
-      throw new ParserException(); // This is not defined by ISO/IEC 14496-3:2009.
+      // This is not defined by ISO/IEC 14496-3:2009.
+      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
     }
   }
 
@@ -286,7 +288,7 @@ public final class LatmReader implements ElementaryStreamReader {
       } while (tmp == 255);
       return muxSlotLengthBytes;
     } else {
-      throw new ParserException();
+      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
     }
   }
 

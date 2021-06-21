@@ -99,21 +99,6 @@ public class ParserException extends IOException {
   /**
    * Creates a new instance.
    *
-   * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
-   *     #dataType} instead.
-   */
-  @Deprecated
-  public ParserException() {
-    this(
-        /* message= */ null,
-        /* cause= */ null,
-        /* contentIsMalformed= */ true,
-        C.DATA_TYPE_UNKNOWN);
-  }
-
-  /**
-   * Creates a new instance.
-   *
    * @param message The detail message for the exception.
    * @deprecated Use a factory method which initializes {@link #contentIsMalformed}, and {@link
    *     #dataType} instead.

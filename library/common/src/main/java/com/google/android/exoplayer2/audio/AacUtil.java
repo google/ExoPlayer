@@ -250,7 +250,7 @@ public final class AacUtil {
     // For supported containers, bits_to_decode() is always 0.
     int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[channelConfiguration];
     if (channelCount == AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID) {
-      throw new ParserException();
+      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
     }
     return new Config(sampleRateHz, channelCount, codecs);
   }
@@ -349,7 +349,7 @@ public final class AacUtil {
     } else if (frequencyIndex < 13) {
       samplingFrequency = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
     } else {
-      throw new ParserException();
+      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
     }
     return samplingFrequency;
   }

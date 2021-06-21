@@ -231,7 +231,7 @@ import java.util.List;
     for (int i = 0; i < segmentStrings.size(); i++) {
       List<String> values = COLON_SPLITTER.splitToList(segmentStrings.get(i));
       if (values.size() != 3) {
-        throw new ParserException();
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
       }
       try {
         long startTimeMs = Long.parseLong(values.get(0));
