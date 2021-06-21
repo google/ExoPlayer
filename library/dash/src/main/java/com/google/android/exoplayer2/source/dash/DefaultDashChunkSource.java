@@ -541,14 +541,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
       Format trackFormat,
       int trackSelectionReason,
       Object trackSelectionData,
-      RangedUri initializationUri,
+      @Nullable RangedUri initializationUri,
       RangedUri indexUri) {
     Representation representation = representationHolder.representation;
-    RangedUri requestUri;
+    @Nullable RangedUri requestUri;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrl);
+      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrls.get(0).url);
       if (requestUri == null) {
         requestUri = initializationUri;
       }
@@ -579,7 +579,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
-    String baseUrl = representation.baseUrl;
+    String baseUrl = representation.baseUrls.get(0).url;
     if (representationHolder.chunkExtractor == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
       int flags =

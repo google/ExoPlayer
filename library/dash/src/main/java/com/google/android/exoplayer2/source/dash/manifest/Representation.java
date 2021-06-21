@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -23,6 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.MultiSegmentBase;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,8 +44,8 @@ public abstract class Representation {
   public final long revisionId;
   /** The format of the representation. */
   public final Format format;
-  /** The base URL of the representation. */
-  public final String baseUrl;
+  /** The base URLs of the representation. */
+  public final ImmutableList<BaseUrl> baseUrls;
   /** The offset of the presentation timestamps in the media stream relative to media time. */
   public final long presentationTimeOffsetUs;
   /** The in-band event streams in the representation. May be empty. */
@@ -55,13 +58,13 @@ public abstract class Representation {
    *
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
-   * @param baseUrl The base URL.
+   * @param baseUrls The list of base URLs of the representation.
    * @param segmentBase A segment base element for the representation.
    * @return The constructed instance.
    */
   public static Representation newInstance(
-      long revisionId, Format format, String baseUrl, SegmentBase segmentBase) {
-    return newInstance(revisionId, format, baseUrl, segmentBase, /* inbandEventStreams= */ null);
+      long revisionId, Format format, List<BaseUrl> baseUrls, SegmentBase segmentBase) {
+    return newInstance(revisionId, format, baseUrls, segmentBase, /* inbandEventStreams= */ null);
   }
 
   /**
@@ -69,7 +72,7 @@ public abstract class Representation {
    *
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
-   * @param baseUrl The base URL.
+   * @param baseUrls The list of base URLs of the representation.
    * @param segmentBase A segment base element for the representation.
    * @param inbandEventStreams The in-band event streams in the representation. May be null.
    * @return The constructed instance.
@@ -77,11 +80,11 @@ public abstract class Representation {
   public static Representation newInstance(
       long revisionId,
       Format format,
-      String baseUrl,
+      List<BaseUrl> baseUrls,
       SegmentBase segmentBase,
       @Nullable List<Descriptor> inbandEventStreams) {
     return newInstance(
-        revisionId, format, baseUrl, segmentBase, inbandEventStreams, /* cacheKey= */ null);
+        revisionId, format, baseUrls, segmentBase, inbandEventStreams, /* cacheKey= */ null);
   }
 
   /**
@@ -89,7 +92,7 @@ public abstract class Representation {
    *
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
-   * @param baseUrl The base URL of the representation.
+   * @param baseUrls The list of base URLs of the representation.
    * @param segmentBase A segment base element for the representation.
    * @param inbandEventStreams The in-band event streams in the representation. May be null.
    * @param cacheKey An optional key to be returned from {@link #getCacheKey()}, or null. This
@@ -99,7 +102,7 @@ public abstract class Representation {
   public static Representation newInstance(
       long revisionId,
       Format format,
-      String baseUrl,
+      List<BaseUrl> baseUrls,
       SegmentBase segmentBase,
       @Nullable List<Descriptor> inbandEventStreams,
       @Nullable String cacheKey) {
@@ -107,14 +110,14 @@ public abstract class Representation {
       return new SingleSegmentRepresentation(
           revisionId,
           format,
-          baseUrl,
+          baseUrls,
           (SingleSegmentBase) segmentBase,
           inbandEventStreams,
           cacheKey,
           C.LENGTH_UNSET);
     } else if (segmentBase instanceof MultiSegmentBase) {
       return new MultiSegmentRepresentation(
-          revisionId, format, baseUrl, (MultiSegmentBase) segmentBase, inbandEventStreams);
+          revisionId, format, baseUrls, (MultiSegmentBase) segmentBase, inbandEventStreams);
     } else {
       throw new IllegalArgumentException(
           "segmentBase must be of type SingleSegmentBase or " + "MultiSegmentBase");
@@ -124,12 +127,13 @@ public abstract class Representation {
   private Representation(
       long revisionId,
       Format format,
-      String baseUrl,
+      List<BaseUrl> baseUrls,
       SegmentBase segmentBase,
       @Nullable List<Descriptor> inbandEventStreams) {
+    checkArgument(!baseUrls.isEmpty());
     this.revisionId = revisionId;
     this.format = format;
-    this.baseUrl = baseUrl;
+    this.baseUrls = ImmutableList.copyOf(baseUrls);
     this.inbandEventStreams =
         inbandEventStreams == null
             ? Collections.emptyList()
@@ -167,7 +171,6 @@ public abstract class Representation {
 
     /** The uri of the single segment. */
     public final Uri uri;
-
     /** The content length, or {@link C#LENGTH_UNSET} if unknown. */
     public final long contentLength;
 
@@ -202,14 +205,15 @@ public abstract class Representation {
           new RangedUri(null, initializationStart, initializationEnd - initializationStart + 1);
       SingleSegmentBase segmentBase =
           new SingleSegmentBase(rangedUri, 1, 0, indexStart, indexEnd - indexStart + 1);
+      List<BaseUrl> baseUrls = ImmutableList.of(new BaseUrl(uri));
       return new SingleSegmentRepresentation(
-          revisionId, format, uri, segmentBase, inbandEventStreams, cacheKey, contentLength);
+          revisionId, format, baseUrls, segmentBase, inbandEventStreams, cacheKey, contentLength);
     }
 
     /**
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
-     * @param baseUrl The base URL of the representation.
+     * @param baseUrls The base urls of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param inbandEventStreams The in-band event streams in the representation. May be null.
      * @param cacheKey An optional key to be returned from {@link #getCacheKey()}, or null.
@@ -218,13 +222,13 @@ public abstract class Representation {
     public SingleSegmentRepresentation(
         long revisionId,
         Format format,
-        String baseUrl,
+        List<BaseUrl> baseUrls,
         SingleSegmentBase segmentBase,
         @Nullable List<Descriptor> inbandEventStreams,
         @Nullable String cacheKey,
         long contentLength) {
-      super(revisionId, format, baseUrl, segmentBase, inbandEventStreams);
-      this.uri = Uri.parse(baseUrl);
+      super(revisionId, format, baseUrls, segmentBase, inbandEventStreams);
+      this.uri = Uri.parse(baseUrls.get(0).url);
       this.indexUri = segmentBase.getIndex();
       this.cacheKey = cacheKey;
       this.contentLength = contentLength;
@@ -264,17 +268,17 @@ public abstract class Representation {
      *
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
-     * @param baseUrl The base URL of the representation.
+     * @param baseUrls The base URLs of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param inbandEventStreams The in-band event streams in the representation. May be null.
      */
     public MultiSegmentRepresentation(
         long revisionId,
         Format format,
-        String baseUrl,
+        List<BaseUrl> baseUrls,
         MultiSegmentBase segmentBase,
         @Nullable List<Descriptor> inbandEventStreams) {
-      super(revisionId, format, baseUrl, segmentBase, inbandEventStreams);
+      super(revisionId, format, baseUrls, segmentBase, inbandEventStreams);
       this.segmentBase = segmentBase;
     }
 

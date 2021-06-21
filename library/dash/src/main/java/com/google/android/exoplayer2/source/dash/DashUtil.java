@@ -55,7 +55,7 @@ public final class DashUtil {
   public static DataSpec buildDataSpec(
       Representation representation, RangedUri requestUri, int flags) {
     return new DataSpec.Builder()
-        .setUri(requestUri.resolveUri(representation.baseUrl))
+        .setUri(requestUri.resolveUri(representation.baseUrls.get(0).url))
         .setPosition(requestUri.start)
         .setLength(requestUri.length)
         .setKey(representation.getCacheKey())
@@ -171,15 +171,15 @@ public final class DashUtil {
       boolean loadIndex)
       throws IOException {
     RangedUri initializationUri = Assertions.checkNotNull(representation.getInitializationUri());
-    RangedUri requestUri;
+    @Nullable RangedUri requestUri;
     if (loadIndex) {
-      RangedUri indexUri = representation.getIndexUri();
+      @Nullable RangedUri indexUri = representation.getIndexUri();
       if (indexUri == null) {
         return;
       }
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrl);
+      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrls.get(0).url);
       if (requestUri == null) {
         loadInitializationData(dataSource, representation, chunkExtractor, initializationUri);
         requestUri = indexUri;

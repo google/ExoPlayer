@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -231,7 +232,11 @@ public class DashManifestTest {
   }
 
   private static Representation newRepresentation() {
-    return Representation.newInstance(/* revisionId= */ 0, FORMAT, /* baseUrl= */ "", SEGMENT_BASE);
+    return Representation.newInstance(
+        /* revisionId= */ 0,
+        FORMAT,
+        /* baseUrls= */ ImmutableList.of(new BaseUrl("")),
+        SEGMENT_BASE);
   }
 
   private static DashManifest newDashManifest(

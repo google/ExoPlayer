@@ -102,13 +102,13 @@ public class DashManifestParser extends DefaultHandler
         throw new ParserException(
             "inputStream does not contain a valid media presentation description");
       }
-      return parseMediaPresentationDescription(xpp, uri.toString());
+      return parseMediaPresentationDescription(xpp, new BaseUrl(uri.toString()));
     } catch (XmlPullParserException e) {
       throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
     }
   }
 
-  protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp, String baseUrl)
+  protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp, BaseUrl baseUrl)
       throws XmlPullParserException, IOException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", C.TIME_UNSET);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", C.TIME_UNSET);
@@ -271,7 +271,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected Pair<Period, Long> parsePeriod(
       XmlPullParser xpp,
-      String baseUrl,
+      BaseUrl baseUrl,
       long defaultStartMs,
       long baseUrlAvailabilityTimeOffsetUs,
       long availabilityStartTimeMs,
@@ -361,7 +361,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected AdaptationSet parseAdaptationSet(
       XmlPullParser xpp,
-      String baseUrl,
+      BaseUrl baseUrl,
       @Nullable SegmentBase segmentBase,
       long periodDurationMs,
       long baseUrlAvailabilityTimeOffsetUs,
@@ -625,7 +625,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected RepresentationInfo parseRepresentation(
       XmlPullParser xpp,
-      String baseUrl,
+      BaseUrl baseUrl,
       @Nullable String adaptationSetMimeType,
       @Nullable String adaptationSetCodecs,
       int adaptationSetWidth,
@@ -829,7 +829,7 @@ public class DashManifestParser extends DefaultHandler
     return Representation.newInstance(
         representationInfo.revisionId,
         formatBuilder.build(),
-        representationInfo.baseUrl,
+        ImmutableList.of(representationInfo.baseUrl),
         representationInfo.segmentBase,
         inbandEventStreams);
   }
@@ -1360,9 +1360,25 @@ public class DashManifestParser extends DefaultHandler
    * @throws IOException If an error occurs reading the element.
    * @return The parsed and resolved URL.
    */
-  protected String parseBaseUrl(XmlPullParser xpp, String parentBaseUrl)
+  protected BaseUrl parseBaseUrl(XmlPullParser xpp, BaseUrl parentBaseUrl)
       throws XmlPullParserException, IOException {
-    return UriUtil.resolve(parentBaseUrl, parseText(xpp, "BaseURL"));
+    @Nullable String priorityValue = xpp.getAttributeValue(null, "dvb:priority");
+    int priority =
+        priorityValue != null ? Integer.parseInt(priorityValue) : BaseUrl.DEFAULT_PRIORITY;
+    @Nullable String weightValue = xpp.getAttributeValue(null, "dvb:weight");
+    int weight = weightValue != null ? Integer.parseInt(weightValue) : BaseUrl.DEFAULT_WEIGHT;
+    @Nullable String serviceLocation = xpp.getAttributeValue(null, "serviceLocation");
+    String baseUrl = parseText(xpp, "BaseURL");
+    if (serviceLocation == null) {
+      serviceLocation = baseUrl;
+    }
+    if (!UriUtil.isAbsolute(baseUrl)) {
+      baseUrl = UriUtil.resolve(parentBaseUrl.url, baseUrl);
+      priority = parentBaseUrl.priority;
+      weight = parentBaseUrl.weight;
+      serviceLocation = parentBaseUrl.serviceLocation;
+    }
+    return new BaseUrl(baseUrl, serviceLocation, priority, weight);
   }
 
   /**
@@ -1866,7 +1882,7 @@ public class DashManifestParser extends DefaultHandler
   protected static final class RepresentationInfo {
 
     public final Format format;
-    public final String baseUrl;
+    public final BaseUrl baseUrl;
     public final SegmentBase segmentBase;
     @Nullable public final String drmSchemeType;
     public final ArrayList<SchemeData> drmSchemeDatas;
@@ -1875,7 +1891,7 @@ public class DashManifestParser extends DefaultHandler
 
     public RepresentationInfo(
         Format format,
-        String baseUrl,
+        BaseUrl baseUrl,
         SegmentBase segmentBase,
         @Nullable String drmSchemeType,
         ArrayList<SchemeData> drmSchemeDatas,

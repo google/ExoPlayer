@@ -23,11 +23,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
+import com.google.android.exoplayer2.source.dash.manifest.BaseUrl;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
@@ -88,7 +90,11 @@ public final class DashUtilTest {
             .setSampleMimeType(MimeTypes.VIDEO_H264)
             .setDrmInitData(drmInitData)
             .build();
-    return Representation.newInstance(0, format, "", new SingleSegmentBase());
+    return Representation.newInstance(
+        /* revisionId= */ 0,
+        format,
+        /* baseUrls= */ ImmutableList.of(new BaseUrl("")),
+        new SingleSegmentBase());
   }
 
   private static DrmInitData newDrmInitData() {

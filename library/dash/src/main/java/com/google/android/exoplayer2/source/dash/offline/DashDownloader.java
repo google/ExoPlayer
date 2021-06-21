@@ -163,7 +163,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
         throw new DownloadException("Unbounded segment index");
       }
 
-      String baseUrl = representation.baseUrl;
+      String baseUrl = representation.baseUrls.get(0).url;
       RangedUri initializationUri = representation.getInitializationUri();
       if (initializationUri != null) {
         addSegment(periodStartUs, baseUrl, initializationUri, out);

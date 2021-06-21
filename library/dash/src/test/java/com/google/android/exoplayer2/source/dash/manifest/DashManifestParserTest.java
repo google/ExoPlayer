@@ -105,10 +105,8 @@ public class DashManifestParserTest {
               (Representation.MultiSegmentRepresentation) representation;
           long firstSegmentIndex = multiSegmentRepresentation.getFirstSegmentNum();
           RangedUri uri = multiSegmentRepresentation.getSegmentUrl(firstSegmentIndex);
-          assertThat(
-                  uri.resolveUriString(representation.baseUrl)
-                      .contains("redirector.googlevideo.com"))
-              .isTrue();
+          assertThat(uri.resolveUriString(representation.baseUrls.get(0).url))
+              .contains("redirector.googlevideo.com");
         }
       }
     }
@@ -570,6 +568,37 @@ public class DashManifestParserTest {
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(2))).isEqualTo(1_230_000);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(3))).isEqualTo(100_000);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets1.get(0))).isEqualTo(9_999_000);
+  }
+
+  @Test
+  public void baseUrl_absoluteBaseUrls_usesClosestBaseUrl() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_BASE_URL));
+
+    List<AdaptationSet> adaptationSets0 = manifest.getPeriod(0).adaptationSets;
+    assertThat(adaptationSets0.get(0).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("period0");
+    assertThat(adaptationSets0.get(0).representations.get(0).baseUrls.get(0).priority).isEqualTo(2);
+    assertThat(adaptationSets0.get(0).representations.get(0).baseUrls.get(0).weight).isEqualTo(20);
+    assertThat(adaptationSets0.get(1).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("adaptationSet1");
+    assertThat(adaptationSets0.get(1).representations.get(0).baseUrls.get(0).priority).isEqualTo(3);
+    assertThat(adaptationSets0.get(1).representations.get(0).baseUrls.get(0).weight).isEqualTo(30);
+    assertThat(adaptationSets0.get(2).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("representation2");
+    assertThat(adaptationSets0.get(2).representations.get(0).baseUrls.get(0).priority).isEqualTo(4);
+    assertThat(adaptationSets0.get(2).representations.get(0).baseUrls.get(0).weight).isEqualTo(40);
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("http://video-foo.com/baseUrl/adaptationSet3");
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).priority).isEqualTo(1);
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).weight).isEqualTo(1);
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).url)
+        .isEqualTo("http://video-foo.com/baseUrl/representation3");
   }
 
   @Test

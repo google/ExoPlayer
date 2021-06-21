@@ -140,12 +140,17 @@ public final class UriUtil {
     }
   }
 
+  /** Returns true if the URI is starting with a scheme component, false otherwise. */
+  public static boolean isAbsolute(@Nullable String uri) {
+    return uri != null && getUriIndices(uri)[SCHEME_COLON] != -1;
+  }
+
   /**
-   * Removes query parameter from an Uri, if present.
+   * Removes query parameter from a URI, if present.
    *
-   * @param uri The uri.
+   * @param uri The URI.
    * @param queryParameterName The name of the query parameter.
-   * @return The uri without the query parameter.
+   * @return The URI without the query parameter.
    */
   public static Uri removeQueryParameter(Uri uri, String queryParameterName) {
     Uri.Builder builder = uri.buildUpon();
