@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_DESCR
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_OPTIONS;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_PLAY;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_SETUP;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_TEARDOWN;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
@@ -57,6 +58,11 @@ public final class RtspServer implements Closeable {
     default RtspResponse getPlayResponse() {
       return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
     }
+
+    /** Returns an RTSP TEARDOWN {@link RtspResponse response}. */
+    default RtspResponse getTearDownResponse() {
+      return new RtspResponse(/* status= */ 200, RtspHeaders.EMPTY);
+    }
   }
 
   private final Thread listenerThread;
@@ -74,6 +80,8 @@ public final class RtspServer implements Closeable {
    * Creates a new instance.
    *
    * <p>The constructor must be called on a {@link Looper} thread.
+   *
+   * @param responseProvider A {@link ResponseProvider}.
    */
   public RtspServer(ResponseProvider responseProvider) {
     listenerThread =
@@ -144,6 +152,10 @@ public final class RtspServer implements Closeable {
 
         case METHOD_PLAY:
           sendResponse(responseProvider.getPlayResponse(), cSeq);
+          break;
+
+        case METHOD_TEARDOWN:
+          sendResponse(responseProvider.getTearDownResponse(), cSeq);
           break;
 
         default:

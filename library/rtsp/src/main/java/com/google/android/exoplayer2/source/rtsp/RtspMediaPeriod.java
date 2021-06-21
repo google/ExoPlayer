@@ -486,13 +486,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onPlaybackStarted(
         long startPositionUs, ImmutableList<RtspTrackTiming> trackTimingList) {
       // Validate that the trackTimingList contains timings for the selected tracks.
-      ArrayList<Uri> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
+      ArrayList<String> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
       for (int i = 0; i < trackTimingList.size(); i++) {
-        trackUrisWithTiming.add(trackTimingList.get(i).uri);
+        trackUrisWithTiming.add(checkNotNull(trackTimingList.get(i).uri.getPath()));
       }
       for (int i = 0; i < selectedLoadInfos.size(); i++) {
         RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
-        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri())) {
+        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri().getPath())) {
           playbackException =
               new RtspPlaybackException(
                   "Server did not provide timing for track " + loadInfo.getTrackUri());
@@ -556,8 +556,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         RtspMediaTrack rtspMediaTrack = tracks.get(i);
         RtspLoaderWrapper loaderWrapper =
             new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ i, rtpDataChannelFactory);
-        loaderWrapper.startLoading();
         rtspLoaderWrappers.add(loaderWrapper);
+        loaderWrapper.startLoading();
       }
 
       listener.onSourceInfoRefreshed(timing);
