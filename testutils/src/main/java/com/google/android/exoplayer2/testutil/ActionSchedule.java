@@ -615,11 +615,6 @@ public final class ActionSchedule {
     public abstract void handleMessage(
         SimpleExoPlayer player, int messageType, @Nullable Object message);
 
-    /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
-    /* package */ void setPlayer(SimpleExoPlayer player) {
-      this.player = player;
-    }
-
     @Override
     public final void handleMessage(int messageType, @Nullable Object message) {
       handleMessage(Assertions.checkStateNotNull(player), messageType, message);
@@ -627,6 +622,11 @@ public final class ActionSchedule {
         hasArrived = true;
         callback.onMessageArrived();
       }
+    }
+
+    /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
+    /* package */ void setPlayer(SimpleExoPlayer player) {
+      this.player = player;
     }
   }
 
@@ -641,14 +641,14 @@ public final class ActionSchedule {
     /** Executes Runnable with reference to player. */
     public abstract void run(SimpleExoPlayer player);
 
-    /** Sets the player to be passed to {@link #run(SimpleExoPlayer)} . */
-    /* package */ void setPlayer(SimpleExoPlayer player) {
-      this.player = player;
-    }
-
     @Override
     public final void run() {
       run(Assertions.checkStateNotNull(player));
+    }
+
+    /** Sets the player to be passed to {@link #run(SimpleExoPlayer)} . */
+    /* package */ void setPlayer(SimpleExoPlayer player) {
+      this.player = player;
     }
   }
 
