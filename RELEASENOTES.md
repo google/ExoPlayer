@@ -20,6 +20,9 @@
         ([#4083](https://github.com/google/ExoPlayer/issues/4083)). Such content
         is malformed and should be re-encoded.
 *   HLS:
+    *   Fix issue where playback of a live event could become stuck rather than
+        transitioning to `STATE_ENDED` when the event ends
+        ([#9067](https://github.com/google/ExoPlayer/issues/9067)).
     *   Fix issue where a new initialization segment, as specified by an
         `EXT-X-MAP` tag in a media playlist, would not be loaded when
         encountered during playback
