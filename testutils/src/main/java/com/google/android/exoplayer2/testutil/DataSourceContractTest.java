@@ -53,16 +53,14 @@ import org.mockito.Mockito;
 /**
  * A collection of contract tests for {@link DataSource} implementations.
  *
- * <p>All these tests should pass for all implementations - behaviour specific to only a subset of
- * implementations should be tested elsewhere.
- *
  * <p>Subclasses should only include the logic necessary to construct the DataSource and allow it to
  * successfully read data. They shouldn't include any new {@link Test @Test} methods -
  * implementation-specific tests should be in a separate class.
  *
- * <p>If one of these tests fails for a particular {@link DataSource} implementation, that's a bug
- * in the implementation. The test should be overridden in the subclass and annotated {@link
- * Ignore}, with a link to an issue to track fixing the implementation and un-ignoring the test.
+ * <p>Most implementations should pass all these tests. If necessary, subclasses can disable tests
+ * by overriding the {@link Test @Test} method with a no-op implementation. It's recommended (but
+ * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correclty reports the
+ * test as skipped/ignored instead of passing.
  */
 @RequiresApi(19)
 public abstract class DataSourceContractTest {
