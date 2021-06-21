@@ -677,7 +677,8 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
     settingsView =
         (RecyclerView)
-            LayoutInflater.from(context).inflate(R.layout.exo_styled_settings_list, null);
+            LayoutInflater.from(context)
+                .inflate(R.layout.exo_styled_settings_list, /* root= */ null);
     settingsView.setAdapter(settingsAdapter);
     settingsView.setLayoutManager(new LinearLayoutManager(getContext()));
     settingsWindow =
@@ -1899,9 +1900,10 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public SettingViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public SettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View v =
-          LayoutInflater.from(getContext()).inflate(R.layout.exo_styled_settings_list_item, null);
+          LayoutInflater.from(getContext())
+              .inflate(R.layout.exo_styled_settings_list_item, parent, /* attachToRoot= */ false);
       return new SettingViewHolder(v);
     }
 
@@ -1989,7 +1991,8 @@ public class StyledPlayerControlView extends FrameLayout {
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View v =
           LayoutInflater.from(getContext())
-              .inflate(R.layout.exo_styled_sub_settings_list_item, null);
+              .inflate(
+                  R.layout.exo_styled_sub_settings_list_item, parent, /* attachToRoot= */ false);
       return new SubSettingViewHolder(v);
     }
 
@@ -2203,7 +2206,8 @@ public class StyledPlayerControlView extends FrameLayout {
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View v =
           LayoutInflater.from(getContext())
-              .inflate(R.layout.exo_styled_sub_settings_list_item, null);
+              .inflate(
+                  R.layout.exo_styled_sub_settings_list_item, parent, /* attachToRoot= */ false);
       return new SubSettingViewHolder(v);
     }
 
