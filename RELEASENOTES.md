@@ -43,6 +43,10 @@
     *   Fix `StyledPlayerView` and `StyledPlayerControlView` popup menu items
         not expanding to occupy the full width of the popup
         ([#9086](https://github.com/google/ExoPlayer/issues/9086)).
+*   RTSP
+    *   Fix session description (SDP) parsing to use a HashMap-like behaviour
+        for duplicated attributes.
+        ([#9014](https://github.com/google/ExoPlayer/issues/9014)).
 
 ### 2.14.1 (2021-06-11)
 
