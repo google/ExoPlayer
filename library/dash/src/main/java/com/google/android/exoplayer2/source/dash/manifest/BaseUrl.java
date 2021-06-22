@@ -29,7 +29,7 @@ public final class BaseUrl {
   /** The URL. */
   public final String url;
   /** The service location. */
-  @Nullable public final String serviceLocation;
+  public final String serviceLocation;
   /** The priority. */
   public final int priority;
   /** The weight. */
@@ -44,7 +44,7 @@ public final class BaseUrl {
   }
 
   /** Creates an instance. */
-  public BaseUrl(String url, @Nullable String serviceLocation, int priority, int weight) {
+  public BaseUrl(String url, String serviceLocation, int priority, int weight) {
     this.url = url;
     this.serviceLocation = serviceLocation;
     this.priority = priority;

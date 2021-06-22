@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,8 +100,9 @@ public class DashManifestParser extends DefaultHandler
       xpp.setInput(inputStream, null);
       int eventType = xpp.next();
       if (eventType != XmlPullParser.START_TAG || !"MPD".equals(xpp.getName())) {
-        throw new ParserException(
-            "inputStream does not contain a valid media presentation description");
+        throw ParserException.createForMalformedManifest(
+            "inputStream does not contain a valid media presentation description",
+            /* cause= */ null);
       }
       return parseMediaPresentationDescription(xpp, new BaseUrl(uri.toString()));
     } catch (XmlPullParserException e) {
@@ -108,8 +110,8 @@ public class DashManifestParser extends DefaultHandler
     }
   }
 
-  protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp, BaseUrl baseUrl)
-      throws XmlPullParserException, IOException {
+  protected DashManifest parseMediaPresentationDescription(
+      XmlPullParser xpp, BaseUrl documentBaseUrl) throws XmlPullParserException, IOException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", C.TIME_UNSET);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", C.TIME_UNSET);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", C.TIME_UNSET);
@@ -127,8 +129,10 @@ public class DashManifestParser extends DefaultHandler
     Uri location = null;
     ServiceDescriptionElement serviceDescription = null;
     long baseUrlAvailabilityTimeOffsetUs = dynamic ? 0 : C.TIME_UNSET;
+    ArrayList<BaseUrl> parentBaseUrls = Lists.newArrayList(documentBaseUrl);
 
     List<Period> periods = new ArrayList<>();
+    ArrayList<BaseUrl> baseUrls = new ArrayList<>();
     long nextPeriodStartMs = dynamic ? C.TIME_UNSET : 0;
     boolean seenEarlyAccessPeriod = false;
     boolean seenFirstBaseUrl = false;
@@ -138,9 +142,9 @@ public class DashManifestParser extends DefaultHandler
         if (!seenFirstBaseUrl) {
           baseUrlAvailabilityTimeOffsetUs =
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
-          baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
       } else if (XmlPullParserUtil.isStartTag(xpp, "ProgramInformation")) {
         programInformation = parseProgramInformation(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "UTCTiming")) {
@@ -153,7 +157,7 @@ public class DashManifestParser extends DefaultHandler
         Pair<Period, Long> periodWithDurationMs =
             parsePeriod(
                 xpp,
-                baseUrl,
+                !baseUrls.isEmpty() ? baseUrls : parentBaseUrls,
                 nextPeriodStartMs,
                 baseUrlAvailabilityTimeOffsetUs,
                 availabilityStartTime,
@@ -271,7 +275,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected Pair<Period, Long> parsePeriod(
       XmlPullParser xpp,
-      BaseUrl baseUrl,
+      List<BaseUrl> parentBaseUrls,
       long defaultStartMs,
       long baseUrlAvailabilityTimeOffsetUs,
       long availabilityStartTimeMs,
@@ -286,6 +290,7 @@ public class DashManifestParser extends DefaultHandler
     @Nullable Descriptor assetIdentifier = null;
     List<AdaptationSet> adaptationSets = new ArrayList<>();
     List<EventStream> eventStreams = new ArrayList<>();
+    ArrayList<BaseUrl> baseUrls = new ArrayList<>();
     boolean seenFirstBaseUrl = false;
     long segmentBaseAvailabilityTimeOffsetUs = C.TIME_UNSET;
     do {
@@ -294,14 +299,14 @@ public class DashManifestParser extends DefaultHandler
         if (!seenFirstBaseUrl) {
           baseUrlAvailabilityTimeOffsetUs =
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
-          baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
       } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(
             parseAdaptationSet(
                 xpp,
-                baseUrl,
+                !baseUrls.isEmpty() ? baseUrls : parentBaseUrls,
                 segmentBase,
                 durationMs,
                 baseUrlAvailabilityTimeOffsetUs,
@@ -361,7 +366,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected AdaptationSet parseAdaptationSet(
       XmlPullParser xpp,
-      BaseUrl baseUrl,
+      List<BaseUrl> parentBaseUrls,
       @Nullable SegmentBase segmentBase,
       long periodDurationMs,
       long baseUrlAvailabilityTimeOffsetUs,
@@ -389,6 +394,7 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<Descriptor> essentialProperties = new ArrayList<>();
     ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
+    ArrayList<BaseUrl> baseUrls = new ArrayList<>();
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -397,9 +403,9 @@ public class DashManifestParser extends DefaultHandler
         if (!seenFirstBaseUrl) {
           baseUrlAvailabilityTimeOffsetUs =
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
-          baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
         if (contentProtection.first != null) {
@@ -425,7 +431,7 @@ public class DashManifestParser extends DefaultHandler
         RepresentationInfo representationInfo =
             parseRepresentation(
                 xpp,
-                baseUrl,
+                !baseUrls.isEmpty() ? baseUrls : parentBaseUrls,
                 mimeType,
                 codecs,
                 width,
@@ -625,7 +631,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected RepresentationInfo parseRepresentation(
       XmlPullParser xpp,
-      BaseUrl baseUrl,
+      List<BaseUrl> parentBaseUrls,
       @Nullable String adaptationSetMimeType,
       @Nullable String adaptationSetCodecs,
       int adaptationSetWidth,
@@ -661,6 +667,7 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<Descriptor> essentialProperties = new ArrayList<>(adaptationSetEssentialProperties);
     ArrayList<Descriptor> supplementalProperties =
         new ArrayList<>(adaptationSetSupplementalProperties);
+    ArrayList<BaseUrl> baseUrls = new ArrayList<>();
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -669,9 +676,9 @@ public class DashManifestParser extends DefaultHandler
         if (!seenFirstBaseUrl) {
           baseUrlAvailabilityTimeOffsetUs =
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
-          baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
@@ -740,7 +747,7 @@ public class DashManifestParser extends DefaultHandler
 
     return new RepresentationInfo(
         format,
-        baseUrl,
+        !baseUrls.isEmpty() ? baseUrls : parentBaseUrls,
         segmentBase,
         drmSchemeType,
         drmSchemeDatas,
@@ -829,7 +836,7 @@ public class DashManifestParser extends DefaultHandler
     return Representation.newInstance(
         representationInfo.revisionId,
         formatBuilder.build(),
-        ImmutableList.of(representationInfo.baseUrl),
+        representationInfo.baseUrls,
         representationInfo.segmentBase,
         inbandEventStreams);
   }
@@ -1355,12 +1362,12 @@ public class DashManifestParser extends DefaultHandler
    * Parses a BaseURL element.
    *
    * @param xpp The parser from which to read.
-   * @param parentBaseUrl A base URL for resolving the parsed URL.
+   * @param parentBaseUrls The parent base URLs for resolving the parsed URLs.
    * @throws XmlPullParserException If an error occurs parsing the element.
    * @throws IOException If an error occurs reading the element.
-   * @return The parsed and resolved URL.
+   * @return The list of parsed and resolved URLs.
    */
-  protected BaseUrl parseBaseUrl(XmlPullParser xpp, BaseUrl parentBaseUrl)
+  protected List<BaseUrl> parseBaseUrl(XmlPullParser xpp, List<BaseUrl> parentBaseUrls)
       throws XmlPullParserException, IOException {
     @Nullable String priorityValue = xpp.getAttributeValue(null, "dvb:priority");
     int priority =
@@ -1372,13 +1379,21 @@ public class DashManifestParser extends DefaultHandler
     if (serviceLocation == null) {
       serviceLocation = baseUrl;
     }
-    if (!UriUtil.isAbsolute(baseUrl)) {
-      baseUrl = UriUtil.resolve(parentBaseUrl.url, baseUrl);
+    if (UriUtil.isAbsolute(baseUrl)) {
+      return Lists.newArrayList(new BaseUrl(baseUrl, serviceLocation, priority, weight));
+    }
+
+    List<BaseUrl> baseUrls = new ArrayList<>();
+    for (int i = 0; i < parentBaseUrls.size(); i++) {
+      BaseUrl parentBaseUrl = parentBaseUrls.get(i);
       priority = parentBaseUrl.priority;
       weight = parentBaseUrl.weight;
       serviceLocation = parentBaseUrl.serviceLocation;
+      baseUrls.add(
+          new BaseUrl(
+              UriUtil.resolve(parentBaseUrl.url, baseUrl), serviceLocation, priority, weight));
     }
-    return new BaseUrl(baseUrl, serviceLocation, priority, weight);
+    return baseUrls;
   }
 
   /**
@@ -1882,7 +1897,7 @@ public class DashManifestParser extends DefaultHandler
   protected static final class RepresentationInfo {
 
     public final Format format;
-    public final BaseUrl baseUrl;
+    public final ImmutableList<BaseUrl> baseUrls;
     public final SegmentBase segmentBase;
     @Nullable public final String drmSchemeType;
     public final ArrayList<SchemeData> drmSchemeDatas;
@@ -1891,14 +1906,14 @@ public class DashManifestParser extends DefaultHandler
 
     public RepresentationInfo(
         Format format,
-        BaseUrl baseUrl,
+        List<BaseUrl> baseUrls,
         SegmentBase segmentBase,
         @Nullable String drmSchemeType,
         ArrayList<SchemeData> drmSchemeDatas,
         ArrayList<Descriptor> inbandEventStreams,
         long revisionId) {
       this.format = format;
-      this.baseUrl = baseUrl;
+      this.baseUrls = ImmutableList.copyOf(baseUrls);
       this.segmentBase = segmentBase;
       this.drmSchemeType = drmSchemeType;
       this.drmSchemeDatas = drmSchemeDatas;
