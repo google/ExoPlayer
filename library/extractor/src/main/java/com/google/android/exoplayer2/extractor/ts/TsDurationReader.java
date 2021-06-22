@@ -180,6 +180,7 @@ import java.io.IOException;
   private long readLastPcrValueFromBuffer(ParsableByteArray packetBuffer, int pcrPid) {
     int searchStartPosition = packetBuffer.getPosition();
     int searchEndPosition = packetBuffer.limit();
+    long pcrLast =  C.TIME_UNSET;
     for (int searchPosition = searchEndPosition - 1;
         searchPosition >= searchStartPosition;
         searchPosition--) {
@@ -187,8 +188,21 @@ import java.io.IOException;
         continue;
       }
       long pcrValue = TsUtil.readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
+      // Fix for getting a bad last pcr value by misinterpreting data.
       if (pcrValue != C.TIME_UNSET) {
-        return pcrValue;
+        if (pcrLast == C.TIME_UNSET)
+          pcrLast = pcrValue;
+        else {
+          // Sanity Check
+          // Look at the second-last pcr value and make sure interval is between 0 and 60 seconds
+          // 60 * 90_000 = 5_400_000
+          // otherwise discard the last value found and check again.
+          long interval = pcrLast - pcrValue;
+          if (interval > 0 && interval < 5_400_000)
+            return pcrLast;
+          else
+            pcrLast = pcrValue;
+        }
       }
     }
     return C.TIME_UNSET;
