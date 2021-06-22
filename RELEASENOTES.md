@@ -40,6 +40,9 @@
         ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
     *   Fix progress bar flickering immediately after the user seeks
         ([#9049](https://github.com/google/ExoPlayer/pull/9049)).
+    *   Fix `StyledPlayerView` and `StyledPlayerControlView` popup menu items
+        not expanding to occupy the full width of the popup
+        ([#9086](https://github.com/google/ExoPlayer/issues/9086)).
 
 ### 2.14.1 (2021-06-11)
 
