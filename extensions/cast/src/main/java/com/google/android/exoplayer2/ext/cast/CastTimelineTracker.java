@@ -19,6 +19,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaLiveSeekableRange;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
@@ -57,15 +58,25 @@ import java.util.HashSet;
       return CastTimeline.EMPTY_CAST_TIMELINE;
     }
 
-    int currentItemId = mediaStatus.getCurrentItemId();
-    updateItemData(
-        currentItemId, mediaStatus.getMediaInfo(), /* defaultPositionUs= */ C.TIME_UNSET);
-
     ArrayList<Integer> itemIdsList = new ArrayList<>();
+    int currentItemId = mediaStatus.getCurrentItemId();
+
     for (MediaQueueItem item : mediaStatus.getQueueItems()) {
-      itemIdsList.add(item.getItemId());
+      int itemId = item.getItemId();
+      itemIdsList.add(itemId);
+
       long defaultPositionUs = (long) (item.getStartTime() * C.MICROS_PER_SECOND);
-      updateItemData(item.getItemId(), item.getMedia(), defaultPositionUs);
+      if (itemId == currentItemId) {
+        updateItemData(currentItemId, mediaStatus, mediaStatus.getMediaInfo(), defaultPositionUs);
+      } else {
+        updateItemData(itemId, null, item.getMedia(), defaultPositionUs);
+      }
+    }
+
+    // If the queue is empty or does not contain the active item update based on the current media
+    // status only.
+    if (!itemIdsList.contains(currentItemId)) {
+      updateItemData(currentItemId, mediaStatus, mediaStatus.getMediaInfo(), C.TIME_UNSET);
     }
 
     int[] itemIds = Ints.toArray(itemIdsList);
@@ -78,20 +89,61 @@ import java.util.HashSet;
     return new CastTimeline(itemIds, itemIdToData);
   }
 
-  private void updateItemData(int itemId, @Nullable MediaInfo mediaInfo, long defaultPositionUs) {
+  /**
+   * Update the item data for itemId based on the mediaStatus and mediaInfo.
+   *
+   * @param itemId the id of the queue item.
+   * @param mediaStatus the {@link MediaStatus} of the item if it is active or null.
+   * @param mediaInfo the {@link MediaInfo} of the item.
+   * @param defaultPositionUs the default position in microseconds.
+   */
+  private void updateItemData(
+      int itemId, @Nullable MediaStatus mediaStatus, @Nullable MediaInfo mediaInfo,
+      long defaultPositionUs) {
     CastTimeline.ItemData previousData = itemIdToData.get(itemId, CastTimeline.ItemData.EMPTY);
-    long durationUs = CastUtils.getStreamDurationUs(mediaInfo);
-    if (durationUs == C.TIME_UNSET) {
-      durationUs = previousData.durationUs;
+
+    boolean isLive = mediaInfo == null
+        ? previousData.isLive
+        : mediaInfo.getStreamType() == MediaInfo.STREAM_TYPE_LIVE;
+
+    long windowDurationUs;
+    long periodDurationUs;
+    long windowOffsetUs = 0;
+
+    @Nullable MediaLiveSeekableRange liveSeekableRange =
+        mediaStatus != null ? mediaStatus.getLiveSeekableRange() : null;
+    if (isLive && liveSeekableRange != null) {
+      long startTime = liveSeekableRange.getStartTime();
+      long endTime = liveSeekableRange.getEndTime();
+      long durationMs = endTime - startTime;
+      if (durationMs > 0) {
+        // Create a window that matches the seekable range of the stream. It might not start at 0.
+        windowOffsetUs = C.msToUs(startTime);
+        windowDurationUs = C.msToUs(durationMs);
+        if (liveSeekableRange.isLiveDone()) {
+          periodDurationUs = C.msToUs(endTime);
+        } else {
+          periodDurationUs = C.TIME_UNSET;
+        }
+      } else {
+        periodDurationUs = C.TIME_UNSET;
+        windowDurationUs = C.TIME_UNSET;
+      }
+    } else {
+      long mediaInfoDuration = CastUtils.getStreamDurationUs(mediaInfo);
+      windowDurationUs =
+          mediaInfoDuration == C.TIME_UNSET ? previousData.windowDurationUs : mediaInfoDuration;
+      periodDurationUs = windowDurationUs;
     }
-    boolean isLive =
-        mediaInfo == null
-            ? previousData.isLive
-            : mediaInfo.getStreamType() == MediaInfo.STREAM_TYPE_LIVE;
+
     if (defaultPositionUs == C.TIME_UNSET) {
       defaultPositionUs = previousData.defaultPositionUs;
     }
-    itemIdToData.put(itemId, previousData.copyWithNewValues(durationUs, defaultPositionUs, isLive));
+
+    CastTimeline.ItemData itemData = previousData
+        .copyWithNewValues(windowDurationUs, periodDurationUs, defaultPositionUs,
+            windowOffsetUs, isLive);
+    itemIdToData.put(itemId, itemData);
   }
 
   private void removeUnusedItemDataEntries(int[] itemIds) {

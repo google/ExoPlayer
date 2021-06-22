@@ -33,47 +33,67 @@ import java.util.Arrays;
     /** Holds no media information. */
     public static final ItemData EMPTY =
         new ItemData(
-            /* durationUs= */ C.TIME_UNSET,
+            /* windowDurationUs= */ C.TIME_UNSET,
+            /* periodDurationUs= */ C.TIME_UNSET,
             /* defaultPositionUs= */ C.TIME_UNSET,
+            /* positionInFirstPeriodUs= */ 0,
             /* isLive= */ false);
 
-    /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
-    public final long durationUs;
+    /** The duration of the seekable window in microseconds, or {@link C#TIME_UNSET} if unknown. */
+    public final long windowDurationUs;
+    /**
+     * The duration of the underlying period in microseconds, or {@link C#TIME_UNSET} if unknown.
+     * For vod content this will match the window duration. For live content this will be
+     * {@link C#TIME_UNSET} or the duration from 0 until the end of the stream.
+     */
+    public final long periodDurationUs;
     /**
      * The default start position of the item in microseconds, or {@link C#TIME_UNSET} if unknown.
      */
     public final long defaultPositionUs;
+    /** The window offset from the beginning of the period in microseconds. */
+    public final long windowStartOffsetUs;
     /** Whether the item is live content, or {@code false} if unknown. */
     public final boolean isLive;
 
     /**
      * Creates an instance.
      *
-     * @param durationUs See {@link #durationsUs}.
+     * @param windowDurationUs See {@link #windowDurationUs}.
+     * @param periodDurationUs See {@link #periodDurationUs}.
      * @param defaultPositionUs See {@link #defaultPositionUs}.
+     * @param windowStartOffsetUs See {@link #windowStartOffsetUs}
      * @param isLive See {@link #isLive}.
      */
-    public ItemData(long durationUs, long defaultPositionUs, boolean isLive) {
-      this.durationUs = durationUs;
+    public ItemData(long windowDurationUs, long periodDurationUs, long defaultPositionUs,
+        long windowStartOffsetUs, boolean isLive) {
+      this.windowDurationUs = windowDurationUs;
+      this.periodDurationUs = periodDurationUs;
       this.defaultPositionUs = defaultPositionUs;
+      this.windowStartOffsetUs = windowStartOffsetUs;
       this.isLive = isLive;
     }
 
     /**
      * Returns a copy of this instance with the given values.
      *
-     * @param durationUs The duration in microseconds, or {@link C#TIME_UNSET} if unknown.
-     * @param defaultPositionUs The default start position in microseconds, or {@link C#TIME_UNSET}
-     *     if unknown.
-     * @param isLive Whether the item is live, or {@code false} if unknown.
+     * @param windowDurationUs See {@link #windowDurationUs}.
+     * @param periodDurationUs See {@link #periodDurationUs}.
+     * @param defaultPositionUs See {@link #defaultPositionUs}.
+     * @param windowStartOffsetUs See {@link #windowStartOffsetUs}
+     * @param isLive See {@link #isLive}.
      */
-    public ItemData copyWithNewValues(long durationUs, long defaultPositionUs, boolean isLive) {
-      if (durationUs == this.durationUs
+    public ItemData copyWithNewValues(long windowDurationUs, long periodDurationUs,
+        long defaultPositionUs, long windowStartOffsetUs, boolean isLive) {
+      if (windowDurationUs == this.windowDurationUs
+          && periodDurationUs == this.periodDurationUs
           && defaultPositionUs == this.defaultPositionUs
+          && windowStartOffsetUs == this.windowStartOffsetUs
           && isLive == this.isLive) {
         return this;
       }
-      return new ItemData(durationUs, defaultPositionUs, isLive);
+      return new ItemData(windowDurationUs, periodDurationUs, defaultPositionUs,
+          windowStartOffsetUs, isLive);
     }
   }
 
@@ -83,8 +103,10 @@ import java.util.Arrays;
 
   private final SparseIntArray idsToIndex;
   private final int[] ids;
-  private final long[] durationsUs;
+  private final long[] windowDurationsUs;
+  private final long[] periodDurationsUs;
   private final long[] defaultPositionsUs;
+  private final long[] windowStartOffsetUs;
   private final boolean[] isLive;
 
   /**
@@ -97,15 +119,19 @@ import java.util.Arrays;
     int itemCount = itemIds.length;
     idsToIndex = new SparseIntArray(itemCount);
     ids = Arrays.copyOf(itemIds, itemCount);
-    durationsUs = new long[itemCount];
+    windowDurationsUs = new long[itemCount];
+    periodDurationsUs = new long[itemCount];
     defaultPositionsUs = new long[itemCount];
+    windowStartOffsetUs = new long[itemCount];
     isLive = new boolean[itemCount];
     for (int i = 0; i < ids.length; i++) {
       int id = ids[i];
       idsToIndex.put(id, i);
       ItemData data = itemIdToData.get(id, ItemData.EMPTY);
-      durationsUs[i] = data.durationUs;
+      windowDurationsUs[i] = data.windowDurationUs;
+      periodDurationsUs[i] = data.periodDurationUs;
       defaultPositionsUs[i] = data.defaultPositionUs == C.TIME_UNSET ? 0 : data.defaultPositionUs;
+      windowStartOffsetUs[i] = data.windowStartOffsetUs;
       isLive[i] = data.isLive;
     }
   }
@@ -119,8 +145,8 @@ import java.util.Arrays;
 
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
-    long durationUs = durationsUs[windowIndex];
-    boolean isDynamic = durationUs == C.TIME_UNSET;
+    long durationUs = windowDurationsUs[windowIndex];
+    boolean isDynamic = durationUs == C.TIME_UNSET || durationUs != periodDurationsUs[windowIndex];
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(Uri.EMPTY).setTag(ids[windowIndex]).build();
     return window.set(
@@ -130,14 +156,14 @@ import java.util.Arrays;
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
-        /* isSeekable= */ !isDynamic,
-        isDynamic,
-        isLive[windowIndex] ? mediaItem.liveConfiguration : null,
-        defaultPositionsUs[windowIndex],
-        durationUs,
+        /* isSeekable= */ durationUs != C.TIME_UNSET,
+        /* isDynamic */ isDynamic,
+        /* liveConfiguration */ isLive[windowIndex] ? mediaItem.liveConfiguration : null,
+        /* defaultPositionUs */ defaultPositionsUs[windowIndex],
+        /* durationUs */ durationUs,
         /* firstPeriodIndex= */ windowIndex,
         /* lastPeriodIndex= */ windowIndex,
-        /* positionInFirstPeriodUs= */ 0);
+        /* positionInFirstPeriodUs= */ windowStartOffsetUs[windowIndex]);
   }
 
   @Override
@@ -148,7 +174,8 @@ import java.util.Arrays;
   @Override
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
     int id = ids[periodIndex];
-    return period.set(id, id, periodIndex, durationsUs[periodIndex], 0);
+    long positionInWindowUs = -windowStartOffsetUs[periodIndex];
+    return period.set(id, id, periodIndex, periodDurationsUs[periodIndex], positionInWindowUs);
   }
 
   @Override
@@ -172,16 +199,20 @@ import java.util.Arrays;
     }
     CastTimeline that = (CastTimeline) other;
     return Arrays.equals(ids, that.ids)
-        && Arrays.equals(durationsUs, that.durationsUs)
+        && Arrays.equals(windowDurationsUs, that.windowDurationsUs)
+        && Arrays.equals(periodDurationsUs, that.periodDurationsUs)
         && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs)
+        && Arrays.equals(windowStartOffsetUs, that.windowStartOffsetUs)
         && Arrays.equals(isLive, that.isLive);
   }
 
   @Override
   public int hashCode() {
     int result = Arrays.hashCode(ids);
-    result = 31 * result + Arrays.hashCode(durationsUs);
+    result = 31 * result + Arrays.hashCode(windowDurationsUs);
+    result = 31 * result + Arrays.hashCode(periodDurationsUs);
     result = 31 * result + Arrays.hashCode(defaultPositionsUs);
+    result = 31 * result + Arrays.hashCode(windowStartOffsetUs);
     result = 31 * result + Arrays.hashCode(isLive);
     return result;
   }
