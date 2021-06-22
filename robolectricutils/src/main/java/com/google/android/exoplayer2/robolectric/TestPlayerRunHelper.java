@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.robolectric;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
-import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -263,13 +262,7 @@ public class TestPlayerRunHelper {
           }
         };
     player.addAudioOffloadListener(listener);
-    runMainLooperUntil(
-        () -> { // Make sure progress is being made, see [internal: b/170387438#comment2]
-          assertThat(player.getPlayerError()).isNull();
-          assertThat(player.getPlayWhenReady()).isTrue();
-          assertThat(player.getPlaybackState()).isAnyOf(Player.STATE_BUFFERING, Player.STATE_READY);
-          return receiverCallback.get();
-        });
+    runMainLooperUntil(receiverCallback::get);
   }
 
   /**
