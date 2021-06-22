@@ -67,7 +67,10 @@ public final class EventSampleStreamTest {
   public void readDataReturnFormatForFirstRead() {
     EventStream eventStream =
         new EventStream(SCHEME_ID, VALUE, TIME_SCALE, new long[0], new EventMessage[0]);
-    EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
+    // Make the event stream appendable so that the format is read. Otherwise, the format will be
+    // skipped and the end of input will be read.
+    EventSampleStream sampleStream =
+        new EventSampleStream(eventStream, FORMAT, /* eventStreamAppendable= */ true);
 
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_FORMAT_READ);
