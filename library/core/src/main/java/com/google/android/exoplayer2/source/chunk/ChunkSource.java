@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
 import java.util.List;
 
@@ -104,15 +104,19 @@ public interface ChunkSource {
    *
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
-   * @param e The error.
-   * @param exclusionDurationMs The duration for which the associated track may be excluded, or
-   *     {@link C#TIME_UNSET} if the track may not be excluded.
+   * @param loadErrorInfo The load error info.
+   * @param loadErrorHandlingPolicy The load error handling policy to customize the behaviour of
+   *     handling the load error.
    * @return Whether the load should be canceled so that a replacement chunk can be loaded instead.
    *     Must be {@code false} if {@code cancelable} is {@code false}. If {@code true}, {@link
    *     #getNextChunk(long, long, List, ChunkHolder)} will be called to obtain the replacement
    *     chunk.
    */
-  boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs);
+  boolean onChunkLoadError(
+      Chunk chunk,
+      boolean cancelable,
+      LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy);
 
   /** Releases any held resources. */
   void release();

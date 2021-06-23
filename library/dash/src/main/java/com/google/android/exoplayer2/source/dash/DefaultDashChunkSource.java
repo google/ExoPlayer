@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
@@ -455,7 +456,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
+      Chunk chunk,
+      boolean cancelable,
+      LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     if (!cancelable) {
       return false;
     }
@@ -465,8 +469,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     // Workaround for missing segment at the end of the period
     if (!manifest.dynamic
         && chunk instanceof MediaChunk
-        && e instanceof InvalidResponseCodeException
-        && ((InvalidResponseCodeException) e).responseCode == 404) {
+        && loadErrorInfo.exception instanceof InvalidResponseCodeException
+        && ((InvalidResponseCodeException) loadErrorInfo.exception).responseCode == 404) {
       RepresentationHolder representationHolder =
           representationHolders[trackSelection.indexOf(chunk.trackFormat)];
       long segmentCount = representationHolder.getSegmentCount();
@@ -478,6 +482,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
       }
     }
+    long exclusionDurationMs =
+        loadErrorHandlingPolicy.getExclusionDurationMsFor(
+            LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
     return exclusionDurationMs != C.TIME_UNSET
         && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
   }

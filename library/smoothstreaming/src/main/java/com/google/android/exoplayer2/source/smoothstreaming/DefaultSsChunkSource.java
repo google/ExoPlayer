@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -282,7 +283,13 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
+      Chunk chunk,
+      boolean cancelable,
+      LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    long exclusionDurationMs =
+        loadErrorHandlingPolicy.getExclusionDurationMsFor(
+            LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
     return cancelable
         && exclusionDurationMs != C.TIME_UNSET
         && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
