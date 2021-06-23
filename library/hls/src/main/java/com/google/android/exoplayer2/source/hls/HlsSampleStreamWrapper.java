@@ -893,7 +893,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;
-    long exclusionDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
+    long exclusionDurationMs =
+        loadErrorHandlingPolicy.getExclusionDurationMsFor(
+            LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
     if (exclusionDurationMs != C.TIME_UNSET) {
       exclusionSucceeded = chunkSource.maybeExcludeTrack(loadable, exclusionDurationMs);
     }

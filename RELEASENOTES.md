@@ -19,6 +19,8 @@
             `ExoPlaybackException.rendererIndex`).
         *   `PlaybackException` introduces an `errorCode` which identifies the
             cause of the failure in order to simplify error handling.
+    *   Add `@FallbackType` to `LoadErrorHandlingPolicy` to support
+        customization of the exclusion duration for locations and tracks.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and

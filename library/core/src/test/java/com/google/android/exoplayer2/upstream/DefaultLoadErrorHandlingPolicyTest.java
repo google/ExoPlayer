@@ -50,50 +50,50 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   @Test
   public void getExclusionDurationMsFor_responseCode403() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(403, "Forbidden");
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_responseCode404() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(404, "Not found");
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_responseCode410() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(410, "Gone");
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_responseCode500() {
     InvalidResponseCodeException exception =
         buildInvalidResponseCodeException(500, "Internal server error");
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_responseCode503() {
     InvalidResponseCodeException exception =
         buildInvalidResponseCodeException(503, "Service unavailable");
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_dontExcludeUnexpectedHttpCodes() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(418, "I'm a teapot");
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
   public void getExclusionDurationMsFor_dontExcludeUnexpectedExceptions() {
     IOException exception = new IOException();
-    assertThat(getDefaultPolicyExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
+    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -112,14 +112,15 @@ public final class DefaultLoadErrorHandlingPolicyTest {
     assertThat(getDefaultPolicyRetryDelayOutputFor(new IOException(), 9)).isEqualTo(5000);
   }
 
-  private static long getDefaultPolicyExclusionDurationMsFor(IOException exception) {
+  private static long getDefaultPolicyTrackExclusionDurationMsFor(IOException exception) {
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(
             PLACEHOLDER_LOAD_EVENT_INFO,
             PLACEHOLDER_MEDIA_LOAD_DATA,
             exception,
             /* errorCount= */ 1);
-    return new DefaultLoadErrorHandlingPolicy().getBlacklistDurationMsFor(loadErrorInfo);
+    return new DefaultLoadErrorHandlingPolicy()
+        .getExclusionDurationMsFor(LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
   }
 
   private static long getDefaultPolicyRetryDelayOutputFor(IOException exception, int errorCount) {

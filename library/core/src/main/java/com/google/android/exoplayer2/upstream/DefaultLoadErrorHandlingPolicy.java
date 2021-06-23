@@ -36,7 +36,11 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE = 6;
   /** The default duration for which a track is excluded in milliseconds. */
-  public static final long DEFAULT_TRACK_BLACKLIST_MS = 60_000;
+  public static final long DEFAULT_TRACK_EXCLUSION_MS = 60_000;
+  /** @deprecated Use {@link #DEFAULT_TRACK_EXCLUSION_MS} instead. */
+  @Deprecated public static final long DEFAULT_TRACK_BLACKLIST_MS = DEFAULT_TRACK_EXCLUSION_MS;
+  /** The default duration for which a location is excluded in milliseconds. */
+  public static final long DEFAULT_LOCATION_EXCLUSION_MS = 5 * 60_000;
 
   private static final int DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT = -1;
 
@@ -64,12 +68,14 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   }
 
   /**
-   * Returns the exclusion duration, given by {@link #DEFAULT_TRACK_BLACKLIST_MS}, if the load error
-   * was an {@link InvalidResponseCodeException} with response code HTTP 404, 410 or 416, or {@link
-   * C#TIME_UNSET} otherwise.
+   * Returns the exclusion duration, given by {@link #DEFAULT_TRACK_EXCLUSION_MS} or {@link
+   * #DEFAULT_LOCATION_EXCLUSION_MS}, if the load error was an {@link InvalidResponseCodeException}
+   * with an HTTP response code indicating an unrecoverable error, or {@link C#TIME_UNSET}
+   * otherwise.
    */
   @Override
-  public long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
+  public long getExclusionDurationMsFor(
+      @FallbackType int fallbackType, LoadErrorInfo loadErrorInfo) {
     IOException exception = loadErrorInfo.exception;
     if (exception instanceof InvalidResponseCodeException) {
       int responseCode = ((InvalidResponseCodeException) exception).responseCode;
@@ -79,7 +85,9 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
               || responseCode == 416 // HTTP 416 Range Not Satisfiable.
               || responseCode == 500 // HTTP 500 Internal Server Error.
               || responseCode == 503 // HTTP 503 Service Unavailable.
-          ? DEFAULT_TRACK_BLACKLIST_MS
+          ? (fallbackType == FALLBACK_TYPE_TRACK
+              ? DEFAULT_TRACK_EXCLUSION_MS
+              : DEFAULT_LOCATION_EXCLUSION_MS)
           : C.TIME_UNSET;
     }
     return C.TIME_UNSET;

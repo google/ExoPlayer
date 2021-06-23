@@ -518,7 +518,8 @@ public class ChunkSampleStream<T extends ChunkSource>
 
     long exclusionDurationMs =
         cancelable
-            ? loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo)
+            ? loadErrorHandlingPolicy.getExclusionDurationMsFor(
+                LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo)
             : C.TIME_UNSET;
     @Nullable LoadErrorAction loadErrorAction = null;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error, exclusionDurationMs)) {

@@ -631,7 +631,9 @@ public final class DefaultHlsPlaylistTracker
       LoadErrorInfo loadErrorInfo =
           new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
       LoadErrorAction loadErrorAction;
-      long exclusionDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
+      long exclusionDurationMs =
+          loadErrorHandlingPolicy.getExclusionDurationMsFor(
+              LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
       boolean shouldExclude = exclusionDurationMs != C.TIME_UNSET;
 
       boolean exclusionFailed =
@@ -730,7 +732,8 @@ public final class DefaultHlsPlaylistTracker
                   playlistError,
                   /* errorCount= */ 1);
           long exclusionDurationMs =
-              loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
+              loadErrorHandlingPolicy.getExclusionDurationMsFor(
+                  LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
           notifyPlaylistError(playlistUrl, exclusionDurationMs);
           if (exclusionDurationMs != C.TIME_UNSET) {
             excludePlaylist(exclusionDurationMs);
