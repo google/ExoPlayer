@@ -273,7 +273,9 @@ public final class ImaAdsLoaderTest {
     adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
     videoAdPlayer.pauseAd(TEST_AD_MEDIA_INFO);
     videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
-    imaAdsLoader.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
+    ExoPlaybackException anException = ExoPlaybackException.createForSource(new IOException());
+    imaAdsLoader.onPlayerErrorChanged(anException);
+    imaAdsLoader.onPlayerError(anException);
     imaAdsLoader.onPositionDiscontinuity(
         new Player.PositionInfo(
             /* windowUid= */ new Object(),

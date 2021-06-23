@@ -275,6 +275,19 @@ public interface Player {
     default void onPlayerError(PlaybackException error) {}
 
     /**
+     * Called when the {@link PlaybackException} returned by {@link #getPlayerError()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
+     * to this method in order to include more information about the error.
+     *
+     * @param error The new error, or null if the error is being cleared.
+     */
+    default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
+
+    /**
      * @deprecated Use {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} instead.
      */
     @Deprecated

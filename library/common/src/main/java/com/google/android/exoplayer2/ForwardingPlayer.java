@@ -686,6 +686,11 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
+    public void onPlayerErrorChanged(@Nullable PlaybackException error) {
+      eventListener.onPlayerErrorChanged(error);
+    }
+
+    @Override
     public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
       eventListener.onPositionDiscontinuity(reason);
     }

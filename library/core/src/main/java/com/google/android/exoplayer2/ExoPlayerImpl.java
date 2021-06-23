@@ -1314,11 +1314,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(finalMediaItem, mediaItemTransitionReason));
     }
-    if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError
-        && newPlaybackInfo.playbackError != null) {
+    if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError) {
       listeners.queueEvent(
           Player.EVENT_PLAYER_ERROR,
-          listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
+          listener -> listener.onPlayerErrorChanged(newPlaybackInfo.playbackError));
+      if (newPlaybackInfo.playbackError != null) {
+        listeners.queueEvent(
+            Player.EVENT_PLAYER_ERROR,
+            listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
+      }
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);

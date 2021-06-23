@@ -44,6 +44,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
 import static com.google.android.exoplayer2.Player.DEFAULT_FAST_FORWARD_INCREMENT_MS;
 import static com.google.android.exoplayer2.Player.DEFAULT_REWIND_INCREMENT_MS;
+import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfWindow;
@@ -69,6 +70,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -161,6 +163,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowAudioManager;
@@ -2853,6 +2856,38 @@ public final class ExoPlayerTest {
     assertThat(windowCount[0]).isEqualTo(1);
     // Expect the position to be in the default position.
     assertThat(position[0]).isEqualTo(0L);
+  }
+
+  @Test
+  public void onPlayerErrorChanged_isNotifiedForNullError() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addMediaSource(
+        new FakeMediaSource(/* timeline= */ null) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            throw new IOException();
+          }
+        });
+    Player.Listener mockListener = mock(Player.Listener.class);
+    player.addListener(mockListener);
+
+    player.prepare();
+    player.play();
+    ExoPlaybackException error = TestPlayerRunHelper.runUntilError(player);
+    // The media source fails preparation, so we expect both methods to be called.
+    verify(mockListener).onPlayerErrorChanged(error);
+    verify(mockListener).onPlayerError(error);
+
+    reset(mockListener);
+
+    player.setMediaSource(new FakeMediaSource());
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, STATE_ENDED);
+    // Now the player, which had a playback error, was re-prepared causing the error to be cleared.
+    // We expect the change to null to be notified, but not onPlayerError.
+    verify(mockListener).onPlayerErrorChanged(ArgumentMatchers.isNull());
+    verify(mockListener, never()).onPlayerError(any());
   }
 
   @Test
@@ -9408,6 +9443,7 @@ public final class ExoPlayerTest {
     verify(listener, atLeastOnce()).onStaticMetadataChanged(any());
     verify(listener, atLeastOnce()).onPlayWhenReadyChanged(anyBoolean(), anyInt());
     verify(listener, atLeastOnce()).onIsPlayingChanged(anyBoolean());
+    verify(listener, atLeastOnce()).onPlayerErrorChanged(any());
     verify(listener, atLeastOnce()).onPlayerError(any());
 
     // Verify all the same events have been recorded with onEvents.
