@@ -37,6 +37,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public final class RtspMediaPeriodTest {
 
+  private static final long DEFAULT_TIMEOUT_MS = 8000;
+
   private RtspMediaPeriod mediaPeriod;
   private RtspServer rtspServer;
 
@@ -80,7 +82,7 @@ public final class RtspMediaPeriodTest {
     mediaPeriod =
         new RtspMediaPeriod(
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
-            new TransferRtpDataChannelFactory(),
+            new TransferRtpDataChannelFactory(DEFAULT_TIMEOUT_MS),
             RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
             /* listener= */ timing -> refreshedSourceDurationMs.set(timing.getDurationMs()),
             /* userAgent= */ "ExoPlayer:RtspPeriodTest");

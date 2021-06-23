@@ -42,8 +42,6 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -83,7 +81,7 @@ public final class RtspPlaybackTest {
     capturingRenderersFactory = new CapturingRenderersFactory(applicationContext);
     clock = new FakeClock(/* isAutoAdvancing= */ true);
     fakeRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
-    rtpDataChannelFactory = trackId -> fakeRtpDataChannel;
+    rtpDataChannelFactory = (trackId) -> fakeRtpDataChannel;
   }
 
   @Rule
@@ -289,7 +287,7 @@ public final class RtspPlaybackTest {
     public void close() {}
 
     @Override
-    public int read(byte[] target, int offset, int length) throws IOException {
+    public int read(byte[] target, int offset, int length) {
       if (length == 0) {
         return 0;
       }
@@ -301,7 +299,7 @@ public final class RtspPlaybackTest {
 
       if (data.length == 0) {
         // Empty data signals the end of a packet stream.
-        throw new IOException(new SocketTimeoutException());
+        return C.RESULT_END_OF_INPUT;
       }
 
       int byteToRead = min(length, data.length);
