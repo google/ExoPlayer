@@ -74,11 +74,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /** {@link DataSource.Factory} for {@link CronetDataSource} instances. */
   public static final class Factory implements HttpDataSource.Factory {
 
-    private final CronetEngineWrapper cronetEngineWrapper;
+    // TODO: Remove @Nullable annotation when CronetEngineWrapper is deleted.
+    @Nullable private final CronetEngine cronetEngine;
     private final Executor executor;
     private final RequestProperties defaultRequestProperties;
-    private final DefaultHttpDataSource.Factory internalFallbackFactory;
+    // TODO: Remove when CronetEngineWrapper is deleted.
+    @Nullable private final DefaultHttpDataSource.Factory internalFallbackFactory;
 
+    // TODO: Remove when CronetEngineWrapper is deleted.
     @Nullable private HttpDataSource.Factory fallbackFactory;
     @Nullable private Predicate<String> contentTypePredicate;
     @Nullable private TransferListener transferListener;
@@ -91,15 +94,38 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     /**
      * Creates an instance.
      *
-     * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
+     * @param cronetEngine A {@link CronetEngine} to make the requests.
      * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This
      *     may be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a
      *     thread hop from Cronet's internal network thread to the response handling thread.
      *     However, to avoid slowing down overall network performance, care must be taken to make
      *     sure response handling is a fast operation when using a direct executor.
      */
+    public Factory(CronetEngine cronetEngine, Executor executor) {
+      this.cronetEngine = Assertions.checkNotNull(cronetEngine);
+      this.executor = executor;
+      defaultRequestProperties = new RequestProperties();
+      internalFallbackFactory = null;
+      connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLIS;
+      readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
+     * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This
+     *     may be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a
+     *     thread hop from Cronet's internal network thread to the response handling thread.
+     *     However, to avoid slowing down overall network performance, care must be taken to make
+     *     sure response handling is a fast operation when using a direct executor.
+     * @deprecated Use {@link #Factory(CronetEngine, Executor)} with an instantiated {@link
+     *     CronetEngine}, or {@link DefaultHttpDataSource} for cases where {@link
+     *     CronetEngineWrapper#getCronetEngine()} would have returned {@code null}.
+     */
+    @Deprecated
     public Factory(CronetEngineWrapper cronetEngineWrapper, Executor executor) {
-      this.cronetEngineWrapper = cronetEngineWrapper;
+      this.cronetEngine = cronetEngineWrapper.getCronetEngine();
       this.executor = executor;
       defaultRequestProperties = new RequestProperties();
       internalFallbackFactory = new DefaultHttpDataSource.Factory();
@@ -117,7 +143,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
-      internalFallbackFactory.setDefaultRequestProperties(defaultRequestProperties);
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setDefaultRequestProperties(defaultRequestProperties);
+      }
       return this;
     }
 
@@ -133,7 +161,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
-      internalFallbackFactory.setUserAgent(userAgent);
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setUserAgent(userAgent);
+      }
       return this;
     }
 
@@ -147,7 +177,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public Factory setConnectionTimeoutMs(int connectTimeoutMs) {
       this.connectTimeoutMs = connectTimeoutMs;
-      internalFallbackFactory.setConnectTimeoutMs(connectTimeoutMs);
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setConnectTimeoutMs(connectTimeoutMs);
+      }
       return this;
     }
 
@@ -189,7 +221,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public Factory setReadTimeoutMs(int readTimeoutMs) {
       this.readTimeoutMs = readTimeoutMs;
-      internalFallbackFactory.setReadTimeoutMs(readTimeoutMs);
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setReadTimeoutMs(readTimeoutMs);
+      }
       return this;
     }
 
@@ -205,7 +239,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
       this.contentTypePredicate = contentTypePredicate;
-      internalFallbackFactory.setContentTypePredicate(contentTypePredicate);
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setContentTypePredicate(contentTypePredicate);
+      }
       return this;
     }
 
@@ -221,7 +257,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public Factory setTransferListener(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
-      internalFallbackFactory.setTransferListener(transferListener);
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setTransferListener(transferListener);
+      }
       return this;
     }
 
@@ -233,7 +271,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *
      * @param fallbackFactory The fallback factory that will be used.
      * @return This factory.
+     * @deprecated Do not use {@link CronetDataSource} or its factory in cases where a suitable
+     *     {@link CronetEngine} is not available. Use the fallback factory directly in such cases.
      */
+    @Deprecated
     public Factory setFallbackFactory(@Nullable HttpDataSource.Factory fallbackFactory) {
       this.fallbackFactory = fallbackFactory;
       return this;
@@ -241,11 +282,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
     @Override
     public HttpDataSource createDataSource() {
-      @Nullable CronetEngine cronetEngine = cronetEngineWrapper.getCronetEngine();
       if (cronetEngine == null) {
         return (fallbackFactory != null)
             ? fallbackFactory.createDataSource()
-            : internalFallbackFactory.createDataSource();
+            : Assertions.checkNotNull(internalFallbackFactory).createDataSource();
       }
       CronetDataSource dataSource =
           new CronetDataSource(
