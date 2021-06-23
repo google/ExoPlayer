@@ -5,6 +5,20 @@
 *   Core Library:
     *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
     *   Add `fastForward` and `rewind` methods to `Player`.
+    *   Make `Player` depend on the new `PlaybackException` class instead of
+        `ExoPlaybackException`:
+        *   `Player.getPlayerError` now returns a `PlaybackException`.
+        *   `Player.Listener.onPlayerError` now receives a `PlaybackException`.
+        *   Add a new listener method `Player.Listener.onPlayerErrorChanged`,
+            which is equivalent to `onPlayerError` except that it is also called
+            when the player error becomes `null`.
+        *   `Player` implementations like `ExoPlayer` may use
+            `PlaybackException` subclasses (like `ExoPlaybackException`), so
+            users can downcast the `PlaybackException` instance to obtain
+            implementation-specific fields (like
+            `ExoPlaybackException.rendererIndex`).
+        *   `PlaybackException` introduces an `errorCode` which identifies the
+            cause of the failure in order to simplify error handling.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
