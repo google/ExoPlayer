@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.rtsp;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.upstream.UdpDataSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,7 +28,8 @@ public class UdpDataSourceRtpDataChannelTest {
 
   @Test
   public void getInterleavedBinaryDataListener_returnsNull() {
-    UdpDataSourceRtpDataChannel udpDataSourceRtpDataChannel = new UdpDataSourceRtpDataChannel();
+    UdpDataSourceRtpDataChannel udpDataSourceRtpDataChannel =
+        new UdpDataSourceRtpDataChannel(UdpDataSource.DEFAULT_SOCKET_TIMEOUT_MILLIS);
 
     assertThat(udpDataSourceRtpDataChannel.getInterleavedBinaryDataListener()).isNull();
   }
