@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -273,7 +274,10 @@ public final class JpegExtractor implements Extractor {
     TrackOutput imageTrackOutput =
         checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
     imageTrackOutput.format(
-        new Format.Builder().setMetadata(new Metadata(metadataEntries)).build());
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.IMAGE_JPEG)
+            .setMetadata(new Metadata(metadataEntries))
+            .build());
   }
 
   /**
