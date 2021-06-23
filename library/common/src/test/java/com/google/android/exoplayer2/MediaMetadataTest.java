@@ -66,7 +66,7 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.discNumber).isNull();
     assertThat(mediaMetadata.totalDiscCount).isNull();
     assertThat(mediaMetadata.genre).isNull();
-    assertThat(mediaMetadata.playlistTitle).isNull();
+    assertThat(mediaMetadata.compilation).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -124,7 +124,7 @@ public class MediaMetadataTest {
             .setDiscNumber(1)
             .setTotalDiscCount(3)
             .setGenre("Pop")
-            .setPlaylistTitle("Amazing songs.")
+            .setCompilation("Amazing songs.")
             .setExtras(extras) // Extras is not implemented in MediaMetadata.equals(Object o).
             .build();
 
