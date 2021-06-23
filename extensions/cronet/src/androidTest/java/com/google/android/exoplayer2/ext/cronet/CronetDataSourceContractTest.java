@@ -51,9 +51,8 @@ public class CronetDataSourceContractTest extends DataSourceContractTest {
             ApplicationProvider.getApplicationContext(),
             /* userAgent= */ "test-agent",
             /* preferGMSCoreCronet= */ false);
-    assertThat(cronetEngineWrapper.getCronetEngineSource())
-        .isEqualTo(CronetEngineWrapper.SOURCE_NATIVE);
-    return new CronetDataSource.Factory(cronetEngineWrapper, executorService)
+    assertThat(cronetEngineWrapper.getCronetEngine()).isNotNull();
+    return new CronetDataSource.Factory(cronetEngineWrapper.getCronetEngine(), executorService)
         .setFallbackFactory(new InvalidDataSourceFactory())
         .createDataSource();
   }

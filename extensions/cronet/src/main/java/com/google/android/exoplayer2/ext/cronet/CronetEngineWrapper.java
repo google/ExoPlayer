@@ -18,14 +18,9 @@ package com.google.android.exoplayer2.ext.cronet;
 import static java.lang.Math.min;
 
 import android.content.Context;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,26 +34,6 @@ public final class CronetEngineWrapper {
   private static final String TAG = "CronetEngineWrapper";
 
   @Nullable private final CronetEngine cronetEngine;
-  @CronetEngineSource private final int cronetEngineSource;
-
-  /**
-   * Source of {@link CronetEngine}. One of {@link #SOURCE_NATIVE}, {@link #SOURCE_GMS}, {@link
-   * #SOURCE_UNKNOWN}, {@link #SOURCE_USER_PROVIDED} or {@link #SOURCE_UNAVAILABLE}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({SOURCE_NATIVE, SOURCE_GMS, SOURCE_UNKNOWN, SOURCE_USER_PROVIDED, SOURCE_UNAVAILABLE})
-  public @interface CronetEngineSource {}
-  /** Natively bundled Cronet implementation. */
-  public static final int SOURCE_NATIVE = 0;
-  /** Cronet implementation from GMSCore. */
-  public static final int SOURCE_GMS = 1;
-  /** Other (unknown) Cronet implementation. */
-  public static final int SOURCE_UNKNOWN = 2;
-  /** User-provided Cronet engine. */
-  public static final int SOURCE_USER_PROVIDED = 3;
-  /** No Cronet implementation available. Fallback Http provider is used if possible. */
-  public static final int SOURCE_UNAVAILABLE = 4;
 
   /**
    * Creates a wrapper for a {@link CronetEngine} built using the most suitable {@link
@@ -84,8 +59,7 @@ public final class CronetEngineWrapper {
    */
   public CronetEngineWrapper(
       Context context, @Nullable String userAgent, boolean preferGMSCoreCronet) {
-    CronetEngine cronetEngine = null;
-    @CronetEngineSource int cronetEngineSource = SOURCE_UNAVAILABLE;
+    @Nullable CronetEngine cronetEngine = null;
     List<CronetProvider> cronetProviders = new ArrayList<>(CronetProvider.getAllProviders(context));
     // Remove disabled and fallback Cronet providers from list
     for (int i = cronetProviders.size() - 1; i >= 0; i--) {
@@ -105,13 +79,6 @@ public final class CronetEngineWrapper {
           cronetEngineBuilder.setUserAgent(userAgent);
         }
         cronetEngine = cronetEngineBuilder.build();
-        if (providerComparator.isNativeProvider(providerName)) {
-          cronetEngineSource = SOURCE_NATIVE;
-        } else if (providerComparator.isGMSCoreProvider(providerName)) {
-          cronetEngineSource = SOURCE_GMS;
-        } else {
-          cronetEngineSource = SOURCE_UNKNOWN;
-        }
         Log.d(TAG, "CronetEngine built using " + providerName);
       } catch (SecurityException e) {
         Log.w(
@@ -126,10 +93,9 @@ public final class CronetEngineWrapper {
       }
     }
     if (cronetEngine == null) {
-      Log.w(TAG, "Cronet not available. Using fallback provider.");
+      Log.w(TAG, "CronetEngine could not be built.");
     }
     this.cronetEngine = cronetEngine;
-    this.cronetEngineSource = cronetEngineSource;
   }
 
   /**
@@ -139,17 +105,6 @@ public final class CronetEngineWrapper {
    */
   public CronetEngineWrapper(CronetEngine cronetEngine) {
     this.cronetEngine = cronetEngine;
-    this.cronetEngineSource = SOURCE_USER_PROVIDED;
-  }
-
-  /**
-   * Returns the source of the wrapped {@link CronetEngine}.
-   *
-   * @return A {@link CronetEngineSource} value.
-   */
-  @CronetEngineSource
-  public int getCronetEngineSource() {
-    return cronetEngineSource;
   }
 
   /**
@@ -164,66 +119,46 @@ public final class CronetEngineWrapper {
 
   private static class CronetProviderComparator implements Comparator<CronetProvider> {
 
-    @Nullable private final String gmsCoreCronetName;
+    /*
+     * Copy of com.google.android.gms.net.CronetProviderInstaller.PROVIDER_NAME. We have our own
+     * copy because GMSCore CronetProvider classes are unavailable in some (internal to Google)
+     * build configurations.
+     */
+    private static final String GMS_CORE_PROVIDER_NAME = "Google-Play-Services-Cronet-Provider";
+
     private final boolean preferGMSCoreCronet;
 
-    // Multi-catch can only be used for API 19+ in this case.
-    // Field#get(null) is blocked by the null-checker, but is safe because the field is static.
-    @SuppressWarnings({"UseMultiCatch", "nullness:argument"})
     public CronetProviderComparator(boolean preferGMSCoreCronet) {
-      // GMSCore CronetProvider classes are only available in some configurations.
-      // Thus, we use reflection to copy static name.
-      String gmsCoreVersionString = null;
-      try {
-        Class<?> cronetProviderInstallerClass =
-            Class.forName("com.google.android.gms.net.CronetProviderInstaller");
-        Field providerNameField = cronetProviderInstallerClass.getDeclaredField("PROVIDER_NAME");
-        gmsCoreVersionString = (String) providerNameField.get(null);
-      } catch (ClassNotFoundException e) {
-        // GMSCore CronetProvider not available.
-      } catch (NoSuchFieldException e) {
-        // GMSCore CronetProvider not available.
-      } catch (IllegalAccessException e) {
-        // GMSCore CronetProvider not available.
-      }
-      gmsCoreCronetName = gmsCoreVersionString;
       this.preferGMSCoreCronet = preferGMSCoreCronet;
     }
 
     @Override
     public int compare(CronetProvider providerLeft, CronetProvider providerRight) {
-      int typePreferenceLeft = evaluateCronetProviderType(providerLeft.getName());
-      int typePreferenceRight = evaluateCronetProviderType(providerRight.getName());
-      if (typePreferenceLeft != typePreferenceRight) {
-        return typePreferenceLeft - typePreferenceRight;
+      int providerComparison = getPriority(providerLeft) - getPriority(providerRight);
+      if (providerComparison != 0) {
+        return providerComparison;
       }
       return -compareVersionStrings(providerLeft.getVersion(), providerRight.getVersion());
     }
 
-    public boolean isNativeProvider(String providerName) {
-      return CronetProvider.PROVIDER_NAME_APP_PACKAGED.equals(providerName);
-    }
-
-    public boolean isGMSCoreProvider(String providerName) {
-      return gmsCoreCronetName != null && gmsCoreCronetName.equals(providerName);
-    }
-
     /**
-     * Convert Cronet provider name into a sortable preference value. Smaller values are preferred.
+     * Returns the priority score for a Cronet provider, where a smaller score indicates higher
+     * priority.
      */
-    private int evaluateCronetProviderType(String providerName) {
-      if (isNativeProvider(providerName)) {
+    private int getPriority(CronetProvider provider) {
+      String providerName = provider.getName();
+      if (CronetProvider.PROVIDER_NAME_APP_PACKAGED.equals(providerName)) {
         return 1;
-      }
-      if (isGMSCoreProvider(providerName)) {
+      } else if (GMS_CORE_PROVIDER_NAME.equals(providerName)) {
         return preferGMSCoreCronet ? 0 : 2;
+      } else {
+        return 3;
       }
-      // Unknown provider type.
-      return -1;
     }
 
     /** Compares version strings of format "12.123.35.23". */
-    private static int compareVersionStrings(String versionLeft, String versionRight) {
+    private static int compareVersionStrings(
+        @Nullable String versionLeft, @Nullable String versionRight) {
       if (versionLeft == null || versionRight == null) {
         return 0;
       }
