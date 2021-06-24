@@ -169,7 +169,8 @@ public class DashManifestParser extends DefaultHandler
             // early access.
             seenEarlyAccessPeriod = true;
           } else {
-            throw new ParserException("Unable to determine start of period " + periods.size());
+            throw ParserException.createForMalformedManifest(
+                "Unable to determine start of period " + periods.size(), /* cause= */ null);
           }
         } else {
           long periodDurationMs = periodWithDurationMs.second;
@@ -187,12 +188,13 @@ public class DashManifestParser extends DefaultHandler
         // If we know the end time of the final period, we can use it as the duration.
         durationMs = nextPeriodStartMs;
       } else if (!dynamic) {
-        throw new ParserException("Unable to determine duration of static manifest.");
+        throw ParserException.createForMalformedManifest(
+            "Unable to determine duration of static manifest.", /* cause= */ null);
       }
     }
 
     if (periods.isEmpty()) {
-      throw new ParserException("No periods found.");
+      throw ParserException.createForMalformedManifest("No periods found.", /* cause= */ null);
     }
 
     return buildMediaPresentationDescription(

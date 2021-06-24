@@ -120,7 +120,8 @@ public final class FlacMetadataReader {
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.STREAM_MARKER_SIZE);
     input.readFully(scratch.getData(), 0, FlacConstants.STREAM_MARKER_SIZE);
     if (scratch.readUnsignedInt() != STREAM_MARKER) {
-      throw new ParserException("Failed to read FLAC stream marker.");
+      throw ParserException.createForMalformedContainer(
+          "Failed to read FLAC stream marker.", /* cause= */ null);
     }
   }
 
@@ -234,7 +235,8 @@ public final class FlacMetadataReader {
     int syncCode = frameStartMarker >> 2;
     if (syncCode != SYNC_CODE) {
       input.resetPeekPosition();
-      throw new ParserException("First frame does not start with sync code.");
+      throw ParserException.createForMalformedContainer(
+          "First frame does not start with sync code.", /* cause= */ null);
     }
 
     input.resetPeekPosition();

@@ -108,11 +108,11 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void incorrectScheme() {
+  public void incorrectScheme() throws IOException {
     try {
       schemeDataDataSource.open(buildDataSpec("http://www.google.com"));
       fail();
-    } catch (IOException e) {
+    } catch (IllegalArgumentException e) {
       // Expected.
     }
   }

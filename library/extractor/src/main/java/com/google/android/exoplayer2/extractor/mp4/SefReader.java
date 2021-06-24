@@ -260,7 +260,7 @@ import java.util.List;
       case "Super_SlowMotion_Deflickering_On":
         return TYPE_SUPER_SLOW_DEFLICKERING_ON;
       default:
-        throw new ParserException("Invalid SEF name");
+        throw ParserException.createForMalformedContainer("Invalid SEF name", /* cause= */ null);
     }
   }
 

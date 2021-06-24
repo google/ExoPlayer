@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -26,7 +27,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   public static final class UnsupportedFormatException extends ParserException {
 
     public UnsupportedFormatException(String msg) {
-      super(msg);
+      super(msg, /* cause= */ null, /* contentIsMalformed= */ false, C.DATA_TYPE_MEDIA);
     }
   }
 

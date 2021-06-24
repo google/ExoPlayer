@@ -286,7 +286,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     } finally {
       Util.closeQuietly(reader);
     }
-    throw new ParserException("Failed to parse the playlist, could not identify any tags.");
+    throw ParserException.createForMalformedManifest(
+        "Failed to parse the playlist, could not identify any tags.", /* cause= */ null);
   }
 
   private static boolean checkPlaylistHeader(BufferedReader reader) throws IOException {
@@ -404,7 +405,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           uri =
               UriUtil.resolveToUri(baseUri, parseStringAttr(line, REGEX_URI, variableDefinitions));
         } else if (!iterator.hasNext()) {
-          throw new ParserException("#EXT-X-STREAM-INF must be followed by another line");
+          throw ParserException.createForMalformedManifest(
+              "#EXT-X-STREAM-INF must be followed by another line", /* cause= */ null);
         } else {
           // The following line contains #EXT-X-STREAM-INF's URI.
           line = replaceVariableReferences(iterator.next(), variableDefinitions);
@@ -720,9 +722,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         if (fullSegmentEncryptionKeyUri != null && fullSegmentEncryptionIV == null) {
           // See RFC 8216, Section 4.3.2.5.
-          throw new ParserException(
-              "The encryption IV attribute must be present when an initialization segment is "
-                  + "encrypted with METHOD=AES-128.");
+          throw ParserException.createForMalformedManifest(
+              "The encryption IV attribute must be present when an initialization segment is"
+                  + " encrypted with METHOD=AES-128.",
+              /* cause= */ null);
         }
         initializationSegment =
             new Segment(
@@ -1199,7 +1202,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     if (value != null) {
       return value;
     } else {
-      throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
+      throw ParserException.createForMalformedManifest(
+          "Couldn't match " + pattern.pattern() + " in " + line, /* cause= */ null);
     }
   }
 

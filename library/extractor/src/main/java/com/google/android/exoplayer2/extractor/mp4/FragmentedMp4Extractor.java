@@ -379,7 +379,8 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     if (atomSize < atomHeaderBytesRead) {
-      throw new ParserException("Atom size less than header length (unsupported).");
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Atom size less than header length (unsupported).");
     }
 
     long atomPosition = input.getPosition() - atomHeaderBytesRead;
@@ -420,10 +421,12 @@ public class FragmentedMp4Extractor implements Extractor {
       }
     } else if (shouldParseLeafAtom(atomType)) {
       if (atomHeaderBytesRead != Atom.HEADER_SIZE) {
-        throw new ParserException("Leaf atom defines extended atom size (unsupported).");
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Leaf atom defines extended atom size (unsupported).");
       }
       if (atomSize > Integer.MAX_VALUE) {
-        throw new ParserException("Leaf atom with length > 2147483647 (unsupported).");
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Leaf atom with length > 2147483647 (unsupported).");
       }
       ParsableByteArray atomData = new ParsableByteArray((int) atomSize);
       System.arraycopy(atomHeader.getData(), 0, atomData.getData(), 0, Atom.HEADER_SIZE);
@@ -431,7 +434,8 @@ public class FragmentedMp4Extractor implements Extractor {
       parserState = STATE_READING_ATOM_PAYLOAD;
     } else {
       if (atomSize > Integer.MAX_VALUE) {
-        throw new ParserException("Skipping atom with length > 2147483647 (unsupported).");
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Skipping atom with length > 2147483647 (unsupported).");
       }
       atomData = null;
       parserState = STATE_READING_ATOM_PAYLOAD;
@@ -827,11 +831,12 @@ public class FragmentedMp4Extractor implements Extractor {
 
     int sampleCount = saiz.readUnsignedIntToInt();
     if (sampleCount > out.sampleCount) {
-      throw new ParserException(
+      throw ParserException.createForMalformedContainer(
           "Saiz sample count "
               + sampleCount
               + " is greater than fragment sample count"
-              + out.sampleCount);
+              + out.sampleCount,
+          /* cause= */ null);
     }
 
     int totalSize = 0;
@@ -870,7 +875,8 @@ public class FragmentedMp4Extractor implements Extractor {
     int entryCount = saio.readUnsignedIntToInt();
     if (entryCount != 1) {
       // We only support one trun element currently, so always expect one entry.
-      throw new ParserException("Unexpected saio entry count: " + entryCount);
+      throw ParserException.createForMalformedContainer(
+          "Unexpected saio entry count: " + entryCount, /* cause= */ null);
     }
 
     int version = Atom.parseFullAtomVersion(fullAtom);
@@ -1055,7 +1061,8 @@ public class FragmentedMp4Extractor implements Extractor {
 
   private static int checkNonNegative(int value) throws ParserException {
     if (value < 0) {
-      throw new ParserException("Unexpected negative value: " + value);
+      throw ParserException.createForMalformedContainer(
+          "Unexpected negative value: " + value, /* cause= */ null);
     }
     return value;
   }
@@ -1089,7 +1096,8 @@ public class FragmentedMp4Extractor implements Extractor {
 
     if ((flags & 0x01 /* override_track_encryption_box_parameters */) != 0) {
       // TODO: Implement this.
-      throw new ParserException("Overriding TrackEncryptionBox parameters is unsupported.");
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Overriding TrackEncryptionBox parameters is unsupported.");
     }
 
     boolean subsampleEncryption = (flags & 0x02 /* use_subsample_encryption */) != 0;
@@ -1099,11 +1107,12 @@ public class FragmentedMp4Extractor implements Extractor {
       Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, out.sampleCount, false);
       return;
     } else if (sampleCount != out.sampleCount) {
-      throw new ParserException(
+      throw ParserException.createForMalformedContainer(
           "Senc sample count "
               + sampleCount
               + " is different from fragment sample count"
-              + out.sampleCount);
+              + out.sampleCount,
+          /* cause= */ null);
     }
 
     Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, sampleCount, subsampleEncryption);
@@ -1142,7 +1151,8 @@ public class FragmentedMp4Extractor implements Extractor {
       sbgp.skipBytes(4); // grouping_type_parameter.
     }
     if (sbgp.readInt() != 1) { // entry_count.
-      throw new ParserException("Entry count in sbgp != 1 (unsupported).");
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Entry count in sbgp != 1 (unsupported).");
     }
 
     sgpd.setPosition(Atom.HEADER_SIZE);
@@ -1150,13 +1160,15 @@ public class FragmentedMp4Extractor implements Extractor {
     sgpd.skipBytes(4); // grouping_type == seig.
     if (sgpdVersion == 1) {
       if (sgpd.readUnsignedInt() == 0) {
-        throw new ParserException("Variable length description in sgpd found (unsupported)");
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Variable length description in sgpd found (unsupported)");
       }
     } else if (sgpdVersion >= 2) {
       sgpd.skipBytes(4); // default_sample_description_index.
     }
     if (sgpd.readUnsignedInt() != 1) { // entry_count.
-      throw new ParserException("Entry count in sgpd != 1 (unsupported).");
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Entry count in sgpd != 1 (unsupported).");
     }
 
     // CencSampleEncryptionInformationGroupEntry
@@ -1232,7 +1244,8 @@ public class FragmentedMp4Extractor implements Extractor {
 
       int type = 0x80000000 & firstInt;
       if (type != 0) {
-        throw new ParserException("Unhandled indirect reference");
+        throw ParserException.createForMalformedContainer(
+            "Unhandled indirect reference", /* cause= */ null);
       }
       long referenceDuration = atom.readUnsignedInt();
 
@@ -1272,7 +1285,8 @@ public class FragmentedMp4Extractor implements Extractor {
     }
     int bytesToSkip = (int) (nextDataOffset - input.getPosition());
     if (bytesToSkip < 0) {
-      throw new ParserException("Offset to encryption data was negative.");
+      throw ParserException.createForMalformedContainer(
+          "Offset to encryption data was negative.", /* cause= */ null);
     }
     input.skipFully(bytesToSkip);
     nextTrackBundle.fragment.fillEncryptionData(input);
@@ -1302,7 +1316,8 @@ public class FragmentedMp4Extractor implements Extractor {
         // read the header of the next atom.
         int bytesToSkip = (int) (endOfMdatPosition - input.getPosition());
         if (bytesToSkip < 0) {
-          throw new ParserException("Offset to end of mdat was negative.");
+          throw ParserException.createForMalformedContainer(
+              "Offset to end of mdat was negative.", /* cause= */ null);
         }
         input.skipFully(bytesToSkip);
         enterReadingAtomHeaderState();
@@ -1380,7 +1395,8 @@ public class FragmentedMp4Extractor implements Extractor {
           nalPrefix.setPosition(0);
           int nalLengthInt = nalPrefix.readInt();
           if (nalLengthInt < 1) {
-            throw new ParserException("Invalid NAL length");
+            throw ParserException.createForMalformedContainer(
+                "Invalid NAL length", /* cause= */ null);
           }
           sampleCurrentNalBytesRemaining = nalLengthInt - 1;
           // Write a start code for the current NAL unit.

@@ -287,7 +287,8 @@ public final class AdtsExtractor implements Extractor {
           // Either the stream is malformed OR we're not parsing an ADTS stream.
           if (currentFrameSize <= 6) {
             hasCalculatedAverageFrameSize = true;
-            throw new ParserException("Malformed ADTS stream");
+            throw ParserException.createForMalformedContainer(
+                "Malformed ADTS stream", /* cause= */ null);
           }
           totalValidFramesSize += currentFrameSize;
           if (++numValidFrames == NUM_FRAMES_FOR_AVERAGE_FRAME_SIZE) {

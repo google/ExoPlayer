@@ -82,7 +82,11 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
   public static class MissingFieldException extends ParserException {
 
     public MissingFieldException(String fieldName) {
-      super("Missing required field: " + fieldName);
+      super(
+          "Missing required field: " + fieldName,
+          /* cause= */ null,
+          /* contentIsMalformed= */ true,
+          C.DATA_TYPE_MANIFEST);
     }
   }
 
@@ -562,7 +566,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
           startTime = startTimes.get(chunkIndex - 1) + lastChunkDuration;
         } else {
           // We don't have the start time, and we're unable to infer it.
-          throw new ParserException("Unable to infer start time");
+          throw ParserException.createForMalformedManifest(
+              "Unable to infer start time", /* cause= */ null);
         }
       }
       chunkIndex++;
@@ -571,7 +576,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       // Handle repeated chunks.
       long repeatCount = parseLong(parser, KEY_FRAGMENT_REPEAT_COUNT, 1L);
       if (repeatCount > 1 && lastChunkDuration == C.TIME_UNSET) {
-        throw new ParserException("Repeated chunk with unspecified duration");
+        throw ParserException.createForMalformedManifest(
+            "Repeated chunk with unspecified duration", /* cause= */ null);
       }
       for (int i = 1; i < repeatCount; i++) {
         chunkIndex++;
@@ -613,7 +619,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         } else if (KEY_TYPE_TEXT.equalsIgnoreCase(value)) {
           return C.TRACK_TYPE_TEXT;
         } else {
-          throw new ParserException("Invalid key value[" + value + "]");
+          throw ParserException.createForMalformedManifest(
+              "Invalid key value[" + value + "]", /* cause= */ null);
         }
       }
       throw new MissingFieldException(KEY_TYPE);

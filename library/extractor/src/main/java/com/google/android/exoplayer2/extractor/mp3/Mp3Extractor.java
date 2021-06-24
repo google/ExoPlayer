@@ -357,7 +357,8 @@ public final class Mp3Extractor implements Extractor {
         // The header doesn't match the candidate header or is invalid. Try the next byte offset.
         if (searchedBytes++ == searchLimitBytes) {
           if (!sniffing) {
-            throw new ParserException("Searched too many bytes.");
+            throw ParserException.createForMalformedContainer(
+                "Searched too many bytes.", /* cause= */ null);
           }
           return false;
         }

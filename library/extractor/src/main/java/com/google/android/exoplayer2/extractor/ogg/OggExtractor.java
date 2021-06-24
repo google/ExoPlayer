@@ -74,7 +74,8 @@ public class OggExtractor implements Extractor {
     checkStateNotNull(output); // Check that init has been called.
     if (streamReader == null) {
       if (!sniffInternal(input)) {
-        throw new ParserException("Failed to determine bitstream type");
+        throw ParserException.createForMalformedContainer(
+            "Failed to determine bitstream type", /* cause= */ null);
       }
       input.resetPeekPosition();
     }

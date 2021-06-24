@@ -148,7 +148,8 @@ import java.nio.ByteBuffer;
   public FlacStreamMetadata decodeStreamMetadata() throws IOException {
     FlacStreamMetadata streamMetadata = flacDecodeMetadata(nativeDecoderContext);
     if (streamMetadata == null) {
-      throw new ParserException("Failed to decode stream metadata");
+      throw ParserException.createForMalformedContainer(
+          "Failed to decode stream metadata", /* cause= */ null);
     }
     return streamMetadata;
   }

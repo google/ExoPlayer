@@ -626,7 +626,8 @@ public class MatroskaExtractor implements Extractor {
       case ID_SEGMENT:
         if (segmentContentPosition != C.POSITION_UNSET
             && segmentContentPosition != contentPosition) {
-          throw new ParserException("Multiple Segment elements not supported");
+          throw ParserException.createForMalformedContainer(
+              "Multiple Segment elements not supported", /* cause= */ null);
         }
         segmentContentPosition = contentPosition;
         segmentContentSize = contentSize;
@@ -696,7 +697,8 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_SEEK:
         if (seekEntryId == UNSET_ENTRY_ID || seekEntryPosition == C.POSITION_UNSET) {
-          throw new ParserException("Mandatory element SeekID or SeekPosition not found");
+          throw ParserException.createForMalformedContainer(
+              "Mandatory element SeekID or SeekPosition not found", /* cause= */ null);
         }
         if (seekEntryId == ID_CUES) {
           cuesContentPosition = seekEntryPosition;
@@ -742,7 +744,8 @@ public class MatroskaExtractor implements Extractor {
         assertInTrackEntry(id);
         if (currentTrack.hasContentEncryption) {
           if (currentTrack.cryptoData == null) {
-            throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
+            throw ParserException.createForMalformedContainer(
+                "Encrypted Track found but ContentEncKeyID was not found", /* cause= */ null);
           }
           currentTrack.drmInitData =
               new DrmInitData(
@@ -753,13 +756,15 @@ public class MatroskaExtractor implements Extractor {
       case ID_CONTENT_ENCODINGS:
         assertInTrackEntry(id);
         if (currentTrack.hasContentEncryption && currentTrack.sampleStrippedBytes != null) {
-          throw new ParserException("Combining encryption and compression is not supported");
+          throw ParserException.createForMalformedContainer(
+              "Combining encryption and compression is not supported", /* cause= */ null);
         }
         break;
       case ID_TRACK_ENTRY:
         Track currentTrack = checkStateNotNull(this.currentTrack);
         if (currentTrack.codecId == null) {
-          throw new ParserException("CodecId is missing in TrackEntry element");
+          throw ParserException.createForMalformedContainer(
+              "CodecId is missing in TrackEntry element", /* cause= */ null);
         } else {
           if (isCodecSupported(currentTrack.codecId)) {
             currentTrack.initializeOutput(extractorOutput, currentTrack.number);
@@ -770,7 +775,8 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_TRACKS:
         if (tracks.size() == 0) {
-          throw new ParserException("No valid tracks were found");
+          throw ParserException.createForMalformedContainer(
+              "No valid tracks were found", /* cause= */ null);
         }
         extractorOutput.endTracks();
         break;
@@ -790,13 +796,15 @@ public class MatroskaExtractor implements Extractor {
       case ID_EBML_READ_VERSION:
         // Validate that EBMLReadVersion is supported. This extractor only supports v1.
         if (value != 1) {
-          throw new ParserException("EBMLReadVersion " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "EBMLReadVersion " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_DOC_TYPE_READ_VERSION:
         // Validate that DocTypeReadVersion is supported. This extractor only supports up to v2.
         if (value < 1 || value > 2) {
-          throw new ParserException("DocTypeReadVersion " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "DocTypeReadVersion " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_SEEK_POSITION:
@@ -861,31 +869,36 @@ public class MatroskaExtractor implements Extractor {
       case ID_CONTENT_ENCODING_ORDER:
         // This extractor only supports one ContentEncoding element and hence the order has to be 0.
         if (value != 0) {
-          throw new ParserException("ContentEncodingOrder " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "ContentEncodingOrder " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_CONTENT_ENCODING_SCOPE:
         // This extractor only supports the scope of all frames.
         if (value != 1) {
-          throw new ParserException("ContentEncodingScope " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "ContentEncodingScope " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_CONTENT_COMPRESSION_ALGORITHM:
         // This extractor only supports header stripping.
         if (value != 3) {
-          throw new ParserException("ContentCompAlgo " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "ContentCompAlgo " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_CONTENT_ENCRYPTION_ALGORITHM:
         // Only the value 5 (AES) is allowed according to the WebM specification.
         if (value != 5) {
-          throw new ParserException("ContentEncAlgo " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "ContentEncAlgo " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
         // Only the value 1 is allowed according to the WebM specification.
         if (value != 1) {
-          throw new ParserException("AESSettingsCipherMode " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "AESSettingsCipherMode " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_CUE_TIME:
@@ -1058,7 +1071,8 @@ public class MatroskaExtractor implements Extractor {
       case ID_DOC_TYPE:
         // Validate that DocType is supported.
         if (!DOC_TYPE_WEBM.equals(value) && !DOC_TYPE_MATROSKA.equals(value)) {
-          throw new ParserException("DocType " + value + " not supported");
+          throw ParserException.createForMalformedContainer(
+              "DocType " + value + " not supported", /* cause= */ null);
         }
         break;
       case ID_NAME:
@@ -1180,7 +1194,8 @@ public class MatroskaExtractor implements Extractor {
                 blockSampleSizes[sampleIndex] = 0;
                 readScratch(input, ++headerSize);
                 if (scratch.getData()[headerSize - 1] == 0) {
-                  throw new ParserException("No valid varint length mask found");
+                  throw ParserException.createForMalformedContainer(
+                      "No valid varint length mask found", /* cause= */ null);
                 }
                 long readValue = 0;
                 for (int i = 0; i < 8; i++) {
@@ -1202,7 +1217,8 @@ public class MatroskaExtractor implements Extractor {
                   }
                 }
                 if (readValue < Integer.MIN_VALUE || readValue > Integer.MAX_VALUE) {
-                  throw new ParserException("EBML lacing sample size out of range.");
+                  throw ParserException.createForMalformedContainer(
+                      "EBML lacing sample size out of range.", /* cause= */ null);
                 }
                 int intReadValue = (int) readValue;
                 blockSampleSizes[sampleIndex] =
@@ -1215,7 +1231,8 @@ public class MatroskaExtractor implements Extractor {
                   contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
             } else {
               // Lacing is always in the range 0--3.
-              throw new ParserException("Unexpected lacing value: " + lacing);
+              throw ParserException.createForMalformedContainer(
+                  "Unexpected lacing value: " + lacing, /* cause= */ null);
             }
           }
 
@@ -1262,7 +1279,8 @@ public class MatroskaExtractor implements Extractor {
             tracks.get(blockTrackNumber), blockAdditionalId, input, contentSize);
         break;
       default:
-        throw new ParserException("Unexpected id: " + id);
+        throw ParserException.createForMalformedContainer(
+            "Unexpected id: " + id, /* cause= */ null);
     }
   }
 
@@ -1294,14 +1312,16 @@ public class MatroskaExtractor implements Extractor {
   @EnsuresNonNull("currentTrack")
   private void assertInTrackEntry(int id) throws ParserException {
     if (currentTrack == null) {
-      throw new ParserException("Element " + id + " must be in a TrackEntry");
+      throw ParserException.createForMalformedContainer(
+          "Element " + id + " must be in a TrackEntry", /* cause= */ null);
     }
   }
 
   @EnsuresNonNull({"cueTimesUs", "cueClusterPositions"})
   private void assertInCues(int id) throws ParserException {
     if (cueTimesUs == null || cueClusterPositions == null) {
-      throw new ParserException("Element " + id + " must be in a Cues");
+      throw ParserException.createForMalformedContainer(
+          "Element " + id + " must be in a Cues", /* cause= */ null);
     }
   }
 
@@ -1401,7 +1421,8 @@ public class MatroskaExtractor implements Extractor {
           input.readFully(scratch.getData(), 0, 1);
           sampleBytesRead++;
           if ((scratch.getData()[0] & 0x80) == 0x80) {
-            throw new ParserException("Extension bit is set in signal byte");
+            throw ParserException.createForMalformedContainer(
+                "Extension bit is set in signal byte", /* cause= */ null);
           }
           sampleSignalByte = scratch.getData()[0];
           sampleSignalByteRead = true;
@@ -1766,7 +1787,8 @@ public class MatroskaExtractor implements Extractor {
 
   private long scaleTimecodeToUs(long unscaledTimecode) throws ParserException {
     if (timecodeScale == C.TIME_UNSET) {
-      throw new ParserException("Can't scale timecode prior to timecodeScale being set.");
+      throw ParserException.createForMalformedContainer(
+          "Can't scale timecode prior to timecodeScale being set.", /* cause= */ null);
     }
     return Util.scaleLargeTimestamp(unscaledTimecode, timecodeScale, 1000);
   }
@@ -2207,7 +2229,8 @@ public class MatroskaExtractor implements Extractor {
           initializationData = ImmutableList.of(initializationDataBytes);
           break;
         default:
-          throw new ParserException("Unrecognized codec identifier.");
+          throw ParserException.createForMalformedContainer(
+              "Unrecognized codec identifier.", /* cause= */ null);
       }
 
       if (dolbyVisionConfigBytes != null) {
@@ -2284,7 +2307,8 @@ public class MatroskaExtractor implements Extractor {
           || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
       } else {
-        throw new ParserException("Unexpected MIME type.");
+        throw ParserException.createForMalformedContainer(
+            "Unexpected MIME type.", /* cause= */ null);
       }
 
       if (name != null && !TRACK_NAME_TO_ROTATION_DEGREES.containsKey(name)) {
@@ -2389,10 +2413,12 @@ public class MatroskaExtractor implements Extractor {
               return new Pair<>(MimeTypes.VIDEO_VC1, Collections.singletonList(initializationData));
             }
           }
-          throw new ParserException("Failed to find FourCC VC1 initialization data");
+          throw ParserException.createForMalformedContainer(
+              "Failed to find FourCC VC1 initialization data", /* cause= */ null);
         }
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing FourCC private data");
+        throw ParserException.createForMalformedContainer(
+            "Error parsing FourCC private data", /* cause= */ null);
       }
 
       Log.w(TAG, "Unknown FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
@@ -2409,7 +2435,8 @@ public class MatroskaExtractor implements Extractor {
         throws ParserException {
       try {
         if (codecPrivate[0] != 0x02) {
-          throw new ParserException("Error parsing vorbis codec private");
+          throw ParserException.createForMalformedContainer(
+              "Error parsing vorbis codec private", /* cause= */ null);
         }
         int offset = 1;
         int vorbisInfoLength = 0;
@@ -2427,17 +2454,20 @@ public class MatroskaExtractor implements Extractor {
         vorbisSkipLength += codecPrivate[offset++] & 0xFF;
 
         if (codecPrivate[offset] != 0x01) {
-          throw new ParserException("Error parsing vorbis codec private");
+          throw ParserException.createForMalformedContainer(
+              "Error parsing vorbis codec private", /* cause= */ null);
         }
         byte[] vorbisInfo = new byte[vorbisInfoLength];
         System.arraycopy(codecPrivate, offset, vorbisInfo, 0, vorbisInfoLength);
         offset += vorbisInfoLength;
         if (codecPrivate[offset] != 0x03) {
-          throw new ParserException("Error parsing vorbis codec private");
+          throw ParserException.createForMalformedContainer(
+              "Error parsing vorbis codec private", /* cause= */ null);
         }
         offset += vorbisSkipLength;
         if (codecPrivate[offset] != 0x05) {
-          throw new ParserException("Error parsing vorbis codec private");
+          throw ParserException.createForMalformedContainer(
+              "Error parsing vorbis codec private", /* cause= */ null);
         }
         byte[] vorbisBooks = new byte[codecPrivate.length - offset];
         System.arraycopy(codecPrivate, offset, vorbisBooks, 0, codecPrivate.length - offset);
@@ -2446,7 +2476,8 @@ public class MatroskaExtractor implements Extractor {
         initializationData.add(vorbisBooks);
         return initializationData;
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing vorbis codec private");
+        throw ParserException.createForMalformedContainer(
+            "Error parsing vorbis codec private", /* cause= */ null);
       }
     }
 
@@ -2469,7 +2500,8 @@ public class MatroskaExtractor implements Extractor {
           return false;
         }
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing MS/ACM codec private");
+        throw ParserException.createForMalformedContainer(
+            "Error parsing MS/ACM codec private", /* cause= */ null);
       }
     }
 
@@ -2488,7 +2520,8 @@ public class MatroskaExtractor implements Extractor {
     @EnsuresNonNull("codecPrivate")
     private byte[] getCodecPrivate(String codecId) throws ParserException {
       if (codecPrivate == null) {
-        throw new ParserException("Missing CodecPrivate for codec " + codecId);
+        throw ParserException.createForMalformedContainer(
+            "Missing CodecPrivate for codec " + codecId, /* cause= */ null);
       }
       return codecPrivate;
     }

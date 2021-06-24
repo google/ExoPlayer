@@ -1216,7 +1216,8 @@ public final class Util {
   public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {
-      throw new ParserException("Invalid date/time format: " + value);
+      throw ParserException.createForMalformedContainer(
+          "Invalid date/time format: " + value, /* cause= */ null);
     }
 
     int timezoneShift;

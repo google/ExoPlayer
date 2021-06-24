@@ -114,7 +114,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           return true;
         case EbmlProcessor.ELEMENT_TYPE_UNSIGNED_INT:
           if (elementContentSize > MAX_INTEGER_ELEMENT_SIZE_BYTES) {
-            throw new ParserException("Invalid integer size: " + elementContentSize);
+            throw ParserException.createForMalformedContainer(
+                "Invalid integer size: " + elementContentSize, /* cause= */ null);
           }
           processor.integerElement(elementId, readInteger(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
@@ -122,14 +123,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         case EbmlProcessor.ELEMENT_TYPE_FLOAT:
           if (elementContentSize != VALID_FLOAT32_ELEMENT_SIZE_BYTES
               && elementContentSize != VALID_FLOAT64_ELEMENT_SIZE_BYTES) {
-            throw new ParserException("Invalid float size: " + elementContentSize);
+            throw ParserException.createForMalformedContainer(
+                "Invalid float size: " + elementContentSize, /* cause= */ null);
           }
           processor.floatElement(elementId, readFloat(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
           return true;
         case EbmlProcessor.ELEMENT_TYPE_STRING:
           if (elementContentSize > Integer.MAX_VALUE) {
-            throw new ParserException("String element size: " + elementContentSize);
+            throw ParserException.createForMalformedContainer(
+                "String element size: " + elementContentSize, /* cause= */ null);
           }
           processor.stringElement(elementId, readString(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
@@ -143,7 +146,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           elementState = ELEMENT_STATE_READ_ID;
           break;
         default:
-          throw new ParserException("Invalid element type " + type);
+          throw ParserException.createForMalformedContainer(
+              "Invalid element type " + type, /* cause= */ null);
       }
     }
   }

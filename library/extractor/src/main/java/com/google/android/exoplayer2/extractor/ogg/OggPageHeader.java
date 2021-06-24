@@ -140,7 +140,8 @@ import java.io.IOException;
       if (quiet) {
         return false;
       } else {
-        throw new ParserException("unsupported bit stream revision");
+        throw ParserException.createForUnsupportedContainerFeature(
+            "unsupported bit stream revision");
       }
     }
     type = scratch.readUnsignedByte();

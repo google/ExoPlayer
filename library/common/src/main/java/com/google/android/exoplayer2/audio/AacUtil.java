@@ -229,7 +229,8 @@ public final class AacUtil {
           parseGaSpecificConfig(bitArray, audioObjectType, channelConfiguration);
           break;
         default:
-          throw new ParserException("Unsupported audio object type: " + audioObjectType);
+          throw ParserException.createForUnsupportedContainerFeature(
+              "Unsupported audio object type: " + audioObjectType);
       }
       switch (audioObjectType) {
         case 17:
@@ -240,7 +241,8 @@ public final class AacUtil {
         case 23:
           int epConfig = bitArray.readBits(2);
           if (epConfig == 2 || epConfig == 3) {
-            throw new ParserException("Unsupported epConfig: " + epConfig);
+            throw ParserException.createForUnsupportedContainerFeature(
+                "Unsupported epConfig: " + epConfig);
           }
           break;
         default:

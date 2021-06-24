@@ -23,6 +23,7 @@ import android.util.Base64;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
 import java.io.IOException;
@@ -48,12 +49,11 @@ public final class DataSchemeDataSource extends BaseDataSource {
     this.dataSpec = dataSpec;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
-    if (!SCHEME_DATA.equals(scheme)) {
-      throw new ParserException("Unsupported scheme: " + scheme);
-    }
+    Assertions.checkArgument(SCHEME_DATA.equals(scheme), "Unsupported scheme: " + scheme);
     String[] uriParts = Util.split(uri.getSchemeSpecificPart(), ",");
     if (uriParts.length != 2) {
-      throw new ParserException("Unexpected URI format: " + uri);
+      throw ParserException.createForMalformedDataOfUnknownType(
+          "Unexpected URI format: " + uri, /* cause= */ null);
     }
     String dataString = uriParts[1];
     if (uriParts[0].contains(";base64")) {

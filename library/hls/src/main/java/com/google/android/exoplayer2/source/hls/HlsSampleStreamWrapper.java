@@ -278,7 +278,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
     if (loadingFinished && !prepared) {
-      throw new ParserException("Loading finished before preparation is complete.");
+      throw ParserException.createForMalformedContainer(
+          "Loading finished before preparation is complete.", /* cause= */ null);
     }
   }
 

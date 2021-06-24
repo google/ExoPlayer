@@ -92,7 +92,8 @@ public final class WavExtractor implements Extractor {
       WavHeader header = WavHeaderReader.peek(input);
       if (header == null) {
         // Should only happen if the media wasn't sniffed.
-        throw new ParserException("Unsupported or unrecognized wav header.");
+        throw ParserException.createForMalformedContainer(
+            "Unsupported or unrecognized wav header.", /* cause= */ null);
       }
 
       if (header.formatType == WavUtil.TYPE_IMA_ADPCM) {
@@ -117,7 +118,8 @@ public final class WavExtractor implements Extractor {
         @C.PcmEncoding
         int pcmEncoding = WavUtil.getPcmEncodingForType(header.formatType, header.bitsPerSample);
         if (pcmEncoding == C.ENCODING_INVALID) {
-          throw new ParserException("Unsupported WAV format type: " + header.formatType);
+          throw ParserException.createForUnsupportedContainerFeature(
+              "Unsupported WAV format type: " + header.formatType);
         }
         outputWriter =
             new PassthroughOutputWriter(
@@ -217,8 +219,9 @@ public final class WavExtractor implements Extractor {
       int bytesPerFrame = header.numChannels * header.bitsPerSample / 8;
       // Validate the header. Blocks are expected to correspond to single frames.
       if (header.blockSize != bytesPerFrame) {
-        throw new ParserException(
-            "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize);
+        throw ParserException.createForMalformedContainer(
+            "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize,
+            /* cause= */ null);
       }
 
       int constantBitrate = header.frameRateHz * bytesPerFrame * 8;
@@ -351,8 +354,9 @@ public final class WavExtractor implements Extractor {
       int expectedFramesPerBlock =
           (((header.blockSize - (4 * numChannels)) * 8) / (header.bitsPerSample * numChannels)) + 1;
       if (framesPerBlock != expectedFramesPerBlock) {
-        throw new ParserException(
-            "Expected frames per block: " + expectedFramesPerBlock + "; got: " + framesPerBlock);
+        throw ParserException.createForMalformedContainer(
+            "Expected frames per block: " + expectedFramesPerBlock + "; got: " + framesPerBlock,
+            /* cause= */ null);
       }
 
       // Calculate the number of blocks we'll need to decode to obtain an output sample of the

@@ -443,7 +443,8 @@ public final class TsExtractor implements Extractor {
     if (endOfPacket > limit) {
       bytesSinceLastSync += syncBytePosition - searchStart;
       if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
-        throw new ParserException("Cannot find sync byte. Most likely not a Transport Stream.");
+        throw ParserException.createForMalformedContainer(
+            "Cannot find sync byte. Most likely not a Transport Stream.", /* cause= */ null);
       }
     } else {
       // We have found a packet within the buffer.

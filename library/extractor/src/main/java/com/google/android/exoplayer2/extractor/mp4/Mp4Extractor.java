@@ -360,7 +360,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
 
     if (atomSize < atomHeaderBytesRead) {
-      throw new ParserException("Atom size less than header length (unsupported).");
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Atom size less than header length (unsupported).");
     }
 
     if (shouldParseContainerAtom(atomType)) {
@@ -598,7 +599,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           nalLength.setPosition(0);
           int nalLengthInt = nalLength.readInt();
           if (nalLengthInt < 0) {
-            throw new ParserException("Invalid NAL length");
+            throw ParserException.createForMalformedContainer(
+                "Invalid NAL length", /* cause= */ null);
           }
           sampleCurrentNalBytesRemaining = nalLengthInt;
           // Write a start code for the current NAL unit.

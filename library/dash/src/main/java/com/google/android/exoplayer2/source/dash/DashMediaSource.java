@@ -1443,7 +1443,8 @@ public final class DashMediaSource extends BaseMediaSource {
       try {
         Matcher matcher = TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(firstLine);
         if (!matcher.matches()) {
-          throw new ParserException("Couldn't parse timestamp: " + firstLine);
+          throw ParserException.createForMalformedManifest(
+              "Couldn't parse timestamp: " + firstLine, /* cause= */ null);
         }
         // Parse the timestamp.
         String timestampWithoutTimezone = matcher.group(1);
