@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -119,7 +118,7 @@ public final class CronetDataSourceTest {
     executorService = Executors.newSingleThreadExecutor();
     dataSourceUnderTest =
         (CronetDataSource)
-            new CronetDataSource.Factory(new CronetEngineWrapper(mockCronetEngine), executorService)
+            new CronetDataSource.Factory(mockCronetEngine, executorService)
                 .setConnectionTimeoutMs(TEST_CONNECT_TIMEOUT_MS)
                 .setReadTimeoutMs(TEST_READ_TIMEOUT_MS)
                 .setResetTimeoutOnRedirects(true)
@@ -1174,7 +1173,7 @@ public final class CronetDataSourceTest {
           throws HttpDataSourceException {
     dataSourceUnderTest =
         (CronetDataSource)
-            new CronetDataSource.Factory(new CronetEngineWrapper(mockCronetEngine), executorService)
+            new CronetDataSource.Factory(mockCronetEngine, executorService)
                 .setConnectionTimeoutMs(TEST_CONNECT_TIMEOUT_MS)
                 .setReadTimeoutMs(TEST_READ_TIMEOUT_MS)
                 .setResetTimeoutOnRedirects(true)
@@ -1202,7 +1201,7 @@ public final class CronetDataSourceTest {
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
     dataSourceUnderTest =
         (CronetDataSource)
-            new CronetDataSource.Factory(new CronetEngineWrapper(mockCronetEngine), executorService)
+            new CronetDataSource.Factory(mockCronetEngine, executorService)
                 .setConnectionTimeoutMs(TEST_CONNECT_TIMEOUT_MS)
                 .setReadTimeoutMs(TEST_READ_TIMEOUT_MS)
                 .setResetTimeoutOnRedirects(true)
@@ -1239,7 +1238,7 @@ public final class CronetDataSourceTest {
       throws HttpDataSourceException {
     dataSourceUnderTest =
         (CronetDataSource)
-            new CronetDataSource.Factory(new CronetEngineWrapper(mockCronetEngine), executorService)
+            new CronetDataSource.Factory(mockCronetEngine, executorService)
                 .setConnectionTimeoutMs(TEST_CONNECT_TIMEOUT_MS)
                 .setReadTimeoutMs(TEST_READ_TIMEOUT_MS)
                 .setResetTimeoutOnRedirects(true)
@@ -1450,6 +1449,7 @@ public final class CronetDataSourceTest {
     verify(mockUrlRequestBuilder).allowDirectExecutor();
   }
 
+  @SuppressWarnings("deprecation") // Tests deprecated fallback functionality.
   @Test
   public void factorySetFallbackHttpDataSourceFactory_cronetNotAvailable_usesFallbackFactory()
       throws HttpDataSourceException, InterruptedException {
@@ -1470,10 +1470,11 @@ public final class CronetDataSourceTest {
     assertThat(headers.get("user-agent")).isEqualTo("customFallbackFactoryUserAgent");
   }
 
+  @SuppressWarnings("deprecation") // Tests deprecated fallback functionality.
   @Test
   public void
       factory_noFallbackFactoryCronetNotAvailable_delegateTransferListenerToInternalFallbackFactory()
-          throws HttpDataSourceException, InterruptedException {
+          throws HttpDataSourceException {
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse());
     CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper((CronetEngine) null);
@@ -1492,14 +1493,14 @@ public final class CronetDataSourceTest {
         .onTransferStart(eq(dataSourceUnderTest), eq(dataSpec), /* isNetwork= */ eq(true));
   }
 
+  @SuppressWarnings("deprecation") // Tests deprecated fallback functionality.
   @Test
   public void
       factory_noFallbackFactoryCronetNotAvailable_delegateDefaultRequestPropertiesToInternalFallbackFactory()
           throws HttpDataSourceException, InterruptedException {
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse());
-    CronetEngineWrapper cronetEngineWrapper =
-        new CronetEngineWrapper(ApplicationProvider.getApplicationContext());
+    CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper((CronetEngine) null);
     Map<String, String> defaultRequestProperties = new HashMap<>();
     defaultRequestProperties.put("0", "defaultRequestProperty0");
     HttpDataSource dataSourceUnderTest =
@@ -1515,6 +1516,7 @@ public final class CronetDataSourceTest {
     assertThat(dataSourceUnderTest).isInstanceOf(DefaultHttpDataSource.class);
   }
 
+  @SuppressWarnings("deprecation") // Tests deprecated fallback functionality.
   @Test
   public void
       factory_noFallbackFactoryCronetNotAvailable_delegateDefaultRequestPropertiesToInternalFallbackFactoryAfterCreation()

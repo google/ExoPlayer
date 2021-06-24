@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.ext.cronet.CronetDataSource;
-import com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper;
+import com.google.android.exoplayer2.ext.cronet.CronetUtil;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -44,6 +44,8 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.chromium.net.CronetEngine;
 
 /** Utility methods for the demo app. */
 public final class DemoUtil {
@@ -102,11 +104,16 @@ public final class DemoUtil {
     if (httpDataSourceFactory == null) {
       if (USE_CRONET_FOR_NETWORKING) {
         context = context.getApplicationContext();
-        CronetEngineWrapper cronetEngineWrapper =
-            new CronetEngineWrapper(context, USER_AGENT, /* preferGMSCoreCronet= */ false);
-        httpDataSourceFactory =
-            new CronetDataSource.Factory(cronetEngineWrapper, Executors.newSingleThreadExecutor());
-      } else {
+        @Nullable
+        CronetEngine cronetEngine =
+            CronetUtil.buildCronetEngine(context, USER_AGENT, /* preferGMSCoreCronet= */ false);
+        if (cronetEngine != null) {
+          httpDataSourceFactory =
+              new CronetDataSource.Factory(cronetEngine, Executors.newSingleThreadExecutor());
+        }
+      }
+      if (httpDataSourceFactory == null) {
+        // We don't want to use Cronet, or we failed to instantiate a CronetEngine.
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);

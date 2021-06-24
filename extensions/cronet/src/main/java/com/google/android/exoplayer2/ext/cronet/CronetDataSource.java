@@ -95,7 +95,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     /**
      * Creates an instance.
      *
-     * @param cronetEngine A {@link CronetEngine} to make the requests.
+     * @param cronetEngine A {@link CronetEngine} to make the requests. This should <em>not</em> be
+     *     a fallback instance obtained from {@code JavaCronetProvider}. It's more efficient to use
+     *     {@link DefaultHttpDataSource} instead in this case.
      * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This
      *     may be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a
      *     thread hop from Cronet's internal network thread to the response handling thread.
