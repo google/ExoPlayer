@@ -69,6 +69,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     private int connectTimeoutMs;
     private int readTimeoutMs;
     private boolean allowCrossProtocolRedirects;
+    private boolean keepPostFor302Redirects;
 
     /** Creates an instance. */
     public Factory() {
@@ -175,6 +176,15 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       return this;
     }
 
+    /**
+     * Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
+     * POST request.
+     */
+    public Factory setKeepPostFor302Redirects(boolean keepPostFor302Redirects) {
+      this.keepPostFor302Redirects = keepPostFor302Redirects;
+      return this;
+    }
+
     @Override
     public DefaultHttpDataSource createDataSource() {
       DefaultHttpDataSource dataSource =
@@ -184,7 +194,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
               readTimeoutMs,
               allowCrossProtocolRedirects,
               defaultRequestProperties,
-              contentTypePredicate);
+              contentTypePredicate,
+              keepPostFor302Redirects);
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
       }
@@ -209,6 +220,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Nullable private final String userAgent;
   @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
+  private final boolean keepPostFor302Redirects;
 
   @Nullable private Predicate<String> contentTypePredicate;
   @Nullable private DataSpec dataSpec;
@@ -260,7 +272,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         readTimeoutMillis,
         allowCrossProtocolRedirects,
         defaultRequestProperties,
-        /* contentTypePredicate= */ null);
+        /* contentTypePredicate= */ null,
+        /* keepPostFor302Redirects= */ false);
   }
 
   private DefaultHttpDataSource(
@@ -269,7 +282,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects,
       @Nullable RequestProperties defaultRequestProperties,
-      @Nullable Predicate<String> contentTypePredicate) {
+      @Nullable Predicate<String> contentTypePredicate,
+      boolean keepPostFor302Redirects) {
     super(/* isNetwork= */ true);
     this.userAgent = userAgent;
     this.connectTimeoutMillis = connectTimeoutMillis;
@@ -278,6 +292,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     this.defaultRequestProperties = defaultRequestProperties;
     this.contentTypePredicate = contentTypePredicate;
     this.requestProperties = new RequestProperties();
+    this.keepPostFor302Redirects = keepPostFor302Redirects;
   }
 
   /**
@@ -486,7 +501,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
 
-    if (!allowCrossProtocolRedirects) {
+    if (!allowCrossProtocolRedirects && !keepPostFor302Redirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
       return makeConnection(
@@ -500,7 +515,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           dataSpec.httpRequestHeaders);
     }
 
-    // We need to handle redirects ourselves to allow cross-protocol redirects.
+    // We need to handle redirects ourselves to allow cross-protocol redirects or to keep the POST
+    // request method for 302.
     int redirectCount = 0;
     while (redirectCount++ <= MAX_REDIRECTS) {
       HttpURLConnection connection =
@@ -529,10 +545,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
               || responseCode == HttpURLConnection.HTTP_MOVED_PERM
               || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
               || responseCode == HttpURLConnection.HTTP_SEE_OTHER)) {
-        // POST request follows the redirect and is transformed into a GET request.
         connection.disconnect();
-        httpMethod = DataSpec.HTTP_METHOD_GET;
-        httpBody = null;
+        boolean shouldKeepPost =
+            keepPostFor302Redirects && responseCode == HttpURLConnection.HTTP_MOVED_TEMP;
+        if (!shouldKeepPost) {
+          // POST request follows the redirect and is transformed into a GET request.
+          httpMethod = DataSpec.HTTP_METHOD_GET;
+          httpBody = null;
+        }
         url = handleRedirect(url, location);
       } else {
         return connection;
@@ -618,7 +638,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @return The next URL.
    * @throws IOException If redirection isn't possible.
    */
-  private static URL handleRedirect(URL originalUrl, @Nullable String location) throws IOException {
+  private URL handleRedirect(URL originalUrl, @Nullable String location) throws IOException {
     if (location == null) {
       throw new ProtocolException("Null location redirect");
     }
@@ -629,13 +649,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     if (!"https".equals(protocol) && !"http".equals(protocol)) {
       throw new ProtocolException("Unsupported protocol redirect: " + protocol);
     }
-    // Currently this method is only called if allowCrossProtocolRedirects is true, and so the code
-    // below isn't required. If we ever decide to handle redirects ourselves when cross-protocol
-    // redirects are disabled, we'll need to uncomment this block of code.
-    // if (!allowCrossProtocolRedirects && !protocol.equals(originalUrl.getProtocol())) {
-    //   throw new ProtocolException("Disallowed cross-protocol redirect ("
-    //       + originalUrl.getProtocol() + " to " + protocol + ")");
-    // }
+    if (!allowCrossProtocolRedirects && !protocol.equals(originalUrl.getProtocol())) {
+      throw new ProtocolException(
+          "Disallowed cross-protocol redirect ("
+              + originalUrl.getProtocol()
+              + " to "
+              + protocol
+              + ")");
+    }
     return url;
   }
 

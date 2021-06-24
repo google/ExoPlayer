@@ -90,6 +90,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     private int readTimeoutMs;
     private boolean resetTimeoutOnRedirects;
     private boolean handleSetCookieRequests;
+    private boolean keepPostFor302Redirects;
 
     /**
      * Creates an instance.
@@ -246,6 +247,18 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     /**
+     * Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
+     * POST request.
+     */
+    public Factory setKeepPostFor302Redirects(boolean keepPostFor302Redirects) {
+      this.keepPostFor302Redirects = keepPostFor302Redirects;
+      if (internalFallbackFactory != null) {
+        internalFallbackFactory.setKeepPostFor302Redirects(keepPostFor302Redirects);
+      }
+      return this;
+    }
+
+    /**
      * Sets the {@link TransferListener} that will be used.
      *
      * <p>The default is {@code null}.
@@ -297,7 +310,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
               handleSetCookieRequests,
               userAgent,
               defaultRequestProperties,
-              contentTypePredicate);
+              contentTypePredicate,
+              keepPostFor302Redirects);
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
       }
@@ -348,6 +362,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private final Clock clock;
 
   @Nullable private Predicate<String> contentTypePredicate;
+  private final boolean keepPostFor302Redirects;
 
   // Accessed by the calling thread only.
   private boolean opened;
@@ -402,7 +417,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         /* handleSetCookieRequests= */ false,
         /* userAgent= */ null,
         defaultRequestProperties,
-        /* contentTypePredicate= */ null);
+        /* contentTypePredicate= */ null,
+        /* keepPostFor302Redirects */ false);
   }
 
   /** @deprecated Use {@link CronetDataSource.Factory} instead. */
@@ -424,7 +440,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         handleSetCookieRequests,
         /* userAgent= */ null,
         defaultRequestProperties,
-        /* contentTypePredicate= */ null);
+        /* contentTypePredicate= */ null,
+        /* keepPostFor302Redirects */ false);
   }
 
   /** @deprecated Use {@link CronetDataSource.Factory} instead. */
@@ -486,10 +503,11 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         handleSetCookieRequests,
         /* userAgent= */ null,
         defaultRequestProperties,
-        contentTypePredicate);
+        contentTypePredicate,
+        /* keepPostFor302Redirects */ false);
   }
 
-  private CronetDataSource(
+  protected CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
       int connectTimeoutMs,
@@ -498,7 +516,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       boolean handleSetCookieRequests,
       @Nullable String userAgent,
       @Nullable RequestProperties defaultRequestProperties,
-      @Nullable Predicate<String> contentTypePredicate) {
+      @Nullable Predicate<String> contentTypePredicate,
+      boolean keepPostFor302Redirects) {
     super(/* isNetwork= */ true);
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
@@ -509,6 +528,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this.userAgent = userAgent;
     this.defaultRequestProperties = defaultRequestProperties;
     this.contentTypePredicate = contentTypePredicate;
+    this.keepPostFor302Redirects = keepPostFor302Redirects;
     clock = Clock.DEFAULT;
     urlRequestCallback = new UrlRequestCallback();
     requestProperties = new RequestProperties();
@@ -1009,11 +1029,15 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return false;
   }
 
-  private static String parseCookies(List<String> setCookieHeaders) {
+  @Nullable
+  private static String parseCookies(@Nullable List<String> setCookieHeaders) {
+    if (setCookieHeaders == null || setCookieHeaders.isEmpty()) {
+      return null;
+    }
     return TextUtils.join(";", setCookieHeaders);
   }
 
-  private static void attachCookies(UrlRequest.Builder requestBuilder, String cookies) {
+  private static void attachCookies(UrlRequest.Builder requestBuilder, @Nullable String cookies) {
     if (TextUtils.isEmpty(cookies)) {
       return;
     }
@@ -1062,8 +1086,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
       UrlRequest urlRequest = Assertions.checkNotNull(currentUrlRequest);
       DataSpec dataSpec = Assertions.checkNotNull(currentDataSpec);
+      int responseCode = info.getHttpStatusCode();
       if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
-        int responseCode = info.getHttpStatusCode();
         // The industry standard is to disregard POST redirects when the status code is 307 or 308.
         if (responseCode == 307 || responseCode == 308) {
           exception =
@@ -1081,22 +1105,30 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         resetConnectTimeout();
       }
 
-      if (!handleSetCookieRequests) {
+      boolean shouldKeepPost =
+          keepPostFor302Redirects
+              && dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST
+              && responseCode == 302;
+
+      // request.followRedirect() transforms a POST request into a GET request, so if we want to
+      // keep it as a POST we need to fall through to the manual redirect logic below.
+      if (!shouldKeepPost && !handleSetCookieRequests) {
         request.followRedirect();
         return;
       }
 
-      @Nullable List<String> setCookieHeaders = info.getAllHeaders().get(HttpHeaders.SET_COOKIE);
-      if (setCookieHeaders == null || setCookieHeaders.isEmpty()) {
+      @Nullable
+      String cookieHeadersValue = parseCookies(info.getAllHeaders().get(HttpHeaders.SET_COOKIE));
+      if (!shouldKeepPost && TextUtils.isEmpty(cookieHeadersValue)) {
         request.followRedirect();
         return;
       }
 
       urlRequest.cancel();
       DataSpec redirectUrlDataSpec;
-      if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
+      if (!shouldKeepPost && dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
         // For POST redirects that aren't 307 or 308, the redirect is followed but request is
-        // transformed into a GET.
+        // transformed into a GET unless shouldKeepPost is true.
         redirectUrlDataSpec =
             dataSpec
                 .buildUpon()
@@ -1114,7 +1146,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         exception = e;
         return;
       }
-      String cookieHeadersValue = parseCookies(setCookieHeaders);
       attachCookies(requestBuilder, cookieHeadersValue);
       currentUrlRequest = requestBuilder.build();
       currentUrlRequest.start();
