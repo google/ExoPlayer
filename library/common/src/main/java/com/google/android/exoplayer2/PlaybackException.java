@@ -55,6 +55,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_IO_DNS_FAILED,
         ERROR_CODE_IO_FILE_NOT_FOUND,
         ERROR_CODE_IO_NO_PERMISSION,
+        ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
         ERROR_CODE_PARSING_CONTAINER_MALFORMED,
         ERROR_CODE_PARSING_MANIFEST_MALFORMED,
         ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
@@ -110,6 +111,14 @@ public class PlaybackException extends Exception implements Bundleable {
    * access internet or external storage.
    */
   public static final int ERROR_CODE_IO_NO_PERMISSION = 2008;
+  /**
+   * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
+   * https://) when the app's Network Security Configuration does not permit it.
+   *
+   * <p>See <a href="https://exoplayer.dev/issues/cleartext-not-permitted">this corresponding
+   * troubleshooting topic</a>.
+   */
+  public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2009;
 
   // Content parsing errors (3xxx).
 
@@ -202,6 +211,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_IO_FILE_NOT_FOUND";
       case ERROR_CODE_IO_NO_PERMISSION:
         return "ERROR_CODE_IO_NO_PERMISSION";
+      case ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED:
+        return "ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED";
       case ERROR_CODE_PARSING_CONTAINER_MALFORMED:
         return "ERROR_CODE_PARSING_CONTAINER_MALFORMED";
       case ERROR_CODE_PARSING_MANIFEST_MALFORMED:

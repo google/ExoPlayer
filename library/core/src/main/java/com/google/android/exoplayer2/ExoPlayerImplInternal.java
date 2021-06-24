@@ -611,6 +611,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
       }
       handleIoException(e, errorCode);
+    } catch (HttpDataSource.CleartextNotPermittedException e) {
+      handleIoException(e, PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED);
     } catch (HttpDataSource.InvalidResponseCodeException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
     } catch (HttpDataSource.HttpDataSourceException e) {
