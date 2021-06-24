@@ -62,6 +62,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -607,6 +608,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
       handleIoException(e, errorCode);
     } catch (HttpDataSource.InvalidResponseCodeException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
+    } catch (HttpDataSource.HttpDataSourceException e) {
+      int errorCode;
+      if (e.getCause() instanceof UnknownHostException) {
+        errorCode = PlaybackException.ERROR_CODE_IO_DNS_FAILED;
+      } else {
+        errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
+      }
+      handleIoException(e, errorCode);
     } catch (BehindLiveWindowException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW);
     } catch (IOException e) {
