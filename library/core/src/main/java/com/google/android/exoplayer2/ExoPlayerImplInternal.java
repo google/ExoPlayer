@@ -33,6 +33,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParametersListener;
+import com.google.android.exoplayer2.PlaybackException.ErrorCode;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -581,7 +582,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     } catch (FileDataSource.FileDataSourceException e) {
       @Nullable Throwable cause = e.getCause();
-      int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
+      @ErrorCode int errorCode;
       if (cause instanceof FileNotFoundException) {
         if (Util.SDK_INT >= 21 && ErrnoExceptionWrapperV21.isPermissionError(cause.getCause())) {
           errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
@@ -590,10 +591,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
         }
       } else if (cause instanceof SecurityException) {
         errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
+      } else {
+        errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
       }
       handleIoException(e, errorCode);
     } catch (ParserException e) {
-      int errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
+      @ErrorCode int errorCode;
       if (e.dataType == C.DATA_TYPE_MEDIA) {
         errorCode =
             e.contentIsMalformed
@@ -604,12 +607,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
             e.contentIsMalformed
                 ? PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED
                 : PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED;
+      } else {
+        errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
       }
       handleIoException(e, errorCode);
     } catch (HttpDataSource.InvalidResponseCodeException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
     } catch (HttpDataSource.HttpDataSourceException e) {
-      int errorCode;
+      @ErrorCode int errorCode;
       if (e.getCause() instanceof UnknownHostException) {
         errorCode = PlaybackException.ERROR_CODE_IO_DNS_FAILED;
       } else {
@@ -632,7 +637,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   // Private methods.
 
-  private void handleIoException(IOException e, @PlaybackException.ErrorCode int errorCode) {
+  private void handleIoException(IOException e, @ErrorCode int errorCode) {
     ExoPlaybackException error = ExoPlaybackException.createForSource(e, errorCode);
     @Nullable MediaPeriodHolder playingPeriod = queue.getPlayingPeriod();
     if (playingPeriod != null) {
