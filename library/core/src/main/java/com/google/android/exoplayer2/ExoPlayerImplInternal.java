@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -63,6 +64,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -615,10 +617,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
       handleIoException(e, PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED);
     } catch (HttpDataSource.InvalidResponseCodeException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
-    } catch (HttpDataSource.HttpDataSourceException e) {
+    } catch (HttpDataSource.HttpDataSourceException | UdpDataSource.UdpDataSourceException e) {
       @ErrorCode int errorCode;
-      if (e.getCause() instanceof UnknownHostException) {
+      @Nullable Throwable cause = e.getCause();
+      if (cause instanceof UnknownHostException) {
         errorCode = PlaybackException.ERROR_CODE_IO_DNS_FAILED;
+      } else if (cause instanceof SocketTimeoutException) {
+        errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
+      } else if (e instanceof HttpDataSource.HttpDataSourceException) {
+        int type = ((HttpDataSource.HttpDataSourceException) e).type;
+        errorCode =
+            type == HttpDataSource.HttpDataSourceException.TYPE_OPEN
+                ? PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
+                : PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
       } else {
         errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
       }
