@@ -109,6 +109,9 @@
     *   Fix session description (SDP) parsing to use a HashMap-like behaviour
         for duplicated attributes.
         ([#9014](https://github.com/google/ExoPlayer/issues/9014)).
+*   OkHttp extension:
+    *   Switch to OkHttp 4.9.1. This increases the extension's minimum SDK
+        version requirement from 16 to 21.
 
 ### 2.14.1 (2021-06-11)
 
