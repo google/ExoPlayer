@@ -109,6 +109,7 @@ import java.util.HashSet;
     long windowDurationUs;
     long periodDurationUs;
     long windowOffsetUs = 0;
+    boolean isMovingLiveWindow = false;
 
     @Nullable MediaLiveSeekableRange liveSeekableRange =
         mediaStatus != null ? mediaStatus.getLiveSeekableRange() : null;
@@ -120,6 +121,7 @@ import java.util.HashSet;
         // Create a window that matches the seekable range of the stream. It might not start at 0.
         windowOffsetUs = C.msToUs(startTime);
         windowDurationUs = C.msToUs(durationMs);
+        isMovingLiveWindow = liveSeekableRange.isMovingWindow();
         if (liveSeekableRange.isLiveDone()) {
           periodDurationUs = C.msToUs(endTime);
         } else {
@@ -142,7 +144,7 @@ import java.util.HashSet;
 
     CastTimeline.ItemData itemData = previousData
         .copyWithNewValues(windowDurationUs, periodDurationUs, defaultPositionUs,
-            windowOffsetUs, isLive);
+            windowOffsetUs, isLive, isMovingLiveWindow);
     itemIdToData.put(itemId, itemData);
   }
 

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.cast;
 
 import android.net.Uri;
+import android.os.SystemClock;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
@@ -37,7 +38,8 @@ import java.util.Arrays;
             /* periodDurationUs= */ C.TIME_UNSET,
             /* defaultPositionUs= */ C.TIME_UNSET,
             /* positionInFirstPeriodUs= */ 0,
-            /* isLive= */ false);
+            /* isLive= */ false,
+            /* isMovingLiveWindow */ false);
 
     /** The duration of the seekable window in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public final long windowDurationUs;
@@ -55,6 +57,11 @@ import java.util.Arrays;
     public final long windowStartOffsetUs;
     /** Whether the item is live content, or {@code false} if unknown. */
     public final boolean isLive;
+    /**
+     * Whether the current seekable range is a fixed-length moving window (true) or if it is an
+     * expanding range (false). Only applicable if {@link #isLive} is true.
+     */
+    public final boolean isMovingLiveWindow;
 
     /**
      * Creates an instance.
@@ -64,14 +71,16 @@ import java.util.Arrays;
      * @param defaultPositionUs See {@link #defaultPositionUs}.
      * @param windowStartOffsetUs See {@link #windowStartOffsetUs}
      * @param isLive See {@link #isLive}.
+     * @param isMovingLiveWindow See {@link #isMovingLiveWindow}.
      */
     public ItemData(long windowDurationUs, long periodDurationUs, long defaultPositionUs,
-        long windowStartOffsetUs, boolean isLive) {
+        long windowStartOffsetUs, boolean isLive, boolean isMovingLiveWindow) {
       this.windowDurationUs = windowDurationUs;
       this.periodDurationUs = periodDurationUs;
       this.defaultPositionUs = defaultPositionUs;
       this.windowStartOffsetUs = windowStartOffsetUs;
       this.isLive = isLive;
+      this.isMovingLiveWindow = isMovingLiveWindow;
     }
 
     /**
@@ -82,18 +91,21 @@ import java.util.Arrays;
      * @param defaultPositionUs See {@link #defaultPositionUs}.
      * @param windowStartOffsetUs See {@link #windowStartOffsetUs}
      * @param isLive See {@link #isLive}.
+     * @param isMovingLiveWindow See {@link #isMovingLiveWindow}.
      */
     public ItemData copyWithNewValues(long windowDurationUs, long periodDurationUs,
-        long defaultPositionUs, long windowStartOffsetUs, boolean isLive) {
+        long defaultPositionUs, long windowStartOffsetUs, boolean isLive,
+        boolean isMovingLiveWindow) {
       if (windowDurationUs == this.windowDurationUs
           && periodDurationUs == this.periodDurationUs
           && defaultPositionUs == this.defaultPositionUs
           && windowStartOffsetUs == this.windowStartOffsetUs
-          && isLive == this.isLive) {
+          && isLive == this.isLive
+          && isMovingLiveWindow == this.isMovingLiveWindow) {
         return this;
       }
       return new ItemData(windowDurationUs, periodDurationUs, defaultPositionUs,
-          windowStartOffsetUs, isLive);
+          windowStartOffsetUs, isLive, isMovingLiveWindow);
     }
   }
 
@@ -108,6 +120,8 @@ import java.util.Arrays;
   private final long[] defaultPositionsUs;
   private final long[] windowStartOffsetUs;
   private final boolean[] isLive;
+  private final boolean[] isMovingLiveWindow;
+  private final long creationUnixTimeMs;
 
   /**
    * Creates a Cast timeline from the given data.
@@ -116,6 +130,7 @@ import java.util.Arrays;
    * @param itemIdToData Maps item ids to {@link ItemData}.
    */
   public CastTimeline(int[] itemIds, SparseArray<ItemData> itemIdToData) {
+    creationUnixTimeMs = SystemClock.elapsedRealtime();
     int itemCount = itemIds.length;
     idsToIndex = new SparseIntArray(itemCount);
     ids = Arrays.copyOf(itemIds, itemCount);
@@ -124,6 +139,7 @@ import java.util.Arrays;
     defaultPositionsUs = new long[itemCount];
     windowStartOffsetUs = new long[itemCount];
     isLive = new boolean[itemCount];
+    isMovingLiveWindow = new boolean[itemCount];
     for (int i = 0; i < ids.length; i++) {
       int id = ids[i];
       idsToIndex.put(id, i);
@@ -133,6 +149,7 @@ import java.util.Arrays;
       defaultPositionsUs[i] = data.defaultPositionUs == C.TIME_UNSET ? 0 : data.defaultPositionUs;
       windowStartOffsetUs[i] = data.windowStartOffsetUs;
       isLive[i] = data.isLive;
+      isMovingLiveWindow[i] = data.isMovingLiveWindow;
     }
   }
 
@@ -145,8 +162,22 @@ import java.util.Arrays;
 
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
-    long durationUs = windowDurationsUs[windowIndex];
-    boolean isDynamic = durationUs == C.TIME_UNSET || durationUs != periodDurationsUs[windowIndex];
+    long windowDurationUs = windowDurationsUs[windowIndex];
+    long periodDurationsUs = this.periodDurationsUs[windowIndex];
+    long windowStartOffsetUs = this.windowStartOffsetUs[windowIndex];
+
+    // Account for the elapsed time since this Timeline was created.
+    boolean windowIsLive = isLive[windowIndex];
+    if (windowIsLive && windowDurationUs != C.TIME_UNSET) {
+      long elapsedTimeUs = C.msToUs(SystemClock.elapsedRealtime() - creationUnixTimeMs);
+      if (isMovingLiveWindow[windowIndex]) {
+        windowStartOffsetUs += elapsedTimeUs;
+      } else {
+        windowDurationUs += elapsedTimeUs;
+      }
+    }
+
+    boolean isDynamic = windowDurationUs == C.TIME_UNSET || windowDurationUs != periodDurationsUs;
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(Uri.EMPTY).setTag(ids[windowIndex]).build();
     return window.set(
@@ -156,14 +187,14 @@ import java.util.Arrays;
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
-        /* isSeekable= */ durationUs != C.TIME_UNSET,
+        /* isSeekable= */ windowDurationUs != C.TIME_UNSET,
         /* isDynamic */ isDynamic,
-        /* liveConfiguration */ isLive[windowIndex] ? mediaItem.liveConfiguration : null,
+        /* liveConfiguration */ windowIsLive ? mediaItem.liveConfiguration : null,
         /* defaultPositionUs */ defaultPositionsUs[windowIndex],
-        /* durationUs */ durationUs,
+        /* durationUs */ windowDurationUs,
         /* firstPeriodIndex= */ windowIndex,
         /* lastPeriodIndex= */ windowIndex,
-        /* positionInFirstPeriodUs= */ windowStartOffsetUs[windowIndex]);
+        /* positionInFirstPeriodUs= */ windowStartOffsetUs);
   }
 
   @Override
@@ -175,6 +206,10 @@ import java.util.Arrays;
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
     int id = ids[periodIndex];
     long positionInWindowUs = -windowStartOffsetUs[periodIndex];
+    if (isLive[periodIndex] && isMovingLiveWindow[periodIndex]) {
+      long elapsedTimeUs = C.msToUs(SystemClock.elapsedRealtime() - creationUnixTimeMs);
+      positionInWindowUs -= elapsedTimeUs;
+    }
     return period.set(id, id, periodIndex, periodDurationsUs[periodIndex], positionInWindowUs);
   }
 
@@ -203,7 +238,8 @@ import java.util.Arrays;
         && Arrays.equals(periodDurationsUs, that.periodDurationsUs)
         && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs)
         && Arrays.equals(windowStartOffsetUs, that.windowStartOffsetUs)
-        && Arrays.equals(isLive, that.isLive);
+        && Arrays.equals(isLive, that.isLive)
+        && Arrays.equals(isMovingLiveWindow, that.isMovingLiveWindow);
   }
 
   @Override
@@ -214,6 +250,7 @@ import java.util.Arrays;
     result = 31 * result + Arrays.hashCode(defaultPositionsUs);
     result = 31 * result + Arrays.hashCode(windowStartOffsetUs);
     result = 31 * result + Arrays.hashCode(isLive);
+    result = 31 * result + Arrays.hashCode(isMovingLiveWindow);
     return result;
   }
 }
