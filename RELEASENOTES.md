@@ -91,6 +91,8 @@
         `EXT-X-MAP` tag in a media playlist, would not be loaded when
         encountered during playback
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
+    *   Forward the `FRAME-RATE` value from the master playlist to renditions.
+        ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
@@ -103,10 +105,7 @@
     *   Add `setUseFastForwardActionInCompactView(boolean)` and
         `setUseRewindActionInCompactView(boolean)` to make it possible to show
         seek actions in compact view mode.
-*   HLS
-    *   Forward the FRAME-RATE value from the master playlist to renditions.
-        ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
-*   RTSP
+*   RTSP:
     *   Fix session description (SDP) parsing to use a HashMap-like behaviour
         for duplicated attributes.
         ([#9014](https://github.com/google/ExoPlayer/issues/9014)).
