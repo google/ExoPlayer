@@ -20,36 +20,27 @@ Alternatively, you can clone the ExoPlayer repository and depend on the module
 locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][].
 
-Note that by default, the extension will use the Cronet implementation in
-Google Play Services. If you prefer, it's also possible to embed the Cronet
-implementation directly into your application. See below for more details.
+By default, the extension will use the Cronet implementation in Google Play
+Services. If you prefer, it's also possible to embed the Cronet implementation
+directly into your application. See below for more details.
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 
 ## Using the extension ##
 
 ExoPlayer requests data through `DataSource` instances. These instances are
-either instantiated and injected from application code, or obtained from
-instances of `DataSource.Factory` that are instantiated and injected from
-application code.
+obtained from instances of `DataSource.Factory`, which are instantiated and
+injected from application code.
 
 If your application only needs to play http(s) content, using the Cronet
-extension is as simple as updating any `DataSource`s and `DataSource.Factory`
-instantiations in your application code to use `CronetDataSource` and
-`CronetDataSourceFactory` respectively. If your application also needs to play
-non-http(s) content such as local files, use
-```
-new DefaultDataSource(
-    ...
-    new CronetDataSource(...) /* baseDataSource argument */);
-```
-and
+extension is as simple as updating `DataSource.Factory` instantiations in your
+application code to use `CronetDataSource.Factory`. If your application also
+needs to play non-http(s) content such as local files, use:
 ```
 new DefaultDataSourceFactory(
     ...
-    new CronetDataSourceFactory(...) /* baseDataSourceFactory argument */);
+    /* baseDataSourceFactory= */ new CronetDataSource.Factory(...) );
 ```
-respectively.
 
 ## Choosing between Google Play Services Cronet and Cronet Embedded ##
 
