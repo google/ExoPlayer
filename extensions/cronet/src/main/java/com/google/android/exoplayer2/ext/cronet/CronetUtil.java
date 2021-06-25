@@ -50,13 +50,13 @@ public final class CronetUtil {
    * @param context A context.
    * @param userAgent A default user agent, or {@code null} to use a default user agent of the
    *     {@link CronetEngine}.
-   * @param preferGMSCoreCronet Whether Cronet from GMSCore should be preferred over natively
-   *     bundled Cronet, if both are available.
+   * @param preferGooglePlayServices Whether Cronet from Google Play Services should be preferred
+   *     over Cronet Embedded, if both are available.
    * @return The {@link CronetEngine}, or {@code null} if no suitable engine could be built.
    */
   @Nullable
   public static CronetEngine buildCronetEngine(
-      Context context, @Nullable String userAgent, boolean preferGMSCoreCronet) {
+      Context context, @Nullable String userAgent, boolean preferGooglePlayServices) {
     List<CronetProvider> cronetProviders = new ArrayList<>(CronetProvider.getAllProviders(context));
     // Remove disabled and fallback Cronet providers from list.
     for (int i = cronetProviders.size() - 1; i >= 0; i--) {
@@ -66,7 +66,8 @@ public final class CronetUtil {
       }
     }
     // Sort remaining providers by type and version.
-    CronetProviderComparator providerComparator = new CronetProviderComparator(preferGMSCoreCronet);
+    CronetProviderComparator providerComparator =
+        new CronetProviderComparator(preferGooglePlayServices);
     Collections.sort(cronetProviders, providerComparator);
     for (int i = 0; i < cronetProviders.size(); i++) {
       String providerName = cronetProviders.get(i).getName();
@@ -81,12 +82,12 @@ public final class CronetUtil {
       } catch (SecurityException e) {
         Log.w(
             TAG,
-            "Failed to build CronetEngine. Please check if current process has "
+            "Failed to build CronetEngine. Please check that the process has "
                 + "android.permission.ACCESS_NETWORK_STATE.");
       } catch (UnsatisfiedLinkError e) {
         Log.w(
             TAG,
-            "Failed to link Cronet binaries. Please check if native Cronet binaries are "
+            "Failed to link Cronet binaries. Please check that native Cronet binaries are"
                 + "bundled into your app.");
       }
     }
@@ -103,12 +104,13 @@ public final class CronetUtil {
      * copy because GMSCore CronetProvider classes are unavailable in some (internal to Google)
      * build configurations.
      */
-    private static final String GMS_CORE_PROVIDER_NAME = "Google-Play-Services-Cronet-Provider";
+    private static final String GOOGLE_PLAY_SERVICES_PROVIDER_NAME =
+        "Google-Play-Services-Cronet-Provider";
 
-    private final boolean preferGMSCoreCronet;
+    private final boolean preferGooglePlayServices;
 
-    public CronetProviderComparator(boolean preferGMSCoreCronet) {
-      this.preferGMSCoreCronet = preferGMSCoreCronet;
+    public CronetProviderComparator(boolean preferGooglePlayServices) {
+      this.preferGooglePlayServices = preferGooglePlayServices;
     }
 
     @Override
@@ -128,8 +130,8 @@ public final class CronetUtil {
       String providerName = provider.getName();
       if (CronetProvider.PROVIDER_NAME_APP_PACKAGED.equals(providerName)) {
         return 1;
-      } else if (GMS_CORE_PROVIDER_NAME.equals(providerName)) {
-        return preferGMSCoreCronet ? 0 : 2;
+      } else if (GOOGLE_PLAY_SERVICES_PROVIDER_NAME.equals(providerName)) {
+        return preferGooglePlayServices ? 0 : 2;
       } else {
         return 3;
       }

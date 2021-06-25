@@ -53,12 +53,12 @@ public final class CronetEngineWrapper {
    * @param context A context.
    * @param userAgent A default user agent, or {@code null} to use a default user agent of the
    *     {@link CronetEngine}.
-   * @param preferGMSCoreCronet Whether Cronet from GMSCore should be preferred over natively
-   *     bundled Cronet if both are available.
+   * @param preferGooglePlayServices Whether Cronet from Google Play Services should be preferred
+   *     over Cronet Embedded, if both are available.
    */
   public CronetEngineWrapper(
-      Context context, @Nullable String userAgent, boolean preferGMSCoreCronet) {
-    cronetEngine = CronetUtil.buildCronetEngine(context, userAgent, preferGMSCoreCronet);
+      Context context, @Nullable String userAgent, boolean preferGooglePlayServices) {
+    cronetEngine = CronetUtil.buildCronetEngine(context, userAgent, preferGooglePlayServices);
   }
 
   /**

@@ -3,7 +3,7 @@
 The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
 
 [HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
-[Cronet]: https://chromium.googlesource.com/chromium/src/+/master/components/cronet?autodive=0%2F%2F
+[Cronet]: https://developer.android.com/guide/topics/connectivity/cronet
 
 ## Getting the extension ##
 
@@ -75,12 +75,6 @@ approximately 8MB to your application, however it may be suitable if:
 * Your application is likely to be used in markets where Google Play Services is
   not widely available.
 * You want to control the exact version of the Cronet implementation being used.
-
-If you do embed the library, you can specify which implementation should
-be preferred if the Google Play Services implementation is also available. This
-is controlled by a `preferGMSCoreCronet` parameter, which can be passed to the
-`CronetEngineWrapper` constructor (GMS Core is another name for Google Play
-Services).
 
 ## Links ##
 
