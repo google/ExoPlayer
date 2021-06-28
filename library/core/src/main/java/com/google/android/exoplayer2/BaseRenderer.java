@@ -336,12 +336,28 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
    * this renderer.
    *
-   * @param cause The cause of the exception.
-   * @param format The current format used by the renderer. May be null.
+   * <p>Equivalent to {@link #createRendererException(Throwable, Format, int)
+   * createRendererException(cause, format, PlaybackException.ERROR_CODE_UNSPECIFIED)}.
    */
   protected final ExoPlaybackException createRendererException(
       Throwable cause, @Nullable Format format) {
-    return createRendererException(cause, format, /* isRecoverable= */ false);
+    return createRendererException(cause, format, PlaybackException.ERROR_CODE_UNSPECIFIED);
+  }
+
+  /**
+   * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
+   * this renderer.
+   *
+   * @param cause The cause of the exception.
+   * @param format The current format used by the renderer. May be null.
+   * @param errorCode A {@link PlaybackException.ErrorCode} to identify the cause of the playback
+   *     failure.
+   * @return The created instance, in which {@link ExoPlaybackException#isRecoverable} is {@code
+   *     false}.
+   */
+  protected final ExoPlaybackException createRendererException(
+      Throwable cause, @Nullable Format format, @PlaybackException.ErrorCode int errorCode) {
+    return createRendererException(cause, format, /* isRecoverable= */ false, errorCode);
   }
 
   /**
@@ -351,9 +367,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param cause The cause of the exception.
    * @param format The current format used by the renderer. May be null.
    * @param isRecoverable If the error is recoverable by disabling and re-enabling the renderer.
+   * @param errorCode A {@link PlaybackException.ErrorCode} to identify the cause of the playback
+   *     failure.
+   * @return The created instance.
    */
   protected final ExoPlaybackException createRendererException(
-      Throwable cause, @Nullable Format format, boolean isRecoverable) {
+      Throwable cause,
+      @Nullable Format format,
+      boolean isRecoverable,
+      @PlaybackException.ErrorCode int errorCode) {
     @C.FormatSupport int formatSupport = C.FORMAT_HANDLED;
     if (format != null && !throwRendererExceptionIsExecuting) {
       // Prevent recursive re-entry from subclass supportsFormat implementations.
@@ -367,7 +389,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       }
     }
     return ExoPlaybackException.createForRenderer(
-        cause, getName(), getIndex(), format, formatSupport, isRecoverable);
+        cause, getName(), getIndex(), format, formatSupport, isRecoverable, errorCode);
   }
 
   /**

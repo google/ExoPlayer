@@ -51,7 +51,8 @@ public class ExoPlaybackExceptionTest {
             /* rendererIndex= */ 123,
             /* rendererFormat= */ new Format.Builder().setCodecs("anyCodec").build(),
             /* rendererFormatSupport= */ C.FORMAT_UNSUPPORTED_SUBTYPE,
-            /* isRecoverable= */ true);
+            /* isRecoverable= */ true,
+            /* errorCode= */ PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
 
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
     assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();

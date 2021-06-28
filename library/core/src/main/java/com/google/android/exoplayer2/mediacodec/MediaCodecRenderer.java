@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
@@ -493,7 +494,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {
-      throw createRendererException(e, format);
+      throw createRendererException(e, format, PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED);
     }
   }
 
@@ -592,7 +593,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       maybeInitCodecWithFallback(mediaCrypto, mediaCryptoRequiresSecureDecoder);
     } catch (DecoderInitializationException e) {
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(
+          e, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     }
   }
 
@@ -848,7 +850,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           releaseCodec();
         }
         throw createRendererException(
-            createDecoderException(e, getCodecInfo()), inputFormat, isRecoverable);
+            createDecoderException(e, getCodecInfo()),
+            inputFormat,
+            isRecoverable,
+            PlaybackException.ERROR_CODE_DECODING_FAILED);
       }
       throw e;
     }
@@ -1257,7 +1262,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return true;
       } else {
         throw createRendererException(
-            createDecoderException(e, getCodecInfo()), inputFormat, /* isRecoverable= */ false);
+            createDecoderException(e, getCodecInfo()),
+            inputFormat,
+            /* isRecoverable= */ false,
+            PlaybackException.ERROR_CODE_DECODING_FAILED);
       }
     }
 
@@ -1442,7 +1450,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (newFormat.sampleMimeType == null) {
       // If the new format is invalid, it is either a media bug or it is not intended to be played.
       // See also https://github.com/google/ExoPlayer/issues/8283.
-      throw createRendererException(new IllegalArgumentException(), newFormat);
+
+      throw createRendererException(
+          new IllegalArgumentException(),
+          newFormat,
+          PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
     setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;

@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -477,7 +478,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
     } catch (AudioSink.ConfigurationException e) {
-      throw createRendererException(e, e.format);
+      throw createRendererException(
+          e, e.format, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
     }
   }
 
@@ -636,9 +638,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs, sampleCount);
     } catch (InitializationException e) {
-      throw createRendererException(e, e.format, e.isRecoverable);
+      throw createRendererException(
+          e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
     } catch (WriteException e) {
-      throw createRendererException(e, format, e.isRecoverable);
+      throw createRendererException(
+          e, format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
     }
 
     if (fullyConsumed) {
@@ -657,7 +661,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      throw createRendererException(e, e.format, e.isRecoverable);
+      throw createRendererException(
+          e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
     }
   }
 

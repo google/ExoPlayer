@@ -61,6 +61,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
         ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED,
         ERROR_CODE_DECODER_INIT_FAILED,
+        ERROR_CODE_DECODER_QUERY_FAILED,
         ERROR_CODE_DECODING_FAILED,
         ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES,
         ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
@@ -144,12 +145,14 @@ public class PlaybackException extends Exception implements Bundleable {
 
   /** Caused by a decoder initialization failure. */
   public static final int ERROR_CODE_DECODER_INIT_FAILED = 4001;
+  /** Caused by a decoder query failure. */
+  public static final int ERROR_CODE_DECODER_QUERY_FAILED = 4002;
   /** Caused by a failure while trying to decode media samples. */
-  public static final int ERROR_CODE_DECODING_FAILED = 4002;
+  public static final int ERROR_CODE_DECODING_FAILED = 4003;
   /** Caused by trying to decode content whose format exceeds the capabilities of the device. */
-  public static final int ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES = 4003;
+  public static final int ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES = 4004;
   /** Caused by trying to decode content whose format is not supported. */
-  public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 4004;
+  public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 4005;
 
   // AudioTrack errors (5xxx).
 
@@ -223,6 +226,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED";
       case ERROR_CODE_DECODER_INIT_FAILED:
         return "ERROR_CODE_DECODER_INIT_FAILED";
+      case ERROR_CODE_DECODER_QUERY_FAILED:
+        return "ERROR_CODE_DECODER_QUERY_FAILED";
       case ERROR_CODE_DECODING_FAILED:
         return "ERROR_CODE_DECODING_FAILED";
       case ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES:

@@ -170,7 +170,8 @@ public final class ExoPlaybackException extends PlaybackException {
         rendererIndex,
         rendererFormat,
         rendererFormatSupport,
-        /* isRecoverable= */ false);
+        /* isRecoverable= */ false,
+        ERROR_CODE_UNSPECIFIED);
   }
 
   /**
@@ -183,6 +184,7 @@ public final class ExoPlaybackException extends PlaybackException {
    * @param rendererFormatSupport The {@link FormatSupport} of the renderer for {@code
    *     rendererFormat}. Ignored if {@code rendererFormat} is null.
    * @param isRecoverable If the failure can be recovered by disabling and re-enabling the renderer.
+   * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
   public static ExoPlaybackException createForRenderer(
@@ -191,12 +193,14 @@ public final class ExoPlaybackException extends PlaybackException {
       int rendererIndex,
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport,
-      boolean isRecoverable) {
+      boolean isRecoverable,
+      @ErrorCode int errorCode) {
+
     return new ExoPlaybackException(
         TYPE_RENDERER,
         cause,
         /* customMessage= */ null,
-        ERROR_CODE_UNSPECIFIED,
+        errorCode,
         rendererName,
         rendererIndex,
         rendererFormat,

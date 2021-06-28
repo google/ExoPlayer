@@ -78,7 +78,7 @@ public class PlaybackExceptionTest {
 
     Bundle bundle = exception.toBundle();
     assertThat(bundle.getString("0")).isEqualTo(PlaybackException.class.getName());
-    assertThat(bundle.getInt("1")).isEqualTo(4002); // Error code.
+    assertThat(bundle.getInt("1")).isEqualTo(4003); // Error code.
     assertThat(bundle.getLong("2")).isEqualTo(2000); // Timestamp.
     assertThat(bundle.getString("3")).isEqualTo("message");
     assertThat(bundle.getString("4")).isEqualTo(cause.getClass().getName());
