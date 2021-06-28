@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.cronet;
 
 import static com.google.android.exoplayer2.upstream.HttpUtil.buildRangeRequestHeader;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static org.chromium.net.UrlRequest.Builder.REQUEST_PRIORITY_MEDIUM;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -86,6 +87,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     @Nullable private Predicate<String> contentTypePredicate;
     @Nullable private TransferListener transferListener;
     @Nullable private String userAgent;
+    private int requestPriority;
     private int connectTimeoutMs;
     private int readTimeoutMs;
     private boolean resetTimeoutOnRedirects;
@@ -109,6 +111,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       this.executor = executor;
       defaultRequestProperties = new RequestProperties();
       internalFallbackFactory = null;
+      requestPriority = REQUEST_PRIORITY_MEDIUM;
       connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLIS;
       readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
     }
@@ -167,6 +170,21 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (internalFallbackFactory != null) {
         internalFallbackFactory.setUserAgent(userAgent);
       }
+      return this;
+    }
+
+    /**
+     * Sets the priority of requests made by {@link CronetDataSource} instances created by this
+     * factory.
+     *
+     * <p>The default is {@link UrlRequest.Builder#REQUEST_PRIORITY_MEDIUM}.
+     *
+     * @param requestPriority The request priority, which should be one of Cronet's {@code
+     *     UrlRequest.Builder#REQUEST_PRIORITY_*} constants.
+     * @return This factory.
+     */
+    public Factory setRequestPriority(int requestPriority) {
+      this.requestPriority = requestPriority;
       return this;
     }
 
@@ -306,6 +324,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
           new CronetDataSource(
               cronetEngine,
               executor,
+              requestPriority,
               connectTimeoutMs,
               readTimeoutMs,
               resetTimeoutOnRedirects,
@@ -353,6 +372,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   private final CronetEngine cronetEngine;
   private final Executor executor;
+  private final int requestPriority;
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
@@ -413,6 +433,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this(
         cronetEngine,
         executor,
+        REQUEST_PRIORITY_MEDIUM,
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
@@ -436,6 +457,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this(
         cronetEngine,
         executor,
+        REQUEST_PRIORITY_MEDIUM,
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
@@ -499,6 +521,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this(
         cronetEngine,
         executor,
+        REQUEST_PRIORITY_MEDIUM,
         connectTimeoutMs,
         readTimeoutMs,
         resetTimeoutOnRedirects,
@@ -512,6 +535,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   protected CronetDataSource(
       CronetEngine cronetEngine,
       Executor executor,
+      int requestPriority,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
@@ -523,6 +547,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     super(/* isNetwork= */ true);
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
+    this.requestPriority = requestPriority;
     this.connectTimeoutMs = connectTimeoutMs;
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
@@ -860,6 +885,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     UrlRequest.Builder requestBuilder =
         cronetEngine
             .newUrlRequestBuilder(dataSpec.uri.toString(), urlRequestCallback, executor)
+            .setPriority(requestPriority)
             .allowDirectExecutor();
 
     // Set the headers.

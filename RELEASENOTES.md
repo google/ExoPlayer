@@ -112,6 +112,9 @@
 *   OkHttp extension:
     *   Switch to OkHttp 4.9.1. This increases the extension's minimum SDK
         version requirement from 16 to 21.
+*   Cronet extension:
+    *   Add `CronetDataSource.Factory.setRequestPriority` to allow setting the
+        priority of requests made by `CronetDataSource` instances.
 
 ### 2.14.1 (2021-06-11)
 
