@@ -26,6 +26,13 @@ player.prepare();
 {: .language-java}
 
 
+### Play authentication-enabled RTSP content ###
+
+ExoPlayer supports playback with RTSP BASIC and DIGEST authentication. To play
+protected RTSP content, the `MediaItem`'s URI must be configured with the
+authtication info. Specifically, the URI should follow the format
+`rtsp://<username>:<password>@<host address>`.
+
 ## Using RtspMediaSource ##
 
 For more customization options, you can create an `RtspMediaSource` and pass it
@@ -45,7 +52,7 @@ player.prepare();
 ~~~
 {: .language-java}
 
-## Using RTSP behind a NAT ##
+## Using RTSP behind a NAT (RTP/TCP support) ##
 
 ExoPlayer uses UDP as the default protocol for RTP transport.
 
@@ -55,3 +62,19 @@ necessary UDP port mapping. If ExoPlayer detects there have not been incoming
 RTP packets for a while and the playback has not started yet, ExoPlayer tears
 down the current RTSP playback session, and retries playback using RTP-over-RTSP
 (transmitting RTP packets using the TCP connection opened for RTSP).
+
+The timeout for retrying with TCP can be customized by calling the method
+`RtspMediaSource.Factory.setTimeoutMs()`. For example, if the timeout is set to
+four seconds, the player will retry with TCP after four seconds of UDP
+inactivity.
+
+> Setting the timeout also affects the end-of-stream detection logic. That is,
+ExoPlayer will report the playback has ended if nothing is received for the
+duration of the set timeout. Setting this value too small may lead to pre-mature
+stream ending under poor network conditions.
+
+### Force using RTP/TCP ###
+ExoPlayer can also be configured to play with RTP/TCP by default. To do so,
+use method `RtspMediaSource.Factory.setForceUseRtpTcp()`.
+
+
