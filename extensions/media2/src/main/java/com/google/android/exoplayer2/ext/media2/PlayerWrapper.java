@@ -231,14 +231,10 @@ import java.util.List;
   }
 
   public boolean skipToPreviousPlaylistItem() {
-    Timeline timeline = player.getCurrentTimeline();
-    Assertions.checkState(!timeline.isEmpty());
     return controlDispatcher.dispatchPrevious(player);
   }
 
   public boolean skipToNextPlaylistItem() {
-    Timeline timeline = player.getCurrentTimeline();
-    Assertions.checkState(!timeline.isEmpty());
     return controlDispatcher.dispatchNext(player);
   }
 
