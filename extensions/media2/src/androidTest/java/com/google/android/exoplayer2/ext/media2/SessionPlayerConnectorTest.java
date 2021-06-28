@@ -1095,7 +1095,7 @@ public class SessionPlayerConnectorTest {
         .runOnMainSync(
             () ->
                 simpleExoPlayer.addListener(
-                    new Player.EventListener() {
+                    new Player.Listener() {
                       @Override
                       public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
                         if (playWhenReady) {

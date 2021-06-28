@@ -564,8 +564,6 @@ import java.util.List;
 
   private final class ComponentListener implements Player.Listener {
 
-    // Player.EventListener implementation.
-
     @Override
     public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
       updateSessionPlayerState();
@@ -615,8 +613,6 @@ import java.util.List;
       updatePlaylist(timeline);
       listener.onPlaylistChanged();
     }
-
-    // AudioListener implementation.
 
     @Override
     public void onAudioAttributesChanged(AudioAttributes audioAttributes) {

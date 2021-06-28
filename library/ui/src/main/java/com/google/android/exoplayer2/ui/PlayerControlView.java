@@ -1278,30 +1278,7 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private final class ComponentListener
-      implements Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
-
-    @Override
-    public void onScrubStart(TimeBar timeBar, long position) {
-      scrubbing = true;
-      if (positionView != null) {
-        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-      }
-    }
-
-    @Override
-    public void onScrubMove(TimeBar timeBar, long position) {
-      if (positionView != null) {
-        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-      }
-    }
-
-    @Override
-    public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
-      scrubbing = false;
-      if (!canceled && player != null) {
-        seekToTimeBarPosition(player, position);
-      }
-    }
+      implements Player.Listener, TimeBar.OnScrubListener, OnClickListener {
 
     @Override
     public void onEvents(Player player, Events events) {
@@ -1327,6 +1304,29 @@ public class PlayerControlView extends FrameLayout {
       }
       if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
         updateTimeline();
+      }
+    }
+
+    @Override
+    public void onScrubStart(TimeBar timeBar, long position) {
+      scrubbing = true;
+      if (positionView != null) {
+        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      }
+    }
+
+    @Override
+    public void onScrubMove(TimeBar timeBar, long position) {
+      if (positionView != null) {
+        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      }
+    }
+
+    @Override
+    public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
+      scrubbing = false;
+      if (!canceled && player != null) {
+        seekToTimeBarPosition(player, position);
       }
     }
 

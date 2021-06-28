@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 
 /** Leanback {@code PlayerAdapter} implementation for {@link Player}. */
 public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnable {
@@ -247,7 +248,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
       setVideoSurface(null);
     }
 
-    // Player.EventListener implementation.
+    // Player.Listener implementation.
 
     @Override
     public void onPlaybackStateChanged(@Player.State int playbackState) {
@@ -290,21 +291,13 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
       callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);
     }
 
-    // VideoListener implementation.
-
     @Override
-    public void onVideoSizeChanged(
-        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(VideoSize videoSize) {
       // There's no way to pass pixelWidthHeightRatio to leanback, so we scale the width that we
       // pass to take it into account. This is necessary to ensure that leanback uses the correct
       // aspect ratio when playing content with non-square pixels.
-      int scaledWidth = Math.round(width * pixelWidthHeightRatio);
-      getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, scaledWidth, height);
-    }
-
-    @Override
-    public void onRenderedFirstFrame() {
-      // Do nothing.
+      int scaledWidth = Math.round(videoSize.width * videoSize.pixelWidthHeightRatio);
+      getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, scaledWidth, videoSize.height);
     }
   }
 }

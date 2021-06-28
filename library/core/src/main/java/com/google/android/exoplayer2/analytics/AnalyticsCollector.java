@@ -182,21 +182,6 @@ public class AnalyticsCollector
     }
   }
 
-  // MetadataOutput events.
-
-  /**
-   * Called when there is metadata associated with current playback time.
-   *
-   * @param metadata The metadata.
-   */
-  public final void onMetadata(Metadata metadata) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_METADATA,
-        listener -> listener.onMetadata(eventTime, metadata));
-  }
-
   // AudioRendererEventListener implementation.
 
   @SuppressWarnings("deprecation") // Calling deprecated listener method.
@@ -574,9 +559,9 @@ public class AnalyticsCollector
         listener -> listener.onDownstreamFormatChanged(eventTime, mediaLoadData));
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
-  // TODO: Use Player.EventListener.onEvents to know when a set of simultaneous callbacks finished.
+  // TODO: Use Player.Listener.onEvents to know when a set of simultaneous callbacks finished.
   // This helps to assign exactly the same EventTime to all of them instead of having slightly
   // different real times.
 
@@ -710,7 +695,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onPlayerError(PlaybackException error) {
-    EventTime eventTime = null;
+    @Nullable EventTime eventTime = null;
     if (error instanceof ExoPlaybackException) {
       ExoPlaybackException exoError = (ExoPlaybackException) error;
       if (exoError.mediaPeriodId != null) {
@@ -793,6 +778,15 @@ public class AnalyticsCollector
         listener -> listener.onPlaylistMediaMetadataChanged(eventTime, playlistMediaMetadata));
   }
 
+  @Override
+  public final void onMetadata(Metadata metadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_METADATA,
+        listener -> listener.onMetadata(eventTime, metadata));
+  }
+
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public final void onSeekProcessed() {
@@ -801,7 +795,7 @@ public class AnalyticsCollector
         eventTime, /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onSeekProcessed(eventTime));
   }
 
-  // BandwidthMeter.Listener implementation.
+  // BandwidthMeter.EventListener implementation.
 
   @Override
   public final void onBandwidthSample(int elapsedMs, long bytes, long bitrate) {
@@ -812,7 +806,7 @@ public class AnalyticsCollector
         listener -> listener.onBandwidthEstimate(eventTime, elapsedMs, bytes, bitrate));
   }
 
-  // DefaultDrmSessionManager.EventListener implementation.
+  // DrmSessionEventListener implementation.
 
   @Override
   @SuppressWarnings("deprecation") // Calls deprecated listener method.
@@ -873,6 +867,8 @@ public class AnalyticsCollector
         AnalyticsListener.EVENT_DRM_SESSION_RELEASED,
         listener -> listener.onDrmSessionReleased(eventTime));
   }
+
+  // Internal methods.
 
   /**
    * Sends an event to registered listeners.
@@ -935,8 +931,6 @@ public class AnalyticsCollector
         player.getCurrentPosition(),
         player.getTotalBufferedDuration());
   }
-
-  // Internal methods.
 
   private EventTime generateEventTime(@Nullable MediaPeriodId mediaPeriodId) {
     checkNotNull(player);

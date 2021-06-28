@@ -640,7 +640,7 @@ public class PlayerNotificationManager {
   private final Handler mainHandler;
   private final NotificationManagerCompat notificationManager;
   private final IntentFilter intentFilter;
-  private final Player.EventListener playerListener;
+  private final Player.Listener playerListener;
   private final NotificationBroadcastReceiver notificationBroadcastReceiver;
   private final Map<String, NotificationCompat.Action> playbackActions;
   private final Map<String, NotificationCompat.Action> customActions;
@@ -1466,7 +1466,7 @@ public class PlayerNotificationManager {
     builder.setLargeIcon(largeIcon);
   }
 
-  private class PlayerListener implements Player.EventListener {
+  private class PlayerListener implements Player.Listener {
 
     @Override
     public void onEvents(Player player, Player.Events events) {

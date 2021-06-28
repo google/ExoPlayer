@@ -1754,35 +1754,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private final class ComponentListener
-      implements Player.EventListener,
+      implements Player.Listener,
           TimeBar.OnScrubListener,
           OnClickListener,
           PopupWindow.OnDismissListener {
-
-    @Override
-    public void onScrubStart(TimeBar timeBar, long position) {
-      scrubbing = true;
-      if (positionView != null) {
-        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-      }
-      controlViewLayoutManager.removeHideCallbacks();
-    }
-
-    @Override
-    public void onScrubMove(TimeBar timeBar, long position) {
-      if (positionView != null) {
-        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-      }
-    }
-
-    @Override
-    public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
-      scrubbing = false;
-      if (!canceled && player != null) {
-        seekToTimeBarPosition(player, position);
-      }
-      controlViewLayoutManager.resetHideCallbacks();
-    }
 
     @Override
     public void onEvents(Player player, Events events) {
@@ -1815,6 +1790,31 @@ public class StyledPlayerControlView extends FrameLayout {
       if (events.contains(EVENT_TRACKS_CHANGED)) {
         updateTrackLists();
       }
+    }
+
+    @Override
+    public void onScrubStart(TimeBar timeBar, long position) {
+      scrubbing = true;
+      if (positionView != null) {
+        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      }
+      controlViewLayoutManager.removeHideCallbacks();
+    }
+
+    @Override
+    public void onScrubMove(TimeBar timeBar, long position) {
+      if (positionView != null) {
+        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      }
+    }
+
+    @Override
+    public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
+      scrubbing = false;
+      if (!canceled && player != null) {
+        seekToTimeBarPosition(player, position);
+      }
+      controlViewLayoutManager.resetHideCallbacks();
     }
 
     @Override

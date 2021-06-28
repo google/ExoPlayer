@@ -447,7 +447,7 @@ import java.util.Map;
     }
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
   @Override
   public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {

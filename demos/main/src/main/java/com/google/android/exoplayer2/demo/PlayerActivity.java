@@ -412,7 +412,7 @@ public class PlayerActivity extends AppCompatActivity
     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
   }
 
-  private class PlayerEventListener implements Player.EventListener {
+  private class PlayerEventListener implements Player.Listener {
 
     @Override
     public void onPlaybackStateChanged(@Player.State int playbackState) {

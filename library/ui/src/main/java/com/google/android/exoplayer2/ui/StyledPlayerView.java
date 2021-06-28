@@ -67,6 +67,7 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -1512,7 +1513,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       period = new Period();
     }
 
-    // TextOutput implementation
+    // Player.Listener implementation
 
     @Override
     public void onCues(List<Cue> cues) {
@@ -1521,13 +1522,13 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       }
     }
 
-    // VideoListener implementation
-
     @Override
-    public void onVideoSizeChanged(
-        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(VideoSize videoSize) {
+      int width = videoSize.width;
+      int height = videoSize.height;
+      int unappliedRotationDegrees = videoSize.unappliedRotationDegrees;
       float videoAspectRatio =
-          (height == 0 || width == 0) ? 1 : (width * pixelWidthHeightRatio) / height;
+          (height == 0 || width == 0) ? 1 : (width * videoSize.pixelWidthHeightRatio) / height;
 
       if (surfaceView instanceof TextureView) {
         // Try to apply rotation transformation when our surface is a TextureView.
@@ -1586,8 +1587,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
-
-    // Player.EventListener implementation
 
     @Override
     public void onPlaybackStateChanged(@Player.State int playbackState) {
