@@ -28,7 +28,6 @@ import androidx.leanback.media.SurfaceHolderGlueHost;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -262,14 +261,14 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
         Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(exception);
         callback.onError(LeanbackPlayerAdapter.this, errorMessage.first, errorMessage.second);
       } else {
-        int rendererIndex = C.INDEX_UNSET;
-        if (exception instanceof ExoPlaybackException) {
-          rendererIndex = ((ExoPlaybackException) exception).rendererIndex;
-        }
         callback.onError(
             LeanbackPlayerAdapter.this,
             exception.errorCode,
-            context.getString(R.string.lb_media_player_error, exception.errorCode, rendererIndex));
+            // This string was probably tailored for MediaPlayer, whose callback takes 2 ints as
+            // error code. Since ExoPlayer provides a single error code, we just pass 0 as the
+            // extra.
+            context.getString(
+                R.string.lb_media_player_error, /* formatArgs...= */ exception.errorCode, 0));
       }
     }
 
