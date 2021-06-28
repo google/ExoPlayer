@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
+import android.media.MediaCodec.LinearBlock;
 import android.os.Looper;
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
@@ -83,6 +84,7 @@ public class SampleQueue implements TrackOutput {
   private int[] sizes;
   private int[] flags;
   private long[] timesUs;
+  private LinearBlock[] linearBlocks;
   private @NullableType CryptoData[] cryptoDatas;
 
   private int length;
@@ -152,9 +154,15 @@ public class SampleQueue implements TrackOutput {
     this.playbackLooper = playbackLooper;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
-    sampleDataQueue = new SampleDataQueue(allocator);
-    extrasHolder = new SampleExtrasHolder();
     capacity = SAMPLE_CAPACITY_INCREMENT;
+    if (allocator == null) {
+      sampleDataQueue = null;
+      extrasHolder = null;
+      linearBlocks = new LinearBlock[capacity];
+    } else {
+      sampleDataQueue = new SampleDataQueue(allocator);
+      extrasHolder = new SampleExtrasHolder();
+    }
     sourceIds = new int[capacity];
     offsets = new long[capacity];
     timesUs = new long[capacity];
@@ -194,7 +202,9 @@ public class SampleQueue implements TrackOutput {
    */
   @CallSuper
   public void reset(boolean resetUpstreamFormat) {
-    sampleDataQueue.reset();
+    if (sampleDataQueue != null) {
+      sampleDataQueue.reset();
+    }
     length = 0;
     absoluteFirstIndex = 0;
     relativeFirstIndex = 0;
@@ -209,6 +219,14 @@ public class SampleQueue implements TrackOutput {
       unadjustedUpstreamFormat = null;
       upstreamFormat = null;
       upstreamFormatRequired = true;
+    }
+    if (sampleDataQueue == null) {
+      for (int i = 0; i < linearBlocks.length; i++) {
+        if (linearBlocks[i] != null) {
+          linearBlocks[i].recycle();
+          linearBlocks[i] = null;
+        }
+      }
     }
   }
 
@@ -248,7 +266,11 @@ public class SampleQueue implements TrackOutput {
    *     range [{@link #getReadIndex()}, {@link #getWriteIndex()}].
    */
   public final void discardUpstreamSamples(int discardFromIndex) {
-    sampleDataQueue.discardUpstreamSampleBytes(discardUpstreamSampleMetadata(discardFromIndex));
+    if(sampleDataQueue == null) {
+      discardUpstreamSampleMetadata(discardFromIndex);
+    } else {
+      sampleDataQueue.discardUpstreamSampleBytes(discardUpstreamSampleMetadata(discardFromIndex));
+    }
   }
 
   /**
@@ -408,8 +430,7 @@ public class SampleQueue implements TrackOutput {
       DecoderInputBuffer buffer,
       @ReadFlags int readFlags,
       boolean loadingFinished) {
-    int result =
-        peekSampleMetadata(
+    int result = peekSampleMetadata(
             formatHolder,
             buffer,
             /* formatRequired= */ (readFlags & FLAG_REQUIRE_FORMAT) != 0,
@@ -417,7 +438,7 @@ public class SampleQueue implements TrackOutput {
             extrasHolder);
     if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
       boolean peek = (readFlags & FLAG_PEEK) != 0;
-      if ((readFlags & FLAG_OMIT_SAMPLE_DATA) == 0) {
+      if ((readFlags & FLAG_OMIT_SAMPLE_DATA) == 0 && sampleDataQueue != null) {
         if (peek) {
           sampleDataQueue.peekToBuffer(buffer, extrasHolder);
         } else {
@@ -520,18 +541,30 @@ public class SampleQueue implements TrackOutput {
    *     case the read position is advanced to the first remaining sample.
    */
   public final void discardTo(long timeUs, boolean toKeyframe, boolean stopAtReadPosition) {
-    sampleDataQueue.discardDownstreamTo(
-        discardSampleMetadataTo(timeUs, toKeyframe, stopAtReadPosition));
+    if (sampleDataQueue != null) {
+      sampleDataQueue.discardDownstreamTo(
+          discardSampleMetadataTo(timeUs, toKeyframe, stopAtReadPosition));
+    } else {
+      discardSampleMetadataTo(timeUs, toKeyframe, stopAtReadPosition);
+    }
   }
 
   /** Discards up to but not including the read position. */
   public final void discardToRead() {
-    sampleDataQueue.discardDownstreamTo(discardSampleMetadataToRead());
+    if (sampleDataQueue != null) {
+      sampleDataQueue.discardDownstreamTo(discardSampleMetadataToRead());
+    } else {
+      discardSampleMetadataToRead();
+    }
   }
 
   /** Discards all samples in the queue and advances the read position. */
   public final void discardToEnd() {
-    sampleDataQueue.discardDownstreamTo(discardSampleMetadataToEnd());
+    if (sampleDataQueue != null) {
+      sampleDataQueue.discardDownstreamTo(discardSampleMetadataToEnd());
+    } else {
+      discardSampleMetadataToEnd();
+    }
   }
 
   // Called by the loading thread.
@@ -576,13 +609,18 @@ public class SampleQueue implements TrackOutput {
   public final int sampleData(
       DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
       throws IOException {
-    return sampleDataQueue.sampleData(input, length, allowEndOfInput);
+    if (sampleDataQueue != null) {
+      return sampleDataQueue.sampleData(input, length, allowEndOfInput);
+    }
+    return 0;
   }
 
   @Override
   public final void sampleData(
       ParsableByteArray buffer, int length, @SampleDataPart int sampleDataPart) {
-    sampleDataQueue.sampleData(buffer, length);
+    if (sampleDataQueue != null) {
+      sampleDataQueue.sampleData(buffer, length);
+    }
   }
 
   @Override
@@ -591,6 +629,16 @@ public class SampleQueue implements TrackOutput {
       @C.BufferFlags int flags,
       int size,
       int offset,
+      @Nullable CryptoData cryptoData) {
+    sampleMetadata(timeUs, flags, size, offset, null, cryptoData);
+  }
+
+  public void sampleMetadata(
+      long timeUs,
+      @C.BufferFlags int flags,
+      int size,
+      int offset,
+      LinearBlock linearBlock,
       @Nullable CryptoData cryptoData) {
     if (upstreamFormatAdjustmentRequired) {
       format(Assertions.checkStateNotNull(unadjustedUpstreamFormat));
@@ -627,9 +675,11 @@ public class SampleQueue implements TrackOutput {
       }
       pendingSplice = false;
     }
-
-    long absoluteOffset = sampleDataQueue.getTotalBytesWritten() - size - offset;
-    commitSample(timeUs, flags, absoluteOffset, size, cryptoData);
+    long absoluteOffset = offset;
+    if (sampleDataQueue != null) {
+      absoluteOffset = sampleDataQueue.getTotalBytesWritten() - size - offset;
+    }
+    commitSample(timeUs, flags, absoluteOffset, size, linearBlock, cryptoData);
   }
 
   /**
@@ -667,7 +717,8 @@ public class SampleQueue implements TrackOutput {
   /** Rewinds the read position to the first sample in the queue. */
   private synchronized void rewind() {
     readPosition = 0;
-    sampleDataQueue.rewind();
+    if (sampleDataQueue != null)
+      sampleDataQueue.rewind();
   }
 
   @SuppressWarnings("ReferenceEquality") // See comments in setUpstreamFormat
@@ -707,9 +758,16 @@ public class SampleQueue implements TrackOutput {
     if (buffer.timeUs < startTimeUs) {
       buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
-    extrasHolder.size = sizes[relativeReadIndex];
-    extrasHolder.offset = offsets[relativeReadIndex];
-    extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
+
+    if (extrasHolder == null) {
+      buffer.size = sizes[relativeReadIndex];
+      buffer.offset = offsets[relativeReadIndex];
+      buffer.linearBlock = linearBlocks[relativeReadIndex];
+    } else {
+      extrasHolder.size = sizes[relativeReadIndex];
+      extrasHolder.offset = offsets[relativeReadIndex];
+      extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
+    }
 
     return C.RESULT_BUFFER_READ;
   }
@@ -780,6 +838,7 @@ public class SampleQueue implements TrackOutput {
       @C.BufferFlags int sampleFlags,
       long offset,
       int size,
+      LinearBlock linearBlock,
       @Nullable CryptoData cryptoData) {
     if (length > 0) {
       // Ensure sample data doesn't overlap.
@@ -798,6 +857,9 @@ public class SampleQueue implements TrackOutput {
     flags[relativeEndIndex] = sampleFlags;
     cryptoDatas[relativeEndIndex] = cryptoData;
     sourceIds[relativeEndIndex] = upstreamSourceId;
+    if (sampleDataQueue == null && linearBlock != null) {
+      linearBlocks[relativeEndIndex] = linearBlock;
+    }
 
     if (sharedSampleMetadata.isEmpty()
         || !sharedSampleMetadata.getEndValue().format.equals(upstreamFormat)) {
@@ -836,6 +898,11 @@ public class SampleQueue implements TrackOutput {
       System.arraycopy(sizes, 0, newSizes, beforeWrap, afterWrap);
       System.arraycopy(cryptoDatas, 0, newCryptoDatas, beforeWrap, afterWrap);
       System.arraycopy(sourceIds, 0, newSourceIds, beforeWrap, afterWrap);
+      if (sampleDataQueue == null) {
+        LinearBlock[] newLinearBlocks = new LinearBlock[newCapacity];
+        System.arraycopy(linearBlocks, 0, newLinearBlocks, beforeWrap, afterWrap);
+        linearBlocks = newLinearBlocks;
+      }
       offsets = newOffsets;
       timesUs = newTimesUs;
       flags = newFlags;
@@ -1004,7 +1071,18 @@ public class SampleQueue implements TrackOutput {
         max(largestDiscardedTimestampUs, getLargestTimestamp(discardCount));
     length -= discardCount;
     absoluteFirstIndex += discardCount;
-    relativeFirstIndex += discardCount;
+    if (sampleDataQueue == null) {
+      for (int i = 0; i < discardCount; i++) {
+        LinearBlock linearBlock = linearBlocks[relativeFirstIndex++];
+        if (linearBlock != null) {
+          linearBlock.recycle();
+          linearBlocks[relativeFirstIndex] = null;
+        }
+      }
+    }
+    else {
+      relativeFirstIndex += discardCount;
+    }
     if (relativeFirstIndex >= capacity) {
       relativeFirstIndex -= capacity;
     }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import android.media.MediaCodec.LinearBlock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -98,6 +99,10 @@ public class DecoderInputBuffer extends Buffer {
 
   @BufferReplacementMode private final int bufferReplacementMode;
   private final int paddingSize;
+
+  @Nullable public LinearBlock linearBlock;
+  public long offset;
+  public int size;
 
   /** Returns a new instance that's not able to hold any data. */
   public static DecoderInputBuffer newNoDataInstance() {

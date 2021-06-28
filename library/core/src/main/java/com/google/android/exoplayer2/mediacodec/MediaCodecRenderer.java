@@ -34,9 +34,11 @@ import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
+import android.media.MediaCodec.LinearBlock;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
@@ -358,6 +360,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private long outputStreamStartPositionUs;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
+  private boolean linearBlockMode;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
@@ -403,17 +406,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // endianness.
     bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
     bypassBatchBuffer.data.order(ByteOrder.nativeOrder());
-
-    codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
-    codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
-    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    inputIndex = C.INDEX_UNSET;
-    outputIndex = C.INDEX_UNSET;
-    codecHotswapDeadlineMs = C.TIME_UNSET;
-    largestQueuedPresentationTimeUs = C.TIME_UNSET;
-    lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
-    codecDrainState = DRAIN_STATE_NONE;
-    codecDrainAction = DRAIN_ACTION_NONE;
+    resetCodecStateForRelease();
   }
 
   /**
@@ -960,6 +953,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     mediaCryptoRequiresSecureDecoder = false;
+    linearBlockMode = false;
   }
 
   protected MediaCodecDecoderException createDecoderException(
@@ -1204,8 +1198,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (inputIndex < 0) {
         return false;
       }
-      buffer.data = codec.getInputBuffer(inputIndex);
-      buffer.clear();
+      if (!linearBlockMode) {
+        buffer.data = codec.getInputBuffer(inputIndex);
+        buffer.clear();
+      }
     }
 
     if (codecDrainState == DRAIN_STATE_SIGNAL_END_OF_STREAM) {
@@ -1215,7 +1211,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         // Do nothing.
       } else {
         codecReceivedEos = true;
-        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        if (linearBlockMode) {
+          int linearBlockSize = 512;
+          String[] codecNames = new String[]{codecInfo.name};
+          LinearBlock linearBlock = LinearBlock.obtain(linearBlockSize, codecNames);
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            codec.queueInputLinearBlockBuffer(inputIndex, linearBlock, 0, linearBlockSize,
+                0, MediaCodec.BUFFER_FLAG_END_OF_STREAM );
+          }
+        } else {
+          codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        }
         resetInputBuffer();
       }
       codecDrainState = DRAIN_STATE_WAIT_END_OF_STREAM;
@@ -1240,7 +1246,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
     }
-    int adaptiveReconfigurationBytes = buffer.data.position();
+    int adaptiveReconfigurationBytes = 0;
+    if (!linearBlockMode) {
+      adaptiveReconfigurationBytes = buffer.data.position();
+    }
 
     FormatHolder formatHolder = getFormatHolder();
 
@@ -1299,12 +1308,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           // Do nothing.
         } else {
           codecReceivedEos = true;
-          codec.queueInputBuffer(
-              inputIndex,
-              /* offset= */ 0,
-              /* size= */ 0,
-              /* presentationTimeUs= */ 0,
-              MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+          if (linearBlockMode) {
+            int linearBlockSize = 512;
+            String[] codecNames = new String[]{codecInfo.name};
+            LinearBlock linearBlock = LinearBlock.obtain(linearBlockSize, codecNames);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+              codec.queueInputLinearBlockBuffer(inputIndex, linearBlock, 0, linearBlockSize,
+                  0, MediaCodec.BUFFER_FLAG_END_OF_STREAM );
+            }
+          } else {
+            codec.queueInputBuffer(
+                inputIndex,
+                /* offset= */ 0,
+                /* size= */ 0,
+                /* presentationTimeUs= */ 0,
+                MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+          }
           resetInputBuffer();
         }
       } catch (CryptoException e) {
@@ -1374,8 +1393,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codec.queueSecureInputBuffer(
             inputIndex, /* offset= */ 0, buffer.cryptoInfo, presentationTimeUs, /* flags= */ 0);
       } else {
-        codec.queueInputBuffer(
-            inputIndex, /* offset= */ 0, buffer.data.limit(), presentationTimeUs, /* flags= */ 0);
+        if (linearBlockMode) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            codec.queueInputLinearBlockBuffer(inputIndex, buffer.linearBlock, (int)buffer.offset, buffer.size,
+                buffer.timeUs, 0);
+          }
+        } else {
+          codec.queueInputBuffer(
+              inputIndex, /* offset= */ 0, buffer.data.limit(), presentationTimeUs, /* flags= */ 0);
+        }
       }
     } catch (CryptoException e) {
       throw createRendererException(e, inputFormat);
@@ -1446,6 +1472,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;
+
+    if (inputFormat.mediaCodecBufferMode == Format.LINEAR_BLOCK_MODE) {
+      linearBlockMode = true;
+    }
 
     if (bypassEnabled) {
       bypassDrainAndReinitialize = true;

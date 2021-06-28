@@ -169,6 +169,7 @@ public final class Format implements Parcelable {
     // Text specific.
 
     private int accessibilityChannel;
+    private int mediaCodecBufferMode;
 
     // Provided by the source.
 
@@ -193,6 +194,7 @@ public final class Format implements Parcelable {
       pcmEncoding = NO_VALUE;
       // Text specific.
       accessibilityChannel = NO_VALUE;
+      mediaCodecBufferMode = NO_VALUE;
     }
 
     /**
@@ -237,6 +239,7 @@ public final class Format implements Parcelable {
       this.accessibilityChannel = format.accessibilityChannel;
       // Provided by the source.
       this.exoMediaCryptoType = format.exoMediaCryptoType;
+      this.mediaCodecBufferMode = format.mediaCodecBufferMode;
     }
 
     /**
@@ -373,6 +376,17 @@ public final class Format implements Parcelable {
      */
     public Builder setSampleMimeType(@Nullable String sampleMimeType) {
       this.sampleMimeType = sampleMimeType;
+      return this;
+    }
+
+    /**
+     * Sets {@link Format#mediaCodecBufferMode}. The default value is {@link #NO_VALUE}.
+     *
+     * @param mediaCodecBufferMode {@link Format#mediaCodecBufferMode}.
+     * @return The builder.
+     */
+    public Builder setMediaCodecBufferMode(int mediaCodecBufferMode) {
+      this.mediaCodecBufferMode = mediaCodecBufferMode;
       return this;
     }
 
@@ -749,6 +763,10 @@ public final class Format implements Parcelable {
   /** The Accessibility channel, or {@link #NO_VALUE} if not known or applicable. */
   public final int accessibilityChannel;
 
+  public final int mediaCodecBufferMode;
+
+  public static final int LINEAR_BLOCK_MODE = 1;
+
   // Provided by source.
 
   /**
@@ -966,6 +984,7 @@ public final class Format implements Parcelable {
     } else {
       exoMediaCryptoType = builder.exoMediaCryptoType;
     }
+    mediaCodecBufferMode = builder.mediaCodecBufferMode;
   }
 
   // Some fields are deprecated but they're still assigned below.
@@ -1014,6 +1033,7 @@ public final class Format implements Parcelable {
     // Provided by source.
     // Encrypted content must always have a non-null exoMediaCryptoType.
     exoMediaCryptoType = drmInitData != null ? UnsupportedMediaCrypto.class : null;
+    mediaCodecBufferMode = in.readInt();
   }
 
   /** Returns a {@link Format.Builder} initialized with the values of this instance. */
@@ -1127,6 +1147,11 @@ public final class Format implements Parcelable {
     return buildUpon().setFrameRate(frameRate).build();
   }
 
+  @Deprecated
+  public Format copyWithMediaCodecBufferMode(int mediaCodecBufferMode) {
+    return buildUpon().setMediaCodecBufferMode(mediaCodecBufferMode).build();
+  }
+
   /** @deprecated Use {@link #buildUpon()} and {@link Builder#setDrmInitData(DrmInitData)}. */
   @Deprecated
   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
@@ -1198,7 +1223,8 @@ public final class Format implements Parcelable {
         + channelCount
         + ", "
         + sampleRate
-        + "])";
+        + "]),"
+        + mediaCodecBufferMode;
   }
 
   @Override
@@ -1242,6 +1268,7 @@ public final class Format implements Parcelable {
       result = 31 * result + accessibilityChannel;
       // Provided by the source.
       result = 31 * result + (exoMediaCryptoType == null ? 0 : exoMediaCryptoType.hashCode());
+      result = 31 * result + mediaCodecBufferMode;
       hashCode = result;
     }
     return hashCode;
@@ -1289,7 +1316,8 @@ public final class Format implements Parcelable {
         && Util.areEqual(metadata, other.metadata)
         && Util.areEqual(colorInfo, other.colorInfo)
         && Util.areEqual(drmInitData, other.drmInitData)
-        && initializationDataEquals(other);
+        && initializationDataEquals(other)
+        && mediaCodecBufferMode == other.mediaCodecBufferMode;
   }
 
   /**
@@ -1365,6 +1393,9 @@ public final class Format implements Parcelable {
     if (format.label != null) {
       builder.append(", label=").append(format.label);
     }
+    if (format.mediaCodecBufferMode != NO_VALUE) {
+      builder.append(", mediaCodecBufferMode=").append(format.mediaCodecBufferMode);
+    }
     return builder.toString();
   }
 
@@ -1418,6 +1449,7 @@ public final class Format implements Parcelable {
     dest.writeInt(encoderPadding);
     // Text specific.
     dest.writeInt(accessibilityChannel);
+    dest.writeInt(mediaCodecBufferMode);
   }
 
   public static final Creator<Format> CREATOR =
