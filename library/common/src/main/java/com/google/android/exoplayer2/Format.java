@@ -1630,6 +1630,9 @@ public final class Format implements Parcelable {
     if (format.label != null) {
       builder.append(", label=").append(format.label);
     }
+    if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+      builder.append(", trick-play-track");
+    }
     return builder.toString();
   }
 
