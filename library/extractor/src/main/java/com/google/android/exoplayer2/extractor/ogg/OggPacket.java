@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static com.google.android.exoplayer2.extractor.ExtractorUtil.readFullyQuietly;
+import static com.google.android.exoplayer2.extractor.ExtractorUtil.skipFullyQuietly;
 import static java.lang.Math.max;
 
 import com.google.android.exoplayer2.C;
@@ -51,7 +53,7 @@ import java.util.Arrays;
    *
    * @param input The {@link ExtractorInput} to read data from.
    * @return {@code true} if the read was successful. The read fails if the end of the input is
-   *     encountered without reading data.
+   *     encountered without reading the whole packet.
    * @throws IOException If reading from the input fails.
    */
   public boolean populate(ExtractorInput input) throws IOException {
@@ -76,7 +78,9 @@ import java.util.Arrays;
           bytesToSkip += calculatePacketSize(segmentIndex);
           segmentIndex += segmentCount;
         }
-        input.skipFully(bytesToSkip);
+        if (!skipFullyQuietly(input, bytesToSkip)) {
+          return false;
+        }
         currentSegmentIndex = segmentIndex;
       }
 
@@ -84,7 +88,9 @@ import java.util.Arrays;
       int segmentIndex = currentSegmentIndex + segmentCount;
       if (size > 0) {
         packetArray.ensureCapacity(packetArray.limit() + size);
-        input.readFully(packetArray.getData(), packetArray.limit(), size);
+        if (!readFullyQuietly(input, packetArray.getData(), packetArray.limit(), size)) {
+          return false;
+        }
         packetArray.setLimit(packetArray.limit() + size);
         populated = pageHeader.laces[segmentIndex - 1] != 255;
       }

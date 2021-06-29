@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static com.google.android.exoplayer2.extractor.ExtractorUtil.skipFullyQuietly;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -229,13 +231,21 @@ import java.io.IOException;
     if (!pageHeader.skipToNextPage(input)) {
       throw new EOFException();
     }
-    do {
-      pageHeader.populate(input, /* quiet= */ false);
-      input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
-    } while ((pageHeader.type & 0x04) != 0x04
+    pageHeader.populate(input, /* quiet= */ false);
+    input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
+    long granulePosition = pageHeader.granulePosition;
+    while ((pageHeader.type & 0x04) != 0x04
         && pageHeader.skipToNextPage(input)
-        && input.getPosition() < payloadEndPosition);
-    return pageHeader.granulePosition;
+        && input.getPosition() < payloadEndPosition) {
+      boolean hasPopulated = pageHeader.populate(input, /* quiet= */ true);
+      if (!hasPopulated || !skipFullyQuietly(input, pageHeader.headerSize + pageHeader.bodySize)) {
+        // The input file contains a partial page at the end. Ignore it and return the granule
+        // position of the last complete page.
+        return granulePosition;
+      }
+      granulePosition = pageHeader.granulePosition;
+    }
+    return granulePosition;
   }
 
   private final class OggSeekMap implements SeekMap {
