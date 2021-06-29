@@ -16,12 +16,14 @@
 package com.google.android.exoplayer2.extractor;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import java.io.EOFException;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,12 +36,12 @@ public class ExtractorUtilTest {
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
   @Test
-  public void peekToLengthEndNotReached() throws Exception {
+  public void peekToLength_endNotReached() throws Exception {
     FakeDataSource testDataSource = new FakeDataSource();
     testDataSource
         .getDataSet()
         .newDefaultData()
-        .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 3))
+        .appendReadData(Arrays.copyOf(TEST_DATA, 3))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
@@ -57,12 +59,12 @@ public class ExtractorUtilTest {
   }
 
   @Test
-  public void peekToLengthEndReached() throws Exception {
+  public void peekToLength_endReached() throws Exception {
     FakeDataSource testDataSource = new FakeDataSource();
     testDataSource
         .getDataSet()
         .newDefaultData()
-        .appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 3))
+        .appendReadData(Arrays.copyOf(TEST_DATA, 3))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
         .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
@@ -76,5 +78,136 @@ public class ExtractorUtilTest {
     assertThat(bytesPeeked).isEqualTo(TEST_DATA.length);
     assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
     assertThat(target).isEqualTo(TEST_DATA);
+  }
+
+  @Test
+  public void readFullyQuietly_endNotReached_isTrueAndReadsData() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource
+        .getDataSet()
+        .newDefaultData()
+        .appendReadData(Arrays.copyOf(TEST_DATA, 3))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    byte[] target = new byte[TEST_DATA.length];
+    int offset = 2;
+    int length = 4;
+
+    boolean hasRead = ExtractorUtil.readFullyQuietly(input, target, offset, length);
+
+    assertThat(hasRead).isTrue();
+    assertThat(input.getPosition()).isEqualTo(length);
+    assertThat(Arrays.copyOfRange(target, offset, offset + length))
+        .isEqualTo(Arrays.copyOf(TEST_DATA, length));
+  }
+
+  @Test
+  public void readFullyQuietly_endReached_isFalse() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData().appendReadData(Arrays.copyOf(TEST_DATA, 3));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    byte[] target = new byte[TEST_DATA.length];
+    int offset = 0;
+    int length = TEST_DATA.length + 1;
+
+    boolean hasRead = ExtractorUtil.readFullyQuietly(input, target, offset, length);
+
+    assertThat(hasRead).isFalse();
+    assertThat(input.getPosition()).isEqualTo(0);
+  }
+
+  @Test
+  public void skipFullyQuietly_endNotReached_isTrueAndSkipsData() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource
+        .getDataSet()
+        .newDefaultData()
+        .appendReadData(Arrays.copyOf(TEST_DATA, 3))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    int length = 4;
+
+    boolean hasRead = ExtractorUtil.skipFullyQuietly(input, length);
+
+    assertThat(hasRead).isTrue();
+    assertThat(input.getPosition()).isEqualTo(length);
+  }
+
+  @Test
+  public void skipFullyQuietly_endReached_isFalse() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData().appendReadData(Arrays.copyOf(TEST_DATA, 3));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    int length = TEST_DATA.length + 1;
+
+    boolean hasRead = ExtractorUtil.skipFullyQuietly(input, length);
+
+    assertThat(hasRead).isFalse();
+    assertThat(input.getPosition()).isEqualTo(0);
+  }
+
+  @Test
+  public void peekFullyQuietly_endNotReached_isTrueAndPeeksData() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource
+        .getDataSet()
+        .newDefaultData()
+        .appendReadData(Arrays.copyOf(TEST_DATA, 3))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 3, 6))
+        .appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    byte[] target = new byte[TEST_DATA.length];
+    int offset = 2;
+    int length = 4;
+
+    boolean hasRead =
+        ExtractorUtil.peekFullyQuietly(input, target, offset, length, /* allowEndOfInput= */ false);
+
+    assertThat(hasRead).isTrue();
+    assertThat(input.getPeekPosition()).isEqualTo(length);
+    assertThat(Arrays.copyOfRange(target, offset, offset + length))
+        .isEqualTo(Arrays.copyOf(TEST_DATA, length));
+  }
+
+  @Test
+  public void peekFullyQuietly_endReachedWithEndOfInputAllowed_isFalse() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData().appendReadData(Arrays.copyOf(TEST_DATA, 3));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    byte[] target = new byte[TEST_DATA.length];
+    int offset = 0;
+    int length = TEST_DATA.length + 1;
+
+    boolean hasRead =
+        ExtractorUtil.peekFullyQuietly(input, target, offset, length, /* allowEndOfInput= */ true);
+
+    assertThat(hasRead).isFalse();
+    assertThat(input.getPeekPosition()).isEqualTo(0);
+  }
+
+  @Test
+  public void peekFullyQuietly_endReachedWithoutEndOfInputAllowed_throws() throws Exception {
+    FakeDataSource testDataSource = new FakeDataSource();
+    testDataSource.getDataSet().newDefaultData().appendReadData(Arrays.copyOf(TEST_DATA, 3));
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNSET);
+    byte[] target = new byte[TEST_DATA.length];
+    int offset = 0;
+    int length = TEST_DATA.length + 1;
+
+    assertThrows(
+        EOFException.class,
+        () ->
+            ExtractorUtil.peekFullyQuietly(
+                input, target, offset, length, /* allowEndOfInput= */ false));
+    assertThat(input.getPeekPosition()).isEqualTo(0);
   }
 }

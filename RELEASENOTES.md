@@ -19,6 +19,8 @@
         is set incorrectly
         ([#4083](https://github.com/google/ExoPlayer/issues/4083)). Such content
         is malformed and should be re-encoded.
+    *   Improve support for truncated Ogg streams
+        ([#7608](https://github.com/google/ExoPlayer/issues/7608)).
 *   HLS:
     *   Fix issue where playback of a live event could become stuck rather than
         transitioning to `STATE_ENDED` when the event ends

@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static com.google.android.exoplayer2.extractor.ExtractorUtil.peekFullyQuietly;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -106,7 +107,8 @@ import java.io.IOException;
     Assertions.checkArgument(input.getPosition() == input.getPeekPosition());
     scratch.reset(/* limit= */ CAPTURE_PATTERN_SIZE);
     while ((limit == C.POSITION_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
-        && peekSafely(input, scratch.getData(), 0, CAPTURE_PATTERN_SIZE, /* quiet= */ true)) {
+        && peekFullyQuietly(
+            input, scratch.getData(), 0, CAPTURE_PATTERN_SIZE, /* allowEndOfInput= */ true)) {
       scratch.setPosition(0);
       if (scratch.readUnsignedInt() == CAPTURE_PATTERN) {
         input.resetPeekPosition();
@@ -127,14 +129,13 @@ import java.io.IOException;
    * @param input The {@link ExtractorInput} to read from.
    * @param quiet Whether to return {@code false} rather than throwing an exception if the header
    *     cannot be populated.
-   * @return Whether the read was successful. The read fails if the end of the input is encountered
-   *     without reading data.
+   * @return Whether the header was entirely populated.
    * @throws IOException If reading data fails or the stream is invalid.
    */
   public boolean populate(ExtractorInput input, boolean quiet) throws IOException {
     reset();
     scratch.reset(/* limit= */ EMPTY_PAGE_HEADER_SIZE);
-    if (!peekSafely(input, scratch.getData(), 0, EMPTY_PAGE_HEADER_SIZE, quiet)
+    if (!peekFullyQuietly(input, scratch.getData(), 0, EMPTY_PAGE_HEADER_SIZE, quiet)
         || scratch.readUnsignedInt() != CAPTURE_PATTERN) {
       return false;
     }
@@ -158,39 +159,14 @@ import java.io.IOException;
 
     // calculate total size of header including laces
     scratch.reset(/* limit= */ pageSegmentCount);
-    input.peekFully(scratch.getData(), 0, pageSegmentCount);
+    if (!peekFullyQuietly(input, scratch.getData(), 0, pageSegmentCount, quiet)) {
+      return false;
+    }
     for (int i = 0; i < pageSegmentCount; i++) {
       laces[i] = scratch.readUnsignedByte();
       bodySize += laces[i];
     }
 
     return true;
-  }
-
-  /**
-   * Peek data from {@code input}, respecting {@code quiet}. Return true if the peek is successful.
-   *
-   * <p>If {@code quiet=false} then encountering the end of the input (whether before or after
-   * reading some data) will throw {@link EOFException}.
-   *
-   * <p>If {@code quiet=true} then encountering the end of the input (even after reading some data)
-   * will return {@code false}.
-   *
-   * <p>This is slightly different to the behaviour of {@link ExtractorInput#peekFully(byte[], int,
-   * int, boolean)}, where {@code allowEndOfInput=true} only returns false (and suppresses the
-   * exception) if the end of the input is reached before reading any data.
-   */
-  private static boolean peekSafely(
-      ExtractorInput input, byte[] output, int offset, int length, boolean quiet)
-      throws IOException {
-    try {
-      return input.peekFully(output, offset, length, /* allowEndOfInput= */ quiet);
-    } catch (EOFException e) {
-      if (quiet) {
-        return false;
-      } else {
-        throw e;
-      }
-    }
   }
 }
