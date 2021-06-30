@@ -1128,6 +1128,40 @@ public class UtilTest {
         .isEqualTo("-00:35");
   }
 
+  @Test
+  public void getErrorCodeFromPlatformDiagnosticsInfo_withValidInput_returnsExpectedValue() {
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_1"))
+        .isEqualTo(1);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_neg_1"))
+        .isEqualTo(-1);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaCodec2.error_3"))
+        .isEqualTo(3);
+    assertThat(
+            Util.getErrorCodeFromPlatformDiagnosticsInfo(
+                "android.media.MediaCodec.weird_error_neg_10000"))
+        .isEqualTo(-10000);
+    assertThat(
+            Util.getErrorCodeFromPlatformDiagnosticsInfo(
+                "android.media.MediaCodec.weird_error_negx_10000"))
+        .isEqualTo(10000);
+    assertThat(
+            Util.getErrorCodeFromPlatformDiagnosticsInfo(
+                "android.media.MediaCodec.weird_error_xneg_10000"))
+        .isEqualTo(10000);
+  }
+
+  @Test
+  public void getErrorCodeFromPlatformDiagnosticsInfo_withInvalidInput_returnsZero() {
+    // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("")).isEqualTo(0);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.empty"))
+        .isEqualTo(0);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_neg_1a"))
+        .isEqualTo(0);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_a1"))
+        .isEqualTo(0);
+  }
+
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
     assertThat(escapeFileName(fileName)).isEqualTo(escapedFileName);
     assertThat(unescapeFileName(escapedFileName)).isEqualTo(fileName);
