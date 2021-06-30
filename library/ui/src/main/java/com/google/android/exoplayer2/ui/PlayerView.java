@@ -598,6 +598,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         } else if (surfaceView instanceof SurfaceView) {
           player.setVideoSurfaceView((SurfaceView) surfaceView);
         }
+        updateAspectRatio();
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
         subtitleView.setCues(player.getCurrentCues());
@@ -1297,6 +1298,37 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     hideArtwork();
   }
 
+  private void updateAspectRatio() {
+    VideoSize videoSize = player != null ? player.getVideoSize() : VideoSize.UNKNOWN;
+    int width = videoSize.width;
+    int height = videoSize.height;
+    int unappliedRotationDegrees = videoSize.unappliedRotationDegrees;
+    float videoAspectRatio =
+        (height == 0 || width == 0) ? 1 : (width * videoSize.pixelWidthHeightRatio) / height;
+
+    if (surfaceView instanceof TextureView) {
+      // Try to apply rotation transformation when our surface is a TextureView.
+      if (unappliedRotationDegrees == 90 || unappliedRotationDegrees == 270) {
+        // We will apply a rotation 90/270 degree to the output texture of the TextureView.
+        // In this case, the output video's width and height will be swapped.
+        videoAspectRatio = 1 / videoAspectRatio;
+      }
+      if (textureViewRotation != 0) {
+        surfaceView.removeOnLayoutChangeListener(componentListener);
+      }
+      textureViewRotation = unappliedRotationDegrees;
+      if (textureViewRotation != 0) {
+        // The texture view's dimensions might be changed after layout step.
+        // So add an OnLayoutChangeListener to apply rotation after layout step.
+        surfaceView.addOnLayoutChangeListener(componentListener);
+      }
+      applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
+    }
+
+    onContentAspectRatioChanged(
+        contentFrame, surfaceViewIgnoresVideoAspectRatio ? 0 : videoAspectRatio);
+  }
+
   @RequiresNonNull("artworkView")
   private boolean setArtworkFromMetadata(Metadata metadata) {
     boolean isArtworkSet = false;
@@ -1483,33 +1515,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
-      int width = videoSize.width;
-      int height = videoSize.height;
-      int unappliedRotationDegrees = videoSize.unappliedRotationDegrees;
-      float videoAspectRatio =
-          (height == 0 || width == 0) ? 1 : (width * videoSize.pixelWidthHeightRatio) / height;
-
-      if (surfaceView instanceof TextureView) {
-        // Try to apply rotation transformation when our surface is a TextureView.
-        if (unappliedRotationDegrees == 90 || unappliedRotationDegrees == 270) {
-          // We will apply a rotation 90/270 degree to the output texture of the TextureView.
-          // In this case, the output video's width and height will be swapped.
-          videoAspectRatio = 1 / videoAspectRatio;
-        }
-        if (textureViewRotation != 0) {
-          surfaceView.removeOnLayoutChangeListener(this);
-        }
-        textureViewRotation = unappliedRotationDegrees;
-        if (textureViewRotation != 0) {
-          // The texture view's dimensions might be changed after layout step.
-          // So add an OnLayoutChangeListener to apply rotation after layout step.
-          surfaceView.addOnLayoutChangeListener(this);
-        }
-        applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
-      }
-
-      onContentAspectRatioChanged(
-          contentFrame, surfaceViewIgnoresVideoAspectRatio ? 0 : videoAspectRatio);
+      updateAspectRatio();
     }
 
     @Override
