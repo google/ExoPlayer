@@ -110,7 +110,7 @@ available implementations. Providers can be identified by name:
 
 * `CronetProviderInstaller.PROVIDER_NAME`: Google Play Services implementation.
 * `CronetProvider.PROVIDER_NAME_APP_PACKAGED`: Embedded implementation.
-* `CronetProvider.PROVIDER_NAME_FALLBACK`: Fallback implementation .
+* `CronetProvider.PROVIDER_NAME_FALLBACK`: Fallback implementation.
 
 This makes it possible to iterate through the providers in your own order of
 preference, trying to build a `CronetEngine` from each in turn using
