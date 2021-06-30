@@ -353,7 +353,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean enableAsynchronousBufferQueueing;
   private boolean forceAsyncQueueingSynchronizationWorkaround;
   private boolean enableSynchronizeCodecInteractionsWithQueueing;
-  private boolean enableSkipAndContinueIfSampleTooLarge;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private long outputStreamStartPositionUs;
@@ -468,18 +467,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public void experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean enabled) {
     enableSynchronizeCodecInteractionsWithQueueing = enabled;
-  }
-
-  /**
-   * Enables skipping and continuing playback from the next key frame if a sample is encountered
-   * that's too large to fit into one of the decoder's input buffers. When not enabled, playback
-   * will fail in this case.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the renderer is used.
-   */
-  public void experimentalSetSkipAndContinueIfSampleTooLarge(boolean enabled) {
-    enableSkipAndContinueIfSampleTooLarge = enabled;
   }
 
   @Override
@@ -1254,19 +1241,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       result = readSource(formatHolder, buffer, /* readFlags= */ 0);
     } catch (InsufficientCapacityException e) {
       onCodecError(e);
-      if (enableSkipAndContinueIfSampleTooLarge) {
-        // Skip the sample that's too large by reading it without its data. Then flush the codec so
-        // that rendering will resume from the next key frame.
-        readSourceOmittingSampleData(/* readFlags= */ 0);
-        flushCodec();
-        return true;
-      } else {
-        throw createRendererException(
-            createDecoderException(e, getCodecInfo()),
-            inputFormat,
-            /* isRecoverable= */ false,
-            PlaybackException.ERROR_CODE_DECODING_FAILED);
-      }
+      // Skip the sample that's too large by reading it without its data. Then flush the codec so
+      // that rendering will resume from the next key frame.
+      readSourceOmittingSampleData(/* readFlags= */ 0);
+      flushCodec();
+      return true;
     }
 
     if (hasReadStreamToEnd()) {
