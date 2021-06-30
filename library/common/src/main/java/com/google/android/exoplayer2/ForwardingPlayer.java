@@ -349,13 +349,13 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public MediaMetadata getPlaylistMediaMetadata() {
-    return player.getPlaylistMediaMetadata();
+  public MediaMetadata getPlaylistMetadata() {
+    return player.getPlaylistMetadata();
   }
 
   @Override
-  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
-    player.setPlaylistMediaMetadata(mediaMetadata);
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
+    player.setPlaylistMetadata(mediaMetadata);
   }
 
   @Nullable
@@ -624,8 +624,8 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onPlaylistMediaMetadataChanged(MediaMetadata mediaMetadata) {
-      eventListener.onPlaylistMediaMetadataChanged(mediaMetadata);
+    public void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {
+      eventListener.onPlaylistMetadataChanged(mediaMetadata);
     }
 
     @Override

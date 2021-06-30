@@ -103,7 +103,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean pauseAtEndOfMediaItems;
   private Commands availableCommands;
   private MediaMetadata mediaMetadata;
-  private MediaMetadata playlistMediaMetadata;
+  private MediaMetadata playlistMetadata;
   private long fastForwardIncrementMs;
   private long rewindIncrementMs;
 
@@ -216,7 +216,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
-    playlistMediaMetadata = MediaMetadata.EMPTY;
+    playlistMetadata = MediaMetadata.EMPTY;
     fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
     rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
     maskingWindowIndex = C.INDEX_UNSET;
@@ -1043,20 +1043,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public MediaMetadata getPlaylistMediaMetadata() {
-    return playlistMediaMetadata;
+  public MediaMetadata getPlaylistMetadata() {
+    return playlistMetadata;
   }
 
   @Override
-  public void setPlaylistMediaMetadata(MediaMetadata playlistMediaMetadata) {
-    checkNotNull(playlistMediaMetadata);
-    if (playlistMediaMetadata.equals(this.playlistMediaMetadata)) {
+  public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
+    checkNotNull(playlistMetadata);
+    if (playlistMetadata.equals(this.playlistMetadata)) {
       return;
     }
-    this.playlistMediaMetadata = playlistMediaMetadata;
+    this.playlistMetadata = playlistMetadata;
     listeners.sendEvent(
-        EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
-        listener -> listener.onPlaylistMediaMetadataChanged(this.playlistMediaMetadata));
+        EVENT_PLAYLIST_METADATA_CHANGED,
+        listener -> listener.onPlaylistMetadataChanged(this.playlistMetadata));
   }
 
   @Override

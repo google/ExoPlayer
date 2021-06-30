@@ -171,7 +171,7 @@ public interface AnalyticsListener {
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
-    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_METADATA_CHANGED,
     EVENT_FAST_FORWARD_INCREMENT_CHANGED,
     EVENT_REWIND_INCREMENT_CHANGED,
     EVENT_LOAD_STARTED,
@@ -254,8 +254,8 @@ public interface AnalyticsListener {
   int EVENT_AVAILABLE_COMMANDS_CHANGED = Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
   /** {@link Player#getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
-  /** {@link Player#getPlaylistMediaMetadata()} changed. */
-  int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = Player.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED;
+  /** {@link Player#getPlaylistMetadata()} changed. */
+  int EVENT_PLAYLIST_METADATA_CHANGED = Player.EVENT_PLAYLIST_METADATA_CHANGED;
   /** {@link Player#getFastForwardIncrement()} changed. */
   int EVENT_FAST_FORWARD_INCREMENT_CHANGED = Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED;
   /** {@link Player#getRewindIncrement()} changed. */
@@ -701,10 +701,9 @@ public interface AnalyticsListener {
    * Called when the playlist {@link MediaMetadata} changes.
    *
    * @param eventTime The event time.
-   * @param playlistMediaMetadata The playlist {@link MediaMetadata}.
+   * @param playlistMetadata The playlist {@link MediaMetadata}.
    */
-  default void onPlaylistMediaMetadataChanged(
-      EventTime eventTime, MediaMetadata playlistMediaMetadata) {}
+  default void onPlaylistMetadataChanged(EventTime eventTime, MediaMetadata playlistMetadata) {}
 
   /**
    * Called when a media source started loading data.

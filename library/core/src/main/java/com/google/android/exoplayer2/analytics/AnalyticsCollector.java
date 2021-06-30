@@ -770,12 +770,12 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onPlaylistMediaMetadataChanged(MediaMetadata playlistMediaMetadata) {
+  public void onPlaylistMetadataChanged(MediaMetadata playlistMetadata) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
-        AnalyticsListener.EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
-        listener -> listener.onPlaylistMediaMetadataChanged(eventTime, playlistMediaMetadata));
+        AnalyticsListener.EVENT_PLAYLIST_METADATA_CHANGED,
+        listener -> listener.onPlaylistMetadataChanged(eventTime, playlistMetadata));
   }
 
   @Override

@@ -162,7 +162,7 @@ public interface Player {
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /** Called when the playlist {@link MediaMetadata} changes. */
-    default void onPlaylistMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
      * Called when the player starts or stops loading the source.
@@ -1102,7 +1102,7 @@ public interface Player {
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
-    EVENT_PLAYLIST_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_METADATA_CHANGED,
     EVENT_FAST_FORWARD_INCREMENT_CHANGED,
     EVENT_REWIND_INCREMENT_CHANGED
   })
@@ -1142,8 +1142,8 @@ public interface Player {
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
   /** {@link #getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = 15;
-  /** {@link #getPlaylistMediaMetadata()} changed. */
-  int EVENT_PLAYLIST_MEDIA_METADATA_CHANGED = 16;
+  /** {@link #getPlaylistMetadata()} changed. */
+  int EVENT_PLAYLIST_METADATA_CHANGED = 16;
   /** {@link #getFastForwardIncrement()} changed. */
   int EVENT_FAST_FORWARD_INCREMENT_CHANGED = 17;
   /** {@link #getRewindIncrement()} changed. */
@@ -1803,12 +1803,12 @@ public interface Player {
 
   /**
    * Returns the playlist {@link MediaMetadata}, as set by {@link
-   * #setPlaylistMediaMetadata(MediaMetadata)}, or {@link MediaMetadata#EMPTY} if not supported.
+   * #setPlaylistMetadata(MediaMetadata)}, or {@link MediaMetadata#EMPTY} if not supported.
    */
-  MediaMetadata getPlaylistMediaMetadata();
+  MediaMetadata getPlaylistMetadata();
 
   /** Sets the playlist {@link MediaMetadata}. */
-  void setPlaylistMediaMetadata(MediaMetadata mediaMetadata);
+  void setPlaylistMetadata(MediaMetadata mediaMetadata);
 
   /**
    * Returns the current manifest. The type depends on the type of media being played. May be null.

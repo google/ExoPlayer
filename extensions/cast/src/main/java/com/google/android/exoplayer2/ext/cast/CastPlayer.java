@@ -543,14 +543,14 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public MediaMetadata getPlaylistMediaMetadata() {
+  public MediaMetadata getPlaylistMetadata() {
     // CastPlayer does not currently support metadata.
     return MediaMetadata.EMPTY;
   }
 
   /** This method is not supported and does nothing. */
   @Override
-  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
     // CastPlayer does not currently support metadata.
   }
 

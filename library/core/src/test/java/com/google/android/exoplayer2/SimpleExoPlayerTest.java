@@ -63,7 +63,7 @@ public class SimpleExoPlayerTest {
   }
 
   @Test
-  public void onPlaybackMediaMetadataChanged_calledWhenPlaybackMediaMetadataSet() {
+  public void onPlaylistMetadataChanged_calledWhenPlaylistMetadataSet() {
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener playerListener = mock(Player.Listener.class);
@@ -72,10 +72,10 @@ public class SimpleExoPlayerTest {
     player.addAnalyticsListener(analyticsListener);
 
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("test").build();
-    player.setPlaylistMediaMetadata(mediaMetadata);
+    player.setPlaylistMetadata(mediaMetadata);
 
-    verify(playerListener).onPlaylistMediaMetadataChanged(mediaMetadata);
-    verify(analyticsListener).onPlaylistMediaMetadataChanged(any(), eq(mediaMetadata));
+    verify(playerListener).onPlaylistMetadataChanged(mediaMetadata);
+    verify(analyticsListener).onPlaylistMetadataChanged(any(), eq(mediaMetadata));
   }
 
   @Test

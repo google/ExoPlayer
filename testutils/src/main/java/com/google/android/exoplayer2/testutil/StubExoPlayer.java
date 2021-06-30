@@ -391,12 +391,12 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public MediaMetadata getPlaylistMediaMetadata() {
+  public MediaMetadata getPlaylistMetadata() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
     throw new UnsupportedOperationException();
   }
 

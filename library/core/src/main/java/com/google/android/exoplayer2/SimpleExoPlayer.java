@@ -1690,13 +1690,13 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public MediaMetadata getPlaylistMediaMetadata() {
-    return player.getPlaylistMediaMetadata();
+  public MediaMetadata getPlaylistMetadata() {
+    return player.getPlaylistMetadata();
   }
 
   @Override
-  public void setPlaylistMediaMetadata(MediaMetadata mediaMetadata) {
-    player.setPlaylistMediaMetadata(mediaMetadata);
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
+    player.setPlaylistMetadata(mediaMetadata);
   }
 
   @Override
