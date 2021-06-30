@@ -231,23 +231,11 @@ import java.util.List;
   }
 
   public boolean skipToPreviousPlaylistItem() {
-    Timeline timeline = player.getCurrentTimeline();
-    Assertions.checkState(!timeline.isEmpty());
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET) {
-      return controlDispatcher.dispatchSeekTo(player, previousWindowIndex, C.TIME_UNSET);
-    }
-    return false;
+    return controlDispatcher.dispatchPrevious(player);
   }
 
   public boolean skipToNextPlaylistItem() {
-    Timeline timeline = player.getCurrentTimeline();
-    Assertions.checkState(!timeline.isEmpty());
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      return controlDispatcher.dispatchSeekTo(player, nextWindowIndex, C.TIME_UNSET);
-    }
-    return false;
+    return controlDispatcher.dispatchNext(player);
   }
 
   public boolean skipToPlaylistItem(@IntRange(from = 0) int index) {
