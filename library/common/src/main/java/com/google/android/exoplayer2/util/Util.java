@@ -145,6 +145,9 @@ public final class Util {
               + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
+  /** Pattern to extract error code from platform diagnostics info. */
+  private static final Pattern DIAGNOSTIC_INFO_CODE_PATTERN = Pattern.compile(".*?_(neg_|)(\\d+)");
+
   // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
   private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
@@ -2375,6 +2378,26 @@ public final class Util {
         DatabaseUtils.queryNumEntries(
             database, "sqlite_master", "tbl_name = ?", new String[] {tableName});
     return count > 0;
+  }
+
+  /**
+   * Attempts to parse an error code from a diagnostic string found in framework media exceptions.
+   * For example: android.media.MediaCodec.error_1 or android.media.MediaDrm.error_neg_2.
+   */
+  public static int getErrorCodeFromPlatformDiagnosticsInfo(@Nullable String diagnosticsInfo) {
+    if (diagnosticsInfo == null) {
+      return 0;
+    }
+    Matcher matcher = DIAGNOSTIC_INFO_CODE_PATTERN.matcher(diagnosticsInfo);
+    if (!matcher.matches()) {
+      return 0;
+    }
+    try {
+      int errorCode = Integer.parseInt(Assertions.checkNotNull(matcher.group(2)));
+      return Assertions.checkNotNull(matcher.group(1)).isEmpty() ? errorCode : -errorCode;
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 
   @Nullable
