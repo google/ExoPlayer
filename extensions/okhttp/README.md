@@ -1,7 +1,10 @@
 # ExoPlayer OkHttp extension #
 
-The OkHttp extension is an [HttpDataSource][] implementation using Square's
+The OkHttp extension is an [HttpDataSource][] implementation that uses Square's
 [OkHttp][].
+
+OkHttp is a modern network stack that's widely used by many popular Android
+applications. It supports the HTTP and HTTP/2 protocols.
 
 [HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [OkHttp]: https://square.github.io/okhttp/
