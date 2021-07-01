@@ -57,12 +57,6 @@ public final class Log {
     return logLevel;
   }
 
-  /** Returns whether stack traces of {@link Throwable}s will be logged to logcat. */
-  @Pure
-  public boolean getLogStackTraces() {
-    return logStackTraces;
-  }
-
   /**
    * Sets the {@link LogLevel} for ExoPlayer logcat logging.
    *
