@@ -1093,4 +1093,55 @@ public final class C {
         throw new IllegalStateException();
     }
   }
+
+  // Copy of relevant error codes defined in MediaDrm.ErrorCodes from API 31.
+  // TODO (internal b/192337376): Remove once ExoPlayer depends on SDK 31.
+  private static final int ERROR_KEY_EXPIRED = 2;
+  private static final int ERROR_INSUFFICIENT_OUTPUT_PROTECTION = 4;
+  private static final int ERROR_INSUFFICIENT_SECURITY = 7;
+  private static final int ERROR_FRAME_TOO_LARGE = 8;
+  private static final int ERROR_CERTIFICATE_MALFORMED = 10;
+  private static final int ERROR_INIT_DATA = 15;
+  private static final int ERROR_KEY_NOT_LOADED = 16;
+  private static final int ERROR_LICENSE_PARSE = 17;
+  private static final int ERROR_LICENSE_POLICY = 18;
+  private static final int ERROR_LICENSE_RELEASE = 19;
+  private static final int ERROR_LICENSE_REQUEST_REJECTED = 20;
+  private static final int ERROR_LICENSE_RESTORE = 21;
+  private static final int ERROR_LICENSE_STATE = 22;
+  private static final int ERROR_PROVISIONING_CERTIFICATE = 24;
+  private static final int ERROR_PROVISIONING_CONFIG = 25;
+  private static final int ERROR_PROVISIONING_PARSE = 26;
+  private static final int ERROR_PROVISIONING_REQUEST_REJECTED = 27;
+  private static final int ERROR_PROVISIONING_RETRY = 28;
+
+  @PlaybackException.ErrorCode
+  public static int getErrorCodeCorrespondingToPlatformDrmErrorCode(int mediaDrmErrorCode) {
+    switch (mediaDrmErrorCode) {
+      case ERROR_PROVISIONING_CONFIG:
+      case ERROR_PROVISIONING_PARSE:
+      case ERROR_PROVISIONING_REQUEST_REJECTED:
+      case ERROR_PROVISIONING_CERTIFICATE:
+      case ERROR_PROVISIONING_RETRY:
+        return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
+      case ERROR_LICENSE_PARSE:
+      case ERROR_LICENSE_RELEASE:
+      case ERROR_LICENSE_REQUEST_REJECTED:
+      case ERROR_LICENSE_RESTORE:
+      case ERROR_LICENSE_STATE:
+      case ERROR_CERTIFICATE_MALFORMED:
+        return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
+      case ERROR_LICENSE_POLICY:
+      case ERROR_INSUFFICIENT_OUTPUT_PROTECTION:
+      case ERROR_INSUFFICIENT_SECURITY:
+      case ERROR_KEY_EXPIRED:
+      case ERROR_KEY_NOT_LOADED:
+        return PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION;
+      case ERROR_INIT_DATA:
+      case ERROR_FRAME_TOO_LARGE:
+        return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
+      default:
+        return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
+    }
+  }
 }
