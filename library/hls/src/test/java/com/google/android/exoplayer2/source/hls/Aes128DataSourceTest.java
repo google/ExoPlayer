@@ -29,9 +29,11 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Test for {@link Aes128DataSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class Aes128DataSourceTest {
 
   @Test

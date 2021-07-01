@@ -44,7 +44,7 @@ import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
-import com.google.android.exoplayer2.testutil.CacheAsserts.RequestSet;
+import com.google.android.exoplayer2.testutil.CacheAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -64,9 +64,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link HlsDownloader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class HlsDownloaderTest {
 
   private SimpleCache cache;
@@ -136,7 +138,7 @@ public class HlsDownloaderTest {
 
     assertCachedData(
         cache,
-        new RequestSet(fakeDataSet)
+        new CacheAsserts.RequestSet(fakeDataSet)
             .subset(
                 MASTER_PLAYLIST_URI,
                 MEDIA_PLAYLIST_1_URI,
@@ -194,7 +196,7 @@ public class HlsDownloaderTest {
 
     assertCachedData(
         cache,
-        new RequestSet(fakeDataSet)
+        new CacheAsserts.RequestSet(fakeDataSet)
             .subset(
                 MEDIA_PLAYLIST_1_URI,
                 MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts",

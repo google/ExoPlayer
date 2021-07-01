@@ -43,9 +43,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link HlsMediaSource}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class HlsMediaSourceTest {
 
   // Tests backwards compatibility

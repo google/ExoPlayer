@@ -35,9 +35,11 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Test for {@link HlsMasterPlaylist}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class HlsMasterPlaylistParserTest {
 
   private static final String PLAYLIST_URI = "https://example.com/test.m3u8";
