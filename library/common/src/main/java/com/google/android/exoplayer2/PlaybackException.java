@@ -67,6 +67,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_AUDIO_TRACK_INIT_FAILED,
         ERROR_CODE_AUDIO_TRACK_WRITE_FAILED,
+        ERROR_CODE_DRM_UNSPECIFIED,
         ERROR_CODE_DRM_SCHEME_UNSUPPORTED,
         ERROR_CODE_DRM_PROVISIONING_FAILED,
         ERROR_CODE_DRM_CONTENT_ERROR,
@@ -163,6 +164,8 @@ public class PlaybackException extends Exception implements Bundleable {
 
   // DRM errors (6xxx).
 
+  /** Caused by an unspecified error related to DRM protection. */
+  public static final int ERROR_CODE_DRM_UNSPECIFIED = 6000;
   /**
    * Caused by a chosen DRM protection scheme not being supported by the device. Examples of DRM
    * protection schemes are ClearKey and Widevine.
@@ -238,6 +241,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_AUDIO_TRACK_INIT_FAILED";
       case ERROR_CODE_AUDIO_TRACK_WRITE_FAILED:
         return "ERROR_CODE_AUDIO_TRACK_WRITE_FAILED";
+      case ERROR_CODE_DRM_UNSPECIFIED:
+        return "ERROR_CODE_DRM_UNSPECIFIED";
       case ERROR_CODE_DRM_SCHEME_UNSUPPORTED:
         return "ERROR_CODE_DRM_SCHEME_UNSUPPORTED";
       case ERROR_CODE_DRM_PROVISIONING_FAILED:

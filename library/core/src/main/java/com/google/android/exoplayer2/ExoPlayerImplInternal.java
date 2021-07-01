@@ -19,6 +19,10 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.media.DeniedByServerException;
+import android.media.MediaDrm;
+import android.media.MediaDrmResetException;
+import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -39,6 +43,9 @@ import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -582,11 +589,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
         playbackInfo = playbackInfo.copyWithPlaybackError(e);
       }
+    } catch (DrmSession.DrmSessionException e) {
+      @Nullable Throwable cause = e.getCause();
+      @ErrorCode int errorCode;
+      if (Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isMediaDrmStateException(cause)) {
+        errorCode = PlatformOperationsWrapperV21.mediaDrmStateExceptionToErrorCode(cause);
+      } else if (Util.SDK_INT >= 23
+          && PlaformOperationsWrapperV23.isMediaDrmResetException(cause)) {
+        errorCode = PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
+      } else if (Util.SDK_INT >= 18
+          && PlaformOperationsWrapperV18.isNotProvisionedException(cause)) {
+        errorCode = PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
+      } else if (Util.SDK_INT >= 18
+          && PlaformOperationsWrapperV18.isDeniedByServerException(cause)) {
+        errorCode = PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED;
+      } else if (cause instanceof UnsupportedDrmException) {
+        errorCode = PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED;
+      } else if (cause instanceof DefaultDrmSessionManager.MissingSchemeDataException) {
+        errorCode = PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
+      } else {
+        errorCode = PlaybackException.ERROR_CODE_DRM_UNSPECIFIED;
+      }
+      handleIoException(e, errorCode);
     } catch (FileDataSource.FileDataSourceException e) {
       @Nullable Throwable cause = e.getCause();
       @ErrorCode int errorCode;
       if (cause instanceof FileNotFoundException) {
-        if (Util.SDK_INT >= 21 && ErrnoExceptionWrapperV21.isPermissionError(cause.getCause())) {
+        if (Util.SDK_INT >= 21
+            && PlatformOperationsWrapperV21.isPermissionError(cause.getCause())) {
           errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
         } else {
           errorCode = PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND;
@@ -3062,12 +3092,47 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
+  @RequiresApi(18)
+  private static final class PlaformOperationsWrapperV18 {
+
+    @DoNotInline
+    public static boolean isNotProvisionedException(@Nullable Throwable throwable) {
+      return throwable instanceof NotProvisionedException;
+    }
+
+    @DoNotInline
+    public static boolean isDeniedByServerException(@Nullable Throwable throwable) {
+      return throwable instanceof DeniedByServerException;
+    }
+  }
+
   @RequiresApi(21)
-  private static final class ErrnoExceptionWrapperV21 {
+  private static final class PlatformOperationsWrapperV21 {
 
     @DoNotInline
     public static boolean isPermissionError(@Nullable Throwable e) {
       return e instanceof ErrnoException && ((ErrnoException) e).errno == OsConstants.EACCES;
+    }
+
+    @DoNotInline
+    public static boolean isMediaDrmStateException(@Nullable Throwable throwable) {
+      return throwable instanceof MediaDrm.MediaDrmStateException;
+    }
+
+    @DoNotInline
+    public static int mediaDrmStateExceptionToErrorCode(Throwable throwable) {
+      @Nullable
+      String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
+      return Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);
+    }
+  }
+
+  @RequiresApi(23)
+  private static final class PlaformOperationsWrapperV23 {
+
+    @DoNotInline
+    public static boolean isMediaDrmResetException(@Nullable Throwable throwable) {
+      return throwable instanceof MediaDrmResetException;
     }
   }
 }
