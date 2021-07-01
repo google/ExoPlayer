@@ -145,9 +145,6 @@ public final class Util {
               + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
-  /** Pattern to extract error code from platform diagnostics info. */
-  private static final Pattern DIAGNOSTIC_INFO_CODE_PATTERN = Pattern.compile(".*?_(neg_|)(\\d+)");
-
   // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
   private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
@@ -2382,19 +2379,27 @@ public final class Util {
 
   /**
    * Attempts to parse an error code from a diagnostic string found in framework media exceptions.
-   * For example: android.media.MediaCodec.error_1 or android.media.MediaDrm.error_neg_2.
+   *
+   * <p>For example: android.media.MediaCodec.error_1 or android.media.MediaDrm.error_neg_2.
+   *
+   * @param diagnosticsInfo A string from which to parse the error code.
+   * @return The parser error code, or 0 if an error code could not be parsed.
    */
   public static int getErrorCodeFromPlatformDiagnosticsInfo(@Nullable String diagnosticsInfo) {
+    // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
     if (diagnosticsInfo == null) {
       return 0;
     }
-    Matcher matcher = DIAGNOSTIC_INFO_CODE_PATTERN.matcher(diagnosticsInfo);
-    if (!matcher.matches()) {
+    String[] strings = split(diagnosticsInfo, "_");
+    int length = strings.length;
+    if (length < 2) {
       return 0;
     }
+    String digitsSection = strings[length - 1];
+    boolean isNegative = length >= 3 && "neg".equals(strings[length - 2]);
     try {
-      int errorCode = Integer.parseInt(Assertions.checkNotNull(matcher.group(2)));
-      return Assertions.checkNotNull(matcher.group(1)).isEmpty() ? errorCode : -errorCode;
+      int errorCode = Integer.parseInt(Assertions.checkNotNull(digitsSection));
+      return isNegative ? -errorCode : errorCode;
     } catch (NumberFormatException e) {
       return 0;
     }
