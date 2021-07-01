@@ -60,10 +60,12 @@ public class ExoPlaybackExceptionTest {
 
   @Test
   public void
-      roundTripViaBundle_ofExoPlaybackExceptionTypeRendererWithPrivateCause_yieldsRemoteExceptionWithSameMessage() {
+      roundTripViaBundle_ofExoPlaybackExceptionTypeUnexpectedWithPrivateCause_yieldsRemoteExceptionWithSameMessage() {
     ExoPlaybackException before =
-        ExoPlaybackException.createForRenderer(
-            new Exception(/* message= */ "anonymous exception that class loader cannot know") {});
+        ExoPlaybackException.createForUnexpected(
+            new RuntimeException(
+                /* message= */ "anonymous exception that class loader cannot know") {},
+            PlaybackException.ERROR_CODE_TIMEOUT);
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
 
     assertThat(after.getCause()).isInstanceOf(RemoteException.class);

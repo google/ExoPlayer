@@ -1953,8 +1953,9 @@ public class SimpleExoPlayer extends BasePlayer
         // One of the renderers timed out releasing its resources.
         player.stop(
             /* reset= */ false,
-            ExoPlaybackException.createForRenderer(
-                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE)));
+            ExoPlaybackException.createForUnexpected(
+                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE),
+                PlaybackException.ERROR_CODE_TIMEOUT));
       }
       if (this.videoOutput == ownedSurface) {
         // We're replacing a surface that we are responsible for releasing.

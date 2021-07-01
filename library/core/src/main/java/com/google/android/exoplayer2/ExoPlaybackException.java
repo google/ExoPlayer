@@ -71,16 +71,10 @@ public final class ExoPlaybackException extends PlaybackException {
   /** The {@link Type} of the playback failure. */
   @Type public final int type;
 
-  /**
-   * If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer, or null if
-   * unknown.
-   */
+  /** If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer. */
   @Nullable public final String rendererName;
 
-  /**
-   * If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer, or {@link
-   * C#INDEX_UNSET} if unknown.
-   */
+  /** If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer. */
   public final int rendererIndex;
 
   /**
@@ -128,26 +122,8 @@ public final class ExoPlaybackException extends PlaybackException {
   }
 
   /**
-   * Creates an instance of type {@link #TYPE_RENDERER} for an unknown renderer.
-   *
-   * @param cause The cause of the failure.
-   * @return The created instance.
-   */
-  public static ExoPlaybackException createForRenderer(Exception cause) {
-    return new ExoPlaybackException(
-        TYPE_RENDERER,
-        cause,
-        /* customMessage= */ null,
-        ERROR_CODE_UNSPECIFIED,
-        /* rendererName */ null,
-        /* rendererIndex= */ C.INDEX_UNSET,
-        /* rendererFormat= */ null,
-        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-        /* isRecoverable= */ false);
-  }
-
-  /**
-   * Creates an instance of type {@link #TYPE_RENDERER}.
+   * Creates an instance of type {@link #TYPE_RENDERER} in which {@link #isRecoverable} is {@code
+   * false} and {@link #errorCode} is {@link #ERROR_CODE_UNSPECIFIED}.
    *
    * @param cause The cause of the failure.
    * @param rendererIndex The index of the renderer in which the failure occurred.
@@ -208,13 +184,24 @@ public final class ExoPlaybackException extends PlaybackException {
   }
 
   /**
+   * @deprecated Use {@link #createForUnexpected(RuntimeException, int)
+   *     createForUnexpected(RuntimeException, ERROR_CODE_UNSPECIFIED)} instead.
+   */
+  @Deprecated
+  public static ExoPlaybackException createForUnexpected(RuntimeException cause) {
+    return createForUnexpected(cause, ERROR_CODE_UNSPECIFIED);
+  }
+
+  /**
    * Creates an instance of type {@link #TYPE_UNEXPECTED}.
    *
    * @param cause The cause of the failure.
+   * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
-  public static ExoPlaybackException createForUnexpected(RuntimeException cause) {
-    return new ExoPlaybackException(TYPE_UNEXPECTED, cause, ERROR_CODE_UNSPECIFIED);
+  public static ExoPlaybackException createForUnexpected(
+      RuntimeException cause, @ErrorCode int errorCode) {
+    return new ExoPlaybackException(TYPE_UNEXPECTED, cause, errorCode);
   }
 
   /**

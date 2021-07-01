@@ -804,9 +804,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         // One of the renderers timed out releasing its resources.
         stop(
             /* reset= */ false,
-            ExoPlaybackException.createForRenderer(
-                new ExoTimeoutException(
-                    ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
+            ExoPlaybackException.createForUnexpected(
+                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE),
+                PlaybackException.ERROR_CODE_TIMEOUT));
       }
     }
   }
@@ -873,8 +873,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
           Player.EVENT_PLAYER_ERROR,
           listener ->
               listener.onPlayerError(
-                  ExoPlaybackException.createForRenderer(
-                      new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE))));
+                  ExoPlaybackException.createForUnexpected(
+                      new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE),
+                      PlaybackException.ERROR_CODE_TIMEOUT)));
     }
     listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);

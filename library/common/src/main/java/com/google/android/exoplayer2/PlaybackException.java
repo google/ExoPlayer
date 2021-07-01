@@ -46,6 +46,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_UNSPECIFIED,
         ERROR_CODE_REMOTE_ERROR,
         ERROR_CODE_BEHIND_LIVE_WINDOW,
+        ERROR_CODE_TIMEOUT,
         ERROR_CODE_IO_UNSPECIFIED,
         ERROR_CODE_IO_NETWORK_UNAVAILABLE,
         ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
@@ -89,6 +90,8 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_REMOTE_ERROR = 1001;
   /** Caused by the loading position falling behind the sliding window of available live content. */
   public static final int ERROR_CODE_BEHIND_LIVE_WINDOW = 1002;
+  /** Caused by a generic timeout. */
+  public static final int ERROR_CODE_TIMEOUT = 1003;
 
   // Input/Output errors (2xxx).
 
@@ -199,6 +202,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_REMOTE_ERROR";
       case ERROR_CODE_BEHIND_LIVE_WINDOW:
         return "ERROR_CODE_BEHIND_LIVE_WINDOW";
+      case ERROR_CODE_TIMEOUT:
+        return "ERROR_CODE_TIMEOUT";
       case ERROR_CODE_IO_UNSPECIFIED:
         return "ERROR_CODE_IO_UNSPECIFIED";
       case ERROR_CODE_IO_NETWORK_UNAVAILABLE:
