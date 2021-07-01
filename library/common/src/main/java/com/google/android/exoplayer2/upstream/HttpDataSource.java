@@ -16,15 +16,11 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.text.TextUtils;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -188,45 +184,30 @@ public interface HttpDataSource extends DataSource {
       };
 
   /** Thrown when an error is encountered when trying to read from a {@link HttpDataSource}. */
-  class HttpDataSourceException extends IOException {
-
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
-    public @interface Type {}
-
-    public static final int TYPE_OPEN = 1;
-    public static final int TYPE_READ = 2;
-    public static final int TYPE_CLOSE = 3;
-
-    @Type public final int type;
+  class HttpDataSourceException extends DataSourceException {
 
     /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;
 
     public HttpDataSourceException(DataSpec dataSpec, @Type int type) {
-      super();
+      super(REASON_UNKNOWN, type);
       this.dataSpec = dataSpec;
-      this.type = type;
     }
 
     public HttpDataSourceException(String message, DataSpec dataSpec, @Type int type) {
-      super(message);
+      super(message, REASON_UNKNOWN, type);
       this.dataSpec = dataSpec;
-      this.type = type;
     }
 
     public HttpDataSourceException(IOException cause, DataSpec dataSpec, @Type int type) {
-      super(cause);
+      super(cause, REASON_UNKNOWN, type);
       this.dataSpec = dataSpec;
-      this.type = type;
     }
 
     public HttpDataSourceException(
         String message, IOException cause, DataSpec dataSpec, @Type int type) {
-      super(message, cause);
+      super(message, cause, REASON_UNKNOWN, type);
       this.dataSpec = dataSpec;
-      this.type = type;
     }
   }
 
