@@ -67,12 +67,12 @@ described below.
 ### Playlists with ads ###
 
 When playing a [playlist][] with multiple media items, the default behavior is
-to request the ad tag and store ad playback state once for each media ID and ad
-tag URI combination. This means that users will see ads for every media item
-with ads that has a distinct media ID, even if the ad tag URIs match. If a
-media item is repeated, the user will see the corresponding ads only once (the
-ad playback state stores whether ads have been played, so they are skipped
-after their first occurrence).
+to request the ad tag and store ad playback state once for each media ID,
+content URI and ad tag URI combination. This means that users will see ads for
+every media item with ads that has a distinct media ID or content URI, even if
+the ad tag URIs match. If a media item is repeated, the user will see the
+corresponding ads only once (the ad playback state stores whether ads have been
+played, so they are skipped after their first occurrence).
 
 It's possible to customize this behavior by passing an opaque ads identifier
 with which ad playback state for a given media item is linked, based on object

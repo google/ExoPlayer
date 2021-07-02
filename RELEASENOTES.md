@@ -35,6 +35,10 @@
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
     *   Forward the FRAME-RATE value from the master playlist to renditions.
         ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
+*   Ad playback:
+    *   Use the content URI when auto-generating an ad ID (in addition to the
+        media ID and ad tag URI)
+        ([#9106](https://github.com/google/ExoPlayer/issues/9106).
 *   DRM:
     *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
 *   Metadata:

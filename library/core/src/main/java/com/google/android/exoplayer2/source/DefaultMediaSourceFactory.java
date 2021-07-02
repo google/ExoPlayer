@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.content.Context;
-import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -40,6 +39,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -427,7 +427,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         new DataSpec(adsConfiguration.adTagUri),
         /* adsId= */ adsConfiguration.adsId != null
             ? adsConfiguration.adsId
-            : Pair.create(mediaItem.mediaId, adsConfiguration.adTagUri),
+            : ImmutableList.of(
+                mediaItem.mediaId, mediaItem.playbackProperties.uri, adsConfiguration.adTagUri),
         /* adMediaSourceFactory= */ this,
         adsLoader,
         adViewProvider);
