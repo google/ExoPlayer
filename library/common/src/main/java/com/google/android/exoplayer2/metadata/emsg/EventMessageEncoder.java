@@ -45,8 +45,8 @@ public final class EventMessageEncoder {
       writeNullTerminatedString(dataOutputStream, eventMessage.schemeIdUri);
       String nonNullValue = eventMessage.value != null ? eventMessage.value : "";
       writeNullTerminatedString(dataOutputStream, nonNullValue);
-      writeUnsignedInt(dataOutputStream, eventMessage.durationMs);
-      writeUnsignedInt(dataOutputStream, eventMessage.id);
+      dataOutputStream.writeLong(eventMessage.durationMs);
+      dataOutputStream.writeLong(eventMessage.id);
       dataOutputStream.write(eventMessage.messageData);
       dataOutputStream.flush();
       return byteArrayOutputStream.toByteArray();
@@ -60,13 +60,5 @@ public final class EventMessageEncoder {
       throws IOException {
     dataOutputStream.writeBytes(value);
     dataOutputStream.writeByte(0);
-  }
-
-  private static void writeUnsignedInt(DataOutputStream outputStream, long value)
-      throws IOException {
-    outputStream.writeByte((int) (value >>> 24) & 0xFF);
-    outputStream.writeByte((int) (value >>> 16) & 0xFF);
-    outputStream.writeByte((int) (value >>> 8) & 0xFF);
-    outputStream.writeByte((int) value & 0xFF);
   }
 }

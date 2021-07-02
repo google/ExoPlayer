@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.metadata.emsg;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.primitives.Bytes;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -38,8 +40,8 @@ public final class EventMessageEncoderTest {
       Bytes.concat(
           createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
           createByteArray(49, 50, 51, 0), // value = "123"
-          createByteArray(0, 0, 11, 184), // event_duration_ms = 3000
-          createByteArray(0, 15, 67, 211), // id = 1000403
+          createByteArray(0, 0, 0, 0, 0, 0, 11, 184), // event_duration_ms = 3000
+          createByteArray(0, 0, 0, 0, 0, 15, 67, 211), // id = 1000403
           createByteArray(0, 1, 2, 3, 4)); // message_data = {0, 1, 2, 3, 4}
 
   @Test
@@ -67,8 +69,8 @@ public final class EventMessageEncoderTest {
         Bytes.concat(
             createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
             createByteArray(49, 50, 51, 0), // value = "123"
-            createByteArray(0, 0, 11, 184), // event_duration_ms = 3000
-            createByteArray(0, 15, 67, 210), // id = 1000402
+            createByteArray(0, 0, 0, 0, 0, 0, 11, 184), // event_duration_ms = 3000
+            createByteArray(0, 0, 0, 0, 0, 15, 67, 210), // id = 1000402
             createByteArray(4, 3, 2, 1, 0)); // message_data = {4, 3, 2, 1, 0}
 
     EventMessageEncoder eventMessageEncoder = new EventMessageEncoder();
@@ -76,6 +78,18 @@ public final class EventMessageEncoderTest {
     assertThat(encodedByteArray).isEqualTo(ENCODED_MESSAGE);
     byte[] encodedByteArray1 = eventMessageEncoder.encode(eventMessage1);
     assertThat(encodedByteArray1).isEqualTo(expectedEmsgBody1);
+  }
+
+  // https://github.com/google/ExoPlayer/issues/9123
+  @Test
+  public void encodeDecodeEventMessage_durationNotSet() {
+    EventMessage originalMessage =
+        new EventMessage("urn:test", "456", C.TIME_UNSET, 99, new byte[] {7, 8, 9});
+    byte[] encodedMessage = new EventMessageEncoder().encode(originalMessage);
+    EventMessage decodedMessage =
+        new EventMessageDecoder().decode(new ParsableByteArray(encodedMessage));
+
+    assertThat(decodedMessage).isEqualTo(originalMessage);
   }
 
   /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
