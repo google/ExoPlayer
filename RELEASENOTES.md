@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released)
 
+*   Core Library:
+    *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
+        These methods are all overrides and are already deprecated on `Player`
+        and the respective `ExoPlayer` component classes (since 2.14.0).
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
