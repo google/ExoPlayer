@@ -595,13 +595,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isMediaDrmStateException(cause)) {
         errorCode = PlatformOperationsWrapperV21.mediaDrmStateExceptionToErrorCode(cause);
       } else if (Util.SDK_INT >= 23
-          && PlaformOperationsWrapperV23.isMediaDrmResetException(cause)) {
+          && PlatformOperationsWrapperV23.isMediaDrmResetException(cause)) {
         errorCode = PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
       } else if (Util.SDK_INT >= 18
-          && PlaformOperationsWrapperV18.isNotProvisionedException(cause)) {
+          && PlatformOperationsWrapperV18.isNotProvisionedException(cause)) {
         errorCode = PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
       } else if (Util.SDK_INT >= 18
-          && PlaformOperationsWrapperV18.isDeniedByServerException(cause)) {
+          && PlatformOperationsWrapperV18.isDeniedByServerException(cause)) {
         errorCode = PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED;
       } else if (cause instanceof UnsupportedDrmException) {
         errorCode = PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED;
@@ -3093,7 +3093,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   @RequiresApi(18)
-  private static final class PlaformOperationsWrapperV18 {
+  private static final class PlatformOperationsWrapperV18 {
 
     @DoNotInline
     public static boolean isNotProvisionedException(@Nullable Throwable throwable) {
@@ -3128,7 +3128,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   @RequiresApi(23)
-  private static final class PlaformOperationsWrapperV23 {
+  private static final class PlatformOperationsWrapperV23 {
 
     @DoNotInline
     public static boolean isMediaDrmResetException(@Nullable Throwable throwable) {
