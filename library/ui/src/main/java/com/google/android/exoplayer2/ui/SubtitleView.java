@@ -140,7 +140,7 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     applyEmbeddedStyles = true;
     applyEmbeddedFontSizes = true;
 
-    CanvasSubtitleOutput canvasSubtitleOutput = new CanvasSubtitleOutput(context, attrs);
+    CanvasSubtitleOutput canvasSubtitleOutput = new CanvasSubtitleOutput(context);
     output = canvasSubtitleOutput;
     innerSubtitleView = canvasSubtitleOutput;
     addView(innerSubtitleView);
