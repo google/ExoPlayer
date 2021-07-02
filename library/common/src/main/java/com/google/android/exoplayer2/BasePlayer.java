@@ -28,7 +28,7 @@ public abstract class BasePlayer implements Player {
 
   protected final Timeline.Window window;
 
-  public BasePlayer() {
+  protected BasePlayer() {
     window = new Timeline.Window();
   }
 
