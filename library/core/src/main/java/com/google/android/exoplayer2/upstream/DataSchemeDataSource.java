@@ -23,6 +23,7 @@ import android.util.Base64;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
@@ -69,7 +70,9 @@ public final class DataSchemeDataSource extends BaseDataSource {
     }
     if (dataSpec.position > data.length) {
       data = null;
-      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      throw new DataSourceException(
+          PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+          DataSourceException.TYPE_READ);
     }
     readPosition = (int) dataSpec.position;
     bytesRemaining = data.length - readPosition;

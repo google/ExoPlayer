@@ -20,6 +20,7 @@ import static java.lang.Math.min;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
@@ -46,7 +47,9 @@ public final class ByteArrayDataSource extends BaseDataSource {
     uri = dataSpec.uri;
     transferInitializing(dataSpec);
     if (dataSpec.position > data.length) {
-      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      throw new DataSourceException(
+          PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+          DataSourceException.TYPE_READ);
     }
     readPosition = (int) dataSpec.position;
     bytesRemaining = data.length - (int) dataSpec.position;

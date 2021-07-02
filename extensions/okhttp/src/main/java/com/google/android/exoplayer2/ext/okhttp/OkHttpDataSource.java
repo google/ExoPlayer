@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
@@ -323,7 +324,10 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
           new InvalidResponseCodeException(
               responseCode, response.message(), headers, dataSpec, errorResponseBody);
       if (responseCode == 416) {
-        exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
+        exception.initCause(
+            new DataSourceException(
+                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+                DataSourceException.TYPE_READ));
       }
       throw exception;
     }
@@ -354,7 +358,9 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
     try {
       if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+        throw new DataSourceException(
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+            DataSourceException.TYPE_READ);
       }
     } catch (IOException e) {
       closeConnectionQuietly();

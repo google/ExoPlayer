@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.junit.Before;
@@ -103,7 +104,7 @@ public final class DataSchemeDataSourceTest {
           buildDataSpec(DATA_SCHEME_URI, /* position= */ 108, /* length= */ C.LENGTH_UNSET));
       fail();
     } catch (DataSourceException e) {
-      assertThat(e.reason).isEqualTo(DataSourceException.POSITION_OUT_OF_RANGE);
+      assertThat(e.reason).isEqualTo(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
   }
 

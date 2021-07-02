@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -90,7 +91,9 @@ public final class FileDataSource extends BaseDataSource {
       bytesRemaining =
           dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position : dataSpec.length;
       if (bytesRemaining < 0) {
-        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+        throw new DataSourceException(
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+            DataSourceException.TYPE_READ);
       }
     } catch (FileDataSourceException e) {
       throw e;

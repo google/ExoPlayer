@@ -57,6 +57,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_IO_FILE_NOT_FOUND,
         ERROR_CODE_IO_NO_PERMISSION,
         ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
+        ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
         ERROR_CODE_PARSING_CONTAINER_MALFORMED,
         ERROR_CODE_PARSING_MANIFEST_MALFORMED,
         ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
@@ -124,6 +125,8 @@ public class PlaybackException extends Exception implements Bundleable {
    * troubleshooting topic</a>.
    */
   public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2009;
+  /** Caused by reading data out of the data bound. */
+  public static final int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE = 2010;
 
   // Content parsing errors (3xxx).
 
@@ -224,6 +227,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_IO_NO_PERMISSION";
       case ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED:
         return "ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED";
+      case ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE:
+        return "ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE";
       case ERROR_CODE_PARSING_CONTAINER_MALFORMED:
         return "ERROR_CODE_PARSING_CONTAINER_MALFORMED";
       case ERROR_CODE_PARSING_MANIFEST_MALFORMED:

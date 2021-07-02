@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
@@ -573,7 +574,9 @@ public final class CacheDataSource implements DataSource {
         if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= dataSpec.position;
           if (bytesRemaining < 0) {
-            throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+            throw new DataSourceException(
+                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+                DataSourceException.TYPE_READ);
           }
         }
       }

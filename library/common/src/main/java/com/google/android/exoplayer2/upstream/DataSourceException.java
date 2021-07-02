@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -43,14 +44,15 @@ public class DataSourceException extends IOException {
 
   /**
    * Returns whether the given {@link IOException} was caused by a {@link DataSourceException} whose
-   * {@link #reason} is {@link #POSITION_OUT_OF_RANGE} in its cause stack.
+   * {@link #reason} is {@link PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE} in its
+   * cause stack.
    */
   public static boolean isCausedByPositionOutOfRange(IOException e) {
     @Nullable Throwable cause = e;
     while (cause != null) {
       if (cause instanceof DataSourceException) {
         int reason = ((DataSourceException) cause).reason;
-        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
+        if (reason == PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE) {
           return true;
         }
       }
@@ -62,17 +64,18 @@ public class DataSourceException extends IOException {
   /**
    * Indicates that the {@link DataSpec#position starting position} of the request was outside the
    * bounds of the data.
+   *
+   * @deprecated Use {@link PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE}.
    */
-  public static final int POSITION_OUT_OF_RANGE = 0;
-
-  /** Indicates that the error reason is unknown. */
-  public static final int REASON_UNKNOWN = 1;
+  @Deprecated
+  public static final int POSITION_OUT_OF_RANGE =
+      PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE;
 
   /**
-   * The reason of this {@link DataSourceException}. It can only be {@link #POSITION_OUT_OF_RANGE},
-   * or {@link #REASON_UNKNOWN}.
+   * The reason of this {@link DataSourceException}, should be one of the {@code ERROR_CODE_IO_*} in
+   * {@link PlaybackException.ErrorCode}.
    */
-  public final int reason;
+  @PlaybackException.ErrorCode public final int reason;
 
   /** The {@link Type} of the operation that caused the playback failure. */
   @Type public final int type;
@@ -81,8 +84,7 @@ public class DataSourceException extends IOException {
    * Constructs a DataSourceException with type {@link #TYPE_READ}.
    *
    * @deprecated Use the constructor {@link #DataSourceException(String, Throwable, int, int)}.
-   * @param reason Reason of the error. It can only be {@link #POSITION_OUT_OF_RANGE} or {@link
-   *     #REASON_UNKNOWN}.
+   * @param reason Reason of the error. It should only be {@link #POSITION_OUT_OF_RANGE}.
    */
   @Deprecated
   public DataSourceException(int reason) {
@@ -95,11 +97,12 @@ public class DataSourceException extends IOException {
    *
    * @param message The error message.
    * @param cause The error cause.
-   * @param reason Reason of the error. It can only be {@link #POSITION_OUT_OF_RANGE} or {@link
-   *     #REASON_UNKNOWN}.
+   * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+   *     PlaybackException.ErrorCode}.
    * @param type See {@link Type}.
    */
-  public DataSourceException(String message, Throwable cause, int reason, @Type int type) {
+  public DataSourceException(
+      String message, Throwable cause, @PlaybackException.ErrorCode int reason, @Type int type) {
     super(message, cause);
     this.reason = reason;
     this.type = type;
@@ -109,11 +112,12 @@ public class DataSourceException extends IOException {
    * Constructs a DataSourceException.
    *
    * @param cause The error cause.
-   * @param reason Reason of the error. It can only be {@link #POSITION_OUT_OF_RANGE} or {@link
-   *     #REASON_UNKNOWN}.
+   * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+   *     PlaybackException.ErrorCode}.
    * @param type See {@link Type}.
    */
-  public DataSourceException(Throwable cause, int reason, @Type int type) {
+  public DataSourceException(
+      Throwable cause, @PlaybackException.ErrorCode int reason, @Type int type) {
     super(cause);
     this.reason = reason;
     this.type = type;
@@ -123,11 +127,12 @@ public class DataSourceException extends IOException {
    * Constructs a DataSourceException.
    *
    * @param message The error message.
-   * @param reason Reason of the error. It can only be {@link #POSITION_OUT_OF_RANGE} or {@link
-   *     #REASON_UNKNOWN}.
+   * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+   *     PlaybackException.ErrorCode}.
    * @param type See {@link Type}.
    */
-  public DataSourceException(String message, int reason, @Type int type) {
+  public DataSourceException(
+      String message, @PlaybackException.ErrorCode int reason, @Type int type) {
     super(message);
     this.reason = reason;
     this.type = type;
@@ -136,11 +141,11 @@ public class DataSourceException extends IOException {
   /**
    * Constructs a DataSourceException.
    *
-   * @param reason Reason of the error. It can only be {@link #POSITION_OUT_OF_RANGE} or {@link
-   *     #REASON_UNKNOWN}.
+   * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+   *     PlaybackException.ErrorCode}.
    * @param type See {@link Type}.
    */
-  public DataSourceException(int reason, @Type int type) {
+  public DataSourceException(@PlaybackException.ErrorCode int reason, @Type int type) {
     this.reason = reason;
     this.type = type;
   }

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
@@ -190,23 +191,23 @@ public interface HttpDataSource extends DataSource {
     public final DataSpec dataSpec;
 
     public HttpDataSourceException(DataSpec dataSpec, @Type int type) {
-      super(REASON_UNKNOWN, type);
+      super(PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
       this.dataSpec = dataSpec;
     }
 
     public HttpDataSourceException(String message, DataSpec dataSpec, @Type int type) {
-      super(message, REASON_UNKNOWN, type);
+      super(message, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
       this.dataSpec = dataSpec;
     }
 
     public HttpDataSourceException(IOException cause, DataSpec dataSpec, @Type int type) {
-      super(cause, REASON_UNKNOWN, type);
+      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
       this.dataSpec = dataSpec;
     }
 
     public HttpDataSourceException(
         String message, IOException cause, DataSpec dataSpec, @Type int type) {
-      super(message, cause, REASON_UNKNOWN, type);
+      super(message, cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
       this.dataSpec = dataSpec;
     }
   }

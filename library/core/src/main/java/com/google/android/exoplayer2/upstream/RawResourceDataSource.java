@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -156,7 +157,9 @@ public final class RawResourceDataSource extends BaseDataSource {
       // extends to the end of the file.
       if (assetFileDescriptorLength != AssetFileDescriptor.UNKNOWN_LENGTH
           && dataSpec.position > assetFileDescriptorLength) {
-        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+        throw new DataSourceException(
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+            DataSourceException.TYPE_READ);
       }
       long assetFileDescriptorOffset = assetFileDescriptor.getStartOffset();
       long skipped =
@@ -165,7 +168,9 @@ public final class RawResourceDataSource extends BaseDataSource {
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // read beyond the end of the last resource in the file.
-        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+        throw new DataSourceException(
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+            DataSourceException.TYPE_READ);
       }
       if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
         // The asset must extend to the end of the file. We can try and resolve the length with
@@ -177,13 +182,17 @@ public final class RawResourceDataSource extends BaseDataSource {
           bytesRemaining = channel.size() - channel.position();
           if (bytesRemaining < 0) {
             // The skip above was satisfied in full, but skipped beyond the end of the file.
-            throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+            throw new DataSourceException(
+                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+                DataSourceException.TYPE_READ);
           }
         }
       } else {
         bytesRemaining = assetFileDescriptorLength - skipped;
         if (bytesRemaining < 0) {
-          throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+          throw new DataSourceException(
+              PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+              DataSourceException.TYPE_READ);
         }
       }
     } catch (IOException e) {
