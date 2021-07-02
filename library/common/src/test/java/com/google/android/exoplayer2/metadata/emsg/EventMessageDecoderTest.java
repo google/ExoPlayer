@@ -37,8 +37,8 @@ public final class EventMessageDecoderTest {
         Bytes.concat(
             createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
             createByteArray(49, 50, 51, 0), // value = "123"
-            createByteArray(0, 0, 11, 184), // event_duration_ms = 3000
-            createByteArray(0, 15, 67, 211), // id = 1000403
+            createByteArray(0, 0, 0, 0, 0, 0, 11, 184), // event_duration_ms = 3000
+            createByteArray(0, 0, 0, 0, 0, 15, 67, 211), // id = 1000403
             createByteArray(0, 1, 2, 3, 4)); // message_data = {0, 1, 2, 3, 4}
     EventMessageDecoder decoder = new EventMessageDecoder();
 

@@ -37,6 +37,9 @@
         ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
 *   DRM:
     *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
+*   Metadata:
+    *   Fix handling of emsg messages with an unset duration
+        ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
 *   UI:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
         in `PlayerNotificationManager`. This is required to avoid an error on
