@@ -52,6 +52,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
         ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
         ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED,
+        ERROR_CODE_IO_BAD_HTTP_REQUEST,
         ERROR_CODE_IO_BAD_HTTP_STATUS,
         ERROR_CODE_IO_DNS_FAILED,
         ERROR_CODE_IO_FILE_NOT_FOUND,
@@ -106,17 +107,19 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT = 2003;
   /** Caused by an existing connection being unexpectedly closed. */
   public static final int ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED = 2004;
+  /** Caused by creating a malformed HTTP request. */
+  public static final int ERROR_CODE_IO_BAD_HTTP_REQUEST = 2005;
   /** Caused by an HTTP server returning an unexpected HTTP response status code. */
-  public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2005;
+  public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2006;
   /** Caused by the player failing to resolve a hostname. */
-  public static final int ERROR_CODE_IO_DNS_FAILED = 2006;
+  public static final int ERROR_CODE_IO_DNS_FAILED = 2007;
   /** Caused by a non-existent file. */
-  public static final int ERROR_CODE_IO_FILE_NOT_FOUND = 2007;
+  public static final int ERROR_CODE_IO_FILE_NOT_FOUND = 2008;
   /**
    * Caused by lack of permission to perform an IO operation. For example, lack of permission to
    * access internet or external storage.
    */
-  public static final int ERROR_CODE_IO_NO_PERMISSION = 2008;
+  public static final int ERROR_CODE_IO_NO_PERMISSION = 2009;
   /**
    * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
    * https://) when the app's Network Security Configuration does not permit it.
@@ -124,9 +127,9 @@ public class PlaybackException extends Exception implements Bundleable {
    * <p>See <a href="https://exoplayer.dev/issues/cleartext-not-permitted">this corresponding
    * troubleshooting topic</a>.
    */
-  public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2009;
+  public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2010;
   /** Caused by reading data out of the data bound. */
-  public static final int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE = 2010;
+  public static final int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE = 2011;
 
   // Content parsing errors (3xxx).
 
@@ -217,6 +220,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT";
       case ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED:
         return "ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED";
+      case ERROR_CODE_IO_BAD_HTTP_REQUEST:
+        return "ERROR_CODE_IO_BAD_HTTP_REQUEST";
       case ERROR_CODE_IO_BAD_HTTP_STATUS:
         return "ERROR_CODE_IO_BAD_HTTP_STATUS";
       case ERROR_CODE_IO_DNS_FAILED:

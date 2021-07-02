@@ -190,24 +190,113 @@ public interface HttpDataSource extends DataSource {
     /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;
 
+    /**
+     * @deprecated Use {@link #HttpDataSourceException(DataSpec, int, int)
+     *     HttpDataSourceException(DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)}.
+     */
+    @Deprecated
     public HttpDataSourceException(DataSpec dataSpec, @Type int type) {
-      super(PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+      this(dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+    }
+
+    /**
+     * Constructs an HttpDataSourceException.
+     *
+     * @param dataSpec The {@link DataSpec}.
+     * @param errorCode Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+     *     PlaybackException.ErrorCode}.
+     * @param type See {@link Type}.
+     */
+    public HttpDataSourceException(
+        DataSpec dataSpec, @PlaybackException.ErrorCode int errorCode, @Type int type) {
+      super(errorCode, type);
       this.dataSpec = dataSpec;
     }
 
+    /**
+     * @deprecated Use {@link #HttpDataSourceException(String, DataSpec, int, int)
+     *     HttpDataSourceException(String, DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+     *     int)}.
+     */
+    @Deprecated
     public HttpDataSourceException(String message, DataSpec dataSpec, @Type int type) {
-      super(message, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+      this(message, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+    }
+
+    /**
+     * Constructs an HttpDataSourceException.
+     *
+     * @param message The error message.
+     * @param dataSpec The {@link DataSpec}.
+     * @param errorCode Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+     *     PlaybackException.ErrorCode}.
+     * @param type See {@link Type}.
+     */
+    public HttpDataSourceException(
+        String message,
+        DataSpec dataSpec,
+        @PlaybackException.ErrorCode int errorCode,
+        @Type int type) {
+      super(message, errorCode, type);
       this.dataSpec = dataSpec;
     }
 
+    /**
+     * @deprecated Use {@link #HttpDataSourceException(IOException, DataSpec, int, int)
+     *     HttpDataSourceException(IOException, DataSpec,
+     *     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)}.
+     */
+    @Deprecated
     public HttpDataSourceException(IOException cause, DataSpec dataSpec, @Type int type) {
-      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+      this(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+    }
+
+    /**
+     * Constructs an HttpDataSourceException.
+     *
+     * @param cause The error cause.
+     * @param dataSpec The {@link DataSpec}.
+     * @param errorCode Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+     *     PlaybackException.ErrorCode}.
+     * @param type See {@link Type}.
+     */
+    public HttpDataSourceException(
+        IOException cause,
+        DataSpec dataSpec,
+        @PlaybackException.ErrorCode int errorCode,
+        @Type int type) {
+      super(cause, errorCode, type);
       this.dataSpec = dataSpec;
     }
 
+    /**
+     * @deprecated Use {@link #HttpDataSourceException(String, IOException, DataSpec, int, int)
+     *     HttpDataSourceException(String, IOException, DataSpec,
+     *     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)}.
+     */
+    @Deprecated
     public HttpDataSourceException(
         String message, IOException cause, DataSpec dataSpec, @Type int type) {
-      super(message, cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+      this(message, cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, type);
+    }
+
+    /**
+     * Constructs an HttpDataSourceException.
+     *
+     * @param message The error message.
+     * @param cause The error cause.
+     * @param dataSpec The {@link DataSpec}.
+     * @param errorCode Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+     *     PlaybackException.ErrorCode}.
+     * @param type See {@link Type}.
+     */
+    public HttpDataSourceException(
+        String message,
+        IOException cause,
+        DataSpec dataSpec,
+        @PlaybackException.ErrorCode int errorCode,
+        @Type int type) {
+      super(message, cause, errorCode, type);
       this.dataSpec = dataSpec;
     }
   }
@@ -226,6 +315,7 @@ public interface HttpDataSource extends DataSource {
               + " https://exoplayer.dev/issues/cleartext-not-permitted",
           cause,
           dataSpec,
+          PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
           TYPE_OPEN);
     }
   }
@@ -236,7 +326,11 @@ public interface HttpDataSource extends DataSource {
     public final String contentType;
 
     public InvalidContentTypeException(String contentType, DataSpec dataSpec) {
-      super("Invalid content type: " + contentType, dataSpec, TYPE_OPEN);
+      super(
+          "Invalid content type: " + contentType,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_BAD_HTTP_REQUEST,
+          TYPE_OPEN);
       this.contentType = contentType;
     }
   }
@@ -295,7 +389,11 @@ public interface HttpDataSource extends DataSource {
         Map<String, List<String>> headerFields,
         DataSpec dataSpec,
         byte[] responseBody) {
-      super("Response code: " + responseCode, dataSpec, TYPE_OPEN);
+      super(
+          "Response code: " + responseCode,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS,
+          TYPE_OPEN);
       this.responseCode = responseCode;
       this.responseMessage = responseMessage;
       this.headerFields = headerFields;
