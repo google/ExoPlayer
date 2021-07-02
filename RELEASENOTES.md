@@ -105,6 +105,9 @@
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
     *   Support resuming content with an offset after an ad group.
+    *   Use the content URI when auto-generating an ad ID (in addition to the
+        media ID and ad tag URI)
+        ([#9106](https://github.com/google/ExoPlayer/issues/9106).
 *   DRM:
     *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
 *   PlayerNotificationManager:
