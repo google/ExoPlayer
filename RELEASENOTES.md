@@ -21,6 +21,9 @@
             cause of the failure in order to simplify error handling.
     *   Add `@FallbackType` to `LoadErrorHandlingPolicy` to support
         customization of the exclusion duration for locations and tracks.
+    *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
+        These methods are all overrides and are already deprecated on `Player`
+        and the respective `ExoPlayer` component classes (since 2.14.0).
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
