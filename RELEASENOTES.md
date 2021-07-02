@@ -52,6 +52,9 @@
     *   Fix `StyledPlayerView` and `StyledPlayerControlView` popup menu items
         not expanding to occupy the full width of the popup
         ([#9086](https://github.com/google/ExoPlayer/issues/9086)).
+    *   Don't propagate `AttributeSet` from `SubtitleView` constructor into
+        `CanvasSubtitleOutput`. Just passing the `Context` is enough, and
+        ensures programmatic changes to the `SubtitleView` will propagate down.
 *   RTSP
     *   Fix session description (SDP) parsing to use a HashMap-like behaviour
         for duplicated attributes.
