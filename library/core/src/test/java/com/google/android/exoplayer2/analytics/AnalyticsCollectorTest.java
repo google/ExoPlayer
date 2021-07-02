@@ -1662,7 +1662,7 @@ public final class AnalyticsCollectorTest {
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
         player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
+    TestPlayerRunHelper.runUntilError(player);
     ShadowLooper.runMainLooperToNextTask();
     player.release();
     surface.release();

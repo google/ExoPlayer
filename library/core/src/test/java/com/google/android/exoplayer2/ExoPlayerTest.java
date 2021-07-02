@@ -1715,7 +1715,7 @@ public final class ExoPlayerTest {
               throw ExoPlaybackException.createForSource(new IOException());
             })
         .send();
-    runUntilPlaybackState(player, Player.STATE_IDLE);
+    TestPlayerRunHelper.runUntilError(player);
     player.seekTo(/* positionMs= */ 50);
     runUntilPendingCommandsAreFullyHandled(player);
     long positionAfterSeekHandled = player.getCurrentPosition();
@@ -9426,7 +9426,7 @@ public final class ExoPlayerTest {
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
     player.play();
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
+    TestPlayerRunHelper.runUntilError(player);
     runUntilPendingCommandsAreFullyHandled(player);
     player.release();
 
