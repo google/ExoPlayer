@@ -378,18 +378,22 @@ public final class CastPlayer extends BasePlayer {
   @SuppressWarnings("deprecation")
   @Override
   public void seekTo(int windowIndex, long positionMs) {
-    MediaStatus mediaStatus = getMediaStatus();
+    @Nullable MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.
     positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
-    if (mediaStatus != null) {
+    if (remoteMediaClient != null && mediaStatus != null && !currentTimeline.isEmpty()) {
+      // The live content start might not start at 0, add offset if set.
+      currentTimeline.getPeriod(windowIndex, period, true);
+      long periodPosInWindow = C.usToMs(period.positionInWindowUs);
+      long targetPos = positionMs - periodPosInWindow;
+
       if (getCurrentWindowIndex() != windowIndex) {
-        remoteMediaClient
-            .queueJumpToItem(
-                (int) currentTimeline.getPeriod(windowIndex, period).uid, positionMs, null)
+        int targetItemId = (int) period.uid;
+        remoteMediaClient.queueJumpToItem(targetItemId, targetPos, null)
             .setResultCallback(seekResultCallback);
       } else {
-        remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
+        remoteMediaClient.seek(targetPos).setResultCallback(seekResultCallback);
       }
       PositionInfo oldPosition = getCurrentPositionInfo();
       pendingSeekCount++;
@@ -578,11 +582,20 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public long getCurrentPosition() {
-    return pendingSeekPositionMs != C.TIME_UNSET
-        ? pendingSeekPositionMs
-        : remoteMediaClient != null
-            ? remoteMediaClient.getApproximateStreamPosition()
-            : lastReportedPositionMs;
+    if (pendingSeekPositionMs != C.TIME_UNSET) {
+      return pendingSeekPositionMs;
+    }
+
+    long castPosition = remoteMediaClient != null
+        ? remoteMediaClient.getApproximateStreamPosition()
+        : lastReportedPositionMs;
+
+    Timeline timeline = getCurrentTimeline();
+    if (!timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable) {
+      return castPosition - window.getPositionInFirstPeriodMs();
+    }
+
+    return castPosition;
   }
 
   @Override
@@ -676,6 +689,7 @@ public final class CastPlayer extends BasePlayer {
   /** This method is not supported and does nothing. */
   @Override
   public void setVideoTextureView(@Nullable TextureView textureView) {}
+
   /** This method is not supported and does nothing. */
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {}

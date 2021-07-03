@@ -22,10 +22,12 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.MediaQueue;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -109,7 +111,7 @@ public class CastTimelineTrackerTest {
       int[] itemIds, int currentItemId, long currentDurationMs) {
     RemoteMediaClient remoteMediaClient = Mockito.mock(RemoteMediaClient.class);
     MediaStatus status = Mockito.mock(MediaStatus.class);
-    when(status.getQueueItems()).thenReturn(Collections.emptyList());
+    when(status.getQueueItems()).thenReturn(createMediaQueueItems(itemIds));
     when(remoteMediaClient.getMediaStatus()).thenReturn(status);
     when(status.getMediaInfo()).thenReturn(getMediaInfo(currentDurationMs));
     when(status.getCurrentItemId()).thenReturn(currentItemId);
@@ -122,6 +124,16 @@ public class CastTimelineTrackerTest {
     MediaQueue mediaQueue = Mockito.mock(MediaQueue.class);
     when(mediaQueue.getItemIds()).thenReturn(itemIds);
     return mediaQueue;
+  }
+
+  private static List<MediaQueueItem> createMediaQueueItems(int[] itemIds) {
+    ArrayList<MediaQueueItem> items = new ArrayList<>(itemIds.length);
+    for (int itemId : itemIds) {
+      MediaInfo mediaInfo = new MediaInfo.Builder(String.valueOf(itemId)).build();
+      MediaQueueItem item = new MediaQueueItem.Builder(mediaInfo).setItemId(itemId).build();
+      items.add(item);
+    }
+    return items;
   }
 
   private static MediaInfo getMediaInfo(long durationMs) {
