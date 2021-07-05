@@ -1550,7 +1550,9 @@ public final class AnalyticsCollectorTest {
                     throws ExoPlaybackException {
                   // Fail when enabling the renderer. This will happen during the period transition.
                   throw createRendererException(
-                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                      new IllegalStateException(),
+                      ExoPlayerTestRunner.AUDIO_FORMAT,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED);
                 }
               }
             };
@@ -1582,7 +1584,9 @@ public final class AnalyticsCollectorTest {
                   // Fail when rendering the audio stream. This will happen during the period
                   // transition.
                   throw createRendererException(
-                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                      new IllegalStateException(),
+                      ExoPlayerTestRunner.AUDIO_FORMAT,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED);
                 }
               }
             };
@@ -1617,7 +1621,9 @@ public final class AnalyticsCollectorTest {
                   // period transition (as the first time is when enabling the stream initially).
                   if (++streamChangeCount == 2) {
                     throw createRendererException(
-                        new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                        new IllegalStateException(),
+                        ExoPlayerTestRunner.AUDIO_FORMAT,
+                        PlaybackException.ERROR_CODE_UNSPECIFIED);
                   }
                 }
               }

@@ -336,18 +336,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
    * this renderer.
    *
-   * <p>Equivalent to {@link #createRendererException(Throwable, Format, int)
-   * createRendererException(cause, format, PlaybackException.ERROR_CODE_UNSPECIFIED)}.
-   */
-  protected final ExoPlaybackException createRendererException(
-      Throwable cause, @Nullable Format format) {
-    return createRendererException(cause, format, PlaybackException.ERROR_CODE_UNSPECIFIED);
-  }
-
-  /**
-   * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
-   * this renderer.
-   *
    * @param cause The cause of the exception.
    * @param format The current format used by the renderer. May be null.
    * @param errorCode A {@link PlaybackException.ErrorCode} to identify the cause of the playback

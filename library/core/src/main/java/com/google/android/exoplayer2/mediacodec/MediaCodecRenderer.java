@@ -559,7 +559,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           try {
             mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
           } catch (MediaCryptoException e) {
-            throw createRendererException(e, inputFormat);
+            throw createRendererException(
+                e, inputFormat, PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR);
           }
           mediaCryptoRequiresSecureDecoder =
               !sessionMediaCrypto.forceAllowInsecureDecoderComponents
@@ -569,7 +570,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
-          throw createRendererException(codecDrmSession.getError(), inputFormat);
+          // TODO(internal b/184262323): Assign a proper error code, once we attach that information
+          // to DrmSessionException.
+          throw createRendererException(
+              codecDrmSession.getError(),
+              inputFormat,
+              PlaybackException.ERROR_CODE_DRM_UNSPECIFIED);
         } else if (drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS) {
           // Wait for keys.
           return;
@@ -1295,7 +1301,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           resetInputBuffer();
         }
       } catch (CryptoException e) {
-        throw createRendererException(e, inputFormat);
+        throw createRendererException(
+            e, inputFormat, C.getErrorCodeCorrespondingToPlatformDrmErrorCode(e.getErrorCode()));
       }
       return false;
     }
@@ -1365,7 +1372,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
             inputIndex, /* offset= */ 0, buffer.data.limit(), presentationTimeUs, /* flags= */ 0);
       }
     } catch (CryptoException e) {
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(
+          e, inputFormat, C.getErrorCodeCorrespondingToPlatformDrmErrorCode(e.getErrorCode()));
     }
 
     resetInputBuffer();
@@ -2151,7 +2159,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       mediaCrypto.setMediaDrmSession(getFrameworkMediaCrypto(sourceDrmSession).sessionId);
     } catch (MediaCryptoException e) {
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(e, inputFormat, PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR);
     }
     setCodecDrmSession(sourceDrmSession);
     codecDrainState = DRAIN_STATE_NONE;
@@ -2167,7 +2175,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // selection.
       throw createRendererException(
           new IllegalArgumentException("Expecting FrameworkMediaCrypto but found: " + mediaCrypto),
-          inputFormat);
+          inputFormat,
+          PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED);
     }
     return (FrameworkMediaCrypto) mediaCrypto;
   }

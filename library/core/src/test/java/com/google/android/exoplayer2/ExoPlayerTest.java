@@ -7185,7 +7185,9 @@ public final class ExoPlayerTest {
             if (audioRendererEnableCount.incrementAndGet() == 2) {
               // Fail when enabling the renderer for the second time during the playlist update.
               throw createRendererException(
-                  new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                  new IllegalStateException(),
+                  ExoPlayerTestRunner.AUDIO_FORMAT,
+                  PlaybackException.ERROR_CODE_UNSPECIFIED);
             }
           }
         };
@@ -8704,7 +8706,9 @@ public final class ExoPlayerTest {
                   // Fail when enabling the renderer. This will happen during the period
                   // transition while the reading and playing period are different.
                   throw createRendererException(
-                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                      new IllegalStateException(),
+                      ExoPlayerTestRunner.AUDIO_FORMAT,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED);
                 }
               }
             };
