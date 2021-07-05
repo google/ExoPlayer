@@ -33,11 +33,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests the {@link RtspClient} using the {@link RtspServer}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class RtspClientTest {
 
   private static final String SESSION_DESCRIPTION =

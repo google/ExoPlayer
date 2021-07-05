@@ -22,11 +22,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspSessionTiming}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class RtspSessionTimingTest {
   @Test
   public void parseTiming_withNowLiveTiming() throws Exception {

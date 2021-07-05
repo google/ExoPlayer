@@ -47,11 +47,9 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.truth.ExpectFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link SpannedSubject}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class SpannedSubjectTest {
 
   private static final String TEXT_PREFIX = "string with ";

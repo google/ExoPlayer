@@ -25,11 +25,9 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspTrackTiming}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class RtspTrackTimingTest {
   @Test
   public void parseTiming_withSeqNumberAndRtpTime() throws Exception {

@@ -28,7 +28,6 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link WebServerDispatcher}. */
 // We use the OkHttp client library for these tests because it's generally nicer to use than Java's
@@ -52,7 +51,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 // So instead we just don't test these cases that require passing header combinations that are
 // impossible with OkHttp.
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class WebServerDispatcherTest {
 
   private static int seed;

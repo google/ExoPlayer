@@ -24,11 +24,9 @@ import com.google.common.primitives.Bytes;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link TransferRtpDataChannel}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class TransferRtpDataChannelTest {
 
   private static final long POLL_TIMEOUT_MS = 8000;

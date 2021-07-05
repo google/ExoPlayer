@@ -51,11 +51,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Playback testing for RTSP. */
 @Config(sdk = 29)
-@DoNotInstrument
 @RunWith(AndroidJUnit4.class)
 public final class RtspPlaybackTest {
 

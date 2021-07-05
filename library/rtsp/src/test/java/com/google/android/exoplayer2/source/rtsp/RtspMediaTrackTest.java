@@ -32,11 +32,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspMediaTrack}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class RtspMediaTrackTest {
 
   @Test

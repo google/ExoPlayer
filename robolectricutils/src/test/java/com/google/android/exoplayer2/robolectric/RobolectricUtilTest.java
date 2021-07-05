@@ -30,11 +30,9 @@ import com.google.common.base.Supplier;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RobolectricUtil}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class RobolectricUtilTest {
   @Test
   public void createRobolectricConditionVariable_blockWithTimeout_timesOut()

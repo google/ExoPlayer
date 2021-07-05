@@ -22,11 +22,9 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link SsManifestParser}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class SsManifestParserTest {
 
   private static final String SAMPLE_ISMC_1 = "media/smooth-streaming/sample_ismc_1";

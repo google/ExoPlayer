@@ -90,11 +90,9 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link CastPlayer}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class CastPlayerTest {
 
   private CastPlayer castPlayer;

@@ -36,11 +36,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtpAc3Reader}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class RtpAc3ReaderTest {
 
   private final RtpPacket frame1fragment1 =

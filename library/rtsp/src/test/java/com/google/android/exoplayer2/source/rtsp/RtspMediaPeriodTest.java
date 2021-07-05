@@ -30,11 +30,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests the {@link RtspMediaPeriod} using the {@link RtspServer}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class RtspMediaPeriodTest {
 
   private static final long DEFAULT_TIMEOUT_MS = 8000;

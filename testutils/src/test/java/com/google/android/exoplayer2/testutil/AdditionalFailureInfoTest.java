@@ -29,11 +29,9 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link AdditionalFailureInfo}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class AdditionalFailureInfoTest {
 
   private final ExpectedException expectedException = new ExpectedException();

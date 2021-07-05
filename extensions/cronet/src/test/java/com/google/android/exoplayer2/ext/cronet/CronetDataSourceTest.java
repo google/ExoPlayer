@@ -76,12 +76,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CronetDataSource}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class CronetDataSourceTest {
 
   private static final int TEST_CONNECT_TIMEOUT_MS = 100;

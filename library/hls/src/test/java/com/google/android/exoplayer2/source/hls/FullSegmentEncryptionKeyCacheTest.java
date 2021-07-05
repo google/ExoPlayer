@@ -23,11 +23,9 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link FullSegmentEncryptionKeyCache}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class FullSegmentEncryptionKeyCacheTest {
 
   private final Uri firstUri = Uri.parse("https://www.google.com");

@@ -32,12 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link FakeClock}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class FakeClockTest {
 
   @Test

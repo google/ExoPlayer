@@ -23,11 +23,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link RtspHeaders}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class RtspHeadersTest {
 
   @Test

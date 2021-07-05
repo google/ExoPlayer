@@ -25,11 +25,9 @@ import com.google.android.exoplayer2.C;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link RtpPacket}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class RtpPacketTest {
   /*
     10.. .... = Version: RFC 1889 Version (2)

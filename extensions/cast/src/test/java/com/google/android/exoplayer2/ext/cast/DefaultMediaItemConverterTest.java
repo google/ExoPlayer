@@ -27,11 +27,9 @@ import com.google.android.gms.cast.MediaQueueItem;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Test for {@link DefaultMediaItemConverter}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DefaultMediaItemConverterTest {
 
   @Test

@@ -40,11 +40,9 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link DefaultExtractorsFactory}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DefaultHlsExtractorFactoryTest {
 
   private static final Uri URI_WITH_JPEG_EXTENSION = Uri.parse("http://path/filename.jpg");

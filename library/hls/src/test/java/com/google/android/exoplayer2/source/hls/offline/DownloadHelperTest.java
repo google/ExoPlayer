@@ -24,11 +24,9 @@ import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test to verify creation of a HLS {@link DownloadHelper}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class DownloadHelperTest {
 
   @Test

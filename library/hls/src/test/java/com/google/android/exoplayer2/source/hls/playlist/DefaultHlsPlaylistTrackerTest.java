@@ -39,11 +39,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link DefaultHlsPlaylistTracker}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DefaultHlsPlaylistTrackerTest {
 
   private static final String SAMPLE_M3U8_LIVE_MASTER = "media/m3u8/live_low_latency_master";
