@@ -30,11 +30,11 @@ import java.lang.annotation.RetentionPolicy;
  * Defines how errors encountered by loaders are handled.
  *
  * <p>A loader that can choose between one of a number of resources can exclude a resource when a
- * load error occurs. In this case, {@link #getExclusionDurationMsFor(int, LoadErrorInfo)} defines
- * whether the resource should be excluded for a given {@link FallbackType fallback type}, and if so
- * for how long. If the policy indicates that a resource should be excluded, the loader will exclude
- * it for the specified amount of time unless all of the alternatives for the given fallback type
- * are already excluded.
+ * load error occurs. In this case, {@link #getFallbackSelectionFor(FallbackOptions, LoadErrorInfo)}
+ * defines whether the resource should be excluded for a given {@link FallbackType fallback type},
+ * and if so for how long. If the policy indicates that a resource should be excluded, the loader
+ * will exclude it for the specified amount of time unless all of the alternatives for the given
+ * fallback type are already excluded.
  *
  * <p>When exclusion does not take place, {@link #getRetryDelayMsFor(LoadErrorInfo)} defines whether
  * the load is retried. An error that's not retried will always be propagated. An error that is
@@ -87,17 +87,65 @@ public interface LoadErrorHandlingPolicy {
     }
   }
 
+  /** Holds information about the available fallback options. */
+  final class FallbackOptions {
+    /** The number of total available alternative locations. */
+    public final int numberOfLocations;
+    /** The number of locations that are already excluded. */
+    public final int numberOfExcludedLocations;
+    /** The number of total available tracks. */
+    public final int numberOfTracks;
+    /** The number of tracks that are already excluded. */
+    public final int numberOfExcludedTracks;
+
+    /** Creates an instance with the given values. */
+    public FallbackOptions(
+        int numberOfLocations,
+        int numberOfExcludedLocations,
+        int numberOfTracks,
+        int numberOfExcludedTracks) {
+      this.numberOfLocations = numberOfLocations;
+      this.numberOfExcludedLocations = numberOfExcludedLocations;
+      this.numberOfTracks = numberOfTracks;
+      this.numberOfExcludedTracks = numberOfExcludedTracks;
+    }
+  }
+
+  /** The selection of a fallback option determining the fallback behaviour on load error. */
+  final class FallbackSelection {
+    /** The {@link FallbackType fallback type} to use. */
+    @FallbackType public final int type;
+    /**
+     * The exclusion duration of the {@link #type} in milliseconds, or {@link C#TIME_UNSET} to
+     * disable exclusion of any fallback type.
+     */
+    public final long exclusionDurationMs;
+
+    /** Creates an instance with the given values. */
+    public FallbackSelection(@FallbackType int type, long exclusionDurationMs) {
+      this.type = type;
+      this.exclusionDurationMs = exclusionDurationMs;
+    }
+  }
+
   /**
-   * Returns the number of milliseconds for which a resource associated to a provided load error
-   * should be excluded for a given {@link FallbackType fallback type}, or {@link C#TIME_UNSET} if
-   * the resource should not be excluded.
+   * Returns the {@link FallbackSelection fallback selection} that determines the exclusion
+   * behaviour on load error.
    *
-   * @param fallbackType The {@link FallbackType fallback type} used for exclusion.
+   * <p>If {@link FallbackSelection#exclusionDurationMs} is {@link C#TIME_UNSET}, exclusion is
+   * disabled for any fallback type, regardless of the value of the {@link FallbackSelection#type
+   * selected fallback type}.
+   *
+   * <p>If {@link FallbackSelection#type} is of a type that is not advertised as available by the
+   * {@link FallbackOptions}, exclusion is disabled for any fallback type.
+   *
+   * @param fallbackOptions The available fallback options.
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
-   * @return The exclusion duration in milliseconds, or {@link C#TIME_UNSET} if the resource should
-   *     not be excluded.
+   * @return The fallback selection indicating whether to apply exclusion, and if so for which type
+   *     and how long the resource should be excluded.
    */
-  long getExclusionDurationMsFor(@FallbackType int fallbackType, LoadErrorInfo loadErrorInfo);
+  FallbackSelection getFallbackSelectionFor(
+      FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo);
 
   /**
    * Returns the number of milliseconds to wait before attempting the load again, or {@link

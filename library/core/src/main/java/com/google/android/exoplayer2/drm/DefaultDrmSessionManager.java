@@ -383,7 +383,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         multiSession,
         /* useDrmSessionsForClearContentTrackTypes= */ new int[0],
         /* playClearSamplesWithoutKeys= */ false,
-        new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount),
+        new DefaultLoadErrorHandlingPolicy(
+            initialDrmRequestRetryCount, /* locationExclusionEnabled= */ false),
         DEFAULT_SESSION_KEEPALIVE_MS);
   }
 

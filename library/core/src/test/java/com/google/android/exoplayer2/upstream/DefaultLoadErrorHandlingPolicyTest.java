@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_LOCATION_EXCLUSION_MS;
+import static com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+import static com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS;
+import static com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION;
+import static com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -48,52 +53,214 @@ public final class DefaultLoadErrorHandlingPolicyTest {
       new MediaLoadData(/* dataType= */ C.DATA_TYPE_UNKNOWN);
 
   @Test
-  public void getExclusionDurationMsFor_responseCode403() {
+  public void getFallbackSelectionFor_responseCode403() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(403, "Forbidden");
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_TRACK_EXCLUSION_MS);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_LOCATION_EXCLUSION_MS);
   }
 
   @Test
-  public void getExclusionDurationMsFor_responseCode404() {
+  public void getFallbackSelectionFor_responseCode404() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(404, "Not found");
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_TRACK_EXCLUSION_MS);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_LOCATION_EXCLUSION_MS);
   }
 
   @Test
-  public void getExclusionDurationMsFor_responseCode410() {
+  public void getFallbackSelectionFor_responseCode410() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(410, "Gone");
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_TRACK_EXCLUSION_MS);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_LOCATION_EXCLUSION_MS);
   }
 
   @Test
-  public void getExclusionDurationMsFor_responseCode500() {
+  public void getFallbackSelectionFor_responseCode500() {
     InvalidResponseCodeException exception =
         buildInvalidResponseCodeException(500, "Internal server error");
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_TRACK_EXCLUSION_MS);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_LOCATION_EXCLUSION_MS);
   }
 
   @Test
-  public void getExclusionDurationMsFor_responseCode503() {
+  public void getFallbackSelectionFor_responseCode503() {
     InvalidResponseCodeException exception =
         buildInvalidResponseCodeException(503, "Service unavailable");
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception))
-        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_TRACK_EXCLUSION_MS);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_LOCATION_EXCLUSION_MS);
   }
 
   @Test
-  public void getExclusionDurationMsFor_dontExcludeUnexpectedHttpCodes() {
+  public void getFallbackSelectionFor_dontExcludeUnexpectedHttpCodes() {
     InvalidResponseCodeException exception = buildInvalidResponseCodeException(418, "I'm a teapot");
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs).isEqualTo(C.TIME_UNSET);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
-  public void getExclusionDurationMsFor_dontExcludeUnexpectedExceptions() {
+  public void getFallbackSelectionFor_dontExcludeUnexpectedExceptions() {
     IOException exception = new IOException();
-    assertThat(getDefaultPolicyTrackExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 1,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 10,
+            /* numberOfExcludedTracks= */ 0);
+
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs).isEqualTo(C.TIME_UNSET);
+
+    defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1);
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_LOCATION);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs).isEqualTo(C.TIME_UNSET);
+  }
+
+  @Test
+  public void getFallbackSelectionFor_disabledLocationExclusion_useTrackExclusion() {
+    InvalidResponseCodeException exception = buildInvalidResponseCodeException(404, "Not found");
+
+    LoadErrorHandlingPolicy.FallbackSelection defaultPolicyFallbackSelection =
+        getDefaultPolicyFallbackSelection(
+            exception,
+            /* numberOfLocations= */ 2,
+            /* numberOfExcludedLocations= */ 0,
+            /* numberOfTracks= */ 4,
+            /* numberOfExcludedTracks= */ 1,
+            new DefaultLoadErrorHandlingPolicy(
+                DEFAULT_MIN_LOADABLE_RETRY_COUNT, /* locationExclusionEnabled= */ false));
+    assertThat(defaultPolicyFallbackSelection.type).isEqualTo(FALLBACK_TYPE_TRACK);
+    assertThat(defaultPolicyFallbackSelection.exclusionDurationMs)
+        .isEqualTo(DEFAULT_TRACK_EXCLUSION_MS);
   }
 
   @Test
@@ -112,15 +279,38 @@ public final class DefaultLoadErrorHandlingPolicyTest {
     assertThat(getDefaultPolicyRetryDelayOutputFor(new IOException(), 9)).isEqualTo(5000);
   }
 
-  private static long getDefaultPolicyTrackExclusionDurationMsFor(IOException exception) {
+  private static LoadErrorHandlingPolicy.FallbackSelection getDefaultPolicyFallbackSelection(
+      IOException exception,
+      int numberOfLocations,
+      int numberOfExcludedLocations,
+      int numberOfTracks,
+      int numberOfExcludedTracks) {
+    return getDefaultPolicyFallbackSelection(
+        exception,
+        numberOfLocations,
+        numberOfExcludedLocations,
+        numberOfTracks,
+        numberOfExcludedTracks,
+        new DefaultLoadErrorHandlingPolicy());
+  }
+
+  private static LoadErrorHandlingPolicy.FallbackSelection getDefaultPolicyFallbackSelection(
+      IOException exception,
+      int numberOfLocations,
+      int numberOfExcludedLocations,
+      int numberOfTracks,
+      int numberOfExcludedTracks,
+      DefaultLoadErrorHandlingPolicy defaultLoadErrorHandlingPolicy) {
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(
             PLACEHOLDER_LOAD_EVENT_INFO,
             PLACEHOLDER_MEDIA_LOAD_DATA,
             exception,
             /* errorCount= */ 1);
-    return new DefaultLoadErrorHandlingPolicy()
-        .getExclusionDurationMsFor(LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
+    LoadErrorHandlingPolicy.FallbackOptions fallbackOptions =
+        new LoadErrorHandlingPolicy.FallbackOptions(
+            numberOfLocations, numberOfExcludedLocations, numberOfTracks, numberOfExcludedTracks);
+    return defaultLoadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
   }
 
   private static long getDefaultPolicyRetryDelayOutputFor(IOException exception, int errorCount) {

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -482,11 +483,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
       }
     }
-    long exclusionDurationMs =
-        loadErrorHandlingPolicy.getExclusionDurationMsFor(
-            LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
-    return exclusionDurationMs != C.TIME_UNSET
-        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
+    LoadErrorHandlingPolicy.FallbackOptions fallbackOptions = createFallbackOptions(trackSelection);
+    if (fallbackOptions.numberOfTracks - fallbackOptions.numberOfExcludedTracks <= 1) {
+      // No more alternative tracks remaining.
+      return false;
+    }
+    LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
+        loadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
+    return fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
+        && fallbackSelection.exclusionDurationMs != C.TIME_UNSET
+        && trackSelection.blacklist(
+            trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }
 
   @Override

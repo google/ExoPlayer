@@ -465,10 +465,11 @@ public final class HlsMediaPeriod
   }
 
   @Override
-  public boolean onPlaylistError(Uri url, long exclusionDurationMs) {
+  public boolean onPlaylistError(
+      Uri url, LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo, boolean forceRetry) {
     boolean exclusionSucceeded = true;
     for (HlsSampleStreamWrapper streamWrapper : sampleStreamWrappers) {
-      exclusionSucceeded &= streamWrapper.onPlaylistError(url, exclusionDurationMs);
+      exclusionSucceeded &= streamWrapper.onPlaylistError(url, loadErrorInfo, forceRetry);
     }
     callback.onContinueLoadingRequested(this);
     return exclusionSucceeded;

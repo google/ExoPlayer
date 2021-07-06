@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.source.hls.HlsChunkSource.CHUNK_PUBLICATION_STATE_PUBLISHED;
 import static com.google.android.exoplayer2.source.hls.HlsChunkSource.CHUNK_PUBLICATION_STATE_REMOVED;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -554,7 +555,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public boolean onPlaylistError(Uri playlistUrl, long exclusionDurationMs) {
+  public boolean onPlaylistError(Uri playlistUrl, LoadErrorInfo loadErrorInfo, boolean forceRetry) {
+    if (!chunkSource.obtainsChunksForPlaylist(playlistUrl)) {
+      // Return early if the chunk source doesn't deliver chunks for the failing playlist.
+      return true;
+    }
+    long exclusionDurationMs = C.TIME_UNSET;
+    if (!forceRetry) {
+      LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
+          loadErrorHandlingPolicy.getFallbackSelectionFor(
+              createFallbackOptions(chunkSource.getTrackSelection()), loadErrorInfo);
+      exclusionDurationMs =
+          fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
+              ? fallbackSelection.exclusionDurationMs
+              : C.TIME_UNSET;
+    }
     return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs);
   }
 
@@ -894,11 +909,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;
-    long exclusionDurationMs =
-        loadErrorHandlingPolicy.getExclusionDurationMsFor(
-            LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
-    if (exclusionDurationMs != C.TIME_UNSET) {
-      exclusionSucceeded = chunkSource.maybeExcludeTrack(loadable, exclusionDurationMs);
+    LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
+        loadErrorHandlingPolicy.getFallbackSelectionFor(
+            createFallbackOptions(chunkSource.getTrackSelection()), loadErrorInfo);
+    if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
+        && fallbackSelection.exclusionDurationMs != C.TIME_UNSET) {
+      exclusionSucceeded =
+          chunkSource.maybeExcludeTrack(loadable, fallbackSelection.exclusionDurationMs);
     }
 
     if (exclusionSucceeded) {

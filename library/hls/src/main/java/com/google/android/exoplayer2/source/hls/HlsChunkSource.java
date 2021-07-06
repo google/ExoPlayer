@@ -544,7 +544,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
     return exclusionDurationMs == C.TIME_UNSET
-        || trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs);
+        || (trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs)
+            && playlistTracker.excludeMediaPlaylist(playlistUrl, exclusionDurationMs));
   }
 
   /**
@@ -667,6 +668,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     return Collections.unmodifiableList(segmentBases);
+  }
+
+  /** Returns whether this chunk source obtains chunks for the playlist with the given url. */
+  public boolean obtainsChunksForPlaylist(Uri playlistUrl) {
+    return Util.contains(playlistUrls, playlistUrl);
   }
 
   // Private methods.

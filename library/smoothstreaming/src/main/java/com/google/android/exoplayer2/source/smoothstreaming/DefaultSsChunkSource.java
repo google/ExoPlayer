@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
+import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -38,6 +40,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackSelection;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -287,12 +290,14 @@ public class DefaultSsChunkSource implements SsChunkSource {
       boolean cancelable,
       LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-    long exclusionDurationMs =
-        loadErrorHandlingPolicy.getExclusionDurationMsFor(
-            LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK, loadErrorInfo);
+    FallbackSelection fallbackSelection =
+        loadErrorHandlingPolicy.getFallbackSelectionFor(
+            createFallbackOptions(trackSelection), loadErrorInfo);
     return cancelable
-        && exclusionDurationMs != C.TIME_UNSET
-        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
+        && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
+        && fallbackSelection.exclusionDurationMs != C.TIME_UNSET
+        && trackSelection.blacklist(
+            trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }
 
   @Override

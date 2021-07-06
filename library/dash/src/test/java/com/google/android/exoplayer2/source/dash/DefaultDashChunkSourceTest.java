@@ -150,11 +150,11 @@ public class DefaultDashChunkSourceTest {
     DefaultLoadErrorHandlingPolicy loadErrorHandlingPolicy =
         new DefaultLoadErrorHandlingPolicy() {
           @Override
-          public long getExclusionDurationMsFor(int fallbackType, LoadErrorInfo loadErrorInfo) {
-            // Try to exclude tracks only.
-            return fallbackType == FALLBACK_TYPE_LOCATION
-                ? C.TIME_UNSET
-                : super.getExclusionDurationMsFor(fallbackType, loadErrorInfo);
+          public FallbackSelection getFallbackSelectionFor(
+              FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
+            // Exclude tracks only.
+            return new FallbackSelection(
+                FALLBACK_TYPE_TRACK, DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
           }
         };
     int numberOfTracks = 2;
@@ -186,9 +186,10 @@ public class DefaultDashChunkSourceTest {
     DefaultLoadErrorHandlingPolicy loadErrorHandlingPolicy =
         new DefaultLoadErrorHandlingPolicy() {
           @Override
-          public long getExclusionDurationMsFor(int fallbackType, LoadErrorInfo loadErrorInfo) {
+          public FallbackSelection getFallbackSelectionFor(
+              FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
             // Never exclude, neither tracks nor locations.
-            return C.TIME_UNSET;
+            return new FallbackSelection(FALLBACK_TYPE_TRACK, C.TIME_UNSET);
           }
         };
     DashChunkSource chunkSource = createDashChunkSource(/* numberOfTracks= */ 2);
