@@ -104,8 +104,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private Commands availableCommands;
   private MediaMetadata mediaMetadata;
   private MediaMetadata playlistMetadata;
-  private long fastForwardIncrementMs;
-  private long rewindIncrementMs;
+  private long seekForwardIncrementMs;
+  private long seekBackIncrementMs;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -197,8 +197,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .addAll(
                 COMMAND_PLAY_PAUSE,
                 COMMAND_PREPARE_STOP,
-                COMMAND_SET_FAST_FORWARD_INCREMENT,
-                COMMAND_SET_REWIND_INCREMENT,
+                COMMAND_SET_SEEK_FORWARD_INCREMENT,
+                COMMAND_SET_SEEK_BACK_INCREMENT,
                 COMMAND_SET_SPEED_AND_PITCH,
                 COMMAND_SET_SHUFFLE_MODE,
                 COMMAND_SET_REPEAT_MODE,
@@ -217,8 +217,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
     playlistMetadata = MediaMetadata.EMPTY;
-    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
-    rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
+    seekForwardIncrementMs = DEFAULT_SEEK_FORWARD_INCREMENT_MS;
+    seekBackIncrementMs = DEFAULT_SEEK_BACK_INCREMENT_MS;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -720,37 +720,37 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void setFastForwardIncrement(long fastForwardIncrementMs) {
-    checkArgument(fastForwardIncrementMs > 0);
-    if (this.fastForwardIncrementMs != fastForwardIncrementMs) {
-      this.fastForwardIncrementMs = fastForwardIncrementMs;
+  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
+    checkArgument(seekForwardIncrementMs > 0);
+    if (this.seekForwardIncrementMs != seekForwardIncrementMs) {
+      this.seekForwardIncrementMs = seekForwardIncrementMs;
       listeners.queueEvent(
-          Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
-          listener -> listener.onFastForwardIncrementChanged(fastForwardIncrementMs));
+          Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+          listener -> listener.onSeekForwardIncrementChanged(seekForwardIncrementMs));
       listeners.flushEvents();
     }
   }
 
   @Override
-  public long getFastForwardIncrement() {
-    return fastForwardIncrementMs;
+  public long getSeekForwardIncrement() {
+    return seekForwardIncrementMs;
   }
 
   @Override
-  public void setRewindIncrement(long rewindIncrementMs) {
-    checkArgument(rewindIncrementMs > 0);
-    if (this.rewindIncrementMs != rewindIncrementMs) {
-      this.rewindIncrementMs = rewindIncrementMs;
+  public void setSeekBackIncrement(long seekBackIncrementMs) {
+    checkArgument(seekBackIncrementMs > 0);
+    if (this.seekBackIncrementMs != seekBackIncrementMs) {
+      this.seekBackIncrementMs = seekBackIncrementMs;
       listeners.queueEvent(
-          Player.EVENT_REWIND_INCREMENT_CHANGED,
-          listener -> listener.onRewindIncrementChanged(rewindIncrementMs));
+          Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
+          listener -> listener.onSeekBackIncrementChanged(seekBackIncrementMs));
       listeners.flushEvents();
     }
   }
 
   @Override
-  public long getRewindIncrement() {
-    return rewindIncrementMs;
+  public long getSeekBackIncrement() {
+    return seekBackIncrementMs;
   }
 
   @Override

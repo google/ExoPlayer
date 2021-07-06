@@ -324,24 +324,24 @@ public interface Player {
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
-     * Called when the value of {@link #getFastForwardIncrement()} changes.
+     * Called when the value of {@link #getSeekForwardIncrement()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param fastForwardIncrementMs The {@link #fastForward()} increment, in milliseconds.
+     * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
      */
-    default void onFastForwardIncrementChanged(@IntRange(from = 1) long fastForwardIncrementMs) {}
+    default void onSeekForwardIncrementChanged(@IntRange(from = 1) long seekForwardIncrementMs) {}
 
     /**
-     * Called when the value of {@link #getRewindIncrement()} changes.
+     * Called when the value of {@link #getSeekBackIncrement()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param rewindIncrementMs The {@link #rewind()} increment, in milliseconds.
+     * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
      */
-    default void onRewindIncrementChanged(@IntRange(from = 1) long rewindIncrementMs) {}
+    default void onSeekBackIncrementChanged(@IntRange(from = 1) long seekBackIncrementMs) {}
 
     /**
      * @deprecated Seeks are processed without delay. Listen to {@link
@@ -630,10 +630,10 @@ public interface Player {
         COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
         COMMAND_SEEK_TO_MEDIA_ITEM,
-        COMMAND_SET_FAST_FORWARD_INCREMENT,
-        COMMAND_FAST_FORWARD,
-        COMMAND_SET_REWIND_INCREMENT,
-        COMMAND_REWIND,
+        COMMAND_SET_SEEK_FORWARD_INCREMENT,
+        COMMAND_SEEK_FORWARD,
+        COMMAND_SET_SEEK_BACK_INCREMENT,
+        COMMAND_SEEK_BACK,
         COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_SET_SHUFFLE_MODE,
         COMMAND_SET_REPEAT_MODE,
@@ -886,10 +886,10 @@ public interface Player {
     default void onMetadata(Metadata metadata) {}
   }
 
-  /** The default {@link #fastForward()} increment, in milliseconds. */
-  long DEFAULT_FAST_FORWARD_INCREMENT_MS = 15_000;
-  /** The default {@link #rewind()} increment, in milliseconds. */
-  long DEFAULT_REWIND_INCREMENT_MS = 5000;
+  /** The default {@link #seekForward()} increment, in milliseconds. */
+  long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
+  /** The default {@link #seekBack()} increment, in milliseconds. */
+  long DEFAULT_SEEK_BACK_INCREMENT_MS = 5000;
 
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
@@ -1103,8 +1103,8 @@ public interface Player {
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
     EVENT_PLAYLIST_METADATA_CHANGED,
-    EVENT_FAST_FORWARD_INCREMENT_CHANGED,
-    EVENT_REWIND_INCREMENT_CHANGED
+    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+    EVENT_SEEK_BACK_INCREMENT_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1144,25 +1144,26 @@ public interface Player {
   int EVENT_MEDIA_METADATA_CHANGED = 15;
   /** {@link #getPlaylistMetadata()} changed. */
   int EVENT_PLAYLIST_METADATA_CHANGED = 16;
-  /** {@link #getFastForwardIncrement()} changed. */
-  int EVENT_FAST_FORWARD_INCREMENT_CHANGED = 17;
-  /** {@link #getRewindIncrement()} changed. */
-  int EVENT_REWIND_INCREMENT_CHANGED = 18;
+  /** {@link #getSeekForwardIncrement()} changed. */
+  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 17;
+  /** {@link #getSeekBackIncrement()} changed. */
+  int EVENT_SEEK_BACK_INCREMENT_CHANGED = 18;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
-   * #COMMAND_SET_FAST_FORWARD_INCREMENT}, {@link #COMMAND_FAST_FORWARD}, {@link
-   * #COMMAND_SET_REWIND_INCREMENT}, {@link #COMMAND_REWIND}, {@link #COMMAND_SET_SPEED_AND_PITCH},
-   * {@link #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
-   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
-   * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
-   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
-   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
+   * #COMMAND_SET_SEEK_FORWARD_INCREMENT}, {@link #COMMAND_SEEK_FORWARD}, {@link
+   * #COMMAND_SET_SEEK_BACK_INCREMENT}, {@link #COMMAND_SEEK_BACK}, {@link
+   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
+   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
+   * #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_CHANGE_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link #COMMAND_GET_VOLUME}, {@link
+   * #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link #COMMAND_SET_DEVICE_VOLUME},
+   * {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link #COMMAND_SET_VIDEO_SURFACE} or {@link
+   * #COMMAND_GET_TEXT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1175,10 +1176,10 @@ public interface Player {
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
     COMMAND_SEEK_TO_MEDIA_ITEM,
-    COMMAND_SET_FAST_FORWARD_INCREMENT,
-    COMMAND_FAST_FORWARD,
-    COMMAND_SET_REWIND_INCREMENT,
-    COMMAND_REWIND,
+    COMMAND_SET_SEEK_FORWARD_INCREMENT,
+    COMMAND_SEEK_FORWARD,
+    COMMAND_SET_SEEK_BACK_INCREMENT,
+    COMMAND_SEEK_BACK,
     COMMAND_SET_SPEED_AND_PITCH,
     COMMAND_SET_SHUFFLE_MODE,
     COMMAND_SET_REPEAT_MODE,
@@ -1211,14 +1212,14 @@ public interface Player {
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
   /** Command to seek anywhere in any window. */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 7;
-  /** Command to set the fast forward increment. */
-  int COMMAND_SET_FAST_FORWARD_INCREMENT = 8;
-  /** Command to fast forward into the current window. */
-  int COMMAND_FAST_FORWARD = 9;
-  /** Command to set the rewind increment. */
-  int COMMAND_SET_REWIND_INCREMENT = 10;
-  /** Command to rewind into the current window. */
-  int COMMAND_REWIND = 11;
+  /** Command to set the seek forward increment. */
+  int COMMAND_SET_SEEK_FORWARD_INCREMENT = 8;
+  /** Command to seek forward into the current window. */
+  int COMMAND_SEEK_FORWARD = 9;
+  /** Command to set the seek back increment. */
+  int COMMAND_SET_SEEK_BACK_INCREMENT = 10;
+  /** Command to seek back into the current window. */
+  int COMMAND_SEEK_BACK = 11;
   /** Command to set the playback speed and pitch. */
   int COMMAND_SET_SPEED_AND_PITCH = 12;
   /** Command to enable shuffling. */
@@ -1625,46 +1626,46 @@ public interface Player {
   void seekTo(int windowIndex, long positionMs);
 
   /**
-   * Sets the {@link #fastForward()} increment.
+   * Sets the {@link #seekForward()} increment.
    *
-   * @param fastForwardIncrementMs The fast forward increment, in milliseconds.
-   * @throws IllegalArgumentException If {@code fastForwardIncrementMs} is non-positive.
+   * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
    */
-  void setFastForwardIncrement(@IntRange(from = 1) long fastForwardIncrementMs);
+  void setSeekForwardIncrement(@IntRange(from = 1) long seekForwardIncrementMs);
 
   /**
-   * Returns the {@link #fastForward()} increment.
+   * Returns the {@link #seekForward()} increment.
    *
-   * <p>The default value is {@link #DEFAULT_FAST_FORWARD_INCREMENT_MS}.
+   * <p>The default value is {@link #DEFAULT_SEEK_FORWARD_INCREMENT_MS}.
    *
-   * @return The fast forward increment, in milliseconds.
-   * @see Listener#onFastForwardIncrementChanged(long)
+   * @return The seek forward increment, in milliseconds.
+   * @see Listener#onSeekForwardIncrementChanged(long)
    */
-  long getFastForwardIncrement();
+  long getSeekForwardIncrement();
 
-  /** Seeks forward in the current window by {@link #getFastForwardIncrement()} milliseconds. */
-  void fastForward();
+  /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
+  void seekForward();
 
   /**
-   * Sets the {@link #rewind()} increment.
+   * Sets the {@link #seekBack()} increment.
    *
-   * @param rewindIncrementMs The rewind increment, in milliseconds.
-   * @throws IllegalArgumentException If {@code rewindIncrementMs} is non-positive.
+   * @param seekBackIncrementMs The seek back increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
    */
-  void setRewindIncrement(@IntRange(from = 1) long rewindIncrementMs);
+  void setSeekBackIncrement(@IntRange(from = 1) long seekBackIncrementMs);
 
   /**
-   * Returns the {@link #rewind()} increment.
+   * Returns the {@link #seekBack()} increment.
    *
-   * <p>The default value is {@link #DEFAULT_REWIND_INCREMENT_MS}.
+   * <p>The default value is {@link #DEFAULT_SEEK_BACK_INCREMENT_MS}.
    *
-   * @return The rewind increment, in milliseconds.
-   * @see Listener#onRewindIncrementChanged(long)
+   * @return The seek back increment, in milliseconds.
+   * @see Listener#onSeekBackIncrementChanged(long)
    */
-  long getRewindIncrement();
+  long getSeekBackIncrement();
 
-  /** Seeks back in the current window by {@link #getRewindIncrement()} milliseconds. */
-  void rewind();
+  /** Seeks back in the current window by {@link #getSeekBackIncrement()} milliseconds. */
+  void seekBack();
 
   /**
    * Returns whether a previous window exists, which may depend on the current repeat mode and

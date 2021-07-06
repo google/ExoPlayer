@@ -1563,27 +1563,27 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setFastForwardIncrement(long fastForwardIncrementMs) {
+  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
     verifyApplicationThread();
-    player.setFastForwardIncrement(fastForwardIncrementMs);
+    player.setSeekForwardIncrement(seekForwardIncrementMs);
   }
 
   @Override
-  public long getFastForwardIncrement() {
+  public long getSeekForwardIncrement() {
     verifyApplicationThread();
-    return player.getFastForwardIncrement();
+    return player.getSeekForwardIncrement();
   }
 
   @Override
-  public void setRewindIncrement(long rewindIncrementMs) {
+  public void setSeekBackIncrement(long seekBackIncrementMs) {
     verifyApplicationThread();
-    player.setRewindIncrement(rewindIncrementMs);
+    player.setSeekBackIncrement(seekBackIncrementMs);
   }
 
   @Override
-  public long getRewindIncrement() {
+  public long getSeekBackIncrement() {
     verifyApplicationThread();
-    return player.getRewindIncrement();
+    return player.getSeekBackIncrement();
   }
 
   @Override

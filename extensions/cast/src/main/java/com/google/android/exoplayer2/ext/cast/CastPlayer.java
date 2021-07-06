@@ -94,8 +94,8 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_PREPARE_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_MEDIA_ITEM,
-              COMMAND_SET_FAST_FORWARD_INCREMENT,
-              COMMAND_SET_REWIND_INCREMENT,
+              COMMAND_SET_SEEK_FORWARD_INCREMENT,
+              COMMAND_SET_SEEK_BACK_INCREMENT,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
               COMMAND_GET_MEDIA_ITEMS,
@@ -144,8 +144,8 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
-  private long fastForwardIncrementMs;
-  private long rewindIncrementMs;
+  private long seekForwardIncrementMs;
+  private long seekBackIncrementMs;
 
   /**
    * Creates a new cast player that uses a {@link DefaultMediaItemConverter}.
@@ -183,8 +183,8 @@ public final class CastPlayer extends BasePlayer {
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
-    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_INCREMENT_MS;
-    rewindIncrementMs = DEFAULT_REWIND_INCREMENT_MS;
+    seekForwardIncrementMs = DEFAULT_SEEK_FORWARD_INCREMENT_MS;
+    seekBackIncrementMs = DEFAULT_SEEK_BACK_INCREMENT_MS;
 
     SessionManager sessionManager = castContext.getSessionManager();
     sessionManager.addSessionManagerListener(statusListener, CastSession.class);
@@ -419,37 +419,37 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public void setFastForwardIncrement(long fastForwardIncrementMs) {
-    checkArgument(fastForwardIncrementMs > 0);
-    if (this.fastForwardIncrementMs != fastForwardIncrementMs) {
-      this.fastForwardIncrementMs = fastForwardIncrementMs;
+  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
+    checkArgument(seekForwardIncrementMs > 0);
+    if (this.seekForwardIncrementMs != seekForwardIncrementMs) {
+      this.seekForwardIncrementMs = seekForwardIncrementMs;
       listeners.queueEvent(
-          Player.EVENT_FAST_FORWARD_INCREMENT_CHANGED,
-          listener -> listener.onFastForwardIncrementChanged(fastForwardIncrementMs));
+          Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+          listener -> listener.onSeekForwardIncrementChanged(seekForwardIncrementMs));
       listeners.flushEvents();
     }
   }
 
   @Override
-  public long getFastForwardIncrement() {
-    return fastForwardIncrementMs;
+  public long getSeekForwardIncrement() {
+    return seekForwardIncrementMs;
   }
 
   @Override
-  public void setRewindIncrement(long rewindIncrementMs) {
-    checkArgument(rewindIncrementMs > 0);
-    if (this.rewindIncrementMs != rewindIncrementMs) {
-      this.rewindIncrementMs = rewindIncrementMs;
+  public void setSeekBackIncrement(long seekBackIncrementMs) {
+    checkArgument(seekBackIncrementMs > 0);
+    if (this.seekBackIncrementMs != seekBackIncrementMs) {
+      this.seekBackIncrementMs = seekBackIncrementMs;
       listeners.queueEvent(
-          Player.EVENT_REWIND_INCREMENT_CHANGED,
-          listener -> listener.onRewindIncrementChanged(rewindIncrementMs));
+          Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
+          listener -> listener.onSeekBackIncrementChanged(seekBackIncrementMs));
       listeners.flushEvents();
     }
   }
 
   @Override
-  public long getRewindIncrement() {
-    return rewindIncrementMs;
+  public long getSeekBackIncrement() {
+    return seekBackIncrementMs;
   }
 
   @Override

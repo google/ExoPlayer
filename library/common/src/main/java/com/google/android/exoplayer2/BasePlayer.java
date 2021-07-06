@@ -122,13 +122,13 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public final void fastForward() {
-    seekToOffset(getFastForwardIncrement());
+  public final void seekForward() {
+    seekToOffset(getSeekForwardIncrement());
   }
 
   @Override
-  public final void rewind() {
-    seekToOffset(-getRewindIncrement());
+  public final void seekBack() {
+    seekToOffset(-getSeekBackIncrement());
   }
 
   @Override
@@ -267,8 +267,8 @@ public abstract class BasePlayer implements Player {
         .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
-        .addIf(COMMAND_FAST_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
-        .addIf(COMMAND_REWIND, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())
         .build();
   }
 

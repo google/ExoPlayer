@@ -248,33 +248,33 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void setFastForwardIncrement(long fastForwardIncrementMs) {
-    player.setFastForwardIncrement(fastForwardIncrementMs);
+  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
+    player.setSeekForwardIncrement(seekForwardIncrementMs);
   }
 
   @Override
-  public long getFastForwardIncrement() {
-    return player.getFastForwardIncrement();
+  public long getSeekForwardIncrement() {
+    return player.getSeekForwardIncrement();
   }
 
   @Override
-  public void fastForward() {
-    player.fastForward();
+  public void seekForward() {
+    player.seekForward();
   }
 
   @Override
-  public void setRewindIncrement(long rewindIncrementMs) {
-    player.setRewindIncrement(rewindIncrementMs);
+  public void setSeekBackIncrement(long seekBackIncrementMs) {
+    player.setSeekBackIncrement(seekBackIncrementMs);
   }
 
   @Override
-  public long getRewindIncrement() {
-    return player.getRewindIncrement();
+  public long getSeekBackIncrement() {
+    return player.getSeekBackIncrement();
   }
 
   @Override
-  public void rewind() {
-    player.rewind();
+  public void seekBack() {
+    player.seekBack();
   }
 
   @Override
@@ -707,13 +707,13 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onFastForwardIncrementChanged(long fastForwardIncrementMs) {
-      eventListener.onFastForwardIncrementChanged(fastForwardIncrementMs);
+    public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
+      eventListener.onSeekForwardIncrementChanged(seekForwardIncrementMs);
     }
 
     @Override
-    public void onRewindIncrementChanged(long rewindIncrementMs) {
-      eventListener.onRewindIncrementChanged(rewindIncrementMs);
+    public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
+      eventListener.onSeekBackIncrementChanged(seekBackIncrementMs);
     }
 
     @Override
