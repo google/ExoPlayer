@@ -3120,10 +3120,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     @DoNotInline
+    @ErrorCode
     public static int mediaDrmStateExceptionToErrorCode(Throwable throwable) {
       @Nullable
       String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
-      return Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);
+      int drmErrorCode = Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);
+      return C.getErrorCodeForMediaDrmErrorCode(drmErrorCode);
     }
   }
 

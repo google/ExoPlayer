@@ -1116,7 +1116,7 @@ public final class C {
   private static final int ERROR_PROVISIONING_RETRY = 28;
 
   @PlaybackException.ErrorCode
-  public static int getErrorCodeCorrespondingToPlatformDrmErrorCode(int mediaDrmErrorCode) {
+  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
     switch (mediaDrmErrorCode) {
       case ERROR_PROVISIONING_CONFIG:
       case ERROR_PROVISIONING_PARSE:
