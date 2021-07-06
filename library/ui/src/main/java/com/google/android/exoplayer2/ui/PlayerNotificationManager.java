@@ -176,6 +176,7 @@ public class PlayerNotificationManager {
      * <p>See {@link NotificationCompat.Builder#setContentTitle(CharSequence)}.
      *
      * @param player The {@link Player} for which a notification is being built.
+     * @return The content title for the current media item.
      */
     CharSequence getCurrentContentTitle(Player player);
 
@@ -185,6 +186,7 @@ public class PlayerNotificationManager {
      * <p>See {@link NotificationCompat.Builder#setContentIntent(PendingIntent)}.
      *
      * @param player The {@link Player} for which a notification is being built.
+     * @return The content intent for the current media item, or null if no intent should be fired.
      */
     @Nullable
     PendingIntent createCurrentContentIntent(Player player);
@@ -195,6 +197,8 @@ public class PlayerNotificationManager {
      * <p>See {@link NotificationCompat.Builder#setContentText(CharSequence)}.
      *
      * @param player The {@link Player} for which a notification is being built.
+     * @return The content text for the current media item, or null if no context text should be
+     *     displayed.
      */
     @Nullable
     CharSequence getCurrentContentText(Player player);
@@ -205,6 +209,8 @@ public class PlayerNotificationManager {
      * <p>See {@link NotificationCompat.Builder#setSubText(CharSequence)}.
      *
      * @param player The {@link Player} for which a notification is being built.
+     * @return The content subtext for the current media item, or null if no subtext should be
+     *     displayed.
      */
     @Nullable
     default CharSequence getCurrentSubText(Player player) {
@@ -223,6 +229,8 @@ public class PlayerNotificationManager {
      *
      * @param player The {@link Player} for which a notification is being built.
      * @param callback A {@link BitmapCallback} to provide a {@link Bitmap} asynchronously.
+     * @return The large icon for the current media item, or null if the icon will be returned
+     *     through the {@link BitmapCallback} or if no icon should displayed.
      */
     @Nullable
     Bitmap getCurrentLargeIcon(Player player, BitmapCallback callback);
