@@ -182,7 +182,12 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_DRM_SCHEME_UNSUPPORTED = 6001;
   /** Caused by a failure while provisioning the device. */
   public static final int ERROR_CODE_DRM_PROVISIONING_FAILED = 6002;
-  /** Caused by attempting to play incompatible DRM-protected content. */
+  /**
+   * Caused by attempting to play incompatible DRM-protected content.
+   *
+   * <p>For example, this can happen when attempting to play a DRM protected stream using a scheme
+   * (like Widevine) for which there is no corresponding license acquisition data (like a pssh box).
+   */
   public static final int ERROR_CODE_DRM_CONTENT_ERROR = 6003;
   /** Caused by a failure while trying to obtain a license. */
   public static final int ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED = 6004;
