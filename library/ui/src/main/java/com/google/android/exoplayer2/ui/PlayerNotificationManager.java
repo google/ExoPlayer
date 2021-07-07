@@ -230,7 +230,7 @@ public class PlayerNotificationManager {
      * @param player The {@link Player} for which a notification is being built.
      * @param callback A {@link BitmapCallback} to provide a {@link Bitmap} asynchronously.
      * @return The large icon for the current media item, or null if the icon will be returned
-     *     through the {@link BitmapCallback} or if no icon should displayed.
+     *     through the {@link BitmapCallback} or if no icon should be displayed.
      */
     @Nullable
     Bitmap getCurrentLargeIcon(Player player, BitmapCallback callback);
