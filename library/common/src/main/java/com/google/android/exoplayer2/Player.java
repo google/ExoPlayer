@@ -630,9 +630,7 @@ public interface Player {
         COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
         COMMAND_SEEK_TO_MEDIA_ITEM,
-        COMMAND_SET_SEEK_FORWARD_INCREMENT,
         COMMAND_SEEK_FORWARD,
-        COMMAND_SET_SEEK_BACK_INCREMENT,
         COMMAND_SEEK_BACK,
         COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_SET_SHUFFLE_MODE,
@@ -885,11 +883,6 @@ public interface Player {
     @Override
     default void onMetadata(Metadata metadata) {}
   }
-
-  /** The default {@link #seekForward()} increment, in milliseconds. */
-  long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
-  /** The default {@link #seekBack()} increment, in milliseconds. */
-  long DEFAULT_SEEK_BACK_INCREMENT_MS = 5000;
 
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
@@ -1154,16 +1147,14 @@ public interface Player {
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
-   * #COMMAND_SET_SEEK_FORWARD_INCREMENT}, {@link #COMMAND_SEEK_FORWARD}, {@link
-   * #COMMAND_SET_SEEK_BACK_INCREMENT}, {@link #COMMAND_SEEK_BACK}, {@link
-   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
-   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
-   * #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_CHANGE_MEDIA_ITEMS}, {@link
-   * #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link #COMMAND_GET_VOLUME}, {@link
-   * #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link #COMMAND_SET_DEVICE_VOLUME},
-   * {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link #COMMAND_SET_VIDEO_SURFACE} or {@link
-   * #COMMAND_GET_TEXT}.
+   * #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SEEK_BACK}, {@link #COMMAND_SET_SPEED_AND_PITCH},
+   * {@link #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
+   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
+   * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
+   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
+   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
+   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1176,9 +1167,7 @@ public interface Player {
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
     COMMAND_SEEK_TO_MEDIA_ITEM,
-    COMMAND_SET_SEEK_FORWARD_INCREMENT,
     COMMAND_SEEK_FORWARD,
-    COMMAND_SET_SEEK_BACK_INCREMENT,
     COMMAND_SEEK_BACK,
     COMMAND_SET_SPEED_AND_PITCH,
     COMMAND_SET_SHUFFLE_MODE,
@@ -1212,46 +1201,42 @@ public interface Player {
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
   /** Command to seek anywhere in any window. */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 7;
-  /** Command to set the seek forward increment. */
-  int COMMAND_SET_SEEK_FORWARD_INCREMENT = 8;
   /** Command to seek forward into the current window. */
-  int COMMAND_SEEK_FORWARD = 9;
-  /** Command to set the seek back increment. */
-  int COMMAND_SET_SEEK_BACK_INCREMENT = 10;
+  int COMMAND_SEEK_FORWARD = 8;
   /** Command to seek back into the current window. */
-  int COMMAND_SEEK_BACK = 11;
+  int COMMAND_SEEK_BACK = 9;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 12;
+  int COMMAND_SET_SPEED_AND_PITCH = 10;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 13;
+  int COMMAND_SET_SHUFFLE_MODE = 11;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 14;
+  int COMMAND_SET_REPEAT_MODE = 12;
   /** Command to get the {@link MediaItem} of the current window. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 15;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 13;
   /** Command to get the current timeline and its {@link MediaItem MediaItems}. */
-  int COMMAND_GET_MEDIA_ITEMS = 16;
+  int COMMAND_GET_MEDIA_ITEMS = 14;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 17;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 15;
   /** Command to set the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_SET_MEDIA_ITEMS_METADATA = 18;
+  int COMMAND_SET_MEDIA_ITEMS_METADATA = 16;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 19;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 17;
   /** Command to get the player current {@link AudioAttributes}. */
-  int COMMAND_GET_AUDIO_ATTRIBUTES = 20;
+  int COMMAND_GET_AUDIO_ATTRIBUTES = 18;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 21;
+  int COMMAND_GET_VOLUME = 19;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 22;
+  int COMMAND_GET_DEVICE_VOLUME = 20;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 23;
+  int COMMAND_SET_VOLUME = 21;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 24;
+  int COMMAND_SET_DEVICE_VOLUME = 22;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 25;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 23;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 26;
+  int COMMAND_SET_VIDEO_SURFACE = 24;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 27;
+  int COMMAND_GET_TEXT = 25;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -1626,17 +1611,7 @@ public interface Player {
   void seekTo(int windowIndex, long positionMs);
 
   /**
-   * Sets the {@link #seekForward()} increment.
-   *
-   * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
-   * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
-   */
-  void setSeekForwardIncrement(@IntRange(from = 1) long seekForwardIncrementMs);
-
-  /**
    * Returns the {@link #seekForward()} increment.
-   *
-   * <p>The default value is {@link #DEFAULT_SEEK_FORWARD_INCREMENT_MS}.
    *
    * @return The seek forward increment, in milliseconds.
    * @see Listener#onSeekForwardIncrementChanged(long)
@@ -1647,17 +1622,7 @@ public interface Player {
   void seekForward();
 
   /**
-   * Sets the {@link #seekBack()} increment.
-   *
-   * @param seekBackIncrementMs The seek back increment, in milliseconds.
-   * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
-   */
-  void setSeekBackIncrement(@IntRange(from = 1) long seekBackIncrementMs);
-
-  /**
    * Returns the {@link #seekBack()} increment.
-   *
-   * <p>The default value is {@link #DEFAULT_SEEK_BACK_INCREMENT_MS}.
    *
    * @return The seek back increment, in milliseconds.
    * @see Listener#onSeekBackIncrementChanged(long)

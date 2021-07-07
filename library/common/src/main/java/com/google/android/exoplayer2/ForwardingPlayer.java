@@ -248,11 +248,6 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
-    player.setSeekForwardIncrement(seekForwardIncrementMs);
-  }
-
-  @Override
   public long getSeekForwardIncrement() {
     return player.getSeekForwardIncrement();
   }
@@ -260,11 +255,6 @@ public class ForwardingPlayer implements Player {
   @Override
   public void seekForward() {
     player.seekForward();
-  }
-
-  @Override
-  public void setSeekBackIncrement(long seekBackIncrementMs) {
-    player.setSeekBackIncrement(seekBackIncrementMs);
   }
 
   @Override

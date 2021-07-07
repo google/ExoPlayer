@@ -646,6 +646,11 @@ public final class C {
   /** A default size in bytes for an individual allocation that forms part of a larger buffer. */
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
+  /** A default seek forward increment, in milliseconds. */
+  public static final long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
+  /** A default seek back increment, in milliseconds. */
+  public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5000;
+
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")
   public static final String CENC_TYPE_cenc = "cenc";

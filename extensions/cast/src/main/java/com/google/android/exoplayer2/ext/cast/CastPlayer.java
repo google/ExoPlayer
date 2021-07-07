@@ -94,8 +94,6 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_PREPARE_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_MEDIA_ITEM,
-              COMMAND_SET_SEEK_FORWARD_INCREMENT,
-              COMMAND_SET_SEEK_BACK_INCREMENT,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
               COMMAND_GET_MEDIA_ITEMS,
@@ -117,6 +115,8 @@ public final class CastPlayer extends BasePlayer {
 
   private final CastContext castContext;
   private final MediaItemConverter mediaItemConverter;
+  private final long seekForwardIncrementMs;
+  private final long seekBackIncrementMs;
   // TODO: Allow custom implementations of CastTimelineTracker.
   private final CastTimelineTracker timelineTracker;
   private final Timeline.Period period;
@@ -144,11 +144,15 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
-  private long seekForwardIncrementMs;
-  private long seekBackIncrementMs;
 
   /**
-   * Creates a new cast player that uses a {@link DefaultMediaItemConverter}.
+   * Creates a new cast player.
+   *
+   * <p>The returned player uses a {@link DefaultMediaItemConverter} and
+   *
+   * <p>{@code mediaItemConverter} is set to a {@link DefaultMediaItemConverter}, {@code
+   * seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS} and {@code
+   * seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}.
    *
    * @param castContext The context from which the cast session is obtained.
    */
@@ -159,12 +163,40 @@ public final class CastPlayer extends BasePlayer {
   /**
    * Creates a new cast player.
    *
+   * <p>{@code seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS} and
+   * {@code seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}.
+   *
    * @param castContext The context from which the cast session is obtained.
    * @param mediaItemConverter The {@link MediaItemConverter} to use.
    */
   public CastPlayer(CastContext castContext, MediaItemConverter mediaItemConverter) {
+    this(
+        castContext,
+        mediaItemConverter,
+        C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
+        C.DEFAULT_SEEK_BACK_INCREMENT_MS);
+  }
+
+  /**
+   * Creates a new cast player.
+   *
+   * @param castContext The context from which the cast session is obtained.
+   * @param mediaItemConverter The {@link MediaItemConverter} to use.
+   * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
+   * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code seekForwardIncrementMs} or {@code
+   *     seekBackIncrementMs} is non-positive.
+   */
+  public CastPlayer(
+      CastContext castContext,
+      MediaItemConverter mediaItemConverter,
+      long seekForwardIncrementMs,
+      long seekBackIncrementMs) {
+    checkArgument(seekForwardIncrementMs > 0 && seekBackIncrementMs > 0);
     this.castContext = castContext;
     this.mediaItemConverter = mediaItemConverter;
+    this.seekForwardIncrementMs = seekForwardIncrementMs;
+    this.seekBackIncrementMs = seekBackIncrementMs;
     timelineTracker = new CastTimelineTracker();
     period = new Timeline.Period();
     statusListener = new StatusListener();
@@ -183,8 +215,6 @@ public final class CastPlayer extends BasePlayer {
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
-    seekForwardIncrementMs = DEFAULT_SEEK_FORWARD_INCREMENT_MS;
-    seekBackIncrementMs = DEFAULT_SEEK_BACK_INCREMENT_MS;
 
     SessionManager sessionManager = castContext.getSessionManager();
     sessionManager.addSessionManagerListener(statusListener, CastSession.class);
@@ -419,32 +449,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
-    checkArgument(seekForwardIncrementMs > 0);
-    if (this.seekForwardIncrementMs != seekForwardIncrementMs) {
-      this.seekForwardIncrementMs = seekForwardIncrementMs;
-      listeners.queueEvent(
-          Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
-          listener -> listener.onSeekForwardIncrementChanged(seekForwardIncrementMs));
-      listeners.flushEvents();
-    }
-  }
-
-  @Override
   public long getSeekForwardIncrement() {
     return seekForwardIncrementMs;
-  }
-
-  @Override
-  public void setSeekBackIncrement(long seekBackIncrementMs) {
-    checkArgument(seekBackIncrementMs > 0);
-    if (this.seekBackIncrementMs != seekBackIncrementMs) {
-      this.seekBackIncrementMs = seekBackIncrementMs;
-      listeners.queueEvent(
-          Player.EVENT_SEEK_BACK_INCREMENT_CHANGED,
-          listener -> listener.onSeekBackIncrementChanged(seekBackIncrementMs));
-      listeners.flushEvents();
-    }
   }
 
   @Override

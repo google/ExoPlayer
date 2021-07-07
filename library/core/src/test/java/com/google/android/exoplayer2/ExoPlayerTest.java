@@ -36,14 +36,10 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDI
 import static com.google.android.exoplayer2.Player.COMMAND_SET_DEVICE_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
-import static com.google.android.exoplayer2.Player.COMMAND_SET_SEEK_BACK_INCREMENT;
-import static com.google.android.exoplayer2.Player.COMMAND_SET_SEEK_FORWARD_INCREMENT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
-import static com.google.android.exoplayer2.Player.DEFAULT_SEEK_BACK_INCREMENT_MS;
-import static com.google.android.exoplayer2.Player.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
 import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
@@ -8171,9 +8167,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_SET_SEEK_FORWARD_INCREMENT)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
-    assertThat(player.isCommandAvailable(COMMAND_SET_SEEK_BACK_INCREMENT)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isTrue();
@@ -10398,19 +10392,6 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setSeekForwardIncrement_notifiesSeekForwardIncrementChanged() {
-    ExoPlayer player = new TestExoPlayerBuilder(context).build();
-    Player.Listener listener = mock(Player.Listener.class);
-    player.addListener(listener);
-    long seekForwardIncrementMs = 1000;
-
-    player.setSeekForwardIncrement(seekForwardIncrementMs);
-
-    verify(listener).onSeekForwardIncrementChanged(seekForwardIncrementMs);
-    assertThat(player.getSeekForwardIncrement()).isEqualTo(seekForwardIncrementMs);
-  }
-
-  @Test
   public void seekForward_callsOnPositionDiscontinuity() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     Player.Listener listener = mock(Player.Listener.class);
@@ -10420,7 +10401,7 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true,
                 /* isDynamic= */ true,
-                /* durationUs= */ C.msToUs(2 * DEFAULT_SEEK_FORWARD_INCREMENT_MS)));
+                /* durationUs= */ C.msToUs(2 * C.DEFAULT_SEEK_FORWARD_INCREMENT_MS)));
     player.setMediaSource(new FakeMediaSource(fakeTimeline));
 
     player.prepare();
@@ -10442,8 +10423,9 @@ public final class ExoPlayerTest {
     assertThat(oldPositions.get(0).positionMs).isEqualTo(0);
     assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
     assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
-    assertThat(newPositions.get(0).positionMs).isEqualTo(DEFAULT_SEEK_FORWARD_INCREMENT_MS);
-    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(DEFAULT_SEEK_FORWARD_INCREMENT_MS);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
+    assertThat(newPositions.get(0).contentPositionMs)
+        .isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
 
     player.release();
   }
@@ -10456,29 +10438,16 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true,
                 /* isDynamic= */ true,
-                /* durationUs= */ C.msToUs(DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2)));
+                /* durationUs= */ C.msToUs(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2)));
     player.setMediaSource(new FakeMediaSource(fakeTimeline));
 
     player.prepare();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
     player.seekForward();
 
-    assertThat(player.getCurrentPosition()).isEqualTo(DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2);
+    assertThat(player.getCurrentPosition()).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2);
 
     player.release();
-  }
-
-  @Test
-  public void setSeekBackIncrement_notifiesSeekBackIncrementChanged() {
-    ExoPlayer player = new TestExoPlayerBuilder(context).build();
-    Player.Listener listener = mock(Player.Listener.class);
-    player.addListener(listener);
-    long seekBackIncrementMs = 1000;
-
-    player.setSeekBackIncrement(seekBackIncrementMs);
-
-    verify(listener).onSeekBackIncrementChanged(seekBackIncrementMs);
-    assertThat(player.getSeekBackIncrement()).isEqualTo(seekBackIncrementMs);
   }
 
   @Test
@@ -10491,12 +10460,12 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true,
                 /* isDynamic= */ true,
-                /* durationUs= */ C.msToUs(3 * DEFAULT_SEEK_BACK_INCREMENT_MS)));
+                /* durationUs= */ C.msToUs(3 * C.DEFAULT_SEEK_BACK_INCREMENT_MS)));
     player.setMediaSource(new FakeMediaSource(fakeTimeline));
 
     player.prepare();
     TestPlayerRunHelper.playUntilPosition(
-        player, /* windowIndex= */ 0, /* positionMs= */ 2 * DEFAULT_SEEK_BACK_INCREMENT_MS);
+        player, /* windowIndex= */ 0, /* positionMs= */ 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS);
     player.seekBack();
 
     ArgumentCaptor<Player.PositionInfo> oldPosition =
@@ -10514,16 +10483,18 @@ public final class ExoPlayerTest {
     assertThat(oldPositions.get(0).positionMs)
         .isIn(
             Range.closed(
-                2 * DEFAULT_SEEK_BACK_INCREMENT_MS - 20, 2 * DEFAULT_SEEK_BACK_INCREMENT_MS));
+                2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS - 20, 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS));
     assertThat(oldPositions.get(0).contentPositionMs)
         .isIn(
             Range.closed(
-                2 * DEFAULT_SEEK_BACK_INCREMENT_MS - 20, 2 * DEFAULT_SEEK_BACK_INCREMENT_MS));
+                2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS - 20, 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS));
     assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs)
-        .isIn(Range.closed(DEFAULT_SEEK_BACK_INCREMENT_MS - 20, DEFAULT_SEEK_BACK_INCREMENT_MS));
+        .isIn(
+            Range.closed(C.DEFAULT_SEEK_BACK_INCREMENT_MS - 20, C.DEFAULT_SEEK_BACK_INCREMENT_MS));
     assertThat(newPositions.get(0).contentPositionMs)
-        .isIn(Range.closed(DEFAULT_SEEK_BACK_INCREMENT_MS - 20, DEFAULT_SEEK_BACK_INCREMENT_MS));
+        .isIn(
+            Range.closed(C.DEFAULT_SEEK_BACK_INCREMENT_MS - 20, C.DEFAULT_SEEK_BACK_INCREMENT_MS));
 
     player.release();
   }
@@ -10536,12 +10507,12 @@ public final class ExoPlayerTest {
             new TimelineWindowDefinition(
                 /* isSeekable= */ true,
                 /* isDynamic= */ true,
-                /* durationUs= */ C.msToUs(DEFAULT_SEEK_BACK_INCREMENT_MS)));
+                /* durationUs= */ C.msToUs(C.DEFAULT_SEEK_BACK_INCREMENT_MS)));
     player.setMediaSource(new FakeMediaSource(fakeTimeline));
 
     player.prepare();
     TestPlayerRunHelper.playUntilPosition(
-        player, /* windowIndex= */ 0, /* positionMs= */ DEFAULT_SEEK_BACK_INCREMENT_MS / 2);
+        player, /* windowIndex= */ 0, /* positionMs= */ C.DEFAULT_SEEK_BACK_INCREMENT_MS / 2);
     player.seekBack();
 
     assertThat(player.getCurrentPosition()).isEqualTo(0);
@@ -10773,8 +10744,6 @@ public final class ExoPlayerTest {
     builder.addAll(
         COMMAND_PLAY_PAUSE,
         COMMAND_PREPARE_STOP,
-        COMMAND_SET_SEEK_FORWARD_INCREMENT,
-        COMMAND_SET_SEEK_BACK_INCREMENT,
         COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_SET_SHUFFLE_MODE,
         COMMAND_SET_REPEAT_MODE,

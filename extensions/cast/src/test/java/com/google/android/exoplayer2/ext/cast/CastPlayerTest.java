@@ -36,14 +36,10 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDI
 import static com.google.android.exoplayer2.Player.COMMAND_SET_DEVICE_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
-import static com.google.android.exoplayer2.Player.COMMAND_SET_SEEK_BACK_INCREMENT;
-import static com.google.android.exoplayer2.Player.COMMAND_SET_SEEK_FORWARD_INCREMENT;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
-import static com.google.android.exoplayer2.Player.DEFAULT_SEEK_BACK_INCREMENT_MS;
-import static com.google.android.exoplayer2.Player.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_REMOVE;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
 import static com.google.common.truth.Truth.assertThat;
@@ -1107,16 +1103,6 @@ public class CastPlayerTest {
   }
 
   @Test
-  public void setSeekForwardIncrement_notifiesSeekForwardIncrementChanged() {
-    long seekForwardIncrementMs = 1000;
-
-    castPlayer.setSeekForwardIncrement(seekForwardIncrementMs);
-
-    verify(mockListener).onSeekForwardIncrementChanged(seekForwardIncrementMs);
-    assertThat(castPlayer.getSeekForwardIncrement()).isEqualTo(seekForwardIncrementMs);
-  }
-
-  @Test
   @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
   public void seekForward_notifiesPositionDiscontinuity() {
     when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
@@ -1124,7 +1110,7 @@ public class CastPlayerTest {
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
     int currentItemId = 1;
     int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
-    long[] durationsMs = new long[] {2 * DEFAULT_SEEK_FORWARD_INCREMENT_MS};
+    long[] durationsMs = new long[] {2 * C.DEFAULT_SEEK_FORWARD_INCREMENT_MS};
     long positionMs = 0;
 
     castPlayer.addMediaItems(mediaItems);
@@ -1148,8 +1134,8 @@ public class CastPlayerTest {
             /* windowIndex= */ 0,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
-            /* positionMs= */ DEFAULT_SEEK_FORWARD_INCREMENT_MS,
-            /* contentPositionMs= */ DEFAULT_SEEK_FORWARD_INCREMENT_MS,
+            /* positionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
+            /* contentPositionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
             /* adGroupIndex= */ C.INDEX_UNSET,
             /* adIndexInAdGroup= */ C.INDEX_UNSET);
     InOrder inOrder = Mockito.inOrder(mockListener);
@@ -1163,16 +1149,6 @@ public class CastPlayerTest {
   }
 
   @Test
-  public void setSeekBackIncrement_notifiesSeekBackIncrementChanged() {
-    long seekBackIncrementMs = 1000;
-
-    castPlayer.setSeekBackIncrement(seekBackIncrementMs);
-
-    verify(mockListener).onSeekBackIncrementChanged(seekBackIncrementMs);
-    assertThat(castPlayer.getSeekBackIncrement()).isEqualTo(seekBackIncrementMs);
-  }
-
-  @Test
   @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
   public void seekBack_notifiesPositionDiscontinuity() {
     when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
@@ -1180,8 +1156,8 @@ public class CastPlayerTest {
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
     int currentItemId = 1;
     int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
-    long[] durationsMs = new long[] {3 * DEFAULT_SEEK_BACK_INCREMENT_MS};
-    long positionMs = 2 * DEFAULT_SEEK_BACK_INCREMENT_MS;
+    long[] durationsMs = new long[] {3 * C.DEFAULT_SEEK_BACK_INCREMENT_MS};
+    long positionMs = 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS;
 
     castPlayer.addMediaItems(mediaItems);
     updateTimeLine(
@@ -1194,8 +1170,8 @@ public class CastPlayerTest {
             /* windowIndex= */ 0,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
-            /* positionMs= */ 2 * DEFAULT_SEEK_BACK_INCREMENT_MS,
-            /* contentPositionMs= */ 2 * DEFAULT_SEEK_BACK_INCREMENT_MS,
+            /* positionMs= */ 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS,
+            /* contentPositionMs= */ 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS,
             /* adGroupIndex= */ C.INDEX_UNSET,
             /* adIndexInAdGroup= */ C.INDEX_UNSET);
     Player.PositionInfo newPosition =
@@ -1204,8 +1180,8 @@ public class CastPlayerTest {
             /* windowIndex= */ 0,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
-            /* positionMs= */ DEFAULT_SEEK_BACK_INCREMENT_MS,
-            /* contentPositionMs= */ DEFAULT_SEEK_BACK_INCREMENT_MS,
+            /* positionMs= */ C.DEFAULT_SEEK_BACK_INCREMENT_MS,
+            /* contentPositionMs= */ C.DEFAULT_SEEK_BACK_INCREMENT_MS,
             /* adGroupIndex= */ C.INDEX_UNSET,
             /* adIndexInAdGroup= */ C.INDEX_UNSET);
     InOrder inOrder = Mockito.inOrder(mockListener);
@@ -1233,9 +1209,7 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SEEK_FORWARD_INCREMENT)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SEEK_BACK_INCREMENT)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isFalse();

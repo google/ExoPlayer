@@ -300,17 +300,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setSeekForwardIncrement(long seekForwardIncrementMs) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public long getSeekForwardIncrement() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setSeekBackIncrement(long seekBackIncrementMs) {
     throw new UnsupportedOperationException();
   }
 
