@@ -103,10 +103,6 @@ public final class MediaSessionConnector {
     ExoPlayerLibraryInfo.registerModule("goog.exo.mediasession");
   }
 
-  /** Indicates this session supports the set playback speed command. */
-  // TODO(b/174297519) Replace with PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED when released.
-  public static final long ACTION_SET_PLAYBACK_SPEED = 1 << 22;
-
   /** Playback actions supported by the connector. */
   @LongDef(
       flag = true,
@@ -120,7 +116,7 @@ public final class MediaSessionConnector {
         PlaybackStateCompat.ACTION_STOP,
         PlaybackStateCompat.ACTION_SET_REPEAT_MODE,
         PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE,
-        ACTION_SET_PLAYBACK_SPEED
+        PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED
       })
   @Retention(RetentionPolicy.SOURCE)
   public @interface PlaybackActions {}
@@ -136,12 +132,12 @@ public final class MediaSessionConnector {
           | PlaybackStateCompat.ACTION_STOP
           | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
           | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
-          | ACTION_SET_PLAYBACK_SPEED;
+          | PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED;
 
   /** The default playback actions. */
   @PlaybackActions
   public static final long DEFAULT_PLAYBACK_ACTIONS =
-      ALL_PLAYBACK_ACTIONS - ACTION_SET_PLAYBACK_SPEED;
+      ALL_PLAYBACK_ACTIONS - PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED;
 
   /**
    * The name of the {@link PlaybackStateCompat} float extra with the value of {@code
@@ -156,7 +152,7 @@ public final class MediaSessionConnector {
           | PlaybackStateCompat.ACTION_STOP
           | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
           | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-          | ACTION_SET_PLAYBACK_SPEED;
+          | PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED;
   private static final int BASE_MEDIA_SESSION_FLAGS =
       MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
           | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
@@ -1293,7 +1289,7 @@ public final class MediaSessionConnector {
 
     @Override
     public void onSetPlaybackSpeed(float speed) {
-      if (canDispatchPlaybackAction(ACTION_SET_PLAYBACK_SPEED) && speed > 0) {
+      if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED) && speed > 0) {
         controlDispatcher.dispatchSetPlaybackParameters(
             player, player.getPlaybackParameters().withSpeed(speed));
       }
