@@ -35,6 +35,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -554,7 +555,10 @@ public final class SampleQueueTest {
     assertReadNothing(/* formatRequired= */ false);
     sampleQueue.maybeThrowError();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
-    when(mockDrmSession.getError()).thenReturn(new DrmSession.DrmSessionException(new Exception()));
+    when(mockDrmSession.getError())
+        .thenReturn(
+            new DrmSession.DrmSessionException(
+                new Exception(), PlaybackException.ERROR_CODE_DRM_UNSPECIFIED));
     assertReadNothing(/* formatRequired= */ false);
     try {
       sampleQueue.maybeThrowError();

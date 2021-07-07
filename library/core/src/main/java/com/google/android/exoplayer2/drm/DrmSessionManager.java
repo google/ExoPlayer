@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 
 /** Manages a DRM session. */
 public interface DrmSessionManager {
@@ -54,8 +55,8 @@ public interface DrmSessionManager {
           } else {
             return new ErrorStateDrmSession(
                 new DrmSession.DrmSessionException(
-                    new UnsupportedDrmException(
-                        UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
+                    new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME),
+                    PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED));
           }
         }
 

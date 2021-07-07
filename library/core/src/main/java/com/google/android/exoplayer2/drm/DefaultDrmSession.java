@@ -30,6 +30,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
@@ -511,7 +512,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private void onError(final Exception e) {
-    lastException = new DrmSessionException(e);
+    // TODO(internal b/184262323): Add an argument here which takes the error code from the caller.
+    lastException = new DrmSessionException(e, PlaybackException.ERROR_CODE_DRM_UNSPECIFIED);
     Log.e(TAG, "DRM session error", e);
     dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionManagerError(e));
     if (state != STATE_OPENED_WITH_KEYS) {

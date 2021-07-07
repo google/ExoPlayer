@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -53,8 +54,12 @@ public interface DrmSession {
   /** Wraps the throwable which is the cause of the error state. */
   class DrmSessionException extends IOException {
 
-    public DrmSessionException(Throwable cause) {
+    /** The {@link PlaybackException.ErrorCode} that corresponds to the failure. */
+    @PlaybackException.ErrorCode public final int errorCode;
+
+    public DrmSessionException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
       super(cause);
+      this.errorCode = errorCode;
     }
   }
 

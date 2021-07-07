@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
@@ -540,7 +541,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         if (eventDispatcher != null) {
           eventDispatcher.drmSessionManagerError(error);
         }
-        return new ErrorStateDrmSession(new DrmSessionException(error));
+        return new ErrorStateDrmSession(
+            new DrmSessionException(error, PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR));
       }
     }
 
