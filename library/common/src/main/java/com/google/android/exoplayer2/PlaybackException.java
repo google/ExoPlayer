@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
 
 /** Thrown when a non locally recoverable playback failure occurs. */
 public class PlaybackException extends Exception implements Bundleable {
@@ -382,7 +381,6 @@ public class PlaybackException extends Exception implements Bundleable {
   @IntDef(
       open = true,
       value = {
-        FIELD_STRING_CLASS_NAME,
         FIELD_INT_ERROR_CODE,
         FIELD_LONG_TIMESTAMP_MS,
         FIELD_STRING_MESSAGE,
@@ -391,12 +389,11 @@ public class PlaybackException extends Exception implements Bundleable {
       })
   protected @interface FieldNumber {}
 
-  private static final int FIELD_STRING_CLASS_NAME = 0;
-  private static final int FIELD_INT_ERROR_CODE = 1;
-  private static final int FIELD_LONG_TIMESTAMP_MS = 2;
-  private static final int FIELD_STRING_MESSAGE = 3;
-  private static final int FIELD_STRING_CAUSE_CLASS_NAME = 4;
-  private static final int FIELD_STRING_CAUSE_MESSAGE = 5;
+  private static final int FIELD_INT_ERROR_CODE = 0;
+  private static final int FIELD_LONG_TIMESTAMP_MS = 1;
+  private static final int FIELD_STRING_MESSAGE = 2;
+  private static final int FIELD_STRING_CAUSE_CLASS_NAME = 3;
+  private static final int FIELD_STRING_CAUSE_MESSAGE = 4;
 
   /**
    * Defines a minimum field id value for subclasses to use when implementing {@link #toBundle()}
@@ -409,32 +406,12 @@ public class PlaybackException extends Exception implements Bundleable {
 
   /** Object that can create a {@link PlaybackException} from a {@link Bundle}. */
   @SuppressWarnings("unchecked")
-  public static final Creator<PlaybackException> CREATOR =
-      bundle -> {
-        String className = bundle.getString(keyForField(FIELD_STRING_CLASS_NAME));
-        if (className != null && !PlaybackException.class.getName().equals(className)) {
-          try {
-            Field creatorField = Class.forName(className).getField("CREATOR");
-            // It is ok to pass null to Field.get for static fields.
-            @SuppressWarnings("nullness:argument")
-            Creator<PlaybackException> creator =
-                (Creator<PlaybackException>) creatorField.get(/* obj= */ null);
-            if (creator != null) {
-              return creator.fromBundle(bundle);
-            }
-          } catch (Throwable e) {
-            // Failed to create an instance using the creator from the class with the given name.
-            // Fall through and try to deserialize the PlaybackException fields only.
-          }
-        }
-        return new PlaybackException(bundle);
-      };
+  public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
 
   @CallSuper
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putString(keyForField(FIELD_STRING_CLASS_NAME), getClass().getName());
     bundle.putInt(keyForField(FIELD_INT_ERROR_CODE), errorCode);
     bundle.putLong(keyForField(FIELD_LONG_TIMESTAMP_MS), timestampMs);
     bundle.putString(keyForField(FIELD_STRING_MESSAGE), getMessage());
