@@ -37,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -243,7 +244,9 @@ public class MediaCodecAudioRendererTest {
                       "rendererName",
                       /* rendererIndex= */ 0,
                       format,
-                      C.FORMAT_HANDLED));
+                      C.FORMAT_HANDLED,
+                      /* isRecoverable= */ false,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED));
             }
           }
         };

@@ -122,34 +122,6 @@ public final class ExoPlaybackException extends PlaybackException {
   }
 
   /**
-   * Creates an instance of type {@link #TYPE_RENDERER} in which {@link #isRecoverable} is {@code
-   * false} and {@link #errorCode} is {@link #ERROR_CODE_UNSPECIFIED}.
-   *
-   * @param cause The cause of the failure.
-   * @param rendererIndex The index of the renderer in which the failure occurred.
-   * @param rendererFormat The {@link Format} the renderer was using at the time of the exception,
-   *     or null if the renderer wasn't using a {@link Format}.
-   * @param rendererFormatSupport The {@link FormatSupport} of the renderer for {@code
-   *     rendererFormat}. Ignored if {@code rendererFormat} is null.
-   * @return The created instance.
-   */
-  public static ExoPlaybackException createForRenderer(
-      Throwable cause,
-      String rendererName,
-      int rendererIndex,
-      @Nullable Format rendererFormat,
-      @FormatSupport int rendererFormatSupport) {
-    return createForRenderer(
-        cause,
-        rendererName,
-        rendererIndex,
-        rendererFormat,
-        rendererFormatSupport,
-        /* isRecoverable= */ false,
-        ERROR_CODE_UNSPECIFIED);
-  }
-
-  /**
    * Creates an instance of type {@link #TYPE_RENDERER}.
    *
    * @param cause The cause of the failure.
