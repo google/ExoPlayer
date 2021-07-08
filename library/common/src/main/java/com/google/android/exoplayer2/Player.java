@@ -392,7 +392,7 @@ public interface Player {
     default void onEvents(Player player, Events events) {}
   }
 
-  /** A set of {@link EventFlags}. */
+  /** A set of {@link Event events}. */
   final class Events {
 
     private final FlagSet flags;
@@ -400,29 +400,29 @@ public interface Player {
     /**
      * Creates an instance.
      *
-     * @param flags The {@link FlagSet} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link Event events}.
      */
     public Events(FlagSet flags) {
       this.flags = flags;
     }
 
     /**
-     * Returns whether the given event occurred.
+     * Returns whether the given {@link Event} occurred.
      *
-     * @param event The {@link EventFlags event}.
-     * @return Whether the event occurred.
+     * @param event The {@link Event}.
+     * @return Whether the {@link Event} occurred.
      */
-    public boolean contains(@EventFlags int event) {
+    public boolean contains(@Event int event) {
       return flags.contains(event);
     }
 
     /**
-     * Returns whether any of the given events occurred.
+     * Returns whether any of the given {@link Event events} occurred.
      *
-     * @param events The {@link EventFlags events}.
-     * @return Whether any of the events occurred.
+     * @param events The {@link Event events}.
+     * @return Whether any of the {@link Event events} occurred.
      */
-    public boolean containsAny(@EventFlags int... events) {
+    public boolean containsAny(@Event int... events) {
       return flags.containsAny(events);
     }
 
@@ -432,16 +432,16 @@ public interface Player {
     }
 
     /**
-     * Returns the {@link EventFlags event} at the given index.
+     * Returns the {@link Event} at the given index.
      *
      * <p>Although index-based access is possible, it doesn't imply a particular order of these
      * events.
      *
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
-     * @return The {@link EventFlags event} at the given index.
+     * @return The {@link Event} at the given index.
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
-    @EventFlags
+    @Event
     public int get(int index) {
       return flags.get(index);
     }
@@ -1084,7 +1084,7 @@ public interface Player {
   /**
    * Events that can be reported via {@link Listener#onEvents(Player, Events)}.
    *
-   * <p>One of the {@link Player}{@code .EVENT_*} flags.
+   * <p>One of the {@link Player}{@code .EVENT_*} values.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1110,7 +1110,7 @@ public interface Player {
     EVENT_SEEK_BACK_INCREMENT_CHANGED,
     EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED
   })
-  @interface EventFlags {}
+  @interface Event {}
   /** {@link #getCurrentTimeline()} changed. */
   int EVENT_TIMELINE_CHANGED = 0;
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */

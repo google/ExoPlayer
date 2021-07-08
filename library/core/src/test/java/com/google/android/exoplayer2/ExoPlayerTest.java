@@ -10752,8 +10752,7 @@ public final class ExoPlayerTest {
     shadowOf(Looper.getMainLooper()).idle();
   }
 
-  private static boolean containsEvent(
-      List<Player.Events> eventsList, @Player.EventFlags int event) {
+  private static boolean containsEvent(List<Player.Events> eventsList, @Player.Event int event) {
     for (Player.Events events : eventsList) {
       if (events.contains(event)) {
         return true;
