@@ -1,0 +1,423 @@
+seekMap:
+  isSeekable = true
+  duration = 2736066
+  getPosition(0) = [[timeUs=0, position=1268]]
+  getPosition(1) = [[timeUs=0, position=1268], [timeUs=500500, position=48912]]
+  getPosition(1368033) = [[timeUs=1001000, position=95250], [timeUs=1501500, position=146446]]
+  getPosition(2736066) = [[timeUs=2502500, position=250995]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 225061
+  sample count = 67
+  format 0:
+    id = 1
+    sampleMimeType = video/avc
+    width = 640
+    height = 360
+    drmInitData = 741115907
+    initializationData:
+      data = length 29, hash CB5D753A
+      data = length 10, hash 7A0D0F2B
+  sample 0:
+    time = 566000
+    flags = 1073741825
+    data = length 13562, hash B05D559A
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 1:
+    time = 633000
+    flags = 1073741824
+    data = length 2484, hash 6D2C3BFF
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 2:
+    time = 600000
+    flags = 1073741824
+    data = length 769, hash B4C977F9
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 3:
+    time = 700000
+    flags = 1073741824
+    data = length 3323, hash D3059DD6
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 4:
+    time = 666000
+    flags = 1073741824
+    data = length 1148, hash 524F6FD
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 5:
+    time = 767000
+    flags = 1073741824
+    data = length 3319, hash 9017B463
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 6:
+    time = 733000
+    flags = 1073741824
+    data = length 1029, hash 56C48862
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 7:
+    time = 834000
+    flags = 1073741824
+    data = length 3551, hash 4293429
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 8:
+    time = 800000
+    flags = 1073741824
+    data = length 1188, hash 48A74D73
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 9:
+    time = 866000
+    flags = 1073741824
+    data = length 2037, hash 9B03D4E6
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 10:
+    time = 934000
+    flags = 1073741824
+    data = length 4268, hash 9000751
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 11:
+    time = 900000
+    flags = 1073741824
+    data = length 1294, hash 32E7737C
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 12:
+    time = 966000
+    flags = 1073741824
+    data = length 3255, hash DDE58168
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 13:
+    time = 1000000
+    flags = 1073741824
+    data = length 3010, hash ED3DACBD
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 14:
+    time = 1033000
+    flags = 1073741824
+    data = length 2023, hash 38DC3F16
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 15:
+    time = 1067000
+    flags = 1073741825
+    data = length 12669, hash 6AF45C64
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 16:
+    time = 1134000
+    flags = 1073741824
+    data = length 2619, hash E3E31ED0
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 17:
+    time = 1100000
+    flags = 1073741824
+    data = length 1009, hash A8CACEEE
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 18:
+    time = 1201000
+    flags = 1073741824
+    data = length 3629, hash 6CB3B60A
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 19:
+    time = 1167000
+    flags = 1073741824
+    data = length 1230, hash AFD20A
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 20:
+    time = 1267000
+    flags = 1073741824
+    data = length 3803, hash 5C91B708
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 21:
+    time = 1234000
+    flags = 1073741824
+    data = length 1439, hash D667A4B1
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 22:
+    time = 1334000
+    flags = 1073741824
+    data = length 4484, hash 57A6E3F0
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 23:
+    time = 1300000
+    flags = 1073741824
+    data = length 1214, hash F69CD96F
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 24:
+    time = 1367000
+    flags = 1073741824
+    data = length 3078, hash 5259C380
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 25:
+    time = 1400000
+    flags = 1073741824
+    data = length 2576, hash 785AF61A
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 26:
+    time = 1468000
+    flags = 1073741824
+    data = length 5170, hash D9ECB99B
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 27:
+    time = 1434000
+    flags = 1073741824
+    data = length 1631, hash 71045580
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 28:
+    time = 1500000
+    flags = 1073741824
+    data = length 3311, hash F64F3601
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 29:
+    time = 1534000
+    flags = 1073741824
+    data = length 3256, hash F95E286
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 30:
+    time = 1567000
+    flags = 1073741825
+    data = length 12826, hash D3042E89
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 31:
+    time = 1600000
+    flags = 1073741824
+    data = length 1779, hash 274B93BC
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 32:
+    time = 1634000
+    flags = 1073741824
+    data = length 2649, hash 1A77733A
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 33:
+    time = 1667000
+    flags = 1073741824
+    data = length 3080, hash 22562663
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 34:
+    time = 1700000
+    flags = 1073741824
+    data = length 3332, hash E0AB128F
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 35:
+    time = 1734000
+    flags = 1073741824
+    data = length 3184, hash 44C87A28
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 36:
+    time = 1767000
+    flags = 1073741824
+    data = length 3374, hash BCE660B5
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 37:
+    time = 1801000
+    flags = 1073741824
+    data = length 3372, hash 67EF997A
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 38:
+    time = 1868000
+    flags = 1073741824
+    data = length 4992, hash 7DF46F22
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 39:
+    time = 1834000
+    flags = 1073741824
+    data = length 1789, hash 99305568
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 40:
+    time = 1935000
+    flags = 1073741824
+    data = length 4559, hash 2BD9A522
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 41:
+    time = 1901000
+    flags = 1073741824
+    data = length 1748, hash 1F3FC40F
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 42:
+    time = 1967000
+    flags = 1073741824
+    data = length 3027, hash C43AC8E5
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 43:
+    time = 2001000
+    flags = 1073741824
+    data = length 3124, hash 1001E134
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 44:
+    time = 2034000
+    flags = 1073741824
+    data = length 2053, hash BED7033F
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 45:
+    time = 2068000
+    flags = 1073741825
+    data = length 13955, hash 28C07283
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 46:
+    time = 2135000
+    flags = 1073741824
+    data = length 3370, hash 5FBE7E08
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 47:
+    time = 2101000
+    flags = 1073741824
+    data = length 1440, hash 20FA832B
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 48:
+    time = 2202000
+    flags = 1073741824
+    data = length 3610, hash D0DABD85
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 49:
+    time = 2168000
+    flags = 1073741824
+    data = length 1403, hash B711CFED
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 50:
+    time = 2234000
+    flags = 1073741824
+    data = length 2348, hash D9DCBFF
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 51:
+    time = 2268000
+    flags = 1073741824
+    data = length 2468, hash EC099F0F
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 52:
+    time = 2335000
+    flags = 1073741824
+    data = length 3898, hash 96F6F8B5
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 53:
+    time = 2301000
+    flags = 1073741824
+    data = length 1382, hash 17688623
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 54:
+    time = 2402000
+    flags = 1073741824
+    data = length 4005, hash 73D991B7
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 55:
+    time = 2368000
+    flags = 1073741824
+    data = length 1307, hash 826B3082
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 56:
+    time = 2469000
+    flags = 1073741824
+    data = length 4085, hash A7DBD3F9
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 57:
+    time = 2435000
+    flags = 1073741824
+    data = length 1341, hash A0DFB7E6
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 58:
+    time = 2535000
+    flags = 1073741824
+    data = length 3537, hash C7BC495F
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 59:
+    time = 2502000
+    flags = 1073741824
+    data = length 1356, hash B9C64A51
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 60:
+    time = 2568000
+    flags = 1073741825
+    data = length 12826, hash 4BB5FBE8
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 61:
+    time = 2668000
+    flags = 1073741824
+    data = length 3192, hash 3A5A7DDE
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 62:
+    time = 2635000
+    flags = 1073741824
+    data = length 1311, hash 962D218B
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 63:
+    time = 2602000
+    flags = 1073741824
+    data = length 964, hash 616279C5
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 64:
+    time = 2735000
+    flags = 1073741824
+    data = length 2632, hash AF1B2E09
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 65:
+    time = 2702000
+    flags = 1073741824
+    data = length 1106, hash 3297DB68
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+  sample 66:
+    time = 2768000
+    flags = 1073741824
+    data = length 1259, hash 16DE7C4
+    crypto mode = 2
+    encryption key = length 16, hash B466A49
+tracksEnded = true

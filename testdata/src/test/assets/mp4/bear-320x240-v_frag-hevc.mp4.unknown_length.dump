@@ -1,0 +1,16 @@
+seekMap:
+  isSeekable = false
+  duration = 2737000
+  getPosition(0) = [[timeUs=0, position=2833]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1
+    sampleMimeType = video/hevc
+    width = 320
+    height = 240
+    initializationData:
+      data = length 1047, hash 685B4563
+tracksEnded = true
