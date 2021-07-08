@@ -964,6 +964,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh
           || childAtomType == Atom.TYPE_dtsl
+          || childAtomType == Atom.TYPE_dtsx
           || childAtomType == Atom.TYPE_samr
           || childAtomType == Atom.TYPE_sawb
           || childAtomType == Atom.TYPE_lpcm
@@ -1368,6 +1369,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       mimeType = MimeTypes.AUDIO_DTS_HD;
     } else if (atomType == Atom.TYPE_dtse) {
       mimeType = MimeTypes.AUDIO_DTS_EXPRESS;
+    } else if (atomType == Atom.TYPE_dtsx) {
+      mimeType = MimeTypes.AUDIO_DTS_X;
     } else if (atomType == Atom.TYPE_samr) {
       mimeType = MimeTypes.AUDIO_AMR_NB;
     } else if (atomType == Atom.TYPE_sawb) {

@@ -163,6 +163,9 @@ import java.util.List;
   public static final int TYPE_dtse = 0x64747365;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_dtsx = 0x64747378;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_ddts = 0x64647473;
 
   @SuppressWarnings("ConstantCaseForConstants")
