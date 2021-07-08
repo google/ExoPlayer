@@ -731,6 +731,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public int getMaxSeekToPreviousPosition() {
+    return C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (playbackParameters == null) {
       playbackParameters = PlaybackParameters.DEFAULT;

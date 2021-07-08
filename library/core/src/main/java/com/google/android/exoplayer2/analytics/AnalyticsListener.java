@@ -260,6 +260,9 @@ public interface AnalyticsListener {
   int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
   /** {@link Player#getSeekBackIncrement()} changed. */
   int EVENT_SEEK_BACK_INCREMENT_CHANGED = Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
+  /** {@link Player#getMaxSeekToPreviousPosition()} changed. */
+  int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED =
+      Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -610,6 +613,16 @@ public interface AnalyticsListener {
    * @param seekBackIncrementMs The seek back increment, in milliseconds.
    */
   default void onSeekBackIncrementChanged(EventTime eventTime, long seekBackIncrementMs) {}
+
+  /**
+   * Called when the maximum position for which {@link Player#seekToPrevious()} seeks to the
+   * previous window changes.
+   *
+   * @param eventTime The event time.
+   * @param maxSeekToPreviousPositionMs The maximum seek to previous position, in milliseconds.
+   */
+  default void onMaxSeekToPreviousPositionChanged(
+      EventTime eventTime, int maxSeekToPreviousPositionMs) {}
 
   /**
    * Called when the repeat mode changed.

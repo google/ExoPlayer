@@ -761,6 +761,16 @@ public class AnalyticsCollector
   }
 
   @Override
+  public void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
+        listener ->
+            listener.onMaxSeekToPreviousPositionChanged(eventTime, maxSeekToPreviousPositionMs));
+  }
+
+  @Override
   public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(

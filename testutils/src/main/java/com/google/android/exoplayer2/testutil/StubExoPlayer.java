@@ -310,6 +310,11 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public int getMaxSeekToPreviousPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }

@@ -1615,6 +1615,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public int getMaxSeekToPreviousPosition() {
+    verifyApplicationThread();
+    return player.getMaxSeekToPreviousPosition();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);

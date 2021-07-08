@@ -22,7 +22,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.IntDef;
-import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -331,7 +330,7 @@ public interface Player {
      *
      * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
      */
-    default void onSeekForwardIncrementChanged(@IntRange(from = 1) long seekForwardIncrementMs) {}
+    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
 
     /**
      * Called when the value of {@link #getSeekBackIncrement()} changes.
@@ -341,7 +340,18 @@ public interface Player {
      *
      * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
      */
-    default void onSeekBackIncrementChanged(@IntRange(from = 1) long seekBackIncrementMs) {}
+    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getMaxSeekToPreviousPosition()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param maxSeekToPreviousPositionMs The maximum position for which {@link #seekToPrevious()}
+     *     seeks to the previous position, in milliseconds.
+     */
+    default void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {}
 
     /**
      * @deprecated Seeks are processed without delay. Listen to {@link
@@ -884,9 +894,6 @@ public interface Player {
     default void onMetadata(Metadata metadata) {}
   }
 
-  /** The maximum position for which {@link #seekToPrevious()} seeks to the previous window. */
-  int MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS = 3000;
-
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
    * {@link #STATE_ENDED}.
@@ -1100,7 +1107,8 @@ public interface Player {
     EVENT_MEDIA_METADATA_CHANGED,
     EVENT_PLAYLIST_METADATA_CHANGED,
     EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
-    EVENT_SEEK_BACK_INCREMENT_CHANGED
+    EVENT_SEEK_BACK_INCREMENT_CHANGED,
+    EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1144,6 +1152,8 @@ public interface Player {
   int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 17;
   /** {@link #getSeekBackIncrement()} changed. */
   int EVENT_SEEK_BACK_INCREMENT_CHANGED = 18;
+  /** {@link #getMaxSeekToPreviousPosition()} changed. */
+  int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 19;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
@@ -1657,6 +1667,15 @@ public interface Player {
   void previous();
 
   /**
+   * Returns the maximum position for which {@link #seekToPrevious()} seeks to the previous window,
+   * in milliseconds.
+   *
+   * @return The maximum seek to previous position, in milliseconds.
+   * @see Listener#onMaxSeekToPreviousPositionChanged(int)
+   */
+  int getMaxSeekToPreviousPosition();
+
+  /**
    * Seeks to an earlier position in the current or previous window (if available). More precisely:
    *
    * <ul>
@@ -1670,8 +1689,7 @@ public interface Player {
    *       </ul>
    *   <li>Otherwise, if {@link #hasPrevious() a previous window exists} and the {@link
    *       #getCurrentPosition() current position} is less than {@link
-   *       #MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS}, seeks to the default position of the previous
-   *       window.
+   *       #getMaxSeekToPreviousPosition()}, seeks to the default position of the previous window.
    *   <li>Otherwise, seeks to 0 in the current window.
    * </ul>
    */

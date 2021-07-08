@@ -40,7 +40,6 @@ import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
-import static com.google.android.exoplayer2.Player.MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS;
 import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
@@ -10525,7 +10524,7 @@ public final class ExoPlayerTest {
   public void seekToPrevious_closeToStart_seeksToPreviousWindow() {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
-    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS);
+    player.seekTo(/* windowIndex= */ 1, C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS);
 
     player.seekToPrevious();
 
@@ -10537,7 +10536,7 @@ public final class ExoPlayerTest {
   public void seekToPrevious_notCloseToStart_seeksToZero() {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
-    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS + 1);
+    player.seekTo(/* windowIndex= */ 1, C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS + 1);
 
     player.seekToPrevious();
 

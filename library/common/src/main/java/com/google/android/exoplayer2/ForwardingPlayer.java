@@ -283,6 +283,11 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
+  public int getMaxSeekToPreviousPosition() {
+    return player.getMaxSeekToPreviousPosition();
+  }
+
+  @Override
   public boolean hasNext() {
     return player.hasNext();
   }
@@ -709,6 +714,11 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
       eventListener.onSeekBackIncrementChanged(seekBackIncrementMs);
+    }
+
+    @Override
+    public void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {
+      eventListener.onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs);
     }
 
     @Override

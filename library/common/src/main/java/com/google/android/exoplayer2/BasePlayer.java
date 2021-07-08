@@ -155,7 +155,7 @@ public abstract class BasePlayer implements Player {
       if (hasPrevious) {
         previous();
       }
-    } else if (hasPrevious && getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS) {
+    } else if (hasPrevious && getCurrentPosition() <= getMaxSeekToPreviousPosition()) {
       previous();
     } else {
       seekTo(/* positionMs= */ 0);

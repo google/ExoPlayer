@@ -459,6 +459,11 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public int getMaxSeekToPreviousPosition() {
+    return C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     // Unsupported by the RemoteMediaClient API. Do nothing.
   }
