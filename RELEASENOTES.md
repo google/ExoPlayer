@@ -95,6 +95,8 @@
         is malformed and should be re-encoded.
     *   Improve support for truncated Ogg streams
         ([#7608](https://github.com/google/ExoPlayer/issues/7608)).
+    *   Add support for MP4 H263 atom type
+        ([#9158](https://github.com/google/ExoPlayer/issues/9158)).
 *   HLS:
     *   Fix issue where playback of a live event could become stuck rather than
         transitioning to `STATE_ENDED` when the event ends

@@ -938,6 +938,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_hvc1
           || childAtomType == Atom.TYPE_hev1
           || childAtomType == Atom.TYPE_s263
+          || childAtomType == Atom.TYPE_H263
           || childAtomType == Atom.TYPE_vp08
           || childAtomType == Atom.TYPE_vp09
           || childAtomType == Atom.TYPE_av01
@@ -1100,6 +1101,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Nullable String mimeType = null;
     if (atomType == Atom.TYPE_m1v_) {
       mimeType = MimeTypes.VIDEO_MPEG;
+    } else if (atomType == Atom.TYPE_H263) {
+      mimeType = MimeTypes.VIDEO_H263;
     }
 
     @Nullable List<byte[]> initializationData = null;
