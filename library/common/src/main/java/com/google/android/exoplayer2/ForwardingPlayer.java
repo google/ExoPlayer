@@ -278,6 +278,11 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
+  public void seekToPrevious() {
+    player.seekToPrevious();
+  }
+
+  @Override
   public boolean hasNext() {
     return player.hasNext();
   }

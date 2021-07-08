@@ -4,7 +4,7 @@
 
 *   Core Library:
     *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
-    *   Add `seekForward` and `seekBack` methods to `Player`.
+    *   Add `seekForward`, `seekBack` and `seekToPrevious` methods to `Player`.
     *   Make `Player` depend on the new `PlaybackException` class instead of
         `ExoPlaybackException`:
         *   `Player.getPlayerError` now returns a `PlaybackException`.

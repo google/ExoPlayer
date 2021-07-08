@@ -884,6 +884,9 @@ public interface Player {
     default void onMetadata(Metadata metadata) {}
   }
 
+  /** The maximum position for which {@link #seekToPrevious()} seeks to the previous window. */
+  int MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS = 3000;
+
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
    * {@link #STATE_ENDED}.
@@ -1652,6 +1655,27 @@ public interface Player {
    * details.
    */
   void previous();
+
+  /**
+   * Seeks to an earlier position in the current or previous window (if available). More precisely:
+   *
+   * <ul>
+   *   <li>If the timeline is empty or seeking is not possible, does nothing.
+   *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and {@link
+   *       #isCurrentWindowSeekable() unseekable}, then:
+   *       <ul>
+   *         <li>If {@link #hasPrevious() a previous window exists}, seeks to the default position
+   *             of the previous window.
+   *         <li>Otherwise, does nothing.
+   *       </ul>
+   *   <li>Otherwise, if {@link #hasPrevious() a previous window exists} and the {@link
+   *       #getCurrentPosition() current position} is less than {@link
+   *       #MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS}, seeks to the default position of the previous
+   *       window.
+   *   <li>Otherwise, seeks to 0 in the current window.
+   * </ul>
+   */
+  void seekToPrevious();
 
   /**
    * Returns whether a next window exists, which may depend on the current repeat mode and whether

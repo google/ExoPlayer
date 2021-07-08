@@ -145,6 +145,24 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void seekToPrevious() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty() || isPlayingAd()) {
+      return;
+    }
+    boolean hasPrevious = hasPrevious();
+    if (isCurrentWindowLive() && !isCurrentWindowSeekable()) {
+      if (hasPrevious) {
+        previous();
+      }
+    } else if (hasPrevious && getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS_MS) {
+      previous();
+    } else {
+      seekTo(/* positionMs= */ 0);
+    }
+  }
+
+  @Override
   public final boolean hasNext() {
     return getNextWindowIndex() != C.INDEX_UNSET;
   }
