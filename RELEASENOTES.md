@@ -8,6 +8,12 @@
         and `seekBack` methods to `Player`.
     *   Add `getMaxSeekToPreviousPosition` and `seekToPrevious` methods to
         `Player`.
+    *   Add `seekForward` and `seekBack` methods to `Player`.
+    *   Rename `Player` commands `COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM`,
+        `COMMAND_SEEK_TO_NEXT_MEDIA_ITEM`, `COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM` and
+        `COMMAND_SEEK_TO_MEDIA_ITEM` to `COMMAND_SEEK_IN_CURRENT_WINDOW`,
+        `COMMAND_SEEK_TO_NEXT_WINDOW`, `COMMAND_SEEK_TO_PREVIOUS_WINDOW` and
+        `COMMAND_SEEK_TO_WINDOW`, respectively.
     *   Make `Player` depend on the new `PlaybackException` class instead of
         `ExoPlaybackException`:
         *   `Player.getPlayerError` now returns a `PlaybackException`.

@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_WINDOW;
 import static java.lang.Math.min;
 
 import android.os.Bundle;
@@ -102,12 +102,12 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       timeline.getWindow(player.getCurrentWindowIndex(), window);
       enableSkipTo = timeline.getWindowCount() > 1;
       enablePrevious =
-          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)
               || !window.isLive()
-              || player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+              || player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
       enableNext =
           (window.isLive() && window.isDynamic)
-              || player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+              || player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW);
     }
 
     long actions = 0;
