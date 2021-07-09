@@ -646,7 +646,7 @@ public interface Player {
         COMMAND_SET_SHUFFLE_MODE,
         COMMAND_SET_REPEAT_MODE,
         COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_GET_MEDIA_ITEMS,
+        COMMAND_GET_TIMELINE,
         COMMAND_GET_MEDIA_ITEMS_METADATA,
         COMMAND_SET_MEDIA_ITEMS_METADATA,
         COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1162,7 +1162,7 @@ public interface Player {
    * #COMMAND_SEEK_TO_NEXT_WINDOW}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link #COMMAND_SEEK_BACK},
    * {@link #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
    * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
-   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_TIMELINE}, {@link
    * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
    * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
@@ -1186,7 +1186,7 @@ public interface Player {
     COMMAND_SET_SHUFFLE_MODE,
     COMMAND_SET_REPEAT_MODE,
     COMMAND_GET_CURRENT_MEDIA_ITEM,
-    COMMAND_GET_MEDIA_ITEMS,
+    COMMAND_GET_TIMELINE,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
     COMMAND_SET_MEDIA_ITEMS_METADATA,
     COMMAND_CHANGE_MEDIA_ITEMS,
@@ -1214,9 +1214,9 @@ public interface Player {
   int COMMAND_SEEK_TO_NEXT_WINDOW = 6;
   /** Command to seek anywhere in any window. */
   int COMMAND_SEEK_TO_WINDOW = 7;
-  /** Command to seek back into the current window. */
+  /** Command to seek back by a fixed increment into the current window. */
   int COMMAND_SEEK_BACK = 8;
-  /** Command to seek forward into the current window. */
+  /** Command to seek forward by a fixed increment into the current window. */
   int COMMAND_SEEK_FORWARD = 9;
   /** Command to set the playback speed and pitch. */
   int COMMAND_SET_SPEED_AND_PITCH = 10;
@@ -1226,8 +1226,8 @@ public interface Player {
   int COMMAND_SET_REPEAT_MODE = 12;
   /** Command to get the {@link MediaItem} of the current window. */
   int COMMAND_GET_CURRENT_MEDIA_ITEM = 13;
-  /** Command to get the current timeline and its {@link MediaItem MediaItems}. */
-  int COMMAND_GET_MEDIA_ITEMS = 14;
+  /** Command to get the information about the current timeline. */
+  int COMMAND_GET_TIMELINE = 14;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
   int COMMAND_GET_MEDIA_ITEMS_METADATA = 15;
   /** Command to set the {@link MediaItem MediaItems} metadata. */

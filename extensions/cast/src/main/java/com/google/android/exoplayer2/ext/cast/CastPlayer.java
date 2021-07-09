@@ -96,7 +96,7 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_SEEK_TO_WINDOW,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
-              COMMAND_GET_MEDIA_ITEMS,
+              COMMAND_GET_TIMELINE,
               COMMAND_GET_MEDIA_ITEMS_METADATA,
               COMMAND_SET_MEDIA_ITEMS_METADATA,
               COMMAND_CHANGE_MEDIA_ITEMS)
