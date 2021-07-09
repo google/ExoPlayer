@@ -637,8 +637,8 @@ public interface Player {
         COMMAND_PREPARE_STOP,
         COMMAND_SEEK_TO_DEFAULT_POSITION,
         COMMAND_SEEK_IN_CURRENT_WINDOW,
-        COMMAND_SEEK_TO_NEXT_WINDOW,
         COMMAND_SEEK_TO_PREVIOUS_WINDOW,
+        COMMAND_SEEK_TO_NEXT_WINDOW,
         COMMAND_SEEK_TO_WINDOW,
         COMMAND_SEEK_BACK,
         COMMAND_SEEK_FORWARD,
@@ -1158,8 +1158,8 @@ public interface Player {
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
-   * #COMMAND_SEEK_IN_CURRENT_WINDOW}, {@link #COMMAND_SEEK_TO_NEXT_WINDOW}, {@link
-   * #COMMAND_SEEK_TO_PREVIOUS_WINDOW}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link #COMMAND_SEEK_BACK},
+   * #COMMAND_SEEK_IN_CURRENT_WINDOW}, {@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW}, {@link
+   * #COMMAND_SEEK_TO_NEXT_WINDOW}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link #COMMAND_SEEK_BACK},
    * {@link #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
    * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
    * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
@@ -1177,8 +1177,8 @@ public interface Player {
     COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
     COMMAND_SEEK_IN_CURRENT_WINDOW,
-    COMMAND_SEEK_TO_NEXT_WINDOW,
     COMMAND_SEEK_TO_PREVIOUS_WINDOW,
+    COMMAND_SEEK_TO_NEXT_WINDOW,
     COMMAND_SEEK_TO_WINDOW,
     COMMAND_SEEK_BACK,
     COMMAND_SEEK_FORWARD,
@@ -1208,10 +1208,10 @@ public interface Player {
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
   /** Command to seek anywhere into the current window. */
   int COMMAND_SEEK_IN_CURRENT_WINDOW = 4;
-  /** Command to seek to the default position of the next window. */
-  int COMMAND_SEEK_TO_NEXT_WINDOW = 5;
   /** Command to seek to the default position of the previous window. */
-  int COMMAND_SEEK_TO_PREVIOUS_WINDOW = 6;
+  int COMMAND_SEEK_TO_PREVIOUS_WINDOW = 5;
+  /** Command to seek to the default position of the next window. */
+  int COMMAND_SEEK_TO_NEXT_WINDOW = 6;
   /** Command to seek anywhere in any window. */
   int COMMAND_SEEK_TO_WINDOW = 7;
   /** Command to seek back into the current window. */
@@ -1441,7 +1441,7 @@ public interface Player {
    * #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor generate a
    * {@link #getPlayerError()} player error}.
    *
-   * <p>{@link #COMMAND_SEEK_TO_NEXT_WINDOW} and {@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} are
+   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
    * unavailable if there is no such {@link MediaItem}.
    *
    * @param command A {@link Command}.
@@ -1461,7 +1461,7 @@ public interface Player {
    * #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor generate a
    * {@link #getPlayerError()} player error}.
    *
-   * <p>{@link #COMMAND_SEEK_TO_NEXT_WINDOW} and {@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} are
+   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
    * unavailable if there is no such {@link MediaItem}.
    *
    * @return The currently available {@link Commands}.

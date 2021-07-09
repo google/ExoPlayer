@@ -8164,8 +8164,8 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_PREPARE_STOP)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isFalse();
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
@@ -8213,8 +8213,8 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_READY);
 
     assertThat(player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isFalse();
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();

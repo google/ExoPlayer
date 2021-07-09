@@ -1206,8 +1206,8 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_PREPARE_STOP)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
