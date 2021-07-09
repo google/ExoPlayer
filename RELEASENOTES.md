@@ -4,8 +4,8 @@
 
 *   Core Library:
     *   Add `needsReconfiguration` API to the `MediaCodecAdapter` interface.
-    *   Add `getSeekForwardIncrement`, `seekForward`, `getSeekBackIncrement`
-        and `seekBack` methods to `Player`.
+    *   Add `getSeekBackIncrement`, `seekBack`, `getSeekForwardIncrement` and
+        `seekForward` methods to `Player`.
     *   Add `getMaxSeekToPreviousPosition`, `seekToPrevious` and `seekToNext`
         methods to `Player`.
     *   Rename `Player` commands `COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM`,

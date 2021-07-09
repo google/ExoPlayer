@@ -115,8 +115,8 @@ public final class CastPlayer extends BasePlayer {
 
   private final CastContext castContext;
   private final MediaItemConverter mediaItemConverter;
-  private final long seekForwardIncrementMs;
   private final long seekBackIncrementMs;
+  private final long seekForwardIncrementMs;
   // TODO: Allow custom implementations of CastTimelineTracker.
   private final CastTimelineTracker timelineTracker;
   private final Timeline.Period period;
@@ -151,8 +151,8 @@ public final class CastPlayer extends BasePlayer {
    * <p>The returned player uses a {@link DefaultMediaItemConverter} and
    *
    * <p>{@code mediaItemConverter} is set to a {@link DefaultMediaItemConverter}, {@code
-   * seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS} and {@code
-   * seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}.
+   * seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS} and {@code
+   * seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}.
    *
    * @param castContext The context from which the cast session is obtained.
    */
@@ -163,8 +163,8 @@ public final class CastPlayer extends BasePlayer {
   /**
    * Creates a new cast player.
    *
-   * <p>{@code seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS} and
-   * {@code seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}.
+   * <p>{@code seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS} and {@code
+   * seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}.
    *
    * @param castContext The context from which the cast session is obtained.
    * @param mediaItemConverter The {@link MediaItemConverter} to use.
@@ -173,8 +173,8 @@ public final class CastPlayer extends BasePlayer {
     this(
         castContext,
         mediaItemConverter,
-        C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
-        C.DEFAULT_SEEK_BACK_INCREMENT_MS);
+        C.DEFAULT_SEEK_BACK_INCREMENT_MS,
+        C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
   }
 
   /**
@@ -182,21 +182,21 @@ public final class CastPlayer extends BasePlayer {
    *
    * @param castContext The context from which the cast session is obtained.
    * @param mediaItemConverter The {@link MediaItemConverter} to use.
-   * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
    * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
-   * @throws IllegalArgumentException If {@code seekForwardIncrementMs} or {@code
-   *     seekBackIncrementMs} is non-positive.
+   * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code seekBackIncrementMs} or {@code
+   *     seekForwardIncrementMs} is non-positive.
    */
   public CastPlayer(
       CastContext castContext,
       MediaItemConverter mediaItemConverter,
-      long seekForwardIncrementMs,
-      long seekBackIncrementMs) {
-    checkArgument(seekForwardIncrementMs > 0 && seekBackIncrementMs > 0);
+      long seekBackIncrementMs,
+      long seekForwardIncrementMs) {
+    checkArgument(seekBackIncrementMs > 0 && seekForwardIncrementMs > 0);
     this.castContext = castContext;
     this.mediaItemConverter = mediaItemConverter;
-    this.seekForwardIncrementMs = seekForwardIncrementMs;
     this.seekBackIncrementMs = seekBackIncrementMs;
+    this.seekForwardIncrementMs = seekForwardIncrementMs;
     timelineTracker = new CastTimelineTracker();
     period = new Timeline.Period();
     statusListener = new StatusListener();
@@ -449,13 +449,13 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public long getSeekForwardIncrement() {
-    return seekForwardIncrementMs;
+  public long getSeekBackIncrement() {
+    return seekBackIncrementMs;
   }
 
   @Override
-  public long getSeekBackIncrement() {
-    return seekBackIncrementMs;
+  public long getSeekForwardIncrement() {
+    return seekForwardIncrementMs;
   }
 
   @Override

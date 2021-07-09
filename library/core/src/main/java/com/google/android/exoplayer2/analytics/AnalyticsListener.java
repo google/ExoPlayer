@@ -172,8 +172,8 @@ public interface AnalyticsListener {
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
     EVENT_PLAYLIST_METADATA_CHANGED,
-    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_SEEK_BACK_INCREMENT_CHANGED,
+    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -256,10 +256,10 @@ public interface AnalyticsListener {
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
   /** {@link Player#getPlaylistMetadata()} changed. */
   int EVENT_PLAYLIST_METADATA_CHANGED = Player.EVENT_PLAYLIST_METADATA_CHANGED;
-  /** {@link Player#getSeekForwardIncrement()} changed. */
-  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
   /** {@link Player#getSeekBackIncrement()} changed. */
   int EVENT_SEEK_BACK_INCREMENT_CHANGED = Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
+  /** {@link Player#getSeekForwardIncrement()} changed. */
+  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
   /** {@link Player#getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED =
       Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
@@ -599,20 +599,20 @@ public interface AnalyticsListener {
       EventTime eventTime, PlaybackParameters playbackParameters) {}
 
   /**
-   * Called when the seek forward increment changed.
-   *
-   * @param eventTime The event time.
-   * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
-   */
-  default void onSeekForwardIncrementChanged(EventTime eventTime, long seekForwardIncrementMs) {}
-
-  /**
    * Called when the seek back increment changed.
    *
    * @param eventTime The event time.
    * @param seekBackIncrementMs The seek back increment, in milliseconds.
    */
   default void onSeekBackIncrementChanged(EventTime eventTime, long seekBackIncrementMs) {}
+
+  /**
+   * Called when the seek forward increment changed.
+   *
+   * @param eventTime The event time.
+   * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
+   */
+  default void onSeekForwardIncrementChanged(EventTime eventTime, long seekForwardIncrementMs) {}
 
   /**
    * Called when the maximum position for which {@link Player#seekToPrevious()} seeks to the

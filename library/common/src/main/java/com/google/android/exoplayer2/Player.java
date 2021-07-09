@@ -323,16 +323,6 @@ public interface Player {
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
-     * Called when the value of {@link #getSeekForwardIncrement()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
-     */
-    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
-
-    /**
      * Called when the value of {@link #getSeekBackIncrement()} changes.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
@@ -341,6 +331,16 @@ public interface Player {
      * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
      */
     default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getSeekForwardIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
+     */
+    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
 
     /**
      * Called when the value of {@link #getMaxSeekToPreviousPosition()} changes.
@@ -640,8 +640,8 @@ public interface Player {
         COMMAND_SEEK_TO_NEXT_WINDOW,
         COMMAND_SEEK_TO_PREVIOUS_WINDOW,
         COMMAND_SEEK_TO_WINDOW,
-        COMMAND_SEEK_FORWARD,
         COMMAND_SEEK_BACK,
+        COMMAND_SEEK_FORWARD,
         COMMAND_SET_SPEED_AND_PITCH,
         COMMAND_SET_SHUFFLE_MODE,
         COMMAND_SET_REPEAT_MODE,
@@ -1106,8 +1106,8 @@ public interface Player {
     EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
     EVENT_PLAYLIST_METADATA_CHANGED,
-    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_SEEK_BACK_INCREMENT_CHANGED,
+    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED
   })
   @interface Event {}
@@ -1148,10 +1148,10 @@ public interface Player {
   int EVENT_MEDIA_METADATA_CHANGED = 15;
   /** {@link #getPlaylistMetadata()} changed. */
   int EVENT_PLAYLIST_METADATA_CHANGED = 16;
-  /** {@link #getSeekForwardIncrement()} changed. */
-  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 17;
   /** {@link #getSeekBackIncrement()} changed. */
-  int EVENT_SEEK_BACK_INCREMENT_CHANGED = 18;
+  int EVENT_SEEK_BACK_INCREMENT_CHANGED = 17;
+  /** {@link #getSeekForwardIncrement()} changed. */
+  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 18;
   /** {@link #getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 19;
 
@@ -1159,9 +1159,9 @@ public interface Player {
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_WINDOW}, {@link #COMMAND_SEEK_TO_NEXT_WINDOW}, {@link
-   * #COMMAND_SEEK_TO_PREVIOUS_WINDOW}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link
-   * #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SEEK_BACK}, {@link #COMMAND_SET_SPEED_AND_PITCH},
-   * {@link #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
+   * #COMMAND_SEEK_TO_PREVIOUS_WINDOW}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link #COMMAND_SEEK_BACK},
+   * {@link #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
+   * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
    * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
    * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
    * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
@@ -1180,8 +1180,8 @@ public interface Player {
     COMMAND_SEEK_TO_NEXT_WINDOW,
     COMMAND_SEEK_TO_PREVIOUS_WINDOW,
     COMMAND_SEEK_TO_WINDOW,
-    COMMAND_SEEK_FORWARD,
     COMMAND_SEEK_BACK,
+    COMMAND_SEEK_FORWARD,
     COMMAND_SET_SPEED_AND_PITCH,
     COMMAND_SET_SHUFFLE_MODE,
     COMMAND_SET_REPEAT_MODE,
@@ -1214,10 +1214,10 @@ public interface Player {
   int COMMAND_SEEK_TO_PREVIOUS_WINDOW = 6;
   /** Command to seek anywhere in any window. */
   int COMMAND_SEEK_TO_WINDOW = 7;
-  /** Command to seek forward into the current window. */
-  int COMMAND_SEEK_FORWARD = 8;
   /** Command to seek back into the current window. */
-  int COMMAND_SEEK_BACK = 9;
+  int COMMAND_SEEK_BACK = 8;
+  /** Command to seek forward into the current window. */
+  int COMMAND_SEEK_FORWARD = 9;
   /** Command to set the playback speed and pitch. */
   int COMMAND_SET_SPEED_AND_PITCH = 10;
   /** Command to enable shuffling. */
@@ -1624,17 +1624,6 @@ public interface Player {
   void seekTo(int windowIndex, long positionMs);
 
   /**
-   * Returns the {@link #seekForward()} increment.
-   *
-   * @return The seek forward increment, in milliseconds.
-   * @see Listener#onSeekForwardIncrementChanged(long)
-   */
-  long getSeekForwardIncrement();
-
-  /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
-  void seekForward();
-
-  /**
    * Returns the {@link #seekBack()} increment.
    *
    * @return The seek back increment, in milliseconds.
@@ -1644,6 +1633,17 @@ public interface Player {
 
   /** Seeks back in the current window by {@link #getSeekBackIncrement()} milliseconds. */
   void seekBack();
+
+  /**
+   * Returns the {@link #seekForward()} increment.
+   *
+   * @return The seek forward increment, in milliseconds.
+   * @see Listener#onSeekForwardIncrementChanged(long)
+   */
+  long getSeekForwardIncrement();
+
+  /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
+  void seekForward();
 
   /**
    * Returns whether a previous window exists, which may depend on the current repeat mode and

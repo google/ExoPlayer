@@ -88,8 +88,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Nullable private final AnalyticsCollector analyticsCollector;
   private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
-  private final long seekForwardIncrementMs;
   private final long seekBackIncrementMs;
+  private final long seekForwardIncrementMs;
   private final Clock clock;
 
   @RepeatMode private int repeatMode;
@@ -127,8 +127,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *     loads and other initial preparation steps happen immediately. If true, these initial
    *     preparations are triggered only when the player starts buffering the media.
    * @param seekParameters The {@link SeekParameters}.
-   * @param seekForwardIncrementMs The {@link #seekForward()} increment in milliseconds.
    * @param seekBackIncrementMs The {@link #seekBack()} increment in milliseconds.
+   * @param seekForwardIncrementMs The {@link #seekForward()} increment in milliseconds.
    * @param livePlaybackSpeedControl The {@link LivePlaybackSpeedControl}.
    * @param releaseTimeoutMs The timeout for calls to {@link #release()} in milliseconds.
    * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
@@ -150,8 +150,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       @Nullable AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
       SeekParameters seekParameters,
-      long seekForwardIncrementMs,
       long seekBackIncrementMs,
+      long seekForwardIncrementMs,
       LivePlaybackSpeedControl livePlaybackSpeedControl,
       long releaseTimeoutMs,
       boolean pauseAtEndOfMediaItems,
@@ -176,8 +176,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.analyticsCollector = analyticsCollector;
     this.useLazyPreparation = useLazyPreparation;
     this.seekParameters = seekParameters;
-    this.seekForwardIncrementMs = seekForwardIncrementMs;
     this.seekBackIncrementMs = seekBackIncrementMs;
+    this.seekForwardIncrementMs = seekForwardIncrementMs;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
     this.clock = clock;
@@ -721,13 +721,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public long getSeekForwardIncrement() {
-    return seekForwardIncrementMs;
+  public long getSeekBackIncrement() {
+    return seekBackIncrementMs;
   }
 
   @Override
-  public long getSeekBackIncrement() {
-    return seekBackIncrementMs;
+  public long getSeekForwardIncrement() {
+    return seekForwardIncrementMs;
   }
 
   @Override

@@ -743,21 +743,21 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
-        listener -> listener.onSeekForwardIncrementChanged(eventTime, seekForwardIncrementMs));
-  }
-
-  @Override
   public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_SEEK_BACK_INCREMENT_CHANGED,
         listener -> listener.onSeekBackIncrementChanged(eventTime, seekBackIncrementMs));
+  }
+
+  @Override
+  public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+        listener -> listener.onSeekForwardIncrementChanged(eventTime, seekForwardIncrementMs));
   }
 
   @Override

@@ -129,8 +129,8 @@ public class SimpleExoPlayer extends BasePlayer
     @C.VideoScalingMode private int videoScalingMode;
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
-    private long seekForwardIncrementMs;
     private long seekBackIncrementMs;
+    private long seekForwardIncrementMs;
     private LivePlaybackSpeedControl livePlaybackSpeedControl;
     private long releaseTimeoutMs;
     private long detachSurfaceTimeoutMs;
@@ -167,8 +167,8 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link C.VideoScalingMode}: {@link C#VIDEO_SCALING_MODE_DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
-     *   <li>{@code seekForwardIncrementMs}: {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}
      *   <li>{@code seekBackIncrementMs}: {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}
+     *   <li>{@code seekForwardIncrementMs}: {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}
      *   <li>{@code releaseTimeoutMs}: {@link ExoPlayer#DEFAULT_RELEASE_TIMEOUT_MS}
      *   <li>{@code detachSurfaceTimeoutMs}: {@link #DEFAULT_DETACH_SURFACE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
@@ -266,8 +266,8 @@ public class SimpleExoPlayer extends BasePlayer
       videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
-      seekForwardIncrementMs = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
       seekBackIncrementMs = C.DEFAULT_SEEK_BACK_INCREMENT_MS;
+      seekForwardIncrementMs = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
       livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
       clock = Clock.DEFAULT;
       releaseTimeoutMs = ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
@@ -504,21 +504,6 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
-     * Sets the {@link #seekForward()} increment.
-     *
-     * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
-     * @return This builder.
-     * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
-     * @throws IllegalStateException If {@link #build()} has already been called.
-     */
-    public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
-      checkArgument(seekForwardIncrementMs > 0);
-      Assertions.checkState(!buildCalled);
-      this.seekForwardIncrementMs = seekForwardIncrementMs;
-      return this;
-    }
-
-    /**
      * Sets the {@link #seekBack()} increment.
      *
      * @param seekBackIncrementMs The seek back increment, in milliseconds.
@@ -530,6 +515,21 @@ public class SimpleExoPlayer extends BasePlayer
       checkArgument(seekBackIncrementMs > 0);
       Assertions.checkState(!buildCalled);
       this.seekBackIncrementMs = seekBackIncrementMs;
+      return this;
+    }
+
+    /**
+     * Sets the {@link #seekForward()} increment.
+     *
+     * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
+     * @return This builder.
+     * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
+      checkArgument(seekForwardIncrementMs > 0);
+      Assertions.checkState(!buildCalled);
+      this.seekForwardIncrementMs = seekForwardIncrementMs;
       return this;
     }
 
@@ -762,8 +762,8 @@ public class SimpleExoPlayer extends BasePlayer
               analyticsCollector,
               builder.useLazyPreparation,
               builder.seekParameters,
-              builder.seekForwardIncrementMs,
               builder.seekBackIncrementMs,
+              builder.seekForwardIncrementMs,
               builder.livePlaybackSpeedControl,
               builder.releaseTimeoutMs,
               builder.pauseAtEndOfMediaItems,
@@ -1603,15 +1603,15 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public long getSeekForwardIncrement() {
-    verifyApplicationThread();
-    return player.getSeekForwardIncrement();
-  }
-
-  @Override
   public long getSeekBackIncrement() {
     verifyApplicationThread();
     return player.getSeekBackIncrement();
+  }
+
+  @Override
+  public long getSeekForwardIncrement() {
+    verifyApplicationThread();
+    return player.getSeekForwardIncrement();
   }
 
   @Override

@@ -8167,8 +8167,8 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)).isTrue();
@@ -8216,8 +8216,8 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isFalse();
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
   }
 
   @Test
@@ -8236,8 +8236,8 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_READY);
 
     assertThat(player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isFalse();
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
   }
 
   @Test
@@ -8325,20 +8325,20 @@ public final class ExoPlayerTest {
     Player.Commands commandsWithSeekInCurrentAndToNext =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_WINDOW,
-            COMMAND_SEEK_FORWARD,
             COMMAND_SEEK_BACK,
+            COMMAND_SEEK_FORWARD,
             COMMAND_SEEK_TO_NEXT_WINDOW);
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_WINDOW,
-            COMMAND_SEEK_FORWARD,
             COMMAND_SEEK_BACK,
+            COMMAND_SEEK_FORWARD,
             COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Commands commandsWithSeekAnywhere =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_WINDOW,
-            COMMAND_SEEK_FORWARD,
             COMMAND_SEEK_BACK,
+            COMMAND_SEEK_FORWARD,
             COMMAND_SEEK_TO_NEXT_WINDOW,
             COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Listener mockListener = mock(Player.Listener.class);
@@ -10382,65 +10382,6 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void seekForward_callsOnPositionDiscontinuity() throws Exception {
-    ExoPlayer player = new TestExoPlayerBuilder(context).build();
-    Player.Listener listener = mock(Player.Listener.class);
-    player.addListener(listener);
-    Timeline fakeTimeline =
-        new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* isSeekable= */ true,
-                /* isDynamic= */ true,
-                /* durationUs= */ C.msToUs(2 * C.DEFAULT_SEEK_FORWARD_INCREMENT_MS)));
-    player.setMediaSource(new FakeMediaSource(fakeTimeline));
-
-    player.prepare();
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
-    player.seekForward();
-
-    ArgumentCaptor<Player.PositionInfo> oldPosition =
-        ArgumentCaptor.forClass(Player.PositionInfo.class);
-    ArgumentCaptor<Player.PositionInfo> newPosition =
-        ArgumentCaptor.forClass(Player.PositionInfo.class);
-    verify(listener, never())
-        .onPositionDiscontinuity(any(), any(), not(eq(Player.DISCONTINUITY_REASON_SEEK)));
-    verify(listener)
-        .onPositionDiscontinuity(
-            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
-    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
-    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
-    assertThat(oldPositions.get(0).positionMs).isEqualTo(0);
-    assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
-    assertThat(newPositions.get(0).positionMs).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
-    assertThat(newPositions.get(0).contentPositionMs)
-        .isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
-
-    player.release();
-  }
-
-  @Test
-  public void seekForward_pastDuration_seeksToDuration() throws Exception {
-    ExoPlayer player = new TestExoPlayerBuilder(context).build();
-    Timeline fakeTimeline =
-        new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* isSeekable= */ true,
-                /* isDynamic= */ true,
-                /* durationUs= */ C.msToUs(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2)));
-    player.setMediaSource(new FakeMediaSource(fakeTimeline));
-
-    player.prepare();
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
-    player.seekForward();
-
-    assertThat(player.getCurrentPosition()).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2);
-
-    player.release();
-  }
-
-  @Test
   public void seekBack_callsOnPositionDiscontinuity() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     Player.Listener listener = mock(Player.Listener.class);
@@ -10506,6 +10447,65 @@ public final class ExoPlayerTest {
     player.seekBack();
 
     assertThat(player.getCurrentPosition()).isEqualTo(0);
+
+    player.release();
+  }
+
+  @Test
+  public void seekForward_callsOnPositionDiscontinuity() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* durationUs= */ C.msToUs(2 * C.DEFAULT_SEEK_FORWARD_INCREMENT_MS)));
+    player.setMediaSource(new FakeMediaSource(fakeTimeline));
+
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    player.seekForward();
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), not(eq(Player.DISCONTINUITY_REASON_SEEK)));
+    verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
+    assertThat(newPositions.get(0).contentPositionMs)
+        .isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
+
+    player.release();
+  }
+
+  @Test
+  public void seekForward_pastDuration_seeksToDuration() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* durationUs= */ C.msToUs(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2)));
+    player.setMediaSource(new FakeMediaSource(fakeTimeline));
+
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    player.seekForward();
+
+    assertThat(player.getCurrentPosition()).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2);
 
     player.release();
   }

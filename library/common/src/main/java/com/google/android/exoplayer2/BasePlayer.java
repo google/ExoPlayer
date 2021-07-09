@@ -122,13 +122,13 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public final void seekForward() {
-    seekToOffset(getSeekForwardIncrement());
+  public final void seekBack() {
+    seekToOffset(-getSeekBackIncrement());
   }
 
   @Override
-  public final void seekBack() {
-    seekToOffset(-getSeekBackIncrement());
+  public final void seekForward() {
+    seekToOffset(getSeekForwardIncrement());
   }
 
   @Override
@@ -298,8 +298,8 @@ public abstract class BasePlayer implements Player {
         .addIf(COMMAND_SEEK_TO_NEXT_WINDOW, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_WINDOW, hasPrevious() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_WINDOW, !isPlayingAd())
-        .addIf(COMMAND_SEEK_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
         .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
         .build();
   }
 

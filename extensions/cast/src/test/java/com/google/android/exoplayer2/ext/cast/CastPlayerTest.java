@@ -1104,52 +1104,6 @@ public class CastPlayerTest {
 
   @Test
   @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
-  public void seekForward_notifiesPositionDiscontinuity() {
-    when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
-    int[] mediaQueueItemIds = new int[] {1};
-    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
-    int currentItemId = 1;
-    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
-    long[] durationsMs = new long[] {2 * C.DEFAULT_SEEK_FORWARD_INCREMENT_MS};
-    long positionMs = 0;
-
-    castPlayer.addMediaItems(mediaItems);
-    updateTimeLine(
-        mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
-    castPlayer.seekForward();
-
-    Player.PositionInfo oldPosition =
-        new Player.PositionInfo(
-            /* windowUid= */ 1,
-            /* windowIndex= */ 0,
-            /* periodUid= */ 1,
-            /* periodIndex= */ 0,
-            /* positionMs= */ 0,
-            /* contentPositionMs= */ 0,
-            /* adGroupIndex= */ C.INDEX_UNSET,
-            /* adIndexInAdGroup= */ C.INDEX_UNSET);
-    Player.PositionInfo newPosition =
-        new Player.PositionInfo(
-            /* windowUid= */ 1,
-            /* windowIndex= */ 0,
-            /* periodUid= */ 1,
-            /* periodIndex= */ 0,
-            /* positionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
-            /* contentPositionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
-            /* adGroupIndex= */ C.INDEX_UNSET,
-            /* adIndexInAdGroup= */ C.INDEX_UNSET);
-    InOrder inOrder = Mockito.inOrder(mockListener);
-    inOrder.verify(mockListener).onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_SEEK));
-    inOrder
-        .verify(mockListener)
-        .onPositionDiscontinuity(
-            eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
-    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
-    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
   public void seekBack_notifiesPositionDiscontinuity() {
     when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
     int[] mediaQueueItemIds = new int[] {1};
@@ -1195,6 +1149,52 @@ public class CastPlayerTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
+  public void seekForward_notifiesPositionDiscontinuity() {
+    when(mockRemoteMediaClient.seek(anyLong())).thenReturn(mockPendingResult);
+    int[] mediaQueueItemIds = new int[] {1};
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+    int currentItemId = 1;
+    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_BUFFERED};
+    long[] durationsMs = new long[] {2 * C.DEFAULT_SEEK_FORWARD_INCREMENT_MS};
+    long positionMs = 0;
+
+    castPlayer.addMediaItems(mediaItems);
+    updateTimeLine(
+        mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
+    castPlayer.seekForward();
+
+    Player.PositionInfo oldPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 0,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    Player.PositionInfo newPosition =
+        new Player.PositionInfo(
+            /* windowUid= */ 1,
+            /* windowIndex= */ 0,
+            /* periodUid= */ 1,
+            /* periodIndex= */ 0,
+            /* positionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
+            /* contentPositionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    InOrder inOrder = Mockito.inOrder(mockListener);
+    inOrder.verify(mockListener).onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(
+            eq(oldPosition), eq(newPosition), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
   public void isCommandAvailable_isTrueForAvailableCommands() {
     int[] mediaQueueItemIds = new int[] {1, 2};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
@@ -1209,8 +1209,8 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_REPEAT_MODE)).isTrue();
@@ -1247,8 +1247,8 @@ public class CastPlayerTest {
         /* positionMs= */ C.TIME_UNSET);
 
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isFalse();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
   }
 
   @Test
@@ -1661,8 +1661,8 @@ public class CastPlayerTest {
     Player.Commands.Builder builder = new Player.Commands.Builder();
     builder.addAll(CastPlayer.PERMANENT_AVAILABLE_COMMANDS);
     builder.add(COMMAND_SEEK_IN_CURRENT_WINDOW);
-    builder.add(COMMAND_SEEK_FORWARD);
     builder.add(COMMAND_SEEK_BACK);
+    builder.add(COMMAND_SEEK_FORWARD);
     builder.addAll(additionalCommands);
     return builder.build();
   }
