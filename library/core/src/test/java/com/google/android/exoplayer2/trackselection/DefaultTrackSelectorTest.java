@@ -30,8 +30,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.content.Context;
 import android.os.Parcel;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -51,7 +49,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationLi
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -1725,55 +1722,50 @@ public final class DefaultTrackSelectorTest {
    * variables.
    */
   private static Parameters buildParametersForEqualsTest() {
-    SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides = new SparseArray<>();
-    Map<TrackGroupArray, SelectionOverride> videoOverrides = new HashMap<>();
-    videoOverrides.put(new TrackGroupArray(VIDEO_TRACK_GROUP), new SelectionOverride(0, 1));
-    selectionOverrides.put(2, videoOverrides);
-
-    SparseBooleanArray rendererDisabledFlags = new SparseBooleanArray();
-    rendererDisabledFlags.put(3, true);
-
-    return new Parameters(
+    return Parameters.DEFAULT_WITHOUT_CONTEXT
+        .buildUpon()
         // Video
-        /* maxVideoWidth= */ 0,
-        /* maxVideoHeight= */ 1,
-        /* maxVideoFrameRate= */ 2,
-        /* maxVideoBitrate= */ 3,
-        /* minVideoWidth= */ 4,
-        /* minVideoHeight= */ 5,
-        /* minVideoFrameRate= */ 6,
-        /* minVideoBitrate= */ 7,
-        /* exceedVideoConstraintsIfNecessary= */ false,
-        /* allowVideoMixedMimeTypeAdaptiveness= */ true,
-        /* allowVideoNonSeamlessAdaptiveness= */ false,
-        /* viewportWidth= */ 8,
-        /* viewportHeight= */ 9,
-        /* viewportOrientationMayChange= */ true,
-        /* preferredVideoMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_AV1, MimeTypes.VIDEO_H264),
+        .setMaxVideoSize(/* maxVideoWidth= */ 0, /* maxVideoHeight= */ 1)
+        .setMaxVideoFrameRate(2)
+        .setMaxVideoBitrate(3)
+        .setMinVideoSize(/* minVideoWidth= */ 4, /* minVideoHeight= */ 5)
+        .setMinVideoFrameRate(6)
+        .setMinVideoBitrate(7)
+        .setExceedVideoConstraintsIfNecessary(false)
+        .setAllowVideoMixedMimeTypeAdaptiveness(true)
+        .setAllowVideoNonSeamlessAdaptiveness(false)
+        .setViewportSize(
+            /* viewportWidth= */ 8,
+            /* viewportHeight= */ 9,
+            /* viewportOrientationMayChange= */ true)
+        .setPreferredVideoMimeTypes(MimeTypes.VIDEO_AV1, MimeTypes.VIDEO_H264)
         // Audio
-        /* preferredAudioLanguages= */ ImmutableList.of("zh", "jp"),
-        /* preferredAudioRoleFlags= */ C.ROLE_FLAG_COMMENTARY,
-        /* maxAudioChannelCount= */ 10,
-        /* maxAudioBitrate= */ 11,
-        /* exceedAudioConstraintsIfNecessary= */ false,
-        /* allowAudioMixedMimeTypeAdaptiveness= */ true,
-        /* allowAudioMixedSampleRateAdaptiveness= */ false,
-        /* allowAudioMixedChannelCountAdaptiveness= */ true,
-        /* preferredAudioMimeTypes= */ ImmutableList.of(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3),
+        .setPreferredAudioLanguages("zh", "jp")
+        .setPreferredAudioRoleFlags(C.ROLE_FLAG_COMMENTARY)
+        .setMaxAudioChannelCount(10)
+        .setMaxAudioBitrate(11)
+        .setExceedAudioConstraintsIfNecessary(false)
+        .setAllowAudioMixedMimeTypeAdaptiveness(true)
+        .setAllowAudioMixedSampleRateAdaptiveness(false)
+        .setAllowAudioMixedChannelCountAdaptiveness(true)
+        .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3)
         // Text
-        /* preferredTextLanguages= */ ImmutableList.of("de", "en"),
-        /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
-        /* selectUndeterminedTextLanguage= */ true,
-        /* disabledTextTrackSelectionFlags= */ C.SELECTION_FLAG_AUTOSELECT,
+        .setPreferredTextLanguages("de", "en")
+        .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
+        .setSelectUndeterminedTextLanguage(true)
+        .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
         // General
-        /* forceLowestBitrate= */ false,
-        /* forceHighestSupportedBitrate= */ true,
-        /* exceedRendererCapabilitiesIfNecessary= */ false,
-        /* tunnelingEnabled= */ true,
-        /* allowMultipleAdaptiveSelections= */ true,
-        // Overrides
-        selectionOverrides,
-        rendererDisabledFlags);
+        .setForceLowestBitrate(false)
+        .setForceHighestSupportedBitrate(true)
+        .setExceedRendererCapabilitiesIfNecessary(false)
+        .setTunnelingEnabled(true)
+        .setAllowMultipleAdaptiveSelections(true)
+        .setSelectionOverride(
+            /* rendererIndex= */ 2,
+            new TrackGroupArray(VIDEO_TRACK_GROUP),
+            new SelectionOverride(0, 1))
+        .setRendererDisabled(3, true)
+        .build();
   }
 
   /**
