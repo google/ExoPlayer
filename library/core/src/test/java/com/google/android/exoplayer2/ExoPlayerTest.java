@@ -10511,7 +10511,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void seekToPrevious_closeToStart_seeksToPreviousWindow() {
+  public void seekToPrevious_withPreviousWindowAndCloseToStart_seeksToPreviousWindow() {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
     player.seekTo(/* windowIndex= */ 1, C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS);
@@ -10520,6 +10520,8 @@ public final class ExoPlayerTest {
 
     assertThat(player.getCurrentWindowIndex()).isEqualTo(0);
     assertThat(player.getCurrentPosition()).isEqualTo(0);
+
+    player.release();
   }
 
   @Test
@@ -10532,6 +10534,51 @@ public final class ExoPlayerTest {
 
     assertThat(player.getCurrentWindowIndex()).isEqualTo(1);
     assertThat(player.getCurrentPosition()).isEqualTo(0);
+
+    player.release();
+  }
+
+  @Test
+  public void seekToNext_withNextWindow_seeksToNextWindow() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
+
+    player.seekToNext();
+
+    assertThat(player.getCurrentWindowIndex()).isEqualTo(1);
+    assertThat(player.getCurrentPosition()).isEqualTo(0);
+
+    player.release();
+  }
+
+  @Test
+  public void seekToNext_liveWindowWithoutNextWindow_seeksToLiveEdge() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1_000_000,
+                /* defaultPositionUs= */ 500_000,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                AdPlaybackState.NONE));
+    MediaSource mediaSource = new FakeMediaSource(timeline);
+    player.setMediaSource(mediaSource);
+
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    player.seekTo(/* positionMs = */ 0);
+    player.seekToNext();
+
+    assertThat(player.getCurrentWindowIndex()).isEqualTo(0);
+    assertThat(player.getCurrentPosition()).isEqualTo(500);
+
+    player.release();
   }
 
   @Test

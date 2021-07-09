@@ -298,6 +298,11 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
+  public void seekToNext() {
+    player.seekToNext();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     player.setPlaybackParameters(playbackParameters);
   }

@@ -1716,6 +1716,20 @@ public interface Player {
   void next();
 
   /**
+   * Seeks to a later position in the current or next window (if available). More precisely:
+   *
+   * <ul>
+   *   <li>If the timeline is empty or seeking is not possible, does nothing.
+   *   <li>Otherwise, if {@link #hasNext() a next window exists}, seeks to the default position of
+   *       the next window.
+   *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and has not
+   *       ended, seeks to the live edge of the current window.
+   *   <li>Otherwise, does nothing.
+   * </ul>
+   */
+  void seekToNext();
+
+  /**
    * Attempts to set the playback parameters. Passing {@link PlaybackParameters#DEFAULT} resets the
    * player to the default, which means there is no speed or pitch adjustment.
    *

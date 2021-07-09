@@ -176,6 +176,19 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void seekToNext() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty() || isPlayingAd()) {
+      return;
+    }
+    if (hasNext()) {
+      next();
+    } else if (isCurrentWindowLive() && isCurrentWindowDynamic()) {
+      seekToDefaultPosition();
+    }
+  }
+
+  @Override
   public final void setPlaybackSpeed(float speed) {
     setPlaybackParameters(getPlaybackParameters().withSpeed(speed));
   }
