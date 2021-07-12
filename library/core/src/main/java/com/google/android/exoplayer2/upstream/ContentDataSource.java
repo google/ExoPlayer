@@ -34,10 +34,23 @@ import java.nio.channels.FileChannel;
 public final class ContentDataSource extends BaseDataSource {
 
   /** Thrown when an {@link IOException} is encountered reading from a content URI. */
-  public static class ContentDataSourceException extends IOException {
+  public static class ContentDataSourceException extends DataSourceException {
 
+    /** @deprecated Use {@link #ContentDataSourceException(IOException, int)}. */
+    @Deprecated
     public ContentDataSourceException(IOException cause) {
-      super(cause);
+      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param cause The error cause.
+     * @param errorCode See {@link PlaybackException.ErrorCode}.
+     */
+    public ContentDataSourceException(
+        IOException cause, @PlaybackException.ErrorCode int errorCode) {
+      super(cause, errorCode);
     }
   }
 
@@ -80,9 +93,7 @@ public final class ContentDataSource extends BaseDataSource {
       // file.
       if (assetFileDescriptorLength != AssetFileDescriptor.UNKNOWN_LENGTH
           && dataSpec.position > assetFileDescriptorLength) {
-        throw new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       long assetFileDescriptorOffset = assetFileDescriptor.getStartOffset();
       long skipped =
@@ -91,9 +102,7 @@ public final class ContentDataSource extends BaseDataSource {
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // read beyond the end of the last resource in the file.
-        throw new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
         // The asset must extend to the end of the file. We can try and resolve the length with
@@ -107,20 +116,17 @@ public final class ContentDataSource extends BaseDataSource {
           if (bytesRemaining < 0) {
             // The skip above was satisfied in full, but skipped beyond the end of the file.
             throw new DataSourceException(
-                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-                DataSourceException.TYPE_READ);
+                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
           }
         }
       } else {
         bytesRemaining = assetFileDescriptorLength - skipped;
         if (bytesRemaining < 0) {
-          throw new DataSourceException(
-              PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-              DataSourceException.TYPE_READ);
+          throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
         }
       }
     } catch (IOException e) {
-      throw new ContentDataSourceException(e);
+      throw new ContentDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     if (dataSpec.length != C.LENGTH_UNSET) {
@@ -146,7 +152,7 @@ public final class ContentDataSource extends BaseDataSource {
           bytesRemaining == C.LENGTH_UNSET ? readLength : (int) min(bytesRemaining, readLength);
       bytesRead = castNonNull(inputStream).read(buffer, offset, bytesToRead);
     } catch (IOException e) {
-      throw new ContentDataSourceException(e);
+      throw new ContentDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     if (bytesRead == -1) {
@@ -174,7 +180,7 @@ public final class ContentDataSource extends BaseDataSource {
         inputStream.close();
       }
     } catch (IOException e) {
-      throw new ContentDataSourceException(e);
+      throw new ContentDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } finally {
       inputStream = null;
       try {
@@ -182,7 +188,7 @@ public final class ContentDataSource extends BaseDataSource {
           assetFileDescriptor.close();
         }
       } catch (IOException e) {
-        throw new ContentDataSourceException(e);
+        throw new ContentDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       } finally {
         assetFileDescriptor = null;
         if (opened) {

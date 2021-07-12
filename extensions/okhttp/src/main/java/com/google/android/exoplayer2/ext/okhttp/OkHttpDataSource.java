@@ -295,7 +295,11 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
         throw new CleartextNotPermittedException(e, dataSpec);
       }
       throw new HttpDataSourceException(
-          "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+          "Unable to connect",
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     int responseCode = response.code();
@@ -325,9 +329,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
               responseCode, response.message(), headers, dataSpec, errorResponseBody);
       if (responseCode == 416) {
         exception.initCause(
-            new DataSourceException(
-                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-                DataSourceException.TYPE_READ));
+            new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE));
       }
       throw exception;
     }
@@ -358,13 +360,15 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
     try {
       if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
     } catch (IOException e) {
       closeConnectionQuietly();
-      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+      throw new HttpDataSourceException(
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     return bytesToRead;
@@ -376,12 +380,15 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
       throw new HttpDataSourceException(
-          e, Assertions.checkNotNull(dataSpec), HttpDataSourceException.TYPE_READ);
+          e,
+          Assertions.checkNotNull(dataSpec),
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          HttpDataSourceException.TYPE_READ);
     }
   }
 
   @Override
-  public void close() throws HttpDataSourceException {
+  public void close() {
     if (opened) {
       opened = false;
       transferEnded();
@@ -397,7 +404,10 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     @Nullable HttpUrl url = HttpUrl.parse(dataSpec.uri.toString());
     if (url == null) {
       throw new HttpDataSourceException(
-          "Malformed URL", dataSpec, HttpDataSourceException.TYPE_OPEN);
+          "Malformed URL",
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_BAD_HTTP_REQUEST,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     Request.Builder builder = new Request.Builder().url(url);

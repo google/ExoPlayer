@@ -351,12 +351,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     public final int cronetConnectionStatus;
 
     public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
-      super(cause, dataSpec, TYPE_OPEN);
+      super(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
     public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
-      super(errorMessage, dataSpec, TYPE_OPEN);
+      super(errorMessage, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
   }
@@ -677,9 +677,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
               responseBody);
       if (responseCode == 416) {
         exception.initCause(
-            new DataSourceException(
-                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-                DataSourceException.TYPE_READ));
+            new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE));
       }
       throw exception;
     }
@@ -721,9 +719,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
     try {
       if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
     } catch (IOException e) {
       throw new OpenException(e, dataSpec, Status.READING_RESPONSE);
@@ -751,7 +747,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readInternal(readBuffer);
       } catch (IOException e) {
         throw new HttpDataSourceException(
-            e, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
+            e,
+            castNonNull(currentDataSpec),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSourceException.TYPE_READ);
       }
 
       if (finished) {
@@ -838,7 +837,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       readInternal(buffer);
     } catch (IOException e) {
       throw new HttpDataSourceException(
-          e, castNonNull(currentDataSpec), HttpDataSourceException.TYPE_READ);
+          e,
+          castNonNull(currentDataSpec),
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          HttpDataSourceException.TYPE_READ);
     }
 
     if (finished) {

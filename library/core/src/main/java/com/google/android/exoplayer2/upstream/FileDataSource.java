@@ -91,9 +91,7 @@ public final class FileDataSource extends BaseDataSource {
       bytesRemaining =
           dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position : dataSpec.length;
       if (bytesRemaining < 0) {
-        throw new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
     } catch (FileDataSourceException e) {
       throw e;

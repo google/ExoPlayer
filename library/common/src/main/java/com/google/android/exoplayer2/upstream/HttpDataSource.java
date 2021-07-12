@@ -16,12 +16,16 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.text.TextUtils;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -187,8 +191,26 @@ public interface HttpDataSource extends DataSource {
   /** Thrown when an error is encountered when trying to read from a {@link HttpDataSource}. */
   class HttpDataSourceException extends DataSourceException {
 
+    /**
+     * The type of operation that produced the error. One of {@link #TYPE_READ}, {@link #TYPE_OPEN}
+     * {@link #TYPE_CLOSE}.
+     */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
+    public @interface Type {}
+
+    /** The error occurred reading data from a {@code HttpDataSource}. */
+    public static final int TYPE_OPEN = 1;
+    /** The error occurred in opening a {@code HttpDataSource}. */
+    public static final int TYPE_READ = 2;
+    /** The error occurred in closing a {@code HttpDataSource}. */
+    public static final int TYPE_CLOSE = 3;
+
     /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;
+
+    @Type public final int type;
 
     /**
      * @deprecated Use {@link #HttpDataSourceException(DataSpec, int, int)
@@ -209,8 +231,9 @@ public interface HttpDataSource extends DataSource {
      */
     public HttpDataSourceException(
         DataSpec dataSpec, @PlaybackException.ErrorCode int errorCode, @Type int type) {
-      super(errorCode, type);
+      super(errorCode);
       this.dataSpec = dataSpec;
+      this.type = type;
     }
 
     /**
@@ -237,8 +260,9 @@ public interface HttpDataSource extends DataSource {
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
-      super(message, errorCode, type);
+      super(message, errorCode);
       this.dataSpec = dataSpec;
+      this.type = type;
     }
 
     /**
@@ -265,8 +289,9 @@ public interface HttpDataSource extends DataSource {
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
-      super(cause, errorCode, type);
+      super(cause, errorCode);
       this.dataSpec = dataSpec;
+      this.type = type;
     }
 
     /**
@@ -296,8 +321,9 @@ public interface HttpDataSource extends DataSource {
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
-      super(message, cause, errorCode, type);
+      super(message, cause, errorCode);
       this.dataSpec = dataSpec;
+      this.type = type;
     }
   }
 

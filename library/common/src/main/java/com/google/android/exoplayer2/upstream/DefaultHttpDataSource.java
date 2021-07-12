@@ -356,7 +356,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         throw new CleartextNotPermittedException(e, dataSpec);
       }
       throw new HttpDataSourceException(
-          "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+          "Unable to connect",
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     HttpURLConnection connection = this.connection;
@@ -367,7 +371,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException(
-          "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+          "Unable to connect",
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     // Check for a valid response code.
@@ -397,9 +405,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
               responseCode, responseMessage, headers, dataSpec, errorResponseBody);
       if (responseCode == 416) {
         exception.initCause(
-            new DataSourceException(
-                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-                DataSourceException.TYPE_READ));
+            new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE));
       }
       throw exception;
     }
@@ -443,7 +449,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       }
     } catch (IOException e) {
       closeConnectionQuietly();
-      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+      throw new HttpDataSourceException(
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     opened = true;
@@ -451,13 +461,17 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     try {
       if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
     } catch (IOException e) {
       closeConnectionQuietly();
-      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+
+      @PlaybackException.ErrorCode int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
+      if (e instanceof DataSourceException) {
+        errorCode = ((DataSourceException) e).reason;
+      }
+
+      throw new HttpDataSourceException(e, dataSpec, errorCode, HttpDataSourceException.TYPE_OPEN);
     }
 
     return bytesToRead;
@@ -469,7 +483,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
       throw new HttpDataSourceException(
-          e, castNonNull(dataSpec), HttpDataSourceException.TYPE_READ);
+          e,
+          castNonNull(dataSpec),
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          HttpDataSourceException.TYPE_READ);
     }
   }
 
@@ -485,7 +502,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           inputStream.close();
         } catch (IOException e) {
           throw new HttpDataSourceException(
-              e, castNonNull(dataSpec), HttpDataSourceException.TYPE_CLOSE);
+              e,
+              castNonNull(dataSpec),
+              PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+              HttpDataSourceException.TYPE_CLOSE);
         }
       }
     } finally {

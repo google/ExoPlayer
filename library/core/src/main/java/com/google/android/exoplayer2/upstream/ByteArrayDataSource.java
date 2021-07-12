@@ -47,9 +47,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
     uri = dataSpec.uri;
     transferInitializing(dataSpec);
     if (dataSpec.position > data.length) {
-      throw new DataSourceException(
-          PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-          DataSourceException.TYPE_READ);
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
     readPosition = (int) dataSpec.position;
     bytesRemaining = data.length - (int) dataSpec.position;

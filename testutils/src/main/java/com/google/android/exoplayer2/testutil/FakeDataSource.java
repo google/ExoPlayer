@@ -117,9 +117,7 @@ public class FakeDataSource extends BaseDataSource {
     }
 
     if (dataSpec.position > totalLength) {
-      throw new DataSourceException(
-          PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-          DataSourceException.TYPE_READ);
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
 
     // Scan through the segments, configuring them for the current read.

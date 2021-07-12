@@ -70,9 +70,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
     }
     if (dataSpec.position > data.length) {
       data = null;
-      throw new DataSourceException(
-          PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-          DataSourceException.TYPE_READ);
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
     readPosition = (int) dataSpec.position;
     bytesRemaining = data.length - readPosition;

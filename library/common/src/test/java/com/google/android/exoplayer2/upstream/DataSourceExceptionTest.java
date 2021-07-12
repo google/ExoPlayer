@@ -30,26 +30,20 @@ public class DataSourceExceptionTest {
   @Test
   public void isCausedByPositionOutOfRange_reasonIsPositionOutOfRange_returnsTrue() {
     DataSourceException e =
-        new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
   }
 
   @Test
   public void isCausedByPositionOutOfRange_reasonIsOther_returnsFalse() {
-    DataSourceException e =
-        new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_UNSPECIFIED, DataSourceException.TYPE_READ);
+    DataSourceException e = new DataSourceException(PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isFalse();
   }
 
   @Test
-  public void isCausedByPositionOutOfRange_indirectauseReasonIsPositionOutOfRange_returnsTrue() {
+  public void isCausedByPositionOutOfRange_indirectCauseReasonIsPositionOutOfRange_returnsTrue() {
     DataSourceException cause =
-        new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-            DataSourceException.TYPE_READ);
+        new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     IOException e = new IOException(new IOException(cause));
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
   }
@@ -57,8 +51,7 @@ public class DataSourceExceptionTest {
   @Test
   public void isCausedByPositionOutOfRange_causeReasonIsOther_returnsFalse() {
     DataSourceException cause =
-        new DataSourceException(
-            PlaybackException.ERROR_CODE_IO_UNSPECIFIED, DataSourceException.TYPE_READ);
+        new DataSourceException(PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     IOException e = new IOException(new IOException(cause));
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isFalse();
   }

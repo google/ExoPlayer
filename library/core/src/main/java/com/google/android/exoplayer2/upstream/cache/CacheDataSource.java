@@ -575,8 +575,7 @@ public final class CacheDataSource implements DataSource {
           bytesRemaining -= dataSpec.position;
           if (bytesRemaining < 0) {
             throw new DataSourceException(
-                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-                DataSourceException.TYPE_READ);
+                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
           }
         }
       }
