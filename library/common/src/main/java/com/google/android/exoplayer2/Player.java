@@ -367,6 +367,8 @@ public interface Player {
      * <p>State changes and events that happen within one {@link Looper} message queue iteration are
      * reported together and only after all individual callbacks were triggered.
      *
+     * <p>Only state changes represented by {@link Event events} are reported through this method.
+     *
      * <p>Listeners should prefer this method over individual callbacks in the following cases:
      *
      * <ul>
@@ -886,12 +888,106 @@ public interface Player {
           DeviceListener,
           EventListener {
 
-    // For backward compatibility TextOutput and MetadataOutput must stay functional interfaces.
+    @Override
+    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
+
+    @Override
+    default void onMediaItemTransition(
+        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
+
+    @Override
+    default void onTracksChanged(
+        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+
+    @Override
+    default void onIsLoadingChanged(boolean isLoading) {}
+
+    @Override
+    default void onAvailableCommandsChanged(Commands availableCommands) {}
+
+    @Override
+    default void onPlaybackStateChanged(@State int state) {}
+
+    @Override
+    default void onPlayWhenReadyChanged(
+        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {}
+
+    @Override
+    default void onPlaybackSuppressionReasonChanged(
+        @PlaybackSuppressionReason int playbackSuppressionReason) {}
+
+    @Override
+    default void onIsPlayingChanged(boolean isPlaying) {}
+
+    @Override
+    default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
+
+    @Override
+    default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
+
+    @Override
+    default void onPlayerError(PlaybackException error) {}
+
+    @Override
+    default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
+
+    @Override
+    default void onPositionDiscontinuity(
+        PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {}
+
+    @Override
+    default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
+
+    @Override
+    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
+
+    @Override
+    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
+
+    @Override
+    default void onAudioSessionIdChanged(int audioSessionId) {}
+
+    @Override
+    default void onAudioAttributesChanged(AudioAttributes audioAttributes) {}
+
+    @Override
+    default void onVolumeChanged(float volume) {}
+
+    @Override
+    default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
+
+    @Override
+    default void onDeviceInfoChanged(DeviceInfo deviceInfo) {}
+
+    @Override
+    default void onDeviceVolumeChanged(int volume, boolean muted) {}
+
+    @Override
+    default void onEvents(Player player, Events events) {}
+
+    @Override
+    default void onVideoSizeChanged(VideoSize videoSize) {}
+
+    @Override
+    default void onSurfaceSizeChanged(int width, int height) {}
+
+    @Override
+    default void onRenderedFirstFrame() {}
+
     @Override
     default void onCues(List<Cue> cues) {}
 
     @Override
     default void onMetadata(Metadata metadata) {}
+
+    @Override
+    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    @Override
+    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    @Override
+    default void onStaticMetadataChanged(List<Metadata> metadataList) {}
   }
 
   /**
