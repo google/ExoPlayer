@@ -76,7 +76,8 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED,
         ERROR_CODE_DRM_DISALLOWED_OPERATION,
         ERROR_CODE_DRM_SYSTEM_ERROR,
-        ERROR_CODE_DRM_DEVICE_REVOKED
+        ERROR_CODE_DRM_DEVICE_REVOKED,
+        ERROR_CODE_DRM_LICENSE_EXPIRED
       })
   public @interface ErrorCode {}
 
@@ -196,6 +197,8 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_DRM_SYSTEM_ERROR = 6006;
   /** Caused by the device having revoked DRM privileges. */
   public static final int ERROR_CODE_DRM_DEVICE_REVOKED = 6007;
+  /** Caused by an expired DRM license being loaded into an open DRM session. */
+  public static final int ERROR_CODE_DRM_LICENSE_EXPIRED = 6008;
 
   /**
    * Player implementations that want to surface custom errors can use error codes greater than this
@@ -276,6 +279,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_DRM_SYSTEM_ERROR";
       case ERROR_CODE_DRM_DEVICE_REVOKED:
         return "ERROR_CODE_DRM_DEVICE_REVOKED";
+      case ERROR_CODE_DRM_LICENSE_EXPIRED:
+        return "ERROR_CODE_DRM_LICENSE_EXPIRED";
       default:
         if (errorCode >= CUSTOM_ERROR_CODE_BASE) {
           return "custom error code";
