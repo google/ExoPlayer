@@ -224,6 +224,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean deliverPendingMessageAtStartPositionRequired;
   @Nullable private ExoPlaybackException pendingRecoverableRendererError;
 
+  private int stuckLoadingRetryCount;
   private long setForegroundModeTimeoutMs;
 
   public ExoPlayerImplInternal(
@@ -746,6 +747,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     loadControl.onPrepared();
     setState(playbackInfo.timeline.isEmpty() ? Player.STATE_ENDED : Player.STATE_BUFFERING);
     mediaSourceList.prepare(bandwidthMeter.getTransferListener());
+    stuckLoadingRetryCount = 0;
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -1103,7 +1105,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       if (!playbackInfo.isLoading
           && playbackInfo.totalBufferedDurationUs < 500_000
-          && isLoadingPossible()) {
+          && isLoadingPossible()
+          && stuckLoadingRetryCount++ >= 3) {
+        stuckLoadingRetryCount = 0;
         // Throw if the LoadControl prevents loading even if the buffer is empty or almost empty. We
         // can't compare against 0 to account for small differences between the renderer position
         // and buffered position in the media at the point where playback gets stuck.
