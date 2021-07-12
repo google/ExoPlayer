@@ -1389,6 +1389,7 @@ public class PlayerNotificationManager {
       builder.setGroup(groupKey);
     }
 
+    builder.setOnlyAlertOnce(true);
     return builder;
   }
 
