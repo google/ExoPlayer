@@ -296,6 +296,11 @@ public abstract class BasePlayer implements Player {
         .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
         .addIf(COMMAND_SEEK_IN_CURRENT_WINDOW, isCurrentWindowSeekable() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_WINDOW, hasPrevious() && !isPlayingAd())
+        .addIf(
+            COMMAND_SEEK_TO_PREVIOUS,
+            !getCurrentTimeline().isEmpty()
+                && (hasPrevious() || !isCurrentWindowLive() || isCurrentWindowSeekable())
+                && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_NEXT_WINDOW, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_WINDOW, !isPlayingAd())
         .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())
