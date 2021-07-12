@@ -876,14 +876,14 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     }
 
     @Override
-    public void onProvisionError(Exception error) {
+    public void onProvisionError(Exception error, boolean thrownByExoMediaDrm) {
       provisioningSession = null;
       ImmutableList<DefaultDrmSession> sessionsToNotify =
           ImmutableList.copyOf(sessionsAwaitingProvisioning);
       // Clear the list before calling onProvisionError in case provisioning is re-requested.
       sessionsAwaitingProvisioning.clear();
       for (DefaultDrmSession session : sessionsToNotify) {
-        session.onProvisionError(error);
+        session.onProvisionError(error, thrownByExoMediaDrm);
       }
     }
 
