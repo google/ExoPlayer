@@ -59,6 +59,7 @@ public final class NetworkTypeObserver {
   }
 
   @Nullable private static NetworkTypeObserver staticInstance;
+  private static volatile boolean disable5GNsaDisambiguation;
 
   private final Handler mainHandler;
   // This class needs to hold weak references as it doesn't require listeners to unregister.
@@ -68,6 +69,11 @@ public final class NetworkTypeObserver {
   @GuardedBy("networkTypeLock")
   @C.NetworkType
   private int networkType;
+
+  /** Disables logic to disambiguate 5G-NSA networks from 4G networks. */
+  public static void disable5GNsaDisambiguation() {
+    disable5GNsaDisambiguation = true;
+  }
 
   /**
    * Returns a network type observer instance.
@@ -217,7 +223,7 @@ public final class NetworkTypeObserver {
     @Override
     public void onReceive(Context context, Intent intent) {
       @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
-      if (networkType == C.NETWORK_TYPE_4G && Util.SDK_INT >= 29) {
+      if (Util.SDK_INT >= 29 && !disable5GNsaDisambiguation && networkType == C.NETWORK_TYPE_4G) {
         // Delay update of the network type to check whether this is actually 5G-NSA.
         try {
           // We can't access TelephonyManager getters like getServiceState() directly as they
