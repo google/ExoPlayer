@@ -179,7 +179,7 @@ public final class ListenerSet<T> {
       return;
     }
     if (!handler.hasMessages(MSG_ITERATION_FINISHED)) {
-      handler.obtainMessage(MSG_ITERATION_FINISHED).sendToTarget();
+      handler.sendMessageAtFrontOfQueue(handler.obtainMessage(MSG_ITERATION_FINISHED));
     }
     boolean recursiveFlushInProgress = !flushingEvents.isEmpty();
     flushingEvents.addAll(queuedEvents);

@@ -390,8 +390,8 @@ public class ListenerSetTest {
     // lazy release.
     verify(listener, times(3)).callback1();
     verify(listener).callback3();
-    verify(listener).iterationFinished(createFlagSet(EVENT_ID_1));
-    verify(listener).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_3));
+    verify(listener, times(2)).iterationFinished(createFlagSet(EVENT_ID_1));
+    verify(listener).iterationFinished(createFlagSet(EVENT_ID_3));
     verifyNoMoreInteractions(listener);
   }
 
