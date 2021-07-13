@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_WINDOW;
@@ -8181,6 +8182,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
@@ -8231,6 +8233,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
@@ -8310,13 +8313,38 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void isCommandAvailable_duringLiveItem_isTrueForSeekToNext() throws Exception {
+    Timeline timelineWithLiveWindow =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ C.TIME_UNSET,
+                /* defaultPositionUs= */ 10_000_000,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                AdPlaybackState.NONE));
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+
+    player.addMediaSource(new FakeMediaSource(timelineWithLiveWindow));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)).isTrue();
+  }
+
+  @Test
   public void seekTo_nextWindow_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8348,9 +8376,10 @@ public final class ExoPlayerTest {
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8397,26 +8426,28 @@ public final class ExoPlayerTest {
   @Test
   public void automaticWindowTransition_notifiesAvailableCommandsChanged() throws Exception {
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekInCurrentAndToNextWindow =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_WINDOW,
+            COMMAND_SEEK_TO_NEXT_WINDOW,
+            COMMAND_SEEK_TO_NEXT,
             COMMAND_SEEK_BACK,
-            COMMAND_SEEK_FORWARD,
-            COMMAND_SEEK_TO_NEXT_WINDOW);
+            COMMAND_SEEK_FORWARD);
     Player.Commands commandsWithSeekInCurrentAndToPreviousWindow =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_WINDOW,
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW,
             COMMAND_SEEK_BACK,
-            COMMAND_SEEK_FORWARD,
-            COMMAND_SEEK_TO_PREVIOUS_WINDOW);
+            COMMAND_SEEK_FORWARD);
     Player.Commands commandsWithSeekAnywhere =
         createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_WINDOW,
-            COMMAND_SEEK_BACK,
-            COMMAND_SEEK_FORWARD,
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW,
             COMMAND_SEEK_TO_NEXT_WINDOW,
-            COMMAND_SEEK_TO_PREVIOUS_WINDOW);
+            COMMAND_SEEK_TO_NEXT,
+            COMMAND_SEEK_BACK,
+            COMMAND_SEEK_FORWARD);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8455,7 +8486,7 @@ public final class ExoPlayerTest {
   public void addMediaSource_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8499,7 +8530,7 @@ public final class ExoPlayerTest {
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty */ true);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
@@ -8556,7 +8587,7 @@ public final class ExoPlayerTest {
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8575,7 +8606,8 @@ public final class ExoPlayerTest {
   public void setRepeatMode_all_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8609,7 +8641,7 @@ public final class ExoPlayerTest {
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Listener mockListener = mock(Player.Listener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);

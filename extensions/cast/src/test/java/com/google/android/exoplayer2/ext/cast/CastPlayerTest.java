@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_WINDOW;
@@ -1210,6 +1211,7 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
@@ -1294,15 +1296,36 @@ public class CastPlayerTest {
   }
 
   @Test
+  public void isCommandAvailable_duringLiveItem_isTrueForSeekToNext() {
+    MediaItem mediaItem = createMediaItem(/* mediaQueueItemId= */ 1);
+    List<MediaItem> mediaItems = ImmutableList.of(mediaItem);
+    int[] mediaQueueItemIds = new int[] {1};
+    int[] streamTypes = new int[] {MediaInfo.STREAM_TYPE_LIVE};
+    long[] durationsMs = new long[] {C.TIME_UNSET};
+
+    castPlayer.addMediaItem(mediaItem);
+    updateTimeLine(
+        mediaItems,
+        mediaQueueItemIds,
+        /* currentItemId= */ 1,
+        streamTypes,
+        durationsMs,
+        /* positionMs= */ C.TIME_UNSET);
+
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT)).isTrue();
+  }
+
+  @Test
   public void seekTo_nextWindow_notifiesAvailableCommandsChanged() {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     int[] mediaQueueItemIds = new int[] {1, 2, 3, 4};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1331,9 +1354,10 @@ public class CastPlayerTest {
     Player.Commands commandsWithSeekToPreviousWindow =
         createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     int[] mediaQueueItemIds = new int[] {1, 2, 3, 4};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1377,7 +1401,7 @@ public class CastPlayerTest {
   public void addMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1445,7 +1469,7 @@ public class CastPlayerTest {
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
@@ -1533,7 +1557,7 @@ public class CastPlayerTest {
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
 
@@ -1561,7 +1585,8 @@ public class CastPlayerTest {
         .thenReturn(mockPendingResult);
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW);
+        createWithDefaultCommands(
+            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
     int[] mediaQueueItemIds = new int[] {1};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
