@@ -25,13 +25,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
-import android.system.ErrnoException;
-import android.system.OsConstants;
 import android.util.Pair;
 import androidx.annotation.CheckResult;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParametersListener;
 import com.google.android.exoplayer2.PlaybackException.ErrorCode;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -63,7 +59,6 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -586,21 +581,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     } catch (DrmSession.DrmSessionException e) {
       handleIoException(e, e.errorCode);
     } catch (FileDataSource.FileDataSourceException e) {
-      @Nullable Throwable cause = e.getCause();
-      @ErrorCode int errorCode;
-      if (cause instanceof FileNotFoundException) {
-        if (Util.SDK_INT >= 21
-            && PlatformOperationsWrapperV21.isPermissionError(cause.getCause())) {
-          errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
-        } else {
-          errorCode = PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND;
-        }
-      } else if (cause instanceof SecurityException) {
-        errorCode = PlaybackException.ERROR_CODE_IO_NO_PERMISSION;
-      } else {
-        errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
-      }
-      handleIoException(e, errorCode);
+      handleIoException(e, e.reason);
     } catch (ParserException e) {
       @ErrorCode int errorCode;
       if (e.dataType == C.DATA_TYPE_MEDIA) {
@@ -3063,15 +3044,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       this.toIndex = toIndex;
       this.newFromIndex = newFromIndex;
       this.shuffleOrder = shuffleOrder;
-    }
-  }
-
-  @RequiresApi(21)
-  private static final class PlatformOperationsWrapperV21 {
-
-    @DoNotInline
-    public static boolean isPermissionError(@Nullable Throwable e) {
-      return e instanceof ErrnoException && ((ErrnoException) e).errno == OsConstants.EACCES;
     }
   }
 }

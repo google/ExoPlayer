@@ -19,11 +19,16 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
 import android.net.Uri;
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import android.text.TextUtils;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -32,14 +37,29 @@ import java.io.RandomAccessFile;
 public final class FileDataSource extends BaseDataSource {
 
   /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
-  public static class FileDataSourceException extends IOException {
+  public static class FileDataSourceException extends DataSourceException {
 
+    /** @deprecated Use {@link #FileDataSourceException(Throwable, int)} */
+    @Deprecated
     public FileDataSourceException(Exception cause) {
-      super(cause);
+      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
+    /** @deprecated Use {@link #FileDataSourceException(String, Throwable, int)} */
+    @Deprecated
     public FileDataSourceException(String message, IOException cause) {
-      super(message, cause);
+      super(message, cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+
+    /** Creates a {@code FileDataSourceException}. */
+    public FileDataSourceException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+      super(cause, errorCode);
+    }
+
+    /** Creates a {@code FileDataSourceException}. */
+    public FileDataSourceException(
+        String message, Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+      super(message, cause, errorCode);
     }
   }
 
@@ -95,8 +115,10 @@ public final class FileDataSource extends BaseDataSource {
       }
     } catch (FileDataSourceException e) {
       throw e;
-    } catch (Exception e) {
-      throw new FileDataSourceException(e);
+    } catch (DataSourceException e) {
+      throw new FileDataSourceException(e, e.reason);
+    } catch (IOException | RuntimeException e) {
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     opened = true;
@@ -116,7 +138,7 @@ public final class FileDataSource extends BaseDataSource {
       try {
         bytesRead = castNonNull(file).read(buffer, offset, (int) min(bytesRemaining, readLength));
       } catch (IOException e) {
-        throw new FileDataSourceException(e);
+        throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }
 
       if (bytesRead > 0) {
@@ -142,7 +164,7 @@ public final class FileDataSource extends BaseDataSource {
         file.close();
       }
     } catch (IOException e) {
-      throw new FileDataSourceException(e);
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } finally {
       file = null;
       if (opened) {
@@ -163,9 +185,29 @@ public final class FileDataSource extends BaseDataSource {
                     + " on a string containing '?' or '#'? Use Uri.fromFile(new File(path)) to"
                     + " avoid this. path=%s,query=%s,fragment=%s",
                 uri.getPath(), uri.getQuery(), uri.getFragment()),
-            e);
+            e,
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }
-      throw new FileDataSourceException(e);
+
+      // TODO(internal b/193503588): Add tests to ensure the correct error codes are assigned under
+      // different SDK versions.
+      throw new FileDataSourceException(
+          e,
+          Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isPermissionError(e.getCause())
+              ? PlaybackException.ERROR_CODE_IO_NO_PERMISSION
+              : PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+    } catch (SecurityException e) {
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_NO_PERMISSION);
+    } catch (RuntimeException e) {
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+  }
+
+  @RequiresApi(21)
+  private static final class PlatformOperationsWrapperV21 {
+    @DoNotInline
+    private static boolean isPermissionError(@Nullable Throwable e) {
+      return e instanceof ErrnoException && ((ErrnoException) e).errno == OsConstants.EACCES;
     }
   }
 }
