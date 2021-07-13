@@ -56,6 +56,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -273,7 +274,9 @@ public final class ImaAdsLoaderTest {
     adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
     videoAdPlayer.pauseAd(TEST_AD_MEDIA_INFO);
     videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
-    ExoPlaybackException anException = ExoPlaybackException.createForSource(new IOException());
+    ExoPlaybackException anException =
+        ExoPlaybackException.createForSource(
+            new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     imaAdsLoader.onPlayerErrorChanged(anException);
     imaAdsLoader.onPlayerError(anException);
     imaAdsLoader.onPositionDiscontinuity(

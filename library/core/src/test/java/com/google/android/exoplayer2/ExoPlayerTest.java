@@ -1674,7 +1674,9 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_READY)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .prepare()
             .waitForPlaybackState(Player.STATE_BUFFERING)
@@ -1709,7 +1711,8 @@ public final class ExoPlayerTest {
     player
         .createMessage(
             (type, payload) -> {
-              throw ExoPlaybackException.createForSource(new IOException());
+              throw ExoPlaybackException.createForSource(
+                  new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
             })
         .send();
     TestPlayerRunHelper.runUntilError(player);
@@ -1784,7 +1787,9 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .playUntilPosition(/* windowIndex= */ 1, /* positionMs= */ 500)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .executeRunnable(
                 new PlayerRunnable() {
@@ -1847,7 +1852,9 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .playUntilPosition(/* windowIndex= */ 1, /* positionMs= */ 500)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .executeRunnable(
                 new PlayerRunnable() {
@@ -1909,7 +1916,9 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .seek(0, C.TIME_UNSET)
             .prepare()
@@ -1958,12 +1967,16 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .setMediaSources(/* resetPosition= */ false, mediaSource2)
             .prepare()
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .waitForPlaybackState(Player.STATE_IDLE)
             .build();

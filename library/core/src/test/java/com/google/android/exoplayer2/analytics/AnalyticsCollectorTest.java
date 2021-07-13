@@ -731,7 +731,9 @@ public final class AnalyticsCollectorTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .seek(/* positionMs= */ 0)
             .prepare()
@@ -1958,7 +1960,9 @@ public final class AnalyticsCollectorTest {
     analyticsCollector.addListener(listener2);
     analyticsCollector.addListener(listener3);
 
-    analyticsCollector.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
+    analyticsCollector.onPlayerError(
+        ExoPlaybackException.createForSource(
+            new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED));
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     inOrder.verify(listener1).onPlayerError(any(), any());

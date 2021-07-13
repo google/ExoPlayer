@@ -104,16 +104,6 @@ public final class ExoPlaybackException extends PlaybackException {
    * Creates an instance of type {@link #TYPE_SOURCE}.
    *
    * @param cause The cause of the failure.
-   * @return The created instance.
-   */
-  public static ExoPlaybackException createForSource(IOException cause) {
-    return createForSource(cause, ERROR_CODE_UNSPECIFIED);
-  }
-
-  /**
-   * Creates an instance of type {@link #TYPE_SOURCE}.
-   *
-   * @param cause The cause of the failure.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
