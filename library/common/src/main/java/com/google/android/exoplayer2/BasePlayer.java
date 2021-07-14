@@ -131,13 +131,25 @@ public abstract class BasePlayer implements Player {
     seekToOffset(getSeekForwardIncrement());
   }
 
+  @Deprecated
   @Override
   public final boolean hasPrevious() {
-    return getPreviousWindowIndex() != C.INDEX_UNSET;
+    return hasPreviousWindow();
   }
 
   @Override
+  public final boolean hasPreviousWindow() {
+    return getPreviousWindowIndex() != C.INDEX_UNSET;
+  }
+
+  @Deprecated
+  @Override
   public final void previous() {
+    seekToPreviousWindow();
+  }
+
+  @Override
+  public final void seekToPreviousWindow() {
     int previousWindowIndex = getPreviousWindowIndex();
     if (previousWindowIndex != C.INDEX_UNSET) {
       seekToDefaultPosition(previousWindowIndex);
@@ -150,25 +162,37 @@ public abstract class BasePlayer implements Player {
     if (timeline.isEmpty() || isPlayingAd()) {
       return;
     }
-    boolean hasPrevious = hasPrevious();
+    boolean hasPreviousWindow = hasPreviousWindow();
     if (isCurrentWindowLive() && !isCurrentWindowSeekable()) {
-      if (hasPrevious) {
-        previous();
+      if (hasPreviousWindow) {
+        seekToPreviousWindow();
       }
-    } else if (hasPrevious && getCurrentPosition() <= getMaxSeekToPreviousPosition()) {
-      previous();
+    } else if (hasPreviousWindow && getCurrentPosition() <= getMaxSeekToPreviousPosition()) {
+      seekToPreviousWindow();
     } else {
       seekTo(/* positionMs= */ 0);
     }
   }
 
+  @Deprecated
   @Override
   public final boolean hasNext() {
-    return getNextWindowIndex() != C.INDEX_UNSET;
+    return hasNextWindow();
   }
 
   @Override
+  public final boolean hasNextWindow() {
+    return getNextWindowIndex() != C.INDEX_UNSET;
+  }
+
+  @Deprecated
+  @Override
   public final void next() {
+    seekToNextWindow();
+  }
+
+  @Override
+  public final void seekToNextWindow() {
     int nextWindowIndex = getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       seekToDefaultPosition(nextWindowIndex);
@@ -181,8 +205,8 @@ public abstract class BasePlayer implements Player {
     if (timeline.isEmpty() || isPlayingAd()) {
       return;
     }
-    if (hasNext()) {
-      next();
+    if (hasNextWindow()) {
+      seekToNextWindow();
     } else if (isCurrentWindowLive() && isCurrentWindowDynamic()) {
       seekToDefaultPosition();
     }
@@ -295,17 +319,17 @@ public abstract class BasePlayer implements Player {
         .addAll(permanentAvailableCommands)
         .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
         .addIf(COMMAND_SEEK_IN_CURRENT_WINDOW, isCurrentWindowSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_PREVIOUS_WINDOW, hasPrevious() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_WINDOW, hasPreviousWindow() && !isPlayingAd())
         .addIf(
             COMMAND_SEEK_TO_PREVIOUS,
             !getCurrentTimeline().isEmpty()
-                && (hasPrevious() || !isCurrentWindowLive() || isCurrentWindowSeekable())
+                && (hasPreviousWindow() || !isCurrentWindowLive() || isCurrentWindowSeekable())
                 && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_NEXT_WINDOW, hasNext() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_NEXT_WINDOW, hasNextWindow() && !isPlayingAd())
         .addIf(
             COMMAND_SEEK_TO_NEXT,
             !getCurrentTimeline().isEmpty()
-                && (hasNext() || (isCurrentWindowLive() && isCurrentWindowDynamic()))
+                && (hasNextWindow() || (isCurrentWindowLive() && isCurrentWindowDynamic()))
                 && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_WINDOW, !isPlayingAd())
         .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())

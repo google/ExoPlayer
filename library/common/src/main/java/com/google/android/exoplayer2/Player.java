@@ -1542,9 +1542,9 @@ public interface Player {
    *
    * <p>This method does not execute the command.
    *
-   * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
-   * #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor generate a
-   * {@link #getPlayerError()} player error}.
+   * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
+   * if {@link #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor
+   * generate a {@link #getPlayerError()} player error}.
    *
    * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
    * unavailable if there is no such {@link MediaItem}.
@@ -1562,9 +1562,9 @@ public interface Player {
    * Listener#onAvailableCommandsChanged(Commands)} to get an update when the available commands
    * change.
    *
-   * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
-   * #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor generate a
-   * {@link #getPlayerError()} player error}.
+   * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
+   * if {@link #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor
+   * generate a {@link #getPlayerError()} player error}.
    *
    * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
    * unavailable if there is no such {@link MediaItem}.
@@ -1750,6 +1750,10 @@ public interface Player {
   /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
   void seekForward();
 
+  /** @deprecated Use {@link #hasPreviousWindow()} instead. */
+  @Deprecated
+  boolean hasPrevious();
+
   /**
    * Returns whether a previous window exists, which may depend on the current repeat mode and
    * whether shuffle mode is enabled.
@@ -1758,18 +1762,22 @@ public interface Player {
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  boolean hasPrevious();
+  boolean hasPreviousWindow();
+
+  /** @deprecated Use {@link #seekToPreviousWindow()} instead. */
+  @Deprecated
+  void previous();
 
   /**
    * Seeks to the default position of the previous window, which may depend on the current repeat
-   * mode and whether shuffle mode is enabled. Does nothing if {@link #hasPrevious()} is {@code
-   * false}.
+   * mode and whether shuffle mode is enabled. Does nothing if {@link #hasPreviousWindow()} is
+   * {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  void previous();
+  void seekToPreviousWindow();
 
   /**
    * Returns the maximum position for which {@link #seekToPrevious()} seeks to the previous window,
@@ -1788,17 +1796,21 @@ public interface Player {
    *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and {@link
    *       #isCurrentWindowSeekable() unseekable}, then:
    *       <ul>
-   *         <li>If {@link #hasPrevious() a previous window exists}, seeks to the default position
-   *             of the previous window.
+   *         <li>If {@link #hasPreviousWindow() a previous window exists}, seeks to the default
+   *             position of the previous window.
    *         <li>Otherwise, does nothing.
    *       </ul>
-   *   <li>Otherwise, if {@link #hasPrevious() a previous window exists} and the {@link
+   *   <li>Otherwise, if {@link #hasPreviousWindow() a previous window exists} and the {@link
    *       #getCurrentPosition() current position} is less than {@link
    *       #getMaxSeekToPreviousPosition()}, seeks to the default position of the previous window.
    *   <li>Otherwise, seeks to 0 in the current window.
    * </ul>
    */
   void seekToPrevious();
+
+  /** @deprecated Use {@link #hasNextWindow()} instead. */
+  @Deprecated
+  boolean hasNext();
 
   /**
    * Returns whether a next window exists, which may depend on the current repeat mode and whether
@@ -1808,25 +1820,29 @@ public interface Player {
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  boolean hasNext();
+  boolean hasNextWindow();
+
+  /** @deprecated Use {@link #seekToNextWindow()} instead. */
+  @Deprecated
+  void next();
 
   /**
    * Seeks to the default position of the next window, which may depend on the current repeat mode
-   * and whether shuffle mode is enabled. Does nothing if {@link #hasNext()} is {@code false}.
+   * and whether shuffle mode is enabled. Does nothing if {@link #hasNextWindow()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  void next();
+  void seekToNextWindow();
 
   /**
    * Seeks to a later position in the current or next window (if available). More precisely:
    *
    * <ul>
    *   <li>If the timeline is empty or seeking is not possible, does nothing.
-   *   <li>Otherwise, if {@link #hasNext() a next window exists}, seeks to the default position of
-   *       the next window.
+   *   <li>Otherwise, if {@link #hasNextWindow() a next window exists}, seeks to the default
+   *       position of the next window.
    *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and has not
    *       ended, seeks to the live edge of the current window.
    *   <li>Otherwise, does nothing.
@@ -1967,9 +1983,9 @@ public interface Player {
   int getCurrentWindowIndex();
 
   /**
-   * Returns the index of the window that will be played if {@link #next()} is called, which may
-   * depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
-   * C#INDEX_UNSET} if {@link #hasNext()} is {@code false}.
+   * Returns the index of the window that will be played if {@link #seekToNextWindow()} is called,
+   * which may depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
+   * C#INDEX_UNSET} if {@link #hasNextWindow()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
@@ -1978,9 +1994,9 @@ public interface Player {
   int getNextWindowIndex();
 
   /**
-   * Returns the index of the window that will be played if {@link #previous()} is called, which may
-   * depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
-   * C#INDEX_UNSET} if {@link #hasPrevious()} is {@code false}.
+   * Returns the index of the window that will be played if {@link #seekToPreviousWindow()} is
+   * called, which may depend on the current repeat mode and whether shuffle mode is enabled.
+   * Returns {@link C#INDEX_UNSET} if {@link #hasPreviousWindow()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more

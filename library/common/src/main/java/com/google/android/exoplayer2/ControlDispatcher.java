@@ -55,7 +55,7 @@ public interface ControlDispatcher {
   boolean dispatchSeekTo(Player player, int windowIndex, long positionMs);
 
   /**
-   * Dispatches a {@link Player#previous()} operation.
+   * Dispatches a {@link Player#seekToPreviousWindow()} operation.
    *
    * @param player The {@link Player} to which the operation should be dispatched.
    * @return True if the operation was dispatched. False if suppressed.
@@ -63,7 +63,7 @@ public interface ControlDispatcher {
   boolean dispatchPrevious(Player player);
 
   /**
-   * Dispatches a {@link Player#next()} operation.
+   * Dispatches a {@link Player#seekToNextWindow()} operation.
    *
    * @param player The {@link Player} to which the operation should be dispatched.
    * @return True if the operation was dispatched. False if suppressed.

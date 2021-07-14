@@ -9341,7 +9341,7 @@ public final class ExoPlayerTest {
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
 
     // Seek to default position in second stream.
-    player.next();
+    player.seekToNextWindow();
     // Play until close to the end of the available live window.
     TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 1, /* positionMs= */ 999_000);
     long liveOffsetAtEnd = player.getCurrentLiveOffset();

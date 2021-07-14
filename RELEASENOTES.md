@@ -8,6 +8,9 @@
         `seekForward` methods to `Player`.
     *   Add `getMaxSeekToPreviousPosition`, `seekToPrevious` and `seekToNext`
         methods to `Player`.
+    *   Rename `Player` methods `hasPrevious`, `previous`, `hasNext` and `next`
+        to `hasPreviousWindow`, `seekToPreviousWindow`, `hasNextWindow` and
+        `seekToNextWindow`, respectively.
     *   Rename `Player` commands `COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM`,
         `COMMAND_SEEK_TO_NEXT_MEDIA_ITEM`,
         `COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM`, `COMMAND_SEEK_TO_MEDIA_ITEM` and

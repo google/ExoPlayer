@@ -267,14 +267,26 @@ public class ForwardingPlayer implements Player {
     player.seekForward();
   }
 
+  @Deprecated
   @Override
   public boolean hasPrevious() {
     return player.hasPrevious();
   }
 
   @Override
+  public boolean hasPreviousWindow() {
+    return player.hasPreviousWindow();
+  }
+
+  @Deprecated
+  @Override
   public void previous() {
     player.previous();
+  }
+
+  @Override
+  public void seekToPreviousWindow() {
+    player.seekToPreviousWindow();
   }
 
   @Override
@@ -287,14 +299,26 @@ public class ForwardingPlayer implements Player {
     return player.getMaxSeekToPreviousPosition();
   }
 
+  @Deprecated
   @Override
   public boolean hasNext() {
     return player.hasNext();
   }
 
   @Override
+  public boolean hasNextWindow() {
+    return player.hasNextWindow();
+  }
+
+  @Deprecated
+  @Override
   public void next() {
     player.next();
+  }
+
+  @Override
+  public void seekToNextWindow() {
+    player.seekToNextWindow();
   }
 
   @Override

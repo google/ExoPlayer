@@ -480,11 +480,11 @@ import java.util.List;
   }
 
   public boolean canSkipToPreviousPlaylistItem() {
-    return player.hasPrevious();
+    return player.hasPreviousWindow();
   }
 
   public boolean canSkipToNextPlaylistItem() {
-    return player.hasNext();
+    return player.hasNextWindow();
   }
 
   public boolean hasError() {

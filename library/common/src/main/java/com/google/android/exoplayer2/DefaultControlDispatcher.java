@@ -75,10 +75,10 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     }
     boolean isUnseekableLiveStream =
         player.isCurrentWindowLive() && !player.isCurrentWindowSeekable();
-    if (player.hasPrevious()
+    if (player.hasPreviousWindow()
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
             || isUnseekableLiveStream)) {
-      player.previous();
+      player.seekToPreviousWindow();
     } else if (!isUnseekableLiveStream) {
       player.seekTo(/* positionMs= */ 0);
     }
@@ -91,8 +91,8 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return true;
     }
-    if (player.hasNext()) {
-      player.next();
+    if (player.hasNextWindow()) {
+      player.seekToNextWindow();
     } else if (player.isCurrentWindowLive() && player.isCurrentWindowDynamic()) {
       player.seekToDefaultPosition();
     }
