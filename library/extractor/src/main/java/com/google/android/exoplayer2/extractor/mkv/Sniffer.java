@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mkv;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -38,7 +39,7 @@ import java.io.IOException;
     scratch = new ParsableByteArray(8);
   }
 
-  /** @see com.google.android.exoplayer2.extractor.Extractor#sniff(ExtractorInput) */
+  /** See {@link Extractor#sniff(ExtractorInput)}. */
   public boolean sniff(ExtractorInput input) throws IOException {
     long inputLength = input.getLength();
     int bytesToSearch =
