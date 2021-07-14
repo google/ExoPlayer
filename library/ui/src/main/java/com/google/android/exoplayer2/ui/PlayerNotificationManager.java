@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDO
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_WINDOW;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_MEDIA_METADATA_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
@@ -307,10 +308,10 @@ public class PlayerNotificationManager {
     private final Context context;
     private final int notificationId;
     private final String channelId;
-    private final MediaDescriptionAdapter mediaDescriptionAdapter;
 
     @Nullable private NotificationListener notificationListener;
     @Nullable private CustomActionReceiver customActionReceiver;
+    private MediaDescriptionAdapter mediaDescriptionAdapter;
     private int channelNameResourceId;
     private int channelDescriptionResourceId;
     private int channelImportance;
@@ -325,24 +326,33 @@ public class PlayerNotificationManager {
     @Nullable private String groupKey;
 
     /**
-     * Creates an instance.
-     *
-     * @param context The {@link Context}.
-     * @param notificationId The id of the notification to be posted. Must be greater than 0.
-     * @param channelId The id of the notification channel.
-     * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter} to be used.
+     * @deprecated Use {@link #Builder(Context, int, String)} instead, then call {@link
+     *     #setMediaDescriptionAdapter(MediaDescriptionAdapter)}.
      */
+    @Deprecated
     public Builder(
         Context context,
         int notificationId,
         String channelId,
         MediaDescriptionAdapter mediaDescriptionAdapter) {
+      this(context, notificationId, channelId);
+      this.mediaDescriptionAdapter = mediaDescriptionAdapter;
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param context The {@link Context}.
+     * @param notificationId The id of the notification to be posted. Must be greater than 0.
+     * @param channelId The id of the notification channel.
+     */
+    public Builder(Context context, int notificationId, String channelId) {
       checkArgument(notificationId > 0);
       this.context = context;
       this.notificationId = notificationId;
       this.channelId = channelId;
-      this.mediaDescriptionAdapter = mediaDescriptionAdapter;
       channelImportance = NotificationUtil.IMPORTANCE_LOW;
+      mediaDescriptionAdapter = new DefaultMediaDescriptionAdapter(/* pendingIntent= */ null);
       smallIconResourceId = R.drawable.exo_notification_small_icon;
       playActionIconResourceId = R.drawable.exo_notification_play;
       pauseActionIconResourceId = R.drawable.exo_notification_pause;
@@ -529,6 +539,18 @@ public class PlayerNotificationManager {
       return this;
     }
 
+    /**
+     * The {@link MediaDescriptionAdapter} to be queried for the notification contents.
+     *
+     * <p>The default is {@link DefaultMediaDescriptionAdapter} with no {@link PendingIntent}
+     *
+     * @return This builder.
+     */
+    public Builder setMediaDescriptionAdapter(MediaDescriptionAdapter mediaDescriptionAdapter) {
+      this.mediaDescriptionAdapter = mediaDescriptionAdapter;
+      return this;
+    }
+
     /** Builds the {@link PlayerNotificationManager}. */
     public PlayerNotificationManager build() {
       if (channelNameResourceId != 0) {
@@ -539,6 +561,7 @@ public class PlayerNotificationManager {
             channelDescriptionResourceId,
             channelImportance);
       }
+
       return new PlayerNotificationManager(
           context,
           channelId,
@@ -1487,7 +1510,8 @@ public class PlayerNotificationManager {
           EVENT_PLAYBACK_PARAMETERS_CHANGED,
           EVENT_POSITION_DISCONTINUITY,
           EVENT_REPEAT_MODE_CHANGED,
-          EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          EVENT_MEDIA_METADATA_CHANGED)) {
         postStartOrUpdateNotification();
       }
     }

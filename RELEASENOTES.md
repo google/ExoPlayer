@@ -37,6 +37,9 @@
         These methods are all overrides and are already deprecated on `Player`
         and the respective `ExoPlayer` component classes (since 2.14.0).
     *   Rename `Player.EventFlags` IntDef to `Player.Event`.
+    *   Add a `DefaultMediaDescriptionAdapter` for the
+        `PlayerNotificationManager`, that makes use of the `Player`
+        `MediaMetadata` to populate the notification fields.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
