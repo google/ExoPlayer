@@ -65,6 +65,8 @@
     *   Fix session description (SDP) parsing to use a HashMap-like behaviour
         for duplicated attributes.
         ([#9014](https://github.com/google/ExoPlayer/issues/9014)).
+    *   Allow using absolute URI in the control attribute in a media description
+        ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
 
 ### 2.14.1 (2021-06-11)
 
