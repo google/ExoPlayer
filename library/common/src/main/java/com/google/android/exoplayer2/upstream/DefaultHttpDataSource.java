@@ -465,13 +465,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       }
     } catch (IOException e) {
       closeConnectionQuietly();
-
-      @PlaybackException.ErrorCode int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
-      if (e instanceof DataSourceException) {
-        errorCode = ((DataSourceException) e).reason;
-      }
-
-      throw new HttpDataSourceException(e, dataSpec, errorCode, HttpDataSourceException.TYPE_OPEN);
+      throw new HttpDataSourceException(
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          HttpDataSourceException.TYPE_OPEN);
     }
 
     return bytesToRead;
