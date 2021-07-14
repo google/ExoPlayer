@@ -144,6 +144,9 @@
 *   Cronet extension:
     *   Add `CronetDataSource.Factory.setRequestPriority` to allow setting the
         priority of requests made by `CronetDataSource` instances.
+*   RTSP:
+    *   Allow using absolute URI in the control attribute in a media description
+        ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
 
 ### 2.14.1 (2021-06-11)
 
