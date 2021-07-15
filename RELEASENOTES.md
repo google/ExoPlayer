@@ -109,6 +109,8 @@
         ([#7608](https://github.com/google/ExoPlayer/issues/7608)).
     *   Add support for MP4 H263 atom type
         ([#9158](https://github.com/google/ExoPlayer/issues/9158)).
+    *   Fix issue around TS synchronization when reading a file's duration
+        ([#9100](https://github.com/google/ExoPlayer/pull/9100)).
 *   HLS:
     *   Fix issue where playback of a live event could become stuck rather than
         transitioning to `STATE_ENDED` when the event ends
