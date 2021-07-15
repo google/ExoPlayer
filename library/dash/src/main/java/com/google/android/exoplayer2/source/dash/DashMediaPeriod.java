@@ -61,6 +61,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -162,18 +163,42 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       callback.onContinueLoadingRequested(this);
     }
+    List<EventStream> oldEventStreams = eventStreams;
     eventStreams = manifest.getPeriod(periodIndex).eventStreams;
+    List<EventStream> requiredEventStreams = new ArrayList<>();
     for (EventSampleStream eventSampleStream : eventSampleStreams) {
-      for (EventStream eventStream : eventStreams) {
-        if (eventStream.id().equals(eventSampleStream.eventStreamId())) {
-          int lastPeriodIndex = manifest.getPeriodCount() - 1;
-          eventSampleStream.updateEventStream(
-              eventStream,
-              /* eventStreamAppendable= */ manifest.dynamic && periodIndex == lastPeriodIndex);
-          break;
+      if (maybeUpdateEventSampleStreamWithEventStream(eventSampleStream, eventStreams) == null) {
+        @Nullable
+        EventStream requiredEventStream = maybeUpdateEventSampleStreamWithEventStream(
+            eventSampleStream, oldEventStreams);
+        if (requiredEventStream != null) {
+          requiredEventStreams.add(requiredEventStream);
         }
       }
     }
+    eventStreams = requiredEventStreams.isEmpty()
+        ? eventStreams
+        : Collections.unmodifiableList(new ArrayList<EventStream>() {
+          {
+            addAll(requiredEventStreams);
+            addAll(eventStreams);
+          }
+        });
+  }
+
+  @Nullable
+  private EventStream maybeUpdateEventSampleStreamWithEventStream(
+      EventSampleStream eventSampleStream, List<EventStream> eventStreams) {
+    for (EventStream eventStream : eventStreams) {
+      if (eventStream.id().equals(eventSampleStream.eventStreamId())) {
+        int lastPeriodIndex = manifest.getPeriodCount() - 1;
+        eventSampleStream.updateEventStream(
+            eventStream,
+            /* eventStreamAppendable= */ manifest.dynamic && periodIndex == lastPeriodIndex);
+        return eventStream;
+      }
+    }
+    return null;
   }
 
   public void release() {
