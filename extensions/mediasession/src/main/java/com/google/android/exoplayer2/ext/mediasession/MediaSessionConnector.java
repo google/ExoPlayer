@@ -16,6 +16,9 @@
 package com.google.android.exoplayer2.ext.mediasession;
 
 import static androidx.media.utils.MediaConstants.PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
@@ -912,16 +915,16 @@ public final class MediaSessionConnector {
   }
 
   private long buildPlaybackActions(Player player) {
-    boolean enableSeeking = false;
-    boolean enableRewind = false;
-    boolean enableFastForward = false;
+    boolean enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW);
+    boolean enableRewind =
+        player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
+    boolean enableFastForward =
+        player.isCommandAvailable(COMMAND_SEEK_FORWARD) && controlDispatcher.isFastForwardEnabled();
+
     boolean enableSetRating = false;
     boolean enableSetCaptioningEnabled = false;
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
-      enableSeeking = player.isCurrentWindowSeekable();
-      enableRewind = enableSeeking && controlDispatcher.isRewindEnabled();
-      enableFastForward = enableSeeking && controlDispatcher.isFastForwardEnabled();
       enableSetRating = ratingCallback != null;
       enableSetCaptioningEnabled = captionCallback != null && captionCallback.hasCaptions(player);
     }

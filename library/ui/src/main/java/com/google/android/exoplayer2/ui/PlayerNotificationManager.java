@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_WINDOW;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_MEDIA_METADATA_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
@@ -53,7 +54,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
@@ -677,7 +677,6 @@ public class PlayerNotificationManager {
   private final Map<String, NotificationCompat.Action> customActions;
   private final PendingIntent dismissPendingIntent;
   private final int instanceId;
-  private final Timeline.Window window;
 
   @Nullable private NotificationCompat.Builder builder;
   @Nullable private List<NotificationCompat.Action> builderActions;
@@ -730,7 +729,6 @@ public class PlayerNotificationManager {
     this.smallIconResourceId = smallIconResourceId;
     this.groupKey = groupKey;
     controlDispatcher = new DefaultControlDispatcher();
-    window = new Timeline.Window();
     instanceId = instanceIdCounter++;
     // This fails the nullness checker because handleMessage() is 'called' while `this` is still
     // @UnderInitialization. No tasks are scheduled on mainHandler before the constructor completes,
@@ -1291,24 +1289,12 @@ public class PlayerNotificationManager {
    * action name is ignored.
    */
   protected List<String> getActions(Player player) {
-    boolean enablePrevious = false;
-    boolean enableRewind = false;
-    boolean enableFastForward = false;
-    boolean enableNext = false;
-    Timeline timeline = player.getCurrentTimeline();
-    if (!timeline.isEmpty() && !player.isPlayingAd()) {
-      boolean isSeekable = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW);
-      timeline.getWindow(player.getCurrentWindowIndex(), window);
-      enablePrevious =
-          isSeekable
-              || !window.isLive()
-              || player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
-      enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
-      enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
-      enableNext =
-          (window.isLive() && window.isDynamic)
-              || player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW);
-    }
+    boolean enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
+    boolean enableRewind =
+        player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
+    boolean enableFastForward =
+        player.isCommandAvailable(COMMAND_SEEK_FORWARD) && controlDispatcher.isFastForwardEnabled();
+    boolean enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
 
     List<String> stringActions = new ArrayList<>();
     if (usePreviousAction && enablePrevious) {
