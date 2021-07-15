@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.e2etest;
+package com.google.android.exoplayer2.source.dash.e2etest;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
