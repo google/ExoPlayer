@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
+import com.google.android.exoplayer2.source.dash.manifest.BaseUrl;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
@@ -203,6 +204,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           new RepresentationHolder(
               periodDurationUs,
               representation,
+              representation.baseUrls.get(0),
               BundledChunkExtractor.FACTORY.createProgressiveMediaExtractor(
                   trackType,
                   representation.format,
@@ -562,14 +564,20 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrls.get(0).url);
+      requestUri =
+          initializationUri.attemptMerge(indexUri, representationHolder.selectedBaseUrl.url);
       if (requestUri == null) {
         requestUri = initializationUri;
       }
     } else {
       requestUri = indexUri;
     }
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, /* flags= */ 0);
+    DataSpec dataSpec =
+        DashUtil.buildDataSpec(
+            representationHolder.selectedBaseUrl.url,
+            requestUri,
+            representation.getCacheKey(),
+            /* flags= */ 0);
     return new InitializationChunk(
         dataSource,
         dataSpec,
@@ -593,7 +601,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
-    String baseUrl = representation.baseUrls.get(0).url;
     if (representationHolder.chunkExtractor == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
       int flags =
@@ -601,7 +608,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
                   firstSegmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
+      DataSpec dataSpec =
+          DashUtil.buildDataSpec(
+              representationHolder.selectedBaseUrl.url,
+              segmentUri,
+              representation.getCacheKey(),
+              flags);
       return new SingleSampleMediaChunk(
           dataSource,
           dataSpec,
@@ -617,7 +629,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int segmentCount = 1;
       for (int i = 1; i < maxSegmentCount; i++) {
         RangedUri nextSegmentUri = representationHolder.getSegmentUrl(firstSegmentNum + i);
-        @Nullable RangedUri mergedSegmentUri = segmentUri.attemptMerge(nextSegmentUri, baseUrl);
+        @Nullable
+        RangedUri mergedSegmentUri =
+            segmentUri.attemptMerge(nextSegmentUri, representationHolder.selectedBaseUrl.url);
         if (mergedSegmentUri == null) {
           // Unable to merge segment fetches because the URIs do not merge.
           break;
@@ -636,7 +650,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolder.isSegmentAvailableAtFullNetworkSpeed(segmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
+      DataSpec dataSpec =
+          DashUtil.buildDataSpec(
+              representationHolder.selectedBaseUrl.url,
+              segmentUri,
+              representation.getCacheKey(),
+              flags);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -691,7 +710,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolder.isSegmentAvailableAtFullNetworkSpeed(currentIndex, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri, flags);
+      return DashUtil.buildDataSpec(
+          representationHolder.selectedBaseUrl.url,
+          segmentUri,
+          representationHolder.representation.getCacheKey(),
+          flags);
     }
 
     @Override
@@ -713,6 +736,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     @Nullable /* package */ final ChunkExtractor chunkExtractor;
 
     public final Representation representation;
+    public final BaseUrl selectedBaseUrl;
     @Nullable public final DashSegmentIndex segmentIndex;
 
     private final long periodDurationUs;
@@ -721,11 +745,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     /* package */ RepresentationHolder(
         long periodDurationUs,
         Representation representation,
+        BaseUrl selectedBaseUrl,
         @Nullable ChunkExtractor chunkExtractor,
         long segmentNumShift,
         @Nullable DashSegmentIndex segmentIndex) {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
+      this.selectedBaseUrl = selectedBaseUrl;
       this.segmentNumShift = segmentNumShift;
       this.chunkExtractor = chunkExtractor;
       this.segmentIndex = segmentIndex;
@@ -735,26 +761,41 @@ public class DefaultDashChunkSource implements DashChunkSource {
     /* package */ RepresentationHolder copyWithNewRepresentation(
         long newPeriodDurationUs, Representation newRepresentation)
         throws BehindLiveWindowException {
-      DashSegmentIndex oldIndex = representation.getIndex();
-      DashSegmentIndex newIndex = newRepresentation.getIndex();
+      @Nullable DashSegmentIndex oldIndex = representation.getIndex();
+      @Nullable DashSegmentIndex newIndex = newRepresentation.getIndex();
 
       if (oldIndex == null) {
         // Segment numbers cannot shift if the index isn't defined by the manifest.
         return new RepresentationHolder(
-            newPeriodDurationUs, newRepresentation, chunkExtractor, segmentNumShift, oldIndex);
+            newPeriodDurationUs,
+            newRepresentation,
+            selectedBaseUrl,
+            chunkExtractor,
+            segmentNumShift,
+            oldIndex);
       }
 
       if (!oldIndex.isExplicit()) {
         // Segment numbers cannot shift if the index isn't explicit.
         return new RepresentationHolder(
-            newPeriodDurationUs, newRepresentation, chunkExtractor, segmentNumShift, newIndex);
+            newPeriodDurationUs,
+            newRepresentation,
+            selectedBaseUrl,
+            chunkExtractor,
+            segmentNumShift,
+            newIndex);
       }
 
       long oldIndexSegmentCount = oldIndex.getSegmentCount(newPeriodDurationUs);
       if (oldIndexSegmentCount == 0) {
         // Segment numbers cannot shift if the old index was empty.
         return new RepresentationHolder(
-            newPeriodDurationUs, newRepresentation, chunkExtractor, segmentNumShift, newIndex);
+            newPeriodDurationUs,
+            newRepresentation,
+            selectedBaseUrl,
+            chunkExtractor,
+            segmentNumShift,
+            newIndex);
       }
 
       long oldIndexFirstSegmentNum = oldIndex.getFirstSegmentNum();
@@ -786,13 +827,23 @@ public class DefaultDashChunkSource implements DashChunkSource {
                 - newIndexFirstSegmentNum;
       }
       return new RepresentationHolder(
-          newPeriodDurationUs, newRepresentation, chunkExtractor, newSegmentNumShift, newIndex);
+          newPeriodDurationUs,
+          newRepresentation,
+          selectedBaseUrl,
+          chunkExtractor,
+          newSegmentNumShift,
+          newIndex);
     }
 
     @CheckResult
     /* package */ RepresentationHolder copyWithNewSegmentIndex(DashSegmentIndex segmentIndex) {
       return new RepresentationHolder(
-          periodDurationUs, representation, chunkExtractor, segmentNumShift, segmentIndex);
+          periodDurationUs,
+          representation,
+          selectedBaseUrl,
+          chunkExtractor,
+          segmentNumShift,
+          segmentIndex);
     }
 
     public long getFirstSegmentNum() {
