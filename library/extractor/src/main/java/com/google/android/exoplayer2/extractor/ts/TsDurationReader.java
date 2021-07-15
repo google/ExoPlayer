@@ -180,10 +180,13 @@ import java.io.IOException;
   private long readLastPcrValueFromBuffer(ParsableByteArray packetBuffer, int pcrPid) {
     int searchStartPosition = packetBuffer.getPosition();
     int searchEndPosition = packetBuffer.limit();
-    for (int searchPosition = searchEndPosition - 1;
+    // We start searching 'TsExtractor.TS_PACKET_SIZE' bytes from the end to prevent trying to read
+    // from an incomplete TS packet.
+    for (int searchPosition = searchEndPosition - TsExtractor.TS_PACKET_SIZE;
         searchPosition >= searchStartPosition;
         searchPosition--) {
-      if (packetBuffer.getData()[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
+      if (!TsUtil.isStartOfTsPacket(
+          packetBuffer.getData(), searchStartPosition, searchEndPosition, searchPosition)) {
         continue;
       }
       long pcrValue = TsUtil.readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
