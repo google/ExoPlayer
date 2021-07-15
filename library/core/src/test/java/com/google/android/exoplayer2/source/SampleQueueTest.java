@@ -1394,16 +1394,6 @@ public final class SampleQueueTest {
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, SAMPLE_FLAGS);
   }
 
-  private void writeTestDataWithEncryptedSections() {
-    writeTestData(
-        ENCRYPTED_SAMPLE_DATA,
-        ENCRYPTED_SAMPLE_SIZES,
-        ENCRYPTED_SAMPLE_OFFSETS,
-        ENCRYPTED_SAMPLE_TIMESTAMPS,
-        ENCRYPTED_SAMPLE_FORMATS,
-        ENCRYPTED_SAMPLES_FLAGS);
-  }
-
   /** Writes the specified test data to {@code sampleQueue}. */
   @SuppressWarnings("ReferenceEquality")
   private void writeTestData(
@@ -1427,6 +1417,16 @@ public final class SampleQueueTest {
           sampleOffsets[i],
           (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
     }
+  }
+
+  private void writeTestDataWithEncryptedSections() {
+    writeTestData(
+        ENCRYPTED_SAMPLE_DATA,
+        ENCRYPTED_SAMPLE_SIZES,
+        ENCRYPTED_SAMPLE_OFFSETS,
+        ENCRYPTED_SAMPLE_TIMESTAMPS,
+        ENCRYPTED_SAMPLE_FORMATS,
+        ENCRYPTED_SAMPLES_FLAGS);
   }
 
   /** Writes a {@link Format} to the {@code sampleQueue}. */
