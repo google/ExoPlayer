@@ -49,9 +49,11 @@ import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -947,10 +949,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Sets the {@link ControlDispatcher}.
-   *
-   * @param controlDispatcher The {@link ControlDispatcher}.
+   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
+   *     You can also customize some operations when configuring the player (for example by using
+   *     {@link SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
    */
+  @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     Assertions.checkStateNotNull(controller);
     controller.setControlDispatcher(controlDispatcher);

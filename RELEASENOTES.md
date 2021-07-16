@@ -100,6 +100,12 @@
         available commands.
     *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
         `getFastForwardIncrementMs` to take the player as parameter.
+    *   Deprecate `setControlDispatcher` in `PlayerView`, `StyledPlayerView`,
+        `PlayerControlView`, `StyledPlayerControlView` and
+        `PlayerNotificationManager`. Instead, you can use a `ForwardingPlayer`,
+        configure the player as needed (whenever possible) or, for
+        `PlayerNotificationManager`, use `setUseRewindAction` and
+        `setUseFastForwardAction` to configure whether to use these actions.
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
