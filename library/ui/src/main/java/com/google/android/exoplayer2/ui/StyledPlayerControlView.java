@@ -26,6 +26,8 @@ import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TRACKS_CHANGED;
@@ -1142,8 +1144,8 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void updateRewindButton() {
     long rewindMs =
-        controlDispatcher instanceof DefaultControlDispatcher
-            ? ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs()
+        controlDispatcher instanceof DefaultControlDispatcher && player != null
+            ? ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs(player)
             : C.DEFAULT_SEEK_BACK_INCREMENT_MS;
     int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
@@ -1158,8 +1160,8 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void updateFastForwardButton() {
     long fastForwardMs =
-        controlDispatcher instanceof DefaultControlDispatcher
-            ? ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs()
+        controlDispatcher instanceof DefaultControlDispatcher && player != null
+            ? ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs(player)
             : C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
     int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
@@ -1756,7 +1758,9 @@ public class StyledPlayerControlView extends FrameLayout {
           EVENT_REPEAT_MODE_CHANGED,
           EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           EVENT_POSITION_DISCONTINUITY,
-          EVENT_TIMELINE_CHANGED)) {
+          EVENT_TIMELINE_CHANGED,
+          EVENT_SEEK_BACK_INCREMENT_CHANGED,
+          EVENT_SEEK_FORWARD_INCREMENT_CHANGED)) {
         updateNavigation();
       }
       if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {

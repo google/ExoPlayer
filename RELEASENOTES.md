@@ -98,6 +98,8 @@
         corresponding buttons can be disabled by using a `ForwardingPlayer`
         that removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
         available commands.
+    *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
+        `getFastForwardIncrementMs` to take the player as parameter.
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
