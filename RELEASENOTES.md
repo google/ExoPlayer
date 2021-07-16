@@ -69,6 +69,8 @@
         ([#9014](https://github.com/google/ExoPlayer/issues/9014)).
     *   Allow using absolute URI in the control attribute in a media description
         ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
+    *   Allow the timeout to be customised via
+        `RtspMediaSource.Factory.setTimeoutMs`.
 
 ### 2.14.1 (2021-06-11)
 

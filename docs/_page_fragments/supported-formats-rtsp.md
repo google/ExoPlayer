@@ -10,5 +10,3 @@ types are listed below.
 **Supported network types**
 * RTP over UDP unicast (multicast is not supported).
 * Interleaved RTSP, RTP over RTSP using TCP.
-
-> Playback of RTP streams is not supported.
