@@ -1455,11 +1455,12 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     int height = videoSize.height;
     int unappliedRotationDegrees = videoSize.unappliedRotationDegrees;
     float videoAspectRatio =
-        (height == 0 || width == 0) ? 1 : (width * videoSize.pixelWidthHeightRatio) / height;
+        (height == 0 || width == 0) ? 0 : (width * videoSize.pixelWidthHeightRatio) / height;
 
     if (surfaceView instanceof TextureView) {
       // Try to apply rotation transformation when our surface is a TextureView.
-      if (unappliedRotationDegrees == 90 || unappliedRotationDegrees == 270) {
+      if (videoAspectRatio > 0
+          && (unappliedRotationDegrees == 90 || unappliedRotationDegrees == 270)) {
         // We will apply a rotation 90/270 degree to the output texture of the TextureView.
         // In this case, the output video's width and height will be swapped.
         videoAspectRatio = 1 / videoAspectRatio;
