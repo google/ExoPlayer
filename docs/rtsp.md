@@ -68,10 +68,10 @@ The timeout for retrying with TCP can be customized by calling the method
 four seconds, the player will retry with TCP after four seconds of UDP
 inactivity.
 
-> Setting the timeout also affects the end-of-stream detection logic. That is,
+Setting the timeout also affects the end-of-stream detection logic. That is,
 ExoPlayer will report the playback has ended if nothing is received for the
-duration of the set timeout. Setting this value too small may lead to pre-mature
-stream ending under poor network conditions.
+duration of the set timeout. Setting this value too small may lead to an early
+end-of-stream signal under poor network conditions.
 
 ### Force using RTP/TCP ###
 ExoPlayer can also be configured to play with RTP/TCP by default. To do so,
