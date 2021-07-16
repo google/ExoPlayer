@@ -88,6 +88,8 @@
     *   Don't propagate `AttributeSet` from `SubtitleView` constructor into
         `CanvasSubtitleOutput`. Just passing the `Context` is enough, and
         ensures programmatic changes to the `SubtitleView` will propagate down.
+    *   Add `setUseRewindAction` and `setUseFastForwardAction` to
+        `PlayerNotificationManager`.
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).

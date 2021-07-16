@@ -86,26 +86,26 @@ import java.util.Map;
  *         <li>Corresponding setter: {@link #setUsePlayPauseActions(boolean)}
  *         <li>Default: {@code true}
  *       </ul>
- *   <li><b>{@code rewindIncrementMs}</b> - Sets the rewind increment. If set to zero the rewind
- *       action is not used.
+ *   <li><b>{@code useRewindAction}</b> - Sets whether the rewind action is used.
  *       <ul>
- *         <li>Corresponding setter: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS} (5000)
+ *         <li>Corresponding setter: {@link #setUseRewindAction(boolean)}
+ *         <li>Default: {@code true}
  *       </ul>
- *   <li><b>{@code useRewindActionInCompactView}</b> - Sets whether the rewind action should be
- *       shown in compact view mode.
+ *   <li><b>{@code useRewindActionInCompactView}</b> - If {@code useRewindAction} is {@code true},
+ *       sets whether the rewind action is also used in compact view (including the lock screen
+ *       notification). Else does nothing.
  *       <ul>
  *         <li>Corresponding setter: {@link #setUseRewindActionInCompactView(boolean)}
  *         <li>Default: {@code false}
  *       </ul>
- *   <li><b>{@code fastForwardIncrementMs}</b> - Sets the fast forward increment. If set to zero the
- *       fast forward action is not used.
+ *   <li><b>{@code useFastForwardAction}</b> - Sets whether the fast forward action is used.
  *       <ul>
- *         <li>Corresponding setter: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS} (15000)
+ *         <li>Corresponding setter: {@link #setUseFastForwardAction(boolean)}
+ *         <li>Default: {@code true}
  *       </ul>
- *   <li><b>{@code useFastForwardActionInCompactView}</b> - Sets whether the fast forward action
- *       should be shown in compact view mode.
+ *   <li><b>{@code useFastForwardActionInCompactView}</b> - If {@code useFastForwardAction} is
+ *       {@code true}, sets whether the fast forward action is also used in compact view (including
+ *       the lock screen notification). Else does nothing.
  *       <ul>
  *         <li>Corresponding setter: {@link #setUseFastForwardActionInCompactView(boolean)}
  *         <li>Default: {@code false}
@@ -689,6 +689,8 @@ public class PlayerNotificationManager {
   private boolean useNextAction;
   private boolean usePreviousActionInCompactView;
   private boolean useNextActionInCompactView;
+  private boolean useRewindAction;
+  private boolean useFastForwardAction;
   private boolean useRewindActionInCompactView;
   private boolean useFastForwardActionInCompactView;
   private boolean usePlayPauseActions;
@@ -743,6 +745,8 @@ public class PlayerNotificationManager {
     usePreviousAction = true;
     useNextAction = true;
     usePlayPauseActions = true;
+    useRewindAction = true;
+    useFastForwardAction = true;
     colorized = true;
     useChronometer = true;
     color = Color.TRANSPARENT;
@@ -882,6 +886,30 @@ public class PlayerNotificationManager {
       if (usePreviousActionInCompactView) {
         useRewindActionInCompactView = false;
       }
+      invalidate();
+    }
+  }
+
+  /**
+   * Sets whether the fast forward action should be used.
+   *
+   * @param useFastForwardAction Whether to use the fast forward action.
+   */
+  public void setUseFastForwardAction(boolean useFastForwardAction) {
+    if (this.useFastForwardAction != useFastForwardAction) {
+      this.useFastForwardAction = useFastForwardAction;
+      invalidate();
+    }
+  }
+
+  /**
+   * Sets whether the rewind action should be used.
+   *
+   * @param useRewindAction Whether to use the rewind action.
+   */
+  public void setUseRewindAction(boolean useRewindAction) {
+    if (this.useRewindAction != useRewindAction) {
+      this.useRewindAction = useRewindAction;
       invalidate();
     }
   }
@@ -1300,7 +1328,7 @@ public class PlayerNotificationManager {
     if (usePreviousAction && enablePrevious) {
       stringActions.add(ACTION_PREVIOUS);
     }
-    if (enableRewind) {
+    if (useRewindAction && enableRewind) {
       stringActions.add(ACTION_REWIND);
     }
     if (usePlayPauseActions) {
@@ -1310,7 +1338,7 @@ public class PlayerNotificationManager {
         stringActions.add(ACTION_PLAY);
       }
     }
-    if (enableFastForward) {
+    if (useFastForwardAction && enableFastForward) {
       stringActions.add(ACTION_FAST_FORWARD);
     }
     if (useNextAction && enableNext) {
