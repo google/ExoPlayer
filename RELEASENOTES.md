@@ -90,6 +90,14 @@
         ensures programmatic changes to the `SubtitleView` will propagate down.
     *   Add `setUseRewindAction` and `setUseFastForwardAction` to
         `PlayerNotificationManager`.
+    *   Remove `rewind_increment` and `fastforward_increment` attributes from
+        `PlayerControlView` and `StyledPlayerControlView`. These increments can
+        be customized by configuring the `Player` (whenever possible) or by
+        using a `ForwardingPlayer` that overrides `getSeekBackIncrement`,
+        `seekBack`, `getSeekForwardIncrement` and `seekForward`. The
+        corresponding buttons can be disabled by using a `ForwardingPlayer`
+        that removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
+        available commands.
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).

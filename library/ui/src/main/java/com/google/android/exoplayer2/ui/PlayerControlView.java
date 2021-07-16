@@ -47,7 +47,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
@@ -99,17 +98,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       <ul>
  *         <li>Corresponding method: {@link #setShowNextButton(boolean)}
  *         <li>Default: true
- *       </ul>
- *   <li><b>{@code rewind_increment}</b> - The duration of the rewind applied when the user taps the
- *       rewind button, in milliseconds. Use zero to disable the rewind button.
- *       <ul>
- *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS}
- *       </ul>
- *   <li><b>{@code fastforward_increment}</b> - Like {@code rewind_increment}, but for fast forward.
- *       <ul>
- *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS}
  *       </ul>
  *   <li><b>{@code repeat_toggle_modes}</b> - A flagged enumeration value specifying which repeat
  *       mode toggle options are enabled. Valid values are: {@code none}, {@code one}, {@code all},
@@ -383,17 +371,12 @@ public class PlayerControlView extends FrameLayout {
     showPreviousButton = true;
     showNextButton = true;
     showShuffleButton = false;
-    int rewindMs = DefaultControlDispatcher.DEFAULT_REWIND_MS;
-    int fastForwardMs = DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS;
     if (playbackAttrs != null) {
       TypedArray a =
           context
               .getTheme()
               .obtainStyledAttributes(playbackAttrs, R.styleable.PlayerControlView, 0, 0);
       try {
-        rewindMs = a.getInt(R.styleable.PlayerControlView_rewind_increment, rewindMs);
-        fastForwardMs =
-            a.getInt(R.styleable.PlayerControlView_fastforward_increment, fastForwardMs);
         showTimeoutMs = a.getInt(R.styleable.PlayerControlView_show_timeout, showTimeoutMs);
         controllerLayoutId =
             a.getResourceId(R.styleable.PlayerControlView_controller_layout_id, controllerLayoutId);
@@ -427,8 +410,7 @@ public class PlayerControlView extends FrameLayout {
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
-    controlDispatcher =
-        new com.google.android.exoplayer2.DefaultControlDispatcher(fastForwardMs, rewindMs);
+    controlDispatcher = new com.google.android.exoplayer2.DefaultControlDispatcher();
     updateProgressAction = this::updateProgress;
     hideAction = this::hide;
 

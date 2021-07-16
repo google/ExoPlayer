@@ -122,17 +122,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setShowNextButton(boolean)}
  *         <li>Default: true
  *       </ul>
- *   <li><b>{@code rewind_increment}</b> - The duration of the rewind applied when the user taps the
- *       rewind button, in milliseconds. Use zero to disable the rewind button.
- *       <ul>
- *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS}
- *       </ul>
- *   <li><b>{@code fastforward_increment}</b> - Like {@code rewind_increment}, but for fast forward.
- *       <ul>
- *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS}
- *       </ul>
  *   <li><b>{@code repeat_toggle_modes}</b> - A flagged enumeration value specifying which repeat
  *       mode toggle options are enabled. Valid values are: {@code none}, {@code one}, {@code all},
  *       or {@code one|all}.
@@ -433,8 +422,6 @@ public class StyledPlayerControlView extends FrameLayout {
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
-  private long rewindMs;
-  private long fastForwardMs;
 
   private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
   private Resources resources;
@@ -484,8 +471,6 @@ public class StyledPlayerControlView extends FrameLayout {
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_styled_player_control_view;
-    rewindMs = DefaultControlDispatcher.DEFAULT_REWIND_MS;
-    fastForwardMs = DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
@@ -504,10 +489,6 @@ public class StyledPlayerControlView extends FrameLayout {
               .getTheme()
               .obtainStyledAttributes(playbackAttrs, R.styleable.StyledPlayerControlView, 0, 0);
       try {
-        rewindMs = a.getInt(R.styleable.StyledPlayerControlView_rewind_increment, (int) rewindMs);
-        fastForwardMs =
-            a.getInt(
-                R.styleable.StyledPlayerControlView_fastforward_increment, (int) fastForwardMs);
         controllerLayoutId =
             a.getResourceId(
                 R.styleable.StyledPlayerControlView_controller_layout_id, controllerLayoutId);
@@ -555,7 +536,7 @@ public class StyledPlayerControlView extends FrameLayout {
     playedAdGroups = new boolean[0];
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
-    controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
+    controlDispatcher = new DefaultControlDispatcher();
     updateProgressAction = this::updateProgress;
 
     durationView = findViewById(R.id.exo_duration);
@@ -1160,9 +1141,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private void updateRewindButton() {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      rewindMs = ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs();
-    }
+    long rewindMs =
+        controlDispatcher instanceof DefaultControlDispatcher
+            ? ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs()
+            : C.DEFAULT_SEEK_BACK_INCREMENT_MS;
     int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
@@ -1175,9 +1157,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private void updateFastForwardButton() {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      fastForwardMs = ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs();
-    }
+    long fastForwardMs =
+        controlDispatcher instanceof DefaultControlDispatcher
+            ? ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs()
+            : C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
     int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
