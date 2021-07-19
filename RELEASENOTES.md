@@ -45,6 +45,10 @@
         ([#9106](https://github.com/google/ExoPlayer/issues/9106).
 *   DRM:
     *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
+    *   Fix a crash due to `DefaultDrmSessionManager.release()` incorrectly
+        releasing too many keep-alive `DefaultDrmSession` references, resulting
+        in `DefaultDrmSession.release()` throwing an `IllegalStateException`
+        ([#9193](https://github.com/google/ExoPlayer/issues/9193)).
 *   Metadata:
     *   Fix handling of emsg messages with an unset duration
         ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
