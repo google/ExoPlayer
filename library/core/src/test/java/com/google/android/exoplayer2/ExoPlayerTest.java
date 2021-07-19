@@ -9428,6 +9428,7 @@ public final class ExoPlayerTest {
             /* windowDefaultStartPositionUs= */ 0,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
+            /* suppressPositionProjection= */ false,
             /* manifest= */ null,
             mediaItem,
             mediaItem.liveConfiguration);

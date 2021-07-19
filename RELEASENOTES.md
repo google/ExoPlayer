@@ -138,6 +138,9 @@
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
     *   Forward the `FRAME-RATE` value from the master playlist to renditions.
         ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
+    *   Fix issue where HLS events would start at positions greater than
+        specified by an `EXT-X-START` tag when placed in a playlist
+        ([#9037](https://github.com/google/ExoPlayer/issues/9037)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).

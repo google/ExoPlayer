@@ -548,6 +548,9 @@ public final class HlsMediaSource extends BaseMediaSource
     maybeUpdateLiveConfiguration(targetLiveOffsetUs);
     long windowDefaultStartPositionUs =
         getLiveWindowDefaultStartPositionUs(playlist, liveEdgeOffsetUs);
+    boolean suppressPositionProjection =
+        playlist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+            && playlist.hasPositiveStartOffset;
     return new SinglePeriodTimeline(
         presentationStartTimeMs,
         windowStartTimeMs,
@@ -558,6 +561,7 @@ public final class HlsMediaSource extends BaseMediaSource
         windowDefaultStartPositionUs,
         /* isSeekable= */ true,
         /* isDynamic= */ !playlist.hasEndTag,
+        suppressPositionProjection,
         manifest,
         mediaItem,
         liveConfiguration);
@@ -590,6 +594,7 @@ public final class HlsMediaSource extends BaseMediaSource
         windowDefaultStartPositionUs,
         /* isSeekable= */ true,
         /* isDynamic= */ false,
+        /* suppressPositionProjection= */ true,
         manifest,
         mediaItem,
         /* liveConfiguration= */ null);
