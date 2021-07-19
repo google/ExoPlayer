@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -76,11 +77,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   }
 
   /**
-   * Sets the {@link ControlDispatcher}.
-   *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
-   *     DefaultControlDispatcher}.
+   * @deprecated Use a {@link ForwardingPlayer} and pass it to the constructor instead. You can also
+   *     customize some operations when configuring the player (for example by using {@code
+   *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
    */
+  @Deprecated
   public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
     this.controlDispatcher =
         controlDispatcher == null ? new DefaultControlDispatcher() : controlDispatcher;
@@ -158,14 +159,16 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     } else if (player.getPlaybackState() == Player.STATE_ENDED) {
       controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }
-    if (controlDispatcher.dispatchSetPlayWhenReady(player, true)) {
+    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)
+        && controlDispatcher.dispatchSetPlayWhenReady(player, true)) {
       getCallback().onPlayStateChanged(this);
     }
   }
 
   @Override
   public void pause() {
-    if (controlDispatcher.dispatchSetPlayWhenReady(player, false)) {
+    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)
+        && controlDispatcher.dispatchSetPlayWhenReady(player, false)) {
       getCallback().onPlayStateChanged(this);
     }
   }
