@@ -39,6 +39,9 @@
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
     *   Forward the FRAME-RATE value from the master playlist to renditions.
         ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
+    *   Fix issue where HLS events would start at positions greater than
+        specified by an `EXT-X-START` tag when placed in a playlist
+        ([#9037](https://github.com/google/ExoPlayer/issues/9037)).
 *   Ad playback:
     *   Use the content URI when auto-generating an ad ID (in addition to the
         media ID and ad tag URI)

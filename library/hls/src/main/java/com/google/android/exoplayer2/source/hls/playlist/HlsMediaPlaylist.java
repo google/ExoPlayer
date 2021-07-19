@@ -401,6 +401,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * {@link #durationUs}, inclusive.
    */
   public final long startOffsetUs;
+  /**
+   * Whether the {@link #startOffsetUs} was explicitly defined by #EXT-X-START as a positive value
+   * or zero.
+   */
+  public final boolean hasPositiveStartOffset;
   /** Whether the start position should be precise, as defined by #EXT-X-START. */
   public final boolean preciseStart;
   /**
@@ -537,6 +542,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
             : startOffsetUs >= 0
                 ? min(durationUs, startOffsetUs)
                 : max(0, durationUs + startOffsetUs);
+    this.hasPositiveStartOffset = startOffsetUs >= 0;
     this.serverControl = serverControl;
   }
 
