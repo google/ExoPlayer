@@ -51,15 +51,16 @@
         `setPlaybackPreparer` methods will now call `Player.prepare` by default.
         If this behavior is sufficient, use of `PlaybackPreparer` can be removed
         from application code without replacement. For custom preparation logic,
-        replace calls to `setPlaybackPreparer` with calls to
-        `setControlDispatcher` on the same components, passing a
-        `ControlDispatcher` that implements custom preparation logic in
-        `dispatchPrepare`. Extend `DefaultControlDispatcher` to avoid having to
-        implement the other `ControlDispatcher` methods.
+        use a `ForwardingPlayer` that implements custom preparation logic in
+        `prepare`.
     *   Remove `setRewindIncrementMs` and `setFastForwardIncrementMs` from UI
-        components. Use `setControlDispatcher` on the same components, passing a
-        `DefaultControlDispatcher` built using `DefaultControlDispatcher(long,
-        long)`.
+        components. These increments can be customized by configuring the
+        `Player` (see `setSeekBackIncrementMs` and `setSeekForwardIncrementMs`
+        in `SimpleExoPlayer.Builder`), or by using a `ForwardingPlayer` that
+        overrides `getSeekBackIncrement`, `seekBack`, `getSeekForwardIncrement`
+        and `seekForward`. The rewind and fast forward buttons can be disabled
+        by using a `ForwardingPlayer` that removes `COMMAND_SEEK_BACK` and
+        `COMMAND_SEEK_FORWARD` from the available commands.
     *   Remove `PlayerNotificationManager` constructors and `createWith`
         methods. Use `PlayerNotificationManager.Builder` instead.
     *   Remove `PlayerNotificationManager.setNotificationListener`. Use
@@ -92,11 +93,12 @@
         `PlayerNotificationManager`.
     *   Remove `rewind_increment` and `fastforward_increment` attributes from
         `PlayerControlView` and `StyledPlayerControlView`. These increments can
-        be customized by configuring the `Player` (whenever possible) or by
+        be customized by configuring the `Player` (see `setSeekBackIncrementMs`
+        and `setSeekForwardIncrementMs` in `SimpleExoPlayer.Builder`), or by
         using a `ForwardingPlayer` that overrides `getSeekBackIncrement`,
-        `seekBack`, `getSeekForwardIncrement` and `seekForward`. The
-        corresponding buttons can be disabled by using a `ForwardingPlayer`
-        that removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
+        `seekBack`, `getSeekForwardIncrement` and `seekForward`. The rewind and
+        fast forward buttons can be disabled by using a `ForwardingPlayer` that
+        removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
         available commands.
     *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
         `getFastForwardIncrementMs` to take the player as parameter.
