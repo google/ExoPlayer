@@ -85,6 +85,6 @@ for (int i = 0; i < trackGroups.length; i++) {
 {: .language-java}
 
 [`MediaMetadata`]: {{ site.exo_sdk }}/MediaMetadata.html
-[`Metadata.Entry`][]: {{ site.exo_sdk}}/metadata/Metadata.Entry.html
+[`Metadata.Entry`]: {{ site.exo_sdk}}/metadata/Metadata.Entry.html
 [`MetadataRetriever`]: {{ site.exo_sdk }}/MetadataRetriever.html
 [`MotionPhotoMetadata`]: {{ site.exo_sdk }}/metadata/mp4/MotionPhotoMetadata.html
