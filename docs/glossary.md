@@ -203,7 +203,7 @@ and the
 
 {% include figure.html url="/images/glossary-exoplayer-architecture.png" index="1" caption="ExoPlayer architecture overview" %}
 
-{% include figure.html url="/images/glossary-renderering-architecture.png" index="1" caption="ExoPlayer rendering overview" %}
+{% include figure.html url="/images/glossary-rendering-architecture.png" index="1" caption="ExoPlayer rendering overview" %}
 
 ###### BandwidthMeter
 
