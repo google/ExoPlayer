@@ -22,11 +22,8 @@ import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
-import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -131,70 +128,6 @@ public class MediaMetadataTest {
     MediaMetadata fromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
     assertThat(fromBundle).isEqualTo(mediaMetadata);
     assertThat(fromBundle.extras.getString("exampleKey")).isEqualTo("exampleValue");
-  }
-
-  @Test
-  public void builderPopulatedFromTextInformationFrameEntry_setsValues() {
-    String title = "the title";
-    String artist = "artist";
-    String albumTitle = "album title";
-    String albumArtist = "album Artist";
-    String trackNumberInfo = "11/17";
-    String recordingYear = "2000";
-    String recordingMonth = "07";
-    String recordingDay = "10";
-    String releaseDate = "2001-01-02T00:00:00";
-    String composer = "composer";
-    String conductor = "conductor";
-    String writer = "writer";
-
-    List<Metadata.Entry> entries =
-        ImmutableList.of(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title),
-            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ artist),
-            new TextInformationFrame(
-                /* id= */ "TAL", /* description= */ null, /* value= */ albumTitle),
-            new TextInformationFrame(
-                /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
-            new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
-            new TextInformationFrame(
-                /* id= */ "TYE", /* description= */ null, /* value= */ recordingYear),
-            new TextInformationFrame(
-                /* id= */ "TDA",
-                /* description= */ null,
-                /* value= */ recordingDay + recordingMonth),
-            new TextInformationFrame(
-                /* id= */ "TDRL", /* description= */ null, /* value= */ releaseDate),
-            new TextInformationFrame(
-                /* id= */ "TCM", /* description= */ null, /* value= */ composer),
-            new TextInformationFrame(
-                /* id= */ "TP3", /* description= */ null, /* value= */ conductor),
-            new TextInformationFrame(
-                /* id= */ "TXT", /* description= */ null, /* value= */ writer));
-    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
-
-    for (Metadata.Entry entry : entries) {
-      entry.populateMediaMetadata(builder);
-    }
-
-    MediaMetadata mediaMetadata = builder.build();
-
-    assertThat(mediaMetadata.title.toString()).isEqualTo(title);
-    assertThat(mediaMetadata.artist.toString()).isEqualTo(artist);
-    assertThat(mediaMetadata.albumTitle.toString()).isEqualTo(albumTitle);
-    assertThat(mediaMetadata.albumArtist.toString()).isEqualTo(albumArtist);
-    assertThat(mediaMetadata.trackNumber).isEqualTo(11);
-    assertThat(mediaMetadata.totalTrackCount).isEqualTo(17);
-    assertThat(mediaMetadata.recordingYear).isEqualTo(2000);
-    assertThat(mediaMetadata.recordingMonth).isEqualTo(7);
-    assertThat(mediaMetadata.recordingDay).isEqualTo(10);
-    assertThat(mediaMetadata.releaseYear).isEqualTo(2001);
-    assertThat(mediaMetadata.releaseMonth).isEqualTo(1);
-    assertThat(mediaMetadata.releaseDay).isEqualTo(2);
-    assertThat(mediaMetadata.composer.toString()).isEqualTo(composer);
-    assertThat(mediaMetadata.conductor.toString()).isEqualTo(conductor);
-    assertThat(mediaMetadata.writer.toString()).isEqualTo(writer);
   }
 
   @Test
