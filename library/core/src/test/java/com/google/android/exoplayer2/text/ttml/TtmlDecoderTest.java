@@ -37,7 +37,9 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link TtmlDecoder}. */
+/**
+ * Unit test for {@link TtmlDecoder}.
+ */
 @RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
@@ -114,11 +116,9 @@ public final class TtmlDecoderTest {
    * </code>.
    *
    * @throws IOException thrown if reading subtitle file fails.
-   * @see <a
-   *     href="https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414">
-   *     JellyBean Color</a> <a
-   *     href="https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414">
-   *     Kitkat Color</a>
+   * @see <a href="https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414">
+   * JellyBean Color</a> <a href="https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414">
+   * Kitkat Color</a>
    */
   @Test
   public void lime() throws IOException, SubtitleDecoderException {
@@ -710,6 +710,18 @@ public final class TtmlDecoderTest {
     Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
     assertThat(sixthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(sixthCue).hasNoRubySpanBetween(0, sixthCue.length());
+
+    Spanned seventhCue = getOnlyCueTextAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(seventhCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", TextAnnotation.POSITION_BEFORE);
+
+    Spanned eighthCue = getOnlyCueTextAtTimeUs(subtitle, 80_000_000);
+    assertThat(eighthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(eighthCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", TextAnnotation.POSITION_AFTER);
   }
 
   @Test
