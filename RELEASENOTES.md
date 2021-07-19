@@ -98,8 +98,6 @@
         using a `ForwardingPlayer` that overrides `getSeekBackIncrement`,
         `seekBack`, `getSeekForwardIncrement` and `seekForward`. The rewind and
         fast forward buttons can be disabled by using a `ForwardingPlayer` that
-        `seekBack`, `getSeekForwardIncrement` and `seekForward`. The
-        corresponding buttons can be disabled by using a `ForwardingPlayer` that
         removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
         available commands.
     *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
