@@ -98,6 +98,8 @@
         using a `ForwardingPlayer` that overrides `getSeekBackIncrement`,
         `seekBack`, `getSeekForwardIncrement` and `seekForward`. The rewind and
         fast forward buttons can be disabled by using a `ForwardingPlayer` that
+        `seekBack`, `getSeekForwardIncrement` and `seekForward`. The
+        corresponding buttons can be disabled by using a `ForwardingPlayer` that
         removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
         available commands.
     *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
@@ -147,6 +149,10 @@
         ([#9106](https://github.com/google/ExoPlayer/issues/9106).
 *   DRM:
     *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
+    *   Fix a crash due to `DefaultDrmSessionManager.release()` incorrectly
+        releasing too many keep-alive `DefaultDrmSession` references, resulting
+        in `DefaultDrmSession.release()` throwing an `IllegalStateException`
+        ([#9193](https://github.com/google/ExoPlayer/issues/9193)).
 *   PlayerNotificationManager:
     *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
         Android 12.

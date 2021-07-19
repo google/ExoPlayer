@@ -222,6 +222,44 @@ public class DefaultDrmSessionManagerTest {
     exoMediaDrm.release();
   }
 
+  // https://github.com/google/ExoPlayer/issues/9193
+  @Test(timeout = 10_000)
+  public void
+      managerReleasedBeforeSession_keepaliveEnabled_managerOnlyReleasesOneKeepaliveReference()
+          throws Exception {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+    FakeExoMediaDrm exoMediaDrm = new FakeExoMediaDrm.Builder().build();
+    DrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, new AppManagedProvider(exoMediaDrm))
+            .setSessionKeepaliveMs(10_000)
+            .build(/* mediaDrmCallback= */ licenseServer);
+
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    waitForOpenedWithKeys(drmSession);
+
+    // Release the manager (there's still an explicit reference to the session from acquireSession).
+    // This should immediately release the manager's internal keepalive session reference.
+    drmSessionManager.release();
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+
+    // Ensure the manager doesn't release a *second* keepalive session reference after the timer
+    // expires.
+    ShadowLooper.idleMainLooper(10, SECONDS);
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+
+    // Release the explicit session reference.
+    drmSession.release(/* eventDispatcher= */ null);
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_RELEASED);
+  }
+
   @Test(timeout = 10_000)
   public void maxConcurrentSessionsExceeded_allKeepAliveSessionsEagerlyReleased() throws Exception {
     ImmutableList<DrmInitData.SchemeData> secondSchemeDatas =

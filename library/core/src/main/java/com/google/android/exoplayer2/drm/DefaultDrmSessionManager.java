@@ -914,8 +914,10 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
     @Override
     public void onReferenceCountDecremented(DefaultDrmSession session, int newReferenceCount) {
-      if (newReferenceCount == 1 && sessionKeepaliveMs != C.TIME_UNSET) {
-        // Only the internal keep-alive reference remains, so we can start the timeout.
+      if (newReferenceCount == 1 && prepareCallsCount > 0 && sessionKeepaliveMs != C.TIME_UNSET) {
+        // Only the internal keep-alive reference remains, so we can start the timeout. We only
+        // do this if the manager isn't released, because a released manager has already released
+        // all its internal session keep-alive references.
         keepaliveSessions.add(session);
         checkNotNull(playbackHandler)
             .postAtTime(
