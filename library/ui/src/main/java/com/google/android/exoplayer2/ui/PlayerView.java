@@ -49,15 +49,13 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.flac.PictureFrame;
-import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -1288,10 +1286,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     closeShutter();
     // Display artwork if enabled and available, else hide it.
     if (useArtwork()) {
-      for (Metadata metadata : player.getCurrentStaticMetadata()) {
-        if (setArtworkFromMetadata(metadata)) {
-          return;
-        }
+      if (setArtworkFromMediaMetadata(player.getMediaMetadata())) {
+        return;
       }
       if (setDrawableArtwork(defaultArtwork)) {
         return;
@@ -1334,33 +1330,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   @RequiresNonNull("artworkView")
-  private boolean setArtworkFromMetadata(Metadata metadata) {
-    boolean isArtworkSet = false;
-    int currentPictureType = PICTURE_TYPE_NOT_SET;
-    for (int i = 0; i < metadata.length(); i++) {
-      Metadata.Entry metadataEntry = metadata.get(i);
-      int pictureType;
-      byte[] bitmapData;
-      if (metadataEntry instanceof ApicFrame) {
-        bitmapData = ((ApicFrame) metadataEntry).pictureData;
-        pictureType = ((ApicFrame) metadataEntry).pictureType;
-      } else if (metadataEntry instanceof PictureFrame) {
-        bitmapData = ((PictureFrame) metadataEntry).pictureData;
-        pictureType = ((PictureFrame) metadataEntry).pictureType;
-      } else {
-        continue;
-      }
-      // Prefer the first front cover picture. If there aren't any, prefer the first picture.
-      if (currentPictureType == PICTURE_TYPE_NOT_SET || pictureType == PICTURE_TYPE_FRONT_COVER) {
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        isArtworkSet = setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
-        currentPictureType = pictureType;
-        if (currentPictureType == PICTURE_TYPE_FRONT_COVER) {
-          break;
-        }
-      }
+  private boolean setArtworkFromMediaMetadata(MediaMetadata mediaMetadata) {
+    if (mediaMetadata.artworkData == null) {
+      return false;
     }
-    return isArtworkSet;
+    Bitmap bitmap =
+        BitmapFactory.decodeByteArray(
+            mediaMetadata.artworkData, /* offset= */ 0, mediaMetadata.artworkData.length);
+    return setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
   }
 
   @RequiresNonNull("artworkView")
