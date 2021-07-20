@@ -53,7 +53,7 @@ public final class ApicFrame extends Id3Frame {
 
   @Override
   public void populateMediaMetadata(MediaMetadata.Builder builder) {
-    builder.setArtworkData(pictureData);
+    builder.maybeSetArtworkData(pictureData, pictureType);
   }
 
   @Override

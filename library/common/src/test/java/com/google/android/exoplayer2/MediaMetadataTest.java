@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaMetadata.PictureType;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,6 +46,7 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.userRating).isNull();
     assertThat(mediaMetadata.overallRating).isNull();
     assertThat(mediaMetadata.artworkData).isNull();
+    assertThat(mediaMetadata.artworkDataType).isNull();
     assertThat(mediaMetadata.artworkUri).isNull();
     assertThat(mediaMetadata.trackNumber).isNull();
     assertThat(mediaMetadata.totalTrackCount).isNull();
@@ -79,9 +80,10 @@ public class MediaMetadataTest {
   @Test
   public void builderSetArtworkData_setsArtworkData() {
     byte[] bytes = new byte[] {35, 12, 6, 77};
-    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setArtworkData(bytes).build();
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder().setArtworkData(new byte[] {35, 12, 6, 77}, null).build();
 
-    assertThat(Arrays.equals(mediaMetadata.artworkData, bytes)).isTrue();
+    assertThat(mediaMetadata.artworkData).isEqualTo(bytes);
   }
 
   @Test
@@ -104,7 +106,8 @@ public class MediaMetadataTest {
             .setMediaUri(Uri.parse("https://www.google.com"))
             .setUserRating(new HeartRating(false))
             .setOverallRating(new PercentageRating(87.4f))
-            .setArtworkData(new byte[] {-88, 12, 3, 2, 124, -54, -33, 69})
+            .setArtworkData(
+                new byte[] {-88, 12, 3, 2, 124, -54, -33, 69}, MediaMetadata.PICTURE_TYPE_MEDIA)
             .setTrackNumber(4)
             .setTotalTrackCount(12)
             .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
@@ -133,11 +136,12 @@ public class MediaMetadataTest {
   @Test
   public void builderPopulatedFromApicFrameEntry_setsArtwork() {
     byte[] pictureData = new byte[] {-12, 52, 33, 85, 34, 22, 1, -55};
+    @PictureType int pictureType = MediaMetadata.PICTURE_TYPE_LEAFLET_PAGE;
     Metadata.Entry entry =
         new ApicFrame(
             /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* pictureType= */ 0x03,
+            pictureType,
             pictureData);
 
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
@@ -145,5 +149,65 @@ public class MediaMetadataTest {
 
     MediaMetadata mediaMetadata = builder.build();
     assertThat(mediaMetadata.artworkData).isEqualTo(pictureData);
+    assertThat(mediaMetadata.artworkDataType).isEqualTo(pictureType);
+  }
+
+  @Test
+  public void builderPopulatedFromApicFrameEntry_considersTypePriority() {
+    byte[] data1 = new byte[] {1, 1, 1, 1};
+    Metadata.Entry entry1 =
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
+            /* description= */ "an image",
+            MediaMetadata.PICTURE_TYPE_BAND_ARTIST_LOGO,
+            data1);
+    byte[] data2 = new byte[] {2, 2, 2, 2};
+    Metadata.Entry entry2 =
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
+            /* description= */ "an image",
+            MediaMetadata.PICTURE_TYPE_ARTIST_PERFORMER,
+            data2);
+    byte[] data3 = new byte[] {3, 3, 3, 3};
+    Metadata.Entry entry3 =
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
+            /* description= */ "an image",
+            MediaMetadata.PICTURE_TYPE_FRONT_COVER,
+            data3);
+    byte[] data4 = new byte[] {4, 4, 4, 4};
+    Metadata.Entry entry4 =
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
+            /* description= */ "an image",
+            MediaMetadata.PICTURE_TYPE_ILLUSTRATION,
+            data4);
+    byte[] data5 = new byte[] {5, 5, 5, 5};
+    Metadata.Entry entry5 =
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
+            /* description= */ "an image",
+            MediaMetadata.PICTURE_TYPE_FRONT_COVER,
+            data5);
+    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
+
+    entry1.populateMediaMetadata(builder);
+    assertThat(builder.build().artworkData).isEqualTo(data1);
+
+    // Data updates when any type is given, if the current type is not front cover.
+    entry2.populateMediaMetadata(builder);
+    assertThat(builder.build().artworkData).isEqualTo(data2);
+
+    // Data updates because this entry picture type is front cover.
+    entry3.populateMediaMetadata(builder);
+    assertThat(builder.build().artworkData).isEqualTo(data3);
+
+    // Data does not update because the current type is front cover, and this entry type is not.
+    entry4.populateMediaMetadata(builder);
+    assertThat(builder.build().artworkData).isEqualTo(data3);
+
+    // Data updates because this entry picture type is front cover.
+    entry5.populateMediaMetadata(builder);
+    assertThat(builder.build().artworkData).isEqualTo(data5);
   }
 }

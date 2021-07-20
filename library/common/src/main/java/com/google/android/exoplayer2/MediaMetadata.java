@@ -49,6 +49,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Rating userRating;
     @Nullable private Rating overallRating;
     @Nullable private byte[] artworkData;
+    @Nullable @PictureType private Integer artworkDataType;
     @Nullable private Uri artworkUri;
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
@@ -83,6 +84,7 @@ public final class MediaMetadata implements Bundleable {
       this.userRating = mediaMetadata.userRating;
       this.overallRating = mediaMetadata.overallRating;
       this.artworkData = mediaMetadata.artworkData;
+      this.artworkDataType = mediaMetadata.artworkDataType;
       this.artworkUri = mediaMetadata.artworkUri;
       this.trackNumber = mediaMetadata.trackNumber;
       this.totalTrackCount = mediaMetadata.totalTrackCount;
@@ -168,9 +170,41 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** Sets the artwork data as a compressed byte array. */
+    /**
+     * @deprecated Use {@link #setArtworkData(byte[] data, Integer pictureType)} or {@link
+     *     #maybeSetArtworkData(byte[] data, int pictureType)}, providing a {@link PictureType}.
+     */
+    @Deprecated
     public Builder setArtworkData(@Nullable byte[] artworkData) {
+      return setArtworkData(artworkData, /* artworkDataType= */ null);
+    }
+
+    /**
+     * Sets the artwork data as a compressed byte array with an associated {@link PictureType
+     * artworkDataType}.
+     */
+    public Builder setArtworkData(
+        @Nullable byte[] artworkData, @Nullable @PictureType Integer artworkDataType) {
       this.artworkData = artworkData == null ? null : artworkData.clone();
+      this.artworkDataType = artworkDataType;
+      return this;
+    }
+
+    /**
+     * Sets the artwork data as a compressed byte array in the event that the associated {@link
+     * PictureType} is {@link #PICTURE_TYPE_FRONT_COVER}, the existing {@link PictureType} is not
+     * {@link #PICTURE_TYPE_FRONT_COVER}, or the current artworkData is not set.
+     *
+     * <p>Use {@link #setArtworkData(byte[], Integer)} to set the artwork data without checking the
+     * {@link PictureType}.
+     */
+    public Builder maybeSetArtworkData(byte[] artworkData, @PictureType int artworkDataType) {
+      if (this.artworkData == null
+          || Util.areEqual(artworkDataType, PICTURE_TYPE_FRONT_COVER)
+          || !Util.areEqual(this.artworkDataType, PICTURE_TYPE_FRONT_COVER)) {
+        this.artworkData = artworkData.clone();
+        this.artworkDataType = artworkDataType;
+      }
       return this;
     }
 
@@ -393,6 +427,61 @@ public final class MediaMetadata implements Bundleable {
   /** Type for a folder containing media categorized by year. */
   public static final int FOLDER_TYPE_YEARS = 6;
 
+  /**
+   * The picture type of the artwork.
+   *
+   * <p>Values sourced from the ID3 v2.4 specification (See section 4.14 of
+   * https://id3.org/id3v2.4.0-frames).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    PICTURE_TYPE_OTHER,
+    PICTURE_TYPE_FILE_ICON,
+    PICTURE_TYPE_FILE_ICON_OTHER,
+    PICTURE_TYPE_FRONT_COVER,
+    PICTURE_TYPE_BACK_COVER,
+    PICTURE_TYPE_LEAFLET_PAGE,
+    PICTURE_TYPE_MEDIA,
+    PICTURE_TYPE_LEAD_ARTIST_PERFORMER,
+    PICTURE_TYPE_ARTIST_PERFORMER,
+    PICTURE_TYPE_CONDUCTOR,
+    PICTURE_TYPE_BAND_ORCHESTRA,
+    PICTURE_TYPE_COMPOSER,
+    PICTURE_TYPE_LYRICIST,
+    PICTURE_TYPE_RECORDING_LOCATION,
+    PICTURE_TYPE_DURING_RECORDING,
+    PICTURE_TYPE_DURING_PERFORMANCE,
+    PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE,
+    PICTURE_TYPE_A_BRIGHT_COLORED_FISH,
+    PICTURE_TYPE_ILLUSTRATION,
+    PICTURE_TYPE_BAND_ARTIST_LOGO,
+    PICTURE_TYPE_PUBLISHER_STUDIO_LOGO
+  })
+  public @interface PictureType {}
+
+  public static final int PICTURE_TYPE_OTHER = 0x00;
+  public static final int PICTURE_TYPE_FILE_ICON = 0x01;
+  public static final int PICTURE_TYPE_FILE_ICON_OTHER = 0x02;
+  public static final int PICTURE_TYPE_FRONT_COVER = 0x03;
+  public static final int PICTURE_TYPE_BACK_COVER = 0x04;
+  public static final int PICTURE_TYPE_LEAFLET_PAGE = 0x05;
+  public static final int PICTURE_TYPE_MEDIA = 0x06;
+  public static final int PICTURE_TYPE_LEAD_ARTIST_PERFORMER = 0x07;
+  public static final int PICTURE_TYPE_ARTIST_PERFORMER = 0x08;
+  public static final int PICTURE_TYPE_CONDUCTOR = 0x09;
+  public static final int PICTURE_TYPE_BAND_ORCHESTRA = 0x0A;
+  public static final int PICTURE_TYPE_COMPOSER = 0x0B;
+  public static final int PICTURE_TYPE_LYRICIST = 0x0C;
+  public static final int PICTURE_TYPE_RECORDING_LOCATION = 0x0D;
+  public static final int PICTURE_TYPE_DURING_RECORDING = 0x0E;
+  public static final int PICTURE_TYPE_DURING_PERFORMANCE = 0x0F;
+  public static final int PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE = 0x10;
+  public static final int PICTURE_TYPE_A_BRIGHT_COLORED_FISH = 0x11;
+  public static final int PICTURE_TYPE_ILLUSTRATION = 0x12;
+  public static final int PICTURE_TYPE_BAND_ARTIST_LOGO = 0x13;
+  public static final int PICTURE_TYPE_PUBLISHER_STUDIO_LOGO = 0x14;
+
   /** Empty {@link MediaMetadata}. */
   public static final MediaMetadata EMPTY = new MediaMetadata.Builder().build();
 
@@ -422,6 +511,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final Rating overallRating;
   /** Optional artwork data as a compressed byte array. */
   @Nullable public final byte[] artworkData;
+  /** Optional {@link PictureType} of the artwork data. */
+  @Nullable @PictureType public final Integer artworkDataType;
   /** Optional artwork {@link Uri}. */
   @Nullable public final Uri artworkUri;
   /** Optional track number. */
@@ -498,6 +589,7 @@ public final class MediaMetadata implements Bundleable {
     this.userRating = builder.userRating;
     this.overallRating = builder.overallRating;
     this.artworkData = builder.artworkData;
+    this.artworkDataType = builder.artworkDataType;
     this.artworkUri = builder.artworkUri;
     this.trackNumber = builder.trackNumber;
     this.totalTrackCount = builder.totalTrackCount;
@@ -545,6 +637,7 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(userRating, that.userRating)
         && Util.areEqual(overallRating, that.overallRating)
         && Arrays.equals(artworkData, that.artworkData)
+        && Util.areEqual(artworkDataType, that.artworkDataType)
         && Util.areEqual(artworkUri, that.artworkUri)
         && Util.areEqual(trackNumber, that.trackNumber)
         && Util.areEqual(totalTrackCount, that.totalTrackCount)
@@ -579,6 +672,7 @@ public final class MediaMetadata implements Bundleable {
         userRating,
         overallRating,
         Arrays.hashCode(artworkData),
+        artworkDataType,
         artworkUri,
         trackNumber,
         totalTrackCount,
@@ -615,6 +709,7 @@ public final class MediaMetadata implements Bundleable {
     FIELD_USER_RATING,
     FIELD_OVERALL_RATING,
     FIELD_ARTWORK_DATA,
+    FIELD_ARTWORK_DATA_TYPE,
     FIELD_ARTWORK_URI,
     FIELD_TRACK_NUMBER,
     FIELD_TOTAL_TRACK_COUNT,
@@ -666,6 +761,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_TOTAL_DISC_COUNT = 26;
   private static final int FIELD_GENRE = 27;
   private static final int FIELD_COMPILATION = 28;
+  private static final int FIELD_ARTWORK_DATA_TYPE = 29;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -729,6 +825,9 @@ public final class MediaMetadata implements Bundleable {
     if (totalDiscCount != null) {
       bundle.putInt(keyForField(FIELD_TOTAL_DISC_COUNT), totalDiscCount);
     }
+    if (artworkDataType != null) {
+      bundle.putInt(keyForField(FIELD_ARTWORK_DATA_TYPE), artworkDataType);
+    }
     if (extras != null) {
       bundle.putBundle(keyForField(FIELD_EXTRAS), extras);
     }
@@ -749,7 +848,11 @@ public final class MediaMetadata implements Bundleable {
         .setSubtitle(bundle.getCharSequence(keyForField(FIELD_SUBTITLE)))
         .setDescription(bundle.getCharSequence(keyForField(FIELD_DESCRIPTION)))
         .setMediaUri(bundle.getParcelable(keyForField(FIELD_MEDIA_URI)))
-        .setArtworkData(bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)))
+        .setArtworkData(
+            bundle.getByteArray(keyForField(FIELD_ARTWORK_DATA)),
+            bundle.containsKey(keyForField(FIELD_ARTWORK_DATA_TYPE))
+                ? bundle.getInt(keyForField(FIELD_ARTWORK_DATA_TYPE))
+                : null)
         .setArtworkUri(bundle.getParcelable(keyForField(FIELD_ARTWORK_URI)))
         .setWriter(bundle.getCharSequence(keyForField(FIELD_WRITER)))
         .setComposer(bundle.getCharSequence(keyForField(FIELD_COMPOSER)))

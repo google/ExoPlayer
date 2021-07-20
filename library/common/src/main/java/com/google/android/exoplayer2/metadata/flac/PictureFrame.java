@@ -76,7 +76,7 @@ public final class PictureFrame implements Metadata.Entry {
 
   @Override
   public void populateMediaMetadata(MediaMetadata.Builder builder) {
-    builder.setArtworkData(pictureData);
+    builder.maybeSetArtworkData(pictureData, pictureType);
   }
 
   @Override
