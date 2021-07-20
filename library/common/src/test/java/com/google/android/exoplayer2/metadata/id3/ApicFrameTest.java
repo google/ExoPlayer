@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.metadata.flac;
+package com.google.android.exoplayer2.metadata.id3;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,20 +25,20 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link PictureFrame}. */
+/** Unit test for {@link ApicFrame}. */
 @RunWith(AndroidJUnit4.class)
-public final class PictureFrameTest {
+public class ApicFrameTest {
 
   @Test
   public void parcelable() {
-    PictureFrame pictureFrameToParcel = new PictureFrame(0, "", "", 0, 0, 0, 0, new byte[0]);
+    ApicFrame apicFrameToParcel = new ApicFrame("", "", 0, new byte[0]);
 
     Parcel parcel = Parcel.obtain();
-    pictureFrameToParcel.writeToParcel(parcel, 0);
+    apicFrameToParcel.writeToParcel(parcel, 0);
     parcel.setDataPosition(0);
 
-    PictureFrame pictureFrameFromParcel = PictureFrame.CREATOR.createFromParcel(parcel);
-    assertThat(pictureFrameFromParcel).isEqualTo(pictureFrameToParcel);
+    ApicFrame apicFrameFromParcel = ApicFrame.CREATOR.createFromParcel(parcel);
+    assertThat(apicFrameFromParcel).isEqualTo(apicFrameToParcel);
 
     parcel.recycle();
   }
@@ -46,15 +46,12 @@ public final class PictureFrameTest {
   @Test
   public void populateMediaMetadata_setsBuilderValues() {
     byte[] pictureData = new byte[] {-12, 52, 33, 85, 34, 22, 1, -55};
+    @MediaMetadata.PictureType int pictureType = MediaMetadata.PICTURE_TYPE_LEAFLET_PAGE;
     Metadata.Entry entry =
-        new PictureFrame(
-            /* pictureType= */ MediaMetadata.PICTURE_TYPE_FRONT_COVER,
-            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* width= */ 4,
-            /* height= */ 2,
-            /* depth= */ 1,
-            /* colors= */ 1,
+            pictureType,
             pictureData);
 
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
@@ -62,7 +59,7 @@ public final class PictureFrameTest {
 
     MediaMetadata mediaMetadata = builder.build();
     assertThat(mediaMetadata.artworkData).isEqualTo(pictureData);
-    assertThat(mediaMetadata.artworkDataType).isEqualTo(MediaMetadata.PICTURE_TYPE_FRONT_COVER);
+    assertThat(mediaMetadata.artworkDataType).isEqualTo(pictureType);
   }
 
   @Test
@@ -72,58 +69,36 @@ public final class PictureFrameTest {
     byte[] data3 = new byte[] {3, 3, 3, 3};
     byte[] data4 = new byte[] {4, 4, 4, 4};
     byte[] data5 = new byte[] {5, 5, 5, 5};
-
     Metadata.Entry entry1 =
-        new PictureFrame(
-            /* pictureType= */ MediaMetadata.PICTURE_TYPE_BAND_ORCHESTRA,
-            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* width= */ 2,
-            /* height= */ 2,
-            /* depth= */ 1,
-            /* colors= */ 1,
+            MediaMetadata.PICTURE_TYPE_BAND_ARTIST_LOGO,
             data1);
     Metadata.Entry entry2 =
-        new PictureFrame(
-            /* pictureType= */ MediaMetadata.PICTURE_TYPE_DURING_RECORDING,
-            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* width= */ 2,
-            /* height= */ 2,
-            /* depth= */ 1,
-            /* colors= */ 1,
+            MediaMetadata.PICTURE_TYPE_ARTIST_PERFORMER,
             data2);
     Metadata.Entry entry3 =
-        new PictureFrame(
-            /* pictureType= */ MediaMetadata.PICTURE_TYPE_FRONT_COVER,
-            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* width= */ 2,
-            /* height= */ 2,
-            /* depth= */ 1,
-            /* colors= */ 1,
+            MediaMetadata.PICTURE_TYPE_FRONT_COVER,
             data3);
     Metadata.Entry entry4 =
-        new PictureFrame(
-            /* pictureType= */ MediaMetadata.PICTURE_TYPE_ARTIST_PERFORMER,
-            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* width= */ 2,
-            /* height= */ 2,
-            /* depth= */ 1,
-            /* colors= */ 1,
+            MediaMetadata.PICTURE_TYPE_ILLUSTRATION,
             data4);
     Metadata.Entry entry5 =
-        new PictureFrame(
-            /* pictureType= */ MediaMetadata.PICTURE_TYPE_FRONT_COVER,
-            /* mimeType= */ MimeTypes.IMAGE_JPEG,
+        new ApicFrame(
+            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
             /* description= */ "an image",
-            /* width= */ 2,
-            /* height= */ 2,
-            /* depth= */ 1,
-            /* colors= */ 1,
+            MediaMetadata.PICTURE_TYPE_FRONT_COVER,
             data5);
-
     MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
 
     entry1.populateMediaMetadata(builder);
