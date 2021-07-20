@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.Locale;
 
 /** Logs events from {@link Player} and other core components using {@link Log}. */
@@ -330,20 +329,6 @@ public class EventLogger implements AnalyticsListener {
         logd("    ]");
       }
       logd("  ]");
-    }
-    logd("]");
-  }
-
-  @Override
-  public void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {
-    logd("staticMetadata [" + getEventTimeString(eventTime));
-    for (int i = 0; i < metadataList.size(); i++) {
-      Metadata metadata = metadataList.get(i);
-      if (metadata.length() != 0) {
-        logd("  Metadata:" + i + " [");
-        printMetadata(metadata, "    ");
-        logd("  ]");
-      }
     }
     logd("]");
   }

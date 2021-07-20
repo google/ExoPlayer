@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
@@ -225,8 +226,8 @@ public interface AnalyticsListener {
    * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
    */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
-  /** {@link Player#getCurrentStaticMetadata()} changed. */
-  int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
+  /** @deprecated See {@link Player#EVENT_MEDIA_METADATA_CHANGED}. */
+  @Deprecated int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
   /** {@link Player#getPlaybackState()} changed. */
@@ -682,28 +683,19 @@ public interface AnalyticsListener {
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
   /**
-   * Called when the static metadata changes.
-   *
-   * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances, where
-   * the elements correspond to the current track selections (as returned by {@link
-   * #onTracksChanged(EventTime, TrackGroupArray, TrackSelectionArray)}, or an empty list if there
-   * are no track selections or the selected tracks contain no static metadata.
-   *
-   * <p>The metadata is considered static in the sense that it comes from the tracks' declared
-   * Formats, rather than being timed (or dynamic) metadata, which is represented within a metadata
-   * track.
-   *
-   * @param eventTime The event time.
-   * @param metadataList The static metadata.
+   * @deprecated Use {@link Player#getMediaMetadata()} and {@link #onMediaMetadataChanged(EventTime,
+   *     MediaMetadata)} for access to structured metadata, or access the raw static metadata
+   *     directly from the {@link TrackSelection#getFormat(int) track selections' formats}.
    */
+  @Deprecated
   default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
 
   /**
    * Called when the combined {@link MediaMetadata} changes.
    *
    * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-   * and the static and dynamic metadata sourced from {@link
-   * Player.Listener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
+   * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
+   * selections' formats} and {@link MetadataOutput#onMetadata(Metadata)}.
    *
    * @param eventTime The event time.
    * @param mediaMetadata The combined {@link MediaMetadata}.

@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
@@ -128,30 +129,20 @@ public interface Player {
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
-     * Called when the static metadata changes.
-     *
-     * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances,
-     * where the elements correspond to the {@link #getCurrentTrackSelections() current track
-     * selections}, or an empty list if there are no track selections or the selected tracks contain
-     * no static metadata.
-     *
-     * <p>The metadata is considered static in the sense that it comes from the tracks' declared
-     * Formats, rather than being timed (or dynamic) metadata, which is represented within a
-     * metadata track.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param metadataList The static metadata.
+     * @deprecated Use {@link Player#getMediaMetadata()} and {@link
+     *     #onMediaMetadataChanged(MediaMetadata)} for access to structured metadata, or access the
+     *     raw static metadata directly from the {@link TrackSelection#getFormat(int) track
+     *     selections' formats}.
      */
+    @Deprecated
     default void onStaticMetadataChanged(List<Metadata> metadataList) {}
 
     /**
      * Called when the combined {@link MediaMetadata} changes.
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata sourced from {@link #onStaticMetadataChanged(List)} and
-     * {@link MetadataOutput#onMetadata(Metadata)}.
+     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
+     * selections' formats} and {@link MetadataOutput#onMetadata(Metadata)}.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -987,9 +978,6 @@ public interface Player {
 
     @Override
     default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
-
-    @Override
-    default void onStaticMetadataChanged(List<Metadata> metadataList) {}
   }
 
   /**
@@ -1215,8 +1203,8 @@ public interface Player {
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
   /** {@link #getCurrentTrackGroups()} or {@link #getCurrentTrackSelections()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
-  /** {@link #getCurrentStaticMetadata()} changed. */
-  int EVENT_STATIC_METADATA_CHANGED = 3;
+  /** @deprecated Use {@link #EVENT_MEDIA_METADATA_CHANGED} for structured metadata changes. */
+  @Deprecated int EVENT_STATIC_METADATA_CHANGED = 3;
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 4;
   /** {@link #getPlaybackState()} changed. */
@@ -1926,18 +1914,12 @@ public interface Player {
   TrackSelectionArray getCurrentTrackSelections();
 
   /**
-   * Returns the current static metadata for the track selections.
-   *
-   * <p>The returned {@code metadataList} is an immutable list of {@link Metadata} instances, where
-   * the elements correspond to the {@link #getCurrentTrackSelections() current track selections},
-   * or an empty list if there are no track selections or the selected tracks contain no static
-   * metadata.
-   *
-   * <p>This metadata is considered static in that it comes from the tracks' declared Formats,
-   * rather than being timed (or dynamic) metadata, which is represented within a metadata track.
-   *
-   * @see Listener#onStaticMetadataChanged(List)
+   * @deprecated Use {@link #getMediaMetadata()} and {@link
+   *     Listener#onMediaMetadataChanged(MediaMetadata)} for access to structured metadata, or
+   *     access the raw static metadata directly from the {@link TrackSelection#getFormat(int) track
+   *     selections' formats}.
    */
+  @Deprecated
   List<Metadata> getCurrentStaticMetadata();
 
   /**
@@ -1945,8 +1927,8 @@ public interface Player {
    * supported.
    *
    * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata sourced from {@link Listener#onStaticMetadataChanged(List)} and
-   * {@link MetadataOutput#onMetadata(Metadata)}.
+   * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
+   * formats} and {@link MetadataOutput#onMetadata(Metadata)}.
    */
   MediaMetadata getMediaMetadata();
 

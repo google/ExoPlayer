@@ -8938,72 +8938,6 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void staticMetadata_callbackIsCalledCorrectlyAndMatchesGetter() throws Exception {
-    Format videoFormat =
-        new Format.Builder()
-            .setSampleMimeType(MimeTypes.VIDEO_H264)
-            .setMetadata(
-                new Metadata(
-                    new TextInformationFrame(
-                        /* id= */ "TT2",
-                        /* description= */ "Video",
-                        /* value= */ "Video track name")))
-            .build();
-    Format audioFormat =
-        new Format.Builder()
-            .setSampleMimeType(MimeTypes.AUDIO_AAC)
-            .setMetadata(
-                new Metadata(
-                    new TextInformationFrame(
-                        /* id= */ "TT2",
-                        /* description= */ "Audio",
-                        /* value= */ "Audio track name")))
-            .build();
-    Player.Listener playerListener = mock(Player.Listener.class);
-    Timeline fakeTimeline =
-        new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 100000));
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
-
-    player.setMediaSource(new FakeMediaSource(fakeTimeline, videoFormat, audioFormat));
-    player.addListener(playerListener);
-    player.prepare();
-    player.play();
-    runUntilPlaybackState(player, Player.STATE_ENDED);
-    List<Metadata> metadata = player.getCurrentStaticMetadata();
-    player.release();
-
-    assertThat(metadata).containsExactly(videoFormat.metadata, audioFormat.metadata).inOrder();
-    verify(playerListener)
-        .onStaticMetadataChanged(ImmutableList.of(videoFormat.metadata, audioFormat.metadata));
-  }
-
-  @Test
-  public void staticMetadata_callbackIsNotCalledWhenMetadataEmptyAndGetterReturnsEmptyList()
-      throws Exception {
-    Format videoFormat = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
-    Format audioFormat = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).build();
-    Player.Listener playerListener = mock(Player.Listener.class);
-    Timeline fakeTimeline =
-        new FakeTimeline(
-            new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 100000));
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
-
-    player.setMediaSource(new FakeMediaSource(fakeTimeline, videoFormat, audioFormat));
-    player.addListener(playerListener);
-    player.prepare();
-    player.play();
-    runUntilPlaybackState(player, Player.STATE_ENDED);
-    List<Metadata> metadata = player.getCurrentStaticMetadata();
-    player.release();
-
-    assertThat(metadata).isEmpty();
-    verify(playerListener, never()).onStaticMetadataChanged(any());
-  }
-
-  @Test
   public void targetLiveOffsetInMedia_adjustsLiveOffsetToTargetOffset() throws Exception {
     long windowStartUnixTimeMs = 987_654_321_000L;
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
@@ -9495,7 +9429,11 @@ public final class ExoPlayerTest {
     Format formatWithStaticMetadata =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.VIDEO_H264)
-            .setMetadata(new Metadata(new BinaryFrame(/* id= */ "", /* data= */ new byte[0])))
+            .setMetadata(
+                new Metadata(
+                    new BinaryFrame(/* id= */ "", /* data= */ new byte[0]),
+                    new TextInformationFrame(
+                        /* id= */ "TT2", /* description= */ null, /* value= */ "title")))
             .build();
 
     // Set multiple values together.
@@ -9554,7 +9492,7 @@ public final class ExoPlayerTest {
     verify(listener, atLeastOnce()).onPlaybackStateChanged(anyInt());
     verify(listener, atLeastOnce()).onIsLoadingChanged(anyBoolean());
     verify(listener, atLeastOnce()).onTracksChanged(any(), any());
-    verify(listener, atLeastOnce()).onStaticMetadataChanged(any());
+    verify(listener, atLeastOnce()).onMediaMetadataChanged(any());
     verify(listener, atLeastOnce()).onPlayWhenReadyChanged(anyBoolean(), anyInt());
     verify(listener, atLeastOnce()).onIsPlayingChanged(anyBoolean());
     verify(listener, atLeastOnce()).onPlayerErrorChanged(any());
@@ -9572,7 +9510,7 @@ public final class ExoPlayerTest {
     assertThat(containsEvent(allEvents, Player.EVENT_PLAYBACK_STATE_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_IS_LOADING_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_TRACKS_CHANGED)).isTrue();
-    assertThat(containsEvent(allEvents, Player.EVENT_STATIC_METADATA_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_MEDIA_METADATA_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_PLAY_WHEN_READY_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_IS_PLAYING_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_PLAYER_ERROR)).isTrue();

@@ -41,6 +41,13 @@
     *   Add a `DefaultMediaDescriptionAdapter` for the
         `PlayerNotificationManager`, that makes use of the `Player`
         `MediaMetadata` to populate the notification fields.
+    *   Deprecate `Player.getCurrentStaticMetadata`,
+        `Player.Listener.onStaticMetadataChanged` and
+        `Player.EVENT_STATIC_METADATA_CHANGED`. Use `Player.getMediaMetadata`,
+        `Player.Listener.onMediaMetadataChanged` and
+        `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
+        structured metadata, or access the raw static metadata directly from
+        the `TrackSelection#getFormat()`.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and

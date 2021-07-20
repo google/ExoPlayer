@@ -1723,6 +1723,7 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getCurrentTrackSelections();
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     verifyApplicationThread();

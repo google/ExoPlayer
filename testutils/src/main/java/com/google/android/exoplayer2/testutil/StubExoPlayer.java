@@ -375,6 +375,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     throw new UnsupportedOperationException();

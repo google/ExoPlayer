@@ -367,6 +367,7 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentTrackSelections();
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     return player.getCurrentStaticMetadata();
@@ -642,6 +643,7 @@ public class ForwardingPlayer implements Player {
       eventListener.onTracksChanged(trackGroups, trackSelections);
     }
 
+    @Deprecated
     @Override
     public void onStaticMetadataChanged(List<Metadata> metadataList) {
       eventListener.onStaticMetadataChanged(metadataList);

@@ -541,6 +541,7 @@ public final class CastPlayer extends BasePlayer {
     return currentTrackGroups;
   }
 
+  @Deprecated
   @Override
   public ImmutableList<Metadata> getCurrentStaticMetadata() {
     // CastPlayer does not currently support metadata.

@@ -595,6 +595,7 @@ public class AnalyticsCollector
         listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
   }
 
+  @Deprecated
   @Override
   public final void onStaticMetadataChanged(List<Metadata> metadataList) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();

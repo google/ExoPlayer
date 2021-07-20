@@ -1004,6 +1004,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return new TrackSelectionArray(playbackInfo.trackSelectorResult.selections);
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     return playbackInfo.staticMetadata;
@@ -1264,7 +1265,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 .windowIndex;
         mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
       }
-      mediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
+      newMediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
     }
     if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       newMediaMetadata =
