@@ -77,5 +77,6 @@ exoPlayer.play();
 [DASH]: {{ site.baseurl }}/dash.html
 [SmoothStreaming]: {{ site.baseurl }}/smoothstreaming.html
 [HLS]: {{ site.baseurl }}/hls.html
+[RTSP]: {{ site.baseurl }}/rtsp.html
 [regular media files]: {{ site.baseurl }}/progressive.html
 [`ExoPlayer`]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/ExoPlayer.html
