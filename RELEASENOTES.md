@@ -30,7 +30,8 @@
             implementation-specific fields (like
             `ExoPlaybackException.rendererIndex`).
         *   `PlaybackException` introduces an `errorCode` which identifies the
-            cause of the failure in order to simplify error handling.
+            cause of the failure in order to simplify error handling
+            ([#1611](https://github.com/google/ExoPlayer/issues/1611)).
     *   Add `@FallbackType` to `LoadErrorHandlingPolicy` to support
         customization of the exclusion duration for locations and tracks.
     *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
