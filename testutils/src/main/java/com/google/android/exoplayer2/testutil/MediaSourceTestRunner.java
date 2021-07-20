@@ -27,6 +27,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -129,6 +130,17 @@ public class MediaSourceTestRunner {
       throw prepareError[0];
     }
     return assertTimelineChangeBlocking();
+  }
+
+  /**
+   * Prepares source on playback thread without expecting a timeline change.  Use for "lazy" prepare
+   * MediaSource, e.g. {@link MaskingMediaSource}
+   */
+  public void prepareSourceLazy() {
+    runOnPlaybackThread(
+        () -> {
+          mediaSource.prepareSource(mediaSourceListener, /* mediaTransferListener= */ null);
+        });
   }
 
   /**
