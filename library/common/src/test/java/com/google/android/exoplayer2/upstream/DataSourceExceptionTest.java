@@ -17,9 +17,12 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,5 +57,69 @@ public class DataSourceExceptionTest {
         new DataSourceException(PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     IOException e = new IOException(new IOException(cause));
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isFalse();
+  }
+
+  @Test
+  public void constructor_withNestedCausesAndUnspecifiedErrorCodes_assignsCorrectErrorCodes() {
+    DataSourceException exception =
+        new DataSourceException(
+            new UnknownHostException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason).isEqualTo(PlaybackException.ERROR_CODE_IO_DNS_FAILED);
+
+    exception =
+        new DataSourceException(
+            new SocketTimeoutException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason)
+        .isEqualTo(PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT);
+
+    exception =
+        new DataSourceException(
+            new IOException(new SocketTimeoutException()),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason)
+        .isEqualTo(PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT);
+
+    exception =
+        new DataSourceException(
+            new DataSourceException(
+                new SocketTimeoutException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason)
+        .isEqualTo(PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT);
+
+    exception =
+        new DataSourceException(
+            new DataSourceException(
+                new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE),
+                PlaybackException.ERROR_CODE_IO_UNSPECIFIED),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason)
+        .isEqualTo(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+
+    exception =
+        new DataSourceException(
+            new HttpDataSource.CleartextNotPermittedException(
+                new IOException(), new DataSpec(Uri.parse("test"))),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason).isEqualTo(PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED);
+
+    exception =
+        new DataSourceException(
+            new HttpDataSource.HttpDataSourceException(
+                new IOException(),
+                new DataSpec(Uri.parse("test")),
+                PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+                HttpDataSource.HttpDataSourceException.TYPE_OPEN),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason)
+        .isEqualTo(PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED);
+
+    exception =
+        new DataSourceException(
+            new DataSourceException(
+                new DataSourceException(PlaybackException.ERROR_CODE_IO_UNSPECIFIED),
+                PlaybackException.ERROR_CODE_IO_UNSPECIFIED),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    assertThat(exception.reason).isEqualTo(PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
   }
 }

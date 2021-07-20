@@ -48,9 +48,8 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.FileDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -60,8 +59,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -598,27 +595,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
       }
       handleIoException(e, errorCode);
-    } catch (HttpDataSource.CleartextNotPermittedException e) {
-      handleIoException(e, PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED);
-    } catch (HttpDataSource.InvalidResponseCodeException e) {
-      handleIoException(e, PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS);
-    } catch (HttpDataSource.HttpDataSourceException | UdpDataSource.UdpDataSourceException e) {
-      @ErrorCode int errorCode;
-      @Nullable Throwable cause = e.getCause();
-      if (cause instanceof UnknownHostException) {
-        errorCode = PlaybackException.ERROR_CODE_IO_DNS_FAILED;
-      } else if (cause instanceof SocketTimeoutException) {
-        errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
-      } else if (e instanceof HttpDataSource.HttpDataSourceException) {
-        int type = ((HttpDataSource.HttpDataSourceException) e).type;
-        errorCode =
-            type == HttpDataSource.HttpDataSourceException.TYPE_OPEN
-                ? PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
-                : PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
-      } else {
-        errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
-      }
-      handleIoException(e, errorCode);
+    } catch (DataSourceException e) {
+      handleIoException(e, e.reason);
     } catch (BehindLiveWindowException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW);
     } catch (IOException e) {

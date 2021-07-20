@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.upstream;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 /** Used to specify reason of a DataSource error. */
 public class DataSourceException extends IOException {
@@ -78,7 +80,7 @@ public class DataSourceException extends IOException {
   public DataSourceException(
       String message, Throwable cause, @PlaybackException.ErrorCode int reason) {
     super(message, cause);
-    this.reason = reason;
+    this.reason = inferErrorCode(reason, cause);
   }
 
   /**
@@ -90,7 +92,7 @@ public class DataSourceException extends IOException {
    */
   public DataSourceException(Throwable cause, @PlaybackException.ErrorCode int reason) {
     super(cause);
-    this.reason = reason;
+    this.reason = inferErrorCode(reason, cause);
   }
 
   /**
@@ -103,5 +105,25 @@ public class DataSourceException extends IOException {
   public DataSourceException(String message, @PlaybackException.ErrorCode int reason) {
     super(message);
     this.reason = reason;
+  }
+
+  @PlaybackException.ErrorCode
+  private static int inferErrorCode(
+      @PlaybackException.ErrorCode int reason, @Nullable Throwable cause) {
+    if (reason != PlaybackException.ERROR_CODE_IO_UNSPECIFIED) {
+      return reason;
+    }
+
+    while (cause != null) {
+      if (cause instanceof UnknownHostException) {
+        return PlaybackException.ERROR_CODE_IO_DNS_FAILED;
+      } else if (cause instanceof SocketTimeoutException) {
+        return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
+      } else if (cause instanceof DataSourceException) {
+        return ((DataSourceException) cause).reason;
+      }
+      cause = cause.getCause();
+    }
+    return PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
   }
 }

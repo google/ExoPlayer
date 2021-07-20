@@ -231,7 +231,7 @@ public interface HttpDataSource extends DataSource {
      */
     public HttpDataSourceException(
         DataSpec dataSpec, @PlaybackException.ErrorCode int errorCode, @Type int type) {
-      super(errorCode);
+      super(assignErrorCode(errorCode, type));
       this.dataSpec = dataSpec;
       this.type = type;
     }
@@ -260,7 +260,7 @@ public interface HttpDataSource extends DataSource {
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
-      super(message, errorCode);
+      super(message, assignErrorCode(errorCode, type));
       this.dataSpec = dataSpec;
       this.type = type;
     }
@@ -289,7 +289,7 @@ public interface HttpDataSource extends DataSource {
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
-      super(cause, errorCode);
+      super(cause, assignErrorCode(errorCode, type));
       this.dataSpec = dataSpec;
       this.type = type;
     }
@@ -321,9 +321,16 @@ public interface HttpDataSource extends DataSource {
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
-      super(message, cause, errorCode);
+      super(message, cause, assignErrorCode(errorCode, type));
       this.dataSpec = dataSpec;
       this.type = type;
+    }
+
+    @PlaybackException.ErrorCode
+    private static int assignErrorCode(@PlaybackException.ErrorCode int errorCode, @Type int type) {
+      return errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED && type == TYPE_OPEN
+          ? PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
+          : errorCode;
     }
   }
 
