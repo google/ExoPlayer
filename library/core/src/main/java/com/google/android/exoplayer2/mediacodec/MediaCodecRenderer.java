@@ -570,12 +570,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
-          // TODO(internal b/184262323): Assign a proper error code, once we attach that information
-          // to DrmSessionException.
+          DrmSessionException drmSessionException =
+              Assertions.checkNotNull(codecDrmSession.getError());
           throw createRendererException(
-              codecDrmSession.getError(),
-              inputFormat,
-              PlaybackException.ERROR_CODE_DRM_UNSPECIFIED);
+              drmSessionException, inputFormat, drmSessionException.errorCode);
         } else if (drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS) {
           // Wait for keys.
           return;

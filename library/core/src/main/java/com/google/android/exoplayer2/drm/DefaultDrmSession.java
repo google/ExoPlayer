@@ -564,7 +564,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // better diagnosis tools were provided, we treat this as a system error.
       return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
     } else {
-      return PlaybackException.ERROR_CODE_DRM_UNSPECIFIED;
+      // The error happened during the license request.
+      return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
     }
   }
 

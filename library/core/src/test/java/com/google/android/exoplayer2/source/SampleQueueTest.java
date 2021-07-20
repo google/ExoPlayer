@@ -558,7 +558,7 @@ public final class SampleQueueTest {
     when(mockDrmSession.getError())
         .thenReturn(
             new DrmSession.DrmSessionException(
-                new Exception(), PlaybackException.ERROR_CODE_DRM_UNSPECIFIED));
+                new Exception(), PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR));
     assertReadNothing(/* formatRequired= */ false);
     try {
       sampleQueue.maybeThrowError();
