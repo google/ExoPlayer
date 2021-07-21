@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
@@ -22,14 +24,17 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Represents a media format.
@@ -1249,7 +1254,7 @@ public final class Format implements Parcelable {
     int initializationDataSize = in.readInt();
     initializationData = new ArrayList<>(initializationDataSize);
     for (int i = 0; i < initializationDataSize; i++) {
-      initializationData.add(Assertions.checkNotNull(in.createByteArray()));
+      initializationData.add(checkNotNull(in.createByteArray()));
     }
     drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
     subsampleOffsetUs = in.readLong();
@@ -1587,6 +1592,26 @@ public final class Format implements Parcelable {
     if (format.codecs != null) {
       builder.append(", codecs=").append(format.codecs);
     }
+    if (format.drmInitData != null) {
+      Set<String> schemes = new LinkedHashSet<>();
+      for (int i = 0; i < format.drmInitData.schemeDataCount; i++) {
+        UUID schemeUuid = format.drmInitData.get(i).uuid;
+        if (schemeUuid.equals(C.COMMON_PSSH_UUID)) {
+          schemes.add("cenc");
+        } else if (schemeUuid.equals(C.CLEARKEY_UUID)) {
+          schemes.add("clearkey");
+        } else if (schemeUuid.equals(C.PLAYREADY_UUID)) {
+          schemes.add("playready");
+        } else if (schemeUuid.equals(C.WIDEVINE_UUID)) {
+          schemes.add("widevine");
+        } else if (schemeUuid.equals(C.UUID_NIL)) {
+          schemes.add("universal");
+        } else {
+          schemes.add("unknown (" + schemeUuid + ")");
+        }
+      }
+      builder.append(", drm=[").append(Joiner.on(',').join(schemes)).append(']');
+    }
     if (format.width != NO_VALUE && format.height != NO_VALUE) {
       builder.append(", res=").append(format.width).append("x").append(format.height);
     }
@@ -1604,6 +1629,9 @@ public final class Format implements Parcelable {
     }
     if (format.label != null) {
       builder.append(", label=").append(format.label);
+    }
+    if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+      builder.append(", trick-play-track");
     }
     return builder.toString();
   }

@@ -21,29 +21,49 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.net.Uri;
 import android.provider.Settings.Global;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import java.util.Arrays;
 
 /** Represents the set of audio formats that a device is capable of playing. */
 public final class AudioCapabilities {
 
   private static final int DEFAULT_MAX_CHANNEL_COUNT = 8;
+  private static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
   /** The minimum audio capabilities supported by all devices. */
   public static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
   /** Audio capabilities when the device specifies external surround sound. */
+  @SuppressWarnings("InlinedApi")
   private static final AudioCapabilities EXTERNAL_SURROUND_SOUND_CAPABILITIES =
       new AudioCapabilities(
           new int[] {
             AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
           },
           DEFAULT_MAX_CHANNEL_COUNT);
+
+  /** Array of all surround sound encodings that a device may be capable of playing. */
+  @SuppressWarnings("InlinedApi")
+  private static final int[] ALL_SURROUND_ENCODINGS =
+      new int[] {
+        AudioFormat.ENCODING_AC3,
+        AudioFormat.ENCODING_E_AC3,
+        AudioFormat.ENCODING_E_AC3_JOC,
+        AudioFormat.ENCODING_AC4,
+        AudioFormat.ENCODING_DOLBY_TRUEHD,
+        AudioFormat.ENCODING_DTS,
+        AudioFormat.ENCODING_DTS_HD,
+      };
 
   /** Global settings key for devices that can specify external surround sound. */
   private static final String EXTERNAL_SURROUND_SOUND_KEY = "external_surround_sound_enabled";
@@ -67,6 +87,10 @@ public final class AudioCapabilities {
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+    }
+    if (Util.SDK_INT >= 29) {
+      return new AudioCapabilities(
+          AudioTrackWrapperV29.getDirectPlaybackSupportedEncodingsV29(), DEFAULT_MAX_CHANNEL_COUNT);
     }
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
@@ -157,5 +181,30 @@ public final class AudioCapabilities {
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {
     return Util.SDK_INT >= 17
         && ("Amazon".equals(Util.MANUFACTURER) || "Xiaomi".equals(Util.MANUFACTURER));
+  }
+
+  @RequiresApi(29)
+  private static final class AudioTrackWrapperV29 {
+    @DoNotInline
+    public static int[] getDirectPlaybackSupportedEncodingsV29() {
+      ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
+      for (int encoding : ALL_SURROUND_ENCODINGS) {
+        if (AudioTrack.isDirectPlaybackSupported(
+            new AudioFormat.Builder()
+                .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                .setEncoding(encoding)
+                .setSampleRate(DEFAULT_SAMPLE_RATE_HZ)
+                .build(),
+            new android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MOVIE)
+                .setFlags(0)
+                .build())) {
+          supportedEncodingsListBuilder.add(encoding);
+        }
+      }
+      supportedEncodingsListBuilder.add(AudioFormat.ENCODING_PCM_16BIT);
+      return Ints.toArray(supportedEncodingsListBuilder.build());
+    }
   }
 }

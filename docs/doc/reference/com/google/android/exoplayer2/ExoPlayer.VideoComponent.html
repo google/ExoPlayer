@@ -484,7 +484,10 @@ void&nbsp;removeVideoListener&#8203;(<a href="video/VideoListener.html" title="i
 <pre class="methodSignature">void&nbsp;setVideoSurfaceHolder&#8203;(@Nullable
                            <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</pre>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink"><code>SurfaceHolder</code></a> that holds the <a href="https://developer.android.com/reference/android/view/Surface.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> onto which video will be
- rendered. The player will track the lifecycle of the surface automatically.</div>
+ rendered. The player will track the lifecycle of the surface automatically.
+
+ <p>The thread that calls the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceHolder.Callback</code></a> methods must be the thread
+ associated with <a href="Player.html#getApplicationLooper()"><code>Player.getApplicationLooper()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>surfaceHolder</code> - The surface holder.</dd>
@@ -516,7 +519,10 @@ void&nbsp;removeVideoListener&#8203;(<a href="video/VideoListener.html" title="i
 <pre class="methodSignature">void&nbsp;setVideoSurfaceView&#8203;(@Nullable
                          <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</pre>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceView</code></a> onto which video will be rendered. The player will track the
- lifecycle of the surface automatically.</div>
+ lifecycle of the surface automatically.
+
+ <p>The thread that calls the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceHolder.Callback</code></a> methods must be the thread
+ associated with <a href="Player.html#getApplicationLooper()"><code>Player.getApplicationLooper()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>surfaceView</code> - The surface view.</dd>
@@ -548,7 +554,10 @@ void&nbsp;removeVideoListener&#8203;(<a href="video/VideoListener.html" title="i
 <pre class="methodSignature">void&nbsp;setVideoTextureView&#8203;(@Nullable
                          <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</pre>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a> onto which video will be rendered. The player will track the
- lifecycle of the surface automatically.</div>
+ lifecycle of the surface automatically.
+
+ <p>The thread that calls the <a href="https://developer.android.com/reference/android/view/TextureView.SurfaceTextureListener.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView.SurfaceTextureListener</code></a> methods must be the
+ thread associated with <a href="Player.html#getApplicationLooper()"><code>Player.getApplicationLooper()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>textureView</code> - The texture view.</dd>

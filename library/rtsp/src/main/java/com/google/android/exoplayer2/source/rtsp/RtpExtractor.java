@@ -125,10 +125,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Reads one RTP packet at a time.
     int bytesRead = input.read(rtpPacketScratchBuffer.getData(), 0, RtpPacket.MAX_SIZE);
-    if (bytesRead == RESULT_END_OF_INPUT) {
-      return RESULT_END_OF_INPUT;
+    if (bytesRead == C.RESULT_END_OF_INPUT) {
+      return Extractor.RESULT_END_OF_INPUT;
     } else if (bytesRead == 0) {
-      return RESULT_CONTINUE;
+      return Extractor.RESULT_CONTINUE;
     }
 
     rtpPacketScratchBuffer.setPosition(0);

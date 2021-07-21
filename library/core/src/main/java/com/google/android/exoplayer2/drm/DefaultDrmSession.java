@@ -230,7 +230,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   public void onProvisionCompleted() {
-    if (openInternal(false)) {
+    if (openInternal()) {
       doLicense(true);
     }
   }
@@ -290,7 +290,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       requestHandlerThread = new HandlerThread("ExoPlayer:DrmRequestHandler");
       requestHandlerThread.start();
       requestHandler = new RequestHandler(requestHandlerThread.getLooper());
-      if (openInternal(true)) {
+      if (openInternal()) {
         doLicense(true);
       }
     } else if (eventDispatcher != null
@@ -338,12 +338,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Try to open a session, do provisioning if necessary.
    *
-   * @param allowProvisioning if provisioning is allowed, set this to false when calling from
-   *     processing provision response.
    * @return true on success, false otherwise.
    */
   @EnsuresNonNullIf(result = true, expression = "sessionId")
-  private boolean openInternal(boolean allowProvisioning) {
+  private boolean openInternal() {
     if (isOpen()) {
       // Already opened
       return true;
@@ -359,11 +357,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Assertions.checkNotNull(sessionId);
       return true;
     } catch (NotProvisionedException e) {
-      if (allowProvisioning) {
-        provisioningManager.provisionRequired(this);
-      } else {
-        onError(e);
-      }
+      provisioningManager.provisionRequired(this);
     } catch (Exception e) {
       onError(e);
     }

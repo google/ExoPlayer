@@ -493,7 +493,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseOutputBuffer</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
+<pre class="methodSignature">@RequiresApi(21)
+public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
                                 long&nbsp;renderTimeStampNs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#releaseOutputBuffer(int,long)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Updates the output buffer's surface timestamp and sends it to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> to render
@@ -543,7 +544,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <ul class="blockList">
 <li class="blockList">
 <h4>setOnFrameRenderedListener</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOnFrameRenderedListener&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
+<pre class="methodSignature">@RequiresApi(23)
+public&nbsp;void&nbsp;setOnFrameRenderedListener&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
                                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setOnFrameRenderedListener(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.OnFrameRenderedListener,android.os.Handler)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Registers a callback to be invoked when an output frame is rendered on the output surface.</div>
@@ -561,7 +563,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <ul class="blockList">
 <li class="blockList">
 <h4>setOutputSurface</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOutputSurface&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<pre class="methodSignature">@RequiresApi(23)
+public&nbsp;void&nbsp;setOutputSurface&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setOutputSurface(android.view.Surface)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Dynamically sets the output surface of a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 <dl>
@@ -578,7 +581,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <ul class="blockList">
 <li class="blockList">
 <h4>setParameters</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</pre>
+<pre class="methodSignature">@RequiresApi(19)
+public&nbsp;void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setParameters(android.os.Bundle)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Communicate additional parameter changes to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instance.</div>
 <dl>

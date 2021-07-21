@@ -139,12 +139,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     ParsableByteArray scratchId3Data;
 
     if (previousChunk != null) {
+      boolean isSameInitData =
+          initDataSpec == previousChunk.initDataSpec
+              || (initDataSpec != null
+                  && previousChunk.initDataSpec != null
+                  && initDataSpec.uri.equals(previousChunk.initDataSpec.uri)
+                  && initDataSpec.position == previousChunk.initDataSpec.position);
       boolean isFollowingChunk =
           playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted;
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
       previousExtractor =
-          isFollowingChunk
+          isSameInitData
+                  && isFollowingChunk
                   && !previousChunk.extractorInvalidated
                   && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
               ? previousChunk.extractor

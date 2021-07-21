@@ -46,6 +46,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -289,7 +290,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private final long sessionKeepaliveMs;
 
   private final List<DefaultDrmSession> sessions;
-  private final List<DefaultDrmSession> provisioningSessions;
   private final Set<PreacquiredSessionReference> preacquiredSessionReferences;
   private final Set<DefaultDrmSession> keepaliveSessions;
 
@@ -411,7 +411,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     referenceCountListener = new ReferenceCountListenerImpl();
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
-    provisioningSessions = new ArrayList<>();
     preacquiredSessionReferences = Sets.newIdentityHashSet();
     keepaliveSessions = Sets.newIdentityHashSet();
     this.sessionKeepaliveMs = sessionKeepaliveMs;
@@ -842,33 +841,60 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   private class ProvisioningManagerImpl implements DefaultDrmSession.ProvisioningManager {
+
+    private final Set<DefaultDrmSession> sessionsAwaitingProvisioning;
+    @Nullable private DefaultDrmSession provisioningSession;
+
+    public ProvisioningManagerImpl() {
+      sessionsAwaitingProvisioning = new HashSet<>();
+    }
+
     @Override
     public void provisionRequired(DefaultDrmSession session) {
-      if (provisioningSessions.contains(session)) {
-        // The session has already requested provisioning.
+      sessionsAwaitingProvisioning.add(session);
+      if (provisioningSession != null) {
+        // Provisioning is already in-flight.
         return;
       }
-      provisioningSessions.add(session);
-      if (provisioningSessions.size() == 1) {
-        // This is the first session requesting provisioning, so have it perform the operation.
-        session.provision();
-      }
+      provisioningSession = session;
+      session.provision();
     }
 
     @Override
     public void onProvisionCompleted() {
-      for (DefaultDrmSession session : provisioningSessions) {
+      provisioningSession = null;
+      ImmutableList<DefaultDrmSession> sessionsToNotify =
+          ImmutableList.copyOf(sessionsAwaitingProvisioning);
+      // Clear the list before calling onProvisionComplete in case provisioning is re-requested.
+      sessionsAwaitingProvisioning.clear();
+      for (DefaultDrmSession session : sessionsToNotify) {
         session.onProvisionCompleted();
       }
-      provisioningSessions.clear();
     }
 
     @Override
     public void onProvisionError(Exception error) {
-      for (DefaultDrmSession session : provisioningSessions) {
+      provisioningSession = null;
+      ImmutableList<DefaultDrmSession> sessionsToNotify =
+          ImmutableList.copyOf(sessionsAwaitingProvisioning);
+      // Clear the list before calling onProvisionError in case provisioning is re-requested.
+      sessionsAwaitingProvisioning.clear();
+      for (DefaultDrmSession session : sessionsToNotify) {
         session.onProvisionError(error);
       }
-      provisioningSessions.clear();
+    }
+
+    public void onSessionFullyReleased(DefaultDrmSession session) {
+      sessionsAwaitingProvisioning.remove(session);
+      if (provisioningSession == session) {
+        provisioningSession = null;
+        if (!sessionsAwaitingProvisioning.isEmpty()) {
+          // Other sessions were waiting for the released session to complete a provision operation.
+          // We need to have one of those sessions perform the provision operation instead.
+          provisioningSession = sessionsAwaitingProvisioning.iterator().next();
+          provisioningSession.provision();
+        }
+      }
     }
   }
 
@@ -885,8 +911,10 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
     @Override
     public void onReferenceCountDecremented(DefaultDrmSession session, int newReferenceCount) {
-      if (newReferenceCount == 1 && sessionKeepaliveMs != C.TIME_UNSET) {
-        // Only the internal keep-alive reference remains, so we can start the timeout.
+      if (newReferenceCount == 1 && prepareCallsCount > 0 && sessionKeepaliveMs != C.TIME_UNSET) {
+        // Only the internal keep-alive reference remains, so we can start the timeout. We only
+        // do this if the manager isn't released, because a released manager has already released
+        // all its internal session keep-alive references.
         keepaliveSessions.add(session);
         checkNotNull(playbackHandler)
             .postAtTime(
@@ -902,12 +930,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         if (noMultiSessionDrmSession == session) {
           noMultiSessionDrmSession = null;
         }
-        if (provisioningSessions.size() > 1 && provisioningSessions.get(0) == session) {
-          // Other sessions were waiting for the released session to complete a provision operation.
-          // We need to have one of those sessions perform the provision operation instead.
-          provisioningSessions.get(1).provision();
-        }
-        provisioningSessions.remove(session);
+        provisioningManagerImpl.onSessionFullyReleased(session);
         if (sessionKeepaliveMs != C.TIME_UNSET) {
           checkNotNull(playbackHandler).removeCallbacksAndMessages(session);
           keepaliveSessions.remove(session);

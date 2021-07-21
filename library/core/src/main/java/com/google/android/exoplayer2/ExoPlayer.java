@@ -334,6 +334,9 @@ public interface ExoPlayer extends Player {
      * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
      * rendered. The player will track the lifecycle of the surface automatically.
      *
+     * <p>The thread that calls the {@link SurfaceHolder.Callback} methods must be the thread
+     * associated with {@link #getApplicationLooper()}.
+     *
      * @param surfaceHolder The surface holder.
      */
     void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
@@ -350,6 +353,9 @@ public interface ExoPlayer extends Player {
      * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
      * lifecycle of the surface automatically.
      *
+     * <p>The thread that calls the {@link SurfaceHolder.Callback} methods must be the thread
+     * associated with {@link #getApplicationLooper()}.
+     *
      * @param surfaceView The surface view.
      */
     void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
@@ -365,6 +371,9 @@ public interface ExoPlayer extends Player {
     /**
      * Sets the {@link TextureView} onto which video will be rendered. The player will track the
      * lifecycle of the surface automatically.
+     *
+     * <p>The thread that calls the {@link TextureView.SurfaceTextureListener} methods must be the
+     * thread associated with {@link #getApplicationLooper()}.
      *
      * @param textureView The texture view.
      */

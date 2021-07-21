@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AacUtil;
@@ -38,9 +39,10 @@ import org.junit.runner.RunWith;
 public class RtspMediaTrackTest {
 
   @Test
-  public void generatePayloadFormat_withH264MediaDescription_succeeds() throws Exception {
+  public void generatePayloadFormat_withH264MediaDescription_succeeds() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_VIDEO, 0, RTP_AVP_PROFILE, 96)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_VIDEO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 96)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(500_000)
             .addAttribute(ATTR_RTPMAP, "96 H264/90000")
@@ -79,9 +81,10 @@ public class RtspMediaTrackTest {
   }
 
   @Test
-  public void generatePayloadFormat_withAacMediaDescription_succeeds() throws Exception {
+  public void generatePayloadFormat_withAacMediaDescription_succeeds() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 0, RTP_AVP_PROFILE, 97)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(96_000)
             .addAttribute(ATTR_RTPMAP, "97 MPEG4-GENERIC/44100")
@@ -122,10 +125,10 @@ public class RtspMediaTrackTest {
   }
 
   @Test
-  public void generatePayloadFormat_withAc3MediaDescriptionWithDefaultChannelCount_succeeds()
-      throws Exception {
+  public void generatePayloadFormat_withAc3MediaDescriptionWithDefaultChannelCount_succeeds() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 0, RTP_AVP_PROFILE, 97)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(48_000)
             .addAttribute(ATTR_RTPMAP, "97 AC3/48000")
@@ -149,9 +152,10 @@ public class RtspMediaTrackTest {
   }
 
   @Test
-  public void generatePayloadFormat_withAc3MediaDescription_succeeds() throws Exception {
+  public void generatePayloadFormat_withAc3MediaDescription_succeeds() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 0, RTP_AVP_PROFILE, 97)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(48_000)
             .addAttribute(ATTR_RTPMAP, "97 AC3/48000/2")
@@ -175,6 +179,35 @@ public class RtspMediaTrackTest {
   }
 
   @Test
+  public void rtspMediaTrack_mediaDescriptionContainsRelativeUri_setsCorrectTrackUri() {
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path1/track2");
+
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/track2"));
+  }
+
+  @Test
+  public void rtspMediaTrack_mediaDescriptionContainsAbsoluteUri_setsCorrectTrackUri() {
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("rtsp://test.com/foo");
+
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/foo"));
+  }
+
+  @Test
+  public void rtspMediaTrack_mediaDescriptionContainsGenericUri_setsCorrectTrackUri() {
+    MediaDescription mediaDescription = createGenericMediaDescriptionWithControlAttribute("*");
+
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com"));
+  }
+
+  @Test
   public void
       generatePayloadFormat_withH264MediaDescriptionMissingProfileLevel_generatesCorrectProfileLevel() {
     MediaDescription mediaDescription =
@@ -195,7 +228,8 @@ public class RtspMediaTrackTest {
   public void
       generatePayloadFormat_withAacMediaDescriptionMissingFmtpAttribute_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 0, RTP_AVP_PROFILE, 97)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(96_000)
             .addAttribute(ATTR_RTPMAP, "97 MPEG4-GENERIC/44100")
@@ -210,7 +244,8 @@ public class RtspMediaTrackTest {
   public void
       generatePayloadFormat_withMediaDescriptionMissingProfileLevel_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_AUDIO, 0, RTP_AVP_PROFILE, 97)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(96_000)
             .addAttribute(ATTR_RTPMAP, "97 MPEG4-GENERIC/44100")
@@ -228,7 +263,8 @@ public class RtspMediaTrackTest {
   public void
       generatePayloadFormat_withH264MediaDescriptionMissingFmtpAttribute_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_VIDEO, 0, RTP_AVP_PROFILE, 96)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_VIDEO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 96)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(500_000)
             .addAttribute(ATTR_RTPMAP, "96 H264/90000")
@@ -243,7 +279,8 @@ public class RtspMediaTrackTest {
   public void
       generatePayloadFormat_withH264MediaDescriptionMissingSpropParameter_throwsIllegalArgumentException() {
     MediaDescription mediaDescription =
-        new MediaDescription.Builder(MEDIA_TYPE_VIDEO, 0, RTP_AVP_PROFILE, 96)
+        new MediaDescription.Builder(
+                MEDIA_TYPE_VIDEO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 96)
             .setConnection("IN IP4 0.0.0.0")
             .setBitrate(500_000)
             .addAttribute(ATTR_RTPMAP, "96 H264/90000")
@@ -253,5 +290,16 @@ public class RtspMediaTrackTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> RtspMediaTrack.generatePayloadFormat(mediaDescription));
+  }
+
+  private static MediaDescription createGenericMediaDescriptionWithControlAttribute(
+      String controlAttribute) {
+    return new MediaDescription.Builder(
+            MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
+        .setConnection("IN IP4 0.0.0.0")
+        .setBitrate(48_000)
+        .addAttribute(ATTR_RTPMAP, "97 AC3/48000/6")
+        .addAttribute(ATTR_CONTROL, controlAttribute)
+        .build();
   }
 }

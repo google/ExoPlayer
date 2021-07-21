@@ -1,5 +1,84 @@
 # Release notes
 
+### 2.14.2 (2021-07-20)
+
+*   Core Library:
+    *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
+        These methods are all overrides and are already deprecated on `Player`
+        and the respective `ExoPlayer` component classes (since 2.14.0).
+*   Video:
+    *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
+        ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
+*   Audio:
+    *   Fix track selection for E-AC-3 streams.
+    *   Use `AudioTrack.isDirectPlaybackSupported` to check for encoded audio
+        passthrough capability from API 29 onwards, instead of using the HDMI
+        audio plug intent
+        ([#6500](https://github.com/google/ExoPlayer/pull/6500)).
+*   Extractors:
+    *   Fix issue where a `trun` atom could be associated with the wrong track
+        in an FMP4 stream
+        ([#9056](https://github.com/google/ExoPlayer/pull/9056)). The fix
+        removes a previous workaround to handle content in which the `track_ID`
+        is set incorrectly
+        ([#4083](https://github.com/google/ExoPlayer/issues/4083)). Such content
+        is malformed and should be re-encoded.
+    *   Improve support for truncated Ogg streams
+        ([#7608](https://github.com/google/ExoPlayer/issues/7608)).
+    *   Add support for MP4 H263 atom type
+        ([#9158](https://github.com/google/ExoPlayer/issues/9158)).
+    *   Fix issue around TS synchronization when reading a file's duration
+        ([#9100](https://github.com/google/ExoPlayer/pull/9100)).
+*   HLS:
+    *   Fix issue where playback of a live event could become stuck rather than
+        transitioning to `STATE_ENDED` when the event ends
+        ([#9067](https://github.com/google/ExoPlayer/issues/9067)).
+    *   Fix issue where a new initialization segment, as specified by an
+        `EXT-X-MAP` tag in a media playlist, would not be loaded when
+        encountered during playback
+        ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
+    *   Forward the FRAME-RATE value from the master playlist to renditions.
+        ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
+    *   Fix issue where HLS events would start at positions greater than
+        specified by an `EXT-X-START` tag when placed in a playlist
+        ([#9037](https://github.com/google/ExoPlayer/issues/9037)).
+*   Ad playback:
+    *   Use the content URI when auto-generating an ad ID (in addition to the
+        media ID and ad tag URI)
+        ([#9106](https://github.com/google/ExoPlayer/issues/9106).
+*   DRM:
+    *   Allow repeated provisioning in `DefaultDrmSession(Manager)`.
+    *   Fix a crash due to `DefaultDrmSessionManager.release()` incorrectly
+        releasing too many keep-alive `DefaultDrmSession` references, resulting
+        in `DefaultDrmSession.release()` throwing an `IllegalStateException`
+        ([#9193](https://github.com/google/ExoPlayer/issues/9193)).
+*   Metadata:
+    *   Fix handling of emsg messages with an unset duration
+        ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
+*   UI:
+    *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
+        in `PlayerNotificationManager`. This is required to avoid an error on
+        Android 12.
+    *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
+        popup menus on API levels prior to 26
+        ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
+    *   Fix progress bar flickering immediately after the user seeks
+        ([#9049](https://github.com/google/ExoPlayer/pull/9049)).
+    *   Fix `StyledPlayerView` and `StyledPlayerControlView` popup menu items
+        not expanding to occupy the full width of the popup
+        ([#9086](https://github.com/google/ExoPlayer/issues/9086)).
+    *   Don't propagate `AttributeSet` from `SubtitleView` constructor into
+        `CanvasSubtitleOutput`. Just passing the `Context` is enough, and
+        ensures programmatic changes to the `SubtitleView` will propagate down.
+*   RTSP
+    *   Fix session description (SDP) parsing to use a HashMap-like behaviour
+        for duplicated attributes.
+        ([#9014](https://github.com/google/ExoPlayer/issues/9014)).
+    *   Allow using absolute URI in the control attribute in a media description
+        ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
+    *   Allow the timeout to be customised via
+        `RtspMediaSource.Factory.setTimeoutMs`.
+
 ### 2.14.1 (2021-06-11)
 
 *   Core Library:

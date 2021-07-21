@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 
 /**
  * Records all the information in a SDP message.
@@ -35,7 +36,7 @@ import com.google.common.collect.ImmutableMap;
 
   /** Builder class for {@link SessionDescription}. */
   public static final class Builder {
-    private final ImmutableMap.Builder<String, String> attributesBuilder;
+    private final HashMap<String, String> attributes;
     private final ImmutableList.Builder<MediaDescription> mediaDescriptionListBuilder;
     private int bitrate;
     @Nullable private String sessionName;
@@ -50,7 +51,7 @@ import com.google.common.collect.ImmutableMap;
 
     /** Creates a new instance. */
     public Builder() {
-      attributesBuilder = new ImmutableMap.Builder<>();
+      attributes = new HashMap<>();
       mediaDescriptionListBuilder = new ImmutableList.Builder<>();
       bitrate = Format.NO_VALUE;
     }
@@ -179,7 +180,7 @@ import com.google.common.collect.ImmutableMap;
      * @return This builder.
      */
     public Builder addAttribute(String attributeName, String attributeValue) {
-      attributesBuilder.put(attributeName, attributeValue);
+      attributes.put(attributeName, attributeValue);
       return this;
     }
 
@@ -259,7 +260,7 @@ import com.google.common.collect.ImmutableMap;
 
   /** Creates a new instance. */
   private SessionDescription(Builder builder) {
-    this.attributes = builder.attributesBuilder.build();
+    this.attributes = ImmutableMap.copyOf(builder.attributes);
     this.mediaDescriptionList = builder.mediaDescriptionListBuilder.build();
     this.sessionName = castNonNull(builder.sessionName);
     this.origin = castNonNull(builder.origin);

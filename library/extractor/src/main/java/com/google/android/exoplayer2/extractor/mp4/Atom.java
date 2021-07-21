@@ -106,6 +106,8 @@ import java.util.List;
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_s263 = 0x73323633;
 
+  public static final int TYPE_H263 = 0x48323633;
+
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_d263 = 0x64323633;
 

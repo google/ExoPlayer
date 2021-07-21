@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AacUtil;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -375,7 +376,7 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_AC3;
     } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
       return MimeTypes.AUDIO_E_AC3;
-    } else if (codec.startsWith("ec+3")) {
+    } else if (codec.startsWith(Ac3Util.E_AC_3_CODEC_STRING)) {
       return MimeTypes.AUDIO_E_AC3_JOC;
     } else if (codec.startsWith("ac-4") || codec.startsWith("dac4")) {
       return MimeTypes.AUDIO_AC4;

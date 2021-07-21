@@ -677,7 +677,8 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
     settingsView =
         (RecyclerView)
-            LayoutInflater.from(context).inflate(R.layout.exo_styled_settings_list, null);
+            LayoutInflater.from(context)
+                .inflate(R.layout.exo_styled_settings_list, /* root= */ null);
     settingsView.setAdapter(settingsAdapter);
     settingsView.setLayoutManager(new LinearLayoutManager(getContext()));
     settingsWindow =
@@ -1533,12 +1534,8 @@ public class StyledPlayerControlView extends FrameLayout {
     } else {
       windowIndex = player.getCurrentWindowIndex();
     }
-    boolean dispatched = seekTo(player, windowIndex, positionMs);
-    if (!dispatched) {
-      // The seek wasn't dispatched then the progress bar scrubber will be in the wrong position.
-      // Trigger a progress update to snap it back.
-      updateProgress();
-    }
+    seekTo(player, windowIndex, positionMs);
+    updateProgress();
   }
 
   private boolean seekTo(Player player, int windowIndex, long positionMs) {
@@ -1899,9 +1896,10 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public SettingViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public SettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View v =
-          LayoutInflater.from(getContext()).inflate(R.layout.exo_styled_settings_list_item, null);
+          LayoutInflater.from(getContext())
+              .inflate(R.layout.exo_styled_settings_list_item, parent, /* attachToRoot= */ false);
       return new SettingViewHolder(v);
     }
 
@@ -1945,6 +1943,10 @@ public class StyledPlayerControlView extends FrameLayout {
 
     public SettingViewHolder(View itemView) {
       super(itemView);
+      if (Util.SDK_INT < 26) {
+        // Workaround for https://github.com/google/ExoPlayer/issues/9061.
+        itemView.setFocusable(true);
+      }
       mainTextView = itemView.findViewById(R.id.exo_main_text);
       subTextView = itemView.findViewById(R.id.exo_sub_text);
       iconView = itemView.findViewById(R.id.exo_icon);
@@ -1985,7 +1987,8 @@ public class StyledPlayerControlView extends FrameLayout {
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View v =
           LayoutInflater.from(getContext())
-              .inflate(R.layout.exo_styled_sub_settings_list_item, null);
+              .inflate(
+                  R.layout.exo_styled_sub_settings_list_item, parent, /* attachToRoot= */ false);
       return new SubSettingViewHolder(v);
     }
 
@@ -2199,7 +2202,8 @@ public class StyledPlayerControlView extends FrameLayout {
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View v =
           LayoutInflater.from(getContext())
-              .inflate(R.layout.exo_styled_sub_settings_list_item, null);
+              .inflate(
+                  R.layout.exo_styled_sub_settings_list_item, parent, /* attachToRoot= */ false);
       return new SubSettingViewHolder(v);
     }
 
@@ -2271,6 +2275,10 @@ public class StyledPlayerControlView extends FrameLayout {
 
     public SubSettingViewHolder(View itemView) {
       super(itemView);
+      if (Util.SDK_INT < 26) {
+        // Workaround for https://github.com/google/ExoPlayer/issues/9061.
+        itemView.setFocusable(true);
+      }
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
     }

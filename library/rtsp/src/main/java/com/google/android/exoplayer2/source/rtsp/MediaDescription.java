@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 
 /** Represents one media description section in a SDP message. */
 /* package */ final class MediaDescription {
@@ -106,7 +107,7 @@ import java.lang.annotation.RetentionPolicy;
     private final int port;
     private final String transportProtocol;
     private final int payloadType;
-    private final ImmutableMap.Builder<String, String> attributesBuilder;
+    private final HashMap<String, String> attributes;
 
     private int bitrate;
     @Nullable private String mediaTitle;
@@ -126,7 +127,7 @@ import java.lang.annotation.RetentionPolicy;
       this.port = port;
       this.transportProtocol = transportProtocol;
       this.payloadType = payloadType;
-      attributesBuilder = new ImmutableMap.Builder<>();
+      attributes = new HashMap<>();
       bitrate = Format.NO_VALUE;
     }
 
@@ -184,7 +185,7 @@ import java.lang.annotation.RetentionPolicy;
      * @return This builder.
      */
     public Builder addAttribute(String attributeName, String attributeValue) {
-      attributesBuilder.put(attributeName, attributeValue);
+      attributes.put(attributeName, attributeValue);
       return this;
     }
 
@@ -195,13 +196,12 @@ import java.lang.annotation.RetentionPolicy;
      *     cannot be parsed.
      */
     public MediaDescription build() {
-      ImmutableMap<String, String> attributes = attributesBuilder.build();
       try {
         // rtpmap attribute is mandatory in RTSP (RFC2326 Section C.1.3).
         checkState(attributes.containsKey(ATTR_RTPMAP));
         RtpMapAttribute rtpMapAttribute =
             RtpMapAttribute.parse(castNonNull(attributes.get(ATTR_RTPMAP)));
-        return new MediaDescription(this, attributes, rtpMapAttribute);
+        return new MediaDescription(this, ImmutableMap.copyOf(attributes), rtpMapAttribute);
       } catch (ParserException e) {
         throw new IllegalStateException(e);
       }

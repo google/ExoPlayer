@@ -1389,6 +1389,7 @@ public class PlayerNotificationManager {
       builder.setGroup(groupKey);
     }
 
+    builder.setOnlyAlertOnce(true);
     return builder;
   }
 
@@ -1598,8 +1599,15 @@ public class PlayerNotificationManager {
       String action, Context context, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
     intent.putExtra(EXTRA_INSTANCE_ID, instanceId);
-    return PendingIntent.getBroadcast(
-        context, instanceId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    int pendingFlags;
+    if (Util.SDK_INT >= 23) {
+      pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+    } else {
+      pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+    }
+
+    return PendingIntent.getBroadcast(context, instanceId, intent, pendingFlags);
   }
 
   @SuppressWarnings("nullness:argument.type.incompatible")

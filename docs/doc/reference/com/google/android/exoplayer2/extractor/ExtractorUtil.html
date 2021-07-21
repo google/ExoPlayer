@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>ColorParser (ExoPlayer library)</title>
+<title>ExtractorUtil (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,13 +19,13 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="ColorParser (ExoPlayer library)";
+            parent.document.title="ExtractorUtil (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -113,15 +113,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
-<h2 title="Class ColorParser" class="title">Class ColorParser</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor</a></div>
+<h2 title="Class ExtractorUtil" class="title">Class ExtractorUtil</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.util.ColorParser</li>
+<li>com.google.android.exoplayer2.extractor.ExtractorUtil</li>
 </ul>
 </li>
 </ul>
@@ -129,14 +129,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">ColorParser</span>
+<pre>public final class <span class="typeNameLabel">ExtractorUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Parser for color expressions found in styling formats, e.g. TTML and CSS.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://w3c.github.io/webvtt/#styling">WebVTT CSS Styling</a>, 
-<a href="https://www.w3.org/TR/ttml2/">Timed Text Markup Language 2 (TTML2) - 10.3.5</a></dd>
-</dl>
+<div class="block">Extractor related utility methods.</div>
 </li>
 </ul>
 </div>
@@ -158,17 +153,47 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCssColor(java.lang.String)">parseCssColor</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;colorExpression)</code></th>
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,byte%5B%5D,int,int,boolean)">peekFullyQuietly</a></span>&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                byte[]&nbsp;output,
+                int&nbsp;offset,
+                int&nbsp;length,
+                boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
-<div class="block">Parses a CSS color expression.</div>
+<div class="block">Peeks data from <code>input</code>, respecting <code>allowEndOfInput</code>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTtmlColor(java.lang.String)">parseTtmlColor</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;colorExpression)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekToLength(com.google.android.exoplayer2.extractor.ExtractorInput,byte%5B%5D,int,int)">peekToLength</a></span>&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+            byte[]&nbsp;target,
+            int&nbsp;offset,
+            int&nbsp;length)</code></th>
 <td class="colLast">
-<div class="block">Parses a TTML color expression.</div>
+<div class="block">Peeks <code>length</code> bytes from the input peek position, or all the bytes to the end of the
+ input if there was less than <code>length</code> bytes left.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,byte%5B%5D,int,int)">readFullyQuietly</a></span>&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                byte[]&nbsp;output,
+                int&nbsp;offset,
+                int&nbsp;length)</code></th>
+<td class="colLast">
+<div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a> except that it returns <code>
+ false</code> instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without
+ having fully satisfied the read.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,int)">skipFullyQuietly</a></span>&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                int&nbsp;length)</code></th>
+<td class="colLast">
+<div class="block">Equivalent to <a href="ExtractorInput.html#skipFully(int)"><code>ExtractorInput.skipFully(int)</code></a> except that it returns <code>false</code>
+ instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without having
+ fully satisfied the skip.</div>
 </td>
 </tr>
 </table>
@@ -195,37 +220,99 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="parseTtmlColor(java.lang.String)">
+<a id="peekToLength(com.google.android.exoplayer2.extractor.ExtractorInput,byte[],int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>parseTtmlColor</h4>
-<pre class="methodSignature">@ColorInt
-public static&nbsp;int&nbsp;parseTtmlColor&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;colorExpression)</pre>
-<div class="block">Parses a TTML color expression.</div>
+<h4>peekToLength</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;peekToLength&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                               byte[]&nbsp;target,
+                               int&nbsp;offset,
+                               int&nbsp;length)
+                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Peeks <code>length</code> bytes from the input peek position, or all the bytes to the end of the
+ input if there was less than <code>length</code> bytes left.
+
+ <p>If an exception is thrown, there is no guarantee on the peek position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>colorExpression</code> - The color expression.</dd>
+<dd><code>input</code> - The stream input to peek the data from.</dd>
+<dd><code>target</code> - A target array into which data should be written.</dd>
+<dd><code>offset</code> - The offset into the target array at which to write.</dd>
+<dd><code>length</code> - The maximum number of bytes to peek from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The parsed ARGB color.</dd>
+<dd>The number of bytes peeked.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs peeking from the input.</dd>
 </dl>
 </li>
 </ul>
-<a id="parseCssColor(java.lang.String)">
+<a id="readFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readFullyQuietly</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;readFullyQuietly&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                                       byte[]&nbsp;output,
+                                       int&nbsp;offset,
+                                       int&nbsp;length)
+                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a> except that it returns <code>
+ false</code> instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without
+ having fully satisfied the read.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="skipFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipFullyQuietly</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;skipFullyQuietly&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                                       int&nbsp;length)
+                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Equivalent to <a href="ExtractorInput.html#skipFully(int)"><code>ExtractorInput.skipFully(int)</code></a> except that it returns <code>false</code>
+ instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without having
+ fully satisfied the skip.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="peekFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,byte[],int,int,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>parseCssColor</h4>
-<pre class="methodSignature">@ColorInt
-public static&nbsp;int&nbsp;parseCssColor&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;colorExpression)</pre>
-<div class="block">Parses a CSS color expression.</div>
+<h4>peekFullyQuietly</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;peekFullyQuietly&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                                       byte[]&nbsp;output,
+                                       int&nbsp;offset,
+                                       int&nbsp;length,
+                                       boolean&nbsp;allowEndOfInput)
+                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Peeks data from <code>input</code>, respecting <code>allowEndOfInput</code>. Returns true if the peek is
+ successful.
+
+ <p>If <code>allowEndOfInput=false</code> then encountering the end of the input (whether before or
+ after reading some data) will throw <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a>.
+
+ <p>If <code>allowEndOfInput=true</code> then encountering the end of the input (even after reading
+ some data) will return <code>false</code>.
+
+ <p>This is slightly different to the behaviour of <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.peekFully(byte[], int,
+ int, boolean)</code></a>, where <code>allowEndOfInput=true</code> only returns false (and suppresses the
+ exception) if the end of the input is reached before reading any data.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>colorExpression</code> - The color expression.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The parsed ARGB color.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
 </dl>
 </li>
 </ul>

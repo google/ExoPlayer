@@ -35,8 +35,8 @@ public final class EventMessageDecoder extends SimpleMetadataDecoder {
   public EventMessage decode(ParsableByteArray emsgData) {
     String schemeIdUri = Assertions.checkNotNull(emsgData.readNullTerminatedString());
     String value = Assertions.checkNotNull(emsgData.readNullTerminatedString());
-    long durationMs = emsgData.readUnsignedInt();
-    long id = emsgData.readUnsignedInt();
+    long durationMs = emsgData.readLong();
+    long id = emsgData.readLong();
     byte[] messageData =
         Arrays.copyOfRange(emsgData.getData(), emsgData.getPosition(), emsgData.limit());
     return new EventMessage(schemeIdUri, value, durationMs, id, messageData);

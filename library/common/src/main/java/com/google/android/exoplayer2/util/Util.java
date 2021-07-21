@@ -36,6 +36,7 @@ import android.content.res.Resources;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -2240,9 +2241,23 @@ public final class Util {
    * @return The size of the current mode, in pixels.
    */
   public static Point getCurrentDisplayModeSize(Context context) {
-    WindowManager windowManager =
-        checkNotNull((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
-    return getCurrentDisplayModeSize(context, windowManager.getDefaultDisplay());
+    @Nullable Display defaultDisplay = null;
+    if (Util.SDK_INT >= 17) {
+      @Nullable
+      DisplayManager displayManager =
+          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+      // We don't expect displayManager to ever be null, so this check is just precautionary.
+      // Consider removing it when the library minSdkVersion is increased to 17 or higher.
+      if (displayManager != null) {
+        defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+      }
+    }
+    if (defaultDisplay == null) {
+      WindowManager windowManager =
+          checkNotNull((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
+      defaultDisplay = windowManager.getDefaultDisplay();
+    }
+    return getCurrentDisplayModeSize(context, defaultDisplay);
   }
 
   /**
@@ -2274,6 +2289,7 @@ public final class Util {
 
       // Otherwise check the system property for display size. From API 28 treble may prevent the
       // system from writing sys.display-size so we check vendor.display-size instead.
+      @Nullable
       String displaySize =
           Util.SDK_INT < 28
               ? getSystemProperty("sys.display-size")

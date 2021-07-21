@@ -1410,7 +1410,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_POSITION_DISCONTINUITY</h4>
 <pre>static final&nbsp;int EVENT_POSITION_DISCONTINUITY</pre>
-<div class="block">A position discontinuity occurred. See <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a>.</div>
+<div class="block">A position discontinuity occurred. See <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_POSITION_DISCONTINUITY">Constant Field Values</a></dd>
@@ -2337,7 +2337,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <div class="block">Called when the combined <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.
 
  <p>The provided <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> is a combination of the <a href="../MediaItem.html#mediaMetadata"><code>MediaItem.mediaMetadata</code></a>
- and the static and dynamic metadata sourced from <a href="../Player.EventListener.html#onStaticMetadataChanged(java.util.List)"><code>Player.EventListener.onStaticMetadataChanged(List)</code></a> and <a href="../metadata/MetadataOutput.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)"><code>MetadataOutput.onMetadata(Metadata)</code></a>.</div>
+ and the static and dynamic metadata sourced from <a href="../Player.Listener.html#onStaticMetadataChanged(java.util.List)"><code>Player.Listener.onStaticMetadataChanged(List)</code></a> and <a href="../metadata/MetadataOutput.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)"><code>MetadataOutput.onMetadata(Metadata)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventTime</code> - The event time.</dd>
@@ -2415,7 +2415,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry.
- <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
  method is called to provide the application with an opportunity to log the error if it wishes
  to do so.</div>
 <dl>
@@ -2780,7 +2780,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry.
- <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
  method is called to provide the application with an opportunity to log the error if it wishes
  to do so.</div>
 <dl>
@@ -2803,7 +2803,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry.
- <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
  method is called to provide the application with an opportunity to log the error if it wishes
  to do so.</div>
 <dl>
@@ -3009,7 +3009,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry.
- <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
  method is called to provide the application with an opportunity to log the error if it wishes
  to do so.</div>
 <dl>
@@ -3151,7 +3151,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry.
- <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
  method is called to provide the application with an opportunity to log the error if it wishes
  to do so.</div>
 <dl>

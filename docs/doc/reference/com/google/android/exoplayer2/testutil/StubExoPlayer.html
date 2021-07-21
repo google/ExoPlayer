@@ -1264,7 +1264,7 @@ public&nbsp;int&nbsp;getPlaybackState()</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onPlaybackStateChanged(int)"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a></dd>
+<dd><a href="../Player.Listener.html#onPlaybackStateChanged(int)"><code>Player.Listener.onPlaybackStateChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1285,7 +1285,7 @@ public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current <a href="../Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>playback suppression reason</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onPlaybackSuppressionReasonChanged(int)"><code>Player.EventListener.onPlaybackSuppressionReasonChanged(int)</code></a></dd>
+<dd><a href="../Player.Listener.html#onPlaybackSuppressionReasonChanged(int)"><code>Player.Listener.onPlaybackSuppressionReasonChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1298,7 +1298,7 @@ public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <pre class="methodSignature">public&nbsp;<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;getPlayerError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#getPlayerError()">Player</a></code></span></div>
 <div class="block">Returns the error that caused playback to fail. This is the same error that will have been
- reported via <a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a> at the time of failure. It
+ reported via <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(ExoPlaybackException)</code></a> at the time of failure. It
  can be queried using this method until the player is re-prepared.
 
  <p>Note that this method will always return <code>null</code> if <a href="../Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> is not
@@ -1309,7 +1309,7 @@ public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The error, or <code>null</code>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a></dd>
+<dd><a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(ExoPlaybackException)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1697,7 +1697,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#getAvailableCommands()">Player</a></code></span></div>
 <div class="block">Returns the player's currently available <a href="../Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a>.
 
- <p>The returned <a href="../Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a> are not updated when available commands change. Use <a href="../Player.EventListener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)"><code>Player.EventListener.onAvailableCommandsChanged(Commands)</code></a> to get an update when the available commands
+ <p>The returned <a href="../Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a> are not updated when available commands change. Use <a href="../Player.Listener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)"><code>Player.Listener.onAvailableCommandsChanged(Commands)</code></a> to get an update when the available commands
  change.
 
  <p>Executing a command that is not available (for example, calling <a href="../Player.html#next()"><code>Player.next()</code></a> if <a href="../Player.html#COMMAND_SEEK_TO_NEXT_MEDIA_ITEM"><code>Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM</code></a> is unavailable) will neither throw an exception nor generate
@@ -1711,7 +1711,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The currently available <a href="../Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)"><code>Player.EventListener.onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)</code></a></dd>
+<dd><a href="../Player.Listener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)"><code>Player.Listener.onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1749,7 +1749,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether playback will proceed when ready.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a></dd>
+<dd><a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1786,7 +1786,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current repeat mode.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onRepeatModeChanged(int)"><code>Player.EventListener.onRepeatModeChanged(int)</code></a></dd>
+<dd><a href="../Player.Listener.html#onRepeatModeChanged(int)"><code>Player.Listener.onRepeatModeChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1837,7 +1837,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getShuffleModeEnabled()">getShuffleModeEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onShuffleModeEnabledChanged(boolean)"><code>Player.EventListener.onShuffleModeEnabledChanged(boolean)</code></a></dd>
+<dd><a href="../Player.Listener.html#onShuffleModeEnabledChanged(boolean)"><code>Player.Listener.onShuffleModeEnabledChanged(boolean)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1856,7 +1856,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the player is currently loading the source.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onIsLoadingChanged(boolean)"><code>Player.EventListener.onIsLoadingChanged(boolean)</code></a></dd>
+<dd><a href="../Player.Listener.html#onIsLoadingChanged(boolean)"><code>Player.Listener.onIsLoadingChanged(boolean)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1891,7 +1891,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <div class="block">Attempts to set the playback parameters. Passing <a href="../PlaybackParameters.html#DEFAULT"><code>PlaybackParameters.DEFAULT</code></a> resets the
  player to the default, which means there is no speed or pitch adjustment.
 
- <p>Playback parameters changes may cause the player to buffer. <a href="../Player.EventListener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.EventListener.onPlaybackParametersChanged(PlaybackParameters)</code></a> will be called whenever the currently
+ <p>Playback parameters changes may cause the player to buffer. <a href="../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.Listener.onPlaybackParametersChanged(PlaybackParameters)</code></a> will be called whenever the currently
  active playback parameters change.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -1914,7 +1914,7 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../source/MediaSource.html" title=
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getPlaybackParameters()">getPlaybackParameters</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.EventListener.onPlaybackParametersChanged(PlaybackParameters)</code></a></dd>
+<dd><a href="../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.Listener.onPlaybackParametersChanged(PlaybackParameters)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2065,7 +2065,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getCurrentTrackGroups()">getCurrentTrackGroups</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
+<dd><a href="../Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.Listener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2086,7 +2086,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getCurrentTrackSelections()">getCurrentTrackSelections</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
+<dd><a href="../Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.Listener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2111,7 +2111,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getCurrentStaticMetadata()">getCurrentStaticMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onStaticMetadataChanged(java.util.List)"><code>Player.EventListener.onStaticMetadataChanged(List)</code></a></dd>
+<dd><a href="../Player.Listener.html#onStaticMetadataChanged(java.util.List)"><code>Player.Listener.onStaticMetadataChanged(List)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2127,7 +2127,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
  supported.
 
  <p>This <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> is a combination of the <a href="../MediaItem.html#mediaMetadata"><code>MediaItem.mediaMetadata</code></a> and the
- static and dynamic metadata sourced from <a href="../Player.EventListener.html#onStaticMetadataChanged(java.util.List)"><code>Player.EventListener.onStaticMetadataChanged(List)</code></a> and
+ static and dynamic metadata sourced from <a href="../Player.Listener.html#onStaticMetadataChanged(java.util.List)"><code>Player.Listener.onStaticMetadataChanged(List)</code></a> and
  <a href="../metadata/MetadataOutput.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)"><code>MetadataOutput.onMetadata(Metadata)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -2148,7 +2148,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getCurrentTimeline()">getCurrentTimeline</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a></dd>
+<dd><a href="../Player.Listener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.Listener.onTimelineChanged(Timeline, int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2445,7 +2445,10 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
                                   <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)">Player</a></code></span></div>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink"><code>SurfaceHolder</code></a> that holds the <a href="https://developer.android.com/reference/android/view/Surface.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> onto which video will be
- rendered. The player will track the lifecycle of the surface automatically.</div>
+ rendered. The player will track the lifecycle of the surface automatically.
+
+ <p>The thread that calls the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceHolder.Callback</code></a> methods must be the thread
+ associated with <a href="../Player.html#getApplicationLooper()"><code>Player.getApplicationLooper()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -2483,7 +2486,10 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
                                 <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#setVideoSurfaceView(android.view.SurfaceView)">Player</a></code></span></div>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceView</code></a> onto which video will be rendered. The player will track the
- lifecycle of the surface automatically.</div>
+ lifecycle of the surface automatically.
+
+ <p>The thread that calls the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceHolder.Callback</code></a> methods must be the thread
+ associated with <a href="../Player.html#getApplicationLooper()"><code>Player.getApplicationLooper()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -2521,7 +2527,10 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
                                 <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#setVideoTextureView(android.view.TextureView)">Player</a></code></span></div>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a> onto which video will be rendered. The player will track the
- lifecycle of the surface automatically.</div>
+ lifecycle of the surface automatically.
+
+ <p>The thread that calls the <a href="https://developer.android.com/reference/android/view/TextureView.SurfaceTextureListener.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView.SurfaceTextureListener</code></a> methods must be the
+ thread associated with <a href="../Player.html#getApplicationLooper()"><code>Player.getApplicationLooper()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -2565,7 +2574,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Player.html#getVideoSize()">getVideoSize</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../video/VideoListener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)"><code>VideoListener.onVideoSizeChanged(VideoSize)</code></a></dd>
+<dd><a href="../Player.Listener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)"><code>Player.Listener.onVideoSizeChanged(VideoSize)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2749,7 +2758,7 @@ public&nbsp;<a href="../trackselection/TrackSelector.html" title="class in com.g
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../ExoPlayer.html#setPauseAtEndOfMediaItems(boolean)">ExoPlayer</a></code></span></div>
 <div class="block">Sets whether to pause playback at the end of each media item.
 
- <p>This means the player will pause at the end of each window in the current <a href="../Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="../Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="../Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
+ <p>This means the player will pause at the end of each window in the current <a href="../Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="../Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../ExoPlayer.html#setPauseAtEndOfMediaItems(boolean)">setPauseAtEndOfMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>

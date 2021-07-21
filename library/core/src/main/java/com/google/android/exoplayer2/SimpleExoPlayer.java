@@ -963,6 +963,7 @@ public class SimpleExoPlayer extends BasePlayer
     player.removeAudioOffloadListener(listener);
   }
 
+  @Deprecated
   @Override
   public void addAudioListener(AudioListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -970,6 +971,7 @@ public class SimpleExoPlayer extends BasePlayer
     audioListeners.add(listener);
   }
 
+  @Deprecated
   @Override
   public void removeAudioListener(AudioListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1175,6 +1177,7 @@ public class SimpleExoPlayer extends BasePlayer
     return audioDecoderCounters;
   }
 
+  @Deprecated
   @Override
   public void addVideoListener(VideoListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1182,6 +1185,7 @@ public class SimpleExoPlayer extends BasePlayer
     videoListeners.add(listener);
   }
 
+  @Deprecated
   @Override
   public void removeVideoListener(VideoListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1236,6 +1240,7 @@ public class SimpleExoPlayer extends BasePlayer
         .send();
   }
 
+  @Deprecated
   @Override
   public void addTextOutput(TextOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1243,6 +1248,7 @@ public class SimpleExoPlayer extends BasePlayer
     textOutputs.add(listener);
   }
 
+  @Deprecated
   @Override
   public void removeTextOutput(TextOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1255,6 +1261,7 @@ public class SimpleExoPlayer extends BasePlayer
     return currentCues;
   }
 
+  @Deprecated
   @Override
   public void addMetadataOutput(MetadataOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1262,6 +1269,7 @@ public class SimpleExoPlayer extends BasePlayer
     metadataOutputs.add(listener);
   }
 
+  @Deprecated
   @Override
   public void removeMetadataOutput(MetadataOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1297,6 +1305,7 @@ public class SimpleExoPlayer extends BasePlayer
     addListener(eventListener);
   }
 
+  @Deprecated
   @Override
   public void addListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1316,6 +1325,7 @@ public class SimpleExoPlayer extends BasePlayer
     removeListener(eventListener);
   }
 
+  @Deprecated
   @Override
   public void removeListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1582,6 +1592,7 @@ public class SimpleExoPlayer extends BasePlayer
     player.setForegroundMode(foregroundMode);
   }
 
+  @Deprecated
   @Override
   public void stop(boolean reset) {
     verifyApplicationThread();
@@ -1790,6 +1801,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
+  @Deprecated
   @Override
   public void addDeviceListener(DeviceListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1797,6 +1809,7 @@ public class SimpleExoPlayer extends BasePlayer
     deviceListeners.add(listener);
   }
 
+  @Deprecated
   @Override
   public void removeDeviceListener(DeviceListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.

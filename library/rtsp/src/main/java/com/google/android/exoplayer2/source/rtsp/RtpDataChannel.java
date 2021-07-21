@@ -30,9 +30,16 @@ import java.io.IOException;
     /**
      * Creates a new {@link RtpDataChannel} instance for RTP data transfer.
      *
+     * @param trackId The track ID.
      * @throws IOException If the data channels failed to open.
      */
     RtpDataChannel createAndOpenDataChannel(int trackId) throws IOException;
+
+    /** Returns a fallback {@code Factory}, {@code null} when there is no fallback available. */
+    @Nullable
+    default Factory createFallbackDataChannelFactory() {
+      return null;
+    }
   }
 
   /** Returns the RTSP transport header for this {@link RtpDataChannel} */

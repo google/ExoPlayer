@@ -1500,15 +1500,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             .setRoleFlags(playlistFormat.roleFlags)
             .setAverageBitrate(propagateBitrates ? playlistFormat.averageBitrate : Format.NO_VALUE)
             .setPeakBitrate(propagateBitrates ? playlistFormat.peakBitrate : Format.NO_VALUE)
-            .setCodecs(codecs)
-            .setWidth(playlistFormat.width)
-            .setHeight(playlistFormat.height);
+            .setCodecs(codecs);
+
+    if (sampleTrackType == C.TRACK_TYPE_VIDEO) {
+      formatBuilder
+          .setWidth(playlistFormat.width)
+          .setHeight(playlistFormat.height)
+          .setFrameRate(playlistFormat.frameRate);
+    }
 
     if (sampleMimeType != null) {
       formatBuilder.setSampleMimeType(sampleMimeType);
     }
 
-    if (playlistFormat.channelCount != Format.NO_VALUE) {
+    if (playlistFormat.channelCount != Format.NO_VALUE && sampleTrackType == C.TRACK_TYPE_AUDIO) {
       formatBuilder.setChannelCount(playlistFormat.channelCount);
     }
 

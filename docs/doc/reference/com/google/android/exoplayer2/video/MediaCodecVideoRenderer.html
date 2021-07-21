@@ -1706,7 +1706,8 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <ul class="blockList">
 <li class="blockList">
 <h4>renderOutputBufferV21</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;renderOutputBufferV21&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
+<pre class="methodSignature">@RequiresApi(21)
+protected&nbsp;void&nbsp;renderOutputBufferV21&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                                      int&nbsp;index,
                                      long&nbsp;presentationTimeUs,
                                      long&nbsp;releaseTimeNs)</pre>
@@ -1727,7 +1728,8 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <ul class="blockList">
 <li class="blockList">
 <h4>setOutputSurfaceV23</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
+<pre class="methodSignature">@RequiresApi(23)
+protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                                    <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
 </li>
 </ul>

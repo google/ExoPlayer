@@ -557,7 +557,7 @@ public class FragmentedMp4Extractor implements Extractor {
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
-    parseMoof(moof, trackBundles, flags, scratchBytes);
+    parseMoof(moof, trackBundles, sideloadedTrack != null, flags, scratchBytes);
 
     @Nullable DrmInitData drmInitData = getDrmInitDataFromAtoms(moof.leafChildren);
     if (drmInitData != null) {
@@ -699,14 +699,15 @@ public class FragmentedMp4Extractor implements Extractor {
     return version == 0 ? mehd.readUnsignedInt() : mehd.readUnsignedLongToLong();
   }
 
-  private static void parseMoof(ContainerAtom moof, SparseArray<TrackBundle> trackBundleArray,
+  private static void parseMoof(ContainerAtom moof, SparseArray<TrackBundle> trackBundles,
+      boolean haveSideloadedTrack,
       @Flags int flags, byte[] extendedTypeScratch) throws ParserException {
     int moofContainerChildrenSize = moof.containerChildren.size();
     for (int i = 0; i < moofContainerChildrenSize; i++) {
       Atom.ContainerAtom child = moof.containerChildren.get(i);
       // TODO: Support multiple traf boxes per track in a single moof.
       if (child.type == Atom.TYPE_traf) {
-        parseTraf(child, trackBundleArray, flags, extendedTypeScratch);
+        parseTraf(child, trackBundles, haveSideloadedTrack, flags, extendedTypeScratch);
       }
     }
   }
@@ -714,10 +715,11 @@ public class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a traf atom (defined in 14496-12).
    */
-  private static void parseTraf(ContainerAtom traf, SparseArray<TrackBundle> trackBundleArray,
+  private static void parseTraf(ContainerAtom traf, SparseArray<TrackBundle> trackBundles,
+      boolean haveSideloadedTrack,
       @Flags int flags, byte[] extendedTypeScratch) throws ParserException {
     LeafAtom tfhd = checkNotNull(traf.getLeafAtomOfType(Atom.TYPE_tfhd));
-    @Nullable TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray);
+    @Nullable TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundles, haveSideloadedTrack);
     if (trackBundle == null) {
       return;
     }
@@ -874,17 +876,21 @@ public class FragmentedMp4Extractor implements Extractor {
    *
    * @param tfhd The tfhd atom to decode.
    * @param trackBundles The track bundles, one of which corresponds to the tfhd atom being parsed.
+   * @param haveSideloadedTrack Whether {@code trackBundles} contains a single bundle corresponding
+   *     to a side-loaded track.
    * @return The {@link TrackBundle} to which the {@link TrackFragment} belongs, or null if the tfhd
    *     does not refer to any {@link TrackBundle}.
    */
   @Nullable
   private static TrackBundle parseTfhd(
-      ParsableByteArray tfhd, SparseArray<TrackBundle> trackBundles) {
+      ParsableByteArray tfhd, SparseArray<TrackBundle> trackBundles, boolean haveSideloadedTrack) {
     tfhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = tfhd.readInt();
     int atomFlags = Atom.parseFullAtomFlags(fullAtom);
     int trackId = tfhd.readInt();
-    @Nullable TrackBundle trackBundle = getTrackBundle(trackBundles, trackId);
+    @Nullable
+    TrackBundle trackBundle =
+        haveSideloadedTrack ? trackBundles.valueAt(0) : trackBundles.get(trackId);
     if (trackBundle == null) {
       return null;
     }
@@ -914,17 +920,6 @@ public class FragmentedMp4Extractor implements Extractor {
     trackBundle.fragment.header = new DefaultSampleValues(defaultSampleDescriptionIndex,
         defaultSampleDuration, defaultSampleSize, defaultSampleFlags);
     return trackBundle;
-  }
-
-  private static @Nullable TrackBundle getTrackBundle(
-      SparseArray<TrackBundle> trackBundles, int trackId) {
-    if (trackBundles.size() == 1) {
-      // Ignore track id if there is only one track. This is either because we have a side-loaded
-      // track or to cope with non-matching track indices (see
-      // https://github.com/google/ExoPlayer/issues/4083).
-      return trackBundles.valueAt(/* index= */ 0);
-    }
-    return trackBundles.get(trackId);
   }
 
   /**
