@@ -771,7 +771,8 @@ public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format
 <ul class="blockList">
 <li class="blockList">
 <h4>isVideoSizeAndRateSupportedV21</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;isVideoSizeAndRateSupportedV21&#8203;(int&nbsp;width,
+<pre class="methodSignature">@RequiresApi(21)
+public&nbsp;boolean&nbsp;isVideoSizeAndRateSupportedV21&#8203;(int&nbsp;width,
                                               int&nbsp;height,
                                               double&nbsp;frameRate)</pre>
 <div class="block">Whether the decoder supports video with a given width, height and frame rate.
@@ -794,6 +795,7 @@ public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format
 <li class="blockList">
 <h4>alignVideoSizeV21</h4>
 <pre class="methodSignature">@Nullable
+@RequiresApi(21)
 public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Point.html" title="class or interface in android.graphics" class="externalLink" target="_top">Point</a>&nbsp;alignVideoSizeV21&#8203;(int&nbsp;width,
                                int&nbsp;height)</pre>
 <div class="block">Returns the smallest video size greater than or equal to a specified size that also satisfies
@@ -817,7 +819,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Po
 <ul class="blockList">
 <li class="blockList">
 <h4>isAudioSampleRateSupportedV21</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;isAudioSampleRateSupportedV21&#8203;(int&nbsp;sampleRate)</pre>
+<pre class="methodSignature">@RequiresApi(21)
+public&nbsp;boolean&nbsp;isAudioSampleRateSupportedV21&#8203;(int&nbsp;sampleRate)</pre>
 <div class="block">Whether the decoder supports audio with a given sample rate.
 
  <p>Must not be called if the device SDK version is less than 21.</div>
@@ -835,7 +838,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Po
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isAudioChannelCountSupportedV21</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;isAudioChannelCountSupportedV21&#8203;(int&nbsp;channelCount)</pre>
+<pre class="methodSignature">@RequiresApi(21)
+public&nbsp;boolean&nbsp;isAudioChannelCountSupportedV21&#8203;(int&nbsp;channelCount)</pre>
 <div class="block">Whether the decoder supports audio with a given channel count.
 
  <p>Must not be called if the device SDK version is less than 21.</div>

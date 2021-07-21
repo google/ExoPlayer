@@ -542,7 +542,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>experimentalSetForegroundModeTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;<a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a>&nbsp;experimentalSetForegroundModeTimeoutMs&#8203;(long&nbsp;timeoutMs)</pre>
 <div class="block">Set a limit on the time a call to <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a> can spend. If a call to <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>timeoutMs</code> milliseconds to complete, the player
- will raise an error via <a href="Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.
+ will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
@@ -841,7 +841,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a timeout for calls to <a href="SimpleExoPlayer.html#release()"><code>SimpleExoPlayer.release()</code></a> and <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a>.
 
  <p>If a call to <a href="SimpleExoPlayer.html#release()"><code>SimpleExoPlayer.release()</code></a> or <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>
- timeoutMs</code> to complete, the player will report an error via <a href="Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
+ timeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>releaseTimeoutMs</code> - The release timeout, in milliseconds.</dd>
@@ -862,7 +862,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a timeout for detaching a surface from the player.
 
  <p>If detaching a surface or replacing a surface takes more than <code>
- detachSurfaceTimeoutMs</code> to complete, the player will report an error via <a href="Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
+ detachSurfaceTimeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>detachSurfaceTimeoutMs</code> - The timeout for detaching a surface, in milliseconds.</dd>
@@ -882,7 +882,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public&nbsp;<a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a>&nbsp;setPauseAtEndOfMediaItems&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
 <div class="block">Sets whether to pause playback at the end of each media item.
 
- <p>This means the player will pause at the end of each window in the current <a href="SimpleExoPlayer.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
+ <p>This means the player will pause at the end of each window in the current <a href="SimpleExoPlayer.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.Listener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pauseAtEndOfMediaItems</code> - Whether to pause playback at the end of each media item.</dd>

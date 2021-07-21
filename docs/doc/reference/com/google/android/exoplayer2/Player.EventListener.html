@@ -802,6 +802,9 @@ default&nbsp;void&nbsp;onSeekProcessed()</pre>
  <p>State changes and events that happen within one <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration are
  reported together and only after all individual callbacks were triggered.
 
+ <p>Only state changes represented by <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a> are reported through this
+ method.
+
  <p>Listeners should prefer this method over individual callbacks in the following cases:
 
  <ul>
