@@ -34,9 +34,6 @@
             ([#1611](https://github.com/google/ExoPlayer/issues/1611)).
     *   Add `@FallbackType` to `LoadErrorHandlingPolicy` to support
         customization of the exclusion duration for locations and tracks.
-    *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
-        These methods are all overrides and are already deprecated on `Player`
-        and the respective `ExoPlayer` component classes (since 2.14.0).
     *   Rename `Player.EventFlags` IntDef to `Player.Event`.
     *   Add a `DefaultMediaDescriptionAdapter` for the
         `PlayerNotificationManager`, that makes use of the `Player`
@@ -85,20 +82,11 @@
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
-*   UI
-    *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
-        popup menus on API levels prior to 26
-        ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
-    *   Fix progress bar flickering immediately after the user seeks
-        ([#9049](https://github.com/google/ExoPlayer/pull/9049)).
-    *   Fix `StyledPlayerView` and `StyledPlayerControlView` popup menu items
-        not expanding to occupy the full width of the popup
-        ([#9086](https://github.com/google/ExoPlayer/issues/9086)).
-    *   Don't propagate `AttributeSet` from `SubtitleView` constructor into
-        `CanvasSubtitleOutput`. Just passing the `Context` is enough, and
-        ensures programmatic changes to the `SubtitleView` will propagate down.
+*   UI:
     *   Add `setUseRewindAction` and `setUseFastForwardAction` to
-        `PlayerNotificationManager`.
+        `PlayerNotificationManager`, and `setUseFastForwardActionInCompactView`
+        and `setUseRewindActionInCompactView` to show the actions in compact
+        view mode.
     *   Remove `rewind_increment` and `fastforward_increment` attributes from
         `PlayerControlView` and `StyledPlayerControlView`. These increments can
         be customized by configuring the `Player` (see `setSeekBackIncrementMs`
@@ -113,6 +101,25 @@
     *   Deprecate `setControlDispatcher` in `PlayerView`, `StyledPlayerView`,
         `PlayerControlView`, `StyledPlayerControlView` and
         `PlayerNotificationManager`.
+*   Ad playback:
+    *   Support changing ad break positions in the player logic
+        ([#5067](https://github.com/google/ExoPlayer/issues/5067).
+    *   Support resuming content with an offset after an ad group.
+*   OkHttp extension:
+    *   Switch to OkHttp 4.9.1. This increases the extension's minimum SDK
+        version requirement from 16 to 21.
+*   Cronet extension:
+    *   Add `CronetDataSource.Factory.setRequestPriority` to allow setting the
+        priority of requests made by `CronetDataSource` instances.
+*   Leanback:
+    *   Deprecate `setControlDispatcher` in `LeanbackPlayerAdapter`.
+
+### 2.14.2 (2021-07-20)
+
+*   Core Library:
+    *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
+        These methods are all overrides and are already deprecated on `Player`
+        and the respective `ExoPlayer` component classes (since 2.14.0).
 *   Video:
     *   Fix `IncorrectContextUseViolation` strict mode warning on Android 11
         ([#8246](https://github.com/google/ExoPlayer/pull/8246)).
@@ -150,9 +157,6 @@
         specified by an `EXT-X-START` tag when placed in a playlist
         ([#9037](https://github.com/google/ExoPlayer/issues/9037)).
 *   Ad playback:
-    *   Support changing ad break positions in the player logic
-        ([#5067](https://github.com/google/ExoPlayer/issues/5067).
-    *   Support resuming content with an offset after an ad group.
     *   Use the content URI when auto-generating an ad ID (in addition to the
         media ID and ad tag URI)
         ([#9106](https://github.com/google/ExoPlayer/issues/9106).
@@ -162,12 +166,24 @@
         releasing too many keep-alive `DefaultDrmSession` references, resulting
         in `DefaultDrmSession.release()` throwing an `IllegalStateException`
         ([#9193](https://github.com/google/ExoPlayer/issues/9193)).
-*   PlayerNotificationManager:
-    *   Add `PendingIntent.FLAG_IMMUTABLE` flag to BroadcastReceiver to support
+*   Metadata:
+    *   Fix handling of emsg messages with an unset duration
+        ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
+*   UI:
+    *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
+        in `PlayerNotificationManager`. This is required to avoid an error on
         Android 12.
-    *   Add `setUseFastForwardActionInCompactView(boolean)` and
-        `setUseRewindActionInCompactView(boolean)` to make it possible to show
-        seek actions in compact view mode.
+    *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
+        popup menus on API levels prior to 26
+        ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
+    *   Fix progress bar flickering immediately after the user seeks
+        ([#9049](https://github.com/google/ExoPlayer/pull/9049)).
+    *   Fix `StyledPlayerView` and `StyledPlayerControlView` popup menu items
+        not expanding to occupy the full width of the popup
+        ([#9086](https://github.com/google/ExoPlayer/issues/9086)).
+    *   Don't propagate `AttributeSet` from `SubtitleView` constructor into
+        `CanvasSubtitleOutput`. Just passing the `Context` is enough, and
+        ensures programmatic changes to the `SubtitleView` will propagate down.
 *   RTSP:
     *   Fix session description (SDP) parsing to use a HashMap-like behaviour
         for duplicated attributes.
@@ -176,17 +192,6 @@
         ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
     *   Allow the timeout to be customised via
         `RtspMediaSource.Factory.setTimeoutMs`.
-*   Metadata:
-    *   Fix handling of emsg messages with an unset duration
-        ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
-*   OkHttp extension:
-    *   Switch to OkHttp 4.9.1. This increases the extension's minimum SDK
-        version requirement from 16 to 21.
-*   Cronet extension:
-    *   Add `CronetDataSource.Factory.setRequestPriority` to allow setting the
-        priority of requests made by `CronetDataSource` instances.
-*   Leanback:
-    *   Deprecate `setControlDispatcher` in `LeanbackPlayerAdapter`.
 
 ### 2.14.1 (2021-06-11)
 
