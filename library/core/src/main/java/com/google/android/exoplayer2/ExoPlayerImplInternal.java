@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSourceException;
-import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -577,8 +576,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     } catch (DrmSession.DrmSessionException e) {
       handleIoException(e, e.errorCode);
-    } catch (FileDataSource.FileDataSourceException e) {
-      handleIoException(e, e.reason);
     } catch (ParserException e) {
       @ErrorCode int errorCode;
       if (e.dataType == C.DATA_TYPE_MEDIA) {
