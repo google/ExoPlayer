@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":10,"i5":42,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":10,"i5":42,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -257,6 +257,13 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimeoutMs(long)">setTimeoutMs</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the timeout in milliseconds, the default value is <a href="RtspMediaSource.html#DEFAULT_TIMEOUT_MS"><code>RtspMediaSource.DEFAULT_TIMEOUT_MS</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserAgent(java.lang.String)">setUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
 <div class="block">Sets the user agent, the default value is <a href="../../ExoPlayerLibraryInfo.html#VERSION_SLASHY"><code>ExoPlayerLibraryInfo.VERSION_SLASHY</code></a>.</div>
@@ -344,6 +351,26 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The user agent.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This Factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTimeoutMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTimeoutMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setTimeoutMs&#8203;(@IntRange(from=1L)
+                                            long&nbsp;timeoutMs)</pre>
+<div class="block">Sets the timeout in milliseconds, the default value is <a href="RtspMediaSource.html#DEFAULT_TIMEOUT_MS"><code>RtspMediaSource.DEFAULT_TIMEOUT_MS</code></a>.
+
+ <p>A positive number of milliseconds to wait before lack of received RTP packets is treated
+ as the end of input.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeoutMs</code> - The timeout measured in milliseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This Factory, for convenience.</dd>
 </dl>

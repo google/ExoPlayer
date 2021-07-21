@@ -320,7 +320,8 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>width</h4>
-<pre>public final&nbsp;int width</pre>
+<pre>@IntRange(from=0L)
+public final&nbsp;int width</pre>
 <div class="block">The video width in pixels, 0 when unknown.</div>
 </li>
 </ul>
@@ -330,7 +331,8 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>height</h4>
-<pre>public final&nbsp;int height</pre>
+<pre>@IntRange(from=0L)
+public final&nbsp;int height</pre>
 <div class="block">The video height in pixels, 0 when unknown.</div>
 </li>
 </ul>
@@ -340,7 +342,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>unappliedRotationDegrees</h4>
-<pre>public final&nbsp;int unappliedRotationDegrees</pre>
+<pre>@IntRange(from=0L,
+          to=359L)
+public final&nbsp;int unappliedRotationDegrees</pre>
 <div class="block">Clockwise rotation in degrees that the application should apply for the video for it to be
  rendered in the correct orientation.
 
@@ -360,7 +364,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>pixelWidthHeightRatio</h4>
-<pre>public final&nbsp;float pixelWidthHeightRatio</pre>
+<pre>@FloatRange(from=0.0,
+            fromInclusive=false)
+public final&nbsp;float pixelWidthHeightRatio</pre>
 <div class="block">The width to height ratio of each pixel, 1 if unknown.
 
  <p>For the normal case of square pixels this will be equal to 1.0. Different values are
@@ -392,7 +398,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>VideoSize</h4>
-<pre>public&nbsp;VideoSize&#8203;(int&nbsp;width,
+<pre>public&nbsp;VideoSize&#8203;(@IntRange(from=0L)
+                 int&nbsp;width,
+                 @IntRange(from=0L)
                  int&nbsp;height)</pre>
 <div class="block">Creates a VideoSize without unapplied rotation or anamorphic content.</div>
 <dl>
@@ -408,9 +416,13 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockListLast">
 <li class="blockList">
 <h4>VideoSize</h4>
-<pre>public&nbsp;VideoSize&#8203;(int&nbsp;width,
+<pre>public&nbsp;VideoSize&#8203;(@IntRange(from=0L)
+                 int&nbsp;width,
+                 @IntRange(from=0L)
                  int&nbsp;height,
+                 @IntRange(from=0L,to=359L)
                  int&nbsp;unappliedRotationDegrees,
+                 @FloatRange(from=0.0,fromInclusive=false)
                  float&nbsp;pixelWidthHeightRatio)</pre>
 <div class="block">Creates a VideoSize.</div>
 <dl>

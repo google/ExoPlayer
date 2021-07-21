@@ -1085,7 +1085,7 @@ void&nbsp;prepare&#8203;(<a href="source/MediaSource.html" title="interface in c
 <pre class="methodSignature">void&nbsp;setPauseAtEndOfMediaItems&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
 <div class="block">Sets whether to pause playback at the end of each media item.
 
- <p>This means the player will pause at the end of each window in the current <a href="Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
+ <p>This means the player will pause at the end of each window in the current <a href="Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.Listener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pauseAtEndOfMediaItems</code> - Whether to pause playback at the end of each media item.</dd>

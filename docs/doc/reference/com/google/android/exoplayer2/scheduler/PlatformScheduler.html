@@ -133,7 +133,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">PlatformScheduler</span>
+<pre>@RequiresApi(21)
+public final class <span class="typeNameLabel">PlatformScheduler</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></pre>
 <div class="block">A <a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> that uses <a href="https://developer.android.com/reference/android/app/job/JobScheduler.html" title="class or interface in android.app.job" class="externalLink"><code>JobScheduler</code></a>. To use this scheduler, you must add <a href="PlatformScheduler.PlatformSchedulerService.html" title="class in com.google.android.exoplayer2.scheduler" target="_top"><code>PlatformScheduler.PlatformSchedulerService</code></a> to your manifest:
@@ -266,7 +267,8 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PlatformScheduler</h4>
-<pre>public&nbsp;PlatformScheduler&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<pre>@RequiresPermission("android.permission.RECEIVE_BOOT_COMPLETED")
+public&nbsp;PlatformScheduler&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                          int&nbsp;jobId)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

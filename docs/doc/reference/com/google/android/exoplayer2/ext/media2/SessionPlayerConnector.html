@@ -553,7 +553,8 @@ extends androidx.media2.common.SessionPlayer</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent" class="externalLink">ListenableFuture</a>&lt;androidx.media2.common.SessionPlayer.PlayerResult&gt;&nbsp;setPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent" class="externalLink">ListenableFuture</a>&lt;androidx.media2.common.SessionPlayer.PlayerResult&gt;&nbsp;setPlaybackSpeed&#8203;(@FloatRange(from=0.0,to=3.4028234663852886E38,fromInclusive=false)
+                                                                                            float&nbsp;playbackSpeed)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>setPlaybackSpeed</code>&nbsp;in class&nbsp;<code>androidx.media2.common.SessionPlayer</code></dd>
@@ -644,7 +645,10 @@ extends androidx.media2.common.SessionPlayer</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;float&nbsp;getPlaybackSpeed()</pre>
+<pre class="methodSignature">@FloatRange(from=0.0,
+            to=3.4028234663852886E38,
+            fromInclusive=false)
+public&nbsp;float&nbsp;getPlaybackSpeed()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>getPlaybackSpeed</code>&nbsp;in class&nbsp;<code>androidx.media2.common.SessionPlayer</code></dd>
@@ -722,7 +726,8 @@ public&nbsp;androidx.media.AudioAttributesCompat&nbsp;getAudioAttributes()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>removePlaylistItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent" class="externalLink">ListenableFuture</a>&lt;androidx.media2.common.SessionPlayer.PlayerResult&gt;&nbsp;removePlaylistItem&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent" class="externalLink">ListenableFuture</a>&lt;androidx.media2.common.SessionPlayer.PlayerResult&gt;&nbsp;removePlaylistItem&#8203;(@IntRange(from=0L)
+                                                                                              int&nbsp;index)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>removePlaylistItem</code>&nbsp;in class&nbsp;<code>androidx.media2.common.SessionPlayer</code></dd>
@@ -792,7 +797,8 @@ public&nbsp;androidx.media.AudioAttributesCompat&nbsp;getAudioAttributes()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>skipToPlaylistItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent" class="externalLink">ListenableFuture</a>&lt;androidx.media2.common.SessionPlayer.PlayerResult&gt;&nbsp;skipToPlaylistItem&#8203;(int&nbsp;index)</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent" class="externalLink">ListenableFuture</a>&lt;androidx.media2.common.SessionPlayer.PlayerResult&gt;&nbsp;skipToPlaylistItem&#8203;(@IntRange(from=0L)
+                                                                                              int&nbsp;index)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>skipToPlaylistItem</code>&nbsp;in class&nbsp;<code>androidx.media2.common.SessionPlayer</code></dd>

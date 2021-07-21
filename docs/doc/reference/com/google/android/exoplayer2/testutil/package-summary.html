@@ -317,7 +317,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="Action.WaitForIsLoading.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForIsLoading</a></th>
 <td class="colLast">
-<div class="block">Waits for a specified loading state, returning either immediately or after a call to <a href="../Player.EventListener.html#onIsLoadingChanged(boolean)"><code>Player.EventListener.onIsLoadingChanged(boolean)</code></a>.</div>
+<div class="block">Waits for a specified loading state, returning either immediately or after a call to <a href="../Player.Listener.html#onIsLoadingChanged(boolean)"><code>Player.Listener.onIsLoadingChanged(boolean)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -335,27 +335,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Action.WaitForPlaybackState.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlaybackState</a></th>
 <td class="colLast">
-<div class="block">Waits for a specified playback state, returning either immediately or after a call to <a href="../Player.EventListener.html#onPlaybackStateChanged(int)"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a>.</div>
+<div class="block">Waits for a specified playback state, returning either immediately or after a call to <a href="../Player.Listener.html#onPlaybackStateChanged(int)"><code>Player.Listener.onPlaybackStateChanged(int)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="Action.WaitForPlayWhenReady.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPlayWhenReady</a></th>
 <td class="colLast">
 <div class="block">Waits for a specified playWhenReady value, returning either immediately or after a call to
- <a href="../Player.EventListener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a>.</div>
+ <a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Action.WaitForPositionDiscontinuity.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForPositionDiscontinuity</a></th>
 <td class="colLast">
-<div class="block">Waits for <a href="../Player.EventListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.EventListener.onPositionDiscontinuity(Player.PositionInfo,
+<div class="block">Waits for <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo,
  Player.PositionInfo, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="Action.WaitForTimelineChanged.html" title="class in com.google.android.exoplayer2.testutil">Action.WaitForTimelineChanged</a></th>
 <td class="colLast">
-<div class="block">Waits for <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a>.</div>
+<div class="block">Waits for <a href="../Player.Listener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)"><code>Player.Listener.onTimelineChanged(Timeline, int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -625,195 +625,201 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a></th>
+<td class="colLast">
+<div class="block">Builder for <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeExoMediaDrm.LicenseServer.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.LicenseServer</a></th>
 <td class="colLast">
 <div class="block">An license server implementation to interact with <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeExtractorInput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorInput</a></th>
 <td class="colLast">
 <div class="block">A fake <a href="../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> capable of simulating various scenarios.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeExtractorInput.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorInput.Builder</a></th>
 <td class="colLast">
 <div class="block">Builder of <a href="FakeExtractorInput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExtractorInput</code></a> instances.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></th>
 <td class="colLast">
 <div class="block">A fake <a href="../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeMediaChunk.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunk</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeMediaChunkIterator.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunkIterator</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeMediaClockRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaClockRenderer</a></th>
 <td class="colLast">
 <div class="block">Fake abstract <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> which is also a <a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaPeriod</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> that provides tracks from the given <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSource</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> that provides a given timeline.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeMediaSource.InitialTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSource.InitialTimeline</a></th>
 <td class="colLast">
 <div class="block">A forwarding timeline to provide an initial timeline for fake multi window sources.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeRenderer</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> that supports any format with the matching track type.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeSampleStream.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> that outputs a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> and any amount of <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a></th>
 <td class="colLast">
 <div class="block">Item to customize a return value of <a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil">FakeShuffleOrder</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a> which returns a reverse order.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline</a></th>
 <td class="colLast">
 <div class="block">Fake <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> which can be setup to return custom <a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTimeline.TimelineWindowDefinition</code></a>s.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeTimeline.TimelineWindowDefinition.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline.TimelineWindowDefinition</a></th>
 <td class="colLast">
 <div class="block">Definition used to define a <a href="FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTimeline</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeTrackOutput</a></th>
 <td class="colLast">
 <div class="block">A fake <a href="../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeTrackSelection.html" title="class in com.google.android.exoplayer2.testutil">FakeTrackSelection</a></th>
 <td class="colLast">
 <div class="block">A fake <a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> that only returns 1 fixed track, and allows querying the number
  of calls to its methods.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="FakeTrackSelector.html" title="class in com.google.android.exoplayer2.testutil">FakeTrackSelector</a></th>
 <td class="colLast">
 <div class="block">A fake <a href="../trackselection/MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector</code></a> that returns <a href="FakeTrackSelection.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackSelection</code></a>s.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="FakeVideoRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeVideoRenderer</a></th>
 <td class="colLast">
 <div class="block">A <a href="FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeRenderer</code></a> that supports <a href="../C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="HostActivity.html" title="class in com.google.android.exoplayer2.testutil">HostActivity</a></th>
 <td class="colLast">
 <div class="block">A host activity for performing playback tests.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="HttpDataSourceTestEnv.html" title="class in com.google.android.exoplayer2.testutil">HttpDataSourceTestEnv</a></th>
 <td class="colLast">
 <div class="block">A JUnit <code>Rule</code> that creates test resources for <a href="../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> contract tests.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="MediaPeriodAsserts.html" title="class in com.google.android.exoplayer2.testutil">MediaPeriodAsserts</a></th>
 <td class="colLast">
 <div class="block">Assertion methods for <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="MediaSourceTestRunner.html" title="class in com.google.android.exoplayer2.testutil">MediaSourceTestRunner</a></th>
 <td class="colLast">
 <div class="block">A runner for <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> tests.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="NoUidTimeline.html" title="class in com.google.android.exoplayer2.testutil">NoUidTimeline</a></th>
 <td class="colLast">
 <div class="block">A timeline which wraps another timeline and overrides all window and period uids to 0.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="StubExoPlayer.html" title="class in com.google.android.exoplayer2.testutil">StubExoPlayer</a></th>
 <td class="colLast">
 <div class="block">An abstract <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> implementation that throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a>
  from every method.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="TestExoPlayerBuilder.html" title="class in com.google.android.exoplayer2.testutil">TestExoPlayerBuilder</a></th>
 <td class="colLast">
 <div class="block">A builder of <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> instances for testing.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="TestUtil.html" title="class in com.google.android.exoplayer2.testutil">TestUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for tests.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="TimelineAsserts.html" title="class in com.google.android.exoplayer2.testutil">TimelineAsserts</a></th>
 <td class="colLast">
 <div class="block">Assertion methods for <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="WebServerDispatcher.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher</a></th>
 <td class="colLast">
 <div class="block">A <code>Dispatcher</code> for <code>MockWebServer</code> that allows per-path
  customisation of the static data served.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="WebServerDispatcher.Resource.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource</a></th>
 <td class="colLast">
 <div class="block">A resource served by <a href="WebServerDispatcher.html" title="class in com.google.android.exoplayer2.testutil"><code>WebServerDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="WebServerDispatcher.Resource.Builder.html" title="class in com.google.android.exoplayer2.testutil">WebServerDispatcher.Resource.Builder</a></th>
 <td class="colLast">
 <div class="block">Builder for <a href="WebServerDispatcher.Resource.html" title="class in com.google.android.exoplayer2.testutil"><code>WebServerDispatcher.Resource</code></a>.</div>

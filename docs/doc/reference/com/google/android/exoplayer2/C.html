@@ -4718,7 +4718,8 @@ public static final&nbsp;int MSG_CUSTOM_BASE</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>generateAudioSessionIdV21</h4>
-<pre class="methodSignature">public static&nbsp;int&nbsp;generateAudioSessionIdV21&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<pre class="methodSignature">@RequiresApi(21)
+public static&nbsp;int&nbsp;generateAudioSessionIdV21&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
 <div class="block">Returns a newly generated audio session identifier, or <a href="https://developer.android.com/reference/android/media/AudioManager.html#ERROR" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioManager.ERROR</code></a> if an error
  occurred in which case audio playback may fail.</div>
 <dl>
