@@ -1,6 +1,6 @@
 # Release notes
 
-### dev-v2 (not yet released)
+### 2.14.2 (2021-07-20)
 
 *   Core Library:
     *   Explicitly mark several methods on `SimpleExoPlayer` as `@Deprecated`.
