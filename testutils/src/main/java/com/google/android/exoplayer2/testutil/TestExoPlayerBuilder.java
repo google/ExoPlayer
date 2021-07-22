@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
@@ -45,6 +46,8 @@ public class TestExoPlayerBuilder {
   @Nullable private RenderersFactory renderersFactory;
   private boolean useLazyPreparation;
   private @MonotonicNonNull Looper looper;
+  private long seekBackIncrementMs;
+  private long seekForwardIncrementMs;
 
   public TestExoPlayerBuilder(Context context) {
     this.context = context;
@@ -56,6 +59,8 @@ public class TestExoPlayerBuilder {
     if (myLooper != null) {
       looper = myLooper;
     }
+    seekBackIncrementMs = C.DEFAULT_SEEK_BACK_INCREMENT_MS;
+    seekForwardIncrementMs = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
   }
 
   /**
@@ -214,6 +219,38 @@ public class TestExoPlayerBuilder {
   }
 
   /**
+   * Sets the seek back increment to be used by the player.
+   *
+   * @param seekBackIncrementMs The seek back increment to be used by the player.
+   * @return This builder.
+   */
+  public TestExoPlayerBuilder setSeekBackIncrementMs(long seekBackIncrementMs) {
+    this.seekBackIncrementMs = seekBackIncrementMs;
+    return this;
+  }
+
+  /** Returns the seek back increment used by the player. */
+  public long getSeekBackIncrementMs() {
+    return seekBackIncrementMs;
+  }
+
+  /**
+   * Sets the seek forward increment to be used by the player.
+   *
+   * @param seekForwardIncrementMs The seek forward increment to be used by the player.
+   * @return This builder.
+   */
+  public TestExoPlayerBuilder setSeekForwardIncrementMs(long seekForwardIncrementMs) {
+    this.seekForwardIncrementMs = seekForwardIncrementMs;
+    return this;
+  }
+
+  /** Returns the seek forward increment used by the player. */
+  public long getSeekForwardIncrementMs() {
+    return seekForwardIncrementMs;
+  }
+
+  /**
    * Builds an {@link SimpleExoPlayer} using the provided values or their defaults.
    *
    * @return The built {@link ExoPlayerTestRunner}.
@@ -247,6 +284,8 @@ public class TestExoPlayerBuilder {
         .setClock(clock)
         .setUseLazyPreparation(useLazyPreparation)
         .setLooper(looper)
+        .setSeekBackIncrementMs(seekBackIncrementMs)
+        .setSeekForwardIncrementMs(seekForwardIncrementMs)
         .build();
   }
 }
