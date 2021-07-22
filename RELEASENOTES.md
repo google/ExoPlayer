@@ -172,9 +172,10 @@
     *   Fix handling of emsg messages with an unset duration
         ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
 *   UI:
-    *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
-        in `PlayerNotificationManager`. This is required to avoid an error on
-        Android 12.
+    *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast 
+        intent in `PlayerNotificationManager`. This is required by a 
+        [behaviour change](https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability) 
+        in Android 12.
     *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
         popup menus on API levels prior to 26
         ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
