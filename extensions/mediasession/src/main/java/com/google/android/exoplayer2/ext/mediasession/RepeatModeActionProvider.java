@@ -65,7 +65,10 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
 
   @Override
   public void onCustomAction(
-      Player player, ControlDispatcher controlDispatcher, String action, @Nullable Bundle extras) {
+      Player player,
+      @Deprecated ControlDispatcher controlDispatcher,
+      String action,
+      @Nullable Bundle extras) {
     int mode = player.getRepeatMode();
     int proposedMode = RepeatModeUtil.getNextRepeatMode(mode, repeatToggleModes);
     if (mode != proposedMode) {

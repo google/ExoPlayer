@@ -179,7 +179,7 @@ public final class TimelineQueueEditor
   @Override
   public boolean onCommand(
       Player player,
-      ControlDispatcher controlDispatcher,
+      @Deprecated ControlDispatcher controlDispatcher,
       String command,
       @Nullable Bundle extras,
       @Nullable ResultReceiver cb) {

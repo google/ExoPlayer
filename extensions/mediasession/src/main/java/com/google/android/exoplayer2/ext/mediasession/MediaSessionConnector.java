@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -169,12 +170,13 @@ public final class MediaSessionConnector {
   public interface CommandReceiver {
     /**
      * See {@link MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}. The
-     * receiver may handle the command, but is not required to do so. Changes to the player should
-     * be made via the {@link ControlDispatcher}.
+     * receiver may handle the command, but is not required to do so.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
-     *     changes to the player.
+     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
+     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
+     *     when configuring the player (for example by using {@code
+     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param command The command name.
      * @param extras Optional parameters for the command, may be null.
      * @param cb A result receiver to which a result may be sent by the command, may be null.
@@ -182,7 +184,7 @@ public final class MediaSessionConnector {
      */
     boolean onCommand(
         Player player,
-        ControlDispatcher controlDispatcher,
+        @Deprecated ControlDispatcher controlDispatcher,
         String command,
         @Nullable Bundle extras,
         @Nullable ResultReceiver cb);
@@ -294,26 +296,32 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onSkipToPrevious()}.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
-     *     changes to the player.
+     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
+     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
+     *     when configuring the player (for example by using {@code
+     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
-    void onSkipToPrevious(Player player, ControlDispatcher controlDispatcher);
+    void onSkipToPrevious(Player player, @Deprecated ControlDispatcher controlDispatcher);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToQueueItem(long)}.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
-     *     changes to the player.
+     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
+     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
+     *     when configuring the player (for example by using {@code
+     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
-    void onSkipToQueueItem(Player player, ControlDispatcher controlDispatcher, long id);
+    void onSkipToQueueItem(Player player, @Deprecated ControlDispatcher controlDispatcher, long id);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToNext()}.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
-     *     changes to the player.
+     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
+     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
+     *     when configuring the player (for example by using {@code
+     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
-    void onSkipToNext(Player player, ControlDispatcher controlDispatcher);
+    void onSkipToNext(Player player, @Deprecated ControlDispatcher controlDispatcher);
   }
 
   /** Handles media session queue edits. */
@@ -366,13 +374,15 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
      *
      * @param player The {@link Player}.
-     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
-     *     changes to the player.
+     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
+     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
+     *     when configuring the player (for example by using {@code
+     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param mediaButtonEvent The {@link Intent}.
      * @return True if the event was handled, false otherwise.
      */
     boolean onMediaButtonEvent(
-        Player player, ControlDispatcher controlDispatcher, Intent mediaButtonEvent);
+        Player player, @Deprecated ControlDispatcher controlDispatcher, Intent mediaButtonEvent);
   }
 
   /**
@@ -384,13 +394,18 @@ public final class MediaSessionConnector {
      * Called when a custom action provided by this provider is sent to the media session.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
-     *     changes to the player.
+     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
+     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
+     *     when configuring the player (for example by using {@code
+     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param action The name of the action which was sent by a media controller.
      * @param extras Optional extras sent by a media controller, may be null.
      */
     void onCustomAction(
-        Player player, ControlDispatcher controlDispatcher, String action, @Nullable Bundle extras);
+        Player player,
+        @Deprecated ControlDispatcher controlDispatcher,
+        String action,
+        @Nullable Bundle extras);
 
     /**
      * Returns a {@link PlaybackStateCompat.CustomAction} which will be published to the media
@@ -545,10 +560,11 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the {@link ControlDispatcher}.
-   *
-   * @param controlDispatcher The {@link ControlDispatcher}.
+   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
+   *     You can also customize some operations when configuring the player (for example by using
+   *     {@code SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
    */
+  @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     if (this.controlDispatcher != controlDispatcher) {
       this.controlDispatcher = controlDispatcher;

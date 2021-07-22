@@ -144,12 +144,13 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSkipToPrevious(Player player, ControlDispatcher controlDispatcher) {
+  public void onSkipToPrevious(Player player, @Deprecated ControlDispatcher controlDispatcher) {
     controlDispatcher.dispatchPrevious(player);
   }
 
   @Override
-  public void onSkipToQueueItem(Player player, ControlDispatcher controlDispatcher, long id) {
+  public void onSkipToQueueItem(
+      Player player, @Deprecated ControlDispatcher controlDispatcher, long id) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
@@ -161,7 +162,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSkipToNext(Player player, ControlDispatcher controlDispatcher) {
+  public void onSkipToNext(Player player, @Deprecated ControlDispatcher controlDispatcher) {
     controlDispatcher.dispatchNext(player);
   }
 
@@ -170,7 +171,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   @Override
   public boolean onCommand(
       Player player,
-      ControlDispatcher controlDispatcher,
+      @Deprecated ControlDispatcher controlDispatcher,
       String command,
       @Nullable Bundle extras,
       @Nullable ResultReceiver cb) {

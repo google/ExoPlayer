@@ -118,6 +118,11 @@
 *   RTSP:
     *   Use standard RTSP header names.
         ([#9182](https://github.com/google/ExoPlayer/issues/9182)).
+*   MediaSession extension:
+    *   Deprecate `setControlDispatcher` in `MediaSessionConnector`. The
+        `ControlDispatcher` parameter has also been deprecated in all
+        `MediaSessionConnector` listener methods.
+
 
 ### 2.14.2 (2021-07-20)
 
