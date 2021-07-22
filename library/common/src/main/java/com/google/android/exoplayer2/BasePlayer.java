@@ -314,6 +314,12 @@ public abstract class BasePlayer implements Player {
         : timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
+  /**
+   * Returns the {@link Commands} available in the player.
+   *
+   * @param permanentAvailableCommands The commands permanently available in the player.
+   * @return The available {@link Commands}.
+   */
   protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
