@@ -111,8 +111,10 @@
 *   Cronet extension:
     *   Add `CronetDataSource.Factory.setRequestPriority` to allow setting the
         priority of requests made by `CronetDataSource` instances.
-*   Leanback:
+*   Leanback extension:
     *   Deprecate `setControlDispatcher` in `LeanbackPlayerAdapter`.
+*   Media2 extension:
+    *   Deprecate `setControlDispatcher` in `SessionPlayerConnector`.
 
 ### 2.14.2 (2021-07-20)
 
