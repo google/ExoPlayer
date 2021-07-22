@@ -19,9 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
-import android.media.DeniedByServerException;
-import android.media.MediaDrm;
-import android.media.MediaDrmResetException;
 import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -29,12 +26,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
@@ -519,7 +514,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void onError(Exception e, boolean thrownByExoMediaDrm) {
     lastException =
-        new DrmSessionException(e, getErrorCodeForMediaDrmException(e, thrownByExoMediaDrm));
+        new DrmSessionException(
+            e, DrmUtil.getErrorCodeForMediaDrmException(e, thrownByExoMediaDrm));
     Log.e(TAG, "DRM session error", e);
     dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionManagerError(e));
     if (state != STATE_OPENED_WITH_KEYS) {
@@ -536,36 +532,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private void dispatchEvent(Consumer<DrmSessionEventListener.EventDispatcher> event) {
     for (DrmSessionEventListener.EventDispatcher eventDispatcher : eventDispatchers.elementSet()) {
       event.accept(eventDispatcher);
-    }
-  }
-
-  @PlaybackException.ErrorCode
-  private static int getErrorCodeForMediaDrmException(
-      Exception exception, boolean thrownByExoMediaDrm) {
-    if (Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isMediaDrmStateException(exception)) {
-      return PlatformOperationsWrapperV21.mediaDrmStateExceptionToErrorCode(exception);
-    } else if (Util.SDK_INT >= 23
-        && PlatformOperationsWrapperV23.isMediaDrmResetException(exception)) {
-      return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    } else if (Util.SDK_INT >= 18
-        && PlatformOperationsWrapperV18.isNotProvisionedException(exception)) {
-      return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
-    } else if (Util.SDK_INT >= 18
-        && PlatformOperationsWrapperV18.isDeniedByServerException(exception)) {
-      return PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED;
-    } else if (exception instanceof UnsupportedDrmException) {
-      return PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED;
-    } else if (exception instanceof DefaultDrmSessionManager.MissingSchemeDataException) {
-      return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
-    } else if (exception instanceof KeysExpiredException) {
-      return PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED;
-    } else if (thrownByExoMediaDrm) {
-      // A MediaDrm exception was thrown but it was impossible to determine the cause. Because no
-      // better diagnosis tools were provided, we treat this as a system error.
-      return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    } else {
-      // The error happened during the license request.
-      return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
     }
   }
 
@@ -712,47 +678,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       this.allowRetry = allowRetry;
       this.startTimeMs = startTimeMs;
       this.request = request;
-    }
-  }
-
-  @RequiresApi(18)
-  private static final class PlatformOperationsWrapperV18 {
-
-    @DoNotInline
-    public static boolean isNotProvisionedException(@Nullable Throwable throwable) {
-      return throwable instanceof NotProvisionedException;
-    }
-
-    @DoNotInline
-    public static boolean isDeniedByServerException(@Nullable Throwable throwable) {
-      return throwable instanceof DeniedByServerException;
-    }
-  }
-
-  @RequiresApi(21)
-  private static final class PlatformOperationsWrapperV21 {
-
-    @DoNotInline
-    public static boolean isMediaDrmStateException(@Nullable Throwable throwable) {
-      return throwable instanceof MediaDrm.MediaDrmStateException;
-    }
-
-    @DoNotInline
-    @PlaybackException.ErrorCode
-    public static int mediaDrmStateExceptionToErrorCode(Throwable throwable) {
-      @Nullable
-      String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
-      int drmErrorCode = Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);
-      return C.getErrorCodeForMediaDrmErrorCode(drmErrorCode);
-    }
-  }
-
-  @RequiresApi(23)
-  private static final class PlatformOperationsWrapperV23 {
-
-    @DoNotInline
-    public static boolean isMediaDrmResetException(@Nullable Throwable throwable) {
-      return throwable instanceof MediaDrmResetException;
     }
   }
 }
