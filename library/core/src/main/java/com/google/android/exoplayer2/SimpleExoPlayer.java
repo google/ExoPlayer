@@ -1988,6 +1988,7 @@ public class SimpleExoPlayer extends BasePlayer
                 .send());
       }
     }
+    boolean messageDeliveryTimedOut = false;
     if (this.videoOutput != null && this.videoOutput != videoOutput) {
       // We're replacing an output. Block to ensure that this output will not be accessed by the
       // renderers after this method returns.
@@ -1998,12 +1999,7 @@ public class SimpleExoPlayer extends BasePlayer
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
-        // One of the renderers timed out releasing its resources.
-        player.stop(
-            /* reset= */ false,
-            ExoPlaybackException.createForUnexpected(
-                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE),
-                PlaybackException.ERROR_CODE_TIMEOUT));
+        messageDeliveryTimedOut = true;
       }
       if (this.videoOutput == ownedSurface) {
         // We're replacing a surface that we are responsible for releasing.
@@ -2012,6 +2008,13 @@ public class SimpleExoPlayer extends BasePlayer
       }
     }
     this.videoOutput = videoOutput;
+    if (messageDeliveryTimedOut) {
+      player.stop(
+          /* reset= */ false,
+          ExoPlaybackException.createForUnexpected(
+              new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE),
+              PlaybackException.ERROR_CODE_TIMEOUT));
+    }
   }
 
   /**
