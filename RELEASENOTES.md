@@ -43,8 +43,8 @@
         `Player.EVENT_STATIC_METADATA_CHANGED`. Use `Player.getMediaMetadata`,
         `Player.Listener.onMediaMetadataChanged` and
         `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
-        structured metadata, or access the raw static metadata directly from
-        the `TrackSelection#getFormat()`.
+        structured metadata, or access the raw static metadata directly from the
+        `TrackSelection#getFormat()`.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
@@ -115,6 +115,9 @@
     *   Deprecate `setControlDispatcher` in `LeanbackPlayerAdapter`.
 *   Media2 extension:
     *   Deprecate `setControlDispatcher` in `SessionPlayerConnector`.
+*   RTSP:
+    *   Use standard RTSP header names.
+        ([#9182](https://github.com/google/ExoPlayer/issues/9182)).
 
 ### 2.14.2 (2021-07-20)
 

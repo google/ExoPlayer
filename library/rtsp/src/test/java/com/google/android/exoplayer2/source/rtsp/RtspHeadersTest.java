@@ -160,10 +160,10 @@ public final class RtspHeadersTest {
             .build();
     assertThat(headers.asMultiMap())
         .containsExactly(
-            "accept", "application/sdp",
-            "cseq", "3",
-            "content-length", "707",
-            "transport", "RTP/AVP;unicast;client_port=65458-65459");
+            "Accept", "application/sdp",
+            "CSeq", "3",
+            "Content-Length", "707",
+            "Transport", "RTP/AVP;unicast;client_port=65458-65459");
   }
 
   @Test
@@ -182,14 +182,16 @@ public final class RtspHeadersTest {
             .build();
     ListMultimap<String, String> headersMap = headers.asMultiMap();
 
-    assertThat(headersMap.keySet()).containsExactly("accept", "cseq", "transport").inOrder();
+    assertThat(headersMap.keySet())
+        .containsExactly(RtspHeaders.ACCEPT, RtspHeaders.CSEQ, RtspHeaders.TRANSPORT)
+        .inOrder();
     assertThat(headersMap)
-        .valuesForKey("accept")
+        .valuesForKey(RtspHeaders.ACCEPT)
         .containsExactly("application/sdp", "application/sip")
         .inOrder();
-    assertThat(headersMap).valuesForKey("cseq").containsExactly("3", "5").inOrder();
+    assertThat(headersMap).valuesForKey(RtspHeaders.CSEQ).containsExactly("3", "5").inOrder();
     assertThat(headersMap)
-        .valuesForKey("transport")
+        .valuesForKey(RtspHeaders.TRANSPORT)
         .containsExactly(
             "RTP/AVP;unicast;client_port=65456-65457", "RTP/AVP;unicast;client_port=65458-65459")
         .inOrder();
