@@ -624,10 +624,6 @@ public final class MediaCodecInfo {
         || MimeTypes.AUDIO_FLAC.equals(mimeType)
         || MimeTypes.AUDIO_ALAW.equals(mimeType)
         || MimeTypes.AUDIO_MLAW.equals(mimeType)
-        || MimeTypes.AUDIO_DTS.equals(mimeType)
-        || MimeTypes.AUDIO_DTS_HD.equals(mimeType)
-        || MimeTypes.AUDIO_DTS_EXPRESS.equals(mimeType)
-        || MimeTypes.AUDIO_DTS_X.equals(mimeType)
         || MimeTypes.AUDIO_MSGSM.equals(mimeType)) {
       // Platform code should have set a default.
       return maxChannelCount;
