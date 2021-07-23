@@ -776,7 +776,7 @@ public class DashManifestParser extends DefaultHandler
     if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
       sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
       if (MimeTypes.AUDIO_E_AC3_JOC.equals(sampleMimeType)) {
-        codecs = Ac3Util.E_AC_3_CODEC_STRING;
+        codecs = Ac3Util.E_AC3_JOC_CODEC_STRING;
       }
     }
     @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);

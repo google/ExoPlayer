@@ -518,7 +518,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             formatBuilder.setChannelCount(channelCount);
             if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType) && channelsString.endsWith("/JOC")) {
               sampleMimeType = MimeTypes.AUDIO_E_AC3_JOC;
-              formatBuilder.setCodecs(Ac3Util.E_AC_3_CODEC_STRING);
+              formatBuilder.setCodecs(Ac3Util.E_AC3_JOC_CODEC_STRING);
             }
           }
           formatBuilder.setSampleMimeType(sampleMimeType);
