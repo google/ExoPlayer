@@ -17,13 +17,8 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.Player.RepeatMode;
 
-/**
- * Dispatches operations to the {@link Player}.
- *
- * <p>Implementations may choose to suppress (e.g. prevent playback from resuming if audio focus is
- * denied) or modify (e.g. change the seek position to prevent a user from seeking past a
- * non-skippable advert) operations.
- */
+/** @deprecated Use a {@link ForwardingPlayer} or configure the player to customize operations. */
+@Deprecated
 public interface ControlDispatcher {
 
   /**

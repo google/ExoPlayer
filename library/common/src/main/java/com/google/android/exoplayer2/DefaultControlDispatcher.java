@@ -18,7 +18,8 @@ package com.google.android.exoplayer2;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-/** Default {@link ControlDispatcher}. */
+/** @deprecated Use a {@link ForwardingPlayer} or configure the player to customize operations. */
+@Deprecated
 public class DefaultControlDispatcher implements ControlDispatcher {
 
   private final long rewindIncrementMs;

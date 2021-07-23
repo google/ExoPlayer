@@ -45,6 +45,8 @@
         `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
         structured metadata, or access the raw static metadata directly from the
         `TrackSelection#getFormat()`.
+    *   Deprecate `ControlDispatcher` and `DefaultControlDispatcher`. Use a
+        `ForwardingPlayer` or configure the player to customize operations.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
