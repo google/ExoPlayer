@@ -23,32 +23,66 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents a splice schedule command as defined in SCTE35, Section 9.3.2.
- */
+/** Represents a splice schedule command as defined in SCTE35, Section 9.3.2. */
 public final class SpliceScheduleCommand extends SpliceCommand {
 
-  /**
-   * Represents a splice event as contained in a {@link SpliceScheduleCommand}.
-   */
+  /** Represents a splice event as contained in a {@link SpliceScheduleCommand}. */
   public static final class Event {
 
+    /** The splice event id. */
     public final long spliceEventId;
+    /** True if the event with id {@link #spliceEventId} has been canceled. */
     public final boolean spliceEventCancelIndicator;
+    /**
+     * If true, the splice event is an opportunity to exit from the network feed. If false,
+     * indicates an opportunity to return to the network feed.
+     */
     public final boolean outOfNetworkIndicator;
+    /**
+     * Whether the splice mode is program splice mode, whereby all PIDs/components are to be
+     * spliced. If false, splicing is done per PID/component.
+     */
     public final boolean programSpliceFlag;
+    /**
+     * Represents the time of the signaled splice event as the number of seconds since 00 hours UTC,
+     * January 6th, 1980, with the count of intervening leap seconds included.
+     */
     public final long utcSpliceTime;
+    /**
+     * If {@link #programSpliceFlag} is false, a non-empty list containing the {@link
+     * ComponentSplice}s. Otherwise, an empty list.
+     */
     public final List<ComponentSplice> componentSpliceList;
+    /**
+     * If {@link #breakDurationUs} is not {@link C#TIME_UNSET}, defines whether {@link
+     * #breakDurationUs} should be used to know when to return to the network feed. If {@link
+     * #breakDurationUs} is {@link C#TIME_UNSET}, the value is undefined.
+     */
     public final boolean autoReturn;
-    public final long breakDuration;
+    /**
+     * The duration of the splice in microseconds, or {@link C#TIME_UNSET} if no duration is
+     * present.
+     */
+    public final long breakDurationUs;
+    /** The unique program id as defined in SCTE35, Section 9.3.2. */
     public final int uniqueProgramId;
+    /** Holds the value of {@code avail_num} as defined in SCTE35, Section 9.3.2. */
     public final int availNum;
+    /** Holds the value of {@code avails_expected} as defined in SCTE35, Section 9.3.2. */
     public final int availsExpected;
 
-    private Event(long spliceEventId, boolean spliceEventCancelIndicator,
-        boolean outOfNetworkIndicator, boolean programSpliceFlag,
-        List<ComponentSplice> componentSpliceList, long utcSpliceTime, boolean autoReturn,
-        long breakDuration, int uniqueProgramId, int availNum, int availsExpected) {
+    private Event(
+        long spliceEventId,
+        boolean spliceEventCancelIndicator,
+        boolean outOfNetworkIndicator,
+        boolean programSpliceFlag,
+        List<ComponentSplice> componentSpliceList,
+        long utcSpliceTime,
+        boolean autoReturn,
+        long breakDurationUs,
+        int uniqueProgramId,
+        int availNum,
+        int availsExpected) {
       this.spliceEventId = spliceEventId;
       this.spliceEventCancelIndicator = spliceEventCancelIndicator;
       this.outOfNetworkIndicator = outOfNetworkIndicator;
@@ -56,7 +90,7 @@ public final class SpliceScheduleCommand extends SpliceCommand {
       this.componentSpliceList = Collections.unmodifiableList(componentSpliceList);
       this.utcSpliceTime = utcSpliceTime;
       this.autoReturn = autoReturn;
-      this.breakDuration = breakDuration;
+      this.breakDurationUs = breakDurationUs;
       this.uniqueProgramId = uniqueProgramId;
       this.availNum = availNum;
       this.availsExpected = availsExpected;
@@ -75,7 +109,7 @@ public final class SpliceScheduleCommand extends SpliceCommand {
       this.componentSpliceList = Collections.unmodifiableList(componentSpliceList);
       this.utcSpliceTime = in.readLong();
       this.autoReturn = in.readByte() == 1;
-      this.breakDuration = in.readLong();
+      this.breakDurationUs = in.readLong();
       this.uniqueProgramId = in.readInt();
       this.availNum = in.readInt();
       this.availsExpected = in.readInt();
@@ -93,7 +127,7 @@ public final class SpliceScheduleCommand extends SpliceCommand {
       int availNum = 0;
       int availsExpected = 0;
       boolean autoReturn = false;
-      long duration = C.TIME_UNSET;
+      long breakDurationUs = C.TIME_UNSET;
       if (!spliceEventCancelIndicator) {
         int headerByte = sectionData.readUnsignedByte();
         outOfNetworkIndicator = (headerByte & 0x80) != 0;
@@ -114,15 +148,25 @@ public final class SpliceScheduleCommand extends SpliceCommand {
         if (durationFlag) {
           long firstByte = sectionData.readUnsignedByte();
           autoReturn = (firstByte & 0x80) != 0;
-          duration = ((firstByte & 0x01) << 32) | sectionData.readUnsignedInt();
+          long breakDuration90khz = ((firstByte & 0x01) << 32) | sectionData.readUnsignedInt();
+          breakDurationUs = breakDuration90khz * 1000 / 90;
         }
         uniqueProgramId = sectionData.readUnsignedShort();
         availNum = sectionData.readUnsignedByte();
         availsExpected = sectionData.readUnsignedByte();
       }
-      return new Event(spliceEventId, spliceEventCancelIndicator, outOfNetworkIndicator,
-          programSpliceFlag, componentSplices, utcSpliceTime, autoReturn, duration, uniqueProgramId,
-          availNum, availsExpected);
+      return new Event(
+          spliceEventId,
+          spliceEventCancelIndicator,
+          outOfNetworkIndicator,
+          programSpliceFlag,
+          componentSplices,
+          utcSpliceTime,
+          autoReturn,
+          breakDurationUs,
+          uniqueProgramId,
+          availNum,
+          availsExpected);
     }
 
     private void writeToParcel(Parcel dest) {
@@ -137,7 +181,7 @@ public final class SpliceScheduleCommand extends SpliceCommand {
       }
       dest.writeLong(utcSpliceTime);
       dest.writeByte((byte) (autoReturn ? 1 : 0));
-      dest.writeLong(breakDuration);
+      dest.writeLong(breakDurationUs);
       dest.writeInt(uniqueProgramId);
       dest.writeInt(availNum);
       dest.writeInt(availsExpected);
@@ -146,12 +190,9 @@ public final class SpliceScheduleCommand extends SpliceCommand {
     private static Event createFromParcel(Parcel in) {
       return new Event(in);
     }
-
   }
 
-  /**
-   * Holds splicing information for specific splice schedule command components.
-   */
+  /** Holds splicing information for specific splice schedule command components. */
   public static final class ComponentSplice {
 
     public final int componentTag;
@@ -170,9 +211,9 @@ public final class SpliceScheduleCommand extends SpliceCommand {
       dest.writeInt(componentTag);
       dest.writeLong(utcSpliceTime);
     }
-
   }
 
+  /** The list of scheduled events. */
   public final List<Event> events;
 
   private SpliceScheduleCommand(List<Event> events) {
@@ -211,16 +252,14 @@ public final class SpliceScheduleCommand extends SpliceCommand {
   public static final Parcelable.Creator<SpliceScheduleCommand> CREATOR =
       new Parcelable.Creator<SpliceScheduleCommand>() {
 
-    @Override
-    public SpliceScheduleCommand createFromParcel(Parcel in) {
-      return new SpliceScheduleCommand(in);
-    }
+        @Override
+        public SpliceScheduleCommand createFromParcel(Parcel in) {
+          return new SpliceScheduleCommand(in);
+        }
 
-    @Override
-    public SpliceScheduleCommand[] newArray(int size) {
-      return new SpliceScheduleCommand[size];
-    }
-
-  };
-
+        @Override
+        public SpliceScheduleCommand[] newArray(int size) {
+          return new SpliceScheduleCommand[size];
+        }
+      };
 }

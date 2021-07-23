@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD availabilityStartTime="2014-06-19T23:07:42" type="dynamic">
+    <Period start="PT7462826.784S" id="0">
+        <AdaptationSet id="0" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="1,2"/>
+            <Representation id="1" bandwidth="0" codecs="avc1.42c01f"/>
+            <Representation id="2" bandwidth="1" codecs="avc1.42c01f"/>
+        </AdaptationSet>
+        <AdaptationSet id="3" mimeType="video/mp4">
+            <Representation id="31" bandwidth="300" codecs="avc1.42c01f"/>
+        </AdaptationSet>
+        <AdaptationSet id="2" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="0,1"/>
+            <Representation id="21" bandwidth="200" codecs="avc1.42c01f"/>
+            <Representation id="21" bandwidth="201" codecs="avc1.42c01f"/>
+        </AdaptationSet>
+        <AdaptationSet id="1" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:adaptation-set-switching:2016"
+                value="0,2"/>
+            <Representation id="11" bandwidth="100" codecs="avc1.42c01f"/>
+        </AdaptationSet>
+    </Period>
+</MPD>

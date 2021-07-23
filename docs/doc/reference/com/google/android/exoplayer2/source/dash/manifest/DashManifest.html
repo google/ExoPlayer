@@ -1,0 +1,653 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DashManifest (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DashManifest (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.dash.manifest</a></div>
+<h2 title="Class DashManifest" class="title">Class DashManifest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.dash.manifest.DashManifest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">DashManifest</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</pre>
+<div class="block">Represents a DASH media presentation description (mpd), as defined by ISO/IEC 23009-1:2014
+ Section 5.3.1.2.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#availabilityStartTimeMs">availabilityStartTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <code>availabilityStartTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+ not present.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationMs">durationMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The duration of the presentation in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dynamic">dynamic</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the manifest has value "dynamic" for the <code>type</code> attribute.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#location">location</a></span></code></th>
+<td class="colLast">
+<div class="block">The location of this manifest, or null if not present.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minBufferTimeMs">minBufferTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <code>minBufferTime</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minUpdatePeriodMs">minUpdatePeriodMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <code>minimumUpdatePeriod</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
+ applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#programInformation">programInformation</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ProgramInformation</code></a>, or null if not present.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishTimeMs">publishTimeMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <code>publishTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+ not present.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#serviceDescription">serviceDescription</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ServiceDescriptionElement</code></a>, or null if not present.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#suggestedPresentationDelayMs">suggestedPresentationDelayMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <code>suggestedPresentationDelay</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
+ present.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeShiftBufferDepthMs">timeShiftBufferDepthMs</a></span></code></th>
+<td class="colLast">
+<div class="block">The <code>timeShiftBufferDepth</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
+ present.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#utcTiming">utcTiming</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>UtcTimingElement</code></a>, or null if not present.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long,long,boolean,long,long,long,long,com.google.android.exoplayer2.source.dash.manifest.ProgramInformation,com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement,com.google.android.exoplayer2.source.dash.manifest.ServiceDescriptionElement,android.net.Uri,java.util.List)">DashManifest</a></span>&#8203;(long&nbsp;availabilityStartTimeMs,
+            long&nbsp;durationMs,
+            long&nbsp;minBufferTimeMs,
+            boolean&nbsp;dynamic,
+            long&nbsp;minUpdatePeriodMs,
+            long&nbsp;timeShiftBufferDepthMs,
+            long&nbsp;suggestedPresentationDelayMs,
+            long&nbsp;publishTimeMs,
+            <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;programInformation,
+            <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
+            <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;serviceDescription,
+            <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
+            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(java.util.List)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriod(int)">getPeriod</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodCount()">getPeriodCount</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodDurationMs(int)">getPeriodDurationMs</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodDurationUs(int)">getPeriodDurationUs</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="availabilityStartTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>availabilityStartTimeMs</h4>
+<pre>public final&nbsp;long availabilityStartTimeMs</pre>
+<div class="block">The <code>availabilityStartTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+ not present.</div>
+</li>
+</ul>
+<a id="durationMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>durationMs</h4>
+<pre>public final&nbsp;long durationMs</pre>
+<div class="block">The duration of the presentation in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
+</li>
+</ul>
+<a id="minBufferTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minBufferTimeMs</h4>
+<pre>public final&nbsp;long minBufferTimeMs</pre>
+<div class="block">The <code>minBufferTime</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
+</li>
+</ul>
+<a id="dynamic">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dynamic</h4>
+<pre>public final&nbsp;boolean dynamic</pre>
+<div class="block">Whether the manifest has value "dynamic" for the <code>type</code> attribute.</div>
+</li>
+</ul>
+<a id="minUpdatePeriodMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minUpdatePeriodMs</h4>
+<pre>public final&nbsp;long minUpdatePeriodMs</pre>
+<div class="block">The <code>minimumUpdatePeriod</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
+ applicable.</div>
+</li>
+</ul>
+<a id="timeShiftBufferDepthMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>timeShiftBufferDepthMs</h4>
+<pre>public final&nbsp;long timeShiftBufferDepthMs</pre>
+<div class="block">The <code>timeShiftBufferDepth</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
+ present.</div>
+</li>
+</ul>
+<a id="suggestedPresentationDelayMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>suggestedPresentationDelayMs</h4>
+<pre>public final&nbsp;long suggestedPresentationDelayMs</pre>
+<div class="block">The <code>suggestedPresentationDelay</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
+ present.</div>
+</li>
+</ul>
+<a id="publishTimeMs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>publishTimeMs</h4>
+<pre>public final&nbsp;long publishTimeMs</pre>
+<div class="block">The <code>publishTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+ not present.</div>
+</li>
+</ul>
+<a id="utcTiming">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>utcTiming</h4>
+<pre>@Nullable
+public final&nbsp;<a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a> utcTiming</pre>
+<div class="block">The <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>UtcTimingElement</code></a>, or null if not present. Defined in DVB A168:7/2016, Section
+ 4.7.2.</div>
+</li>
+</ul>
+<a id="serviceDescription">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>serviceDescription</h4>
+<pre>@Nullable
+public final&nbsp;<a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a> serviceDescription</pre>
+<div class="block">The <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ServiceDescriptionElement</code></a>, or null if not present.</div>
+</li>
+</ul>
+<a id="location">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>location</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> location</pre>
+<div class="block">The location of this manifest, or null if not present.</div>
+</li>
+</ul>
+<a id="programInformation">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>programInformation</h4>
+<pre>@Nullable
+public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a> programInformation</pre>
+<div class="block">The <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ProgramInformation</code></a>, or null if not present.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(long,long,long,boolean,long,long,long,long,com.google.android.exoplayer2.source.dash.manifest.ProgramInformation,com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement,com.google.android.exoplayer2.source.dash.manifest.ServiceDescriptionElement,android.net.Uri,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DashManifest</h4>
+<pre>public&nbsp;DashManifest&#8203;(long&nbsp;availabilityStartTimeMs,
+                    long&nbsp;durationMs,
+                    long&nbsp;minBufferTimeMs,
+                    boolean&nbsp;dynamic,
+                    long&nbsp;minUpdatePeriodMs,
+                    long&nbsp;timeShiftBufferDepthMs,
+                    long&nbsp;suggestedPresentationDelayMs,
+                    long&nbsp;publishTimeMs,
+                    @Nullable
+                    <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;programInformation,
+                    @Nullable
+                    <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
+                    @Nullable
+                    <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;serviceDescription,
+                    @Nullable
+                    <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
+                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getPeriodCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriodCount</h4>
+<pre class="methodSignature">public final&nbsp;int&nbsp;getPeriodCount()</pre>
+</li>
+</ul>
+<a id="getPeriod(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriod</h4>
+<pre class="methodSignature">public final&nbsp;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&nbsp;getPeriod&#8203;(int&nbsp;index)</pre>
+</li>
+</ul>
+<a id="getPeriodDurationMs(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriodDurationMs</h4>
+<pre class="methodSignature">public final&nbsp;long&nbsp;getPeriodDurationMs&#8203;(int&nbsp;index)</pre>
+</li>
+</ul>
+<a id="getPeriodDurationUs(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriodDurationUs</h4>
+<pre class="methodSignature">public final&nbsp;long&nbsp;getPeriodDurationUs&#8203;(int&nbsp;index)</pre>
+</li>
+</ul>
+<a id="copy(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>copy</h4>
+<pre class="methodSignature">public final&nbsp;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">FilterableManifest</a></code></span></div>
+<div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
+ manifest is unchanged then the instance may return itself.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">copy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>streamKeys</code> - A non-empty list of stream keys.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The filtered manifest.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

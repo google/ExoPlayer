@@ -1,0 +1,632 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>NalUnitUtil (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="NalUnitUtil (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
+<h2 title="Class NalUnitUtil" class="title">Class NalUnitUtil</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.util.NalUnitUtil</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">NalUnitUtil</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Utility methods for handling H.264/AVC and H.265/HEVC NAL units.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></span></code></th>
+<td class="colLast">
+<div class="block">Holds data parsed from a picture parameter set NAL unit.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></span></code></th>
+<td class="colLast">
+<div class="block">Holds data parsed from a sequence parameter set NAL unit.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static float[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ASPECT_RATIO_IDC_VALUES">ASPECT_RATIO_IDC_VALUES</a></span></code></th>
+<td class="colLast">
+<div class="block">Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXTENDED_SAR">EXTENDED_SAR</a></span></code></th>
+<td class="colLast">
+<div class="block">Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_START_CODE">NAL_START_CODE</a></span></code></th>
+<td class="colLast">
+<div class="block">Four initial bytes that must prefix NAL units for decoding.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearPrefixFlags(boolean%5B%5D)">clearPrefixFlags</a></span>&#8203;(boolean[]&nbsp;prefixFlags)</code></th>
+<td class="colLast">
+<div class="block">Clears prefix flags, as used by <a href="#findNalUnit(byte%5B%5D,int,int,boolean%5B%5D)"><code>findNalUnit(byte[], int, int, boolean[])</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardToSps(java.nio.ByteBuffer)">discardToSps</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Discards data from the buffer up to the first SPS, where <code>data.position()</code> is interpreted
+ as the length of the buffer.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#findNalUnit(byte%5B%5D,int,int,boolean%5B%5D)">findNalUnit</a></span>&#8203;(byte[]&nbsp;data,
+           int&nbsp;startOffset,
+           int&nbsp;endOffset,
+           boolean[]&nbsp;prefixFlags)</code></th>
+<td class="colLast">
+<div class="block">Finds the first NAL unit in <code>data</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getH265NalUnitType(byte%5B%5D,int)">getH265NalUnitType</a></span>&#8203;(byte[]&nbsp;data,
+                  int&nbsp;offset)</code></th>
+<td class="colLast">
+<div class="block">Returns the type of the H.265 NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNalUnitType(byte%5B%5D,int)">getNalUnitType</a></span>&#8203;(byte[]&nbsp;data,
+              int&nbsp;offset)</code></th>
+<td class="colLast">
+<div class="block">Returns the type of the NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isNalUnitSei(java.lang.String,byte)">isNalUnitSei</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+            byte&nbsp;nalUnitHeaderFirstByte)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the NAL unit with the specified header contains supplemental enhancement
+ information.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePpsNalUnit(byte%5B%5D,int,int)">parsePpsNalUnit</a></span>&#8203;(byte[]&nbsp;nalData,
+               int&nbsp;nalOffset,
+               int&nbsp;nalLimit)</code></th>
+<td class="colLast">
+<div class="block">Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+ 7.3.2.2.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSpsNalUnit(byte%5B%5D,int,int)">parseSpsNalUnit</a></span>&#8203;(byte[]&nbsp;nalData,
+               int&nbsp;nalOffset,
+               int&nbsp;nalLimit)</code></th>
+<td class="colLast">
+<div class="block">Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+ 7.3.2.1.1.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unescapeStream(byte%5B%5D,int)">unescapeStream</a></span>&#8203;(byte[]&nbsp;data,
+              int&nbsp;limit)</code></th>
+<td class="colLast">
+<div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with
+ [0, 0].</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="NAL_START_CODE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NAL_START_CODE</h4>
+<pre>public static final&nbsp;byte[] NAL_START_CODE</pre>
+<div class="block">Four initial bytes that must prefix NAL units for decoding.</div>
+</li>
+</ul>
+<a id="EXTENDED_SAR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EXTENDED_SAR</h4>
+<pre>public static final&nbsp;int EXTENDED_SAR</pre>
+<div class="block">Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.util.NalUnitUtil.EXTENDED_SAR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ASPECT_RATIO_IDC_VALUES">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ASPECT_RATIO_IDC_VALUES</h4>
+<pre>public static final&nbsp;float[] ASPECT_RATIO_IDC_VALUES</pre>
+<div class="block">Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="unescapeStream(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unescapeStream</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;unescapeStream&#8203;(byte[]&nbsp;data,
+                                 int&nbsp;limit)</pre>
+<div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with
+ [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
+ <p>
+ Executions of this method are mutually exclusive, so it should not be called with very large
+ buffers.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to unescape.</dd>
+<dd><code>limit</code> - The limit (exclusive) of the data to unescape.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The length of the unescaped data.</dd>
+</dl>
+</li>
+</ul>
+<a id="discardToSps(java.nio.ByteBuffer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>discardToSps</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;discardToSps&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data)</pre>
+<div class="block">Discards data from the buffer up to the first SPS, where <code>data.position()</code> is interpreted
+ as the length of the buffer.
+ <p>
+ When the method returns, <code>data.position()</code> will contain the new length of the buffer. If
+ the buffer is not empty it is guaranteed to start with an SPS.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - Buffer containing start code delimited NAL units.</dd>
+</dl>
+</li>
+</ul>
+<a id="isNalUnitSei(java.lang.String,byte)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isNalUnitSei</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isNalUnitSei&#8203;(@Nullable
+                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                                   byte&nbsp;nalUnitHeaderFirstByte)</pre>
+<div class="block">Returns whether the NAL unit with the specified header contains supplemental enhancement
+ information.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mimeType</code> - The sample MIME type, or <code>null</code> if unknown.</dd>
+<dd><code>nalUnitHeaderFirstByte</code> - The first byte of nal_unit().</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the NAL unit with the specified header is an SEI NAL unit. False is returned if
+     the <code>MimeType</code> is <code>null</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getNalUnitType(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNalUnitType</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;getNalUnitType&#8203;(byte[]&nbsp;data,
+                                 int&nbsp;offset)</pre>
+<div class="block">Returns the type of the NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to search.</dd>
+<dd><code>offset</code> - The start offset of a NAL unit. Must lie between <code>-3</code> (inclusive) and
+     <code>data.length - 3</code> (exclusive).</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The type of the unit.</dd>
+</dl>
+</li>
+</ul>
+<a id="getH265NalUnitType(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getH265NalUnitType</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;getH265NalUnitType&#8203;(byte[]&nbsp;data,
+                                     int&nbsp;offset)</pre>
+<div class="block">Returns the type of the H.265 NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to search.</dd>
+<dd><code>offset</code> - The start offset of a NAL unit. Must lie between <code>-3</code> (inclusive) and
+     <code>data.length - 3</code> (exclusive).</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The type of the unit.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseSpsNalUnit(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSpsNalUnit</h4>
+<pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a>&nbsp;parseSpsNalUnit&#8203;(byte[]&nbsp;nalData,
+                                                  int&nbsp;nalOffset,
+                                                  int&nbsp;nalLimit)</pre>
+<div class="block">Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+ 7.3.2.1.1.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>nalData</code> - A buffer containing escaped SPS data.</dd>
+<dd><code>nalOffset</code> - The offset of the NAL unit header in <code>nalData</code>.</dd>
+<dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A parsed representation of the SPS data.</dd>
+</dl>
+</li>
+</ul>
+<a id="parsePpsNalUnit(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parsePpsNalUnit</h4>
+<pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a>&nbsp;parsePpsNalUnit&#8203;(byte[]&nbsp;nalData,
+                                                  int&nbsp;nalOffset,
+                                                  int&nbsp;nalLimit)</pre>
+<div class="block">Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+ 7.3.2.2.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>nalData</code> - A buffer containing escaped PPS data.</dd>
+<dd><code>nalOffset</code> - The offset of the NAL unit header in <code>nalData</code>.</dd>
+<dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A parsed representation of the PPS data.</dd>
+</dl>
+</li>
+</ul>
+<a id="findNalUnit(byte[],int,int,boolean[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findNalUnit</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;findNalUnit&#8203;(byte[]&nbsp;data,
+                              int&nbsp;startOffset,
+                              int&nbsp;endOffset,
+                              boolean[]&nbsp;prefixFlags)</pre>
+<div class="block">Finds the first NAL unit in <code>data</code>.
+ <p>
+ If <code>prefixFlags</code> is null then the first three bytes of a NAL unit must be entirely
+ contained within the part of the array being searched in order for it to be found.
+ <p>
+ When <code>prefixFlags</code> is non-null, this method supports finding NAL units whose first four
+ bytes span <code>data</code> arrays passed to successive calls. To use this feature, pass the same
+ <code>prefixFlags</code> parameter to successive calls. State maintained in this parameter enables
+ the detection of such NAL units. Note that when using this feature, the return value may be 3,
+ 2 or 1 less than <code>startOffset</code>, to indicate a NAL unit starting 3, 2 or 1 bytes before
+ the first byte in the current array.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to search.</dd>
+<dd><code>startOffset</code> - The offset (inclusive) in the data to start the search.</dd>
+<dd><code>endOffset</code> - The offset (exclusive) in the data to end the search.</dd>
+<dd><code>prefixFlags</code> - A boolean array whose first three elements are used to store the state
+     required to detect NAL units where the NAL unit prefix spans array boundaries. The array
+     must be at least 3 elements long.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The offset of the NAL unit, or <code>endOffset</code> if a NAL unit was not found.</dd>
+</dl>
+</li>
+</ul>
+<a id="clearPrefixFlags(boolean[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>clearPrefixFlags</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;clearPrefixFlags&#8203;(boolean[]&nbsp;prefixFlags)</pre>
+<div class="block">Clears prefix flags, as used by <a href="#findNalUnit(byte%5B%5D,int,int,boolean%5B%5D)"><code>findNalUnit(byte[], int, int, boolean[])</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>prefixFlags</code> - The flags to clear.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

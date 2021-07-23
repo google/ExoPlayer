@@ -1,0 +1,959 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>AdPlaybackState (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="AdPlaybackState (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.ads</a></div>
+<h2 title="Class AdPlaybackState" class="title">Class AdPlaybackState</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.ads.AdPlaybackState</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">AdPlaybackState</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="block">Represents ad group times and information on the state and URIs of ads within each ad group.
+
+ <p>Instances are immutable. Call the <code>with*</code> methods to get new instances that have the
+ required changes.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></span></code></th>
+<td class="colLast">
+<div class="block">Represents a group of ads, with information about their states.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdState</a></span></code></th>
+<td class="colLast">
+<div class="block">Represents the state of an ad in an ad group.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="../../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="../../Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_AVAILABLE">AD_STATE_AVAILABLE</a></span></code></th>
+<td class="colLast">
+<div class="block">State for an ad that has a URL but has not yet been played.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_ERROR">AD_STATE_ERROR</a></span></code></th>
+<td class="colLast">
+<div class="block">State for an ad that could not be loaded.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_PLAYED">AD_STATE_PLAYED</a></span></code></th>
+<td class="colLast">
+<div class="block">State for an ad that was played in full.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_SKIPPED">AD_STATE_SKIPPED</a></span></code></th>
+<td class="colLast">
+<div class="block">State for an ad that was skipped.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_UNAVAILABLE">AD_STATE_UNAVAILABLE</a></span></code></th>
+<td class="colLast">
+<div class="block">State for an ad that does not yet have a URL.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adGroupCount">adGroupCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of ad groups.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adGroups">adGroups</a></span></code></th>
+<td class="colLast">
+<div class="block">The ad groups.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adGroupTimesUs">adGroupTimesUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The times of ad groups, in microseconds, relative to the start of the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> they belong to.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adResumePositionUs">adResumePositionUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The position offset in the first unplayed ad at which to begin playback, in microseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adsId">adsId</a></span></code></th>
+<td class="colLast">
+<div class="block">The opaque identifier for ads with which this instance is associated, or <code>null</code> if unset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contentDurationUs">contentDurationUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The duration of the content period in microseconds, if known.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
+<td class="colLast">
+<div class="block">Object that can restore <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NONE">NONE</a></span></code></th>
+<td class="colLast">
+<div class="block">Ad playback state with no ads.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,long...)">AdPlaybackState</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
+               long...&nbsp;adGroupTimesUs)</code></th>
+<td class="colLast">
+<div class="block">Creates a new ad playback state with the specified ad group times.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexAfterPositionUs(long,long)">getAdGroupIndexAfterPositionUs</a></span>&#8203;(long&nbsp;positionUs,
+                              long&nbsp;periodDurationUs)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> that should be played.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexForPositionUs(long,long)">getAdGroupIndexForPositionUs</a></span>&#8203;(long&nbsp;positionUs,
+                            long&nbsp;periodDurationUs)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> that should be played before
+ the content at <code>positionUs</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAdInErrorState(int,int)">isAdInErrorState</a></span>&#8203;(int&nbsp;adGroupIndex,
+                int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the specified ad has been marked as in <a href="#AD_STATE_ERROR"><code>AD_STATE_ERROR</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdCount(int,int)">withAdCount</a></span>&#8203;(int&nbsp;adGroupIndex,
+           int&nbsp;adCount)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(long%5B%5D%5B%5D)">withAdDurationsUs</a></span>&#8203;(long[][]&nbsp;adDurationUs)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified ad durations, in microseconds.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdLoadError(int,int)">withAdLoadError</a></span>&#8203;(int&nbsp;adGroupIndex,
+               int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified ad marked as having a load error.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdResumePositionUs(long)">withAdResumePositionUs</a></span>&#8203;(long&nbsp;adResumePositionUs)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified ad resume position, in microseconds, relative to the
+ start of the current ad.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdUri(int,int,android.net.Uri)">withAdUri</a></span>&#8203;(int&nbsp;adGroupIndex,
+         int&nbsp;adIndexInAdGroup,
+         <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified ad URI.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentDurationUs(long)">withContentDurationUs</a></span>&#8203;(long&nbsp;contentDurationUs)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified content duration, in microseconds.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withPlayedAd(int,int)">withPlayedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+            int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified ad marked as played.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAd(int,int)">withSkippedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+             int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with the specified ad marked as skipped.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAdGroup(int)">withSkippedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
+ marked as played or in the error state).</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="AD_STATE_UNAVAILABLE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AD_STATE_UNAVAILABLE</h4>
+<pre>public static final&nbsp;int AD_STATE_UNAVAILABLE</pre>
+<div class="block">State for an ad that does not yet have a URL.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="AD_STATE_AVAILABLE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AD_STATE_AVAILABLE</h4>
+<pre>public static final&nbsp;int AD_STATE_AVAILABLE</pre>
+<div class="block">State for an ad that has a URL but has not yet been played.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_AVAILABLE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="AD_STATE_SKIPPED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AD_STATE_SKIPPED</h4>
+<pre>public static final&nbsp;int AD_STATE_SKIPPED</pre>
+<div class="block">State for an ad that was skipped.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_SKIPPED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="AD_STATE_PLAYED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AD_STATE_PLAYED</h4>
+<pre>public static final&nbsp;int AD_STATE_PLAYED</pre>
+<div class="block">State for an ad that was played in full.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_PLAYED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="AD_STATE_ERROR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AD_STATE_ERROR</h4>
+<pre>public static final&nbsp;int AD_STATE_ERROR</pre>
+<div class="block">State for an ad that could not be loaded.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_ERROR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="NONE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NONE</h4>
+<pre>public static final&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a> NONE</pre>
+<div class="block">Ad playback state with no ads.</div>
+</li>
+</ul>
+<a id="adsId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adsId</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> adsId</pre>
+<div class="block">The opaque identifier for ads with which this instance is associated, or <code>null</code> if unset.</div>
+</li>
+</ul>
+<a id="adGroupCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adGroupCount</h4>
+<pre>public final&nbsp;int adGroupCount</pre>
+<div class="block">The number of ad groups.</div>
+</li>
+</ul>
+<a id="adGroupTimesUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adGroupTimesUs</h4>
+<pre>public final&nbsp;long[] adGroupTimesUs</pre>
+<div class="block">The times of ad groups, in microseconds, relative to the start of the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> they belong to. A final element with the value
+ <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> indicates a postroll ad.</div>
+</li>
+</ul>
+<a id="adGroups">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adGroups</h4>
+<pre>public final&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>[] adGroups</pre>
+<div class="block">The ad groups.</div>
+</li>
+</ul>
+<a id="adResumePositionUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adResumePositionUs</h4>
+<pre>public final&nbsp;long adResumePositionUs</pre>
+<div class="block">The position offset in the first unplayed ad at which to begin playback, in microseconds.</div>
+</li>
+</ul>
+<a id="contentDurationUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>contentDurationUs</h4>
+<pre>public final&nbsp;long contentDurationUs</pre>
+<div class="block">The duration of the content period in microseconds, if known. <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="../../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&gt; CREATOR</pre>
+<div class="block">Object that can restore <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
+
+ <p>The <a href="#adsId"><code>adsId</code></a> of restored instances will always be <code>null</code>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(java.lang.Object,long...)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>AdPlaybackState</h4>
+<pre>public&nbsp;AdPlaybackState&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
+                       long...&nbsp;adGroupTimesUs)</pre>
+<div class="block">Creates a new ad playback state with the specified ad group times.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adsId</code> - The opaque identifier for ads with which this instance is associated.</dd>
+<dd><code>adGroupTimesUs</code> - The times of ad groups in microseconds, relative to the start of the
+     <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> they belong to. A final element with
+     the value <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> indicates that there is a postroll ad.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getAdGroupIndexForPositionUs(long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdGroupIndexForPositionUs</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupIndexForPositionUs&#8203;(long&nbsp;positionUs,
+                                        long&nbsp;periodDurationUs)</pre>
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> that should be played before
+ the content at <code>positionUs</code>. Returns <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the ad group at or before
+ <code>positionUs</code> has no ads remaining to be played, or if there is no such ad group.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The period position at or before which to find an ad group, in microseconds,
+     or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for the end of the stream (in which case the index of any
+     unplayed postroll ad group will be returned).</dd>
+<dd><code>periodDurationUs</code> - The duration of the containing timeline period, in microseconds, or
+     <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not known.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the ad group, or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdGroupIndexAfterPositionUs(long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdGroupIndexAfterPositionUs</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupIndexAfterPositionUs&#8203;(long&nbsp;positionUs,
+                                          long&nbsp;periodDurationUs)</pre>
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> that should be played. Returns
+ <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no such ad group.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The period position after which to find an ad group, in microseconds, or
+     <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for the end of the stream (in which case there can be no ad
+     group after the position).</dd>
+<dd><code>periodDurationUs</code> - The duration of the containing timeline period, in microseconds, or
+     <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not known.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the ad group, or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="isAdInErrorState(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAdInErrorState</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isAdInErrorState&#8203;(int&nbsp;adGroupIndex,
+                                int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Returns whether the specified ad has been marked as in <a href="#AD_STATE_ERROR"><code>AD_STATE_ERROR</code></a>.</div>
+</li>
+</ul>
+<a id="withAdCount(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withAdCount</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdCount&#8203;(int&nbsp;adGroupIndex,
+                                   int&nbsp;adCount)</pre>
+<div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.
+ The ad count must be greater than zero.</div>
+</li>
+</ul>
+<a id="withAdUri(int,int,android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withAdUri</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdUri&#8203;(int&nbsp;adGroupIndex,
+                                 int&nbsp;adIndexInAdGroup,
+                                 <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="block">Returns an instance with the specified ad URI.</div>
+</li>
+</ul>
+<a id="withPlayedAd(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withPlayedAd</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withPlayedAd&#8203;(int&nbsp;adGroupIndex,
+                                    int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Returns an instance with the specified ad marked as played.</div>
+</li>
+</ul>
+<a id="withSkippedAd(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withSkippedAd</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAd&#8203;(int&nbsp;adGroupIndex,
+                                     int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Returns an instance with the specified ad marked as skipped.</div>
+</li>
+</ul>
+<a id="withAdLoadError(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withAdLoadError</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdLoadError&#8203;(int&nbsp;adGroupIndex,
+                                       int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Returns an instance with the specified ad marked as having a load error.</div>
+</li>
+</ul>
+<a id="withSkippedAdGroup(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withSkippedAdGroup</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
+ marked as played or in the error state).</div>
+</li>
+</ul>
+<a id="withAdDurationsUs(long[][])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withAdDurationsUs</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdDurationsUs&#8203;(long[][]&nbsp;adDurationUs)</pre>
+<div class="block">Returns an instance with the specified ad durations, in microseconds.</div>
+</li>
+</ul>
+<a id="withAdResumePositionUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withAdResumePositionUs</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdResumePositionUs&#8203;(long&nbsp;adResumePositionUs)</pre>
+<div class="block">Returns an instance with the specified ad resume position, in microseconds, relative to the
+ start of the current ad.</div>
+</li>
+</ul>
+<a id="withContentDurationUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withContentDurationUs</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withContentDurationUs&#8203;(long&nbsp;contentDurationUs)</pre>
+<div class="block">Returns an instance with the specified content duration, in microseconds.</div>
+</li>
+</ul>
+<a id="equals(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>equals</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="hashCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toBundle()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toBundle</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
+
+ <p>It omits the <a href="#adsId"><code>adsId</code></a> field so the <a href="#adsId"><code>adsId</code></a> of instances restored by <a href="#CREATOR"><code>CREATOR</code></a> will always be <code>null</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

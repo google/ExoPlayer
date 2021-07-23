@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Representation of a Webvtt subtitle embedded in a MP4 container file.
- */
+/** Representation of a Webvtt subtitle embedded in a MP4 container file. */
 /* package */ final class Mp4WebvttSubtitle implements Subtitle {
 
   private final List<Cue> cues;
@@ -51,6 +49,6 @@ import java.util.List;
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    return timeUs >= 0 ? cues : Collections.<Cue>emptyList();
+    return timeUs >= 0 ? cues : Collections.emptyList();
   }
 }

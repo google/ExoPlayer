@@ -1,0 +1,9 @@
+{
+  "trackName": "track1",
+  "firstSequenceNumber": 0,
+  "firstTimestamp": 0,
+  "transmitIntervalMs": 30,
+  "mediaDescription": "m=video 0 RTP/AVP 96\r\nc=IN IP4 0.0.0.0\r\nb=AS:500\r\na=rtpmap:96 H264/90000\r\na=fmtp:96 packetization-mode=1;profile-level-id=4dE01E;sprop-parameter-sets=Z01AHpZ2BQHtgKBAAAOpgACvyA0YAgQAgRe98HhEI3A=,aN48gA==\r\na=control:track1\r\n",
+  "packets": [
+  ]
+}

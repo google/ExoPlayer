@@ -1,0 +1,624 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DrmSession (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DrmSession (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":18,"i7":6,"i8":6,"i9":1};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.drm</a></div>
+<h2 title="Interface DrmSession" class="title">Interface DrmSession</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="ErrorStateDrmSession.html" title="class in com.google.android.exoplayer2.drm">ErrorStateDrmSession</a></code></dd>
+</dl>
+<hr>
+<pre>public interface <span class="typeNameLabel">DrmSession</span></pre>
+<div class="block">A DRM session.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></span></code></th>
+<td class="colLast">
+<div class="block">Wraps the throwable which is the cause of the error state.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">DrmSession.State</a></span></code></th>
+<td class="colLast">
+<div class="block">The state of the DRM session.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_ERROR">STATE_ERROR</a></span></code></th>
+<td class="colLast">
+<div class="block">The session has encountered an error.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_OPENED">STATE_OPENED</a></span></code></th>
+<td class="colLast">
+<div class="block">The session is open, but does not have keys required for decryption.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_OPENED_WITH_KEYS">STATE_OPENED_WITH_KEYS</a></span></code></th>
+<td class="colLast">
+<div class="block">The session is open and has keys required for decryption.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_OPENING">STATE_OPENING</a></span></code></th>
+<td class="colLast">
+<div class="block">The session is being opened.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_RELEASED">STATE_RELEASED</a></span></code></th>
+<td class="colLast">
+<div class="block">The session has been released.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">acquire</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
+<td class="colLast">
+<div class="block">Increments the reference count.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getError()">getError</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the cause of the error state, or null if <a href="#getState()"><code>getState()</code></a> is not <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaCrypto()">getMediaCrypto</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the open session, or null if called before the session
+ has been opened or after it's been released.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOfflineLicenseKeySetId()">getOfflineLicenseKeySetId</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
+ one.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSchemeUuid()">getSchemeUuid</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the DRM scheme UUID for this session.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getState()">getState</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the current state of the session, which is one of <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>,
+ <a href="#STATE_RELEASED"><code>STATE_RELEASED</code></a>, <a href="#STATE_OPENING"><code>STATE_OPENING</code></a>, <a href="#STATE_OPENED"><code>STATE_OPENED</code></a> and
+ <a href="#STATE_OPENED_WITH_KEYS"><code>STATE_OPENED_WITH_KEYS</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playClearSamplesWithoutKeys()">playClearSamplesWithoutKeys</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queryKeyStatus()">queryKeyStatus</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a map describing the key status for the session, or null if called before the session
+ has been opened or after it's been released.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">release</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
+<td class="colLast">
+<div class="block">Decrements the reference count.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceSession(com.google.android.exoplayer2.drm.DrmSession,com.google.android.exoplayer2.drm.DrmSession)">replaceSession</a></span>&#8203;(<a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;previousSession,
+              <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;newSession)</code></th>
+<td class="colLast">
+<div class="block">Acquires <code>newSession</code> then releases <code>previousSession</code>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="STATE_RELEASED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>STATE_RELEASED</h4>
+<pre>static final&nbsp;int STATE_RELEASED</pre>
+<div class="block">The session has been released. This is a terminal state.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.drm.DrmSession.STATE_RELEASED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="STATE_ERROR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>STATE_ERROR</h4>
+<pre>static final&nbsp;int STATE_ERROR</pre>
+<div class="block">The session has encountered an error. <a href="#getError()"><code>getError()</code></a> can be used to retrieve the cause.
+ This is a terminal state.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.drm.DrmSession.STATE_ERROR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="STATE_OPENING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>STATE_OPENING</h4>
+<pre>static final&nbsp;int STATE_OPENING</pre>
+<div class="block">The session is being opened.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.drm.DrmSession.STATE_OPENING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="STATE_OPENED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>STATE_OPENED</h4>
+<pre>static final&nbsp;int STATE_OPENED</pre>
+<div class="block">The session is open, but does not have keys required for decryption.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.drm.DrmSession.STATE_OPENED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="STATE_OPENED_WITH_KEYS">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>STATE_OPENED_WITH_KEYS</h4>
+<pre>static final&nbsp;int STATE_OPENED_WITH_KEYS</pre>
+<div class="block">The session is open and has keys required for decryption.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.drm.DrmSession.STATE_OPENED_WITH_KEYS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="replaceSession(com.google.android.exoplayer2.drm.DrmSession,com.google.android.exoplayer2.drm.DrmSession)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceSession</h4>
+<pre class="methodSignature">static&nbsp;void&nbsp;replaceSession&#8203;(@Nullable
+                           <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;previousSession,
+                           @Nullable
+                           <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;newSession)</pre>
+<div class="block">Acquires <code>newSession</code> then releases <code>previousSession</code>.
+
+ <p>Invokes <code>newSession's</code> <a href="#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>acquire(DrmSessionEventListener.EventDispatcher)</code></a> and
+ <code>previousSession's</code> <a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>release(DrmSessionEventListener.EventDispatcher)</code></a> in that
+ order (passing <code>eventDispatcher = null</code>). Null arguments are ignored. Does nothing if
+ <code>previousSession</code> and <code>newSession</code> are the same session.</div>
+</li>
+</ul>
+<a id="getState()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getState</h4>
+<pre class="methodSignature"><a href="DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
+int&nbsp;getState()</pre>
+<div class="block">Returns the current state of the session, which is one of <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>,
+ <a href="#STATE_RELEASED"><code>STATE_RELEASED</code></a>, <a href="#STATE_OPENING"><code>STATE_OPENING</code></a>, <a href="#STATE_OPENED"><code>STATE_OPENED</code></a> and
+ <a href="#STATE_OPENED_WITH_KEYS"><code>STATE_OPENED_WITH_KEYS</code></a>.</div>
+</li>
+</ul>
+<a id="playClearSamplesWithoutKeys()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>playClearSamplesWithoutKeys</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;playClearSamplesWithoutKeys()</pre>
+<div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
+</li>
+</ul>
+<a id="getError()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getError</h4>
+<pre class="methodSignature">@Nullable
+<a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;getError()</pre>
+<div class="block">Returns the cause of the error state, or null if <a href="#getState()"><code>getState()</code></a> is not <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>.</div>
+</li>
+</ul>
+<a id="getSchemeUuid()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSchemeUuid</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;getSchemeUuid()</pre>
+<div class="block">Returns the DRM scheme UUID for this session.</div>
+</li>
+</ul>
+<a id="getMediaCrypto()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMediaCrypto</h4>
+<pre class="methodSignature">@Nullable
+<a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;getMediaCrypto()</pre>
+<div class="block">Returns an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the open session, or null if called before the session
+ has been opened or after it's been released.</div>
+</li>
+</ul>
+<a id="queryKeyStatus()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryKeyStatus</h4>
+<pre class="methodSignature">@Nullable
+<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;queryKeyStatus()</pre>
+<div class="block">Returns a map describing the key status for the session, or null if called before the session
+ has been opened or after it's been released.
+
+ <p>Since DRM license policies vary by vendor, the specific status field names are determined by
+ each DRM vendor. Refer to your DRM provider documentation for definitions of the field names
+ for a particular DRM engine plugin.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A map describing the key status for the session, or null if called before the session
+     has been opened or after it's been released.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#queryKeyStatus(byte%5B%5D)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.queryKeyStatus(byte[])</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="getOfflineLicenseKeySetId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOfflineLicenseKeySetId</h4>
+<pre class="methodSignature">@Nullable
+byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
+<div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
+ one.</div>
+</li>
+</ul>
+<a id="acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>acquire</h4>
+<pre class="methodSignature">void&nbsp;acquire&#8203;(@Nullable
+             <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="block">Increments the reference count. When the caller no longer needs to use the instance, it must
+ call <a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>release(DrmSessionEventListener.EventDispatcher)</code></a> to decrement the reference
+ count.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventDispatcher</code> - The <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> used to route
+     DRM-related events dispatched from this session, or null if no event handling is needed.</dd>
+</dl>
+</li>
+</ul>
+<a id="release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">void&nbsp;release&#8203;(@Nullable
+             <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="block">Decrements the reference count. If the reference count drops to 0 underlying resources are
+ released, and the instance cannot be re-used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventDispatcher</code> - The <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> to disconnect when
+     the session is released (the same instance (possibly null) that was passed by the caller to
+     <a href="#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>acquire(DrmSessionEventListener.EventDispatcher)</code></a>).</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+MediaCodecAdapter (exotest.audio.mpegl2):
+  buffers.length = 5
+  buffers[0] = length 417, hash 5C710F78
+  buffers[1] = length 418, hash 79CF71F8
+  buffers[2] = length 418, hash 79CF71F8
+  buffers[3] = length 418, hash 79CF71F8
+  buffers[4] = length 0, hash 1
+MediaCodecAdapter (exotest.video.mpeg2):
+  buffers.length = 3
+  buffers[0] = length 20646, hash 576390B
+  buffers[1] = length 17831, hash 5C5A57F5
+  buffers[2] = length 0, hash 1

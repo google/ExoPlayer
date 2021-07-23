@@ -1,0 +1,857 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>AbstractConcatenatedTimeline (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="AbstractConcatenatedTimeline (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":6,"i1":6,"i2":6,"i3":9,"i4":9,"i5":6,"i6":9,"i7":6,"i8":10,"i9":6,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":6,"i17":10,"i18":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class AbstractConcatenatedTimeline" class="title">Class AbstractConcatenatedTimeline</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="Timeline.html" title="class in com.google.android.exoplayer2">com.google.android.exoplayer2.Timeline</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.AbstractConcatenatedTimeline</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+<hr>
+<pre>public abstract class <span class="typeNameLabel">AbstractConcatenatedTimeline</span>
+extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></pre>
+<div class="block">Abstract base class for the concatenation of one or more <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>s.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Timeline">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></h3>
+<code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>, <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.Timeline">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></h3>
+<code><a href="Timeline.html#CREATOR">CREATOR</a>, <a href="Timeline.html#EMPTY">EMPTY</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,com.google.android.exoplayer2.source.ShuffleOrder)">AbstractConcatenatedTimeline</a></span>&#8203;(boolean&nbsp;isAtomic,
+                            <a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</code></th>
+<td class="colLast">
+<div class="block">Sets up a concatenated timeline with a shuffle order of child timelines.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>protected abstract int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildIndexByChildUid(java.lang.Object)">getChildIndexByChildUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childUid)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the child timeline with the given UID or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if not
+ found.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected abstract int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildIndexByPeriodIndex(int)">getChildIndexByPeriodIndex</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the child timeline containing the given period index.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected abstract int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildIndexByWindowIndex(int)">getChildIndexByWindowIndex</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the child timeline containing the given window index.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildPeriodUidFromConcatenatedUid(java.lang.Object)">getChildPeriodUidFromConcatenatedUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</code></th>
+<td class="colLast">
+<div class="block">Returns UID of the period in the child timeline from a concatenated period UID.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildTimelineUidFromConcatenatedUid(java.lang.Object)">getChildTimelineUidFromConcatenatedUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</code></th>
+<td class="colLast">
+<div class="block">Returns UID of child timeline from a concatenated period UID.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildUidByChildIndex(int)">getChildUidByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the UID of the child timeline with the given index.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getConcatenatedUid(java.lang.Object,java.lang.Object)">getConcatenatedUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childTimelineUid,
+                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childPeriodOrWindowUid)</code></th>
+<td class="colLast">
+<div class="block">Returns a concatenated UID for a period or window in a child timeline.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected abstract int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstPeriodIndexByChildIndex(int)">getFirstPeriodIndexByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the first period index belonging to the child timeline with the given index.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstWindowIndex(boolean)">getFirstWindowIndex</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the first window in the playback order depending on whether shuffling is
+ enabled.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>protected abstract int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstWindowIndexByChildIndex(int)">getFirstWindowIndexByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the first window index belonging to the child timeline with the given index.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndexOfPeriod(java.lang.Object)">getIndexOfPeriod</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the period identified by its unique <a href="Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLastWindowIndex(boolean)">getLastWindowIndex</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the last window in the playback order depending on whether shuffling is
+ enabled.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextWindowIndex(int,int,boolean)">getNextWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
+                  int&nbsp;repeatMode,
+                  boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the window after the window at index <code>windowIndex</code> depending on the
+ <code>repeatMode</code> and whether shuffling is enabled.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">getPeriod</a></span>&#8203;(int&nbsp;periodIndex,
+         <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
+         boolean&nbsp;setIds)</code></th>
+<td class="colLast">
+<div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">getPeriodByUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
+              <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period)</code></th>
+<td class="colLast">
+<div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period with the specified unique identifier.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreviousWindowIndex(int,int,boolean)">getPreviousWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
+                      int&nbsp;repeatMode,
+                      boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the window before the window at index <code>windowIndex</code> depending on the
+ <code>repeatMode</code> and whether shuffling is enabled.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>protected abstract <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimelineByChildIndex(int)">getTimelineByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the child timeline for the child with the given index.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUidOfPeriod(int)">getUidOfPeriod</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">getWindow</a></span>&#8203;(int&nbsp;windowIndex,
+         <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
+         long&nbsp;defaultPositionProjectionUs)</code></th>
+<td class="colLast">
+<div class="block">Populates a <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.Timeline">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></h3>
+<code><a href="Timeline.html#equals(java.lang.Object)">equals</a>, <a href="Timeline.html#getNextPeriodIndex(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,int,boolean)">getNextPeriodIndex</a>, <a href="Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period)">getPeriod</a>, <a href="Timeline.html#getPeriodCount()">getPeriodCount</a>, <a href="Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long)">getPeriodPosition</a>, <a href="Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long,long)">getPeriodPosition</a>, <a href="Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window)">getWindow</a>, <a href="Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window,boolean)">getWindow</a>, <a href="Timeline.html#getWindowCount()">getWindowCount</a>, <a href="Timeline.html#hashCode()">hashCode</a>, <a href="Timeline.html#isEmpty()">isEmpty</a>, <a href="Timeline.html#isLastPeriod(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,int,boolean)">isLastPeriod</a>, <a href="Timeline.html#toBundle()">toBundle</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(boolean,com.google.android.exoplayer2.source.ShuffleOrder)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>AbstractConcatenatedTimeline</h4>
+<pre>public&nbsp;AbstractConcatenatedTimeline&#8203;(boolean&nbsp;isAtomic,
+                                    <a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
+<div class="block">Sets up a concatenated timeline with a shuffle order of child timelines.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isAtomic</code> - Whether the child timelines shall be treated as atomic, i.e., treated as a
+     single item for repeating and shuffling.</dd>
+<dd><code>shuffleOrder</code> - A shuffle order of child timelines. The number of child timelines must
+     match the number of elements in the shuffle order.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getChildTimelineUidFromConcatenatedUid(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChildTimelineUidFromConcatenatedUid</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getChildTimelineUidFromConcatenatedUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</pre>
+<div class="block">Returns UID of child timeline from a concatenated period UID.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>concatenatedUid</code> - UID of a period in a concatenated timeline.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>UID of the child timeline this period belongs to.</dd>
+</dl>
+</li>
+</ul>
+<a id="getChildPeriodUidFromConcatenatedUid(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChildPeriodUidFromConcatenatedUid</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getChildPeriodUidFromConcatenatedUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</pre>
+<div class="block">Returns UID of the period in the child timeline from a concatenated period UID.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>concatenatedUid</code> - UID of a period in a concatenated timeline.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>UID of the period in the child timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getConcatenatedUid(java.lang.Object,java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getConcatenatedUid</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getConcatenatedUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childTimelineUid,
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childPeriodOrWindowUid)</pre>
+<div class="block">Returns a concatenated UID for a period or window in a child timeline.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childTimelineUid</code> - UID of the child timeline this period or window belongs to.</dd>
+<dd><code>childPeriodOrWindowUid</code> - UID of the period or window in the child timeline.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>UID of the period or window in the concatenated timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getNextWindowIndex(int,int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNextWindowIndex</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getNextWindowIndex&#8203;(int&nbsp;windowIndex,
+                              <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+                              int&nbsp;repeatMode,
+                              boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getNextWindowIndex(int,int,boolean)">Timeline</a></code></span></div>
+<div class="block">Returns the index of the window after the window at index <code>windowIndex</code> depending on the
+ <code>repeatMode</code> and whether shuffling is enabled.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="Timeline.html#getNextWindowIndex(int,int,boolean)">getNextWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - Index of a window in the timeline.</dd>
+<dd><code>repeatMode</code> - A repeat mode.</dd>
+<dd><code>shuffleModeEnabled</code> - Whether shuffling is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the next window, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if this is the last window.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPreviousWindowIndex(int,int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPreviousWindowIndex</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPreviousWindowIndex&#8203;(int&nbsp;windowIndex,
+                                  <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
+                                  int&nbsp;repeatMode,
+                                  boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getPreviousWindowIndex(int,int,boolean)">Timeline</a></code></span></div>
+<div class="block">Returns the index of the window before the window at index <code>windowIndex</code> depending on the
+ <code>repeatMode</code> and whether shuffling is enabled.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="Timeline.html#getPreviousWindowIndex(int,int,boolean)">getPreviousWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - Index of a window in the timeline.</dd>
+<dd><code>repeatMode</code> - A repeat mode.</dd>
+<dd><code>shuffleModeEnabled</code> - Whether shuffling is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the previous window, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if this is the first window.</dd>
+</dl>
+</li>
+</ul>
+<a id="getLastWindowIndex(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLastWindowIndex</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getLastWindowIndex&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getLastWindowIndex(boolean)">Timeline</a></code></span></div>
+<div class="block">Returns the index of the last window in the playback order depending on whether shuffling is
+ enabled.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="Timeline.html#getLastWindowIndex(boolean)">getLastWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>shuffleModeEnabled</code> - Whether shuffling is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the last window in the playback order, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the
+     timeline is empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="getFirstWindowIndex(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstWindowIndex</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getFirstWindowIndex&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getFirstWindowIndex(boolean)">Timeline</a></code></span></div>
+<div class="block">Returns the index of the first window in the playback order depending on whether shuffling is
+ enabled.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="Timeline.html#getFirstWindowIndex(boolean)">getFirstWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>shuffleModeEnabled</code> - Whether shuffling is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the first window in the playback order, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the
+     timeline is empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getWindow</h4>
+<pre class="methodSignature">public final&nbsp;<a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow&#8203;(int&nbsp;windowIndex,
+                                       <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
+                                       long&nbsp;defaultPositionProjectionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">Timeline</a></code></span></div>
+<div class="block">Populates a <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">getWindow</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - The index of the window.</dd>
+<dd><code>window</code> - The <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
+<dd><code>defaultPositionProjectionUs</code> - A duration into the future that the populated window's
+     default start position should be projected.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The populated <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriodByUid</h4>
+<pre class="methodSignature">public final&nbsp;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriodByUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
+                                            <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">Timeline</a></code></span></div>
+<div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period with the specified unique identifier.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="Timeline.html#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">getPeriodByUid</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uid</code> - The unique identifier of the period.</dd>
+<dd><code>period</code> - The <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> to populate. Must not be null.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The populated <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPeriod</h4>
+<pre class="methodSignature">public final&nbsp;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriod&#8203;(int&nbsp;periodIndex,
+                                       <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
+                                       boolean&nbsp;setIds)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">Timeline</a></code></span></div>
+<div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">getPeriod</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The index of the period.</dd>
+<dd><code>period</code> - The <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> to populate. Must not be null.</dd>
+<dd><code>setIds</code> - Whether <a href="Timeline.Period.html#id"><code>Timeline.Period.id</code></a> and <a href="Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a> should be populated. If false,
+     the fields will be set to null. The caller should pass false for efficiency reasons unless
+     the fields are required.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The populated <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="getIndexOfPeriod(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getIndexOfPeriod</h4>
+<pre class="methodSignature">public final&nbsp;int&nbsp;getIndexOfPeriod&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getIndexOfPeriod(java.lang.Object)">Timeline</a></code></span></div>
+<div class="block">Returns the index of the period identified by its unique <a href="Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Timeline.html#getIndexOfPeriod(java.lang.Object)">getIndexOfPeriod</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uid</code> - A unique identifier for a period.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the period, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period was not found.</dd>
+</dl>
+</li>
+</ul>
+<a id="getUidOfPeriod(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUidOfPeriod</h4>
+<pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getUidOfPeriod&#8203;(int&nbsp;periodIndex)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getUidOfPeriod(int)">Timeline</a></code></span></div>
+<div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Timeline.html#getUidOfPeriod(int)">getUidOfPeriod</a></code>&nbsp;in class&nbsp;<code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The index of the period.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The unique id of the period.</dd>
+</dl>
+</li>
+</ul>
+<a id="getChildIndexByPeriodIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChildIndexByPeriodIndex</h4>
+<pre class="methodSignature">protected abstract&nbsp;int&nbsp;getChildIndexByPeriodIndex&#8203;(int&nbsp;periodIndex)</pre>
+<div class="block">Returns the index of the child timeline containing the given period index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - A valid period index within the bounds of the timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getChildIndexByWindowIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChildIndexByWindowIndex</h4>
+<pre class="methodSignature">protected abstract&nbsp;int&nbsp;getChildIndexByWindowIndex&#8203;(int&nbsp;windowIndex)</pre>
+<div class="block">Returns the index of the child timeline containing the given window index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - A valid window index within the bounds of the timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getChildIndexByChildUid(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChildIndexByChildUid</h4>
+<pre class="methodSignature">protected abstract&nbsp;int&nbsp;getChildIndexByChildUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childUid)</pre>
+<div class="block">Returns the index of the child timeline with the given UID or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if not
+ found.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childUid</code> - A child UID.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Index of child timeline or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if UID was not found.</dd>
+</dl>
+</li>
+</ul>
+<a id="getTimelineByChildIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTimelineByChildIndex</h4>
+<pre class="methodSignature">protected abstract&nbsp;<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;getTimelineByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="block">Returns the child timeline for the child with the given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childIndex</code> - A valid child index within the bounds of the timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getFirstPeriodIndexByChildIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstPeriodIndexByChildIndex</h4>
+<pre class="methodSignature">protected abstract&nbsp;int&nbsp;getFirstPeriodIndexByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="block">Returns the first period index belonging to the child timeline with the given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childIndex</code> - A valid child index within the bounds of the timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getFirstWindowIndexByChildIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstWindowIndexByChildIndex</h4>
+<pre class="methodSignature">protected abstract&nbsp;int&nbsp;getFirstWindowIndexByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="block">Returns the first window index belonging to the child timeline with the given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childIndex</code> - A valid child index within the bounds of the timeline.</dd>
+</dl>
+</li>
+</ul>
+<a id="getChildUidByChildIndex(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getChildUidByChildIndex</h4>
+<pre class="methodSignature">protected abstract&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getChildUidByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="block">Returns the UID of the child timeline with the given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childIndex</code> - A valid child index within the bounds of the timeline.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

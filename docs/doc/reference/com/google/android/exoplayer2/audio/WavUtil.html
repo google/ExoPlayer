@@ -1,0 +1,534 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>WavUtil (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="WavUtil (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":9,"i1":9};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<h2 title="Class WavUtil" class="title">Class WavUtil</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.audio.WavUtil</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">WavUtil</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Utilities for handling WAVE files.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DATA_FOURCC">DATA_FOURCC</a></span></code></th>
+<td class="colLast">
+<div class="block">Four character code for "data".</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FMT_FOURCC">FMT_FOURCC</a></span></code></th>
+<td class="colLast">
+<div class="block">Four character code for "fmt ".</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RIFF_FOURCC">RIFF_FOURCC</a></span></code></th>
+<td class="colLast">
+<div class="block">Four character code for "RIFF".</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_ALAW">TYPE_ALAW</a></span></code></th>
+<td class="colLast">
+<div class="block">WAVE type value for 8-bit ITU-T G.711 A-law audio data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_FLOAT">TYPE_FLOAT</a></span></code></th>
+<td class="colLast">
+<div class="block">WAVE type value for float PCM audio data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_IMA_ADPCM">TYPE_IMA_ADPCM</a></span></code></th>
+<td class="colLast">
+<div class="block">WAVE type value for IMA ADPCM audio data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_MLAW">TYPE_MLAW</a></span></code></th>
+<td class="colLast">
+<div class="block">WAVE type value for 8-bit ITU-T G.711 mu-law audio data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_PCM">TYPE_PCM</a></span></code></th>
+<td class="colLast">
+<div class="block">WAVE type value for integer PCM audio data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_WAVE_FORMAT_EXTENSIBLE">TYPE_WAVE_FORMAT_EXTENSIBLE</a></span></code></th>
+<td class="colLast">
+<div class="block">WAVE type value for extended WAVE format.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#WAVE_FOURCC">WAVE_FOURCC</a></span></code></th>
+<td class="colLast">
+<div class="block">Four character code for "WAVE".</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPcmEncodingForType(int,int)">getPcmEncodingForType</a></span>&#8203;(int&nbsp;type,
+                     int&nbsp;bitsPerSample)</code></th>
+<td class="colLast">
+<div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeForPcmEncoding(int)">getTypeForPcmEncoding</a></span>&#8203;(int&nbsp;pcmEncoding)</code></th>
+<td class="colLast">
+<div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="RIFF_FOURCC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>RIFF_FOURCC</h4>
+<pre>public static final&nbsp;int RIFF_FOURCC</pre>
+<div class="block">Four character code for "RIFF".</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.RIFF_FOURCC">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="WAVE_FOURCC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>WAVE_FOURCC</h4>
+<pre>public static final&nbsp;int WAVE_FOURCC</pre>
+<div class="block">Four character code for "WAVE".</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.WAVE_FOURCC">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FMT_FOURCC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FMT_FOURCC</h4>
+<pre>public static final&nbsp;int FMT_FOURCC</pre>
+<div class="block">Four character code for "fmt ".</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.FMT_FOURCC">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="DATA_FOURCC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATA_FOURCC</h4>
+<pre>public static final&nbsp;int DATA_FOURCC</pre>
+<div class="block">Four character code for "data".</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.DATA_FOURCC">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="TYPE_PCM">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_PCM</h4>
+<pre>public static final&nbsp;int TYPE_PCM</pre>
+<div class="block">WAVE type value for integer PCM audio data.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.TYPE_PCM">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="TYPE_FLOAT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_FLOAT</h4>
+<pre>public static final&nbsp;int TYPE_FLOAT</pre>
+<div class="block">WAVE type value for float PCM audio data.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.TYPE_FLOAT">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="TYPE_ALAW">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_ALAW</h4>
+<pre>public static final&nbsp;int TYPE_ALAW</pre>
+<div class="block">WAVE type value for 8-bit ITU-T G.711 A-law audio data.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.TYPE_ALAW">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="TYPE_MLAW">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_MLAW</h4>
+<pre>public static final&nbsp;int TYPE_MLAW</pre>
+<div class="block">WAVE type value for 8-bit ITU-T G.711 mu-law audio data.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.TYPE_MLAW">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="TYPE_IMA_ADPCM">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TYPE_IMA_ADPCM</h4>
+<pre>public static final&nbsp;int TYPE_IMA_ADPCM</pre>
+<div class="block">WAVE type value for IMA ADPCM audio data.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.TYPE_IMA_ADPCM">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="TYPE_WAVE_FORMAT_EXTENSIBLE">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>TYPE_WAVE_FORMAT_EXTENSIBLE</h4>
+<pre>public static final&nbsp;int TYPE_WAVE_FORMAT_EXTENSIBLE</pre>
+<div class="block">WAVE type value for extended WAVE format.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.WavUtil.TYPE_WAVE_FORMAT_EXTENSIBLE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getTypeForPcmEncoding(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTypeForPcmEncoding</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;getTypeForPcmEncoding&#8203;(<a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+                                        int&nbsp;pcmEncoding)</pre>
+<div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pcmEncoding</code> - The <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> value.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding WAVE format type.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink">IllegalArgumentException</a></code> - If <code>pcmEncoding</code> is not a <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2" target="_top"><code>C.PcmEncoding</code></a>, or if
+     it's <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPcmEncodingForType(int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getPcmEncodingForType</h4>
+<pre class="methodSignature"><a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+public static&nbsp;int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
+                                        int&nbsp;bitsPerSample)</pre>
+<div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

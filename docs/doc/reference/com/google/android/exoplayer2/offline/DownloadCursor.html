@@ -1,0 +1,522 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DownloadCursor (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DownloadCursor (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":18,"i5":18,"i6":6,"i7":18,"i8":18,"i9":18,"i10":18,"i11":18,"i12":6,"i13":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.offline</a></div>
+<h2 title="Interface DownloadCursor" class="title">Interface DownloadCursor</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Superinterfaces:</dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="externalLink">AutoCloseable</a></code>, <code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
+</dl>
+<hr>
+<pre>public interface <span class="typeNameLabel">DownloadCursor</span>
+extends <a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></pre>
+<div class="block">Provides random read-write access to the result set returned by a database query.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCount()">getCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the numbers of downloads in the cursor.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownload()">getDownload</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the download at the current position.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the current position of the cursor in the download set.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAfterLast()">isAfterLast</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the cursor is pointing to the position after the last download.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isBeforeFirst()">isBeforeFirst</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the cursor is pointing to the position before the first download.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isClosed()">isClosed</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the cursor is closed</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFirst()">isFirst</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the cursor is pointing to the first download.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLast()">isLast</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether the cursor is pointing to the last download.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToFirst()">moveToFirst</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Move the cursor to the first download.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToLast()">moveToLast</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Move the cursor to the last download.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToNext()">moveToNext</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Move the cursor to the next download.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToPosition(int)">moveToPosition</a></span>&#8203;(int&nbsp;position)</code></th>
+<td class="colLast">
+<div class="block">Move the cursor to an absolute position.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToPrevious()">moveToPrevious</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Move the cursor to the previous download.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getDownload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDownload</h4>
+<pre class="methodSignature"><a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload()</pre>
+<div class="block">Returns the download at the current position.</div>
+</li>
+</ul>
+<a id="getCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCount</h4>
+<pre class="methodSignature">int&nbsp;getCount()</pre>
+<div class="block">Returns the numbers of downloads in the cursor.</div>
+</li>
+</ul>
+<a id="getPosition()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPosition</h4>
+<pre class="methodSignature">int&nbsp;getPosition()</pre>
+<div class="block">Returns the current position of the cursor in the download set. The value is zero-based. When
+ the download set is first returned the cursor will be at position -1, which is before the first
+ download. After the last download is returned another call to next() will leave the cursor past
+ the last entry, at a position of count().</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the current cursor position.</dd>
+</dl>
+</li>
+</ul>
+<a id="moveToPosition(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>moveToPosition</h4>
+<pre class="methodSignature">boolean&nbsp;moveToPosition&#8203;(int&nbsp;position)</pre>
+<div class="block">Move the cursor to an absolute position. The valid range of values is -1 &lt;= position &lt;=
+ count.
+
+ <p>This method will return true if the request destination was reachable, otherwise, it returns
+ false.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>position</code> - the zero-based position to move to.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>whether the requested move fully succeeded.</dd>
+</dl>
+</li>
+</ul>
+<a id="moveToFirst()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>moveToFirst</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;moveToFirst()</pre>
+<div class="block">Move the cursor to the first download.
+
+ <p>This method will return false if the cursor is empty.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>whether the move succeeded.</dd>
+</dl>
+</li>
+</ul>
+<a id="moveToLast()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>moveToLast</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;moveToLast()</pre>
+<div class="block">Move the cursor to the last download.
+
+ <p>This method will return false if the cursor is empty.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>whether the move succeeded.</dd>
+</dl>
+</li>
+</ul>
+<a id="moveToNext()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>moveToNext</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;moveToNext()</pre>
+<div class="block">Move the cursor to the next download.
+
+ <p>This method will return false if the cursor is already past the last entry in the result
+ set.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>whether the move succeeded.</dd>
+</dl>
+</li>
+</ul>
+<a id="moveToPrevious()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>moveToPrevious</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;moveToPrevious()</pre>
+<div class="block">Move the cursor to the previous download.
+
+ <p>This method will return false if the cursor is already before the first entry in the result
+ set.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>whether the move succeeded.</dd>
+</dl>
+</li>
+</ul>
+<a id="isFirst()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isFirst</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;isFirst()</pre>
+<div class="block">Returns whether the cursor is pointing to the first download.</div>
+</li>
+</ul>
+<a id="isLast()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLast</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;isLast()</pre>
+<div class="block">Returns whether the cursor is pointing to the last download.</div>
+</li>
+</ul>
+<a id="isBeforeFirst()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isBeforeFirst</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;isBeforeFirst()</pre>
+<div class="block">Returns whether the cursor is pointing to the position before the first download.</div>
+</li>
+</ul>
+<a id="isAfterLast()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAfterLast</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;isAfterLast()</pre>
+<div class="block">Returns whether the cursor is pointing to the position after the last download.</div>
+</li>
+</ul>
+<a id="isClosed()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isClosed</h4>
+<pre class="methodSignature">boolean&nbsp;isClosed()</pre>
+<div class="block">Returns whether the cursor is closed</div>
+</li>
+</ul>
+<a id="close()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>close</h4>
+<pre class="methodSignature">void&nbsp;close()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close()" title="class or interface in java.lang" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html#close()" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

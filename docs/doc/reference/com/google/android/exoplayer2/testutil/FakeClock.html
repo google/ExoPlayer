@@ -1,0 +1,592 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>FakeClock (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="FakeClock (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<h2 title="Class FakeClock" class="title">Class FakeClock</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.testutil.FakeClock</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">FakeClock</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></pre>
+<div class="block">Fake <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> implementation that allows to <a href="#advanceTime(long)"><code>advance the time</code></a>
+ manually to trigger pending timed messages.
+
+ <p>All timed messages sent by a <a href="#createHandler(android.os.Looper,android.os.Handler.Callback)"><code>Handler</code></a> created from
+ this clock are governed by the clock's time. Messages sent through these handlers are not
+ triggered until previous messages on any thread have been handled to ensure deterministic
+ execution. Note that this includes messages sent from the main Robolectric test thread, meaning
+ that these messages are only triggered if the main test thread is idle, which can be explicitly
+ requested by calling <code>ShadowLooper.idleMainLooper()</code>.
+
+ <p>The clock also sets the time of the <a href="https://developer.android.com/reference/android/os/SystemClock.html" title="class or interface in android.os" class="externalLink"><code>SystemClock</code></a> to match the <a href="#elapsedRealtime()" target="_top"><code>clock's time</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FakeClock.HandlerMessage.html" title="class in com.google.android.exoplayer2.testutil">FakeClock.HandlerMessage</a></span></code></th>
+<td class="colLast">
+<div class="block">Message data saved to send messages or execute runnables at a later time on a Handler.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.util.Clock">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.util.<a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></h3>
+<code><a href="../util/Clock.html#DEFAULT">DEFAULT</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean)">FakeClock</a></span>&#8203;(boolean&nbsp;isAutoAdvancing)</code></th>
+<td class="colLast">
+<div class="block">Creates a fake clock that assumes that the system was booted exactly at time <code>0</code> (the
+ Unix Epoch) and an <code>initialTimeMs</code> of <code>0</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long)">FakeClock</a></span>&#8203;(long&nbsp;initialTimeMs)</code></th>
+<td class="colLast">
+<div class="block">Creates a fake clock that doesn't auto-advance and assumes that the system was booted exactly
+ at time <code>0</code> (the Unix Epoch) and <code>initialTimeMs</code> milliseconds have passed since
+ system boot.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,boolean)">FakeClock</a></span>&#8203;(long&nbsp;initialTimeMs,
+         boolean&nbsp;isAutoAdvancing)</code></th>
+<td class="colLast">
+<div class="block">Creates a fake clock that assumes that the system was booted exactly at time <code>0</code> (the
+ Unix Epoch) and <code>initialTimeMs</code> milliseconds have passed since system boot.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long,boolean)">FakeClock</a></span>&#8203;(long&nbsp;bootTimeMs,
+         long&nbsp;initialTimeMs,
+         boolean&nbsp;isAutoAdvancing)</code></th>
+<td class="colLast">
+<div class="block">Creates a fake clock specifying when the system was booted and how much time has passed since
+ then.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addPendingHandlerMessage(com.google.android.exoplayer2.testutil.FakeClock.HandlerMessage)">addPendingHandlerMessage</a></span>&#8203;(<a href="FakeClock.HandlerMessage.html" title="class in com.google.android.exoplayer2.testutil">FakeClock.HandlerMessage</a>&nbsp;message)</code></th>
+<td class="colLast">
+<div class="block">Adds a message to the list of pending messages.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#advanceTime(long)">advanceTime</a></span>&#8203;(long&nbsp;timeDiffMs)</code></th>
+<td class="colLast">
+<div class="block">Advance timestamp of <a href="FakeClock.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeClock</code></a> by the specified duration.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createHandler(android.os.Looper,android.os.Handler.Callback)">createHandler</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
+             <a href="https://developer.android.com/reference/android/os/Handler.Callback.html" title="class or interface in android.os" class="externalLink" target="_top">Handler.Callback</a>&nbsp;callback)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><code>HandlerWrapper</code></a> using a specified looper and a specified callback for handling
+ messages.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentTimeMillis()">currentTimeMillis</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#elapsedRealtime()">elapsedRealtime</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onThreadBlocked()">onThreadBlocked</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Notifies the clock that the current thread is about to be blocked and won't return until a
+ condition on another thread becomes true.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uptimeMillis()">uptimeMillis</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FakeClock</h4>
+<pre>public&nbsp;FakeClock&#8203;(long&nbsp;initialTimeMs)</pre>
+<div class="block">Creates a fake clock that doesn't auto-advance and assumes that the system was booted exactly
+ at time <code>0</code> (the Unix Epoch) and <code>initialTimeMs</code> milliseconds have passed since
+ system boot.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>initialTimeMs</code> - The initial elapsed time since the boot time, in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FakeClock</h4>
+<pre>public&nbsp;FakeClock&#8203;(boolean&nbsp;isAutoAdvancing)</pre>
+<div class="block">Creates a fake clock that assumes that the system was booted exactly at time <code>0</code> (the
+ Unix Epoch) and an <code>initialTimeMs</code> of <code>0</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isAutoAdvancing</code> - Whether the clock should automatically advance the time to the time of
+     next message that is due to be sent.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FakeClock</h4>
+<pre>public&nbsp;FakeClock&#8203;(long&nbsp;initialTimeMs,
+                 boolean&nbsp;isAutoAdvancing)</pre>
+<div class="block">Creates a fake clock that assumes that the system was booted exactly at time <code>0</code> (the
+ Unix Epoch) and <code>initialTimeMs</code> milliseconds have passed since system boot.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>initialTimeMs</code> - The initial elapsed time since the boot time, in milliseconds.</dd>
+<dd><code>isAutoAdvancing</code> - Whether the clock should automatically advance the time to the time of
+     next message that is due to be sent.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,long,boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FakeClock</h4>
+<pre>public&nbsp;FakeClock&#8203;(long&nbsp;bootTimeMs,
+                 long&nbsp;initialTimeMs,
+                 boolean&nbsp;isAutoAdvancing)</pre>
+<div class="block">Creates a fake clock specifying when the system was booted and how much time has passed since
+ then.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bootTimeMs</code> - The time the system was booted since the Unix Epoch, in milliseconds.</dd>
+<dd><code>initialTimeMs</code> - The initial elapsed time since the boot time, in milliseconds.</dd>
+<dd><code>isAutoAdvancing</code> - Whether the clock should automatically advance the time to the time of
+     next message that is due to be sent.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="advanceTime(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>advanceTime</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;advanceTime&#8203;(long&nbsp;timeDiffMs)</pre>
+<div class="block">Advance timestamp of <a href="FakeClock.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeClock</code></a> by the specified duration.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeDiffMs</code> - The amount of time to add to the timestamp in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="currentTimeMillis()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentTimeMillis</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;currentTimeMillis()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Clock.html#currentTimeMillis()">Clock</a></code></span></div>
+<div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Clock.html#currentTimeMillis()">currentTimeMillis</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis()" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.currentTimeMillis()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="elapsedRealtime()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>elapsedRealtime</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;elapsedRealtime()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Clock.html#elapsedRealtime()">elapsedRealtime</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="uptimeMillis()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>uptimeMillis</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;uptimeMillis()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Clock.html#uptimeMillis()">uptimeMillis</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/os/SystemClock.html#uptimeMillis()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.uptimeMillis()</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="createHandler(android.os.Looper,android.os.Handler.Callback)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createHandler</h4>
+<pre class="methodSignature">public&nbsp;<a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;createHandler&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
+                                    @Nullable
+                                    <a href="https://developer.android.com/reference/android/os/Handler.Callback.html" title="class or interface in android.os" class="externalLink" target="_top">Handler.Callback</a>&nbsp;callback)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Clock.html#createHandler(android.os.Looper,android.os.Handler.Callback)">Clock</a></code></span></div>
+<div class="block">Creates a <a href="../util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><code>HandlerWrapper</code></a> using a specified looper and a specified callback for handling
+ messages.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Clock.html#createHandler(android.os.Looper,android.os.Handler.Callback)">createHandler</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/os/Handler.html#%3Cinit%3E(android.os.Looper,android.os.Handler.Callback)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler(Looper, Handler.Callback)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="onThreadBlocked()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onThreadBlocked</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onThreadBlocked()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Clock.html#onThreadBlocked()">Clock</a></code></span></div>
+<div class="block">Notifies the clock that the current thread is about to be blocked and won't return until a
+ condition on another thread becomes true.
+
+ <p>Should be a no-op for all non-test cases.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Clock.html#onThreadBlocked()">onThreadBlocked</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="addPendingHandlerMessage(com.google.android.exoplayer2.testutil.FakeClock.HandlerMessage)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>addPendingHandlerMessage</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;addPendingHandlerMessage&#8203;(<a href="FakeClock.HandlerMessage.html" title="class in com.google.android.exoplayer2.testutil">FakeClock.HandlerMessage</a>&nbsp;message)</pre>
+<div class="block">Adds a message to the list of pending messages.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

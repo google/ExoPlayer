@@ -11,28 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    lintOptions {
-        // See: https://github.com/square/okio/issues/58
-        warning 'InvalidPackage'
-    }
-}
+android.defaultConfig.minSdkVersion 21
 
 dependencies {
-    compile project(':library-core')
-    compile('com.squareup.okhttp3:okhttp:3.6.0') {
-        exclude group: 'org.json'
-    }
+    implementation project(modulePrefix + 'library-common')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    api 'com.squareup.okhttp3:okhttp:' + okhttpVersion
 }
 
 ext {

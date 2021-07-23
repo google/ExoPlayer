@@ -1,0 +1,635 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DefaultSsChunkSource (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DefaultSsChunkSource (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.smoothstreaming</a></div>
+<h2 title="Class DefaultSsChunkSource" class="title">Class DefaultSsChunkSource</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code>, <code><a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">DefaultSsChunkSource</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></pre>
+<div class="block">A default <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a> implementation.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultSsChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource.Factory</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.DataSource)">DefaultSsChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+                    <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
+                    int&nbsp;streamElementIndex,
+                    <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
+                    <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">getAdjustedSeekPositionUs</a></span>&#8203;(long&nbsp;positionUs,
+                         <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
+<td class="colLast">
+<div class="block">Adjusts a seek position given the specified <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">getNextChunk</a></span>&#8203;(long&nbsp;playbackPositionUs,
+            long&nbsp;loadPositionUs,
+            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
+            <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</code></th>
+<td class="colLast">
+<div class="block">Returns the next chunk to load.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreferredQueueSize(long,java.util.List)">getPreferredQueueSize</a></span>&#8203;(long&nbsp;playbackPositionUs,
+                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
+<td class="colLast">
+<div class="block">Evaluates whether <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
+<td class="colLast">
+<div class="block">If the source is currently having difficulty providing chunks, then this method throws the
+ underlying error.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">onChunkLoadCompleted</a></span>&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</code></th>
+<td class="colLast">
+<div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
+ source.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a></span>&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
+                boolean&nbsp;cancelable,
+                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;e,
+                long&nbsp;exclusionDurationMs)</code></th>
+<td class="colLast">
+<div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
+ this source.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Releases any held resources.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">shouldCancelLoad</a></span>&#8203;(long&nbsp;playbackPositionUs,
+                <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
+<td class="colLast">
+<div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateManifest(com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest)">updateManifest</a></span>&#8203;(<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;newManifest)</code></th>
+<td class="colLast">
+<div class="block">Updates the manifest.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">updateTrackSelection</a></span>&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
+<td class="colLast">
+<div class="block">Updates the track selection.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.DataSource)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultSsChunkSource</h4>
+<pre>public&nbsp;DefaultSsChunkSource&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+                            <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
+                            int&nbsp;streamElementIndex,
+                            <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
+                            <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
+<dd><code>manifest</code> - The initial manifest.</dd>
+<dd><code>streamElementIndex</code> - The index of the stream element in the manifest.</dd>
+<dd><code>trackSelection</code> - The track selection.</dd>
+<dd><code>dataSource</code> - A <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> suitable for loading the media data.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdjustedSeekPositionUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getAdjustedSeekPositionUs&#8203;(long&nbsp;positionUs,
+                                      <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">ChunkSource</a></code></span></div>
+<div class="block">Adjusts a seek position given the specified <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>. Chunk boundaries are used
+ as sync points.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">getAdjustedSeekPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The seek position in microseconds.</dd>
+<dd><code>seekParameters</code> - Parameters that control how the seek is performed.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The adjusted seek position, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="updateManifest(com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateManifest</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;updateManifest&#8203;(<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;newManifest)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SsChunkSource.html#updateManifest(com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest)">SsChunkSource</a></code></span></div>
+<div class="block">Updates the manifest.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="SsChunkSource.html#updateManifest(com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest)">updateManifest</a></code>&nbsp;in interface&nbsp;<code><a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>newManifest</code> - The new manifest.</dd>
+</dl>
+</li>
+</ul>
+<a id="updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateTrackSelection</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;updateTrackSelection&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SsChunkSource.html#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">SsChunkSource</a></code></span></div>
+<div class="block">Updates the track selection.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="SsChunkSource.html#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">updateTrackSelection</a></code>&nbsp;in interface&nbsp;<code><a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackSelection</code> - The new track selection instance. Must be equivalent to the previous one.</dd>
+</dl>
+</li>
+</ul>
+<a id="maybeThrowError()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maybeThrowError</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowError()
+                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#maybeThrowError()">ChunkSource</a></code></span></div>
+<div class="block">If the source is currently having difficulty providing chunks, then this method throws the
+ underlying error. Otherwise does nothing.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#maybeThrowError()">maybeThrowError</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - The underlying error.</dd>
+</dl>
+</li>
+</ul>
+<a id="getPreferredQueueSize(long,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPreferredQueueSize</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPreferredQueueSize&#8203;(long&nbsp;playbackPositionUs,
+                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getPreferredQueueSize(long,java.util.List)">ChunkSource</a></code></span></div>
+<div class="block">Evaluates whether <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.
+
+ <p>Removing <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s from the back of the queue can be useful if they could be
+ replaced with chunks of a significantly higher quality (e.g. because the available bandwidth
+ has substantially increased).
+
+ <p>Will only be called if no <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> in the queue is currently loading.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#getPreferredQueueSize(long,java.util.List)">getPreferredQueueSize</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPositionUs</code> - The current playback position, in microseconds.</dd>
+<dd><code>queue</code> - The queue of buffered <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The preferred queue size.</dd>
+</dl>
+</li>
+</ul>
+<a id="shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>shouldCancelLoad</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;shouldCancelLoad&#8203;(long&nbsp;playbackPositionUs,
+                                <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
+                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">ChunkSource</a></code></span></div>
+<div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">shouldCancelLoad</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPositionUs</code> - The current playback position, in microseconds.</dd>
+<dd><code>loadingChunk</code> - The currently loading <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>Chunk</code></a>.</dd>
+<dd><code>queue</code> - The queue of buffered <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunks</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the ongoing load of <code>loadingChunk</code> should be canceled.</dd>
+</dl>
+</li>
+</ul>
+<a id="getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNextChunk</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;getNextChunk&#8203;(long&nbsp;playbackPositionUs,
+                               long&nbsp;loadPositionUs,
+                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
+                               <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">ChunkSource</a></code></span></div>
+<div class="block">Returns the next chunk to load.
+
+ <p>If a chunk is available then <a href="../chunk/ChunkHolder.html#chunk"><code>ChunkHolder.chunk</code></a> is set. If the end of the stream has
+ been reached then <a href="../chunk/ChunkHolder.html#endOfStream"><code>ChunkHolder.endOfStream</code></a> is set. If a chunk is not available but the
+ end of the stream has not been reached, the <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkHolder</code></a> is not modified.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">getNextChunk</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPositionUs</code> - The current playback position in microseconds. If playback of the
+     period to which this chunk source belongs has not yet started, the value will be the
+     starting position in the period minus the duration of any media in previous periods still
+     to be played.</dd>
+<dd><code>loadPositionUs</code> - The current load position in microseconds. If <code>queue</code> is empty,
+     this is the starting position from which chunks should be provided. Else it's equal to
+     <a href="../chunk/Chunk.html#endTimeUs"><code>Chunk.endTimeUs</code></a> of the last chunk in the <code>queue</code>.</dd>
+<dd><code>queue</code> - The queue of buffered <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</dd>
+<dd><code>out</code> - A holder to populate.</dd>
+</dl>
+</li>
+</ul>
+<a id="onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onChunkLoadCompleted</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onChunkLoadCompleted&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">ChunkSource</a></code></span></div>
+<div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
+ source.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">onChunkLoadCompleted</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>chunk</code> - The chunk whose load has been completed.</dd>
+</dl>
+</li>
+</ul>
+<a id="onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onChunkLoadError</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;onChunkLoadError&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
+                                boolean&nbsp;cancelable,
+                                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;e,
+                                long&nbsp;exclusionDurationMs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">ChunkSource</a></code></span></div>
+<div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
+ this source.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>chunk</code> - The chunk whose load encountered the error.</dd>
+<dd><code>cancelable</code> - Whether the load can be canceled.</dd>
+<dd><code>e</code> - The error.</dd>
+<dd><code>exclusionDurationMs</code> - The duration for which the associated track may be excluded, or
+     <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be excluded.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the load should be canceled so that a replacement chunk can be loaded instead.
+     Must be <code>false</code> if <code>cancelable</code> is <code>false</code>. If <code>true</code>, <a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)"><code>ChunkSource.getNextChunk(long, long, List, ChunkHolder)</code></a> will be called to obtain the replacement
+     chunk.</dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#release()">ChunkSource</a></code></span></div>
+<div class="block">Releases any held resources.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../chunk/ChunkSource.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

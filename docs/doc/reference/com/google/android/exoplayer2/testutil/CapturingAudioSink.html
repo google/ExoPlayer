@@ -1,0 +1,529 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>CapturingAudioSink (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="CapturingAudioSink (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<h2 title="Class CapturingAudioSink" class="title">Class CapturingAudioSink</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">com.google.android.exoplayer2.audio.ForwardingAudioSink</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.testutil.CapturingAudioSink</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code>, <code><a href="Dumper.Dumpable.html" title="interface in com.google.android.exoplayer2.testutil">Dumper.Dumpable</a></code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">CapturingAudioSink</span>
+extends <a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a>
+implements <a href="Dumper.Dumpable.html" title="interface in com.google.android.exoplayer2.testutil">Dumper.Dumpable</a></pre>
+<div class="block">A <a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio"><code>ForwardingAudioSink</code></a> that captures configuration, discontinuity and buffer events.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.audio.AudioSink">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></h3>
+<code><a href="../audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a>, <a href="../audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>, <a href="../audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>, <a href="../audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">AudioSink.SinkFormatSupport</a>, <a href="../audio/AudioSink.UnexpectedDiscontinuityException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.UnexpectedDiscontinuityException</a>, <a href="../audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.audio.AudioSink">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></h3>
+<code><a href="../audio/AudioSink.html#CURRENT_POSITION_NOT_SET">CURRENT_POSITION_NOT_SET</a>, <a href="../audio/AudioSink.html#SINK_FORMAT_SUPPORTED_DIRECTLY">SINK_FORMAT_SUPPORTED_DIRECTLY</a>, <a href="../audio/AudioSink.html#SINK_FORMAT_SUPPORTED_WITH_TRANSCODING">SINK_FORMAT_SUPPORTED_WITH_TRANSCODING</a>, <a href="../audio/AudioSink.html#SINK_FORMAT_UNSUPPORTED">SINK_FORMAT_UNSUPPORTED</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.audio.AudioSink)">CapturingAudioSink</a></span>&#8203;(<a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;sink)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)">configure</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
+         int&nbsp;specifiedBufferSize,
+         int[]&nbsp;outputChannels)</code></th>
+<td class="colLast">
+<div class="block">Configures (or reconfigures) the sink.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dump(com.google.android.exoplayer2.testutil.Dumper)">dump</a></span>&#8203;(<a href="Dumper.html" title="class in com.google.android.exoplayer2.testutil">Dumper</a>&nbsp;dumper)</code></th>
+<td class="colLast">
+<div class="block">Dumps the fields of the object using the <code>dumper</code>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleBuffer(java.nio.ByteBuffer,long,int)">handleBuffer</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
+            long&nbsp;presentationTimeUs,
+            int&nbsp;encodedAccessUnitCount)</code></th>
+<td class="colLast">
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
+ ending at its limit (exclusive).</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleDiscontinuity()">handleDiscontinuity</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Resets the renderer, releasing any resources that it currently holds.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.audio.ForwardingAudioSink">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.audio.<a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></h3>
+<code><a href="../audio/ForwardingAudioSink.html#disableTunneling()">disableTunneling</a>, <a href="../audio/ForwardingAudioSink.html#enableTunnelingV21()">enableTunnelingV21</a>, <a href="../audio/ForwardingAudioSink.html#experimentalFlushWithoutAudioTrackRelease()">experimentalFlushWithoutAudioTrackRelease</a>, <a href="../audio/ForwardingAudioSink.html#getCurrentPositionUs(boolean)">getCurrentPositionUs</a>, <a href="../audio/ForwardingAudioSink.html#getFormatSupport(com.google.android.exoplayer2.Format)">getFormatSupport</a>, <a href="../audio/ForwardingAudioSink.html#getPlaybackParameters()">getPlaybackParameters</a>, <a href="../audio/ForwardingAudioSink.html#getSkipSilenceEnabled()">getSkipSilenceEnabled</a>, <a href="../audio/ForwardingAudioSink.html#hasPendingData()">hasPendingData</a>, <a href="../audio/ForwardingAudioSink.html#isEnded()">isEnded</a>, <a href="../audio/ForwardingAudioSink.html#pause()">pause</a>, <a href="../audio/ForwardingAudioSink.html#play()">play</a>, <a href="../audio/ForwardingAudioSink.html#playToEndOfStream()">playToEndOfStream</a>, <a href="../audio/ForwardingAudioSink.html#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">setAudioAttributes</a>, <a href="../audio/ForwardingAudioSink.html#setAudioSessionId(int)">setAudioSessionId</a>, <a href="../audio/ForwardingAudioSink.html#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">setAuxEffectInfo</a>, <a href="../audio/ForwardingAudioSink.html#setListener(com.google.android.exoplayer2.audio.AudioSink.Listener)">setListener</a>, <a href="../audio/ForwardingAudioSink.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a>, <a href="../audio/ForwardingAudioSink.html#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a>, <a href="../audio/ForwardingAudioSink.html#setVolume(float)">setVolume</a>, <a href="../audio/ForwardingAudioSink.html#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.audio.AudioSink)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CapturingAudioSink</h4>
+<pre>public&nbsp;CapturingAudioSink&#8203;(<a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;sink)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="configure(com.google.android.exoplayer2.Format,int,int[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>configure</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;configure&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
+                      int&nbsp;specifiedBufferSize,
+                      @Nullable
+                      int[]&nbsp;outputChannels)
+               throws <a href="../audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../audio/AudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)">AudioSink</a></code></span></div>
+<div class="block">Configures (or reconfigures) the sink.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../audio/AudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)">configure</a></code>&nbsp;in interface&nbsp;<code><a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../audio/ForwardingAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)">configure</a></code>&nbsp;in class&nbsp;<code><a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputFormat</code> - The format of audio data provided in the input buffers.</dd>
+<dd><code>specifiedBufferSize</code> - A specific size for the playback buffer in bytes, or 0 to infer a
+     suitable buffer size.</dd>
+<dd><code>outputChannels</code> - A mapping from input to output channels that is applied to this sink's
+     input as a preprocessing step, if handling PCM input. Specify <code>null</code> to leave the
+     input unchanged. Otherwise, the element at index <code>i</code> specifies index of the input
+     channel to map to output channel <code>i</code> when preprocessing input buffers. After the map
+     is applied the audio data will have <code>outputChannels.length</code> channels.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></code> - If an error occurs configuring the sink.</dd>
+</dl>
+</li>
+</ul>
+<a id="handleDiscontinuity()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>handleDiscontinuity</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;handleDiscontinuity()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../audio/AudioSink.html#handleDiscontinuity()">AudioSink</a></code></span></div>
+<div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../audio/AudioSink.html#handleDiscontinuity()">handleDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../audio/ForwardingAudioSink.html#handleDiscontinuity()">handleDiscontinuity</a></code>&nbsp;in class&nbsp;<code><a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="handleBuffer(java.nio.ByteBuffer,long,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>handleBuffer</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;handleBuffer&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
+                            long&nbsp;presentationTimeUs,
+                            int&nbsp;encodedAccessUnitCount)
+                     throws <a href="../audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>,
+                            <a href="../audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../audio/AudioSink.html#handleBuffer(java.nio.ByteBuffer,long,int)">AudioSink</a></code></span></div>
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
+ ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> is advanced by the
+ number of bytes that were handled. <a href="../audio/AudioSink.Listener.html#onPositionDiscontinuity()"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
+ <code>presentationTimeUs</code> is discontinuous with the last buffer handled since the last reset.
+
+ <p>Returns whether the data was handled in full. If the data was not handled in full then the
+ same <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
+ except in the case of an intervening call to <a href="../audio/AudioSink.html#flush()"><code>AudioSink.flush()</code></a> (or to <a href="../audio/AudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>AudioSink.configure(Format,
+ int, int[])</code></a> that causes the sink to be flushed).</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../audio/AudioSink.html#handleBuffer(java.nio.ByteBuffer,long,int)">handleBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../audio/ForwardingAudioSink.html#handleBuffer(java.nio.ByteBuffer,long,int)">handleBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>buffer</code> - The buffer containing audio data.</dd>
+<dd><code>presentationTimeUs</code> - The presentation timestamp of the buffer in microseconds.</dd>
+<dd><code>encodedAccessUnitCount</code> - The number of encoded access units in the buffer, or 1 if the
+     buffer contains PCM audio. This allows batching multiple encoded access units in one
+     buffer.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the buffer was handled fully.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a></code> - If an error occurs initializing the sink.</dd>
+<dd><code><a href="../audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></code> - If an error occurs writing the audio data.</dd>
+</dl>
+</li>
+</ul>
+<a id="flush()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flush</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;flush()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../audio/AudioSink.html#flush()">AudioSink</a></code></span></div>
+<div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.
+
+ <p>The audio session may remain active until <a href="../audio/AudioSink.html#reset()"><code>AudioSink.reset()</code></a> is called.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../audio/AudioSink.html#flush()">flush</a></code>&nbsp;in interface&nbsp;<code><a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../audio/ForwardingAudioSink.html#flush()">flush</a></code>&nbsp;in class&nbsp;<code><a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="reset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../audio/AudioSink.html#reset()">AudioSink</a></code></span></div>
+<div class="block">Resets the renderer, releasing any resources that it currently holds.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../audio/AudioSink.html#reset()">reset</a></code>&nbsp;in interface&nbsp;<code><a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../audio/ForwardingAudioSink.html#reset()">reset</a></code>&nbsp;in class&nbsp;<code><a href="../audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="dump(com.google.android.exoplayer2.testutil.Dumper)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>dump</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;dump&#8203;(<a href="Dumper.html" title="class in com.google.android.exoplayer2.testutil">Dumper</a>&nbsp;dumper)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Dumper.Dumpable.html#dump(com.google.android.exoplayer2.testutil.Dumper)">Dumper.Dumpable</a></code></span></div>
+<div class="block">Dumps the fields of the object using the <code>dumper</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Dumper.Dumpable.html#dump(com.google.android.exoplayer2.testutil.Dumper)">dump</a></code>&nbsp;in interface&nbsp;<code><a href="Dumper.Dumpable.html" title="interface in com.google.android.exoplayer2.testutil">Dumper.Dumpable</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dumper</code> - The <a href="Dumper.html" title="class in com.google.android.exoplayer2.testutil"><code>Dumper</code></a> to be used to dump fields.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

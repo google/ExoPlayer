@@ -1,0 +1,589 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>com.google.android.exoplayer2.util (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="com.google.android.exoplayer2.util (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li class="navBarCell1Rev">Package</li>
+<li>Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<main role="main">
+<div class="header">
+<h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.util</h1>
+</div>
+<div class="contentContainer">
+<ul class="blockList">
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></th>
+<td class="colLast">
+<div class="block">An interface through which system clocks can be read and <a href="HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><code>HandlerWrapper</code></a>s created.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Consumer.html" title="interface in com.google.android.exoplayer2.util">Consumer</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">Represents an operation that accepts a single input argument and returns no result.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="EGLSurfaceTexture.TextureImageListener.html" title="interface in com.google.android.exoplayer2.util">EGLSurfaceTexture.TextureImageListener</a></th>
+<td class="colLast">
+<div class="block">Listener to be called when the texture image on <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a> has been updated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;T extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&gt;</th>
+<td class="colLast">
+<div class="block">Converts throwables into error codes and user readable error messages.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a></th>
+<td class="colLast">
+<div class="block">An interface to call through to a <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a></th>
+<td class="colLast">
+<div class="block">A message obtained from the handler.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">An event sent to a listener.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.IterationFinishedEvent</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">An event sent to a listener when all other events sent during one <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue
+ iteration were handled by the listener.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></th>
+<td class="colLast">
+<div class="block">Tracks the progression of media time.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="NetworkTypeObserver.Listener.html" title="interface in com.google.android.exoplayer2.util">NetworkTypeObserver.Listener</a></th>
+<td class="colLast">
+<div class="block">A listener for network type changes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="SntpClient.InitializationCallback.html" title="interface in com.google.android.exoplayer2.util">SntpClient.InitializationCallback</a></th>
+<td class="colLast">
+<div class="block">Callback for calls to <a href="SntpClient.html#initialize(com.google.android.exoplayer2.upstream.Loader,com.google.android.exoplayer2.util.SntpClient.InitializationCallback)"><code>SntpClient.initialize(Loader, InitializationCallback)</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Assertions.html" title="class in com.google.android.exoplayer2.util">Assertions</a></th>
+<td class="colLast">
+<div class="block">Provides methods for asserting the truth of expressions and properties.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="AtomicFile.html" title="class in com.google.android.exoplayer2.util">AtomicFile</a></th>
+<td class="colLast">
+<div class="block">A helper class for performing atomic operations on a file by creating a backup file until a write
+ has successfully completed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="BundleUtil.html" title="class in com.google.android.exoplayer2.util">BundleUtil</a></th>
+<td class="colLast">
+<div class="block">Utilities for <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="CodecSpecificDataUtil.html" title="class in com.google.android.exoplayer2.util">CodecSpecificDataUtil</a></th>
+<td class="colLast">
+<div class="block">Provides utilities for handling various types of codec-specific data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ColorParser.html" title="class in com.google.android.exoplayer2.util">ColorParser</a></th>
+<td class="colLast">
+<div class="block">Parser for color expressions found in styling formats, e.g.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ConditionVariable.html" title="class in com.google.android.exoplayer2.util">ConditionVariable</a></th>
+<td class="colLast">
+<div class="block">An interruptible condition variable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="CopyOnWriteMultiset.html" title="class in com.google.android.exoplayer2.util">CopyOnWriteMultiset</a>&lt;E&gt;</th>
+<td class="colLast">
+<div class="block">An unordered collection of elements that allows duplicates, but also allows access to a set of
+ unique elements.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DebugTextViewHelper.html" title="class in com.google.android.exoplayer2.util">DebugTextViewHelper</a></th>
+<td class="colLast">
+<div class="block">A helper class for periodically updating a <a href="https://developer.android.com/reference/android/widget/TextView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>TextView</code></a> with debug information obtained from
+ a <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></th>
+<td class="colLast">
+<div class="block">Generates a <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a> using EGL/GLES functions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></th>
+<td class="colLast">
+<div class="block">Logs events from <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> and other core components using <a href="Log.html" title="class in com.google.android.exoplayer2.util"><code>Log</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ExoFlags.html" title="class in com.google.android.exoplayer2.util">ExoFlags</a></th>
+<td class="colLast">
+<div class="block">A set of integer flags.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ExoFlags.Builder.html" title="class in com.google.android.exoplayer2.util">ExoFlags.Builder</a></th>
+<td class="colLast">
+<div class="block">A builder for <a href="ExoFlags.html" title="class in com.google.android.exoplayer2.util"><code>ExoFlags</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="FileTypes.html" title="class in com.google.android.exoplayer2.util">FileTypes</a></th>
+<td class="colLast">
+<div class="block">Defines common file type constants and helper methods.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="FlacConstants.html" title="class in com.google.android.exoplayer2.util">FlacConstants</a></th>
+<td class="colLast">
+<div class="block">Defines constants used by the FLAC extractor.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="GlUtil.html" title="class in com.google.android.exoplayer2.util">GlUtil</a></th>
+<td class="colLast">
+<div class="block">GL utilities.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util">GlUtil.Attribute</a></th>
+<td class="colLast">
+<div class="block">GL attribute, which can be attached to a buffer with <a href="GlUtil.Attribute.html#setBuffer(float%5B%5D,int)"><code>GlUtil.Attribute.setBuffer(float[], int)</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util">GlUtil.Uniform</a></th>
+<td class="colLast">
+<div class="block">GL uniform, which can be attached to a sampler using <a href="GlUtil.Uniform.html#setSamplerTexId(int,int)"><code>GlUtil.Uniform.setSamplerTexId(int, int)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="IntArrayQueue.html" title="class in com.google.android.exoplayer2.util">IntArrayQueue</a></th>
+<td class="colLast">
+<div class="block">Array-based unbounded queue for int primitives with amortized O(1) add and remove.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="LibraryLoader.html" title="class in com.google.android.exoplayer2.util">LibraryLoader</a></th>
+<td class="colLast">
+<div class="block">Configurable loader for native libraries.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ListenerSet.html" title="class in com.google.android.exoplayer2.util">ListenerSet</a>&lt;T&gt;</th>
+<td class="colLast">
+<div class="block">A set of listeners.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Log.html" title="class in com.google.android.exoplayer2.util">Log</a></th>
+<td class="colLast">
+<div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Log</code></a> which allows to set the log level.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="LongArray.html" title="class in com.google.android.exoplayer2.util">LongArray</a></th>
+<td class="colLast">
+<div class="block">An append-only, auto-growing <code>long[]</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="MediaFormatUtil.html" title="class in com.google.android.exoplayer2.util">MediaFormatUtil</a></th>
+<td class="colLast">
+<div class="block">Helper class containing utility methods for managing <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="MimeTypes.html" title="class in com.google.android.exoplayer2.util">MimeTypes</a></th>
+<td class="colLast">
+<div class="block">Defines common MIME types and helper methods.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="NalUnitUtil.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil</a></th>
+<td class="colLast">
+<div class="block">Utility methods for handling H.264/AVC and H.265/HEVC NAL units.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></th>
+<td class="colLast">
+<div class="block">Holds data parsed from a picture parameter set NAL unit.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></th>
+<td class="colLast">
+<div class="block">Holds data parsed from a sequence parameter set NAL unit.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="NetworkTypeObserver.html" title="class in com.google.android.exoplayer2.util">NetworkTypeObserver</a></th>
+<td class="colLast">
+<div class="block">Observer for network type changes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="NotificationUtil.html" title="class in com.google.android.exoplayer2.util">NotificationUtil</a></th>
+<td class="colLast">
+<div class="block">Utility methods for displaying <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Notifications</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a></th>
+<td class="colLast">
+<div class="block">Wraps a byte array, providing methods that allow it to be read as a bitstream.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></th>
+<td class="colLast">
+<div class="block">Wraps a byte array, providing a set of methods for parsing data from it.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ParsableNalUnitBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableNalUnitBitArray</a></th>
+<td class="colLast">
+<div class="block">Wraps a byte array, providing methods that allow it to be read as a NAL unit bitstream.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a></th>
+<td class="colLast">
+<div class="block">Allows tasks with associated priorities to control how they proceed relative to one another.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="RepeatModeUtil.html" title="class in com.google.android.exoplayer2.util">RepeatModeUtil</a></th>
+<td class="colLast">
+<div class="block">Util class for repeat mode handling.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ReusableBufferedOutputStream.html" title="class in com.google.android.exoplayer2.util">ReusableBufferedOutputStream</a></th>
+<td class="colLast">
+<div class="block">This is a subclass of <a href="https://developer.android.com/reference/java/io/BufferedOutputStream.html" title="class or interface in java.io" class="externalLink"><code>BufferedOutputStream</code></a> with a <a href="ReusableBufferedOutputStream.html#reset(java.io.OutputStream)" target="_top"><code>ReusableBufferedOutputStream.reset(OutputStream)</code></a> method
+ that allows an instance to be re-used with another underlying output stream.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util">RunnableFutureTask</a>&lt;R,&#8203;E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</th>
+<td class="colLast">
+<div class="block">A <a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top"><code>RunnableFuture</code></a> that supports additional uninterruptible operations to query whether
+ execution has started and finished.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="SlidingPercentile.html" title="class in com.google.android.exoplayer2.util">SlidingPercentile</a></th>
+<td class="colLast">
+<div class="block">Calculate any percentile over a sliding window of weighted values.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SntpClient.html" title="class in com.google.android.exoplayer2.util">SntpClient</a></th>
+<td class="colLast">
+<div class="block">Static utility to retrieve the device time offset using SNTP.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="StandaloneMediaClock.html" title="class in com.google.android.exoplayer2.util">StandaloneMediaClock</a></th>
+<td class="colLast">
+<div class="block">A <a href="MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> whose position advances with real time based on the playback parameters when
+ started.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SystemClock.html" title="class in com.google.android.exoplayer2.util">SystemClock</a></th>
+<td class="colLast">
+<div class="block">The standard implementation of <a href="Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>, an instance of which is available via <a href="Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TimedValueQueue.html" title="class in com.google.android.exoplayer2.util">TimedValueQueue</a>&lt;V&gt;</th>
+<td class="colLast">
+<div class="block">A utility class to keep a queue of values with timestamps.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a></th>
+<td class="colLast">
+<div class="block">Offsets timestamps according to an initial sample timestamp offset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TraceUtil.html" title="class in com.google.android.exoplayer2.util">TraceUtil</a></th>
+<td class="colLast">
+<div class="block">Calls through to <a href="https://developer.android.com/reference/android/os/Trace.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Trace</code></a> methods on supported API levels.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="UriUtil.html" title="class in com.google.android.exoplayer2.util">UriUtil</a></th>
+<td class="colLast">
+<div class="block">Utility methods for manipulating URIs.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Util.html" title="class in com.google.android.exoplayer2.util">Util</a></th>
+<td class="colLast">
+<div class="block">Miscellaneous utility methods.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="XmlPullParserUtil.html" title="class in com.google.android.exoplayer2.util">XmlPullParserUtil</a></th>
+<td class="colLast">
+<div class="block"><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top"><code>XmlPullParser</code></a> utility methods.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Exception</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="EGLSurfaceTexture.GlException.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture.GlException</a></th>
+<td class="colLast">
+<div class="block">A runtime exception to be thrown if some EGL operations failed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="PriorityTaskManager.PriorityTooLowException.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager.PriorityTooLowException</a></th>
+<td class="colLast">
+<div class="block">Thrown when task attempts to proceed when another registered task has a higher priority.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
+<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="EGLSurfaceTexture.SecureMode.html" title="annotation in com.google.android.exoplayer2.util">EGLSurfaceTexture.SecureMode</a></th>
+<td class="colLast">
+<div class="block">Secure mode to be used by the EGL surface and context.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util">FileTypes.Type</a></th>
+<td class="colLast">
+<div class="block">File types.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="NonNullApi.html" title="annotation in com.google.android.exoplayer2.util">NonNullApi</a></th>
+<td class="colLast">
+<div class="block">Annotation to declare all type usages in the annotated instance as <code>Nonnull</code>, unless
+ explicitly marked with a nullable annotation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="NotificationUtil.Importance.html" title="annotation in com.google.android.exoplayer2.util">NotificationUtil.Importance</a></th>
+<td class="colLast">
+<div class="block">Notification channel importance levels.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">RepeatModeUtil.RepeatToggleModes</a></th>
+<td class="colLast">
+<div class="block">Set of repeat toggle modes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="UnknownNull.html" title="annotation in com.google.android.exoplayer2.util">UnknownNull</a></th>
+<td class="colLast">
+<div class="block">Annotation for specifying unknown nullness.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</div>
+</main>
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li class="navBarCell1Rev">Package</li>
+<li>Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

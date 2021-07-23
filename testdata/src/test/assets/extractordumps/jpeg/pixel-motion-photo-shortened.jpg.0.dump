@@ -1,0 +1,13 @@
+seekMap:
+  isSeekable = true
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=131582]]
+  getPosition(1) = [[timeUs=0, position=131582]]
+numberOfTracks = 1
+track 1024:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    containerMimeType = image/jpeg
+    metadata = entries=[Motion photo metadata: photoStartPosition=0, photoSize=131582, photoPresentationTimestampUs=0, videoStartPosition=131582, videoSize=8730]
+tracksEnded = true

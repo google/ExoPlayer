@@ -16,22 +16,17 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.UriUtil;
 
-/**
- * Defines a range of data located at a reference uri.
- */
+/** Defines a range of data located at a reference uri. */
 public final class RangedUri {
 
-  /**
-   * The (zero based) index of the first byte of the range.
-   */
+  /** The (zero based) index of the first byte of the range. */
   public final long start;
 
-  /**
-   * The length of the range, or {@link C#LENGTH_UNSET} to indicate that the range is unbounded.
-   */
+  /** The length of the range, or {@link C#LENGTH_UNSET} to indicate that the range is unbounded. */
   public final long length;
 
   private final String referenceUri;
@@ -46,7 +41,7 @@ public final class RangedUri {
    * @param length The length of the range, or {@link C#LENGTH_UNSET} to indicate that the range is
    *     unbounded.
    */
-  public RangedUri(String referenceUri, long start, long length) {
+  public RangedUri(@Nullable String referenceUri, long start, long length) {
     this.referenceUri = referenceUri == null ? "" : referenceUri;
     this.start = start;
     this.length = length;
@@ -74,26 +69,31 @@ public final class RangedUri {
 
   /**
    * Attempts to merge this {@link RangedUri} with another and an optional common base uri.
-   * <p>
-   * A merge is successful if both instances define the same {@link Uri} after resolution with the
-   * base uri, and if one starts the byte after the other ends, forming a contiguous region with
+   *
+   * <p>A merge is successful if both instances define the same {@link Uri} after resolution with
+   * the base uri, and if one starts the byte after the other ends, forming a contiguous region with
    * no overlap.
-   * <p>
-   * If {@code other} is null then the merge is considered unsuccessful, and null is returned.
+   *
+   * <p>If {@code other} is null then the merge is considered unsuccessful, and null is returned.
    *
    * @param other The {@link RangedUri} to merge.
-   * @param baseUri The optional base Uri.
+   * @param baseUri The base Uri.
    * @return The merged {@link RangedUri} if the merge was successful. Null otherwise.
    */
-  public RangedUri attemptMerge(RangedUri other, String baseUri) {
+  @Nullable
+  public RangedUri attemptMerge(@Nullable RangedUri other, String baseUri) {
     final String resolvedUri = resolveUriString(baseUri);
     if (other == null || !resolvedUri.equals(other.resolveUriString(baseUri))) {
       return null;
     } else if (length != C.LENGTH_UNSET && start + length == other.start) {
-      return new RangedUri(resolvedUri, start,
+      return new RangedUri(
+          resolvedUri,
+          start,
           other.length == C.LENGTH_UNSET ? C.LENGTH_UNSET : length + other.length);
     } else if (other.length != C.LENGTH_UNSET && other.start + other.length == start) {
-      return new RangedUri(resolvedUri, other.start,
+      return new RangedUri(
+          resolvedUri,
+          other.start,
           length == C.LENGTH_UNSET ? C.LENGTH_UNSET : other.length + length);
     } else {
       return null;
@@ -113,7 +113,7 @@ public final class RangedUri {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
@@ -126,4 +126,15 @@ public final class RangedUri {
         && referenceUri.equals(other.referenceUri);
   }
 
+  @Override
+  public String toString() {
+    return "RangedUri("
+        + "referenceUri="
+        + referenceUri
+        + ", start="
+        + start
+        + ", length="
+        + length
+        + ")";
+  }
 }

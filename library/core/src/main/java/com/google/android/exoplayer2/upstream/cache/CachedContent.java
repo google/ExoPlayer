@@ -15,80 +15,122 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
-import com.google.android.exoplayer2.util.Assertions;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import com.google.android.exoplayer2.util.Log;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.TreeSet;
 
-/**
- * Defines the cached content for a single stream.
- */
-/*package*/ final class CachedContent {
+/** Defines the cached content for a single resource. */
+/* package */ final class CachedContent {
 
-  /**
-   * The cache file id that uniquely identifies the original stream.
-   */
+  private static final String TAG = "CachedContent";
+
+  /** The cache id that uniquely identifies the resource. */
   public final int id;
-  /**
-   * The cache key that uniquely identifies the original stream.
-   */
+  /** The cache key that uniquely identifies the resource. */
   public final String key;
-  /**
-   * The cached spans of this content.
-   */
+  /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
-  /**
-   * The length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown.
-   */
-  private long length;
+  /** Currently locked ranges. */
+  private final ArrayList<Range> lockedRanges;
 
-  /**
-   * Reads an instance from a {@link DataInputStream}.
-   *
-   * @param input Input stream containing values needed to initialize CachedContent instance.
-   * @throws IOException If an error occurs during reading values.
-   */
-  public CachedContent(DataInputStream input) throws IOException {
-    this(input.readInt(), input.readUTF(), input.readLong());
-  }
+  /** Metadata values. */
+  private DefaultContentMetadata metadata;
 
   /**
    * Creates a CachedContent.
    *
-   * @param id The cache file id.
-   * @param key The cache stream key.
-   * @param length The length of the original stream.
+   * @param id The cache id of the resource.
+   * @param key The cache key of the resource.
    */
-  public CachedContent(int id, String key, long length) {
+  public CachedContent(int id, String key) {
+    this(id, key, DefaultContentMetadata.EMPTY);
+  }
+
+  public CachedContent(int id, String key, DefaultContentMetadata metadata) {
     this.id = id;
     this.key = key;
-    this.length = length;
-    this.cachedSpans = new TreeSet<>();
+    this.metadata = metadata;
+    cachedSpans = new TreeSet<>();
+    lockedRanges = new ArrayList<>();
+  }
+
+  /** Returns the metadata. */
+  public DefaultContentMetadata getMetadata() {
+    return metadata;
   }
 
   /**
-   * Writes the instance to a {@link DataOutputStream}.
+   * Applies {@code mutations} to the metadata.
    *
-   * @param output Output stream to store the values.
-   * @throws IOException If an error occurs during writing values to output.
+   * @return Whether {@code mutations} changed any metadata.
    */
-  public void writeToStream(DataOutputStream output) throws IOException {
-    output.writeInt(id);
-    output.writeUTF(key);
-    output.writeLong(length);
+  public boolean applyMetadataMutations(ContentMetadataMutations mutations) {
+    DefaultContentMetadata oldMetadata = metadata;
+    metadata = metadata.copyWithMutationsApplied(mutations);
+    return !metadata.equals(oldMetadata);
   }
 
-  /** Returns the length of the content. */
-  public long getLength() {
-    return length;
+  /** Returns whether the entire resource is fully unlocked. */
+  public boolean isFullyUnlocked() {
+    return lockedRanges.isEmpty();
   }
 
-  /** Sets the length of the content. */
-  public void setLength(long length) {
-    this.length = length;
+  /**
+   * Returns whether the specified range of the resource is fully locked by a single lock.
+   *
+   * @param position The position of the range.
+   * @param length The length of the range, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return Whether the range is fully locked by a single lock.
+   */
+  public boolean isFullyLocked(long position, long length) {
+    for (int i = 0; i < lockedRanges.size(); i++) {
+      if (lockedRanges.get(i).contains(position, length)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Attempts to lock the specified range of the resource.
+   *
+   * @param position The position of the range.
+   * @param length The length of the range, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return Whether the range was successfully locked.
+   */
+  public boolean lockRange(long position, long length) {
+    for (int i = 0; i < lockedRanges.size(); i++) {
+      if (lockedRanges.get(i).intersects(position, length)) {
+        return false;
+      }
+    }
+    lockedRanges.add(new Range(position, length));
+    return true;
+  }
+
+  /**
+   * Unlocks the currently locked range starting at the specified position.
+   *
+   * @param position The starting position of the locked range.
+   * @throws IllegalStateException If there was no locked range starting at the specified position.
+   */
+  public void unlockRange(long position) {
+    for (int i = 0; i < lockedRanges.size(); i++) {
+      if (lockedRanges.get(i).position == position) {
+        lockedRanges.remove(i);
+        return;
+      }
+    }
+    throw new IllegalStateException();
   }
 
   /** Adds the given {@link SimpleCacheSpan} which contains a part of the content. */
@@ -102,36 +144,51 @@ import java.util.TreeSet;
   }
 
   /**
-   * Returns the span containing the position. If there isn't one, it returns a hole span
-   * which defines the maximum extents of the hole in the cache.
+   * Returns the cache span corresponding to the provided range. See {@link
+   * Cache#startReadWrite(String, long, long)} for detailed descriptions of the returned spans.
+   *
+   * @param position The position of the span being requested.
+   * @param length The length of the span, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return The corresponding cache {@link SimpleCacheSpan}.
    */
-  public SimpleCacheSpan getSpan(long position) {
+  public SimpleCacheSpan getSpan(long position, long length) {
     SimpleCacheSpan lookupSpan = SimpleCacheSpan.createLookup(key, position);
     SimpleCacheSpan floorSpan = cachedSpans.floor(lookupSpan);
     if (floorSpan != null && floorSpan.position + floorSpan.length > position) {
       return floorSpan;
     }
     SimpleCacheSpan ceilSpan = cachedSpans.ceiling(lookupSpan);
-    return ceilSpan == null ? SimpleCacheSpan.createOpenHole(key, position)
-        : SimpleCacheSpan.createClosedHole(key, position, ceilSpan.position - position);
+    if (ceilSpan != null) {
+      long holeLength = ceilSpan.position - position;
+      length = length == C.LENGTH_UNSET ? holeLength : min(holeLength, length);
+    }
+    return SimpleCacheSpan.createHole(key, position, length);
   }
 
   /**
-   * Returns the length of the cached data block starting from the {@code position} to the block end
-   * up to {@code length} bytes. If the {@code position} isn't cached then -(the length of the gap
-   * to the next cached data up to {@code length} bytes) is returned.
+   * Returns the length of continuously cached data starting from {@code position}, up to a maximum
+   * of {@code maxLength}. If {@code position} isn't cached, then {@code -holeLength} is returned,
+   * where {@code holeLength} is the length of continuously un-cached data starting from {@code
+   * position}, up to a maximum of {@code maxLength}.
    *
    * @param position The starting position of the data.
-   * @param length The maximum length of the data to be returned.
-   * @return the length of the cached or not cached data block length.
+   * @param length The maximum length of the data or hole to be returned.
+   * @return The length of continuously cached data, or {@code -holeLength} if {@code position}
+   *     isn't cached.
    */
-  public long getCachedBytes(long position, long length) {
-    SimpleCacheSpan span = getSpan(position);
+  public long getCachedBytesLength(long position, long length) {
+    checkArgument(position >= 0);
+    checkArgument(length >= 0);
+    SimpleCacheSpan span = getSpan(position, length);
     if (span.isHoleSpan()) {
       // We don't have a span covering the start of the queried region.
-      return -Math.min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
+      return -min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
     }
     long queryEndPosition = position + length;
+    if (queryEndPosition < 0) {
+      // The calculation rolled over (length is probably Long.MAX_VALUE).
+      queryEndPosition = Long.MAX_VALUE;
+    }
     long currentEndPosition = span.position + span.length;
     if (currentEndPosition < queryEndPosition) {
       for (SimpleCacheSpan next : cachedSpans.tailSet(span, false)) {
@@ -141,35 +198,41 @@ import java.util.TreeSet;
         }
         // We expect currentEndPosition to always equal (next.position + next.length), but
         // perform a max check anyway to guard against the existence of overlapping spans.
-        currentEndPosition = Math.max(currentEndPosition, next.position + next.length);
+        currentEndPosition = max(currentEndPosition, next.position + next.length);
         if (currentEndPosition >= queryEndPosition) {
           // We've found spans covering the queried region.
           break;
         }
       }
     }
-    return Math.min(currentEndPosition - position, length);
+    return min(currentEndPosition - position, length);
   }
 
   /**
-   * Copies the given span with an updated last access time. Passed span becomes invalid after this
-   * call.
+   * Sets the given span's last touch timestamp. The passed span becomes invalid after this call.
    *
    * @param cacheSpan Span to be copied and updated.
-   * @return a span with the updated last access time.
-   * @throws CacheException If renaming of the underlying span file failed.
+   * @param lastTouchTimestamp The new last touch timestamp.
+   * @param updateFile Whether the span file should be renamed to have its timestamp match the new
+   *     last touch time.
+   * @return A span with the updated last touch timestamp.
    */
-  public SimpleCacheSpan touch(SimpleCacheSpan cacheSpan) throws CacheException {
-    // Remove the old span from the in-memory representation.
-    Assertions.checkState(cachedSpans.remove(cacheSpan));
-    // Obtain a new span with updated last access timestamp.
-    SimpleCacheSpan newCacheSpan = cacheSpan.copyWithUpdatedLastAccessTime(id);
-    // Rename the cache file
-    if (!cacheSpan.file.renameTo(newCacheSpan.file)) {
-      throw new CacheException("Renaming of " + cacheSpan.file + " to " + newCacheSpan.file
-          + " failed.");
+  public SimpleCacheSpan setLastTouchTimestamp(
+      SimpleCacheSpan cacheSpan, long lastTouchTimestamp, boolean updateFile) {
+    checkState(cachedSpans.remove(cacheSpan));
+    File file = checkNotNull(cacheSpan.file);
+    if (updateFile) {
+      File directory = checkNotNull(file.getParentFile());
+      long position = cacheSpan.position;
+      File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastTouchTimestamp);
+      if (file.renameTo(newFile)) {
+        file = newFile;
+      } else {
+        Log.w(TAG, "Failed to rename " + file + " to " + newFile);
+      }
     }
-    // Add the updated span back into the in-memory representation.
+    SimpleCacheSpan newCacheSpan =
+        cacheSpan.copyWithFileAndLastTouchTimestamp(file, lastTouchTimestamp);
     cachedSpans.add(newCacheSpan);
     return newCacheSpan;
   }
@@ -182,18 +245,81 @@ import java.util.TreeSet;
   /** Removes the given span from cache. */
   public boolean removeSpan(CacheSpan span) {
     if (cachedSpans.remove(span)) {
-      span.file.delete();
+      if (span.file != null) {
+        span.file.delete();
+      }
       return true;
     }
     return false;
   }
 
-  /** Calculates a hash code for the header of this {@code CachedContent}. */
-  public int headerHashCode() {
+  @Override
+  public int hashCode() {
     int result = id;
     result = 31 * result + key.hashCode();
-    result = 31 * result + (int) (length ^ (length >>> 32));
+    result = 31 * result + metadata.hashCode();
     return result;
   }
 
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CachedContent that = (CachedContent) o;
+    return id == that.id
+        && key.equals(that.key)
+        && cachedSpans.equals(that.cachedSpans)
+        && metadata.equals(that.metadata);
+  }
+
+  private static final class Range {
+
+    /** The starting position of the range. */
+    public final long position;
+    /** The length of the range, or {@link C#LENGTH_UNSET} if unbounded. */
+    public final long length;
+
+    public Range(long position, long length) {
+      this.position = position;
+      this.length = length;
+    }
+
+    /**
+     * Returns whether this range fully contains the range specified by {@code otherPosition} and
+     * {@code otherLength}.
+     *
+     * @param otherPosition The position of the range to check.
+     * @param otherLength The length of the range to check, or {@link C#LENGTH_UNSET} if unbounded.
+     * @return Whether this range fully contains the specified range.
+     */
+    public boolean contains(long otherPosition, long otherLength) {
+      if (length == C.LENGTH_UNSET) {
+        return otherPosition >= position;
+      } else if (otherLength == C.LENGTH_UNSET) {
+        return false;
+      } else {
+        return position <= otherPosition && (otherPosition + otherLength) <= (position + length);
+      }
+    }
+
+    /**
+     * Returns whether this range intersects with the range specified by {@code otherPosition} and
+     * {@code otherLength}.
+     *
+     * @param otherPosition The position of the range to check.
+     * @param otherLength The length of the range to check, or {@link C#LENGTH_UNSET} if unbounded.
+     * @return Whether this range intersects with the specified range.
+     */
+    public boolean intersects(long otherPosition, long otherLength) {
+      if (position <= otherPosition) {
+        return length == C.LENGTH_UNSET || position + length > otherPosition;
+      } else {
+        return otherLength == C.LENGTH_UNSET || otherPosition + otherLength > position;
+      }
+    }
+  }
 }

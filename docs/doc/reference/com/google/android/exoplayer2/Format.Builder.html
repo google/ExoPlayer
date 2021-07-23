@@ -1,0 +1,1046 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>Format.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="Format.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class Format.Builder" class="title">Class Format.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.Format.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">Format.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Builds <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> instances.
+
+ <p>Use Format#buildUpon() to obtain a builder representing an existing <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
+
+ <p>When building formats, populate all fields whose values are known and relevant to the type
+ of format being constructed. See the <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> Javadoc for information about which fields
+ should be set for different types of format.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance with default values.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAccessibilityChannel(int)">setAccessibilityChannel</a></span>&#8203;(int&nbsp;accessibilityChannel)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#accessibilityChannel"><code>Format.accessibilityChannel</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAverageBitrate(int)">setAverageBitrate</a></span>&#8203;(int&nbsp;averageBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#averageBitrate"><code>Format.averageBitrate</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChannelCount(int)">setChannelCount</a></span>&#8203;(int&nbsp;channelCount)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#channelCount"><code>Format.channelCount</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCodecs(java.lang.String)">setCodecs</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#codecs"><code>Format.codecs</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setColorInfo(com.google.android.exoplayer2.video.ColorInfo)">setColorInfo</a></span>&#8203;(<a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#colorInfo"><code>Format.colorInfo</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContainerMimeType(java.lang.String)">setContainerMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#containerMimeType"><code>Format.containerMimeType</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)">setDrmInitData</a></span>&#8203;(<a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#drmInitData"><code>Format.drmInitData</code></a>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEncoderDelay(int)">setEncoderDelay</a></span>&#8203;(int&nbsp;encoderDelay)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#encoderDelay"><code>Format.encoderDelay</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEncoderPadding(int)">setEncoderPadding</a></span>&#8203;(int&nbsp;encoderPadding)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#encoderPadding"><code>Format.encoderPadding</code></a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExoMediaCryptoType(java.lang.Class)">setExoMediaCryptoType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#exoMediaCryptoType"><code>Format.exoMediaCryptoType</code></a>.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFrameRate(float)">setFrameRate</a></span>&#8203;(float&nbsp;frameRate)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#frameRate"><code>Format.frameRate</code></a>.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHeight(int)">setHeight</a></span>&#8203;(int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#height"><code>Format.height</code></a>.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setId(int)">setId</a></span>&#8203;(int&nbsp;id)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#id"><code>Format.id</code></a> to <a href="https://developer.android.com/reference/java/lang/Integer.html#toString()" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.toString(id)</code></a>.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setId(java.lang.String)">setId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#id"><code>Format.id</code></a>.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setInitializationData(java.util.List)">setInitializationData</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#initializationData"><code>Format.initializationData</code></a>.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLabel(java.lang.String)">setLabel</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#label"><code>Format.label</code></a>.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLanguage(java.lang.String)">setLanguage</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#language"><code>Format.language</code></a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxInputSize(int)">setMaxInputSize</a></span>&#8203;(int&nbsp;maxInputSize)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#maxInputSize"><code>Format.maxInputSize</code></a>.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMetadata(com.google.android.exoplayer2.metadata.Metadata)">setMetadata</a></span>&#8203;(<a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#metadata"><code>Format.metadata</code></a>.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPcmEncoding(int)">setPcmEncoding</a></span>&#8203;(int&nbsp;pcmEncoding)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#pcmEncoding"><code>Format.pcmEncoding</code></a>.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPeakBitrate(int)">setPeakBitrate</a></span>&#8203;(int&nbsp;peakBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#peakBitrate"><code>Format.peakBitrate</code></a>.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPixelWidthHeightRatio(float)">setPixelWidthHeightRatio</a></span>&#8203;(float&nbsp;pixelWidthHeightRatio)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#pixelWidthHeightRatio"><code>Format.pixelWidthHeightRatio</code></a>.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProjectionData(byte%5B%5D)">setProjectionData</a></span>&#8203;(byte[]&nbsp;projectionData)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#projectionData"><code>Format.projectionData</code></a>.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRoleFlags(int)">setRoleFlags</a></span>&#8203;(int&nbsp;roleFlags)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#roleFlags"><code>Format.roleFlags</code></a>.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRotationDegrees(int)">setRotationDegrees</a></span>&#8203;(int&nbsp;rotationDegrees)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#rotationDegrees"><code>Format.rotationDegrees</code></a>.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSampleMimeType(java.lang.String)">setSampleMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSampleRate(int)">setSampleRate</a></span>&#8203;(int&nbsp;sampleRate)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#sampleRate"><code>Format.sampleRate</code></a>.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSelectionFlags(int)">setSelectionFlags</a></span>&#8203;(int&nbsp;selectionFlags)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#selectionFlags"><code>Format.selectionFlags</code></a>.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStereoMode(int)">setStereoMode</a></span>&#8203;(int&nbsp;stereoMode)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#stereoMode"><code>Format.stereoMode</code></a>.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubsampleOffsetUs(long)">setSubsampleOffsetUs</a></span>&#8203;(long&nbsp;subsampleOffsetUs)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#subsampleOffsetUs"><code>Format.subsampleOffsetUs</code></a>.</div>
+</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code><a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWidth(int)">setWidth</a></span>&#8203;(int&nbsp;width)</code></th>
+<td class="colLast">
+<div class="block">Sets <a href="Format.html#width"><code>Format.width</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder()</pre>
+<div class="block">Creates a new instance with default values.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setId(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setId</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setId&#8203;(@Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</pre>
+<div class="block">Sets <a href="Format.html#id"><code>Format.id</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The <a href="Format.html#id"><code>Format.id</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setId(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setId</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setId&#8203;(int&nbsp;id)</pre>
+<div class="block">Sets <a href="Format.html#id"><code>Format.id</code></a> to <a href="https://developer.android.com/reference/java/lang/Integer.html#toString()" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.toString(id)</code></a>. The default value
+ is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The <a href="Format.html#id"><code>Format.id</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLabel(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLabel</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setLabel&#8203;(@Nullable
+                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</pre>
+<div class="block">Sets <a href="Format.html#label"><code>Format.label</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>label</code> - The <a href="Format.html#label"><code>Format.label</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setLanguage(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLanguage</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setLanguage&#8203;(@Nullable
+                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="block">Sets <a href="Format.html#language"><code>Format.language</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>language</code> - The <a href="Format.html#language"><code>Format.language</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSelectionFlags(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSelectionFlags</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setSelectionFlags&#8203;(<a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+                                        int&nbsp;selectionFlags)</pre>
+<div class="block">Sets <a href="Format.html#selectionFlags"><code>Format.selectionFlags</code></a>. The default value is 0.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>selectionFlags</code> - The <a href="Format.html#selectionFlags"><code>Format.selectionFlags</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setRoleFlags(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRoleFlags</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setRoleFlags&#8203;(<a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                   int&nbsp;roleFlags)</pre>
+<div class="block">Sets <a href="Format.html#roleFlags"><code>Format.roleFlags</code></a>. The default value is 0.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>roleFlags</code> - The <a href="Format.html#roleFlags"><code>Format.roleFlags</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAverageBitrate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAverageBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setAverageBitrate&#8203;(int&nbsp;averageBitrate)</pre>
+<div class="block">Sets <a href="Format.html#averageBitrate"><code>Format.averageBitrate</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>averageBitrate</code> - The <a href="Format.html#averageBitrate"><code>Format.averageBitrate</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPeakBitrate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPeakBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setPeakBitrate&#8203;(int&nbsp;peakBitrate)</pre>
+<div class="block">Sets <a href="Format.html#peakBitrate"><code>Format.peakBitrate</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>peakBitrate</code> - The <a href="Format.html#peakBitrate"><code>Format.peakBitrate</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setCodecs(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCodecs</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setCodecs&#8203;(@Nullable
+                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</pre>
+<div class="block">Sets <a href="Format.html#codecs"><code>Format.codecs</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>codecs</code> - The <a href="Format.html#codecs"><code>Format.codecs</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMetadata(com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMetadata</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setMetadata&#8203;(@Nullable
+                                  <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="block">Sets <a href="Format.html#metadata"><code>Format.metadata</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>metadata</code> - The <a href="Format.html#metadata"><code>Format.metadata</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setContainerMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setContainerMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setContainerMimeType&#8203;(@Nullable
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType)</pre>
+<div class="block">Sets <a href="Format.html#containerMimeType"><code>Format.containerMimeType</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>containerMimeType</code> - The <a href="Format.html#containerMimeType"><code>Format.containerMimeType</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSampleMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSampleMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setSampleMimeType&#8203;(@Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType)</pre>
+<div class="block">Sets <a href="Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sampleMimeType</code> - <a href="Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxInputSize(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxInputSize</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setMaxInputSize&#8203;(int&nbsp;maxInputSize)</pre>
+<div class="block">Sets <a href="Format.html#maxInputSize"><code>Format.maxInputSize</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxInputSize</code> - The <a href="Format.html#maxInputSize"><code>Format.maxInputSize</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setInitializationData(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInitializationData</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setInitializationData&#8203;(@Nullable
+                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
+<div class="block">Sets <a href="Format.html#initializationData"><code>Format.initializationData</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>initializationData</code> - The <a href="Format.html#initializationData"><code>Format.initializationData</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmInitData</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setDrmInitData&#8203;(@Nullable
+                                     <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="block">Sets <a href="Format.html#drmInitData"><code>Format.drmInitData</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>drmInitData</code> - The <a href="Format.html#drmInitData"><code>Format.drmInitData</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSubsampleOffsetUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSubsampleOffsetUs</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setSubsampleOffsetUs&#8203;(long&nbsp;subsampleOffsetUs)</pre>
+<div class="block">Sets <a href="Format.html#subsampleOffsetUs"><code>Format.subsampleOffsetUs</code></a>. The default value is <a href="Format.html#OFFSET_SAMPLE_RELATIVE"><code>Format.OFFSET_SAMPLE_RELATIVE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>subsampleOffsetUs</code> - The <a href="Format.html#subsampleOffsetUs"><code>Format.subsampleOffsetUs</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setWidth(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setWidth</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setWidth&#8203;(int&nbsp;width)</pre>
+<div class="block">Sets <a href="Format.html#width"><code>Format.width</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>width</code> - The <a href="Format.html#width"><code>Format.width</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setHeight(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setHeight</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setHeight&#8203;(int&nbsp;height)</pre>
+<div class="block">Sets <a href="Format.html#height"><code>Format.height</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>height</code> - The <a href="Format.html#height"><code>Format.height</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setFrameRate(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFrameRate</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setFrameRate&#8203;(float&nbsp;frameRate)</pre>
+<div class="block">Sets <a href="Format.html#frameRate"><code>Format.frameRate</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>frameRate</code> - The <a href="Format.html#frameRate"><code>Format.frameRate</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setRotationDegrees(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRotationDegrees</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setRotationDegrees&#8203;(int&nbsp;rotationDegrees)</pre>
+<div class="block">Sets <a href="Format.html#rotationDegrees"><code>Format.rotationDegrees</code></a>. The default value is 0.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>rotationDegrees</code> - The <a href="Format.html#rotationDegrees"><code>Format.rotationDegrees</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPixelWidthHeightRatio(float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPixelWidthHeightRatio</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setPixelWidthHeightRatio&#8203;(float&nbsp;pixelWidthHeightRatio)</pre>
+<div class="block">Sets <a href="Format.html#pixelWidthHeightRatio"><code>Format.pixelWidthHeightRatio</code></a>. The default value is 1.0f.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pixelWidthHeightRatio</code> - The <a href="Format.html#pixelWidthHeightRatio"><code>Format.pixelWidthHeightRatio</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setProjectionData(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setProjectionData</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setProjectionData&#8203;(@Nullable
+                                        byte[]&nbsp;projectionData)</pre>
+<div class="block">Sets <a href="Format.html#projectionData"><code>Format.projectionData</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>projectionData</code> - The <a href="Format.html#projectionData"><code>Format.projectionData</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setStereoMode(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStereoMode</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setStereoMode&#8203;(<a href="C.StereoMode.html" title="annotation in com.google.android.exoplayer2">@StereoMode</a>
+                                    int&nbsp;stereoMode)</pre>
+<div class="block">Sets <a href="Format.html#stereoMode"><code>Format.stereoMode</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>stereoMode</code> - The <a href="Format.html#stereoMode"><code>Format.stereoMode</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setColorInfo(com.google.android.exoplayer2.video.ColorInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setColorInfo</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setColorInfo&#8203;(@Nullable
+                                   <a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</pre>
+<div class="block">Sets <a href="Format.html#colorInfo"><code>Format.colorInfo</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>colorInfo</code> - The <a href="Format.html#colorInfo"><code>Format.colorInfo</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setChannelCount(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setChannelCount</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setChannelCount&#8203;(int&nbsp;channelCount)</pre>
+<div class="block">Sets <a href="Format.html#channelCount"><code>Format.channelCount</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>channelCount</code> - The <a href="Format.html#channelCount"><code>Format.channelCount</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSampleRate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSampleRate</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setSampleRate&#8203;(int&nbsp;sampleRate)</pre>
+<div class="block">Sets <a href="Format.html#sampleRate"><code>Format.sampleRate</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sampleRate</code> - The <a href="Format.html#sampleRate"><code>Format.sampleRate</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPcmEncoding(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPcmEncoding</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setPcmEncoding&#8203;(<a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
+                                     int&nbsp;pcmEncoding)</pre>
+<div class="block">Sets <a href="Format.html#pcmEncoding"><code>Format.pcmEncoding</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pcmEncoding</code> - The <a href="Format.html#pcmEncoding"><code>Format.pcmEncoding</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setEncoderDelay(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEncoderDelay</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setEncoderDelay&#8203;(int&nbsp;encoderDelay)</pre>
+<div class="block">Sets <a href="Format.html#encoderDelay"><code>Format.encoderDelay</code></a>. The default value is 0.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>encoderDelay</code> - The <a href="Format.html#encoderDelay"><code>Format.encoderDelay</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setEncoderPadding(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEncoderPadding</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setEncoderPadding&#8203;(int&nbsp;encoderPadding)</pre>
+<div class="block">Sets <a href="Format.html#encoderPadding"><code>Format.encoderPadding</code></a>. The default value is 0.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>encoderPadding</code> - The <a href="Format.html#encoderPadding"><code>Format.encoderPadding</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAccessibilityChannel(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAccessibilityChannel</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setAccessibilityChannel&#8203;(int&nbsp;accessibilityChannel)</pre>
+<div class="block">Sets <a href="Format.html#accessibilityChannel"><code>Format.accessibilityChannel</code></a>. The default value is <a href="Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>accessibilityChannel</code> - The <a href="Format.html#accessibilityChannel"><code>Format.accessibilityChannel</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setExoMediaCryptoType(java.lang.Class)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setExoMediaCryptoType</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.Builder.html" title="class in com.google.android.exoplayer2">Format.Builder</a>&nbsp;setExoMediaCryptoType&#8203;(@Nullable
+                                            <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</pre>
+<div class="block">Sets <a href="Format.html#exoMediaCryptoType"><code>Format.exoMediaCryptoType</code></a>. The default value is <code>null</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>exoMediaCryptoType</code> - The <a href="Format.html#exoMediaCryptoType"><code>Format.exoMediaCryptoType</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="build()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;build()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

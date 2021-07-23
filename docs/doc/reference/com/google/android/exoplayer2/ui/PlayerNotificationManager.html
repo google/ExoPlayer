@@ -1,0 +1,1541 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>PlayerNotificationManager (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="PlayerNotificationManager (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":41,"i2":41,"i3":41,"i4":41,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":10,"i18":10,"i19":42,"i20":10,"i21":10,"i22":42,"i23":42,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ui</a></div>
+<h2 title="Class PlayerNotificationManager" class="title">Class PlayerNotificationManager</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.ui.PlayerNotificationManager</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public class <span class="typeNameLabel">PlayerNotificationManager</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Starts, updates and cancels a media style notification reflecting the player state. The actions
+ included in the notification can be customized along with their drawables, as described below.
+
+ <p>The notification is cancelled when <code>null</code> is passed to <a href="#setPlayer(com.google.android.exoplayer2.Player)"><code>setPlayer(Player)</code></a> or
+ when the notification is dismissed by the user.
+
+ <p>If the player is released it must be removed from the manager by calling <code>
+ setPlayer(null)</code>.
+
+ <h3>Action customization</h3>
+
+ Playback actions can be included or omitted as follows:
+
+ <ul>
+   <li><b><code>usePlayPauseActions</code></b> - Sets whether the play and pause actions are used.
+       <ul>
+         <li>Corresponding setter: <a href="#setUsePlayPauseActions(boolean)"><code>setUsePlayPauseActions(boolean)</code></a>
+         <li>Default: <code>true</code>
+       </ul>
+   <li><b><code>rewindIncrementMs</code></b> - Sets the rewind increment. If set to zero the rewind
+       action is not used.
+       <ul>
+         <li>Corresponding setter: <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a>
+         <li>Default: <a href="../DefaultControlDispatcher.html#DEFAULT_REWIND_MS"><code>DefaultControlDispatcher.DEFAULT_REWIND_MS</code></a> (5000)
+       </ul>
+   <li><b><code>fastForwardIncrementMs</code></b> - Sets the fast forward increment. If set to zero the
+       fast forward action is not used.
+       <ul>
+         <li>Corresponding setter: <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a>
+         <li>Default: <a href="../DefaultControlDispatcher.html#DEFAULT_FAST_FORWARD_MS"><code>DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS</code></a> (15000)
+       </ul>
+   <li><b><code>usePreviousAction</code></b> - Whether the previous action is used.
+       <ul>
+         <li>Corresponding setter: <a href="#setUsePreviousAction(boolean)"><code>setUsePreviousAction(boolean)</code></a>
+         <li>Default: <code>true</code>
+       </ul>
+   <li><b><code>usePreviousActionInCompactView</code></b> - If <code>usePreviousAction</code> is <code>
+       true</code>, sets whether the previous action is also used in compact view (including the lock
+       screen notification). Else does nothing.
+       <ul>
+         <li>Corresponding setter: <a href="#setUsePreviousActionInCompactView(boolean)"><code>setUsePreviousActionInCompactView(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
+   <li><b><code>useNextAction</code></b> - Whether the next action is used.
+       <ul>
+         <li>Corresponding setter: <a href="#setUseNextAction(boolean)"><code>setUseNextAction(boolean)</code></a>
+         <li>Default: <code>true</code>
+       </ul>
+   <li><b><code>useNextActionInCompactView</code></b> - If <code>useNextAction</code> is <code>true</code>, sets
+       whether the next action is also used in compact view (including the lock screen
+       notification). Else does nothing.
+       <ul>
+         <li>Corresponding setter: <a href="#setUseNextActionInCompactView(boolean)"><code>setUseNextActionInCompactView(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
+   <li><b><code>useStopAction</code></b> - Sets whether the stop action is used.
+       <ul>
+         <li>Corresponding setter: <a href="#setUseStopAction(boolean)"><code>setUseStopAction(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
+ </ul>
+
+ <h3>Overriding drawables</h3>
+
+ The drawables used by PlayerNotificationManager can be overridden by drawables with the same
+ names defined in your application. The drawables that can be overridden are:
+
+ <ul>
+   <li><b><code>exo_notification_small_icon</code></b> - The icon passed by default to <code>NotificationCompat.Builder.setSmallIcon(int)</code>. A different icon can also be specified
+       programmatically by calling <a href="#setSmallIcon(int)"><code>setSmallIcon(int)</code></a>.
+   <li><b><code>exo_notification_play</code></b> - The play icon.
+   <li><b><code>exo_notification_pause</code></b> - The pause icon.
+   <li><b><code>exo_notification_rewind</code></b> - The rewind icon.
+   <li><b><code>exo_notification_fastforward</code></b> - The fast forward icon.
+   <li><b><code>exo_notification_previous</code></b> - The previous icon.
+   <li><b><code>exo_notification_next</code></b> - The next icon.
+   <li><b><code>exo_notification_stop</code></b> - The stop icon.
+ </ul>
+
+ <p>Alternatively, the action icons can be set programatically by using the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a>.
+
+ <p>Unlike the drawables above, the large icon (i.e. the icon passed to <code>NotificationCompat.Builder.setLargeIcon(Bitmap)</code> cannot be overridden in this way. Instead, the
+ large icon is obtained from the <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a> passed to <a href="PlayerNotificationManager.Builder.html#%3Cinit%3E(android.content.Context,int,java.lang.String,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)"><code>Builder(Context, int, String, MediaDescriptionAdapter)</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.BitmapCallback</a></span></code></th>
+<td class="colLast">
+<div class="block">Receives a <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Bitmap</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block">A builder for <a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a></span></code></th>
+<td class="colLast">
+<div class="block">Defines and handles custom actions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a></span></code></th>
+<td class="colLast">
+<div class="block">An adapter to provide content assets of the media currently playing.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a></span></code></th>
+<td class="colLast">
+<div class="block">A listener for changes to the notification.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.Priority.html" title="annotation in com.google.android.exoplayer2.ui">PlayerNotificationManager.Priority</a></span></code></th>
+<td class="colLast">
+<div class="block">Priority of the notification (required for API 25 and lower).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerNotificationManager.Visibility.html" title="annotation in com.google.android.exoplayer2.ui">PlayerNotificationManager.Visibility</a></span></code></th>
+<td class="colLast">
+<div class="block">Visibility of notification on the lock screen.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_FAST_FORWARD">ACTION_FAST_FORWARD</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which fast forwards.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_NEXT">ACTION_NEXT</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which skips to the next window.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_PAUSE">ACTION_PAUSE</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which pauses playback.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_PLAY">ACTION_PLAY</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which starts playback.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_PREVIOUS">ACTION_PREVIOUS</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which skips to the previous window.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_REWIND">ACTION_REWIND</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which rewinds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_STOP">ACTION_STOP</a></span></code></th>
+<td class="colLast">
+<div class="block">The action which stops playback.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXTRA_INSTANCE_ID">EXTRA_INSTANCE_ID</a></span></code></th>
+<td class="colLast">
+<div class="block">The extra key of the instance id of the player notification manager.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">PlayerNotificationManager</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                         int&nbsp;notificationId,
+                         <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver)">PlayerNotificationManager</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                         int&nbsp;notificationId,
+                         <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                         <a href="PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">PlayerNotificationManager</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                         int&nbsp;notificationId,
+                         <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                         <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener,com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver)">PlayerNotificationManager</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                         int&nbsp;notificationId,
+                         <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                         <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener,
+                         <a href="PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>protected androidx.core.app.NotificationCompat.Builder</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createNotification(com.google.android.exoplayer2.Player,androidx.core.app.NotificationCompat.Builder,boolean,android.graphics.Bitmap)">createNotification</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                  androidx.core.app.NotificationCompat.Builder&nbsp;builder,
+                  boolean&nbsp;ongoing,
+                  <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;largeIcon)</code></th>
+<td class="colLast">
+<div class="block">Creates the notification given the current player state.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createWithNotificationChannel(android.content.Context,java.lang.String,int,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">createWithNotificationChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;channelDescription,
+                             int&nbsp;notificationId,
+                             <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createWithNotificationChannel(android.content.Context,java.lang.String,int,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">createWithNotificationChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;channelDescription,
+                             int&nbsp;notificationId,
+                             <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                             <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createWithNotificationChannel(android.content.Context,java.lang.String,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">createWithNotificationChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;notificationId,
+                             <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createWithNotificationChannel(android.content.Context,java.lang.String,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">createWithNotificationChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                             int&nbsp;channelName,
+                             int&nbsp;notificationId,
+                             <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                             <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected int[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getActionIndicesForCompactView(java.util.List,com.google.android.exoplayer2.Player)">getActionIndicesForCompactView</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;actionNames,
+                              <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Gets an array with the indices of the buttons to be shown in compact mode.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getActions(com.google.android.exoplayer2.Player)">getActions</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Gets the names and order of the actions to be included in the notification at the current
+ player state.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOngoing(com.google.android.exoplayer2.Player)">getOngoing</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the generated notification should be ongoing.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidate()">invalidate</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Forces an update of the notification if already started.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBadgeIconType(int)">setBadgeIconType</a></span>&#8203;(int&nbsp;badgeIconType)</code></th>
+<td class="colLast">
+<div class="block">Sets the badge icon type of the notification.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setColor(int)">setColor</a></span>&#8203;(int&nbsp;color)</code></th>
+<td class="colLast">
+<div class="block">Sets the accent color of the notification.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setColorized(boolean)">setColorized</a></span>&#8203;(boolean&nbsp;colorized)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the notification should be colorized.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">setControlDispatcher</a></span>&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaults(int)">setDefaults</a></span>&#8203;(int&nbsp;defaults)</code></th>
+<td class="colLast">
+<div class="block">Sets the defaults.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFastForwardIncrementMs(long)">setFastForwardIncrementMs</a></span>&#8203;(long&nbsp;fastForwardMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSessionToken(android.support.v4.media.session.MediaSessionCompat.Token)">setMediaSessionToken</a></span>&#8203;(android.support.v4.media.session.MediaSessionCompat.Token&nbsp;token)</code></th>
+<td class="colLast">
+<div class="block">Sets the <code>MediaSessionCompat.Token</code>.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">setPlaybackPreparer</a></span>&#8203;(<a href="../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPriority(int)">setPriority</a></span>&#8203;(int&nbsp;priority)</code></th>
+<td class="colLast">
+<div class="block">Sets the priority of the notification required for API 25 and lower.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRewindIncrementMs(long)">setRewindIncrementMs</a></span>&#8203;(long&nbsp;rewindMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSmallIcon(int)">setSmallIcon</a></span>&#8203;(int&nbsp;smallIconResourceId)</code></th>
+<td class="colLast">
+<div class="block">Sets the small icon of the notification which is also shown in the system status bar.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseChronometer(boolean)">setUseChronometer</a></span>&#8203;(boolean&nbsp;useChronometer)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the elapsed time of the media playback should be displayed.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseNavigationActions(boolean)">setUseNavigationActions</a></span>&#8203;(boolean&nbsp;useNavigationActions)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setUseNextAction(boolean)"><code>setUseNextAction(boolean)</code></a> and <a href="#setUsePreviousAction(boolean)"><code>setUsePreviousAction(boolean)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseNavigationActionsInCompactView(boolean)">setUseNavigationActionsInCompactView</a></span>&#8203;(boolean&nbsp;useNavigationActionsInCompactView)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setUseNextActionInCompactView(boolean)"><code>setUseNextActionInCompactView(boolean)</code></a> and <a href="#setUsePreviousActionInCompactView(boolean)"><code>setUsePreviousActionInCompactView(boolean)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseNextAction(boolean)">setUseNextAction</a></span>&#8203;(boolean&nbsp;useNextAction)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the next action should be used.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseNextActionInCompactView(boolean)">setUseNextActionInCompactView</a></span>&#8203;(boolean&nbsp;useNextActionInCompactView)</code></th>
+<td class="colLast">
+<div class="block">If <a href="#setUseNextAction(boolean)"><code>useNextAction</code></a> is <code>true</code>, sets whether the next action should
+ also be used in compact view.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUsePlayPauseActions(boolean)">setUsePlayPauseActions</a></span>&#8203;(boolean&nbsp;usePlayPauseActions)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the play and pause actions should be used.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUsePreviousAction(boolean)">setUsePreviousAction</a></span>&#8203;(boolean&nbsp;usePreviousAction)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the previous action should be used.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUsePreviousActionInCompactView(boolean)">setUsePreviousActionInCompactView</a></span>&#8203;(boolean&nbsp;usePreviousActionInCompactView)</code></th>
+<td class="colLast">
+<div class="block">If <a href="#setUsePreviousAction(boolean)"><code>usePreviousAction</code></a> is <code>true</code>, sets whether the previous
+ action should also be used in compact view.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseStopAction(boolean)">setUseStopAction</a></span>&#8203;(boolean&nbsp;useStopAction)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the stop action should be used.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVisibility(int)">setVisibility</a></span>&#8203;(int&nbsp;visibility)</code></th>
+<td class="colLast">
+<div class="block">Sets the visibility of the notification which determines whether and how the notification is
+ shown when the device is in lock screen mode.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="ACTION_PLAY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_PLAY</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_PLAY</pre>
+<div class="block">The action which starts playback.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_PLAY">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ACTION_PAUSE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_PAUSE</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_PAUSE</pre>
+<div class="block">The action which pauses playback.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_PAUSE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ACTION_PREVIOUS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_PREVIOUS</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_PREVIOUS</pre>
+<div class="block">The action which skips to the previous window.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_PREVIOUS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ACTION_NEXT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_NEXT</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_NEXT</pre>
+<div class="block">The action which skips to the next window.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_NEXT">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ACTION_FAST_FORWARD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_FAST_FORWARD</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_FAST_FORWARD</pre>
+<div class="block">The action which fast forwards.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_FAST_FORWARD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ACTION_REWIND">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_REWIND</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_REWIND</pre>
+<div class="block">The action which rewinds.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_REWIND">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="ACTION_STOP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ACTION_STOP</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_STOP</pre>
+<div class="block">The action which stops playback.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_STOP">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EXTRA_INSTANCE_ID">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>EXTRA_INSTANCE_ID</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> EXTRA_INSTANCE_ID</pre>
+<div class="block">The extra key of the instance id of the player notification manager.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.EXTRA_INSTANCE_ID">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlayerNotificationManager</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;PlayerNotificationManager&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                 int&nbsp;notificationId,
+                                 <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlayerNotificationManager</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;PlayerNotificationManager&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                 int&nbsp;notificationId,
+                                 <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                 @Nullable
+                                 <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlayerNotificationManager</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;PlayerNotificationManager&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                 int&nbsp;notificationId,
+                                 <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                 @Nullable
+                                 <a href="PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener,com.google.android.exoplayer2.ui.PlayerNotificationManager.CustomActionReceiver)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>PlayerNotificationManager</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;PlayerNotificationManager&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                 int&nbsp;notificationId,
+                                 <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                 @Nullable
+                                 <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener,
+                                 @Nullable
+                                 <a href="PlayerNotificationManager.CustomActionReceiver.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.CustomActionReceiver</a>&nbsp;customActionReceiver)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="createWithNotificationChannel(android.content.Context,java.lang.String,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                                                      @StringRes
+                                                                      int&nbsp;channelName,
+                                                                      int&nbsp;notificationId,
+                                                                      <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="createWithNotificationChannel(android.content.Context,java.lang.String,int,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                                                      @StringRes
+                                                                      int&nbsp;channelName,
+                                                                      @StringRes
+                                                                      int&nbsp;channelDescription,
+                                                                      int&nbsp;notificationId,
+                                                                      <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="createWithNotificationChannel(android.content.Context,java.lang.String,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                                                      @StringRes
+                                                                      int&nbsp;channelName,
+                                                                      int&nbsp;notificationId,
+                                                                      <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                                                      @Nullable
+                                                                      <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="createWithNotificationChannel(android.content.Context,java.lang.String,int,int,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter,com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithNotificationChannel</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static&nbsp;<a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a>&nbsp;createWithNotificationChannel&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+                                                                      @StringRes
+                                                                      int&nbsp;channelName,
+                                                                      @StringRes
+                                                                      int&nbsp;channelDescription,
+                                                                      int&nbsp;notificationId,
+                                                                      <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter,
+                                                                      @Nullable
+                                                                      <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use the <a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.Builder</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setPlayer(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayer</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setPlayer&#8203;(@Nullable
+                            <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.
+
+ <p>Setting the player starts a notification immediately unless the player is in <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a>, in which case the notification is started as soon as the player transitions
+ away from being idle.
+
+ <p>If the player is released it must be removed from the manager by calling <code>
+ setPlayer(null)</code>. This will cancel the notification.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use, or <code>null</code> to remove the current player. Only
+     players which are accessed on the main thread are supported (<code>
+     player.getApplicationLooper() == Looper.getMainLooper()</code>).</dd>
+</dl>
+</li>
+</ul>
+<a id="setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaybackPreparer</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
+                                <a href="../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead. The manager calls
+     <a href="../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="../PlaybackPreparer.html#preparePlayback()"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="../DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that this manager
+     uses by default, calls <a href="../Player.html#prepare()"><code>Player.prepare()</code></a>. If you wish to intercept or customize this
+     behaviour, you can provide a custom implementation of <a href="../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> and pass it to <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setControlDispatcher</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setControlDispatcher&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
+<div class="block">Sets the <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>controlDispatcher</code> - The <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="setFastForwardIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFastForwardIncrementMs</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="setRewindIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRewindIncrementMs</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;void&nbsp;setRewindIncrementMs&#8203;(long&nbsp;rewindMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="setUseNextAction(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNextAction</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setUseNextAction&#8203;(boolean&nbsp;useNextAction)</pre>
+<div class="block">Sets whether the next action should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNextAction</code> - Whether to use the next action.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUsePreviousAction(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUsePreviousAction</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setUsePreviousAction&#8203;(boolean&nbsp;usePreviousAction)</pre>
+<div class="block">Sets whether the previous action should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>usePreviousAction</code> - Whether to use the previous action.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUseNavigationActions(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNavigationActions</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;void&nbsp;setUseNavigationActions&#8203;(boolean&nbsp;useNavigationActions)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setUseNextAction(boolean)"><code>setUseNextAction(boolean)</code></a> and <a href="#setUsePreviousAction(boolean)"><code>setUsePreviousAction(boolean)</code></a>.</div>
+</div>
+<div class="block">Sets whether the navigation actions should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNavigationActions</code> - Whether to use navigation actions.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUseNextActionInCompactView(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNextActionInCompactView</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setUseNextActionInCompactView&#8203;(boolean&nbsp;useNextActionInCompactView)</pre>
+<div class="block">If <a href="#setUseNextAction(boolean)"><code>useNextAction</code></a> is <code>true</code>, sets whether the next action should
+ also be used in compact view. Has no effect if <a href="#setUseNextAction(boolean)"><code>useNextAction</code></a> is
+ <code>false</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNextActionInCompactView</code> - Whether to use the next action in compact view.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUsePreviousActionInCompactView(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUsePreviousActionInCompactView</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setUsePreviousActionInCompactView&#8203;(boolean&nbsp;usePreviousActionInCompactView)</pre>
+<div class="block">If <a href="#setUsePreviousAction(boolean)"><code>usePreviousAction</code></a> is <code>true</code>, sets whether the previous
+ action should also be used in compact view. Has no effect if <a href="#setUsePreviousAction(boolean)"><code>usePreviousAction</code></a> is <code>false</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>usePreviousActionInCompactView</code> - Whether to use the previous action in compact view.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUseNavigationActionsInCompactView(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNavigationActionsInCompactView</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;void&nbsp;setUseNavigationActionsInCompactView&#8203;(boolean&nbsp;useNavigationActionsInCompactView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setUseNextActionInCompactView(boolean)"><code>setUseNextActionInCompactView(boolean)</code></a> and <a href="#setUsePreviousActionInCompactView(boolean)"><code>setUsePreviousActionInCompactView(boolean)</code></a> instead.</div>
+</div>
+<div class="block">If <a href="#setUseNavigationActions(boolean)"><code>useNavigationActions</code></a> is <code>true</code>, sets whether
+ navigation actions should also be used in compact view. Has no effect if <a href="#setUseNavigationActions(boolean)"><code>useNavigationActions</code></a> is <code>false</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNavigationActionsInCompactView</code> - Whether to use navigation actions in compact view.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUsePlayPauseActions(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUsePlayPauseActions</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setUsePlayPauseActions&#8203;(boolean&nbsp;usePlayPauseActions)</pre>
+<div class="block">Sets whether the play and pause actions should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>usePlayPauseActions</code> - Whether to use play and pause actions.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUseStopAction(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseStopAction</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setUseStopAction&#8203;(boolean&nbsp;useStopAction)</pre>
+<div class="block">Sets whether the stop action should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useStopAction</code> - Whether to use the stop action.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMediaSessionToken(android.support.v4.media.session.MediaSessionCompat.Token)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaSessionToken</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setMediaSessionToken&#8203;(android.support.v4.media.session.MediaSessionCompat.Token&nbsp;token)</pre>
+<div class="block">Sets the <code>MediaSessionCompat.Token</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>token</code> - The <code>MediaSessionCompat.Token</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="setBadgeIconType(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setBadgeIconType</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setBadgeIconType&#8203;(int&nbsp;badgeIconType)</pre>
+<div class="block">Sets the badge icon type of the notification.
+
+ <p>See <code>NotificationCompat.Builder.setBadgeIconType(int)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>badgeIconType</code> - The badge icon type.</dd>
+</dl>
+</li>
+</ul>
+<a id="setColorized(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setColorized</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setColorized&#8203;(boolean&nbsp;colorized)</pre>
+<div class="block">Sets whether the notification should be colorized. When set, the color set with <a href="#setColor(int)"><code>setColor(int)</code></a> will be used as the background color for the notification.
+
+ <p>See <code>NotificationCompat.Builder.setColorized(boolean)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>colorized</code> - Whether to colorize the notification.</dd>
+</dl>
+</li>
+</ul>
+<a id="setDefaults(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDefaults</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setDefaults&#8203;(int&nbsp;defaults)</pre>
+<div class="block">Sets the defaults.
+
+ <p>See <code>NotificationCompat.Builder.setDefaults(int)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>defaults</code> - The default notification options.</dd>
+</dl>
+</li>
+</ul>
+<a id="setColor(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setColor</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setColor&#8203;(int&nbsp;color)</pre>
+<div class="block">Sets the accent color of the notification.
+
+ <p>See <code>NotificationCompat.Builder.setColor(int)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>color</code> - The color, in ARGB integer form like the constants in <a href="https://developer.android.com/reference/android/graphics/Color.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Color</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPriority(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPriority</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setPriority&#8203;(<a href="PlayerNotificationManager.Priority.html" title="annotation in com.google.android.exoplayer2.ui">@Priority</a>
+                              int&nbsp;priority)</pre>
+<div class="block">Sets the priority of the notification required for API 25 and lower.
+
+ <p>See <code>NotificationCompat.Builder.setPriority(int)</code>.
+
+ <p>To set the priority for API levels above 25, you can create your own <a href="https://developer.android.com/reference/android/app/NotificationChannel.html" title="class or interface in android.app" class="externalLink"><code>NotificationChannel</code></a> with a given importance level and pass the id of the channel to the <a href="#%3Cinit%3E(android.content.Context,java.lang.String,int,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)" target="_top"><code>constructor</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>priority</code> - The priority which can be one of <code>NotificationCompat.PRIORITY_DEFAULT</code>,
+     <code>NotificationCompat.PRIORITY_MAX</code>, <code>NotificationCompat.PRIORITY_HIGH</code>, <code>NotificationCompat.PRIORITY_LOW</code> or <code>NotificationCompat.PRIORITY_MIN</code>. If not set
+     <code>NotificationCompat.PRIORITY_LOW</code> is used by default.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSmallIcon(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSmallIcon</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setSmallIcon&#8203;(@DrawableRes
+                               int&nbsp;smallIconResourceId)</pre>
+<div class="block">Sets the small icon of the notification which is also shown in the system status bar.
+
+ <p>See <code>NotificationCompat.Builder.setSmallIcon(int)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>smallIconResourceId</code> - The resource id of the small icon.</dd>
+</dl>
+</li>
+</ul>
+<a id="setUseChronometer(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseChronometer</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setUseChronometer&#8203;(boolean&nbsp;useChronometer)</pre>
+<div class="block">Sets whether the elapsed time of the media playback should be displayed.
+
+ <p>Note that this setting only works if all of the following are true:
+
+ <ul>
+   <li>The media is <a href="../Player.html#isPlaying()"><code>actively playing</code></a>.
+   <li>The media is not <a href="../Player.html#isCurrentWindowDynamic()"><code>dynamically changing its
+       duration</code></a> (like for example a live stream).
+   <li>The media is not <a href="../Player.html#isPlayingAd()"><code>interrupted by an ad</code></a>.
+   <li>The media is played at <a href="../Player.html#getPlaybackParameters()"><code>regular speed</code></a>.
+   <li>The device is running at least API 21 (Lollipop).
+ </ul>
+
+ <p>See <code>NotificationCompat.Builder.setUsesChronometer(boolean)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useChronometer</code> - Whether to use chronometer.</dd>
+</dl>
+</li>
+</ul>
+<a id="setVisibility(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVisibility</h4>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setVisibility&#8203;(<a href="PlayerNotificationManager.Visibility.html" title="annotation in com.google.android.exoplayer2.ui">@Visibility</a>
+                                int&nbsp;visibility)</pre>
+<div class="block">Sets the visibility of the notification which determines whether and how the notification is
+ shown when the device is in lock screen mode.
+
+ <p>See <code>NotificationCompat.Builder.setVisibility(int)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>visibility</code> - The visibility which must be one of <code>NotificationCompat.VISIBILITY_PUBLIC</code>, <code>NotificationCompat.VISIBILITY_PRIVATE</code> or
+     <code>NotificationCompat.VISIBILITY_SECRET</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="invalidate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>invalidate</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;invalidate()</pre>
+<div class="block">Forces an update of the notification if already started.</div>
+</li>
+</ul>
+<a id="createNotification(com.google.android.exoplayer2.Player,androidx.core.app.NotificationCompat.Builder,boolean,android.graphics.Bitmap)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createNotification</h4>
+<pre class="methodSignature">@Nullable
+protected&nbsp;androidx.core.app.NotificationCompat.Builder&nbsp;createNotification&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                                                          @Nullable
+                                                                          androidx.core.app.NotificationCompat.Builder&nbsp;builder,
+                                                                          boolean&nbsp;ongoing,
+                                                                          @Nullable
+                                                                          <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;largeIcon)</pre>
+<div class="block">Creates the notification given the current player state.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The player for which state to build a notification.</dd>
+<dd><code>builder</code> - The builder used to build the last notification, or <code>null</code>. Re-using the
+     builder when possible can prevent notification flicker when <code>Util#SDK_INT</code> &lt; 21.</dd>
+<dd><code>ongoing</code> - Whether the notification should be ongoing.</dd>
+<dd><code>largeIcon</code> - The large icon to be used.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <code>NotificationCompat.Builder</code> on which to call <code>NotificationCompat.Builder.build()</code> to obtain the notification, or <code>null</code> if no
+     notification should be displayed.</dd>
+</dl>
+</li>
+</ul>
+<a id="getActions(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getActions</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;getActions&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player)</pre>
+<div class="block">Gets the names and order of the actions to be included in the notification at the current
+ player state.
+
+ <p>The playback and custom actions are combined and placed in the following order if not
+ omitted:
+
+ <pre>
+   +------------------------------------------------------------------------+
+   | prev | &lt;&lt; | play/pause | &gt;&gt; | next | custom actions | stop |
+   +------------------------------------------------------------------------+
+ </pre>
+
+ <p>This method can be safely overridden. However, the names must be of the playback actions
+ <a href="#ACTION_PAUSE"><code>ACTION_PAUSE</code></a>, <a href="#ACTION_PLAY"><code>ACTION_PLAY</code></a>, <a href="#ACTION_FAST_FORWARD"><code>ACTION_FAST_FORWARD</code></a>, <a href="#ACTION_REWIND"><code>ACTION_REWIND</code></a>, <a href="#ACTION_NEXT"><code>ACTION_NEXT</code></a> or <a href="#ACTION_PREVIOUS"><code>ACTION_PREVIOUS</code></a>, or a key contained in the
+ map returned by <a href="PlayerNotificationManager.CustomActionReceiver.html#createCustomActions(android.content.Context,int)"><code>PlayerNotificationManager.CustomActionReceiver.createCustomActions(Context, int)</code></a>. Otherwise the
+ action name is ignored.</div>
+</li>
+</ul>
+<a id="getActionIndicesForCompactView(java.util.List,com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getActionIndicesForCompactView</h4>
+<pre class="methodSignature">protected&nbsp;int[]&nbsp;getActionIndicesForCompactView&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;actionNames,
+                                               <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Gets an array with the indices of the buttons to be shown in compact mode.
+
+ <p>This method can be overridden. The indices must refer to the list of actions passed as the
+ first parameter.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>actionNames</code> - The names of the actions included in the notification.</dd>
+<dd><code>player</code> - The player for which a notification is being built.</dd>
+</dl>
+</li>
+</ul>
+<a id="getOngoing(com.google.android.exoplayer2.Player)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getOngoing</h4>
+<pre class="methodSignature">protected&nbsp;boolean&nbsp;getOngoing&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Returns whether the generated notification should be ongoing.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

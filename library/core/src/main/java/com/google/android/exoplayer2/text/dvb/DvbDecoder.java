@@ -16,20 +16,19 @@
 package com.google.android.exoplayer2.text.dvb;
 
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.List;
 
-/**
- * A {@link SimpleSubtitleDecoder} for DVB Subtitles.
- */
+/** A {@link SimpleSubtitleDecoder} for DVB subtitles. */
 public final class DvbDecoder extends SimpleSubtitleDecoder {
 
   private final DvbParser parser;
 
   /**
-   * @param initializationData The initialization data for the decoder. The initialization data
-   *     must consist of a single byte array containing 5 bytes: flag_pes_stripped (1),
-   *     composition_page (2), ancillary_page (2).
+   * @param initializationData The initialization data for the decoder. The initialization data must
+   *     consist of a single byte array containing 5 bytes: flag_pes_stripped (1), composition_page
+   *     (2), ancillary_page (2).
    */
   public DvbDecoder(List<byte[]> initializationData) {
     super("DvbDecoder");
@@ -40,11 +39,10 @@ public final class DvbDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected DvbSubtitle decode(byte[] data, int length, boolean reset) {
+  protected Subtitle decode(byte[] data, int length, boolean reset) {
     if (reset) {
       parser.reset();
     }
     return new DvbSubtitle(parser.decode(data, length));
   }
-
 }

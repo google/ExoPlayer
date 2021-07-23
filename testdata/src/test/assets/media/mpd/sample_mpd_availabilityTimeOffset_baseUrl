@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:DASH:schema:MPD:2011"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
+  xmlns:dvb="urn:dvb:dash:dash-extensions:2014-1"
+  profiles="urn:mpeg:dash:profile:isoff-main:2011"
+  type="dynamic"
+  availabilityStartTime="2016-10-14T17:00:17">
+  <BaseURL>http://video.com/baseUrl</BaseURL>
+  <Period start="PT0.000S">
+    <BaseURL
+      dvb:priority="2"
+      dvb:weight="20"
+      serviceLocation="period0"
+      availabilityTimeOffset="5">http://video.com/baseUrl/period</BaseURL>
+    <SegmentTemplate/>
+    <AdaptationSet>
+      <Representation/>
+    </AdaptationSet>
+    <AdaptationSet>
+      <BaseURL
+        dvb:priority="3"
+        dvb:weight="30"
+        serviceLocation="adaptationSet1"
+        availabilityTimeOffset="4.321">http://video.com/baseUrl/adaptationSet1</BaseURL>
+      <SegmentTemplate/>
+      <Representation/>
+    </AdaptationSet>
+    <AdaptationSet>
+      <SegmentTemplate/>
+      <Representation>
+        <BaseURL
+          dvb:priority="4"
+          dvb:weight="40"
+          serviceLocation="representation2"
+          availabilityTimeOffset="9.876543210">http://video.com/baseUrl/representation2</BaseURL>
+        <SegmentTemplate/>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet>
+      <BaseURL availabilityTimeOffset="0.5">http://video-foo.com/baseUrl/adaptationSet3</BaseURL>
+      <Representation>
+        <BaseURL
+          dvb:priority="5"
+          dvb:weight="50"
+          serviceLocation="representation3"
+          availabilityTimeOffset="INF">/baseUrl/representation3</BaseURL>
+        <SegmentTemplate/>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+  <Period start="PT100.000S">
+    <SegmentTemplate/>
+    <AdaptationSet>
+      <Representation/>
+    </AdaptationSet>
+  </Period>
+</MPD>

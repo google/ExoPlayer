@@ -1,0 +1,16 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 324
+  sample count = 1
+  format 0:
+    sampleMimeType = text/vtt
+    subsampleOffsetUs = -958710678845
+  sample 0:
+    time = 5000155
+    flags = 1
+    data = length 324, hash C0D159A2
+tracksEnded = true

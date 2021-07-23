@@ -1,0 +1,656 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>FakeSampleStream (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="FakeSampleStream (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<h2 title="Class FakeSampleStream" class="title">Class FakeSampleStream</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.testutil.FakeSampleStream</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">FakeSampleStream</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></pre>
+<div class="block">Fake <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> that outputs a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> and any amount of <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a></span></code></th>
+<td class="colLast">
+<div class="block">Item to customize a return value of <a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.SampleStream">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></h3>
+<code><a href="../source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a>, <a href="../source/SampleStream.ReadFlags.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadFlags</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.SampleStream">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></h3>
+<code><a href="../source/SampleStream.html#FLAG_OMIT_SAMPLE_DATA">FLAG_OMIT_SAMPLE_DATA</a>, <a href="../source/SampleStream.html#FLAG_PEEK">FLAG_PEEK</a>, <a href="../source/SampleStream.html#FLAG_REQUIRE_FORMAT">FLAG_REQUIRE_FORMAT</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format,java.util.List)">FakeSampleStream</a></span>&#8203;(<a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                <a href="../source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher,
+                <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
+                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;initialFormat,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil" target="_top">FakeSampleStream.FakeSampleStreamItem</a>&gt;&nbsp;fakeSampleStreamItems)</code></th>
+<td class="colLast">
+<div class="block">Creates a fake sample stream which outputs the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> followed by the provided
+ <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#append(java.util.List)">append</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil" target="_top">FakeSampleStream.FakeSampleStreamItem</a>&gt;&nbsp;items)</code></th>
+<td class="colLast">
+<div class="block">Appends <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeSampleStreamItems</code></a> to the list of items that should be
+ written to the queue.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardTo(long,boolean)">discardTo</a></span>&#8203;(long&nbsp;positionUs,
+         boolean&nbsp;toKeyframe)</code></th>
+<td class="colLast">
+<div class="block">Discards data from the queue.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLargestQueuedTimestampUs()">getLargestQueuedTimestampUs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the timestamp of the largest queued sample in the queue, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MIN_VALUE</code></a> if
+ no samples are queued.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoadingFinished()">isLoadingFinished</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether data has been written to the sample queue until the end of stream signal.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReady()">isReady</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether data is available to be read.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Throws an error that's preventing data from being read.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readData</a></span>&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
+        <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
+        int&nbsp;readFlags)</code></th>
+<td class="colLast">
+<div class="block">Attempts to read from the stream.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Release the stream and its underlying sample queue.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Resets the sample queue.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToUs(long)">seekToUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
+<td class="colLast">
+<div class="block">Seeks the stream to a new position using already available data in the queue.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipData(long)">skipData</a></span>&#8203;(long&nbsp;positionUs)</code></th>
+<td class="colLast">
+<div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
+ <code>positionUs</code> is beyond it.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeData(long)">writeData</a></span>&#8203;(long&nbsp;startPositionUs)</code></th>
+<td class="colLast">
+<div class="block">Writes all not yet written <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>sample stream items</code></a> to the sample queue
+ starting at the given position.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FakeSampleStream</h4>
+<pre>public&nbsp;FakeSampleStream&#8203;(<a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                        @Nullable
+                        <a href="../source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher,
+                        <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                        <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
+                        <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;initialFormat,
+                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil" target="_top">FakeSampleStream.FakeSampleStreamItem</a>&gt;&nbsp;fakeSampleStreamItems)</pre>
+<div class="block">Creates a fake sample stream which outputs the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> followed by the provided
+ <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allocator</code> - An <a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a>.</dd>
+<dd><code>mediaSourceEventDispatcher</code> - A <a href="../source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> to notify
+     of media events.</dd>
+<dd><code>drmSessionManager</code> - A <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for DRM interactions.</dd>
+<dd><code>drmEventDispatcher</code> - A <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> to notify of DRM
+     events.</dd>
+<dd><code>initialFormat</code> - The first <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> to output.</dd>
+<dd><code>fakeSampleStreamItems</code> - The <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a> to output.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="append(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>append</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;append&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil" target="_top">FakeSampleStream.FakeSampleStreamItem</a>&gt;&nbsp;items)</pre>
+<div class="block">Appends <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeSampleStreamItems</code></a> to the list of items that should be
+ written to the queue.
+
+ <p>Note that this data is only written to the queue once <a href="#writeData(long)"><code>writeData(long)</code></a> is called.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>items</code> - The items to append.</dd>
+</dl>
+</li>
+</ul>
+<a id="writeData(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeData</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;writeData&#8203;(long&nbsp;startPositionUs)</pre>
+<div class="block">Writes all not yet written <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>sample stream items</code></a> to the sample queue
+ starting at the given position.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>startPositionUs</code> - The start position, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="seekToUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekToUs</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;seekToUs&#8203;(long&nbsp;positionUs)</pre>
+<div class="block">Seeks the stream to a new position using already available data in the queue.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The new position, in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether seeking inside the available data was possible.</dd>
+</dl>
+</li>
+</ul>
+<a id="reset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="block">Resets the sample queue.
+
+ <p>A new call to <a href="#writeData(long)"><code>writeData(long)</code></a> is required to fill the queue again.</div>
+</li>
+</ul>
+<a id="isLoadingFinished()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLoadingFinished</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isLoadingFinished()</pre>
+<div class="block">Returns whether data has been written to the sample queue until the end of stream signal.</div>
+</li>
+</ul>
+<a id="getLargestQueuedTimestampUs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLargestQueuedTimestampUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getLargestQueuedTimestampUs()</pre>
+<div class="block">Returns the timestamp of the largest queued sample in the queue, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MIN_VALUE</code></a> if
+ no samples are queued.</div>
+</li>
+</ul>
+<a id="discardTo(long,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>discardTo</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;discardTo&#8203;(long&nbsp;positionUs,
+                      boolean&nbsp;toKeyframe)</pre>
+<div class="block">Discards data from the queue.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The position to discard to, in microseconds.</dd>
+<dd><code>toKeyframe</code> - Whether to discard to keyframes only.</dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="block">Release the stream and its underlying sample queue.</div>
+</li>
+</ul>
+<a id="isReady()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isReady</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isReady()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/SampleStream.html#isReady()">SampleStream</a></code></span></div>
+<div class="block">Returns whether data is available to be read.
+
+ <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
+ from <a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>. Hence an ended stream is always ready.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../source/SampleStream.html#isReady()">isReady</a></code>&nbsp;in interface&nbsp;<code><a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether data is available to be read.</dd>
+</dl>
+</li>
+</ul>
+<a id="maybeThrowError()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maybeThrowError</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowError()
+                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/SampleStream.html#maybeThrowError()">SampleStream</a></code></span></div>
+<div class="block">Throws an error that's preventing data from being read. Does nothing if no such error exists.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../source/SampleStream.html#maybeThrowError()">maybeThrowError</a></code>&nbsp;in interface&nbsp;<code><a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - The underlying error.</dd>
+</dl>
+</li>
+</ul>
+<a id="readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readData</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;readData&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
+                    <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
+                    <a href="../source/SampleStream.ReadFlags.html" title="annotation in com.google.android.exoplayer2.source">@ReadFlags</a>
+                    int&nbsp;readFlags)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">SampleStream</a></code></span></div>
+<div class="block">Attempts to read from the stream.
+
+ <p>If the stream has ended then <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set on <code>
+ buffer</code> and <a href="../C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned. Else if no data is available then <a href="../C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a> is returned. Else if the format of the media is changing or if <code>
+ formatRequired</code> is set then <code>formatHolder</code> is populated and <a href="../C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a>
+ is returned. Else <code>buffer</code> is populated and <a href="../C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readData</a></code>&nbsp;in interface&nbsp;<code><a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>formatHolder</code> - A <a href="../FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a> to populate in the case of reading a format.</dd>
+<dd><code>buffer</code> - A <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer</code></a> to populate in the case of reading a sample or the
+     end of the stream. If the end of the stream has been reached, the <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag will be set on the buffer.</dd>
+<dd><code>readFlags</code> - Flags controlling the behavior of this read operation.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><code>result</code></a> of the read operation.</dd>
+</dl>
+</li>
+</ul>
+<a id="skipData(long)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>skipData</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;skipData&#8203;(long&nbsp;positionUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/SampleStream.html#skipData(long)">SampleStream</a></code></span></div>
+<div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
+ <code>positionUs</code> is beyond it.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../source/SampleStream.html#skipData(long)">skipData</a></code>&nbsp;in interface&nbsp;<code><a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The specified time.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The number of samples that were skipped.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

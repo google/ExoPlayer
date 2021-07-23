@@ -16,44 +16,76 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.content.Context;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 
 /**
- * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to
- * {@link DefaultHttpDataSource}s for non-file/asset/content URIs.
+ * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to {@link
+ * DefaultHttpDataSource}s for non-file/asset/content URIs.
  */
 public final class DefaultDataSourceFactory implements Factory {
 
   private final Context context;
-  private final TransferListener<? super DataSource> listener;
+  @Nullable private final TransferListener listener;
   private final DataSource.Factory baseDataSourceFactory;
 
   /**
+   * Creates an instance.
+   *
    * @param context A context.
-   * @param userAgent The User-Agent string that should be used.
    */
-  public DefaultDataSourceFactory(Context context, String userAgent) {
-    this(context, userAgent, null);
+  public DefaultDataSourceFactory(Context context) {
+    this(context, /* userAgent= */ (String) null, /* listener= */ null);
   }
 
   /**
+   * Creates an instance.
+   *
    * @param context A context.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used when requesting remote data, or {@code null}
+   *     to use the default user agent of the underlying platform.
+   */
+  public DefaultDataSourceFactory(Context context, @Nullable String userAgent) {
+    this(context, userAgent, /* listener= */ null);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param context A context.
+   * @param userAgent The user agent that will be used when requesting remote data, or {@code null}
+   *     to use the default user agent of the underlying platform.
    * @param listener An optional listener.
    */
-  public DefaultDataSourceFactory(Context context, String userAgent,
-      TransferListener<? super DataSource> listener) {
-    this(context, listener, new DefaultHttpDataSourceFactory(userAgent, listener));
+  public DefaultDataSourceFactory(
+      Context context, @Nullable String userAgent, @Nullable TransferListener listener) {
+    this(context, listener, new DefaultHttpDataSource.Factory().setUserAgent(userAgent));
   }
 
   /**
+   * Creates an instance.
+   *
+   * @param context A context.
+   * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
+   *     for {@link DefaultDataSource}.
+   * @see DefaultDataSource#DefaultDataSource(Context, DataSource)
+   */
+  public DefaultDataSourceFactory(Context context, DataSource.Factory baseDataSourceFactory) {
+    this(context, /* listener= */ null, baseDataSourceFactory);
+  }
+
+  /**
+   * Creates an instance.
+   *
    * @param context A context.
    * @param listener An optional listener.
    * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
    *     for {@link DefaultDataSource}.
-   * @see DefaultDataSource#DefaultDataSource(Context, TransferListener, DataSource)
+   * @see DefaultDataSource#DefaultDataSource(Context, DataSource)
    */
-  public DefaultDataSourceFactory(Context context, TransferListener<? super DataSource> listener,
+  public DefaultDataSourceFactory(
+      Context context,
+      @Nullable TransferListener listener,
       DataSource.Factory baseDataSourceFactory) {
     this.context = context.getApplicationContext();
     this.listener = listener;
@@ -62,7 +94,11 @@ public final class DefaultDataSourceFactory implements Factory {
 
   @Override
   public DefaultDataSource createDataSource() {
-    return new DefaultDataSource(context, listener, baseDataSourceFactory.createDataSource());
+    DefaultDataSource dataSource =
+        new DefaultDataSource(context, baseDataSourceFactory.createDataSource());
+    if (listener != null) {
+      dataSource.addTransferListener(listener);
+    }
+    return dataSource;
   }
-
 }

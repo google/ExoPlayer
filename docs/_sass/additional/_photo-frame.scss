@@ -1,0 +1,17 @@
+.article__content {
+  img.shadow, .shadow > img {
+    @include box-shadow();
+  }
+
+  img.border, .border > img {
+    border: 1px solid $border-color-l;
+  }
+
+  img.rounded, .rounded > img {
+    border-radius: map-get($base, border-radius);
+  }
+
+  img.circle, .circle > img {
+    border-radius: 50%;
+  }
+}

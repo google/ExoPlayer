@@ -15,70 +15,72 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import java.io.EOFException;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * A {@link DataSource} for reading from a local asset.
- */
-public final class AssetDataSource implements DataSource {
+/** A {@link DataSource} for reading from a local asset. */
+public final class AssetDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when an {@link IOException} is encountered reading a local asset.
-   */
-  public static final class AssetDataSourceException extends IOException {
+  /** Thrown when an {@link IOException} is encountered reading a local asset. */
+  public static final class AssetDataSourceException extends DataSourceException {
 
+    /** @deprecated Use {@link #AssetDataSourceException(Throwable, int)}. */
+    @Deprecated
     public AssetDataSourceException(IOException cause) {
-      super(cause);
+      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
+    /**
+     * Creates a new instance.
+     *
+     * @param cause The error cause.
+     * @param errorCode See {@link PlaybackException.ErrorCode}.
+     */
+    public AssetDataSourceException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+      super(cause, errorCode);
+    }
   }
 
   private final AssetManager assetManager;
-  private final TransferListener<? super AssetDataSource> listener;
 
-  private Uri uri;
-  private InputStream inputStream;
+  @Nullable private Uri uri;
+  @Nullable private InputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
 
-  /**
-   * @param context A context.
-   */
+  /** @param context A context. */
   public AssetDataSource(Context context) {
-    this(context, null);
-  }
-
-  /**
-   * @param context A context.
-   * @param listener An optional listener.
-   */
-  public AssetDataSource(Context context, TransferListener<? super AssetDataSource> listener) {
+    super(/* isNetwork= */ false);
     this.assetManager = context.getAssets();
-    this.listener = listener;
   }
 
   @Override
   public long open(DataSpec dataSpec) throws AssetDataSourceException {
     try {
       uri = dataSpec.uri;
-      String path = uri.getPath();
+      String path = Assertions.checkNotNull(uri.getPath());
       if (path.startsWith("/android_asset/")) {
         path = path.substring(15);
       } else if (path.startsWith("/")) {
         path = path.substring(1);
       }
+      transferInitializing(dataSpec);
       inputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
         // assetManager.open() returns an AssetInputStream, whose skip() implementation only skips
         // fewer bytes than requested if the skip is beyond the end of the asset's data.
-        throw new EOFException();
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
@@ -92,13 +94,11 @@ public final class AssetDataSource implements DataSource {
         }
       }
     } catch (IOException e) {
-      throw new AssetDataSourceException(e);
+      throw new AssetDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
     return bytesRemaining;
   }
 
@@ -112,30 +112,25 @@ public final class AssetDataSource implements DataSource {
 
     int bytesRead;
     try {
-      int bytesToRead = bytesRemaining == C.LENGTH_UNSET ? readLength
-          : (int) Math.min(bytesRemaining, readLength);
-      bytesRead = inputStream.read(buffer, offset, bytesToRead);
+      int bytesToRead =
+          bytesRemaining == C.LENGTH_UNSET ? readLength : (int) min(bytesRemaining, readLength);
+      bytesRead = castNonNull(inputStream).read(buffer, offset, bytesToRead);
     } catch (IOException e) {
-      throw new AssetDataSourceException(e);
+      throw new AssetDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     if (bytesRead == -1) {
-      if (bytesRemaining != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new AssetDataSourceException(new EOFException());
-      }
       return C.RESULT_END_OF_INPUT;
     }
     if (bytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining -= bytesRead;
     }
-    if (listener != null) {
-      listener.onBytesTransferred(this, bytesRead);
-    }
+    bytesTransferred(bytesRead);
     return bytesRead;
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return uri;
   }
@@ -148,16 +143,13 @@ public final class AssetDataSource implements DataSource {
         inputStream.close();
       }
     } catch (IOException e) {
-      throw new AssetDataSourceException(e);
+      throw new AssetDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } finally {
       inputStream = null;
       if (opened) {
         opened = false;
-        if (listener != null) {
-          listener.onTransferEnd(this);
-        }
+        transferEnded();
       }
     }
   }
-
 }

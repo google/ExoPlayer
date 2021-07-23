@@ -15,45 +15,34 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.File;
 
-/**
- * Defines a span of data that may or may not be cached (as indicated by {@link #isCached}).
- */
+/** Defines a span of data that may or may not be cached (as indicated by {@link #isCached}). */
 public class CacheSpan implements Comparable<CacheSpan> {
 
-  /**
-   * The cache key that uniquely identifies the original stream.
-   */
+  /** The cache key that uniquely identifies the resource. */
   public final String key;
-  /**
-   * The position of the {@link CacheSpan} in the original stream.
-   */
+  /** The position of the {@link CacheSpan} in the resource. */
   public final long position;
   /**
    * The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an open-ended hole.
    */
   public final long length;
-  /**
-   * Whether the {@link CacheSpan} is cached.
-   */
+  /** Whether the {@link CacheSpan} is cached. */
   public final boolean isCached;
-  /**
-   * The file corresponding to this {@link CacheSpan}, or null if {@link #isCached} is false.
-   */
-  public final File file;
-  /**
-   * The last access timestamp, or {@link C#TIME_UNSET} if {@link #isCached} is false.
-   */
-  public final long lastAccessTimestamp;
+  /** The file corresponding to this {@link CacheSpan}, or null if {@link #isCached} is false. */
+  @Nullable public final File file;
+  /** The last touch timestamp, or {@link C#TIME_UNSET} if {@link #isCached} is false. */
+  public final long lastTouchTimestamp;
 
   /**
-   * Creates a hole CacheSpan which isn't cached, has no last access time and no file associated.
+   * Creates a hole CacheSpan which isn't cached, has no last touch timestamp and no file
+   * associated.
    *
-   * @param key The cache key that uniquely identifies the original stream.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key that uniquely identifies the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @param length The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an
    *     open-ended hole.
    */
@@ -64,39 +53,36 @@ public class CacheSpan implements Comparable<CacheSpan> {
   /**
    * Creates a CacheSpan.
    *
-   * @param key The cache key that uniquely identifies the original stream.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key that uniquely identifies the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @param length The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an
    *     open-ended hole.
-   * @param lastAccessTimestamp The last access timestamp, or {@link C#TIME_UNSET} if
-   *     {@link #isCached} is false.
+   * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} if {@link
+   *     #isCached} is false.
    * @param file The file corresponding to this {@link CacheSpan}, or null if it's a hole.
    */
-  public CacheSpan(String key, long position, long length, long lastAccessTimestamp, File file) {
+  public CacheSpan(
+      String key, long position, long length, long lastTouchTimestamp, @Nullable File file) {
     this.key = key;
     this.position = position;
     this.length = length;
     this.isCached = file != null;
     this.file = file;
-    this.lastAccessTimestamp = lastAccessTimestamp;
+    this.lastTouchTimestamp = lastTouchTimestamp;
   }
 
-  /**
-   * Returns whether this is an open-ended {@link CacheSpan}.
-   */
+  /** Returns whether this is an open-ended {@link CacheSpan}. */
   public boolean isOpenEnded() {
     return length == C.LENGTH_UNSET;
   }
 
-  /**
-   * Returns whether this is a hole {@link CacheSpan}.
-   */
+  /** Returns whether this is a hole {@link CacheSpan}. */
   public boolean isHoleSpan() {
     return !isCached;
   }
 
   @Override
-  public int compareTo(@NonNull CacheSpan another) {
+  public int compareTo(CacheSpan another) {
     if (!key.equals(another.key)) {
       return key.compareTo(another.key);
     }
@@ -104,4 +90,8 @@ public class CacheSpan implements Comparable<CacheSpan> {
     return startOffsetDiff == 0 ? 0 : ((startOffsetDiff < 0) ? -1 : 1);
   }
 
+  @Override
+  public String toString() {
+    return "[" + position + ", " + length + "]";
+  }
 }

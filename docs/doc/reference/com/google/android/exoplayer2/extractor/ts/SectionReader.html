@@ -1,0 +1,414 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>SectionReader (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="SectionReader (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor.ts</a></div>
+<h2 title="Class SectionReader" class="title">Class SectionReader</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.extractor.ts.SectionReader</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">SectionReader</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></pre>
+<div class="block">Reads section data packets and feeds the whole sections to a given <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a>.
+ Useful information on PSI sections can be found in ISO/IEC 13818-1, section 2.4.4.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.extractor.ts.TsPayloadReader">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.ts.<a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></h3>
+<code><a href="TsPayloadReader.DvbSubtitleInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.DvbSubtitleInfo</a>, <a href="TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>, <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>, <a href="TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Flags</a>, <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.extractor.ts.TsPayloadReader">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.extractor.ts.<a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></h3>
+<code><a href="TsPayloadReader.html#FLAG_DATA_ALIGNMENT_INDICATOR">FLAG_DATA_ALIGNMENT_INDICATOR</a>, <a href="TsPayloadReader.html#FLAG_PAYLOAD_UNIT_START_INDICATOR">FLAG_PAYLOAD_UNIT_START_INDICATOR</a>, <a href="TsPayloadReader.html#FLAG_RANDOM_ACCESS_INDICATOR">FLAG_RANDOM_ACCESS_INDICATOR</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.ts.SectionPayloadReader)">SectionReader</a></span>&#8203;(<a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">SectionPayloadReader</a>&nbsp;reader)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,int)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+       int&nbsp;flags)</code></th>
+<td class="colLast">
+<div class="block">Consumes the payload of a TS packet.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">init</a></span>&#8203;(<a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
+    <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
+    <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</code></th>
+<td class="colLast">
+<div class="block">Initializes the payload reader.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek()">seek</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Notifies the reader that a seek has occurred.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.extractor.ts.SectionPayloadReader)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SectionReader</h4>
+<pre>public&nbsp;SectionReader&#8203;(<a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">SectionPayloadReader</a>&nbsp;reader)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="init(com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>init</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
+                 <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
+                 <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.html#init(com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">TsPayloadReader</a></code></span></div>
+<div class="block">Initializes the payload reader.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="TsPayloadReader.html#init(com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">init</a></code>&nbsp;in interface&nbsp;<code><a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timestampAdjuster</code> - A timestamp adjuster for offsetting and scaling sample timestamps.</dd>
+<dd><code>extractorOutput</code> - The <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> that receives the extracted data.</dd>
+<dd><code>idGenerator</code> - A <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.TrackIdGenerator</code></a> that generates unique track ids for the
+     <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s.</dd>
+</dl>
+</li>
+</ul>
+<a id="seek()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seek</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;seek()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.html#seek()">TsPayloadReader</a></code></span></div>
+<div class="block">Notifies the reader that a seek has occurred.
+
+ <p>Following a call to this method, the data passed to the next invocation of <a href="TsPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray,int)"><code>TsPayloadReader.consume(com.google.android.exoplayer2.util.ParsableByteArray, int)</code></a>
+ will not be a continuation of the data that was previously passed. Hence the reader should
+ reset any internal state.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="TsPayloadReader.html#seek()">seek</a></code>&nbsp;in interface&nbsp;<code><a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="consume(com.google.android.exoplayer2.util.ParsableByteArray,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>consume</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;consume&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+                    <a href="TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
+                    int&nbsp;flags)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray,int)">TsPayloadReader</a></code></span></div>
+<div class="block">Consumes the payload of a TS packet.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="TsPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray,int)">consume</a></code>&nbsp;in interface&nbsp;<code><a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The TS packet. The position will be set to the start of the payload.</dd>
+<dd><code>flags</code> - See <a href="TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.Flags</code></a>.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

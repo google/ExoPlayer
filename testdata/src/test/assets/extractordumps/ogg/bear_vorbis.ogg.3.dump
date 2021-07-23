@@ -1,0 +1,20 @@
+seekMap:
+  isSeekable = true
+  duration = 2741000
+  getPosition(0) = [[timeUs=0, position=3995]]
+  getPosition(1) = [[timeUs=1, position=3995]]
+  getPosition(1370500) = [[timeUs=1370500, position=3995]]
+  getPosition(2741000) = [[timeUs=2741000, position=3995]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    averageBitrate = 112000
+    sampleMimeType = audio/vorbis
+    channelCount = 2
+    sampleRate = 48000
+    initializationData:
+      data = length 30, hash 9A8FF207
+      data = length 3832, hash 8A406249
+tracksEnded = true

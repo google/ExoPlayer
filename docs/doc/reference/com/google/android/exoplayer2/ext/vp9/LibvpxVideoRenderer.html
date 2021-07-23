@@ -1,0 +1,636 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>LibvpxVideoRenderer (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="LibvpxVideoRenderer (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.ext.vp9</a></div>
+<h2 title="Class LibvpxVideoRenderer" class="title">Class LibvpxVideoRenderer</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../BaseRenderer.html" title="class in com.google.android.exoplayer2">com.google.android.exoplayer2.BaseRenderer</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">com.google.android.exoplayer2.video.DecoderVideoRenderer</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code>, <code><a href="../../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code>, <code><a href="../../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">LibvpxVideoRenderer</span>
+extends <a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></pre>
+<div class="block">Decodes and renders video using the native VP9 decoder.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Renderer">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
+<code><a href="../../Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a>, <a href="../../Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">Renderer.VideoScalingMode</a>, <a href="../../Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2">Renderer.WakeupListener</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
+<code><a href="../../RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="../../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="../../RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="../../RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.video.DecoderVideoRenderer">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.video.<a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></h3>
+<code><a href="../../video/DecoderVideoRenderer.html#decoderCounters">decoderCounters</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.Renderer">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
+<code><a href="../../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../../Renderer.html#STATE_STARTED">STATE_STARTED</a>, <a href="../../Renderer.html#VIDEO_SCALING_MODE_DEFAULT">VIDEO_SCALING_MODE_DEFAULT</a>, <a href="../../Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a>, <a href="../../Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
+<code><a href="../../RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS">ADAPTIVE_NOT_SEAMLESS</a>, <a href="../../RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED">ADAPTIVE_NOT_SUPPORTED</a>, <a href="../../RendererCapabilities.html#ADAPTIVE_SEAMLESS">ADAPTIVE_SEAMLESS</a>, <a href="../../RendererCapabilities.html#ADAPTIVE_SUPPORT_MASK">ADAPTIVE_SUPPORT_MASK</a>, <a href="../../RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES">FORMAT_EXCEEDS_CAPABILITIES</a>, <a href="../../RendererCapabilities.html#FORMAT_HANDLED">FORMAT_HANDLED</a>, <a href="../../RendererCapabilities.html#FORMAT_SUPPORT_MASK">FORMAT_SUPPORT_MASK</a>, <a href="../../RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM">FORMAT_UNSUPPORTED_DRM</a>, <a href="../../RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE">FORMAT_UNSUPPORTED_SUBTYPE</a>, <a href="../../RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE">FORMAT_UNSUPPORTED_TYPE</a>, <a href="../../RendererCapabilities.html#TUNNELING_NOT_SUPPORTED">TUNNELING_NOT_SUPPORTED</a>, <a href="../../RendererCapabilities.html#TUNNELING_SUPPORT_MASK">TUNNELING_SUPPORT_MASK</a>, <a href="../../RendererCapabilities.html#TUNNELING_SUPPORTED">TUNNELING_SUPPORTED</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long)">LibvpxVideoRenderer</a></span>&#8203;(long&nbsp;allowedJoiningTimeMs)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int)">LibvpxVideoRenderer</a></span>&#8203;(long&nbsp;allowedJoiningTimeMs,
+                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                   <a href="../../video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                   int&nbsp;maxDroppedFramesToNotify)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int,int,int,int)">LibvpxVideoRenderer</a></span>&#8203;(long&nbsp;allowedJoiningTimeMs,
+                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                   <a href="../../video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                   int&nbsp;maxDroppedFramesToNotify,
+                   int&nbsp;threads,
+                   int&nbsp;numInputBuffers,
+                   int&nbsp;numOutputBuffers)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>protected <a href="../../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#canReuseDecoder(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">canReuseDecoder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+               <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+               <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code></th>
+<td class="colLast">
+<div class="block">Evaluates whether the existing decoder can be reused for a new <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="VpxDecoder.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.drm.ExoMediaCrypto)">createDecoder</a></span>&#8203;(<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+             <a href="../../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;mediaCrypto)</code></th>
+<td class="colLast">
+<div class="block">Creates a decoder for the given format.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the name of this renderer, for logging and debugging purposes.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderOutputBufferToSurface(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,android.view.Surface)">renderOutputBufferToSurface</a></span>&#8203;(<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
+                           <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
+<td class="colLast">
+<div class="block">Renders the specified output buffer to the passed surface.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDecoderOutputMode(int)">setDecoderOutputMode</a></span>&#8203;(int&nbsp;outputMode)</code></th>
+<td class="colLast">
+<div class="block">Sets output mode of the decoder.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a></span>&#8203;(<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block">Returns the extent to which the <a href="../../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.video.DecoderVideoRenderer">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.video.<a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></h3>
+<code><a href="../../video/DecoderVideoRenderer.html#dropOutputBuffer(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer)">dropOutputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#flushDecoder()">flushDecoder</a>, <a href="../../video/DecoderVideoRenderer.html#handleMessage(int,java.lang.Object)">handleMessage</a>, <a href="../../video/DecoderVideoRenderer.html#isEnded()">isEnded</a>, <a href="../../video/DecoderVideoRenderer.html#isReady()">isReady</a>, <a href="../../video/DecoderVideoRenderer.html#maybeDropBuffersToKeyframe(long)">maybeDropBuffersToKeyframe</a>, <a href="../../video/DecoderVideoRenderer.html#onDisabled()">onDisabled</a>, <a href="../../video/DecoderVideoRenderer.html#onEnabled(boolean,boolean)">onEnabled</a>, <a href="../../video/DecoderVideoRenderer.html#onInputFormatChanged(com.google.android.exoplayer2.FormatHolder)">onInputFormatChanged</a>, <a href="../../video/DecoderVideoRenderer.html#onPositionReset(long,boolean)">onPositionReset</a>, <a href="../../video/DecoderVideoRenderer.html#onProcessedOutputBuffer(long)">onProcessedOutputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#onQueueInputBuffer(com.google.android.exoplayer2.video.VideoDecoderInputBuffer)">onQueueInputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#onStarted()">onStarted</a>, <a href="../../video/DecoderVideoRenderer.html#onStopped()">onStopped</a>, <a href="../../video/DecoderVideoRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../../video/DecoderVideoRenderer.html#releaseDecoder()">releaseDecoder</a>, <a href="../../video/DecoderVideoRenderer.html#render(long,long)">render</a>, <a href="../../video/DecoderVideoRenderer.html#renderOutputBuffer(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,long,com.google.android.exoplayer2.Format)">renderOutputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#setOutput(java.lang.Object)">setOutput</a>, <a href="../../video/DecoderVideoRenderer.html#shouldDropBuffersToKeyframe(long,long)">shouldDropBuffersToKeyframe</a>, <a href="../../video/DecoderVideoRenderer.html#shouldDropOutputBuffer(long,long)">shouldDropOutputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#shouldForceRenderOutputBuffer(long,long)">shouldForceRenderOutputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#skipOutputBuffer(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer)">skipOutputBuffer</a>, <a href="../../video/DecoderVideoRenderer.html#updateDroppedBufferCounters(int)">updateDroppedBufferCounters</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.BaseRenderer">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
+<code><a href="../../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format)">createRendererException</a>, <a href="../../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean)">createRendererException</a>, <a href="../../BaseRenderer.html#disable()">disable</a>, <a href="../../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../../BaseRenderer.html#getMediaClock()">getMediaClock</a>, <a href="../../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../../BaseRenderer.html#getState()">getState</a>, <a href="../../BaseRenderer.html#getStream()">getStream</a>, <a href="../../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../../BaseRenderer.html#onReset()">onReset</a>, <a href="../../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readSource</a>, <a href="../../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../../BaseRenderer.html#reset()">reset</a>, <a href="../../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../../BaseRenderer.html#setIndex(int)">setIndex</a>, <a href="../../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../../BaseRenderer.html#start()">start</a>, <a href="../../BaseRenderer.html#stop()">stop</a>, <a href="../../BaseRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.Renderer">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
+<code><a href="../../Renderer.html#setPlaybackSpeed(float,float)">setPlaybackSpeed</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LibvpxVideoRenderer</h4>
+<pre>public&nbsp;LibvpxVideoRenderer&#8203;(long&nbsp;allowedJoiningTimeMs)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
+     can attempt to seamlessly join an ongoing playback.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LibvpxVideoRenderer</h4>
+<pre>public&nbsp;LibvpxVideoRenderer&#8203;(long&nbsp;allowedJoiningTimeMs,
+                           @Nullable
+                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                           @Nullable
+                           <a href="../../video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                           int&nbsp;maxDroppedFramesToNotify)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
+     can attempt to seamlessly join an ongoing playback.</dd>
+<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
+     null if delivery of events is not required.</dd>
+<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
+<dd><code>maxDroppedFramesToNotify</code> - The maximum number of frames that can be dropped between
+     invocations of <a href="../../video/VideoRendererEventListener.html#onDroppedFrames(int,long)"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int,int,int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>LibvpxVideoRenderer</h4>
+<pre>public&nbsp;LibvpxVideoRenderer&#8203;(long&nbsp;allowedJoiningTimeMs,
+                           @Nullable
+                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                           @Nullable
+                           <a href="../../video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                           int&nbsp;maxDroppedFramesToNotify,
+                           int&nbsp;threads,
+                           int&nbsp;numInputBuffers,
+                           int&nbsp;numOutputBuffers)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowedJoiningTimeMs</code> - The maximum duration in milliseconds for which this video renderer
+     can attempt to seamlessly join an ongoing playback.</dd>
+<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
+     null if delivery of events is not required.</dd>
+<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
+<dd><code>maxDroppedFramesToNotify</code> - The maximum number of frames that can be dropped between
+     invocations of <a href="../../video/VideoRendererEventListener.html#onDroppedFrames(int,long)"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</dd>
+<dd><code>threads</code> - Number of threads libvpx will use to decode.</dd>
+<dd><code>numInputBuffers</code> - Number of input buffers.</dd>
+<dd><code>numOutputBuffers</code> - Number of output buffers.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getName</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../Renderer.html#getName()">Renderer</a></code></span></div>
+<div class="block">Returns the name of this renderer, for logging and debugging purposes. Should typically be the
+ renderer's (un-obfuscated) class name.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The name of this renderer.</dd>
+</dl>
+</li>
+</ul>
+<a id="supportsFormat(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>supportsFormat</h4>
+<pre class="methodSignature"><a href="../../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@Capabilities</a>
+public final&nbsp;int&nbsp;supportsFormat&#8203;(<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../RendererCapabilities.html#supportsFormat(com.google.android.exoplayer2.Format)">RendererCapabilities</a></code></span></div>
+<div class="block">Returns the extent to which the <a href="../../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for this format.</dd>
+</dl>
+</li>
+</ul>
+<a id="createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.drm.ExoMediaCrypto)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createDecoder</h4>
+<pre class="methodSignature">protected&nbsp;<a href="VpxDecoder.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoder</a>&nbsp;createDecoder&#8203;(<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                   @Nullable
+                                   <a href="../../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;mediaCrypto)
+                            throws <a href="VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoderException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../video/DecoderVideoRenderer.html#createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.drm.ExoMediaCrypto)">DecoderVideoRenderer</a></code></span></div>
+<div class="block">Creates a decoder for the given format.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../video/DecoderVideoRenderer.html#createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.drm.ExoMediaCrypto)">createDecoder</a></code>&nbsp;in class&nbsp;<code><a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The format for which a decoder is required.</dd>
+<dd><code>mediaCrypto</code> - The <a href="../../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> object required for decoding encrypted content.
+     May be null and can be ignored if decoder does not handle encrypted content.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The decoder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoderException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="renderOutputBufferToSurface(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,android.view.Surface)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>renderOutputBufferToSurface</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;renderOutputBufferToSurface&#8203;(<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
+                                           <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)
+                                    throws <a href="VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoderException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../video/DecoderVideoRenderer.html#renderOutputBufferToSurface(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,android.view.Surface)">DecoderVideoRenderer</a></code></span></div>
+<div class="block">Renders the specified output buffer to the passed surface.
+
+ <p>The implementation of this method takes ownership of the output buffer and is responsible
+ for calling <a href="../../video/VideoDecoderOutputBuffer.html#release()"><code>VideoDecoderOutputBuffer.release()</code></a> either immediately or in the future.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../video/DecoderVideoRenderer.html#renderOutputBufferToSurface(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,android.view.Surface)">renderOutputBufferToSurface</a></code>&nbsp;in class&nbsp;<code><a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>outputBuffer</code> - <a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video"><code>VideoDecoderOutputBuffer</code></a> to render.</dd>
+<dd><code>surface</code> - Output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoderException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="setDecoderOutputMode(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDecoderOutputMode</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;setDecoderOutputMode&#8203;(<a href="../../C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
+                                    int&nbsp;outputMode)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../video/DecoderVideoRenderer.html#setDecoderOutputMode(int)">DecoderVideoRenderer</a></code></span></div>
+<div class="block">Sets output mode of the decoder.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../video/DecoderVideoRenderer.html#setDecoderOutputMode(int)">setDecoderOutputMode</a></code>&nbsp;in class&nbsp;<code><a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>outputMode</code> - Output mode.</dd>
+</dl>
+</li>
+</ul>
+<a id="canReuseDecoder(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>canReuseDecoder</h4>
+<pre class="methodSignature">protected&nbsp;<a href="../../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;canReuseDecoder&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+                                                 <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
+                                                 <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../video/DecoderVideoRenderer.html#canReuseDecoder(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">DecoderVideoRenderer</a></code></span></div>
+<div class="block">Evaluates whether the existing decoder can be reused for a new <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
+
+ <p>The default implementation does not allow decoder reuse.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../video/DecoderVideoRenderer.html#canReuseDecoder(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">canReuseDecoder</a></code>&nbsp;in class&nbsp;<code><a href="../../video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a></code></dd>
+<dd><code>oldFormat</code> - The previous format.</dd>
+<dd><code>newFormat</code> - The new format.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The result of the evaluation.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

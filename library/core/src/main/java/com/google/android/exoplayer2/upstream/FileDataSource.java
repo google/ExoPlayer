@@ -15,65 +15,114 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
+
 import android.net.Uri;
+import android.system.ErrnoException;
+import android.system.OsConstants;
+import android.text.TextUtils;
+import androidx.annotation.DoNotInline;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
-import java.io.EOFException;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-/**
- * A {@link DataSource} for reading local files.
- */
-public final class FileDataSource implements DataSource {
+/** A {@link DataSource} for reading local files. */
+public final class FileDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when IOException is encountered during local file read operation.
-   */
-  public static class FileDataSourceException extends IOException {
+  /** Thrown when a {@link FileDataSource} encounters an error reading a file. */
+  public static class FileDataSourceException extends DataSourceException {
 
-    public FileDataSourceException(IOException cause) {
-      super(cause);
+    /** @deprecated Use {@link #FileDataSourceException(Throwable, int)} */
+    @Deprecated
+    public FileDataSourceException(Exception cause) {
+      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
+    /** @deprecated Use {@link #FileDataSourceException(String, Throwable, int)} */
+    @Deprecated
+    public FileDataSourceException(String message, IOException cause) {
+      super(message, cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+
+    /** Creates a {@code FileDataSourceException}. */
+    public FileDataSourceException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+      super(cause, errorCode);
+    }
+
+    /** Creates a {@code FileDataSourceException}. */
+    public FileDataSourceException(
+        String message, Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+      super(message, cause, errorCode);
+    }
   }
 
-  private final TransferListener<? super FileDataSource> listener;
+  /** {@link DataSource.Factory} for {@link FileDataSource} instances. */
+  public static final class Factory implements DataSource.Factory {
 
-  private RandomAccessFile file;
-  private Uri uri;
+    @Nullable private TransferListener listener;
+
+    /**
+     * Sets a {@link TransferListener} for {@link FileDataSource} instances created by this factory.
+     *
+     * @param listener The {@link TransferListener}.
+     * @return This factory.
+     */
+    public Factory setListener(@Nullable TransferListener listener) {
+      this.listener = listener;
+      return this;
+    }
+
+    @Override
+    public FileDataSource createDataSource() {
+      FileDataSource dataSource = new FileDataSource();
+      if (listener != null) {
+        dataSource.addTransferListener(listener);
+      }
+      return dataSource;
+    }
+  }
+
+  @Nullable private RandomAccessFile file;
+  @Nullable private Uri uri;
   private long bytesRemaining;
   private boolean opened;
 
   public FileDataSource() {
-    this(null);
-  }
-
-  /**
-   * @param listener An optional listener.
-   */
-  public FileDataSource(TransferListener<? super FileDataSource> listener) {
-    this.listener = listener;
+    super(/* isNetwork= */ false);
   }
 
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
-      uri = dataSpec.uri;
-      file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
+      Uri uri = dataSpec.uri;
+      this.uri = uri;
+
+      transferInitializing(dataSpec);
+
+      this.file = openLocalFile(uri);
       file.seek(dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
-          : dataSpec.length;
+      bytesRemaining =
+          dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position : dataSpec.length;
       if (bytesRemaining < 0) {
-        throw new EOFException();
+        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
-    } catch (IOException e) {
-      throw new FileDataSourceException(e);
+    } catch (FileDataSourceException e) {
+      throw e;
+    } catch (DataSourceException e) {
+      throw new FileDataSourceException(e, e.reason);
+    } catch (IOException | RuntimeException e) {
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
 
     return bytesRemaining;
   }
@@ -87,16 +136,14 @@ public final class FileDataSource implements DataSource {
     } else {
       int bytesRead;
       try {
-        bytesRead = file.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        bytesRead = castNonNull(file).read(buffer, offset, (int) min(bytesRemaining, readLength));
       } catch (IOException e) {
-        throw new FileDataSourceException(e);
+        throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }
 
       if (bytesRead > 0) {
         bytesRemaining -= bytesRead;
-        if (listener != null) {
-          listener.onBytesTransferred(this, bytesRead);
-        }
+        bytesTransferred(bytesRead);
       }
 
       return bytesRead;
@@ -104,6 +151,7 @@ public final class FileDataSource implements DataSource {
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return uri;
   }
@@ -116,16 +164,50 @@ public final class FileDataSource implements DataSource {
         file.close();
       }
     } catch (IOException e) {
-      throw new FileDataSourceException(e);
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } finally {
       file = null;
       if (opened) {
         opened = false;
-        if (listener != null) {
-          listener.onTransferEnd(this);
-        }
+        transferEnded();
       }
     }
   }
 
+  private static RandomAccessFile openLocalFile(Uri uri) throws FileDataSourceException {
+    try {
+      return new RandomAccessFile(Assertions.checkNotNull(uri.getPath()), "r");
+    } catch (FileNotFoundException e) {
+      if (!TextUtils.isEmpty(uri.getQuery()) || !TextUtils.isEmpty(uri.getFragment())) {
+        throw new FileDataSourceException(
+            String.format(
+                "uri has query and/or fragment, which are not supported. Did you call Uri.parse()"
+                    + " on a string containing '?' or '#'? Use Uri.fromFile(new File(path)) to"
+                    + " avoid this. path=%s,query=%s,fragment=%s",
+                uri.getPath(), uri.getQuery(), uri.getFragment()),
+            e,
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      }
+
+      // TODO(internal b/193503588): Add tests to ensure the correct error codes are assigned under
+      // different SDK versions.
+      throw new FileDataSourceException(
+          e,
+          Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isPermissionError(e.getCause())
+              ? PlaybackException.ERROR_CODE_IO_NO_PERMISSION
+              : PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+    } catch (SecurityException e) {
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_NO_PERMISSION);
+    } catch (RuntimeException e) {
+      throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+  }
+
+  @RequiresApi(21)
+  private static final class PlatformOperationsWrapperV21 {
+    @DoNotInline
+    private static boolean isPermissionError(@Nullable Throwable e) {
+      return e instanceof ErrnoException && ((ErrnoException) e).errno == OsConstants.EACCES;
+    }
+  }
 }

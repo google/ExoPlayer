@@ -1,0 +1,34 @@
+<tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata"
+    xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+    xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+    xmlns="http://www.w3.org/ns/ttml">
+  <body>
+    <div>
+      <p begin="10s" end="18s" tts:textAlign="start">Start alignment</p>
+    </div>
+    <div>
+      <p begin="20s" end="28s" tts:textAlign="left">Left alignment</p>
+    </div>
+    <div>
+      <p begin="30s" end="38s" tts:textAlign="center">Center alignment</p>
+    </div>
+    <div>
+      <p begin="40s" end="48s" tts:textAlign="right">Right alignment</p>
+    </div>
+    <div>
+      <p begin="50s" end="58s" tts:textAlign="end">End alignment</p>
+    </div>
+    <div>
+      <p begin="60s" end="68s" tts:textAlign="justify">Justify alignment (unsupported)</p>
+    </div>
+    <div>
+      <p begin="70s" end="78s">No textAlign property</p>
+    </div>
+    <div>
+      <p begin="80s" end="88s" tts:textAlign="start"><span tts:fontSize="50%">Ancestor start</span> alignment</p>
+    </div>
+    <div>
+      <p begin="90s" end="98s"><span tts:textAlign="start">Not a P node</span></p>
+    </div>
+  </body>
+</tt>

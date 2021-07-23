@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static java.lang.Math.min;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.chromium.net.UploadDataProvider;
 import org.chromium.net.UploadDataSink;
 
-/**
- * A {@link UploadDataProvider} implementation that provides data from a {@code byte[]}.
- */
+/** A {@link UploadDataProvider} implementation that provides data from a {@code byte[]}. */
 /* package */ final class ByteArrayUploadDataProvider extends UploadDataProvider {
 
   private final byte[] data;
@@ -40,7 +40,7 @@ import org.chromium.net.UploadDataSink;
 
   @Override
   public void read(UploadDataSink uploadDataSink, ByteBuffer byteBuffer) throws IOException {
-    int readLength = Math.min(byteBuffer.remaining(), data.length - position);
+    int readLength = min(byteBuffer.remaining(), data.length - position);
     byteBuffer.put(data, position, readLength);
     position += readLength;
     uploadDataSink.onReadSucceeded(false);
@@ -51,5 +51,4 @@ import org.chromium.net.UploadDataSink;
     position = 0;
     uploadDataSink.onRewindSucceeded();
   }
-
 }

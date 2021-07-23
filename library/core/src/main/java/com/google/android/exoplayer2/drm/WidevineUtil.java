@@ -16,12 +16,11 @@
 package com.google.android.exoplayer2.drm;
 
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.util.Map;
 
-/**
- * Utility methods for Widevine.
- */
+/** Utility methods for Widevine. */
 public final class WidevineUtil {
 
   /** Widevine specific key status field name for the remaining license duration, in seconds. */
@@ -34,12 +33,15 @@ public final class WidevineUtil {
   /**
    * Returns license and playback durations remaining in seconds.
    *
-   * @return A {@link Pair} consisting of the remaining license and playback durations in seconds.
-   * @throws IllegalStateException If called when a session isn't opened.
-   * @param drmSession
+   * @param drmSession The drm session to query.
+   * @return A {@link Pair} consisting of the remaining license and playback durations in seconds,
+   *     or null if called before the session has been opened or after it's been released.
    */
-  public static Pair<Long, Long> getLicenseDurationRemainingSec(DrmSession<?> drmSession) {
+  public static @Nullable Pair<Long, Long> getLicenseDurationRemainingSec(DrmSession drmSession) {
     Map<String, String> keyStatus = drmSession.queryKeyStatus();
+    if (keyStatus == null) {
+      return null;
+    }
     return new Pair<>(
         getDurationRemainingSec(keyStatus, PROPERTY_LICENSE_DURATION_REMAINING),
         getDurationRemainingSec(keyStatus, PROPERTY_PLAYBACK_DURATION_REMAINING));
@@ -58,5 +60,4 @@ public final class WidevineUtil {
     }
     return C.TIME_UNSET;
   }
-
 }

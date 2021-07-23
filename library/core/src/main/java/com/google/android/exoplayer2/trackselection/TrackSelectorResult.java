@@ -15,58 +15,61 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.RendererConfiguration;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * The result of a {@link TrackSelector} operation.
- */
+/** The result of a {@link TrackSelector} operation. */
 public final class TrackSelectorResult {
 
+  /** The number of selections in the result. Greater than or equal to zero. */
+  public final int length;
   /**
-   * The groups provided to the {@link TrackSelector}.
+   * A {@link RendererConfiguration} for each renderer. A null entry indicates the corresponding
+   * renderer should be disabled.
    */
-  public final TrackGroupArray groups;
-  /**
-   * A {@link TrackSelectionArray} containing the selection for each renderer.
-   */
-  public final TrackSelectionArray selections;
+  public final @NullableType RendererConfiguration[] rendererConfigurations;
+  /** A {@link ExoTrackSelection} array containing the track selection for each renderer. */
+  public final @NullableType ExoTrackSelection[] selections;
   /**
    * An opaque object that will be returned to {@link TrackSelector#onSelectionActivated(Object)}
    * should the selections be activated.
    */
-  public final Object info;
-  /**
-   * A {@link RendererConfiguration} for each renderer, to be used with the selections.
-   */
-  public final RendererConfiguration[] rendererConfigurations;
+  @Nullable public final Object info;
 
   /**
-   * @param groups The groups provided to the {@link TrackSelector}.
-   * @param selections A {@link TrackSelectionArray} containing the selection for each renderer.
-   * @param info An opaque object that will be returned to
-   *     {@link TrackSelector#onSelectionActivated(Object)} should the selections be activated.
-   * @param rendererConfigurations A {@link RendererConfiguration} for each renderer, to be used
-   *     with the selections.
+   * @param rendererConfigurations A {@link RendererConfiguration} for each renderer. A null entry
+   *     indicates the corresponding renderer should be disabled.
+   * @param selections A {@link ExoTrackSelection} array containing the selection for each renderer.
+   * @param info An opaque object that will be returned to {@link
+   *     TrackSelector#onSelectionActivated(Object)} should the selection be activated. May be
+   *     {@code null}.
    */
-  public TrackSelectorResult(TrackGroupArray groups, TrackSelectionArray selections, Object info,
-      RendererConfiguration[] rendererConfigurations) {
-    this.groups = groups;
-    this.selections = selections;
-    this.info = info;
+  public TrackSelectorResult(
+      @NullableType RendererConfiguration[] rendererConfigurations,
+      @NullableType ExoTrackSelection[] selections,
+      @Nullable Object info) {
     this.rendererConfigurations = rendererConfigurations;
+    this.selections = selections.clone();
+    this.info = info;
+    length = rendererConfigurations.length;
+  }
+
+  /** Returns whether the renderer at the specified index is enabled. */
+  public boolean isRendererEnabled(int index) {
+    return rendererConfigurations[index] != null;
   }
 
   /**
    * Returns whether this result is equivalent to {@code other} for all renderers.
    *
    * @param other The other {@link TrackSelectorResult}. May be null, in which case {@code false}
-   *     will be returned in all cases.
+   *     will be returned.
    * @return Whether this result is equivalent to {@code other} for all renderers.
    */
-  public boolean isEquivalent(TrackSelectorResult other) {
-    if (other == null) {
+  public boolean isEquivalent(@Nullable TrackSelectorResult other) {
+    if (other == null || other.selections.length != selections.length) {
       return false;
     }
     for (int i = 0; i < selections.length; i++) {
@@ -83,16 +86,16 @@ public final class TrackSelectorResult {
    * renderer.
    *
    * @param other The other {@link TrackSelectorResult}. May be null, in which case {@code false}
-   *     will be returned in all cases.
+   *     will be returned.
    * @param index The renderer index to check for equivalence.
-   * @return Whether this result is equivalent to {@code other} for all renderers.
+   * @return Whether this result is equivalent to {@code other} for the renderer at the specified
+   *     index.
    */
-  public boolean isEquivalent(TrackSelectorResult other, int index) {
+  public boolean isEquivalent(@Nullable TrackSelectorResult other, int index) {
     if (other == null) {
       return false;
     }
-    return Util.areEqual(selections.get(index), other.selections.get(index))
-        && Util.areEqual(rendererConfigurations[index], other.rendererConfigurations[index]);
+    return Util.areEqual(rendererConfigurations[index], other.rendererConfigurations[index])
+        && Util.areEqual(selections[index], other.selections[index]);
   }
-
 }

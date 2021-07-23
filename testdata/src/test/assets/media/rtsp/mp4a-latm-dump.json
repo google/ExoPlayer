@@ -1,0 +1,9 @@
+{
+  "trackName": "track3",
+  "firstSequenceNumber": 0,
+  "firstTimestamp": 0,
+  "transmitIntervalMs": 30,
+  "mediaDescription": "m=audio 0 RTP/AVP 97\r\nc=IN IP4 0.0.0.0\r\nb=AS:61\r\na=rtpmap:97 MP4A-LATM/44100/2\r\na=fmtp:97 profile-level-id=15;object=2;cpresent=0;config=400024203FC0\r\na=control:track3\r\n",
+  "packets": [
+  ]
+}

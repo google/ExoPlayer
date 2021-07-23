@@ -1,0 +1,111 @@
+## => English
+########################
+en: &EN
+  SUBSCRIBE               : "Subscribe"
+  READMORE                : "Read more"
+  SEARCH                  : "Search"
+  CANCEL                  : "Cancel"
+  VIEWS                   : "views"
+  LAST_UPDATED            : "Last updated"
+  PREVIOUS                : "PREVIOUS"
+  NEXT                    : "NEXT"
+  ARTICLE_DATE_FORMAT     : "%b %d, %Y"
+  ARTICLE_LIST_DATE_FORMAT: "%b %d"
+  STATISTICS              : "[POST_COUNT] post articles, [PAGE_COUNT] pages."
+  LICENSE_ANNOUNCE        : "This work is licensed under a [LICENSE] license."
+  POST_ON_GITHUB          : "Edit on Github"
+  FOLLOW_ME               : "Follow me on [NAME]."
+  FOLLOW_US               : "Follow us on [NAME]."
+  EMAIL_ME                : "Send me Email."
+  EMAIL_US                : "Send us Email."
+  COPYRIGHT_DATES         : "2019"
+
+en-GB:
+  <<: *EN
+en-US:
+  <<: *EN
+en-CA:
+  <<: *EN
+en-AU:
+  <<: *EN
+
+## => Simplified Chinese
+########################
+zh-Hans: &ZH_HANS
+  SUBSCRIBE               : "订阅"
+  READMORE                : "阅读更多"
+  SEARCH                  : "搜索"
+  CANCEL                  : "取消"
+  VIEWS                   : "阅读"
+  LAST_UPDATED            : "更新于"
+  PREVIOUS                : "上篇"
+  NEXT                    : "下篇"
+  ARTICLE_DATE_FORMAT     : "%Y年 %m月%d日"
+  ARTICLE_LIST_DATE_FORMAT: "%m月%d日"
+  STATISTICS              : "共计 [POST_COUNT] 篇文章，[PAGE_COUNT] 页。"
+  LICENSE_ANNOUNCE        : "本文遵守 [LICENSE] 许可协议。"
+  POST_ON_GITHUB          : "在 Github 上修改"
+  FOLLOW_ME               : "在 [NAME] 上关注我。"
+  FOLLOW_US               : "在 [NAME] 上关注我们。"
+  EMAIL_ME                : "给我发邮件。"
+  EMAIL_US                : "给我们发邮件。"
+  COPYRIGHT_DATES         : "2019"
+
+zh:
+  <<: *ZH_HANS
+zh-CN:
+  <<: *ZH_HANS
+zh-SG:
+  <<: *ZH_HANS
+
+## => Traditional Chinese
+########################
+zh-Hant: &ZH_HANT
+  SUBSCRIBE               : "訂閱"
+  READMORE                : "閱讀更多"
+  SEARCH                  : "搜索"
+  CANCEL                  : "取消"
+  VIEWS                   : "閱讀"
+  LAST_UPDATED            : "更新於"
+  PREVIOUS                : "上篇"
+  NEXT                    : "下篇"
+  ARTICLE_DATE_FORMAT     : "%Y年 %m月%d日"
+  ARTICLE_LIST_DATE_FORMAT: "%m月%d日"
+  STATISTICS              : "共計 [POST_COUNT] 篇文章，[PAGE_COUNT] 頁。"
+  LICENSE_ANNOUNCE        : "本文遵守 [LICENSE] 許可協議。"
+  POST_ON_GITHUB          : "在 Github 上修改"
+  FOLLOW_ME               : "在 [NAME] 上關注我。"
+  FOLLOW_US               : "在 [NAME] 上關注我們。"
+  EMAIL_ME                : "給我發郵件。"
+  EMAIL_US                : "給我們發郵件。"
+  COPYRIGHT_DATES         : "2019"
+
+zh-TW:
+  <<: *ZH_HANT
+zh-HK:
+  <<: *ZH_HANT
+
+## => Korean
+########################
+ko: &KO
+  SUBSCRIBE               : "구독하기"
+  READMORE                : "더보기"
+  SEARCH                  : "검색"
+  CANCEL                  : "취소"
+  VIEWS                   : "조회"
+  LAST_UPDATED            : "마지막 수정"
+  PREVIOUS                : "이전"
+  NEXT                    : "다음"
+  ARTICLE_DATE_FORMAT     : "%Y년 %m월 %d일"
+  ARTICLE_LIST_DATE_FORMAT: "%m월 %d일"
+  STATISTICS              : "전체 글 [POST_COUNT]개, [PAGE_COUNT] 페이지"
+  LICENSE_ANNOUNCE        : "이 글의 저작권은 [LICENSE] 라이센스를 따릅니다."
+  POST_ON_GITHUB          : "Github에서 확인하기"
+  FOLLOW_ME               : "[NAME]에서 팔로우하기"
+  FOLLOW_US               : "[NAME]에서 팔로우하기"
+  EMAIL_ME                : "이메일 보내기"
+  EMAIL_US                : "이메일 보내기"
+  COPYRIGHT_DATES         : "2019"
+
+ko-KR:
+  <<: *KO

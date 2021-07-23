@@ -1,0 +1,1814 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DashManifestParser (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DashManifestParser (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":10,"i30":10,"i31":10,"i32":9,"i33":9,"i34":10,"i35":9,"i36":10,"i37":9,"i38":9,"i39":10,"i40":9,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":9,"i58":9,"i59":10,"i60":10,"i61":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.dash.manifest</a></div>
+<h2 title="Class DashManifestParser" class="title">Class DashManifestParser</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html" title="class or interface in org.xml.sax.helpers" class="externalLink" target="_top">org.xml.sax.helpers.DefaultHandler</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.dash.manifest.DashManifestParser</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code>, <code><a href="https://developer.android.com/reference/org/xml/sax/ContentHandler.html" title="class or interface in org.xml.sax" class="externalLink">ContentHandler</a></code>, <code><a href="https://developer.android.com/reference/org/xml/sax/DTDHandler.html?is-external=true" title="class or interface in org.xml.sax" class="externalLink">DTDHandler</a></code>, <code><a href="https://developer.android.com/reference/org/xml/sax/EntityResolver.html?is-external=true" title="class or interface in org.xml.sax" class="externalLink">EntityResolver</a></code>, <code><a href="https://developer.android.com/reference/org/xml/sax/ErrorHandler.html?is-external=true" title="class or interface in org.xml.sax" class="externalLink" target="_top">ErrorHandler</a></code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">DashManifestParser</span>
+extends <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html" title="class or interface in org.xml.sax.helpers" class="externalLink" target="_top">DefaultHandler</a>
+implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</pre>
+<div class="block">A parser of media presentation description files.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></span></code></th>
+<td class="colLast">
+<div class="block">A parsed Representation element.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DashManifestParser</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>protected <a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAdaptationSet(int,int,java.util.List,java.util.List,java.util.List,java.util.List)">buildAdaptationSet</a></span>&#8203;(int&nbsp;id,
+                  int&nbsp;contentType,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&gt;&nbsp;representations,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildEvent(java.lang.String,java.lang.String,long,long,byte%5B%5D)">buildEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
+          long&nbsp;id,
+          long&nbsp;durationMs,
+          byte[]&nbsp;messageData)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected <a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildEventStream(java.lang.String,java.lang.String,long,long%5B%5D,com.google.android.exoplayer2.metadata.emsg.EventMessage%5B%5D)">buildEventStream</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
+                long&nbsp;timescale,
+                long[]&nbsp;presentationTimesUs,
+                <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>[]&nbsp;events)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildFormat(java.lang.String,java.lang.String,int,int,float,int,int,int,java.lang.String,java.util.List,java.util.List,java.lang.String,java.util.List,java.util.List)">buildFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+           int&nbsp;width,
+           int&nbsp;height,
+           float&nbsp;frameRate,
+           int&nbsp;audioChannels,
+           int&nbsp;audioSamplingRate,
+           int&nbsp;bitrate,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>protected <a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildMediaPresentationDescription(long,long,long,boolean,long,long,long,long,com.google.android.exoplayer2.source.dash.manifest.ProgramInformation,com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement,com.google.android.exoplayer2.source.dash.manifest.ServiceDescriptionElement,android.net.Uri,java.util.List)">buildMediaPresentationDescription</a></span>&#8203;(long&nbsp;availabilityStartTime,
+                                 long&nbsp;durationMs,
+                                 long&nbsp;minBufferTimeMs,
+                                 boolean&nbsp;dynamic,
+                                 long&nbsp;minUpdateTimeMs,
+                                 long&nbsp;timeShiftBufferDepthMs,
+                                 long&nbsp;suggestedPresentationDelayMs,
+                                 long&nbsp;publishTimeMs,
+                                 <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;programInformation,
+                                 <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
+                                 <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;serviceDescription,
+                                 <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
+                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected <a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildPeriod(java.lang.String,long,java.util.List,java.util.List,com.google.android.exoplayer2.source.dash.manifest.Descriptor)">buildPeriod</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+           long&nbsp;startMs,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams,
+           <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;assetIdentifier)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildRangedUri(java.lang.String,long,long)">buildRangedUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlText,
+              long&nbsp;rangeStart,
+              long&nbsp;rangeLength)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected <a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildRepresentation(com.google.android.exoplayer2.source.dash.manifest.DashManifestParser.RepresentationInfo,java.lang.String,java.lang.String,java.util.ArrayList,java.util.ArrayList)">buildRepresentation</a></span>&#8203;(<a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a>&nbsp;representationInfo,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;extraDrmSchemeType,
+                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;extraDrmSchemeDatas,
+                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;extraInbandEventStreams)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildSegmentList(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long,java.util.List,long,java.util.List,long,long)">buildSegmentList</a></span>&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                long&nbsp;timescale,
+                long&nbsp;presentationTimeOffset,
+                long&nbsp;startNumber,
+                long&nbsp;duration,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;timeline,
+                long&nbsp;availabilityTimeOffsetUs,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">RangedUri</a>&gt;&nbsp;segments,
+                long&nbsp;timeShiftBufferDepthMs,
+                long&nbsp;periodStartUnixTimeMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildSegmentTemplate(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long,long,java.util.List,long,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate,long,long)">buildSegmentTemplate</a></span>&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                    long&nbsp;timescale,
+                    long&nbsp;presentationTimeOffset,
+                    long&nbsp;startNumber,
+                    long&nbsp;endNumber,
+                    long&nbsp;duration,
+                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;timeline,
+                    long&nbsp;availabilityTimeOffsetUs,
+                    <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;initializationTemplate,
+                    <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;mediaTemplate,
+                    long&nbsp;timeShiftBufferDepthMs,
+                    long&nbsp;periodStartUnixTimeMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildSegmentTimelineElement(long,long)">buildSegmentTimelineElement</a></span>&#8203;(long&nbsp;startTime,
+                           long&nbsp;duration)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildSingleSegmentBase(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long)">buildSingleSegmentBase</a></span>&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                      long&nbsp;timescale,
+                      long&nbsp;presentationTimeOffset,
+                      long&nbsp;indexStart,
+                      long&nbsp;indexLength)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>protected <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUtcTimingElement(java.lang.String,java.lang.String)">buildUtcTimingElement</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSkipTag(org.xmlpull.v1.XmlPullParser)">maybeSkipTag</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">If the provided <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top"><code>XmlPullParser</code></a> is currently positioned at the start of a tag, skips
+ forward to the end of that tag.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(android.net.Uri,java.io.InputStream)">parse</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+     <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;inputStream)</code></th>
+<td class="colLast">
+<div class="block">Parses an object from a response.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>protected <a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAdaptationSet(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,long,long,long,long,long)">parseAdaptationSet</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                  <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
+                  long&nbsp;periodDurationMs,
+                  long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                  long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                  long&nbsp;periodStartUnixTimeMs,
+                  long&nbsp;timeShiftBufferDepthMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAdaptationSetChild(org.xmlpull.v1.XmlPullParser)">parseAdaptationSetChild</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses children of AdaptationSet elements not specifically parsed elsewhere.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAudioChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseAudioChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>protected long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAvailabilityTimeOffsetUs(org.xmlpull.v1.XmlPullParser,long)">parseAvailabilityTimeOffsetUs</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                             long&nbsp;parentAvailabilityTimeOffsetUs)</code></th>
+<td class="colLast">
+<div class="block">Parses the availabilityTimeOffset value and returns the parsed value or the parent value if it
+ doesn't exist.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseBaseUrl(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseBaseUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;parentBaseUrl)</code></th>
+<td class="colLast">
+<div class="block">Parses a BaseURL element.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCea608AccessibilityChannel(java.util.List)">parseCea608AccessibilityChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCea708AccessibilityChannel(java.util.List)">parseCea708AccessibilityChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;@NullableType <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;@NullableType <a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseContentProtection(org.xmlpull.v1.XmlPullParser)">parseContentProtection</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses a ContentProtection element.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseContentType(org.xmlpull.v1.XmlPullParser)">parseContentType</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code>protected static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDateTime(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseDateTime</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+             long&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>protected static <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDescriptor(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseDescriptor</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)</code></th>
+<td class="colLast">
+<div class="block">Parses a <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Descriptor</code></a> from an element.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDolbyChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDolbyChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
+ schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
+ in ETSI TS 102 366, or the legacy schemeIdUri
+ "urn:dolby:dash:audio_channel_configuration:2011".</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code>protected static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDuration(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseDuration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+             long&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEac3SupplementalProperties(java.util.List)">parseEac3SupplementalProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg" target="_top">EventMessage</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,java.io.ByteArrayOutputStream)">parseEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
+          long&nbsp;timescale,
+          <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)</code></th>
+<td class="colLast">
+<div class="block">Parses a single Event node in the manifest.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code>protected byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEventObject(org.xmlpull.v1.XmlPullParser,java.io.ByteArrayOutputStream)">parseEventObject</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)</code></th>
+<td class="colLast">
+<div class="block">Parses an event object.</div>
+</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>protected <a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEventStream(org.xmlpull.v1.XmlPullParser)">parseEventStream</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses a single EventStream node in the manifest.</div>
+</td>
+</tr>
+<tr id="i32" class="altColor">
+<td class="colFirst"><code>protected static float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseFloat(org.xmlpull.v1.XmlPullParser,java.lang.String,float)">parseFloat</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+          float&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code>protected static float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseFrameRate(org.xmlpull.v1.XmlPullParser,float)">parseFrameRate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+              float&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i34" class="altColor">
+<td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseInitialization(org.xmlpull.v1.XmlPullParser)">parseInitialization</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseInt(org.xmlpull.v1.XmlPullParser,java.lang.String,int)">parseInt</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+        int&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i36" class="altColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLabel(org.xmlpull.v1.XmlPullParser)">parseLabel</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses a Label element.</div>
+</td>
+</tr>
+<tr id="i37" class="rowColor">
+<td class="colFirst"><code>protected static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLastSegmentNumberSupplementalProperty(java.util.List)">parseLastSegmentNumberSupplementalProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i38" class="altColor">
+<td class="colFirst"><code>protected static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLong(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseLong</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+         long&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i39" class="rowColor">
+<td class="colFirst"><code>protected <a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMediaPresentationDescription(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseMediaPresentationDescription</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i40" class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMpegChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseMpegChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">
+<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
+ schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.</div>
+</td>
+</tr>
+<tr id="i41" class="rowColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePeriod(org.xmlpull.v1.XmlPullParser,java.lang.String,long,long,long,long)">parsePeriod</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+           long&nbsp;defaultStartMs,
+           long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+           long&nbsp;availabilityStartTimeMs,
+           long&nbsp;timeShiftBufferDepthMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i42" class="altColor">
+<td class="colFirst"><code>protected <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseProgramInformation(org.xmlpull.v1.XmlPullParser)">parseProgramInformation</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i43" class="rowColor">
+<td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRangedUrl(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">parseRangedUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlAttribute,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rangeAttribute)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i44" class="altColor">
+<td class="colFirst"><code>protected <a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRepresentation(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,java.lang.String,int,int,float,int,int,java.lang.String,java.util.List,java.util.List,java.util.List,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,long,long,long,long,long)">parseRepresentation</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adaptationSetMimeType,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adaptationSetCodecs,
+                   int&nbsp;adaptationSetWidth,
+                   int&nbsp;adaptationSetHeight,
+                   float&nbsp;adaptationSetFrameRate,
+                   int&nbsp;adaptationSetAudioChannels,
+                   int&nbsp;adaptationSetAudioSamplingRate,
+                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adaptationSetLanguage,
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetRoleDescriptors,
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetAccessibilityDescriptors,
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetEssentialProperties,
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
+                   <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
+                   long&nbsp;periodStartUnixTimeMs,
+                   long&nbsp;periodDurationMs,
+                   long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                   long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                   long&nbsp;timeShiftBufferDepthMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i45" class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">parseRoleFlagsFromAccessibilityDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i46" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromDashRoleScheme(java.lang.String)">parseRoleFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i47" class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromProperties(java.util.List)">parseRoleFlagsFromProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i48" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromRoleDescriptors(java.util.List)">parseRoleFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i49" class="rowColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentBase(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase)">parseSegmentBase</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parent)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i50" class="altColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentList(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList,long,long,long,long,long)">parseSegmentList</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>&nbsp;parent,
+                long&nbsp;periodStartUnixTimeMs,
+                long&nbsp;periodDurationMs,
+                long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                long&nbsp;timeShiftBufferDepthMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i51" class="rowColor">
+<td class="colFirst"><code>protected <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentTemplate(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate,java.util.List,long,long,long,long,long)">parseSegmentTemplate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                    <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>&nbsp;parent,
+                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
+                    long&nbsp;periodStartUnixTimeMs,
+                    long&nbsp;periodDurationMs,
+                    long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                    long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                    long&nbsp;timeShiftBufferDepthMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i52" class="altColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentTimeline(org.xmlpull.v1.XmlPullParser,long,long)">parseSegmentTimeline</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                    long&nbsp;timescale,
+                    long&nbsp;periodDurationMs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i53" class="rowColor">
+<td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentUrl(org.xmlpull.v1.XmlPullParser)">parseSegmentUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i54" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromDashRoleScheme(java.lang.String)">parseSelectionFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i55" class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromRoleDescriptors(java.util.List)">parseSelectionFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i56" class="altColor">
+<td class="colFirst"><code>protected <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseServiceDescription(org.xmlpull.v1.XmlPullParser)">parseServiceDescription</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i57" class="rowColor">
+<td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseString(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">parseString</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i58" class="altColor">
+<td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseText(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseText</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i59" class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTvaAudioPurposeCsValue(java.lang.String)">parseTvaAudioPurposeCsValue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i60" class="altColor">
+<td class="colFirst"><code>protected <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUrlTemplate(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate)">parseUrlTemplate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i61" class="rowColor">
+<td class="colFirst"><code>protected <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUtcTiming(org.xmlpull.v1.XmlPullParser)">parseUtcTiming</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.org.xml.sax.helpers.DefaultHandler">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.xml.sax.helpers.<a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html" title="class or interface in org.xml.sax.helpers" class="externalLink" target="_top">DefaultHandler</a></h3>
+<code><a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html#characters(char%5B%5D,int,int)" title="class or interface in org.xml.sax.helpers" class="externalLink">characters</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#endDocument()" title="class or interface in org.xml.sax.helpers" class="externalLink">endDocument</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#endElement(java.lang.String,java.lang.String,java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">endElement</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#endPrefixMapping(java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">endPrefixMapping</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#error(org.xml.sax.SAXParseException)" title="class or interface in org.xml.sax.helpers" class="externalLink">error</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#fatalError(org.xml.sax.SAXParseException)" title="class or interface in org.xml.sax.helpers" class="externalLink">fatalError</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#ignorableWhitespace(char%5B%5D,int,int)" title="class or interface in org.xml.sax.helpers" class="externalLink">ignorableWhitespace</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#notationDecl(java.lang.String,java.lang.String,java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">notationDecl</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#processingInstruction(java.lang.String,java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">processingInstruction</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#resolveEntity(java.lang.String,java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">resolveEntity</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#setDocumentLocator(org.xml.sax.Locator)" title="class or interface in org.xml.sax.helpers" class="externalLink">setDocumentLocator</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#skippedEntity(java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">skippedEntity</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#startDocument()" title="class or interface in org.xml.sax.helpers" class="externalLink">startDocument</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#startElement(java.lang.String,java.lang.String,java.lang.String,org.xml.sax.Attributes)" title="class or interface in org.xml.sax.helpers" class="externalLink">startElement</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#startPrefixMapping(java.lang.String,java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">startPrefixMapping</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#unparsedEntityDecl(java.lang.String,java.lang.String,java.lang.String,java.lang.String)" title="class or interface in org.xml.sax.helpers" class="externalLink">unparsedEntityDecl</a>, <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html?is-external=true#warning(org.xml.sax.SAXParseException)" title="class or interface in org.xml.sax.helpers" class="externalLink" target="_top">warning</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DashManifestParser</h4>
+<pre>public&nbsp;DashManifestParser()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="parse(android.net.Uri,java.io.InputStream)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parse</h4>
+<pre class="methodSignature">public&nbsp;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;parse&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                          <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;inputStream)
+                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../upstream/ParsingLoadable.Parser.html#parse(android.net.Uri,java.io.InputStream)">ParsingLoadable.Parser</a></code></span></div>
+<div class="block">Parses an object from a response.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../upstream/ParsingLoadable.Parser.html#parse(android.net.Uri,java.io.InputStream)">parse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uri</code> - The source <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> of the response, after any redirection.</dd>
+<dd><code>inputStream</code> - An <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>InputStream</code></a> from which the response data can be read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed object.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If an error occurs parsing the data.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading data from the stream.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseMediaPresentationDescription(org.xmlpull.v1.XmlPullParser,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseMediaPresentationDescription</h4>
+<pre class="methodSignature">protected&nbsp;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;parseMediaPresentationDescription&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl)
+                                                  throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildMediaPresentationDescription(long,long,long,boolean,long,long,long,long,com.google.android.exoplayer2.source.dash.manifest.ProgramInformation,com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement,com.google.android.exoplayer2.source.dash.manifest.ServiceDescriptionElement,android.net.Uri,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildMediaPresentationDescription</h4>
+<pre class="methodSignature">protected&nbsp;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;buildMediaPresentationDescription&#8203;(long&nbsp;availabilityStartTime,
+                                                         long&nbsp;durationMs,
+                                                         long&nbsp;minBufferTimeMs,
+                                                         boolean&nbsp;dynamic,
+                                                         long&nbsp;minUpdateTimeMs,
+                                                         long&nbsp;timeShiftBufferDepthMs,
+                                                         long&nbsp;suggestedPresentationDelayMs,
+                                                         long&nbsp;publishTimeMs,
+                                                         @Nullable
+                                                         <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;programInformation,
+                                                         @Nullable
+                                                         <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
+                                                         @Nullable
+                                                         <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;serviceDescription,
+                                                         @Nullable
+                                                         <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
+                                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</pre>
+</li>
+</ul>
+<a id="parseUtcTiming(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseUtcTiming</h4>
+<pre class="methodSignature">protected&nbsp;<a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;parseUtcTiming&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+</li>
+</ul>
+<a id="buildUtcTimingElement(java.lang.String,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildUtcTimingElement</h4>
+<pre class="methodSignature">protected&nbsp;<a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;buildUtcTimingElement&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+                                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+</li>
+</ul>
+<a id="parseServiceDescription(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseServiceDescription</h4>
+<pre class="methodSignature">protected&nbsp;<a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;parseServiceDescription&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                                                     throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="parsePeriod(org.xmlpull.v1.XmlPullParser,java.lang.String,long,long,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parsePeriod</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>&gt;&nbsp;parsePeriod&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                                              long&nbsp;defaultStartMs,
+                                              long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                                              long&nbsp;availabilityStartTimeMs,
+                                              long&nbsp;timeShiftBufferDepthMs)
+                                       throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                              <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildPeriod(java.lang.String,long,java.util.List,java.util.List,com.google.android.exoplayer2.source.dash.manifest.Descriptor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildPeriod</h4>
+<pre class="methodSignature">protected&nbsp;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&nbsp;buildPeriod&#8203;(@Nullable
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                             long&nbsp;startMs,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams,
+                             @Nullable
+                             <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;assetIdentifier)</pre>
+</li>
+</ul>
+<a id="parseAdaptationSet(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,long,long,long,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseAdaptationSet</h4>
+<pre class="methodSignature">protected&nbsp;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a>&nbsp;parseAdaptationSet&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                                           @Nullable
+                                           <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
+                                           long&nbsp;periodDurationMs,
+                                           long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                                           long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                                           long&nbsp;periodStartUnixTimeMs,
+                                           long&nbsp;timeShiftBufferDepthMs)
+                                    throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildAdaptationSet(int,int,java.util.List,java.util.List,java.util.List,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildAdaptationSet</h4>
+<pre class="methodSignature">protected&nbsp;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a>&nbsp;buildAdaptationSet&#8203;(int&nbsp;id,
+                                           int&nbsp;contentType,
+                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&gt;&nbsp;representations,
+                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
+                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+</li>
+</ul>
+<a id="parseContentType(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseContentType</h4>
+<pre class="methodSignature">protected&nbsp;int&nbsp;parseContentType&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+</li>
+</ul>
+<a id="parseContentProtection(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseContentProtection</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;@NullableType <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;@NullableType <a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;parseContentProtection&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                                                                                                throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                                                                       <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses a ContentProtection element.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The scheme type and/or <a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData.SchemeData</code></a> parsed from the ContentProtection element.
+     Either or both may be null, depending on the ContentProtection element being parsed.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If an error occurs parsing the element.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the element.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseAdaptationSetChild(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseAdaptationSetChild</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;parseAdaptationSetChild&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                                throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                       <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses children of AdaptationSet elements not specifically parsed elsewhere.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The XmpPullParser from which the AdaptationSet child should be parsed.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If an error occurs parsing the element.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the element.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseRepresentation(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,java.lang.String,int,int,float,int,int,java.lang.String,java.util.List,java.util.List,java.util.List,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,long,long,long,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRepresentation</h4>
+<pre class="methodSignature">protected&nbsp;<a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a>&nbsp;parseRepresentation&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                                                                    @Nullable
+                                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adaptationSetMimeType,
+                                                                    @Nullable
+                                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adaptationSetCodecs,
+                                                                    int&nbsp;adaptationSetWidth,
+                                                                    int&nbsp;adaptationSetHeight,
+                                                                    float&nbsp;adaptationSetFrameRate,
+                                                                    int&nbsp;adaptationSetAudioChannels,
+                                                                    int&nbsp;adaptationSetAudioSamplingRate,
+                                                                    @Nullable
+                                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adaptationSetLanguage,
+                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetRoleDescriptors,
+                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetAccessibilityDescriptors,
+                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetEssentialProperties,
+                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
+                                                                    @Nullable
+                                                                    <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
+                                                                    long&nbsp;periodStartUnixTimeMs,
+                                                                    long&nbsp;periodDurationMs,
+                                                                    long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                                                                    long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                                                                    long&nbsp;timeShiftBufferDepthMs)
+                                                             throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                                    <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildFormat(java.lang.String,java.lang.String,int,int,float,int,int,int,java.lang.String,java.util.List,java.util.List,java.lang.String,java.util.List,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildFormat</h4>
+<pre class="methodSignature">protected&nbsp;<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;buildFormat&#8203;(@Nullable
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                             @Nullable
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
+                             int&nbsp;width,
+                             int&nbsp;height,
+                             float&nbsp;frameRate,
+                             int&nbsp;audioChannels,
+                             int&nbsp;audioSamplingRate,
+                             int&nbsp;bitrate,
+                             @Nullable
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
+                             @Nullable
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+</li>
+</ul>
+<a id="buildRepresentation(com.google.android.exoplayer2.source.dash.manifest.DashManifestParser.RepresentationInfo,java.lang.String,java.lang.String,java.util.ArrayList,java.util.ArrayList)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildRepresentation</h4>
+<pre class="methodSignature">protected&nbsp;<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;buildRepresentation&#8203;(<a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a>&nbsp;representationInfo,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
+                                             @Nullable
+                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;extraDrmSchemeType,
+                                             <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;extraDrmSchemeDatas,
+                                             <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;extraInbandEventStreams)</pre>
+</li>
+</ul>
+<a id="parseSegmentBase(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSegmentBase</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parseSegmentBase&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                         @Nullable
+                                                         <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parent)
+                                                  throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildSingleSegmentBase(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildSingleSegmentBase</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;buildSingleSegmentBase&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                                                               long&nbsp;timescale,
+                                                               long&nbsp;presentationTimeOffset,
+                                                               long&nbsp;indexStart,
+                                                               long&nbsp;indexLength)</pre>
+</li>
+</ul>
+<a id="parseSegmentList(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList,long,long,long,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSegmentList</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>&nbsp;parseSegmentList&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                   @Nullable
+                                                   <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>&nbsp;parent,
+                                                   long&nbsp;periodStartUnixTimeMs,
+                                                   long&nbsp;periodDurationMs,
+                                                   long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                                                   long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                                                   long&nbsp;timeShiftBufferDepthMs)
+                                            throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildSegmentList(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long,java.util.List,long,java.util.List,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildSegmentList</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>&nbsp;buildSegmentList&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                                                   long&nbsp;timescale,
+                                                   long&nbsp;presentationTimeOffset,
+                                                   long&nbsp;startNumber,
+                                                   long&nbsp;duration,
+                                                   @Nullable
+                                                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;timeline,
+                                                   long&nbsp;availabilityTimeOffsetUs,
+                                                   @Nullable
+                                                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">RangedUri</a>&gt;&nbsp;segments,
+                                                   long&nbsp;timeShiftBufferDepthMs,
+                                                   long&nbsp;periodStartUnixTimeMs)</pre>
+</li>
+</ul>
+<a id="parseSegmentTemplate(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate,java.util.List,long,long,long,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSegmentTemplate</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>&nbsp;parseSegmentTemplate&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                           @Nullable
+                                                           <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>&nbsp;parent,
+                                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
+                                                           long&nbsp;periodStartUnixTimeMs,
+                                                           long&nbsp;periodDurationMs,
+                                                           long&nbsp;baseUrlAvailabilityTimeOffsetUs,
+                                                           long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
+                                                           long&nbsp;timeShiftBufferDepthMs)
+                                                    throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildSegmentTemplate(com.google.android.exoplayer2.source.dash.manifest.RangedUri,long,long,long,long,long,java.util.List,long,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildSegmentTemplate</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>&nbsp;buildSegmentTemplate&#8203;(<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initialization,
+                                                           long&nbsp;timescale,
+                                                           long&nbsp;presentationTimeOffset,
+                                                           long&nbsp;startNumber,
+                                                           long&nbsp;endNumber,
+                                                           long&nbsp;duration,
+                                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;timeline,
+                                                           long&nbsp;availabilityTimeOffsetUs,
+                                                           @Nullable
+                                                           <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;initializationTemplate,
+                                                           @Nullable
+                                                           <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;mediaTemplate,
+                                                           long&nbsp;timeShiftBufferDepthMs,
+                                                           long&nbsp;periodStartUnixTimeMs)</pre>
+</li>
+</ul>
+<a id="parseEventStream(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseEventStream</h4>
+<pre class="methodSignature">protected&nbsp;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a>&nbsp;parseEventStream&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                                throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                       <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses a single EventStream node in the manifest.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The current xml parser.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>EventStream</code></a> parsed from this EventStream node.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If there is any error parsing this node.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If there is any error reading from the underlying input stream.</dd>
+</dl>
+</li>
+</ul>
+<a id="buildEventStream(java.lang.String,java.lang.String,long,long[],com.google.android.exoplayer2.metadata.emsg.EventMessage[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildEventStream</h4>
+<pre class="methodSignature">protected&nbsp;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a>&nbsp;buildEventStream&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
+                                       long&nbsp;timescale,
+                                       long[]&nbsp;presentationTimesUs,
+                                       <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>[]&nbsp;events)</pre>
+</li>
+</ul>
+<a id="parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,java.io.ByteArrayOutputStream)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseEvent</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&gt;&nbsp;parseEvent&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+                                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
+                                                   long&nbsp;timescale,
+                                                   <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
+                                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
+                                                   <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
+<div class="block">Parses a single Event node in the manifest.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The current xml parser.</dd>
+<dd><code>schemeIdUri</code> - The schemeIdUri of the parent EventStream.</dd>
+<dd><code>value</code> - The schemeIdUri of the parent EventStream.</dd>
+<dd><code>timescale</code> - The timescale of the parent EventStream.</dd>
+<dd><code>scratchOutputStream</code> - A <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>ByteArrayOutputStream</code></a> that is used when parsing event
+     objects.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A pair containing the node's presentation timestamp in microseconds and the parsed
+     <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If there is any error parsing this node.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If there is any error reading from the underlying input stream.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseEventObject(org.xmlpull.v1.XmlPullParser,java.io.ByteArrayOutputStream)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseEventObject</h4>
+<pre class="methodSignature">protected&nbsp;byte[]&nbsp;parseEventObject&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                  <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
+                           throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                  <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses an event object.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The current xml parser.</dd>
+<dd><code>scratchOutputStream</code> - A <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>ByteArrayOutputStream</code></a> that's used when parsing the object.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The serialized byte array.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If there is any error parsing this node.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If there is any error reading from the underlying input stream.</dd>
+</dl>
+</li>
+</ul>
+<a id="buildEvent(java.lang.String,java.lang.String,long,long,byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildEvent</h4>
+<pre class="methodSignature">protected&nbsp;<a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;buildEvent&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
+                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value,
+                                  long&nbsp;id,
+                                  long&nbsp;durationMs,
+                                  byte[]&nbsp;messageData)</pre>
+</li>
+</ul>
+<a id="parseSegmentTimeline(org.xmlpull.v1.XmlPullParser,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSegmentTimeline</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>&gt;&nbsp;parseSegmentTimeline&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                                                        long&nbsp;timescale,
+                                                                        long&nbsp;periodDurationMs)
+                                                                 throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                                                        <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="buildSegmentTimelineElement(long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildSegmentTimelineElement</h4>
+<pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>&nbsp;buildSegmentTimelineElement&#8203;(long&nbsp;startTime,
+                                                                         long&nbsp;duration)</pre>
+</li>
+</ul>
+<a id="parseUrlTemplate(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseUrlTemplate</h4>
+<pre class="methodSignature">@Nullable
+protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;parseUrlTemplate&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                       @Nullable
+                                       <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseInitialization(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseInitialization</h4>
+<pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;parseInitialization&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+</li>
+</ul>
+<a id="parseSegmentUrl(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSegmentUrl</h4>
+<pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;parseSegmentUrl&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+</li>
+</ul>
+<a id="parseRangedUrl(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRangedUrl</h4>
+<pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;parseRangedUrl&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlAttribute,
+                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rangeAttribute)</pre>
+</li>
+</ul>
+<a id="buildRangedUri(java.lang.String,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildRangedUri</h4>
+<pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;buildRangedUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlText,
+                                   long&nbsp;rangeStart,
+                                   long&nbsp;rangeLength)</pre>
+</li>
+</ul>
+<a id="parseProgramInformation(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseProgramInformation</h4>
+<pre class="methodSignature">protected&nbsp;<a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;parseProgramInformation&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                                              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
+                                                     <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="parseLabel(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseLabel</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseLabel&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                     throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses a Label element.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed label.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If an error occurs parsing the element.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the element.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseBaseUrl(org.xmlpull.v1.XmlPullParser,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseBaseUrl</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseBaseUrl&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;parentBaseUrl)
+                       throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                              <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses a BaseURL element.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dd><code>parentBaseUrl</code> - A base URL for resolving the parsed URL.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed and resolved URL.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If an error occurs parsing the element.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the element.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseAvailabilityTimeOffsetUs(org.xmlpull.v1.XmlPullParser,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseAvailabilityTimeOffsetUs</h4>
+<pre class="methodSignature">protected&nbsp;long&nbsp;parseAvailabilityTimeOffsetUs&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                             long&nbsp;parentAvailabilityTimeOffsetUs)</pre>
+<div class="block">Parses the availabilityTimeOffset value and returns the parsed value or the parent value if it
+ doesn't exist.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dd><code>parentAvailabilityTimeOffsetUs</code> - The availability time offset of a parent element in
+     microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed availabilityTimeOffset in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseAudioChannelConfiguration(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseAudioChannelConfiguration</h4>
+<pre class="methodSignature">protected&nbsp;int&nbsp;parseAudioChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                                      throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                             <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="parseSelectionFlagsFromRoleDescriptors(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSelectionFlagsFromRoleDescriptors</h4>
+<pre class="methodSignature"><a href="../../../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+protected&nbsp;int&nbsp;parseSelectionFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
+</li>
+</ul>
+<a id="parseSelectionFlagsFromDashRoleScheme(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSelectionFlagsFromDashRoleScheme</h4>
+<pre class="methodSignature"><a href="../../../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
+protected&nbsp;int&nbsp;parseSelectionFlagsFromDashRoleScheme&#8203;(@Nullable
+                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+</li>
+</ul>
+<a id="parseRoleFlagsFromRoleDescriptors(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRoleFlagsFromRoleDescriptors</h4>
+<pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+protected&nbsp;int&nbsp;parseRoleFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
+</li>
+</ul>
+<a id="parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRoleFlagsFromAccessibilityDescriptors</h4>
+<pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+protected&nbsp;int&nbsp;parseRoleFlagsFromAccessibilityDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+</li>
+</ul>
+<a id="parseRoleFlagsFromProperties(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRoleFlagsFromProperties</h4>
+<pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+protected&nbsp;int&nbsp;parseRoleFlagsFromProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+</li>
+</ul>
+<a id="parseRoleFlagsFromDashRoleScheme(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRoleFlagsFromDashRoleScheme</h4>
+<pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+protected&nbsp;int&nbsp;parseRoleFlagsFromDashRoleScheme&#8203;(@Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+</li>
+</ul>
+<a id="parseTvaAudioPurposeCsValue(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseTvaAudioPurposeCsValue</h4>
+<pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+protected&nbsp;int&nbsp;parseTvaAudioPurposeCsValue&#8203;(@Nullable
+                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+</li>
+</ul>
+<a id="maybeSkipTag(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maybeSkipTag</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;maybeSkipTag&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
+                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
+                                <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
+<div class="block">If the provided <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top"><code>XmlPullParser</code></a> is currently positioned at the start of a tag, skips
+ forward to the end of that tag.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top"><code>XmlPullParser</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If an error occurs parsing the stream.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the stream.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseDescriptor(org.xmlpull.v1.XmlPullParser,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseDescriptor</h4>
+<pre class="methodSignature">protected static&nbsp;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;parseDescriptor&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)
+                                     throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Parses a <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Descriptor</code></a> from an element.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dd><code>tag</code> - The tag of the element being parsed.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Descriptor</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code> - If an error occurs parsing the element.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurs reading the element.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseCea608AccessibilityChannel(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseCea608AccessibilityChannel</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseCea608AccessibilityChannel&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+</li>
+</ul>
+<a id="parseCea708AccessibilityChannel(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseCea708AccessibilityChannel</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseCea708AccessibilityChannel&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+</li>
+</ul>
+<a id="parseEac3SupplementalProperties(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseEac3SupplementalProperties</h4>
+<pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseEac3SupplementalProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+</li>
+</ul>
+<a id="parseFrameRate(org.xmlpull.v1.XmlPullParser,float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseFrameRate</h4>
+<pre class="methodSignature">protected static&nbsp;float&nbsp;parseFrameRate&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                      float&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseDuration(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseDuration</h4>
+<pre class="methodSignature">protected static&nbsp;long&nbsp;parseDuration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                    long&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseDateTime(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseDateTime</h4>
+<pre class="methodSignature">protected static&nbsp;long&nbsp;parseDateTime&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                    long&nbsp;defaultValue)
+                             throws <a href="../../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="parseText(org.xmlpull.v1.XmlPullParser,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseText</h4>
+<pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseText&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)
+                           throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
+                                  <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="parseInt(org.xmlpull.v1.XmlPullParser,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseInt</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseInt&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                              int&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseLong(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseLong</h4>
+<pre class="methodSignature">protected static&nbsp;long&nbsp;parseLong&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                long&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseFloat(org.xmlpull.v1.XmlPullParser,java.lang.String,float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseFloat</h4>
+<pre class="methodSignature">protected static&nbsp;float&nbsp;parseFloat&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                  float&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseString(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseString</h4>
+<pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseString&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
+                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</pre>
+</li>
+</ul>
+<a id="parseMpegChannelConfiguration(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseMpegChannelConfiguration</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseMpegChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
+ schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed number of channels, or <a href="../../../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if the channel count could
+     not be parsed.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseDolbyChannelConfiguration(org.xmlpull.v1.XmlPullParser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseDolbyChannelConfiguration</h4>
+<pre class="methodSignature">protected static&nbsp;int&nbsp;parseDolbyChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="block">Parses the number of channels from the value attribute of an AudioElementConfiguration with
+ schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
+ in ETSI TS 102 366, or the legacy schemeIdUri
+ "urn:dolby:dash:audio_channel_configuration:2011".</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>xpp</code> - The parser from which to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The parsed number of channels, or <a href="../../../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if the channel count could
+     not be parsed.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseLastSegmentNumberSupplementalProperty(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>parseLastSegmentNumberSupplementalProperty</h4>
+<pre class="methodSignature">protected static&nbsp;long&nbsp;parseLastSegmentNumberSupplementalProperty&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

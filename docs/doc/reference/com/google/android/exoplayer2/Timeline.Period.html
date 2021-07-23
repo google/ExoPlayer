@@ -1,0 +1,975 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>Timeline.Period (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="Timeline.Period (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Class Timeline.Period" class="title">Class Timeline.Period</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.Timeline.Period</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">Timeline.Period</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="block">Holds information about a period in a <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>. A period defines a single logical piece
+ of media, for example a media file. It may also define groups of ads inserted into the media,
+ along with information about whether those ads have been loaded and played.
+
+ <p>The figure below shows some of the information defined by a period, as well as how this
+ information relates to a corresponding <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> in the timeline.
+
+ <p style="align:center"><img src="doc-files/timeline-period.svg" alt="Information defined by a
+ period"></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
+<td class="colLast">
+<div class="block">Object that can restore <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationUs">durationUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
+<td class="colLast">
+<div class="block">An identifier for the period.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlaceholder">isPlaceholder</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether this period contains placeholder information because the real information has yet to
+ be loaded.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#positionInWindowUs">positionInWindowUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The position of the start of this period relative to the start of the window to which it
+ belongs, in microseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uid">uid</a></span></code></th>
+<td class="colLast">
+<div class="block">A unique identifier for the period.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowIndex">windowIndex</a></span></code></th>
+<td class="colLast">
+<div class="block">The index of the window to which this period belongs.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Period</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance with no ad playback state.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdCountInAdGroup(int)">getAdCountInAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or
+ <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdDurationUs(int,int)">getAdDurationUs</a></span>&#8203;(int&nbsp;adGroupIndex,
+               int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block">Returns the duration of the ad at index <code>adIndexInAdGroup</code> in the ad group at
+ <code>adGroupIndex</code>, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupCount()">getAdGroupCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of ad groups in the period.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexAfterPositionUs(long)">getAdGroupIndexAfterPositionUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> in the period that has ads
+ that should be played.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexForPositionUs(long)">getAdGroupIndexForPositionUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> in the period that should
+ be played before the content at <code>positionUs</code>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupTimeUs(int)">getAdGroupTimeUs</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the time of the ad group at index <code>adGroupIndex</code> in the period, in
+ microseconds.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdResumePositionUs()">getAdResumePositionUs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the position offset in the first unplayed ad at which to begin playback, in
+ microseconds.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdsId()">getAdsId</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the opaque identifier for ads played with this period, or <code>null</code> if unset.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationMs()">getDurationMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the duration of the period in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstAdIndexToPlay(int)">getFirstAdIndexToPlay</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the first ad in the specified ad group that should be played, or the
+ number of ads in the ad group if no ads should be played.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextAdIndexToPlay(int,int)">getNextAdIndexToPlay</a></span>&#8203;(int&nbsp;adGroupIndex,
+                    int&nbsp;lastPlayedAdIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the index of the next ad in the specified ad group that should be played after
+ playing <code>adIndexInAdGroup</code>, or the number of ads in the ad group if no later ads should
+ be played.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionInWindowMs()">getPositionInWindowMs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the position of the start of this period relative to the start of the window to which
+ it belongs, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionInWindowUs()">getPositionInWindowUs</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the position of the start of this period relative to the start of the window to which
+ it belongs, in microseconds.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPlayedAdGroup(int)">hasPlayedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the ad group at index <code>adGroupIndex</code> has been played.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.Object,java.lang.Object,int,long,long)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
+   <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
+   int&nbsp;windowIndex,
+   long&nbsp;durationUs,
+   long&nbsp;positionInWindowUs)</code></th>
+<td class="colLast">
+<div class="block">Sets the data held by this period.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.Object,java.lang.Object,int,long,long,com.google.android.exoplayer2.source.ads.AdPlaybackState,boolean)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
+   <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
+   int&nbsp;windowIndex,
+   long&nbsp;durationUs,
+   long&nbsp;positionInWindowUs,
+   <a href="source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
+   boolean&nbsp;isPlaceholder)</code></th>
+<td class="colLast">
+<div class="block">Sets the data held by this period.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="id">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>id</h4>
+<pre>@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> id</pre>
+<div class="block">An identifier for the period. Not necessarily unique. May be null if the ids of the period
+ are not required.</div>
+</li>
+</ul>
+<a id="uid">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>uid</h4>
+<pre>@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> uid</pre>
+<div class="block">A unique identifier for the period. May be null if the ids of the period are not required.</div>
+</li>
+</ul>
+<a id="windowIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>windowIndex</h4>
+<pre>public&nbsp;int windowIndex</pre>
+<div class="block">The index of the window to which this period belongs.</div>
+</li>
+</ul>
+<a id="durationUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>durationUs</h4>
+<pre>public&nbsp;long durationUs</pre>
+<div class="block">The duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</li>
+</ul>
+<a id="positionInWindowUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>positionInWindowUs</h4>
+<pre>public&nbsp;long positionInWindowUs</pre>
+<div class="block">The position of the start of this period relative to the start of the window to which it
+ belongs, in microseconds. May be negative if the start of the period is not within the
+ window.</div>
+</li>
+</ul>
+<a id="isPlaceholder">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isPlaceholder</h4>
+<pre>public&nbsp;boolean isPlaceholder</pre>
+<div class="block">Whether this period contains placeholder information because the real information has yet to
+ be loaded.</div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&gt; CREATOR</pre>
+<div class="block">Object that can restore <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
+
+ <p>The <a href="#id"><code>id</code></a> and <a href="#uid"><code>uid</code></a> of restored instances will always be <code>null</code>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Period</h4>
+<pre>public&nbsp;Period()</pre>
+<div class="block">Creates a new instance with no ad playback state.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="set(java.lang.Object,java.lang.Object,int,long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>set</h4>
+<pre class="methodSignature">public&nbsp;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;set&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
+                           @Nullable
+                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
+                           int&nbsp;windowIndex,
+                           long&nbsp;durationUs,
+                           long&nbsp;positionInWindowUs)</pre>
+<div class="block">Sets the data held by this period.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - An identifier for the period. Not necessarily unique. May be null if the ids of the
+     period are not required.</dd>
+<dd><code>uid</code> - A unique identifier for the period. May be null if the ids of the period are not
+     required.</dd>
+<dd><code>windowIndex</code> - The index of the window to which this period belongs.</dd>
+<dd><code>durationUs</code> - The duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+     unknown.</dd>
+<dd><code>positionInWindowUs</code> - The position of the start of this period relative to the start of
+     the window to which it belongs, in milliseconds. May be negative if the start of the
+     period is not within the window.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This period, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="set(java.lang.Object,java.lang.Object,int,long,long,com.google.android.exoplayer2.source.ads.AdPlaybackState,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>set</h4>
+<pre class="methodSignature">public&nbsp;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;set&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
+                           @Nullable
+                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
+                           int&nbsp;windowIndex,
+                           long&nbsp;durationUs,
+                           long&nbsp;positionInWindowUs,
+                           <a href="source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
+                           boolean&nbsp;isPlaceholder)</pre>
+<div class="block">Sets the data held by this period.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - An identifier for the period. Not necessarily unique. May be null if the ids of the
+     period are not required.</dd>
+<dd><code>uid</code> - A unique identifier for the period. May be null if the ids of the period are not
+     required.</dd>
+<dd><code>windowIndex</code> - The index of the window to which this period belongs.</dd>
+<dd><code>durationUs</code> - The duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
+     unknown.</dd>
+<dd><code>positionInWindowUs</code> - The position of the start of this period relative to the start of
+     the window to which it belongs, in milliseconds. May be negative if the start of the
+     period is not within the window.</dd>
+<dd><code>adPlaybackState</code> - The state of the period's ads, or <a href="source/ads/AdPlaybackState.html#NONE"><code>AdPlaybackState.NONE</code></a> if
+     there are no ads.</dd>
+<dd><code>isPlaceholder</code> - Whether this period contains placeholder information because the real
+     information has yet to be loaded.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This period, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDurationMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDurationMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getDurationMs()</pre>
+<div class="block">Returns the duration of the period in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</li>
+</ul>
+<a id="getDurationUs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDurationUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getDurationUs()</pre>
+<div class="block">Returns the duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</li>
+</ul>
+<a id="getPositionInWindowMs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPositionInWindowMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getPositionInWindowMs()</pre>
+<div class="block">Returns the position of the start of this period relative to the start of the window to which
+ it belongs, in milliseconds. May be negative if the start of the period is not within the
+ window.</div>
+</li>
+</ul>
+<a id="getPositionInWindowUs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPositionInWindowUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getPositionInWindowUs()</pre>
+<div class="block">Returns the position of the start of this period relative to the start of the window to which
+ it belongs, in microseconds. May be negative if the start of the period is not within the
+ window.</div>
+</li>
+</ul>
+<a id="getAdsId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdsId</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getAdsId()</pre>
+<div class="block">Returns the opaque identifier for ads played with this period, or <code>null</code> if unset.</div>
+</li>
+</ul>
+<a id="getAdGroupCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdGroupCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupCount()</pre>
+<div class="block">Returns the number of ad groups in the period.</div>
+</li>
+</ul>
+<a id="getAdGroupTimeUs(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdGroupTimeUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getAdGroupTimeUs&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns the time of the ad group at index <code>adGroupIndex</code> in the period, in
+ microseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The time of the ad group at the index relative to the start of the enclosing <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for a post-roll ad group.</dd>
+</dl>
+</li>
+</ul>
+<a id="getFirstAdIndexToPlay(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstAdIndexToPlay</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getFirstAdIndexToPlay&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns the index of the first ad in the specified ad group that should be played, or the
+ number of ads in the ad group if no ads should be played.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the first ad that should be played, or the number of ads in the ad group
+     if no ads should be played.</dd>
+</dl>
+</li>
+</ul>
+<a id="getNextAdIndexToPlay(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNextAdIndexToPlay</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getNextAdIndexToPlay&#8203;(int&nbsp;adGroupIndex,
+                                int&nbsp;lastPlayedAdIndex)</pre>
+<div class="block">Returns the index of the next ad in the specified ad group that should be played after
+ playing <code>adIndexInAdGroup</code>, or the number of ads in the ad group if no later ads should
+ be played.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dd><code>lastPlayedAdIndex</code> - The last played ad index in the ad group.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the next ad that should be played, or the number of ads in the ad group
+     if the ad group does not have any ads remaining to play.</dd>
+</dl>
+</li>
+</ul>
+<a id="hasPlayedAdGroup(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasPlayedAdGroup</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;hasPlayedAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns whether the ad group at index <code>adGroupIndex</code> has been played.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the ad group at index <code>adGroupIndex</code> has been played.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdGroupIndexForPositionUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdGroupIndexForPositionUs</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupIndexForPositionUs&#8203;(long&nbsp;positionUs)</pre>
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> in the period that should
+ be played before the content at <code>positionUs</code>. Returns <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the ad
+ group at or before <code>positionUs</code> has no ads remaining to be played, or if there is no
+ such ad group.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The period position at or before which to find an ad group, in
+     microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the ad group, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdGroupIndexAfterPositionUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdGroupIndexAfterPositionUs</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupIndexAfterPositionUs&#8203;(long&nbsp;positionUs)</pre>
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> in the period that has ads
+ that should be played. Returns <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no such ad group.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The period position after which to find an ad group, in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index of the ad group, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdCountInAdGroup(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdCountInAdGroup</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getAdCountInAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or
+ <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The number of ads in the ad group, or <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdDurationUs(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdDurationUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getAdDurationUs&#8203;(int&nbsp;adGroupIndex,
+                            int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Returns the duration of the ad at index <code>adIndexInAdGroup</code> in the ad group at
+ <code>adGroupIndex</code>, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dd><code>adIndexInAdGroup</code> - The ad index in the ad group.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The duration of the ad, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdResumePositionUs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAdResumePositionUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getAdResumePositionUs()</pre>
+<div class="block">Returns the position offset in the first unplayed ad at which to begin playback, in
+ microseconds.</div>
+</li>
+</ul>
+<a id="equals(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>equals</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="hashCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toBundle()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toBundle</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
+
+ <p>It omits the <a href="#id"><code>id</code></a> and <a href="#uid"><code>uid</code></a> fields so these fields of an instance restored
+ by <a href="#CREATOR"><code>CREATOR</code></a> will always be <code>null</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>
