@@ -562,13 +562,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     long exclusionDurationMs = C.TIME_UNSET;
     if (!forceRetry) {
+      @Nullable
       LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
           loadErrorHandlingPolicy.getFallbackSelectionFor(
               createFallbackOptions(chunkSource.getTrackSelection()), loadErrorInfo);
-      exclusionDurationMs =
-          fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
-              ? fallbackSelection.exclusionDurationMs
-              : C.TIME_UNSET;
+      if (fallbackSelection != null
+          && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
+        exclusionDurationMs = fallbackSelection.exclusionDurationMs;
+      }
     }
     return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs);
   }
@@ -909,11 +910,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;
+    @Nullable
     LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
         loadErrorHandlingPolicy.getFallbackSelectionFor(
             createFallbackOptions(chunkSource.getTrackSelection()), loadErrorInfo);
-    if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
-        && fallbackSelection.exclusionDurationMs != C.TIME_UNSET) {
+    if (fallbackSelection != null
+        && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
       exclusionSucceeded =
           chunkSource.maybeExcludeTrack(loadable, fallbackSelection.exclusionDurationMs);
     }

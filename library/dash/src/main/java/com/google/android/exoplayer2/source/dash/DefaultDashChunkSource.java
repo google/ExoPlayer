@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash;
 
 import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
+import static com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -490,10 +491,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
       // No more alternative tracks remaining.
       return false;
     }
+    @Nullable
     LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
         loadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
-    return fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
-        && fallbackSelection.exclusionDurationMs != C.TIME_UNSET
+    return fallbackSelection != null
+        && fallbackSelection.type == FALLBACK_TYPE_TRACK
         && trackSelection.blacklist(
             trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }

@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
@@ -109,20 +112,28 @@ public interface LoadErrorHandlingPolicy {
       this.numberOfTracks = numberOfTracks;
       this.numberOfExcludedTracks = numberOfExcludedTracks;
     }
+
+    /** Returns whether a fallback is available for the given {@link FallbackType fallback type}. */
+    public boolean isFallbackAvailable(@FallbackType int type) {
+      return type == FALLBACK_TYPE_LOCATION
+          ? numberOfLocations - numberOfExcludedLocations > 1
+          : numberOfTracks - numberOfExcludedTracks > 1;
+    }
   }
 
   /** The selection of a fallback option determining the fallback behaviour on load error. */
   final class FallbackSelection {
     /** The {@link FallbackType fallback type} to use. */
     @FallbackType public final int type;
-    /**
-     * The exclusion duration of the {@link #type} in milliseconds, or {@link C#TIME_UNSET} to
-     * disable exclusion of any fallback type.
-     */
+    /** The exclusion duration of the {@link #type}, in milliseconds. */
     public final long exclusionDurationMs;
 
-    /** Creates an instance with the given values. */
+    /**
+     * Creates an instance with the given values. The exclusion duration, in milliseconds, needs to
+     * be a positive integer.
+     */
     public FallbackSelection(@FallbackType int type, long exclusionDurationMs) {
+      checkArgument(exclusionDurationMs >= 0);
       this.type = type;
       this.exclusionDurationMs = exclusionDurationMs;
     }
@@ -130,20 +141,18 @@ public interface LoadErrorHandlingPolicy {
 
   /**
    * Returns the {@link FallbackSelection fallback selection} that determines the exclusion
-   * behaviour on load error.
+   * behaviour on load error. If null is returned the caller will disable exclusion.
    *
-   * <p>If {@link FallbackSelection#exclusionDurationMs} is {@link C#TIME_UNSET}, exclusion is
-   * disabled for any fallback type, regardless of the value of the {@link FallbackSelection#type
-   * selected fallback type}.
-   *
-   * <p>If {@link FallbackSelection#type} is of a type that is not advertised as available by the
-   * {@link FallbackOptions}, exclusion is disabled for any fallback type.
+   * <p>If {@link FallbackSelection#type} is of a type that is not {@link
+   * FallbackOptions#isFallbackAvailable(int) advertised as available}, then the caller will disable
+   * exclusion as if null had been returned.
    *
    * @param fallbackOptions The available fallback options.
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
-   * @return The fallback selection indicating whether to apply exclusion, and if so for which type
-   *     and how long the resource should be excluded.
+   * @return The fallback selection indicating which exclusion type to apply and for how long the
+   *     resource should be excluded. Returning null indicates to disable exclusion.
    */
+  @Nullable
   FallbackSelection getFallbackSelectionFor(
       FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo);
 

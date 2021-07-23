@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -186,10 +187,11 @@ public class DefaultDashChunkSourceTest {
     DefaultLoadErrorHandlingPolicy loadErrorHandlingPolicy =
         new DefaultLoadErrorHandlingPolicy() {
           @Override
+          @Nullable
           public FallbackSelection getFallbackSelectionFor(
               FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
             // Never exclude, neither tracks nor locations.
-            return new FallbackSelection(FALLBACK_TYPE_TRACK, C.TIME_UNSET);
+            return null;
           }
         };
     DashChunkSource chunkSource = createDashChunkSource(/* numberOfTracks= */ 2);

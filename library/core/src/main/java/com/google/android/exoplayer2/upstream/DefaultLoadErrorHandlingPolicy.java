@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static java.lang.Math.min;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.HttpDataSource.CleartextNotPermittedException;
@@ -45,7 +46,6 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   private static final int DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT = -1;
 
   private final int minimumLoadableRetryCount;
-  private final boolean locationExclusionEnabled;
 
   /**
    * Creates an instance with default behavior.
@@ -54,72 +54,48 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
    * #DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE} for {@code dataType} {@link
    * C#DATA_TYPE_MEDIA_PROGRESSIVE_LIVE}. For other {@code dataType} values, it will return {@link
    * #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
-   *
-   * <p>Exclusion of both fallback types {@link #FALLBACK_TYPE_TRACK} and {@link
-   * #FALLBACK_TYPE_TRACK} is enabled by default.
    */
   public DefaultLoadErrorHandlingPolicy() {
-    this(DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT, /* locationExclusionEnabled= */ true);
-  }
-
-  /** @deprecated Use {@link #DefaultLoadErrorHandlingPolicy(int, boolean)} instead. */
-  @Deprecated
-  public DefaultLoadErrorHandlingPolicy(int minimumLoadableRetryCount) {
-    this(minimumLoadableRetryCount, /* locationExclusionEnabled= */ true);
+    this(DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT);
   }
 
   /**
    * Creates an instance with the given value for {@link #getMinimumLoadableRetryCount(int)}.
    *
    * @param minimumLoadableRetryCount See {@link #getMinimumLoadableRetryCount}.
-   * @param locationExclusionEnabled Whether location exclusion is enabled.
    */
-  public DefaultLoadErrorHandlingPolicy(
-      int minimumLoadableRetryCount, boolean locationExclusionEnabled) {
+  public DefaultLoadErrorHandlingPolicy(int minimumLoadableRetryCount) {
     this.minimumLoadableRetryCount = minimumLoadableRetryCount;
-    this.locationExclusionEnabled = locationExclusionEnabled;
   }
 
   /**
    * Returns the fallback selection.
    *
    * <p>The exclusion duration is given by {@link #DEFAULT_TRACK_EXCLUSION_MS} or {@link
-   * #DEFAULT_LOCATION_EXCLUSION_MS}, if the load error was an {@link InvalidResponseCodeException}
-   * with an HTTP response code indicating an unrecoverable error, or {@link C#TIME_UNSET}
-   * otherwise.
+   * #DEFAULT_LOCATION_EXCLUSION_MS} if the load error was not an {@link
+   * #isRecoverableError(IOException) recoverable error}. In case of a recoverable error null is
+   * returned to disable exclusion but retry the same load instead.
    *
-   * <p>If alternative locations are advertised by the {@link
-   * LoadErrorHandlingPolicy.FallbackOptions}, {@link #FALLBACK_TYPE_LOCATION} is selected until all
-   * locations are excluded, {@link #FALLBACK_TYPE_TRACK} otherwise.
+   * <p>If alternative locations {@link
+   * LoadErrorHandlingPolicy.FallbackOptions#isFallbackAvailable(int) are advertised}, {@link
+   * #FALLBACK_TYPE_LOCATION} is selected until all locations are excluded, {@link
+   * #FALLBACK_TYPE_TRACK} otherwise.
    */
   @Override
+  @Nullable
   public FallbackSelection getFallbackSelectionFor(
       FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
-    @FallbackType int fallbackType = FALLBACK_TYPE_TRACK;
-    boolean fallbackAvailable =
-        fallbackOptions.numberOfTracks - fallbackOptions.numberOfExcludedTracks > 1;
-    if (locationExclusionEnabled
-        && fallbackOptions.numberOfLocations - fallbackOptions.numberOfExcludedLocations > 1) {
-      fallbackType = FALLBACK_TYPE_LOCATION;
-      fallbackAvailable = true;
+    if (isRecoverableError(loadErrorInfo.exception)) {
+      // Don't fallback. Retry the same load again.
+      return null;
     }
-    long exclusionDurationMs = C.TIME_UNSET;
-    IOException exception = loadErrorInfo.exception;
-    if (fallbackAvailable && exception instanceof InvalidResponseCodeException) {
-      int responseCode = ((InvalidResponseCodeException) exception).responseCode;
-      exclusionDurationMs =
-          responseCode == 403 // HTTP 403 Forbidden.
-                  || responseCode == 404 // HTTP 404 Not Found.
-                  || responseCode == 410 // HTTP 410 Gone.
-                  || responseCode == 416 // HTTP 416 Range Not Satisfiable.
-                  || responseCode == 500 // HTTP 500 Internal Server Error.
-                  || responseCode == 503 // HTTP 503 Service Unavailable.
-              ? (fallbackType == FALLBACK_TYPE_TRACK
-                  ? DEFAULT_TRACK_EXCLUSION_MS
-                  : DEFAULT_LOCATION_EXCLUSION_MS)
-              : C.TIME_UNSET;
+    // Prefer location fallbacks to track fallbacks, when both are available.
+    if (fallbackOptions.isFallbackAvailable(FALLBACK_TYPE_LOCATION)) {
+      return new FallbackSelection(FALLBACK_TYPE_LOCATION, DEFAULT_LOCATION_EXCLUSION_MS);
+    } else if (fallbackOptions.isFallbackAvailable(FALLBACK_TYPE_TRACK)) {
+      return new FallbackSelection(FALLBACK_TYPE_TRACK, DEFAULT_TRACK_EXCLUSION_MS);
     }
-    return new FallbackSelection(fallbackType, exclusionDurationMs);
+    return null;
   }
 
   /**
@@ -152,5 +128,25 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
     } else {
       return minimumLoadableRetryCount;
     }
+  }
+
+  /**
+   * Returns whether the error is considered recoverable.
+   *
+   * @param exception The exception.
+   * @return Whether the error is considered an recoverable error.
+   */
+  protected boolean isRecoverableError(IOException exception) {
+    if (!(exception instanceof InvalidResponseCodeException)) {
+      return true;
+    }
+    InvalidResponseCodeException invalidResponseCodeException =
+        (InvalidResponseCodeException) exception;
+    return invalidResponseCodeException.responseCode != 403 // HTTP 403 Forbidden.
+        && invalidResponseCodeException.responseCode != 404 // HTTP 404 Not Found.
+        && invalidResponseCodeException.responseCode != 410 // HTTP 410 Gone.
+        && invalidResponseCodeException.responseCode != 416 // HTTP 416 Range Not Satisfiable.
+        && invalidResponseCodeException.responseCode != 500 // HTTP 500 Internal Server Error.
+        && invalidResponseCodeException.responseCode != 503; // HTTP 503 Service Unavailable.
   }
 }

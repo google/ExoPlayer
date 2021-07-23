@@ -290,12 +290,13 @@ public class DefaultSsChunkSource implements SsChunkSource {
       boolean cancelable,
       LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    @Nullable
     FallbackSelection fallbackSelection =
         loadErrorHandlingPolicy.getFallbackSelectionFor(
             createFallbackOptions(trackSelection), loadErrorInfo);
     return cancelable
+        && fallbackSelection != null
         && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
-        && fallbackSelection.exclusionDurationMs != C.TIME_UNSET
         && trackSelection.blacklist(
             trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }
