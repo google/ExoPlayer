@@ -44,9 +44,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Default implementation for {@link HlsPlaylistTracker}. */
 public final class DefaultHlsPlaylistTracker
@@ -65,7 +65,7 @@ public final class DefaultHlsPlaylistTracker
   private final HlsPlaylistParserFactory playlistParserFactory;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final HashMap<Uri, MediaPlaylistBundle> playlistBundles;
-  private final List<PlaylistEventListener> listeners;
+  private final CopyOnWriteArrayList<PlaylistEventListener> listeners;
   private final double playlistStuckTargetDurationCoefficient;
 
   @Nullable private EventDispatcher eventDispatcher;
@@ -116,7 +116,7 @@ public final class DefaultHlsPlaylistTracker
     this.playlistParserFactory = playlistParserFactory;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.playlistStuckTargetDurationCoefficient = playlistStuckTargetDurationCoefficient;
-    listeners = new ArrayList<>();
+    listeners = new CopyOnWriteArrayList<>();
     playlistBundles = new HashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
   }
@@ -252,6 +252,8 @@ public final class DefaultHlsPlaylistTracker
     }
     this.masterPlaylist = masterPlaylist;
     primaryMediaPlaylistUrl = masterPlaylist.variants.get(0).url;
+    // Add a temporary playlist listener for loading the first primary playlist.
+    listeners.add(new FirstPrimaryMediaPlaylistListener());
     createBundles(masterPlaylist.mediaPlaylistUrls);
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
@@ -803,6 +805,53 @@ public final class DefaultHlsPlaylistTracker
     private boolean excludePlaylist(long exclusionDurationMs) {
       excludeUntilMs = SystemClock.elapsedRealtime() + exclusionDurationMs;
       return playlistUrl.equals(primaryMediaPlaylistUrl) && !maybeSelectNewPrimaryUrl();
+    }
+  }
+
+  /**
+   * Takes care of handling load errors of the first media playlist and applies exclusion according
+   * to the {@link LoadErrorHandlingPolicy} before the first media period has been created and
+   * prepared.
+   */
+  private class FirstPrimaryMediaPlaylistListener implements PlaylistEventListener {
+
+    @Override
+    public void onPlaylistChanged() {
+      // Remove the temporary playlist listener that is waiting for the first playlist only.
+      listeners.remove(this);
+    }
+
+    @Override
+    public boolean onPlaylistError(Uri url, LoadErrorInfo loadErrorInfo, boolean forceRetry) {
+      if (primaryMediaPlaylistSnapshot == null) {
+        long nowMs = SystemClock.elapsedRealtime();
+        int variantExclusionCounter = 0;
+        List<Variant> variants = castNonNull(masterPlaylist).variants;
+        for (int i = 0; i < variants.size(); i++) {
+          @Nullable
+          MediaPlaylistBundle mediaPlaylistBundle = playlistBundles.get(variants.get(i).url);
+          if (mediaPlaylistBundle != null && nowMs < mediaPlaylistBundle.excludeUntilMs) {
+            variantExclusionCounter++;
+          }
+        }
+        LoadErrorHandlingPolicy.FallbackOptions fallbackOptions =
+            new LoadErrorHandlingPolicy.FallbackOptions(
+                /* numberOfLocations= */ 1,
+                /* numberOfExcludedLocations= */ 0,
+                /* numberOfTracks= */ masterPlaylist.variants.size(),
+                /* numberOfExcludedTracks= */ variantExclusionCounter);
+        @Nullable
+        LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
+            loadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
+        if (fallbackSelection != null
+            && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
+          @Nullable MediaPlaylistBundle mediaPlaylistBundle = playlistBundles.get(url);
+          if (mediaPlaylistBundle != null) {
+            mediaPlaylistBundle.excludePlaylist(fallbackSelection.exclusionDurationMs);
+          }
+        }
+      }
+      return false;
     }
   }
 }
