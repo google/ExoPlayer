@@ -30,18 +30,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Defines how errors encountered by loaders are handled.
+ * A policy that defines how load errors are handled.
  *
- * <p>A loader that can choose between one of a number of resources can exclude a resource when a
- * load error occurs. In this case, {@link #getFallbackSelectionFor(FallbackOptions, LoadErrorInfo)}
- * defines whether the resource should be excluded for a given {@link FallbackType fallback type},
- * and if so for how long. If the policy indicates that a resource should be excluded, the loader
- * will exclude it for the specified amount of time unless all of the alternatives for the given
- * fallback type are already excluded.
+ * <p>Some loaders are able to choose between a number of alternate resources. Such loaders will
+ * call {@link #getFallbackSelectionFor(FallbackOptions, LoadErrorInfo)} when a load error occurs.
+ * The {@link FallbackSelection} returned by the policy defines whether the loader should fall back
+ * to using another resource, and if so the duration for which the failing resource should be
+ * excluded.
  *
- * <p>When exclusion does not take place, {@link #getRetryDelayMsFor(LoadErrorInfo)} defines whether
- * the load is retried. An error that's not retried will always be propagated. An error that is
- * retried will be propagated according to {@link #getMinimumLoadableRetryCount(int)}.
+ * <p>When fallback does not take place, a loader will call {@link
+ * #getRetryDelayMsFor(LoadErrorInfo)}. The value returned by the policy defines whether the failed
+ * load can be retried, and if so the duration to wait before retrying. If the policy indicates that
+ * a load error should not be retried, it will be considered fatal by the loader. The loader may
+ * also consider load errors that can be retried fatal if at least {@link
+ * #getMinimumLoadableRetryCount(int)} retries have been attempted.
  *
  * <p>Methods are invoked on the playback thread.
  */
@@ -54,14 +56,13 @@ public interface LoadErrorHandlingPolicy {
   @interface FallbackType {}
 
   /**
-   * Fallback type that is using exclusion of locations (i.e., multiple URLs through which the same
-   * data is accessible).
+   * Fallback to the same resource at a different location (i.e., a different URL through which the
+   * exact same data can be requested).
    */
   int FALLBACK_TYPE_LOCATION = 1;
   /**
-   * Fallback type that is using exclusion of tracks (i.e., multiple URLs through which different
-   * representations of the same content are available; for example the same video encoded at
-   * different bitrates or resolutions).
+   * Fallback to a different track (i.e., a different representation of the same content; for
+   * example the same video encoded at a different bitrate or resolution).
    */
   int FALLBACK_TYPE_TRACK = 2;
 
@@ -92,16 +93,16 @@ public interface LoadErrorHandlingPolicy {
 
   /** Holds information about the available fallback options. */
   final class FallbackOptions {
-    /** The number of total available alternative locations. */
+    /** The number of available locations. */
     public final int numberOfLocations;
     /** The number of locations that are already excluded. */
     public final int numberOfExcludedLocations;
-    /** The number of total available tracks. */
+    /** The number of tracks. */
     public final int numberOfTracks;
     /** The number of tracks that are already excluded. */
     public final int numberOfExcludedTracks;
 
-    /** Creates an instance with the given values. */
+    /** Creates an instance. */
     public FallbackOptions(
         int numberOfLocations,
         int numberOfExcludedLocations,
@@ -121,16 +122,19 @@ public interface LoadErrorHandlingPolicy {
     }
   }
 
-  /** The selection of a fallback option determining the fallback behaviour on load error. */
+  /** A selected fallback option. */
   final class FallbackSelection {
-    /** The {@link FallbackType fallback type} to use. */
+    /** The type of fallback. */
     @FallbackType public final int type;
-    /** The exclusion duration of the {@link #type}, in milliseconds. */
+    /** The duration for which the failing resource should be excluded, in milliseconds. */
     public final long exclusionDurationMs;
 
     /**
-     * Creates an instance with the given values. The exclusion duration, in milliseconds, needs to
-     * be a positive integer.
+     * Creates an instance.
+     *
+     * @param type The type of fallback.
+     * @param exclusionDurationMs The duration for which the failing resource should be excluded, in
+     *     milliseconds. Must be non-negative.
      */
     public FallbackSelection(@FallbackType int type, long exclusionDurationMs) {
       checkArgument(exclusionDurationMs >= 0);
@@ -140,33 +144,32 @@ public interface LoadErrorHandlingPolicy {
   }
 
   /**
-   * Returns the {@link FallbackSelection fallback selection} that determines the exclusion
-   * behaviour on load error. If null is returned the caller will disable exclusion.
+   * Returns whether a loader should fall back to using another resource on encountering an error,
+   * and if so the duration for which the failing resource should be excluded.
    *
-   * <p>If {@link FallbackSelection#type} is of a type that is not {@link
-   * FallbackOptions#isFallbackAvailable(int) advertised as available}, then the caller will disable
-   * exclusion as if null had been returned.
+   * <p>If the returned {@link FallbackSelection#type fallback type} was not {@link
+   * FallbackOptions#isFallbackAvailable(int) advertised as available}, then the loader will not
+   * fall back.
    *
    * @param fallbackOptions The available fallback options.
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
-   * @return The fallback selection indicating which exclusion type to apply and for how long the
-   *     resource should be excluded. Returning null indicates to disable exclusion.
+   * @return The selected fallback, or {@code null} if the calling loader should not fall back.
    */
   @Nullable
   FallbackSelection getFallbackSelectionFor(
       FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo);
 
   /**
-   * Returns the number of milliseconds to wait before attempting the load again, or {@link
-   * C#TIME_UNSET} if the error is fatal and should not be retried.
+   * Returns whether a loader can retry on encountering an error, and if so the duration to wait
+   * before retrying. A return value of {@link C#TIME_UNSET} indicates that the error is fatal and
+   * should not be retried.
    *
-   * <p>Loaders may ignore the retry delay returned by this method in order to wait for a specific
-   * event before retrying. However, the load is retried if and only if this method does not return
-   * {@link C#TIME_UNSET}.
+   * <p>For loads that can be retried, loaders may ignore the retry delay returned by this method in
+   * order to wait for a specific event before retrying.
    *
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
-   * @return The number of milliseconds to wait before attempting the load again, or {@link
-   *     C#TIME_UNSET} if the error is fatal and should not be retried.
+   * @return The duration to wait before retrying in milliseconds, or {@link C#TIME_UNSET} if the
+   *     error is fatal and should not be retried.
    */
   long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo);
 
@@ -179,13 +182,13 @@ public interface LoadErrorHandlingPolicy {
   default void onLoadTaskConcluded(long loadTaskId) {}
 
   /**
-   * Returns the minimum number of times to retry a load in the case of a load error, before
-   * propagating the error.
+   * Returns the minimum number of times to retry a load before a load error that can be retried may
+   * be considered fatal.
    *
-   * @param dataType One of the {@link C C.DATA_TYPE_*} constants indicating the type of data to
-   *     load.
-   * @return The minimum number of times to retry a load in the case of a load error, before
-   *     propagating the error.
+   * @param dataType One of the {@link C C.DATA_TYPE_*} constants indicating the type of data being
+   *     loaded.
+   * @return The minimum number of times to retry a load before a load error that can be retried may
+   *     be considered fatal.
    * @see Loader#startLoading(Loadable, Callback, int)
    */
   int getMinimumLoadableRetryCount(int dataType);

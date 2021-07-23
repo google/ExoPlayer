@@ -69,24 +69,24 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   }
 
   /**
-   * Returns the fallback selection.
+   * Returns whether a loader should fall back to using another resource on encountering an error,
+   * and if so the duration for which the failing resource should be excluded.
    *
-   * <p>The exclusion duration is given by {@link #DEFAULT_TRACK_EXCLUSION_MS} or {@link
-   * #DEFAULT_LOCATION_EXCLUSION_MS} if the load error was not an {@link
-   * #isRecoverableError(IOException) recoverable error}. In case of a recoverable error null is
-   * returned to disable exclusion but retry the same load instead.
-   *
-   * <p>If alternative locations {@link
-   * LoadErrorHandlingPolicy.FallbackOptions#isFallbackAvailable(int) are advertised}, {@link
-   * #FALLBACK_TYPE_LOCATION} is selected until all locations are excluded, {@link
-   * #FALLBACK_TYPE_TRACK} otherwise.
+   * <ul>
+   *   <li>This policy will only specify a fallback if {@link #isEligibleForFallback} returns {@code
+   *       true} for the error.
+   *   <li>This policy will always specify a location fallback rather than a track fallback if both
+   *       {@link FallbackOptions#isFallbackAvailable(int) are available}.
+   *   <li>When a fallback is specified, the duration for which the failing resource will be
+   *       excluded is {@link #DEFAULT_LOCATION_EXCLUSION_MS} or {@link
+   *       #DEFAULT_TRACK_EXCLUSION_MS}, depending on the fallback type.
+   * </ul>
    */
   @Override
   @Nullable
   public FallbackSelection getFallbackSelectionFor(
       FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
-    if (isRecoverableError(loadErrorInfo.exception)) {
-      // Don't fallback. Retry the same load again.
+    if (!isEligibleForFallback(loadErrorInfo.exception)) {
       return null;
     }
     // Prefer location fallbacks to track fallbacks, when both are available.
@@ -130,23 +130,18 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
     }
   }
 
-  /**
-   * Returns whether the error is considered recoverable.
-   *
-   * @param exception The exception.
-   * @return Whether the error is considered an recoverable error.
-   */
-  protected boolean isRecoverableError(IOException exception) {
+  /** Returns whether an error should trigger a fallback if possible. */
+  protected boolean isEligibleForFallback(IOException exception) {
     if (!(exception instanceof InvalidResponseCodeException)) {
-      return true;
+      return false;
     }
     InvalidResponseCodeException invalidResponseCodeException =
         (InvalidResponseCodeException) exception;
-    return invalidResponseCodeException.responseCode != 403 // HTTP 403 Forbidden.
-        && invalidResponseCodeException.responseCode != 404 // HTTP 404 Not Found.
-        && invalidResponseCodeException.responseCode != 410 // HTTP 410 Gone.
-        && invalidResponseCodeException.responseCode != 416 // HTTP 416 Range Not Satisfiable.
-        && invalidResponseCodeException.responseCode != 500 // HTTP 500 Internal Server Error.
-        && invalidResponseCodeException.responseCode != 503; // HTTP 503 Service Unavailable.
+    return invalidResponseCodeException.responseCode == 403 // HTTP 403 Forbidden.
+        || invalidResponseCodeException.responseCode == 404 // HTTP 404 Not Found.
+        || invalidResponseCodeException.responseCode == 410 // HTTP 410 Gone.
+        || invalidResponseCodeException.responseCode == 416 // HTTP 416 Range Not Satisfiable.
+        || invalidResponseCodeException.responseCode == 500 // HTTP 500 Internal Server Error.
+        || invalidResponseCodeException.responseCode == 503; // HTTP 503 Service Unavailable.
   }
 }
