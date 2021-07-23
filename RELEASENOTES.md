@@ -103,6 +103,9 @@
     *   Deprecate `setControlDispatcher` in `PlayerView`, `StyledPlayerView`,
         `PlayerControlView`, `StyledPlayerControlView` and
         `PlayerNotificationManager`.
+*   Extractors:
+    *   Add support for DTS-UHD in MP4
+        ([#9163](https://github.com/google/ExoPlayer/issues/9163).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
