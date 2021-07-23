@@ -597,7 +597,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     } catch (BehindLiveWindowException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW);
     } catch (IOException e) {
-      handleIoException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
+      handleIoException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } catch (RuntimeException e) {
       ExoPlaybackException error = ExoPlaybackException.createForUnexpected(e);
       Log.e(TAG, "Playback error", error);
