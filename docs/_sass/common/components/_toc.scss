@@ -1,5 +1,3 @@
-@use 'sass:math';
-
 ul.toc {
   display: block;
   margin: 0;
@@ -15,7 +13,7 @@ ul.toc {
   }
   a {
     display: inline-block;
-    margin: math.div(map-get($spacers, 1), 4) 0;
+    margin: map-get($spacers, 1) / 4 0;
     text-decoration: none !important;
     @include link-colors($text-color, $main-color-1);
   }
