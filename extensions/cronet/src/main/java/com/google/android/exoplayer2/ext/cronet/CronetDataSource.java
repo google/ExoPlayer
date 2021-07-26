@@ -350,13 +350,41 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public final int cronetConnectionStatus;
 
+    /** @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}. */
+    @Deprecated
     public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
       super(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
+    public OpenException(
+        IOException cause,
+        DataSpec dataSpec,
+        @PlaybackException.ErrorCode int errorCode,
+        int cronetConnectionStatus) {
+      super(cause, dataSpec, errorCode, TYPE_OPEN);
+      this.cronetConnectionStatus = cronetConnectionStatus;
+    }
+
+    /** @deprecated Use {@link #OpenException(String, DataSpec, int, int)}. */
+    @Deprecated
     public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
       super(errorMessage, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
+      this.cronetConnectionStatus = cronetConnectionStatus;
+    }
+
+    public OpenException(
+        String errorMessage,
+        DataSpec dataSpec,
+        @PlaybackException.ErrorCode int errorCode,
+        int cronetConnectionStatus) {
+      super(errorMessage, dataSpec, errorCode, TYPE_OPEN);
+      this.cronetConnectionStatus = cronetConnectionStatus;
+    }
+
+    public OpenException(
+        DataSpec dataSpec, @PlaybackException.ErrorCode int errorCode, int cronetConnectionStatus) {
+      super(dataSpec, errorCode, TYPE_OPEN);
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
   }
@@ -623,7 +651,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       urlRequest = buildRequestBuilder(dataSpec).build();
       currentUrlRequest = urlRequest;
     } catch (IOException e) {
-      throw new OpenException(e, dataSpec, Status.IDLE);
+      if (e instanceof HttpDataSourceException) {
+        throw (HttpDataSourceException) e;
+      } else {
+        throw new OpenException(
+            e, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, Status.IDLE);
+      }
     }
     urlRequest.start();
 
@@ -636,14 +669,26 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         if (message != null && Ascii.toLowerCase(message).contains("err_cleartext_not_permitted")) {
           throw new CleartextNotPermittedException(connectionOpenException, dataSpec);
         }
-        throw new OpenException(connectionOpenException, dataSpec, getStatus(urlRequest));
+        throw new OpenException(
+            connectionOpenException,
+            dataSpec,
+            PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+            getStatus(urlRequest));
       } else if (!connectionOpened) {
         // The timeout was reached before the connection was opened.
-        throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(urlRequest));
+        throw new OpenException(
+            new SocketTimeoutException(),
+            dataSpec,
+            PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+            getStatus(urlRequest));
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new OpenException(new InterruptedIOException(), dataSpec, Status.INVALID);
+      throw new OpenException(
+          new InterruptedIOException(),
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          Status.INVALID);
     }
 
     // Check for a valid response code.
@@ -717,14 +762,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     opened = true;
     transferStarted(dataSpec);
 
-    try {
-      if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
-      }
-    } catch (IOException e) {
-      throw new OpenException(e, dataSpec, Status.READING_RESPONSE);
-    }
-
+    skipFully(bytesToSkip, dataSpec);
     return bytesRemaining;
   }
 
@@ -743,15 +781,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
-      try {
-        readInternal(readBuffer);
-      } catch (IOException e) {
-        throw new HttpDataSourceException(
-            e,
-            castNonNull(currentDataSpec),
-            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
-            HttpDataSourceException.TYPE_READ);
-      }
+
+      readInternal(readBuffer, castNonNull(currentDataSpec));
 
       if (finished) {
         bytesRemaining = 0;
@@ -833,15 +864,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
     // Fill buffer with more data from Cronet.
     operation.close();
-    try {
-      readInternal(buffer);
-    } catch (IOException e) {
-      throw new HttpDataSourceException(
-          e,
-          castNonNull(currentDataSpec),
-          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
-          HttpDataSourceException.TYPE_READ);
-    }
+    readInternal(buffer, castNonNull(currentDataSpec));
 
     if (finished) {
       bytesRemaining = 0;
@@ -911,7 +934,11 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     if (dataSpec.httpBody != null && !requestHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
-      throw new IOException("HTTP request with non-empty body must set Content-Type");
+      throw new OpenException(
+          "HTTP request with non-empty body must set Content-Type",
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_BAD_HTTP_REQUEST,
+          Status.IDLE);
     }
 
     @Nullable String rangeHeader = buildRangeRequestHeader(dataSpec.position, dataSpec.length);
@@ -955,37 +982,53 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * Attempts to skip the specified number of bytes in full.
    *
+   * <p>The methods throws an {@link OpenException} with {@link OpenException#reason} set to {@link
+   * PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE} when the data ended before the
+   * specified number of bytes were skipped.
+   *
    * @param bytesToSkip The number of bytes to skip.
-   * @throws InterruptedIOException If the thread is interrupted during the operation.
-   * @throws IOException If an error occurs reading from the source.
-   * @return Whether the bytes were skipped in full. If {@code false} then the data ended before the
-   *     specified number of bytes were skipped. Always {@code true} if {@code bytesToSkip == 0}.
+   * @param dataSpec The {@link DataSpec}.
+   * @throws HttpDataSourceException If the thread is interrupted during the operation, or an error
+   *     occurs reading from the source; or when the data ended before the specified number of bytes
+   *     were skipped.
    */
-  private boolean skipFully(long bytesToSkip) throws IOException {
+  private void skipFully(long bytesToSkip, DataSpec dataSpec) throws HttpDataSourceException {
     if (bytesToSkip == 0) {
-      return true;
+      return;
     }
     ByteBuffer readBuffer = getOrCreateReadBuffer();
-    while (bytesToSkip > 0) {
-      // Fill readBuffer with more data from Cronet.
-      operation.close();
-      readBuffer.clear();
-      readInternal(readBuffer);
-      if (Thread.currentThread().isInterrupted()) {
-        throw new InterruptedIOException();
+
+    try {
+      while (bytesToSkip > 0) {
+        // Fill readBuffer with more data from Cronet.
+        operation.close();
+        readBuffer.clear();
+        readInternal(readBuffer, dataSpec);
+        if (Thread.currentThread().isInterrupted()) {
+          throw new InterruptedIOException();
+        }
+        if (finished) {
+          throw new OpenException(
+              dataSpec,
+              PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+              Status.READING_RESPONSE);
+        } else {
+          // The operation didn't time out, fail or finish, and therefore data must have been read.
+          readBuffer.flip();
+          Assertions.checkState(readBuffer.hasRemaining());
+          int bytesSkipped = (int) Math.min(readBuffer.remaining(), bytesToSkip);
+          readBuffer.position(readBuffer.position() + bytesSkipped);
+          bytesToSkip -= bytesSkipped;
+        }
       }
-      if (finished) {
-        return false;
+    } catch (IOException e) {
+      if (e instanceof HttpDataSourceException) {
+        throw (HttpDataSourceException) e;
       } else {
-        // The operation didn't time out, fail or finish, and therefore data must have been read.
-        readBuffer.flip();
-        Assertions.checkState(readBuffer.hasRemaining());
-        int bytesSkipped = (int) Math.min(readBuffer.remaining(), bytesToSkip);
-        readBuffer.position(readBuffer.position() + bytesSkipped);
-        bytesToSkip -= bytesSkipped;
+        throw new OpenException(
+            e, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, Status.READING_RESPONSE);
       }
     }
-    return true;
   }
 
   /**
@@ -1000,7 +1043,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     while (!finished) {
       operation.close();
       readBuffer.clear();
-      readInternal(readBuffer);
+      readInternal(readBuffer, castNonNull(currentDataSpec));
       readBuffer.flip();
       if (readBuffer.remaining() > 0) {
         int existingResponseBodyEnd = responseBody.length;
@@ -1017,10 +1060,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * the current {@code readBuffer} object so that it is not reused in the future.
    *
    * @param buffer The ByteBuffer into which the read data is stored. Must be a direct ByteBuffer.
-   * @throws IOException If an error occurs reading from the source.
+   * @throws HttpDataSourceException If an error occurs reading from the source.
    */
   @SuppressWarnings("ReferenceEquality")
-  private void readInternal(ByteBuffer buffer) throws IOException {
+  private void readInternal(ByteBuffer buffer, DataSpec dataSpec) throws HttpDataSourceException {
     castNonNull(currentUrlRequest).read(buffer);
     try {
       if (!operation.block(readTimeoutMs)) {
@@ -1033,18 +1076,33 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readBuffer = null;
       }
       Thread.currentThread().interrupt();
-      throw new InterruptedIOException();
+      exception = new InterruptedIOException();
     } catch (SocketTimeoutException e) {
       // The operation is ongoing so replace buffer to avoid it being written to by this
       // operation during a subsequent request.
       if (buffer == readBuffer) {
         readBuffer = null;
       }
-      throw e;
+      exception =
+          new HttpDataSourceException(
+              e,
+              dataSpec,
+              PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+              HttpDataSourceException.TYPE_READ);
     }
 
     if (exception != null) {
-      throw exception;
+      if (exception instanceof HttpDataSourceException) {
+        throw (HttpDataSourceException) exception;
+      } else {
+        throw new HttpDataSourceException(
+            exception,
+            dataSpec,
+            exception instanceof UnknownHostException
+                ? PlaybackException.ERROR_CODE_IO_DNS_FAILED
+                : PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSourceException.TYPE_READ);
+      }
     }
   }
 
