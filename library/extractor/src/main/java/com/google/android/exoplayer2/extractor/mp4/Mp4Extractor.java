@@ -133,7 +133,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private static final long MAXIMUM_READ_AHEAD_BYTES_STREAM = 10 * 1024 * 1024;
 
-  private final @Flags int flags;
+  @Flags private final int flags;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
