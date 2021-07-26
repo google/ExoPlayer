@@ -39,7 +39,7 @@ directly to the player instead of a `MediaItem`.
 
 ~~~
 // Create a data source factory.
-DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory();
+DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
 // Create a DASH media source pointing to a DASH manifest uri.
 MediaSource mediaSource =
     new DashMediaSource.Factory(dataSourceFactory)
