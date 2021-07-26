@@ -448,6 +448,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+  private final BaseUrlExclusionList baseUrlExclusionList;
   private final long fallbackTargetLiveOffsetMs;
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
@@ -502,6 +503,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.fallbackTargetLiveOffsetMs = fallbackTargetLiveOffsetMs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    baseUrlExclusionList = new BaseUrlExclusionList();
     sideloadedManifest = manifest != null;
     manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     manifestUriLock = new Object();
@@ -572,6 +574,7 @@ public final class DashMediaSource extends BaseMediaSource {
         new DashMediaPeriod(
             firstPeriodId + periodIndex,
             manifest,
+            baseUrlExclusionList,
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
@@ -617,6 +620,7 @@ public final class DashMediaSource extends BaseMediaSource {
     expiredManifestPublishTimeUs = C.TIME_UNSET;
     firstPeriodId = 0;
     periodsById.clear();
+    baseUrlExclusionList.reset();
     drmSessionManager.release();
   }
 

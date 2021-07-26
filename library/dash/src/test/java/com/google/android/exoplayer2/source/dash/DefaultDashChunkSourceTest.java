@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_LOCATION_EXCLUSION_MS;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BundledChunkExtractor;
+import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
@@ -45,10 +47,16 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowSystemClock;
 
 /** Unit test for {@link DefaultDashChunkSource}. */
 @RunWith(AndroidJUnit4.class)
@@ -58,6 +66,8 @@ public class DefaultDashChunkSourceTest {
   private static final String SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW =
       "media/mpd/sample_mpd_live_with_offset_inside_window";
   private static final String SAMPLE_MPD_VOD = "media/mpd/sample_mpd_vod";
+  private static final String SAMPLE_MPD_VOD_LOCATION_FALLBACK =
+      "media/mpd/sample_mpd_vod_location_fallback";
 
   @Test
   public void getNextChunk_forLowLatencyManifest_setsCorrectMayNotLoadAtFullNetworkSpeedFlag()
@@ -76,6 +86,7 @@ public class DefaultDashChunkSourceTest {
             BundledChunkExtractor.FACTORY,
             new LoaderErrorThrower.Dummy(),
             manifest,
+            new BaseUrlExclusionList(),
             /* periodIndex= */ 0,
             /* adaptationSetIndices= */ new int[] {0},
             new FixedTrackSelection(new TrackGroup(new Format.Builder().build()), /* track= */ 0),
@@ -123,6 +134,7 @@ public class DefaultDashChunkSourceTest {
             BundledChunkExtractor.FACTORY,
             new LoaderErrorThrower.Dummy(),
             manifest,
+            new BaseUrlExclusionList(),
             /* periodIndex= */ 0,
             /* adaptationSetIndices= */ new int[] {0},
             new FixedTrackSelection(new TrackGroup(new Format.Builder().build()), /* track= */ 0),
@@ -146,7 +158,63 @@ public class DefaultDashChunkSourceTest {
   }
 
   @Test
-  public void onChunkLoadError_trackExclusionEnabled_requestReplacementChunkAsLongAsAvailable()
+  public void getNextChunk_onChunkLoadErrorLocationExclusionEnabled_correctFallbackBehavior()
+      throws Exception {
+    DefaultLoadErrorHandlingPolicy loadErrorHandlingPolicy =
+        new DefaultLoadErrorHandlingPolicy() {
+          @Override
+          public FallbackSelection getFallbackSelectionFor(
+              FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
+            return new FallbackSelection(FALLBACK_TYPE_LOCATION, DEFAULT_LOCATION_EXCLUSION_MS);
+          }
+        };
+    List<Chunk> chunks = new ArrayList<>();
+    DashChunkSource chunkSource = createDashChunkSource(/* numberOfTracks= */ 1);
+    ChunkHolder output = new ChunkHolder();
+
+    boolean requestReplacementChunk = true;
+    while (requestReplacementChunk) {
+      chunkSource.getNextChunk(
+          /* playbackPositionUs= */ 0,
+          /* loadPositionUs= */ 0,
+          /* queue= */ ImmutableList.of(),
+          output);
+      chunks.add(output.chunk);
+      requestReplacementChunk =
+          chunkSource.onChunkLoadError(
+              checkNotNull(output.chunk),
+              /* cancelable= */ true,
+              createFakeLoadErrorInfo(
+                  output.chunk.dataSpec, /* httpResponseCode= */ 404, /* errorCount= */ 1),
+              loadErrorHandlingPolicy);
+    }
+
+    assertThat(Lists.transform(chunks, (chunk) -> chunk.dataSpec.uri.toString()))
+        .containsExactly(
+            "http://video.com/baseUrl/a/video/video_0_1300000.m4s",
+            "http://video.com/baseUrl/b/video/video_0_1300000.m4s",
+            "http://video.com/baseUrl/d/video/video_0_1300000.m4s")
+        .inOrder();
+
+    // Assert expiration of exclusions.
+    ShadowSystemClock.advanceBy(Duration.ofMillis(DEFAULT_LOCATION_EXCLUSION_MS));
+    chunkSource.onChunkLoadError(
+        checkNotNull(output.chunk),
+        /* cancelable= */ true,
+        createFakeLoadErrorInfo(
+            output.chunk.dataSpec, /* httpResponseCode= */ 404, /* errorCount= */ 1),
+        loadErrorHandlingPolicy);
+    chunkSource.getNextChunk(
+        /* playbackPositionUs= */ 0,
+        /* loadPositionUs= */ 0,
+        /* queue= */ ImmutableList.of(),
+        output);
+    assertThat(output.chunk.dataSpec.uri.toString())
+        .isEqualTo("http://video.com/baseUrl/a/video/video_0_1300000.m4s");
+  }
+
+  @Test
+  public void getNextChunk_onChunkLoadErrorTrackExclusionEnabled_correctFallbackBehavior()
       throws Exception {
     DefaultLoadErrorHandlingPolicy loadErrorHandlingPolicy =
         new DefaultLoadErrorHandlingPolicy() {
@@ -158,31 +226,36 @@ public class DefaultDashChunkSourceTest {
                 FALLBACK_TYPE_TRACK, DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS);
           }
         };
-    int numberOfTracks = 2;
-    DashChunkSource chunkSource = createDashChunkSource(numberOfTracks);
+    DashChunkSource chunkSource = createDashChunkSource(/* numberOfTracks= */ 4);
     ChunkHolder output = new ChunkHolder();
-    for (int i = 0; i < numberOfTracks; i++) {
+    List<Chunk> chunks = new ArrayList<>();
+    boolean requestReplacementChunk = true;
+    while (requestReplacementChunk) {
       chunkSource.getNextChunk(
           /* playbackPositionUs= */ 0,
           /* loadPositionUs= */ 0,
           /* queue= */ ImmutableList.of(),
           output);
-
-      boolean alternativeTrackAvailable =
+      chunks.add(output.chunk);
+      requestReplacementChunk =
           chunkSource.onChunkLoadError(
               checkNotNull(output.chunk),
               /* cancelable= */ true,
               createFakeLoadErrorInfo(
                   output.chunk.dataSpec, /* httpResponseCode= */ 404, /* errorCount= */ 1),
               loadErrorHandlingPolicy);
-
-      // Expect true except for the last track remaining.
-      assertThat(alternativeTrackAvailable).isEqualTo(i != numberOfTracks - 1);
     }
+    assertThat(Lists.transform(chunks, (chunk) -> chunk.dataSpec.uri.toString()))
+        .containsExactly(
+            "http://video.com/baseUrl/a/video/video_0_700000.m4s",
+            "http://video.com/baseUrl/a/video/video_0_452000.m4s",
+            "http://video.com/baseUrl/a/video/video_0_250000.m4s",
+            "http://video.com/baseUrl/a/video/video_0_1300000.m4s")
+        .inOrder();
   }
 
   @Test
-  public void onChunkLoadError_trackExclusionDisabled_neverRequestReplacementChunk()
+  public void getNextChunk_onChunkLoadErrorExclusionDisabled_neverRequestReplacementChunk()
       throws Exception {
     DefaultLoadErrorHandlingPolicy loadErrorHandlingPolicy =
         new DefaultLoadErrorHandlingPolicy() {
@@ -202,7 +275,7 @@ public class DefaultDashChunkSourceTest {
         /* queue= */ ImmutableList.of(),
         output);
 
-    boolean alternativeTrackAvailable =
+    boolean requestReplacementChunk =
         chunkSource.onChunkLoadError(
             checkNotNull(output.chunk),
             /* cancelable= */ true,
@@ -210,7 +283,7 @@ public class DefaultDashChunkSourceTest {
                 output.chunk.dataSpec, /* httpResponseCode= */ 404, /* errorCount= */ 1),
             loadErrorHandlingPolicy);
 
-    assertThat(alternativeTrackAvailable).isFalse();
+    assertThat(requestReplacementChunk).isFalse();
   }
 
   private DashChunkSource createDashChunkSource(int numberOfTracks) throws IOException {
@@ -220,7 +293,7 @@ public class DefaultDashChunkSourceTest {
             .parse(
                 Uri.parse("https://example.com/test.mpd"),
                 TestUtil.getInputStream(
-                    ApplicationProvider.getApplicationContext(), SAMPLE_MPD_VOD));
+                    ApplicationProvider.getApplicationContext(), SAMPLE_MPD_VOD_LOCATION_FALLBACK));
     int[] adaptationSetIndices = new int[] {0};
     int[] selectedTracks = new int[numberOfTracks];
     Format[] formats = new Format[numberOfTracks];
@@ -244,6 +317,7 @@ public class DefaultDashChunkSourceTest {
         BundledChunkExtractor.FACTORY,
         new LoaderErrorThrower.Dummy(),
         manifest,
+        new BaseUrlExclusionList(new Random(/* seed= */ 1234)),
         /* periodIndex= */ 0,
         /* adaptationSetIndices= */ adaptationSetIndices,
         adaptiveTrackSelection,

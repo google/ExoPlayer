@@ -200,6 +200,7 @@ public final class DashMediaPeriodTest {
     return new DashMediaPeriod(
         /* id= */ periodIndex,
         manifest,
+        new BaseUrlExclusionList(),
         periodIndex,
         mock(DashChunkSource.Factory.class),
         mock(TransferListener.class),

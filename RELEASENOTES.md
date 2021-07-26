@@ -47,6 +47,9 @@
         `TrackSelection#getFormat()`.
     *   Deprecate `ControlDispatcher` and `DefaultControlDispatcher`. Use a
         `ForwardingPlayer` or configure the player to customize operations.
+    *   Change interface of `LoadErrorHandlingPolicy` to support configuring the
+        behavior of track and location fallback. Location fallback is currently
+        only supported for DASH manifests with multiple base URLs.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
@@ -160,6 +163,12 @@
         ([#9158](https://github.com/google/ExoPlayer/issues/9158)).
     *   Fix issue around TS synchronization when reading a file's duration
         ([#9100](https://github.com/google/ExoPlayer/pull/9100)).
+*   DASH:
+    *   Add support for multiple base URLs and DVB attributes in the manifest.
+        Apps that are using `DefaultLoadErrorHandlingPolicy` with such manifests
+        have base URL fallback automatically enabled
+        ([#771](https://github.com/google/ExoPlayer/issues/771) and
+        [#7654](https://github.com/google/ExoPlayer/issues/7654)).
 *   HLS:
     *   Fix issue where playback of a live event could become stuck rather than
         transitioning to `STATE_ENDED` when the event ends

@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
-import static com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -103,6 +101,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     public DashChunkSource createDashChunkSource(
         LoaderErrorThrower manifestLoaderErrorThrower,
         DashManifest manifest,
+        BaseUrlExclusionList baseUrlExclusionList,
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,
@@ -120,6 +119,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           chunkExtractorFactory,
           manifestLoaderErrorThrower,
           manifest,
+          baseUrlExclusionList,
           periodIndex,
           adaptationSetIndices,
           trackSelection,
@@ -134,6 +134,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
+  private final BaseUrlExclusionList baseUrlExclusionList;
   private final int[] adaptationSetIndices;
   private final int trackType;
   private final DataSource dataSource;
@@ -154,6 +155,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     chunks.
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
+   * @param baseUrlExclusionList The base URL exclusion list.
    * @param periodIndex The index of the period in the manifest.
    * @param adaptationSetIndices The indices of the adaptation sets in the period.
    * @param trackSelection The track selection.
@@ -174,6 +176,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       ChunkExtractor.Factory chunkExtractorFactory,
       LoaderErrorThrower manifestLoaderErrorThrower,
       DashManifest manifest,
+      BaseUrlExclusionList baseUrlExclusionList,
       int periodIndex,
       int[] adaptationSetIndices,
       ExoTrackSelection trackSelection,
@@ -186,6 +189,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       @Nullable PlayerTrackEmsgHandler playerTrackEmsgHandler) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
+    this.baseUrlExclusionList = baseUrlExclusionList;
     this.adaptationSetIndices = adaptationSetIndices;
     this.trackSelection = trackSelection;
     this.trackType = trackType;
@@ -201,11 +205,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     representationHolders = new RepresentationHolder[trackSelection.length()];
     for (int i = 0; i < representationHolders.length; i++) {
       Representation representation = representations.get(trackSelection.getIndexInTrackGroup(i));
+      @Nullable
+      BaseUrl selectedBaseUrl = baseUrlExclusionList.selectBaseUrl(representation.baseUrls);
       representationHolders[i] =
           new RepresentationHolder(
               periodDurationUs,
               representation,
-              representation.baseUrls.get(0),
+              selectedBaseUrl != null ? selectedBaseUrl : representation.baseUrls.get(0),
               BundledChunkExtractor.FACTORY.createProgressiveMediaExtractor(
                   trackType,
                   representation.format,
@@ -486,18 +492,45 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
       }
     }
-    LoadErrorHandlingPolicy.FallbackOptions fallbackOptions = createFallbackOptions(trackSelection);
-    if (fallbackOptions.numberOfTracks - fallbackOptions.numberOfExcludedTracks <= 1) {
-      // No more alternative tracks remaining.
+
+    int trackIndex = trackSelection.indexOf(chunk.trackFormat);
+    RepresentationHolder representationHolder = representationHolders[trackIndex];
+    LoadErrorHandlingPolicy.FallbackOptions fallbackOptions =
+        createFallbackOptions(trackSelection, representationHolder.representation.baseUrls);
+    if (!fallbackOptions.isFallbackAvailable(LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK)
+        && !fallbackOptions.isFallbackAvailable(LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION)) {
+      // No more alternatives remaining.
       return false;
     }
     @Nullable
     LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
         loadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
-    return fallbackSelection != null
-        && fallbackSelection.type == FALLBACK_TYPE_TRACK
-        && trackSelection.blacklist(
-            trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
+    if (fallbackSelection == null) {
+      // Policy indicated to not use any fallback.
+      return false;
+    }
+
+    boolean cancelLoad = false;
+    if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
+      cancelLoad =
+          trackSelection.blacklist(
+              trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
+    } else if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION) {
+      baseUrlExclusionList.exclude(
+          representationHolder.selectedBaseUrl, fallbackSelection.exclusionDurationMs);
+      for (int i = 0; i < representationHolders.length; i++) {
+        @Nullable
+        BaseUrl baseUrl =
+            baseUrlExclusionList.selectBaseUrl(representationHolders[i].representation.baseUrls);
+        if (baseUrl != null) {
+          if (i == trackIndex) {
+            cancelLoad = true;
+          }
+          representationHolders[i] = representationHolders[i].copyWithNewSelectedBaseUrl(baseUrl);
+        }
+      }
+    }
+    return cancelLoad;
   }
 
   @Override
@@ -511,6 +544,25 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   // Internal methods.
+
+  private LoadErrorHandlingPolicy.FallbackOptions createFallbackOptions(
+      ExoTrackSelection trackSelection, List<BaseUrl> baseUrls) {
+    long nowMs = SystemClock.elapsedRealtime();
+    int numberOfTracks = trackSelection.length();
+    int numberOfExcludedTracks = 0;
+    for (int i = 0; i < numberOfTracks; i++) {
+      if (trackSelection.isBlacklisted(i, nowMs)) {
+        numberOfExcludedTracks++;
+      }
+    }
+    int priorityCount = BaseUrlExclusionList.getPriorityCount(baseUrls);
+    return new LoadErrorHandlingPolicy.FallbackOptions(
+        /* numberOfLocations= */ priorityCount,
+        /* numberOfExcludedLocations= */ priorityCount
+            - baseUrlExclusionList.getPriorityCountAfterExclusion(baseUrls),
+        numberOfTracks,
+        numberOfExcludedTracks);
+  }
 
   private long getSegmentNum(
       RepresentationHolder representationHolder,
@@ -839,6 +891,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     @CheckResult
     /* package */ RepresentationHolder copyWithNewSegmentIndex(DashSegmentIndex segmentIndex) {
+      return new RepresentationHolder(
+          periodDurationUs,
+          representation,
+          selectedBaseUrl,
+          chunkExtractor,
+          segmentNumShift,
+          segmentIndex);
+    }
+
+    @CheckResult
+    /* package */ RepresentationHolder copyWithNewSelectedBaseUrl(BaseUrl selectedBaseUrl) {
       return new RepresentationHolder(
           periodDurationUs,
           representation,
