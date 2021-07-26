@@ -134,20 +134,21 @@ public final class WebvttCssStyle {
   /**
    * Returns a value in a score system compliant with the CSS Specificity rules.
    *
-   * @see <a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>
-   *     <p>The score works as follows:
-   *     <ul>
-   *       <li>Id match adds 0x40000000 to the score.
-   *       <li>Each class and voice match adds 4 to the score.
-   *       <li>Tag matching adds 2 to the score.
-   *       <li>Universal selector matching scores 1.
-   *     </ul>
+   * <p>The score works as follows:
+   *
+   * <ul>
+   *   <li>Id match adds 0x40000000 to the score.
+   *   <li>Each class and voice match adds 4 to the score.
+   *   <li>Tag matching adds 2 to the score.
+   *   <li>Universal selector matching scores 1.
+   * </ul>
    *
    * @param id The id of the cue if present, {@code null} otherwise.
    * @param tag Name of the tag, {@code null} if it refers to the entire cue.
    * @param classes An array containing the classes the tag belongs to. Must not be null.
    * @param voice Annotated voice if present, {@code null} otherwise.
    * @return The score of the match, zero if there is no match.
+   * @see <a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>
    */
   public int getSpecificityScore(
       @Nullable String id, @Nullable String tag, Set<String> classes, @Nullable String voice) {
