@@ -2116,7 +2116,9 @@ public final class Util {
     try (GZIPOutputStream os = new GZIPOutputStream(output)) {
       os.write(input);
     } catch (IOException e) {
-      throw new AssertionError(e);
+      // A ByteArrayOutputStream wrapped in a GZipOutputStream should never throw IOException since
+      // no I/O is happening.
+      throw new IllegalStateException(e);
     }
     return output.toByteArray();
   }
