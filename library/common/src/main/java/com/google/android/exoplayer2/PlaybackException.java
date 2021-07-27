@@ -52,7 +52,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
         ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
         ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED,
-        ERROR_CODE_IO_BAD_HTTP_REQUEST,
+        ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE,
         ERROR_CODE_IO_BAD_HTTP_STATUS,
         ERROR_CODE_IO_DNS_FAILED,
         ERROR_CODE_IO_FILE_NOT_FOUND,
@@ -115,8 +115,13 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT = 2003;
   /** Caused by an existing connection being unexpectedly closed. */
   public static final int ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED = 2004;
-  /** Caused by creating a malformed HTTP request. */
-  public static final int ERROR_CODE_IO_BAD_HTTP_REQUEST = 2005;
+  /**
+   * Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.
+   *
+   * <p>For example, this can happen when the player is expecting a piece of media, but the server
+   * returns a paywall HTML page, with content type "text/html".
+   */
+  public static final int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE = 2005;
   /** Caused by an HTTP server returning an unexpected HTTP response status code. */
   public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2006;
   /** Caused by the player failing to resolve a hostname. */
@@ -237,8 +242,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT";
       case ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED:
         return "ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED";
-      case ERROR_CODE_IO_BAD_HTTP_REQUEST:
-        return "ERROR_CODE_IO_BAD_HTTP_REQUEST";
+      case ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE:
+        return "ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE";
       case ERROR_CODE_IO_BAD_HTTP_STATUS:
         return "ERROR_CODE_IO_BAD_HTTP_STATUS";
       case ERROR_CODE_IO_DNS_FAILED:

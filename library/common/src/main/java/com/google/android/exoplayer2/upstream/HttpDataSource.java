@@ -362,7 +362,7 @@ public interface HttpDataSource extends DataSource {
       super(
           "Invalid content type: " + contentType,
           dataSpec,
-          PlaybackException.ERROR_CODE_IO_BAD_HTTP_REQUEST,
+          PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE,
           TYPE_OPEN);
       this.contentType = contentType;
     }
