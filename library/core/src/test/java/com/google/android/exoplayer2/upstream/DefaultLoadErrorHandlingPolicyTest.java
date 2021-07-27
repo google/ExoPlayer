@@ -296,6 +296,7 @@ public final class DefaultLoadErrorHandlingPolicyTest {
     return new InvalidResponseCodeException(
         statusCode,
         message,
+        /* cause= */ null,
         Collections.emptyMap(),
         new DataSpec(Uri.EMPTY),
         /* responseBody= */ Util.EMPTY_BYTE_ARRAY);

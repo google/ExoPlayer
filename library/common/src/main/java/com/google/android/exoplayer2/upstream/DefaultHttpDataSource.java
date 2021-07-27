@@ -400,14 +400,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         errorResponseBody = Util.EMPTY_BYTE_ARRAY;
       }
       closeConnectionQuietly();
-      InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(
-              responseCode, responseMessage, headers, dataSpec, errorResponseBody);
-      if (responseCode == 416) {
-        exception.initCause(
-            new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE));
-      }
-      throw exception;
+      @Nullable
+      IOException cause =
+          responseCode == 416
+              ? new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE)
+              : null;
+      throw new InvalidResponseCodeException(
+          responseCode, responseMessage, cause, headers, dataSpec, errorResponseBody);
     }
 
     // Check for a valid content type.

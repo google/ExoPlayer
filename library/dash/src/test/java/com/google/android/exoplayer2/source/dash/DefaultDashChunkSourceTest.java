@@ -339,6 +339,7 @@ public class DefaultDashChunkSourceTest {
         new HttpDataSource.InvalidResponseCodeException(
             httpResponseCode,
             /* responseMessage= */ null,
+            /* cause= */ null,
             ImmutableMap.of(),
             dataSpec,
             new byte[0]);

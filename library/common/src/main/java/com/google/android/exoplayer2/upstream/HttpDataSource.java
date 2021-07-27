@@ -317,7 +317,7 @@ public interface HttpDataSource extends DataSource {
      */
     public HttpDataSourceException(
         String message,
-        IOException cause,
+        @Nullable IOException cause,
         DataSpec dataSpec,
         @PlaybackException.ErrorCode int errorCode,
         @Type int type) {
@@ -386,7 +386,8 @@ public interface HttpDataSource extends DataSource {
     public final byte[] responseBody;
 
     /**
-     * @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec, byte[])}.
+     * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
+     *     byte[])}.
      */
     @Deprecated
     public InvalidResponseCodeException(
@@ -394,13 +395,15 @@ public interface HttpDataSource extends DataSource {
       this(
           responseCode,
           /* responseMessage= */ null,
+          /* cause= */ null,
           headerFields,
           dataSpec,
           /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
     }
 
     /**
-     * @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec, byte[])}.
+     * @deprecated Use {@link #InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
+     *     byte[])}.
      */
     @Deprecated
     public InvalidResponseCodeException(
@@ -411,6 +414,7 @@ public interface HttpDataSource extends DataSource {
       this(
           responseCode,
           responseMessage,
+          /* cause= */ null,
           headerFields,
           dataSpec,
           /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
@@ -419,11 +423,13 @@ public interface HttpDataSource extends DataSource {
     public InvalidResponseCodeException(
         int responseCode,
         @Nullable String responseMessage,
+        @Nullable IOException cause,
         Map<String, List<String>> headerFields,
         DataSpec dataSpec,
         byte[] responseBody) {
       super(
           "Response code: " + responseCode,
+          cause,
           dataSpec,
           PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS,
           TYPE_OPEN);

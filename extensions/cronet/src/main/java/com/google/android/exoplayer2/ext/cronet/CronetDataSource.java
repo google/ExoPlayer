@@ -713,18 +713,18 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         responseBody = Util.EMPTY_BYTE_ARRAY;
       }
 
-      InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(
-              responseCode,
-              responseInfo.getHttpStatusText(),
-              responseHeaders,
-              dataSpec,
-              responseBody);
-      if (responseCode == 416) {
-        exception.initCause(
-            new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE));
-      }
-      throw exception;
+      @Nullable
+      IOException cause =
+          responseCode == 416
+              ? new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE)
+              : null;
+      throw new InvalidResponseCodeException(
+          responseCode,
+          responseInfo.getHttpStatusText(),
+          cause,
+          responseHeaders,
+          dataSpec,
+          responseBody);
     }
 
     // Check for a valid content type.
@@ -1188,6 +1188,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
               new InvalidResponseCodeException(
                   responseCode,
                   info.getHttpStatusText(),
+                  /* cause= */ null,
                   info.getAllHeaders(),
                   dataSpec,
                   /* responseBody= */ Util.EMPTY_BYTE_ARRAY);

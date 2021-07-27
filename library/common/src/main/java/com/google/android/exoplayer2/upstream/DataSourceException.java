@@ -76,7 +76,7 @@ public class DataSourceException extends IOException {
    *     PlaybackException.ErrorCode}.
    */
   public DataSourceException(
-      String message, Throwable cause, @PlaybackException.ErrorCode int reason) {
+      String message, @Nullable Throwable cause, @PlaybackException.ErrorCode int reason) {
     super(message, cause);
     this.reason = reason;
   }
