@@ -106,6 +106,9 @@
 *   Extractors:
     *   Add support for DTS-UHD in MP4
         ([#9163](https://github.com/google/ExoPlayer/issues/9163).
+*   Text:
+    *   TTML: Inherit the `rubyPosition` value from a containing `<span
+        ruby="container">` element.
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).
@@ -127,7 +130,6 @@
     *   Deprecate `setControlDispatcher` in `MediaSessionConnector`. The
         `ControlDispatcher` parameter has also been deprecated in all
         `MediaSessionConnector` listener methods.
-
 
 ### 2.14.2 (2021-07-20)
 

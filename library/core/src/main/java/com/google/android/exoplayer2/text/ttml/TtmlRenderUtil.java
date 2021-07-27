@@ -178,12 +178,22 @@ import java.util.Map;
           break;
         }
 
-        // TODO: Get rubyPosition from `textNode` when TTML inheritance is implemented.
+        @Nullable
+        TtmlStyle textStyle = resolveStyle(textNode.style, textNode.getStyleIds(), globalStyles);
+
+        // Use position from ruby text node if defined.
         @TextAnnotation.Position
         int rubyPosition =
-            containerNode.style != null
-                ? containerNode.style.getRubyPosition()
-                : TextAnnotation.POSITION_UNKNOWN;
+            textStyle != null ? textStyle.getRubyPosition() : TextAnnotation.POSITION_UNKNOWN;
+
+        if (rubyPosition == TextAnnotation.POSITION_UNKNOWN) {
+          // If ruby position is not defined, use position info from container node.
+          @Nullable
+          TtmlStyle containerStyle =
+              resolveStyle(containerNode.style, containerNode.getStyleIds(), globalStyles);
+          rubyPosition = containerStyle != null ? containerStyle.getRubyPosition() : rubyPosition;
+        }
+
         builder.setSpan(
             new RubySpan(rubyText, rubyPosition), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
