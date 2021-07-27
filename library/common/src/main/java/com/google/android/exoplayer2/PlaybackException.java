@@ -46,6 +46,7 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_REMOTE_ERROR,
         ERROR_CODE_BEHIND_LIVE_WINDOW,
         ERROR_CODE_TIMEOUT,
+        ERROR_CODE_FAILED_RUNTIME_CHECK,
         ERROR_CODE_IO_UNSPECIFIED,
         ERROR_CODE_IO_NETWORK_UNAVAILABLE,
         ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
@@ -94,6 +95,13 @@ public class PlaybackException extends Exception implements Bundleable {
   public static final int ERROR_CODE_BEHIND_LIVE_WINDOW = 1002;
   /** Caused by a generic timeout. */
   public static final int ERROR_CODE_TIMEOUT = 1003;
+  /**
+   * Caused by a failed runtime check.
+   *
+   * <p>This can happen when the application fails to comply with the player's API requirements (for
+   * example, by passing invalid arguments), or when the player reaches an invalid state.
+   */
+  public static final int ERROR_CODE_FAILED_RUNTIME_CHECK = 1004;
 
   // Input/Output errors (2xxx).
 
@@ -217,6 +225,8 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_BEHIND_LIVE_WINDOW";
       case ERROR_CODE_TIMEOUT:
         return "ERROR_CODE_TIMEOUT";
+      case ERROR_CODE_FAILED_RUNTIME_CHECK:
+        return "ERROR_CODE_FAILED_RUNTIME_CHECK";
       case ERROR_CODE_IO_UNSPECIFIED:
         return "ERROR_CODE_IO_UNSPECIFIED";
       case ERROR_CODE_IO_NETWORK_UNAVAILABLE:

@@ -937,7 +937,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       throw new OpenException(
           "HTTP request with non-empty body must set Content-Type",
           dataSpec,
-          PlaybackException.ERROR_CODE_IO_BAD_HTTP_REQUEST,
+          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK,
           Status.IDLE);
     }
 

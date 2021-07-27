@@ -405,7 +405,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       throw new HttpDataSourceException(
           "Malformed URL",
           dataSpec,
-          PlaybackException.ERROR_CODE_IO_BAD_HTTP_REQUEST,
+          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK,
           HttpDataSourceException.TYPE_OPEN);
     }
 

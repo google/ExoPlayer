@@ -599,7 +599,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     } catch (IOException e) {
       handleIoException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } catch (RuntimeException e) {
-      ExoPlaybackException error = ExoPlaybackException.createForUnexpected(e);
+      @ErrorCode int errorCode;
+      if (e instanceof IllegalStateException || e instanceof IllegalArgumentException) {
+        errorCode = PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+      } else {
+        errorCode = PlaybackException.ERROR_CODE_UNSPECIFIED;
+      }
+      ExoPlaybackException error = ExoPlaybackException.createForUnexpected(e, errorCode);
       Log.e(TAG, "Playback error", error);
       stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
       playbackInfo = playbackInfo.copyWithPlaybackError(error);
