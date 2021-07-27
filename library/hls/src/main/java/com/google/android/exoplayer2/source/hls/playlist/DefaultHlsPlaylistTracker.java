@@ -418,19 +418,16 @@ public final class DefaultHlsPlaylistTracker
       primaryMediaPlaylistSnapshot = newSnapshot;
       primaryPlaylistListener.onPrimaryPlaylistRefreshed(newSnapshot);
     }
-    int listenersSize = listeners.size();
-    for (int i = 0; i < listenersSize; i++) {
-      listeners.get(i).onPlaylistChanged();
+    for (PlaylistEventListener listener : listeners) {
+      listener.onPlaylistChanged();
     }
   }
 
   private boolean notifyPlaylistError(
       Uri playlistUrl, LoadErrorInfo loadErrorInfo, boolean forceRetry) {
-    int listenersSize = listeners.size();
     boolean anyExclusionFailed = false;
-    for (int i = 0; i < listenersSize; i++) {
-      anyExclusionFailed |=
-          !listeners.get(i).onPlaylistError(playlistUrl, loadErrorInfo, forceRetry);
+    for (PlaylistEventListener listener : listeners) {
+      anyExclusionFailed |= !listener.onPlaylistError(playlistUrl, loadErrorInfo, forceRetry);
     }
     return anyExclusionFailed;
   }
