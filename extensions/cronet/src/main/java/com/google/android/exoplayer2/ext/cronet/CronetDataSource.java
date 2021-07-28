@@ -669,11 +669,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         if (message != null && Ascii.toLowerCase(message).contains("err_cleartext_not_permitted")) {
           throw new CleartextNotPermittedException(connectionOpenException, dataSpec);
         }
+        @PlaybackException.ErrorCode
+        int errorCode =
+            getErrorCodeForException(
+                connectionOpenException, /* occurredWhileOpeningConnection*/ true);
         throw new OpenException(
-            connectionOpenException,
-            dataSpec,
-            PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
-            getStatus(urlRequest));
+            connectionOpenException, dataSpec, errorCode, getStatus(urlRequest));
       } else if (!connectionOpened) {
         // The timeout was reached before the connection was opened.
         throw new OpenException(
@@ -1026,7 +1027,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         throw (HttpDataSourceException) e;
       } else {
         throw new OpenException(
-            e, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, Status.READING_RESPONSE);
+            e,
+            dataSpec,
+            getErrorCodeForException(e, /* occurredWhileOpeningConnection= */ false),
+            Status.READING_RESPONSE);
       }
     }
   }
@@ -1098,9 +1102,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         throw new HttpDataSourceException(
             exception,
             dataSpec,
-            exception instanceof UnknownHostException
-                ? PlaybackException.ERROR_CODE_IO_DNS_FAILED
-                : PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            getErrorCodeForException(exception, /* occurredWhileOpeningConnection= */ false),
             HttpDataSourceException.TYPE_READ);
       }
     }
@@ -1112,6 +1114,25 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       readBuffer.limit(0);
     }
     return readBuffer;
+  }
+
+  @PlaybackException.ErrorCode
+  private static int getErrorCodeForException(
+      IOException exception, boolean occurredWhileOpeningConnection) {
+    if (exception instanceof UnknownHostException) {
+      return PlaybackException.ERROR_CODE_IO_DNS_FAILED;
+    }
+    @Nullable String message = exception.getMessage();
+    if (message != null) {
+      if (message.contains("net::ERR_INTERNET_DISCONNECTED")) {
+        return PlaybackException.ERROR_CODE_IO_NETWORK_UNAVAILABLE;
+      }
+    }
+    if (occurredWhileOpeningConnection) {
+      return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED;
+    } else {
+      return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
+    }
   }
 
   private static boolean isCompressed(UrlResponseInfo info) {
