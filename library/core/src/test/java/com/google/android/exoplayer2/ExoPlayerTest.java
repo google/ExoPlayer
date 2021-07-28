@@ -2570,9 +2570,10 @@ public final class ExoPlayerTest {
     Renderer videoRenderer =
         new FakeRenderer(C.TRACK_TYPE_VIDEO) {
           @Override
-          public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
-            super.handleMessage(what, object);
-            rendererMessages.add(what);
+          public void handleMessage(int messageType, @Nullable Object message)
+              throws ExoPlaybackException {
+            super.handleMessage(messageType, message);
+            rendererMessages.add(messageType);
           }
         };
     ActionSchedule actionSchedule = addSurfaceSwitch(new ActionSchedule.Builder(TAG)).build();
@@ -3019,8 +3020,8 @@ public final class ExoPlayerTest {
     final Player.Listener playerListener =
         new Player.Listener() {
           @Override
-          public void onPlaybackStateChanged(int state) {
-            if (state == Player.STATE_IDLE) {
+          public void onPlaybackStateChanged(int playbackState) {
+            if (playbackState == Player.STATE_IDLE) {
               playerReference.get().setMediaSource(secondMediaSource);
             }
           }
@@ -10925,12 +10926,13 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
-      if (what == MSG_SET_WAKEUP_LISTENER) {
-        assertThat(object).isNotNull();
-        wakeupListenerReceiver.set((WakeupListener) object);
+    public void handleMessage(int messageType, @Nullable Object message)
+        throws ExoPlaybackException {
+      if (messageType == MSG_SET_WAKEUP_LISTENER) {
+        assertThat(message).isNotNull();
+        wakeupListenerReceiver.set((WakeupListener) message);
       }
-      super.handleMessage(what, object);
+      super.handleMessage(messageType, message);
     }
 
     @Override
@@ -10947,7 +10949,7 @@ public final class ExoPlayerTest {
     public int messageCount;
 
     @Override
-    public void handleMessage(int x, @Nullable Object message) {
+    public void handleMessage(int messageType, @Nullable Object message) {
       messageCount++;
     }
   }

@@ -40,7 +40,7 @@ public final class DummyDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) {
+  public int read(byte[] buffer, int offset, int length) {
     throw new UnsupportedOperationException();
   }
 

@@ -35,11 +35,11 @@ public final class PlayerMessage {
      * Handles a message delivered to the target.
      *
      * @param messageType The message type.
-     * @param payload The message payload.
+     * @param message The message payload.
      * @throws ExoPlaybackException If an error occurred whilst handling the message. Should only be
      *     thrown by targets that handle messages on the playback thread.
      */
-    void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException;
+    void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException;
   }
 
   /** A sender for messages. */

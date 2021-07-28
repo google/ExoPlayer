@@ -130,8 +130,8 @@ public final class UdpDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws UdpDataSourceException {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) throws UdpDataSourceException {
+    if (length == 0) {
       return 0;
     }
 
@@ -147,7 +147,7 @@ public final class UdpDataSource extends BaseDataSource {
     }
 
     int packetOffset = packet.getLength() - packetRemaining;
-    int bytesToRead = min(packetRemaining, readLength);
+    int bytesToRead = min(packetRemaining, length);
     System.arraycopy(packetBuffer, packetOffset, buffer, offset, bytesToRead);
     packetRemaining -= bytesToRead;
     return bytesToRead;

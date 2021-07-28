@@ -27,8 +27,8 @@ public class ForwardingExtractorInput implements ExtractorInput {
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
-    return input.read(target, offset, length);
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    return input.read(buffer, offset, length);
   }
 
   @Override

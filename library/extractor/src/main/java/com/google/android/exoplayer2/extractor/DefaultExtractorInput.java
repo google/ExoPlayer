@@ -56,12 +56,12 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
-    int bytesRead = readFromPeekBuffer(target, offset, length);
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    int bytesRead = readFromPeekBuffer(buffer, offset, length);
     if (bytesRead == 0) {
       bytesRead =
           readFromUpstream(
-              target, offset, length, /* bytesAlreadyRead= */ 0, /* allowEndOfInput= */ true);
+              buffer, offset, length, /* bytesAlreadyRead= */ 0, /* allowEndOfInput= */ true);
     }
     commitBytesRead(bytesRead);
     return bytesRead;

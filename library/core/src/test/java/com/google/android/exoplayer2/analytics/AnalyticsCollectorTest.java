@@ -2244,7 +2244,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {
+    public void onAudioEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_ENABLED, eventTime));
     }
 
@@ -2263,7 +2263,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {
+    public void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_DISABLED, eventTime));
     }
 
@@ -2284,7 +2284,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {
+    public void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_ENABLED, eventTime));
     }
 
@@ -2308,7 +2308,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {
+    public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_DISABLED, eventTime));
     }
 

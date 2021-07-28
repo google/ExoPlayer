@@ -86,8 +86,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {}
 
   @Override
-  public void consume(
-      ParsableByteArray data, long timestamp, int sequenceNumber, boolean isAuBoundary)
+  public void consume(ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker)
       throws ParserException {
 
     int rtpH264PacketMode;
@@ -111,7 +110,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           /* cause= */ null);
     }
 
-    if (isAuBoundary) {
+    if (rtpMarker) {
       if (firstReceivedTimestamp == C.TIME_UNSET) {
         firstReceivedTimestamp = timestamp;
       }

@@ -72,14 +72,14 @@ public interface ExtractorInput extends DataReader {
    * <p>This method blocks until at least one byte of data can be read, the end of the input is
    * detected, or an exception is thrown.
    *
-   * @param target A target array into which data should be written.
+   * @param buffer A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
    * @param length The maximum number of bytes to read from the input.
    * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
    * @throws IOException If an error occurs reading from the input.
    */
   @Override
-  int read(byte[] target, int offset, int length) throws IOException;
+  int read(byte[] buffer, int offset, int length) throws IOException;
 
   /**
    * Like {@link #read(byte[], int, int)}, but reads the requested {@code length} in full.

@@ -128,15 +128,15 @@ public final class FileDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws FileDataSourceException {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) throws FileDataSourceException {
+    if (length == 0) {
       return 0;
     } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     } else {
       int bytesRead;
       try {
-        bytesRead = castNonNull(file).read(buffer, offset, (int) min(bytesRemaining, readLength));
+        bytesRead = castNonNull(file).read(buffer, offset, (int) min(bytesRemaining, length));
       } catch (IOException e) {
         throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }

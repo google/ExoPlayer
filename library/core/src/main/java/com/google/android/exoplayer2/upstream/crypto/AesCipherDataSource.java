@@ -59,15 +59,15 @@ public final class AesCipherDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] data, int offset, int readLength) throws IOException {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    if (length == 0) {
       return 0;
     }
-    int read = upstream.read(data, offset, readLength);
+    int read = upstream.read(buffer, offset, length);
     if (read == C.RESULT_END_OF_INPUT) {
       return C.RESULT_END_OF_INPUT;
     }
-    castNonNull(cipher).updateInPlace(data, offset, read);
+    castNonNull(cipher).updateInPlace(buffer, offset, read);
     return read;
   }
 

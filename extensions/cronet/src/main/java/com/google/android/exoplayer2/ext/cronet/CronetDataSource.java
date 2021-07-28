@@ -767,10 +767,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
+  public int read(byte[] buffer, int offset, int length) throws HttpDataSourceException {
     Assertions.checkState(opened);
 
-    if (readLength == 0) {
+    if (length == 0) {
       return 0;
     } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
@@ -801,7 +801,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
             Longs.min(
                 bytesRemaining != C.LENGTH_UNSET ? bytesRemaining : Long.MAX_VALUE,
                 readBuffer.remaining(),
-                readLength);
+                length);
 
     readBuffer.get(buffer, offset, bytesRead);
 

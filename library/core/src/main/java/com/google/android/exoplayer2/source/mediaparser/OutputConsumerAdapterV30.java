@@ -684,8 +684,8 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
     @Nullable public MediaParser.InputReader input;
 
     @Override
-    public int read(byte[] target, int offset, int length) throws IOException {
-      return Util.castNonNull(input).read(target, offset, length);
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+      return Util.castNonNull(input).read(buffer, offset, length);
     }
   }
 }

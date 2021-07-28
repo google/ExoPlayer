@@ -42,7 +42,7 @@ public abstract class SimpleSubtitleDecoder
   }
 
   @Override
-  public void setPositionUs(long timeUs) {
+  public void setPositionUs(long positionUs) {
     // Do nothing
   }
 

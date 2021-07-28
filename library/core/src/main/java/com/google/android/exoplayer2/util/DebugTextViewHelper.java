@@ -84,7 +84,7 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
 
   @Override
   public final void onPlayWhenReadyChanged(
-      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int playbackState) {
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
     updateAndPost();
   }
 

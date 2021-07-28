@@ -127,11 +127,12 @@ public class GvrAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public void queueInput(ByteBuffer input) {
-    int position = input.position();
+  public void queueInput(ByteBuffer inputBuffer) {
+    int position = inputBuffer.position();
     Assertions.checkNotNull(gvrAudioSurround);
-    int readBytes = gvrAudioSurround.addInput(input, position, input.limit() - position);
-    input.position(position + readBytes);
+    int readBytes =
+        gvrAudioSurround.addInput(inputBuffer, position, inputBuffer.limit() - position);
+    inputBuffer.position(position + readBytes);
   }
 
   @Override

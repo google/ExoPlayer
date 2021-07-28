@@ -475,9 +475,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
+  public int read(byte[] buffer, int offset, int length) throws HttpDataSourceException {
     try {
-      return readInternal(buffer, offset, readLength);
+      return readInternal(buffer, offset, length);
     } catch (IOException e) {
       throw new HttpDataSourceException(
           e,

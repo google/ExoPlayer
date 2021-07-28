@@ -454,7 +454,7 @@ public interface HttpDataSource extends DataSource {
   void close() throws HttpDataSourceException;
 
   @Override
-  int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException;
+  int read(byte[] buffer, int offset, int length) throws HttpDataSourceException;
 
   /**
    * Sets the value of a request header. The value will be used for subsequent connections

@@ -192,9 +192,9 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param state The new playback {@link State state}.
+     * @param playbackState The new playback {@link State state}.
      */
-    default void onPlaybackStateChanged(@State int state) {}
+    default void onPlaybackStateChanged(@State int playbackState) {}
 
     /**
      * Called when the value returned from {@link #getPlayWhenReady()} changes.
@@ -899,7 +899,7 @@ public interface Player {
     default void onAvailableCommandsChanged(Commands availableCommands) {}
 
     @Override
-    default void onPlaybackStateChanged(@State int state) {}
+    default void onPlaybackStateChanged(@State int playbackState) {}
 
     @Override
     default void onPlayWhenReadyChanged(

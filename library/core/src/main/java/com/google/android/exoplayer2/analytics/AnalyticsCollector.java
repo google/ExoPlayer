@@ -638,12 +638,12 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onPlaybackStateChanged(@Player.State int state) {
+  public final void onPlaybackStateChanged(@Player.State int playbackState) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_PLAYBACK_STATE_CHANGED,
-        listener -> listener.onPlaybackStateChanged(eventTime, state));
+        listener -> listener.onPlaybackStateChanged(eventTime, playbackState));
   }
 
   @Override
@@ -809,12 +809,12 @@ public class AnalyticsCollector
   // BandwidthMeter.EventListener implementation.
 
   @Override
-  public final void onBandwidthSample(int elapsedMs, long bytes, long bitrate) {
+  public final void onBandwidthSample(int elapsedMs, long bytesTransferred, long bitrate) {
     EventTime eventTime = generateLoadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_BANDWIDTH_ESTIMATE,
-        listener -> listener.onBandwidthEstimate(eventTime, elapsedMs, bytes, bitrate));
+        listener -> listener.onBandwidthEstimate(eventTime, elapsedMs, bytesTransferred, bitrate));
   }
 
   // DrmSessionEventListener implementation.

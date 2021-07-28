@@ -680,8 +680,8 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onPlaybackStateChanged(@State int state) {
-      eventListener.onPlaybackStateChanged(state);
+    public void onPlaybackStateChanged(@State int playbackState) {
+      eventListener.onPlaybackStateChanged(playbackState);
     }
 
     @Override

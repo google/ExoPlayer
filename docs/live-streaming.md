@@ -142,8 +142,8 @@ the demo app exemplifies this approach.
 
 ~~~
 @Override
-public void onPlayerError(PlaybackException e) {
-  if (e.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
+public void onPlayerError(PlaybackException error) {
+  if (eror.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
     // Re-initialize player at the current live window default position.
     player.seekToDefaultPosition();
     player.prepare();

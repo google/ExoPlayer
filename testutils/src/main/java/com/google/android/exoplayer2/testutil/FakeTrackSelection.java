@@ -125,7 +125,7 @@ public final class FakeTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public void onPlaybackSpeed(float speed) {
+  public void onPlaybackSpeed(float playbackSpeed) {
     // Do nothing.
   }
 
@@ -152,7 +152,7 @@ public final class FakeTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public boolean isBlacklisted(int index, long exclusionDurationMs) {
+  public boolean isBlacklisted(int index, long nowMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }

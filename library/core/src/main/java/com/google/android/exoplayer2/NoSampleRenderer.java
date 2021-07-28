@@ -179,7 +179,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     // Do nothing.
   }
 

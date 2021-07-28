@@ -34,7 +34,7 @@ public final class NoOpCacheEvictor implements CacheEvictor {
   }
 
   @Override
-  public void onStartFile(Cache cache, String key, long position, long maxLength) {
+  public void onStartFile(Cache cache, String key, long position, long length) {
     // Do nothing.
   }
 

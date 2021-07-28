@@ -258,20 +258,20 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
 
     @Override
-    public void onPlayerError(PlaybackException exception) {
+    public void onPlayerError(PlaybackException error) {
       Callback callback = getCallback();
       if (errorMessageProvider != null) {
-        Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(exception);
+        Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(error);
         callback.onError(LeanbackPlayerAdapter.this, errorMessage.first, errorMessage.second);
       } else {
         callback.onError(
             LeanbackPlayerAdapter.this,
-            exception.errorCode,
+            error.errorCode,
             // This string was probably tailored for MediaPlayer, whose callback takes 2 ints as
             // error code. Since ExoPlayer provides a single error code, we just pass 0 as the
             // extra.
             context.getString(
-                R.string.lb_media_player_error, /* formatArgs...= */ exception.errorCode, 0));
+                R.string.lb_media_player_error, /* formatArgs...= */ error.errorCode, 0));
       }
     }
 

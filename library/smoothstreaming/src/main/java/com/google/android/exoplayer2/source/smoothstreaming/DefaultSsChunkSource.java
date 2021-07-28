@@ -62,7 +62,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     public SsChunkSource createChunkSource(
         LoaderErrorThrower manifestLoaderErrorThrower,
         SsManifest manifest,
-        int elementIndex,
+        int streamElementIndex,
         ExoTrackSelection trackSelection,
         @Nullable TransferListener transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
@@ -70,7 +70,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
         dataSource.addTransferListener(transferListener);
       }
       return new DefaultSsChunkSource(
-          manifestLoaderErrorThrower, manifest, elementIndex, trackSelection, dataSource);
+          manifestLoaderErrorThrower, manifest, streamElementIndex, trackSelection, dataSource);
     }
   }
 

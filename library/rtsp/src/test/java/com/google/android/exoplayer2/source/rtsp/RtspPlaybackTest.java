@@ -285,7 +285,7 @@ public final class RtspPlaybackTest {
     public void close() {}
 
     @Override
-    public int read(byte[] target, int offset, int length) {
+    public int read(byte[] buffer, int offset, int length) {
       if (length == 0) {
         return 0;
       }
@@ -301,7 +301,7 @@ public final class RtspPlaybackTest {
       }
 
       int byteToRead = min(length, data.length);
-      System.arraycopy(data, /* srcPos= */ 0, target, offset, byteToRead);
+      System.arraycopy(data, /* srcPos= */ 0, buffer, offset, byteToRead);
       return byteToRead;
     }
   }

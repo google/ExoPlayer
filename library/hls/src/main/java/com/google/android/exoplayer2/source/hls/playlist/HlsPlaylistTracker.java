@@ -123,10 +123,12 @@ public interface HlsPlaylistTracker {
    * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
    *     playlist.
    * @param eventDispatcher A dispatcher to notify of events.
-   * @param listener A callback for the primary playlist change events.
+   * @param primaryPlaylistListener A callback for the primary playlist change events.
    */
   void start(
-      Uri initialPlaylistUri, EventDispatcher eventDispatcher, PrimaryPlaylistListener listener);
+      Uri initialPlaylistUri,
+      EventDispatcher eventDispatcher,
+      PrimaryPlaylistListener primaryPlaylistListener);
 
   /**
    * Stops the playlist tracker and releases any acquired resources.

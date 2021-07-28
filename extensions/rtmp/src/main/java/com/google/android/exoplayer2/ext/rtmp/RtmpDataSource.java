@@ -85,8 +85,8 @@ public final class RtmpDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    int bytesRead = castNonNull(rtmpClient).read(buffer, offset, readLength);
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    int bytesRead = castNonNull(rtmpClient).read(buffer, offset, length);
     if (bytesRead == -1) {
       return C.RESULT_END_OF_INPUT;
     }

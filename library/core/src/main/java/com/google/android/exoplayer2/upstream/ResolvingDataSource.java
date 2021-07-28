@@ -109,8 +109,8 @@ public final class ResolvingDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    return upstreamDataSource.read(buffer, offset, readLength);
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    return upstreamDataSource.read(buffer, offset, length);
   }
 
   @Override

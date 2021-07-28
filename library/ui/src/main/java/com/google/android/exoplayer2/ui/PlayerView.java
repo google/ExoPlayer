@@ -1507,7 +1507,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     @Override
-    public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray selections) {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.

@@ -198,12 +198,8 @@ public interface TrackOutput {
    * @param offset The number of bytes that have been passed to {@link #sampleData(DataReader, int,
    *     boolean)} or {@link #sampleData(ParsableByteArray, int)} since the last byte belonging to
    *     the sample whose metadata is being passed.
-   * @param encryptionData The encryption data required to decrypt the sample. May be null.
+   * @param cryptoData The encryption data required to decrypt the sample. May be null.
    */
   void sampleMetadata(
-      long timeUs,
-      @C.BufferFlags int flags,
-      int size,
-      int offset,
-      @Nullable CryptoData encryptionData);
+      long timeUs, @C.BufferFlags int flags, int size, int offset, @Nullable CryptoData cryptoData);
 }

@@ -165,8 +165,8 @@ import org.junit.rules.ExternalResource;
     }
 
     @Override
-    public int read(byte[] target, int offset, int length) throws IOException {
-      return wrappedDataSource.read(target, offset, length);
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+      return wrappedDataSource.read(buffer, offset, length);
     }
 
     @Override

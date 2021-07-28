@@ -82,19 +82,19 @@ public final class DataSchemeDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) {
+    if (length == 0) {
       return 0;
     }
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    readLength = min(readLength, bytesRemaining);
-    System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
-    readPosition += readLength;
-    bytesRemaining -= readLength;
-    bytesTransferred(readLength);
-    return readLength;
+    length = min(length, bytesRemaining);
+    System.arraycopy(castNonNull(data), readPosition, buffer, offset, length);
+    readPosition += length;
+    bytesRemaining -= length;
+    bytesTransferred(length);
+    return length;
   }
 
   @Override

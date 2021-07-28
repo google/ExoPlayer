@@ -97,14 +97,14 @@ public final class SessionCallbackBuilder {
      * @param session The media session.
      * @param controllerInfo The {@link ControllerInfo} for the controller for which allowed
      *     commands are being queried.
-     * @param baseAllowedSessionCommand Base allowed session commands for customization.
+     * @param baseAllowedSessionCommands Base allowed session commands for customization.
      * @return The allowed commands for the controller.
      * @see MediaSession.SessionCallback#onConnect(MediaSession, ControllerInfo)
      */
     SessionCommandGroup getAllowedCommands(
         MediaSession session,
         ControllerInfo controllerInfo,
-        SessionCommandGroup baseAllowedSessionCommand);
+        SessionCommandGroup baseAllowedSessionCommands);
 
     /**
      * Called when a {@link MediaController} has called an API that controls {@link SessionPlayer}

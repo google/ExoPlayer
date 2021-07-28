@@ -243,13 +243,13 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPlayerError(EventTime eventTime, PlaybackException e) {
-    loge(eventTime, "playerFailed", e);
+  public void onPlayerError(EventTime eventTime, PlaybackException error) {
+    loge(eventTime, "playerFailed", error);
   }
 
   @Override
   public void onTracksChanged(
-      EventTime eventTime, TrackGroupArray ignored, TrackSelectionArray trackSelections) {
+      EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
     MappedTrackInfo mappedTrackInfo =
         trackSelector != null ? trackSelector.getCurrentMappedTrackInfo() : null;
     if (mappedTrackInfo == null) {
@@ -341,7 +341,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {
+  public void onAudioEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
     logd(eventTime, "audioEnabled");
   }
 
@@ -373,7 +373,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {
+  public void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
     logd(eventTime, "audioDisabled");
   }
 
@@ -407,7 +407,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {
+  public void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
     logd(eventTime, "videoEnabled");
   }
 
@@ -424,8 +424,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onDroppedVideoFrames(EventTime eventTime, int count, long elapsedMs) {
-    logd(eventTime, "droppedFrames", Integer.toString(count));
+  public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {
+    logd(eventTime, "droppedFrames", Integer.toString(droppedFrames));
   }
 
   @Override
@@ -434,7 +434,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {
+  public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
     logd(eventTime, "videoDisabled");
   }
 
@@ -503,8 +503,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onDrmSessionManagerError(EventTime eventTime, Exception e) {
-    printInternalError(eventTime, "drmSessionManagerError", e);
+  public void onDrmSessionManagerError(EventTime eventTime, Exception error) {
+    printInternalError(eventTime, "drmSessionManagerError", error);
   }
 
   @Override

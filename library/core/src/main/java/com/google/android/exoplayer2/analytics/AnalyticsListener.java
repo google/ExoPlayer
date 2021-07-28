@@ -828,10 +828,10 @@ public interface AnalyticsListener {
    * Called when an audio renderer is enabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
-   *     remains enabled.
+   * @param decoderCounters {@link DecoderCounters} that will be updated by the renderer for as long
+   *     as it remains enabled.
    */
-  default void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onAudioEnabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when an audio renderer creates a decoder.
@@ -907,9 +907,9 @@ public interface AnalyticsListener {
    * Called when an audio renderer is disabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   * @param decoderCounters {@link DecoderCounters} that were updated by the renderer.
    */
-  default void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when the audio session ID changes.
@@ -980,10 +980,10 @@ public interface AnalyticsListener {
    * Called when a video renderer is enabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
-   *     remains enabled.
+   * @param decoderCounters {@link DecoderCounters} that will be updated by the renderer for as long
+   *     as it remains enabled.
    */
-  default void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when a video renderer creates a decoder.
@@ -1048,9 +1048,9 @@ public interface AnalyticsListener {
    * Called when a video renderer is disabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   * @param decoderCounters {@link DecoderCounters} that were updated by the renderer.
    */
-  default void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when there is an update to the video frame processing offset reported by a video

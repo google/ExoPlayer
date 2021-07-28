@@ -596,10 +596,10 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     DataSpec requestDataSpec = checkNotNull(this.requestDataSpec);
     DataSpec currentDataSpec = checkNotNull(this.currentDataSpec);
-    if (readLength == 0) {
+    if (length == 0) {
       return 0;
     }
     if (bytesRemaining == 0) {
@@ -609,7 +609,7 @@ public final class CacheDataSource implements DataSource {
       if (readPosition >= checkCachePosition) {
         openNextSource(requestDataSpec, true);
       }
-      int bytesRead = checkNotNull(currentDataSource).read(buffer, offset, readLength);
+      int bytesRead = checkNotNull(currentDataSource).read(buffer, offset, length);
       if (bytesRead != C.RESULT_END_OF_INPUT) {
         if (isReadingFromCache()) {
           totalCachedBytesRead += bytesRead;
@@ -629,7 +629,7 @@ public final class CacheDataSource implements DataSource {
       } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
         closeCurrentSource();
         openNextSource(requestDataSpec, false);
-        return read(buffer, offset, readLength);
+        return read(buffer, offset, length);
       }
       return bytesRead;
     } catch (Throwable e) {

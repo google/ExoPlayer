@@ -108,9 +108,9 @@ public interface AudioProcessor {
    * The caller retains ownership of the provided buffer. Calling this method invalidates any
    * previous buffer returned by {@link #getOutput()}.
    *
-   * @param buffer The input buffer to process.
+   * @param inputBuffer The input buffer to process.
    */
-  void queueInput(ByteBuffer buffer);
+  void queueInput(ByteBuffer inputBuffer);
 
   /**
    * Queues an end of stream signal. After this method has been called, {@link

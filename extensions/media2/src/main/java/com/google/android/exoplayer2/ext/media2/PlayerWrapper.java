@@ -594,7 +594,7 @@ import java.util.List;
     }
 
     @Override
-    public void onPlaybackStateChanged(@Player.State int state) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       handlePlayerStateChanged();
     }
 

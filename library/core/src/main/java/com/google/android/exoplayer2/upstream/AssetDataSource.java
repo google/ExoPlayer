@@ -103,8 +103,8 @@ public final class AssetDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws AssetDataSourceException {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) throws AssetDataSourceException {
+    if (length == 0) {
       return 0;
     } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
@@ -113,7 +113,7 @@ public final class AssetDataSource extends BaseDataSource {
     int bytesRead;
     try {
       int bytesToRead =
-          bytesRemaining == C.LENGTH_UNSET ? readLength : (int) min(bytesRemaining, readLength);
+          bytesRemaining == C.LENGTH_UNSET ? length : (int) min(bytesRemaining, length);
       bytesRead = castNonNull(inputStream).read(buffer, offset, bytesToRead);
     } catch (IOException e) {
       throw new AssetDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);

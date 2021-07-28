@@ -107,10 +107,10 @@ public final class FakeExtractorInput implements ExtractorInput {
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     checkIOException(readPosition, failedReadPositions);
     length = getLengthToRead(readPosition, length, partiallySatisfiedTargetReadPositions);
-    return readFullyInternal(target, offset, length, true) ? length : C.RESULT_END_OF_INPUT;
+    return readFullyInternal(buffer, offset, length, true) ? length : C.RESULT_END_OF_INPUT;
   }
 
   @Override

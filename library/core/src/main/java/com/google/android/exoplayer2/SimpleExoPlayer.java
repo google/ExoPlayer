@@ -1303,17 +1303,17 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Deprecated
   @Override
-  public void addMetadataOutput(MetadataOutput listener) {
+  public void addMetadataOutput(MetadataOutput output) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
-    metadataOutputs.add(listener);
+    Assertions.checkNotNull(output);
+    metadataOutputs.add(output);
   }
 
   @Deprecated
   @Override
-  public void removeMetadataOutput(MetadataOutput listener) {
+  public void removeMetadataOutput(MetadataOutput output) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    metadataOutputs.remove(listener);
+    metadataOutputs.remove(output);
   }
 
   // ExoPlayer implementation
@@ -2497,16 +2497,16 @@ public class SimpleExoPlayer extends BasePlayer
     @Nullable private CameraMotionListener internalCameraMotionListener;
 
     @Override
-    public void handleMessage(int messageType, @Nullable Object payload) {
+    public void handleMessage(int messageType, @Nullable Object message) {
       switch (messageType) {
         case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
-          videoFrameMetadataListener = (VideoFrameMetadataListener) payload;
+          videoFrameMetadataListener = (VideoFrameMetadataListener) message;
           break;
         case MSG_SET_CAMERA_MOTION_LISTENER:
-          cameraMotionListener = (CameraMotionListener) payload;
+          cameraMotionListener = (CameraMotionListener) message;
           break;
         case MSG_SET_SPHERICAL_SURFACE_VIEW:
-          SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) payload;
+          SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) message;
           if (surfaceView == null) {
             internalVideoFrameMetadataListener = null;
             internalCameraMotionListener = null;

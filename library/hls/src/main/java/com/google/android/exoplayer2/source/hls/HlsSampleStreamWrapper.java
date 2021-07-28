@@ -1781,10 +1781,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    public void sampleData(
-        ParsableByteArray buffer, int length, @SampleDataPart int sampleDataPart) {
+    public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
       ensureBufferCapacity(bufferPosition + length);
-      buffer.readBytes(this.buffer, bufferPosition, length);
+      data.readBytes(this.buffer, bufferPosition, length);
       bufferPosition += length;
     }
 

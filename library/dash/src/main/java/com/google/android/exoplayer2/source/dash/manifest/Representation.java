@@ -302,8 +302,8 @@ public abstract class Representation {
     // DashSegmentIndex implementation.
 
     @Override
-    public RangedUri getSegmentUrl(long segmentIndex) {
-      return segmentBase.getSegmentUrl(this, segmentIndex);
+    public RangedUri getSegmentUrl(long segmentNum) {
+      return segmentBase.getSegmentUrl(this, segmentNum);
     }
 
     @Override
@@ -312,13 +312,13 @@ public abstract class Representation {
     }
 
     @Override
-    public long getTimeUs(long segmentIndex) {
-      return segmentBase.getSegmentTimeUs(segmentIndex);
+    public long getTimeUs(long segmentNum) {
+      return segmentBase.getSegmentTimeUs(segmentNum);
     }
 
     @Override
-    public long getDurationUs(long segmentIndex, long periodDurationUs) {
-      return segmentBase.getSegmentDurationUs(segmentIndex, periodDurationUs);
+    public long getDurationUs(long segmentNum, long periodDurationUs) {
+      return segmentBase.getSegmentDurationUs(segmentNum, periodDurationUs);
     }
 
     @Override

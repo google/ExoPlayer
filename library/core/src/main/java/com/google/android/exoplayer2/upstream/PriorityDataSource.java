@@ -67,9 +67,9 @@ public final class PriorityDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int max) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     priorityTaskManager.proceedOrThrow(priority);
-    return upstream.read(buffer, offset, max);
+    return upstream.read(buffer, offset, length);
   }
 
   @Override

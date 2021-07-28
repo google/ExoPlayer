@@ -88,14 +88,14 @@ import java.util.concurrent.LinkedBlockingQueue;
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) {
+  public int read(byte[] buffer, int offset, int length) {
     if (length == 0) {
       return 0;
     }
 
     int bytesRead = 0;
     int bytesToRead = min(length, unreadData.length);
-    System.arraycopy(unreadData, /* srcPos= */ 0, target, offset, bytesToRead);
+    System.arraycopy(unreadData, /* srcPos= */ 0, buffer, offset, bytesToRead);
     bytesRead += bytesToRead;
     unreadData = Arrays.copyOfRange(unreadData, bytesToRead, unreadData.length);
 
@@ -115,7 +115,7 @@ import java.util.concurrent.LinkedBlockingQueue;
     }
 
     bytesToRead = min(length - bytesRead, data.length);
-    System.arraycopy(data, /* srcPos= */ 0, target, offset + bytesRead, bytesToRead);
+    System.arraycopy(data, /* srcPos= */ 0, buffer, offset + bytesRead, bytesToRead);
     if (bytesToRead < data.length) {
       unreadData = Arrays.copyOfRange(data, bytesToRead, data.length);
     }
