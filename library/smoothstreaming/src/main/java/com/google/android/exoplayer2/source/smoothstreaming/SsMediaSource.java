@@ -471,9 +471,9 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void releasePeriod(MediaPeriod period) {
-    ((SsMediaPeriod) period).release();
-    mediaPeriods.remove(period);
+  public void releasePeriod(MediaPeriod mediaPeriod) {
+    ((SsMediaPeriod) mediaPeriod).release();
+    mediaPeriods.remove(mediaPeriod);
   }
 
   @Override

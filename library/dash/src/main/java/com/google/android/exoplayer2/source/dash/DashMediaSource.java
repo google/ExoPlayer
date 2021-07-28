@@ -1249,10 +1249,10 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public Period getPeriod(int periodIndex, Period period, boolean setIdentifiers) {
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       Assertions.checkIndex(periodIndex, 0, getPeriodCount());
-      Object id = setIdentifiers ? manifest.getPeriod(periodIndex).id : null;
-      Object uid = setIdentifiers ? (firstPeriodId + periodIndex) : null;
+      Object id = setIds ? manifest.getPeriod(periodIndex).id : null;
+      Object uid = setIds ? (firstPeriodId + periodIndex) : null;
       return period.set(
           id,
           uid,

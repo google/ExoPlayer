@@ -188,7 +188,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void onSourceInfoRefreshed(MediaSource mediaSource, Timeline timeline) {
+  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
     this.contentTimeline = timeline;
     if (AdPlaybackState.NONE.equals(adPlaybackState)) {
       return;
@@ -209,7 +209,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     SharedMediaPeriod sharedPeriod;
     if (lastUsedMediaPeriod != null) {
       sharedPeriod = lastUsedMediaPeriod;
@@ -219,16 +219,17 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
       @Nullable
       SharedMediaPeriod lastExistingPeriod =
           Iterables.getLast(mediaPeriods.get(id.windowSequenceNumber), /* defaultValue= */ null);
-      if (lastExistingPeriod != null && lastExistingPeriod.canReuseMediaPeriod(id, positionUs)) {
+      if (lastExistingPeriod != null
+          && lastExistingPeriod.canReuseMediaPeriod(id, startPositionUs)) {
         sharedPeriod = lastExistingPeriod;
       } else {
-        long startPositionUs = getStreamPositionUs(positionUs, id, adPlaybackState);
+        long streamPositionUs = getStreamPositionUs(startPositionUs, id, adPlaybackState);
         sharedPeriod =
             new SharedMediaPeriod(
                 mediaSource.createPeriod(
                     new MediaPeriodId(id.periodUid, id.windowSequenceNumber),
                     allocator,
-                    startPositionUs),
+                    streamPositionUs),
                 adPlaybackState);
         mediaPeriods.put(id.windowSequenceNumber, sharedPeriod);
       }

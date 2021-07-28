@@ -73,18 +73,18 @@ public final class AesCipherDataSink implements DataSink {
   }
 
   @Override
-  public void write(byte[] data, int offset, int length) throws IOException {
+  public void write(byte[] buffer, int offset, int length) throws IOException {
     if (scratch == null) {
       // In-place mode. Writes over the input data.
-      castNonNull(cipher).updateInPlace(data, offset, length);
-      wrappedDataSink.write(data, offset, length);
+      castNonNull(cipher).updateInPlace(buffer, offset, length);
+      wrappedDataSink.write(buffer, offset, length);
     } else {
       // Use scratch space. The original data remains intact.
       int bytesProcessed = 0;
       while (bytesProcessed < length) {
         int bytesToProcess = min(length - bytesProcessed, scratch.length);
         castNonNull(cipher)
-            .update(data, offset + bytesProcessed, bytesToProcess, scratch, /* outOffset= */ 0);
+            .update(buffer, offset + bytesProcessed, bytesToProcess, scratch, /* outOffset= */ 0);
         wrappedDataSink.write(scratch, /* offset= */ 0, bytesToProcess);
         bytesProcessed += bytesToProcess;
       }

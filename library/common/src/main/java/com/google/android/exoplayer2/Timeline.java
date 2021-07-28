@@ -1446,8 +1446,7 @@ public abstract class Timeline implements Bundleable {
     }
 
     @Override
-    public Window getWindow(
-        int windowIndex, Window window, long ignoredDefaultPositionProjectionUs) {
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       Window w = windows.get(windowIndex);
       window.set(
           w.uid,
@@ -1524,7 +1523,7 @@ public abstract class Timeline implements Bundleable {
     }
 
     @Override
-    public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       Period p = periods.get(periodIndex);
       period.set(
           p.id,

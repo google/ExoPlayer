@@ -809,12 +809,13 @@ public class AnalyticsCollector
   // BandwidthMeter.EventListener implementation.
 
   @Override
-  public final void onBandwidthSample(int elapsedMs, long bytesTransferred, long bitrate) {
+  public final void onBandwidthSample(int elapsedMs, long bytesTransferred, long bitrateEstimate) {
     EventTime eventTime = generateLoadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_BANDWIDTH_ESTIMATE,
-        listener -> listener.onBandwidthEstimate(eventTime, elapsedMs, bytesTransferred, bitrate));
+        listener ->
+            listener.onBandwidthEstimate(eventTime, elapsedMs, bytesTransferred, bitrateEstimate));
   }
 
   // DrmSessionEventListener implementation.
