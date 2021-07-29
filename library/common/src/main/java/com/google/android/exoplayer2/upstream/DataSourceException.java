@@ -70,25 +70,11 @@ public class DataSourceException extends IOException {
   /**
    * Constructs a DataSourceException.
    *
-   * @param message The error message.
    * @param cause The error cause.
    * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
    *     PlaybackException.ErrorCode}.
    */
-  public DataSourceException(
-      String message, @Nullable Throwable cause, @PlaybackException.ErrorCode int reason) {
-    super(message, cause);
-    this.reason = reason;
-  }
-
-  /**
-   * Constructs a DataSourceException.
-   *
-   * @param cause The error cause.
-   * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
-   *     PlaybackException.ErrorCode}.
-   */
-  public DataSourceException(Throwable cause, @PlaybackException.ErrorCode int reason) {
+  public DataSourceException(@Nullable Throwable cause, @PlaybackException.ErrorCode int reason) {
     super(cause);
     this.reason = reason;
   }
@@ -100,8 +86,24 @@ public class DataSourceException extends IOException {
    * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
    *     PlaybackException.ErrorCode}.
    */
-  public DataSourceException(String message, @PlaybackException.ErrorCode int reason) {
+  public DataSourceException(@Nullable String message, @PlaybackException.ErrorCode int reason) {
     super(message);
+    this.reason = reason;
+  }
+
+  /**
+   * Constructs a DataSourceException.
+   *
+   * @param message The error message.
+   * @param cause The error cause.
+   * @param reason Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
+   *     PlaybackException.ErrorCode}.
+   */
+  public DataSourceException(
+      @Nullable String message,
+      @Nullable Throwable cause,
+      @PlaybackException.ErrorCode int reason) {
+    super(message, cause);
     this.reason = reason;
   }
 }
