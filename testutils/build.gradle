@@ -22,7 +22,7 @@ dependencies {
     api 'com.google.truth:truth:' + truthVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
-    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     implementation project(modulePrefix + 'library-core')

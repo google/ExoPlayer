@@ -17,7 +17,7 @@ dependencies {
     implementation project(modulePrefix + 'library-common')
     api 'androidx.media:media:' + androidxMediaVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
-    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinVersion
 }
 
 ext {

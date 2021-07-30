@@ -16,7 +16,7 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
-    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'org.robolectric:robolectric:' + robolectricVersion
     implementation project(modulePrefix + 'library-core')
