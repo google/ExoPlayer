@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -30,6 +31,7 @@ import java.net.MulticastSocket;
 import java.net.PortUnreachableException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 /** A UDP {@link DataSource}. */
 public final class UdpDataSource extends BaseDataSource {
@@ -44,7 +46,7 @@ public final class UdpDataSource extends BaseDataSource {
      * @param errorCode Reason of the error, should be one of the {@code ERROR_CODE_IO_*} in {@link
      *     PlaybackException.ErrorCode}.
      */
-    public UdpDataSourceException(IOException cause, @PlaybackException.ErrorCode int errorCode) {
+    public UdpDataSourceException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
       super(cause, errorCode);
     }
   }
@@ -113,6 +115,14 @@ public final class UdpDataSource extends BaseDataSource {
       } else {
         socket = new DatagramSocket(socketAddress);
       }
+    } catch (SecurityException e) {
+      throw new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_NO_PERMISSION);
+    } catch (UnknownHostException e) {
+      // TODO (internal b/184262323): Handle the case where UnknownHostException is thrown due to
+      // lack of network access.
+      throw new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_DNS_FAILED);
+    } catch (BindException e) {
+      throw new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_NETWORK_UNAVAILABLE);
     } catch (IOException e) {
       throw new UdpDataSourceException(
           e, PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED);
@@ -139,8 +149,13 @@ public final class UdpDataSource extends BaseDataSource {
       // We've read all of the data from the current packet. Get another.
       try {
         socket.receive(packet);
+      } catch (PortUnreachableException e) {
+        throw new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_NETWORK_UNAVAILABLE);
+      } catch (SocketTimeoutException e) {
+        throw new UdpDataSourceException(
+            e, PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT);
       } catch (IOException e) {
-        throw createReadException(e);
+        throw new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }
       packetRemaining = packet.getLength();
       bytesTransferred(packetRemaining);
@@ -192,16 +207,5 @@ public final class UdpDataSource extends BaseDataSource {
       return UDP_PORT_UNSET;
     }
     return socket.getLocalPort();
-  }
-
-  private static UdpDataSourceException createReadException(IOException e) {
-    if (e instanceof PortUnreachableException) {
-      return new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_NETWORK_UNAVAILABLE);
-    } else if (e instanceof SocketTimeoutException) {
-      return new UdpDataSourceException(
-          e, PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT);
-    } else {
-      return new UdpDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
-    }
   }
 }
