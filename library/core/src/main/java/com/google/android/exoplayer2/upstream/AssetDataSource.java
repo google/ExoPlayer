@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -46,7 +47,8 @@ public final class AssetDataSource extends BaseDataSource {
      * @param cause The error cause.
      * @param errorCode See {@link PlaybackException.ErrorCode}.
      */
-    public AssetDataSourceException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+    public AssetDataSourceException(
+        @Nullable Throwable cause, @PlaybackException.ErrorCode int errorCode) {
       super(cause, errorCode);
     }
   }
@@ -80,7 +82,8 @@ public final class AssetDataSource extends BaseDataSource {
       if (skipped < dataSpec.position) {
         // assetManager.open() returns an AssetInputStream, whose skip() implementation only skips
         // fewer bytes than requested if the skip is beyond the end of the asset's data.
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+        throw new AssetDataSourceException(
+            /* cause=*/ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
@@ -93,8 +96,14 @@ public final class AssetDataSource extends BaseDataSource {
           bytesRemaining = C.LENGTH_UNSET;
         }
       }
+    } catch (AssetDataSourceException e) {
+      throw e;
     } catch (IOException e) {
-      throw new AssetDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      throw new AssetDataSourceException(
+          e,
+          e instanceof FileNotFoundException
+              ? PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND
+              : PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     opened = true;
