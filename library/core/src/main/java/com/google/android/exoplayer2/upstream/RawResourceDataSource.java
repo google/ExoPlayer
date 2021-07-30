@@ -56,37 +56,24 @@ public final class RawResourceDataSource extends BaseDataSource {
 
   /** Thrown when an {@link IOException} is encountered reading from a raw resource. */
   public static class RawResourceDataSourceException extends DataSourceException {
-    /** @deprecated Use {@link #RawResourceDataSourceException(String, int)}. */
+    /** @deprecated Use {@link #RawResourceDataSourceException(String, Throwable, int)}. */
     @Deprecated
     public RawResourceDataSourceException(String message) {
-      super(message, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      super(message, /* cause= */ null, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param message The error message.
-     * @param errorCode See {@link PlaybackException.ErrorCode}.
-     */
-    public RawResourceDataSourceException(
-        String message, @PlaybackException.ErrorCode int errorCode) {
-      super(message, errorCode);
-    }
-
-    /** @deprecated Use {@link #RawResourceDataSourceException(Throwable, int)}. */
+    /** @deprecated Use {@link #RawResourceDataSourceException(String, Throwable, int)}. */
     @Deprecated
-    public RawResourceDataSourceException(Throwable e) {
-      super(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    public RawResourceDataSourceException(Throwable cause) {
+      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param e The error cause.
-     * @param errorCode See {@link PlaybackException.ErrorCode}.
-     */
-    public RawResourceDataSourceException(Throwable e, @PlaybackException.ErrorCode int errorCode) {
-      super(e, errorCode);
+    /** Creates a new instance. */
+    public RawResourceDataSourceException(
+        @Nullable String message,
+        @Nullable Throwable cause,
+        @PlaybackException.ErrorCode int errorCode) {
+      super(message, cause, errorCode);
     }
   }
 
@@ -134,7 +121,8 @@ public final class RawResourceDataSource extends BaseDataSource {
       } catch (NumberFormatException e) {
         throw new RawResourceDataSourceException(
             "Resource identifier must be an integer.",
-            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+            /* cause= */ null,
+            PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
       }
     } else if (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, uri.getScheme())) {
       String path = Assertions.checkNotNull(uri.getPath());
@@ -148,7 +136,9 @@ public final class RawResourceDataSource extends BaseDataSource {
               resourceName, /* defType= */ "raw", /* defPackage= */ packageName);
       if (resourceId == 0) {
         throw new RawResourceDataSourceException(
-            "Resource not found.", PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+            "Resource not found.",
+            /* cause= */ null,
+            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
       }
     } else {
       throw new RawResourceDataSourceException(
@@ -156,7 +146,8 @@ public final class RawResourceDataSource extends BaseDataSource {
               + RAW_RESOURCE_SCHEME
               + " or "
               + ContentResolver.SCHEME_ANDROID_RESOURCE,
-          PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+          /* cause= */ null,
+          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
     }
 
     transferInitializing(dataSpec);
@@ -165,13 +156,16 @@ public final class RawResourceDataSource extends BaseDataSource {
     try {
       assetFileDescriptor = resources.openRawResourceFd(resourceId);
     } catch (Resources.NotFoundException e) {
-      throw new RawResourceDataSourceException(e, PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+      throw new RawResourceDataSourceException(
+          /* message= */ null, e, PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
     }
 
     this.assetFileDescriptor = assetFileDescriptor;
     if (assetFileDescriptor == null) {
       throw new RawResourceDataSourceException(
-          "Resource is compressed: " + uri, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+          "Resource is compressed: " + uri,
+          /* cause= */ null,
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     long assetFileDescriptorLength = assetFileDescriptor.getLength();
@@ -187,7 +181,10 @@ public final class RawResourceDataSource extends BaseDataSource {
       // extends to the end of the file.
       if (assetFileDescriptorLength != AssetFileDescriptor.UNKNOWN_LENGTH
           && dataSpec.position > assetFileDescriptorLength) {
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+        throw new RawResourceDataSourceException(
+            /* message= */ null,
+            /* cause= */ null,
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       long assetFileDescriptorOffset = assetFileDescriptor.getStartOffset();
       long skipped =
@@ -196,7 +193,10 @@ public final class RawResourceDataSource extends BaseDataSource {
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // read beyond the end of the last resource in the file.
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+        throw new RawResourceDataSourceException(
+            /* message= */ null,
+            /* cause= */ null,
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
         // The asset must extend to the end of the file. We can try and resolve the length with
@@ -208,7 +208,9 @@ public final class RawResourceDataSource extends BaseDataSource {
           bytesRemaining = channel.size() - channel.position();
           if (bytesRemaining < 0) {
             // The skip above was satisfied in full, but skipped beyond the end of the file.
-            throw new DataSourceException(
+            throw new RawResourceDataSourceException(
+                /* message= */ null,
+                /* cause= */ null,
                 PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
           }
         }
@@ -218,8 +220,11 @@ public final class RawResourceDataSource extends BaseDataSource {
           throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
         }
       }
+    } catch (RawResourceDataSourceException e) {
+      throw e;
     } catch (IOException e) {
-      throw new RawResourceDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      throw new RawResourceDataSourceException(
+          /* message= */ null, e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     if (dataSpec.length != C.LENGTH_UNSET) {
@@ -245,14 +250,17 @@ public final class RawResourceDataSource extends BaseDataSource {
           bytesRemaining == C.LENGTH_UNSET ? length : (int) min(bytesRemaining, length);
       bytesRead = castNonNull(inputStream).read(buffer, offset, bytesToRead);
     } catch (IOException e) {
-      throw new RawResourceDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      throw new RawResourceDataSourceException(
+          /* message= */ null, e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     if (bytesRead == -1) {
       if (bytesRemaining != C.LENGTH_UNSET) {
         // End of stream reached having not read sufficient data.
         throw new RawResourceDataSourceException(
-            new EOFException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+            "End of stream reached having not read sufficient data.",
+            new EOFException(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }
       return C.RESULT_END_OF_INPUT;
     }
@@ -278,7 +286,8 @@ public final class RawResourceDataSource extends BaseDataSource {
         inputStream.close();
       }
     } catch (IOException e) {
-      throw new RawResourceDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      throw new RawResourceDataSourceException(
+          /* message= */ null, e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     } finally {
       inputStream = null;
       try {
@@ -286,7 +295,8 @@ public final class RawResourceDataSource extends BaseDataSource {
           assetFileDescriptor.close();
         }
       } catch (IOException e) {
-        throw new RawResourceDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+        throw new RawResourceDataSourceException(
+            /* message= */ null, e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       } finally {
         assetFileDescriptor = null;
         if (opened) {

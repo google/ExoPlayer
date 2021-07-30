@@ -83,7 +83,7 @@ public final class AssetDataSource extends BaseDataSource {
         // assetManager.open() returns an AssetInputStream, whose skip() implementation only skips
         // fewer bytes than requested if the skip is beyond the end of the asset's data.
         throw new AssetDataSourceException(
-            /* cause=*/ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+            /* cause= */ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;

@@ -39,17 +39,12 @@ public final class ContentDataSource extends BaseDataSource {
     /** @deprecated Use {@link #ContentDataSourceException(IOException, int)}. */
     @Deprecated
     public ContentDataSourceException(IOException cause) {
-      super(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      this(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param cause The error cause.
-     * @param errorCode See {@link PlaybackException.ErrorCode}.
-     */
+    /** Creates a new instance. */
     public ContentDataSourceException(
-        IOException cause, @PlaybackException.ErrorCode int errorCode) {
+        @Nullable IOException cause, @PlaybackException.ErrorCode int errorCode) {
       super(cause, errorCode);
     }
   }
@@ -78,7 +73,10 @@ public final class ContentDataSource extends BaseDataSource {
       AssetFileDescriptor assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
       this.assetFileDescriptor = assetFileDescriptor;
       if (assetFileDescriptor == null) {
-        throw new FileNotFoundException("Could not open file descriptor for: " + uri);
+        // openAssetFileDescriptor returns null if the provider recently crashed.
+        throw new ContentDataSourceException(
+            new IOException("Could not open file descriptor for: " + uri),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
       }
 
       long assetFileDescriptorLength = assetFileDescriptor.getLength();
@@ -93,7 +91,8 @@ public final class ContentDataSource extends BaseDataSource {
       // file.
       if (assetFileDescriptorLength != AssetFileDescriptor.UNKNOWN_LENGTH
           && dataSpec.position > assetFileDescriptorLength) {
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+        throw new ContentDataSourceException(
+            /* cause= */ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       long assetFileDescriptorOffset = assetFileDescriptor.getStartOffset();
       long skipped =
@@ -102,7 +101,8 @@ public final class ContentDataSource extends BaseDataSource {
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // read beyond the end of the last resource in the file.
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+        throw new ContentDataSourceException(
+            /* cause= */ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
       }
       if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
         // The asset must extend to the end of the file. We can try and resolve the length with
@@ -115,18 +115,25 @@ public final class ContentDataSource extends BaseDataSource {
           bytesRemaining = channelSize - channel.position();
           if (bytesRemaining < 0) {
             // The skip above was satisfied in full, but skipped beyond the end of the file.
-            throw new DataSourceException(
-                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+            throw new ContentDataSourceException(
+                /* cause= */ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
           }
         }
       } else {
         bytesRemaining = assetFileDescriptorLength - skipped;
         if (bytesRemaining < 0) {
-          throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
+          throw new ContentDataSourceException(
+              /* cause= */ null, PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
         }
       }
+    } catch (ContentDataSourceException e) {
+      throw e;
     } catch (IOException e) {
-      throw new ContentDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+      throw new ContentDataSourceException(
+          e,
+          e instanceof FileNotFoundException
+              ? PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND
+              : PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
 
     if (dataSpec.length != C.LENGTH_UNSET) {

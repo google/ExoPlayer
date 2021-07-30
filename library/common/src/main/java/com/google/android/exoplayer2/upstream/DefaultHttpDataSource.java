@@ -37,8 +37,8 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.NoRouteToHostException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -459,11 +459,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     transferStarted(dataSpec);
 
     try {
-      if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
-      }
+      skipFully(bytesToSkip, dataSpec);
     } catch (IOException e) {
       closeConnectionQuietly();
+
+      if (e instanceof HttpDataSourceException) {
+        throw (HttpDataSourceException) e;
+      }
       throw new HttpDataSourceException(
           e,
           dataSpec,
@@ -562,7 +564,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
               || responseCode == HTTP_STATUS_TEMPORARY_REDIRECT
               || responseCode == HTTP_STATUS_PERMANENT_REDIRECT)) {
         connection.disconnect();
-        url = handleRedirect(url, location);
+        url = handleRedirect(url, location, dataSpec);
       } else if (httpMethod == DataSpec.HTTP_METHOD_POST
           && (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
               || responseCode == HttpURLConnection.HTTP_MOVED_PERM
@@ -576,14 +578,18 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           httpMethod = DataSpec.HTTP_METHOD_GET;
           httpBody = null;
         }
-        url = handleRedirect(url, location);
+        url = handleRedirect(url, location, dataSpec);
       } else {
         return connection;
       }
     }
 
     // If we get here we've been redirected more times than are permitted.
-    throw new NoRouteToHostException("Too many redirects: " + redirectCount);
+    throw new HttpDataSourceException(
+        new NoRouteToHostException("Too many redirects: " + redirectCount),
+        dataSpec,
+        PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+        HttpDataSourceException.TYPE_OPEN);
   }
 
   /**
@@ -658,27 +664,50 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @param originalUrl The original URL.
    * @param location The Location header in the response. May be {@code null}.
+   * @param dataSpec The {@link DataSpec}.
    * @return The next URL.
-   * @throws IOException If redirection isn't possible.
+   * @throws HttpDataSourceException If redirection isn't possible.
    */
-  private URL handleRedirect(URL originalUrl, @Nullable String location) throws IOException {
+  private URL handleRedirect(URL originalUrl, @Nullable String location, DataSpec dataSpec)
+      throws HttpDataSourceException {
     if (location == null) {
-      throw new ProtocolException("Null location redirect");
+      throw new HttpDataSourceException(
+          "Null location redirect",
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
     }
     // Form the new url.
-    URL url = new URL(originalUrl, location);
+    URL url;
+    try {
+      url = new URL(originalUrl, location);
+    } catch (MalformedURLException e) {
+      throw new HttpDataSourceException(
+          e,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
+    }
+
     // Check that the protocol of the new url is supported.
     String protocol = url.getProtocol();
     if (!"https".equals(protocol) && !"http".equals(protocol)) {
-      throw new ProtocolException("Unsupported protocol redirect: " + protocol);
+      throw new HttpDataSourceException(
+          "Unsupported protocol redirect: " + protocol,
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
     }
     if (!allowCrossProtocolRedirects && !protocol.equals(originalUrl.getProtocol())) {
-      throw new ProtocolException(
+      throw new HttpDataSourceException(
           "Disallowed cross-protocol redirect ("
               + originalUrl.getProtocol()
               + " to "
               + protocol
-              + ")");
+              + ")",
+          dataSpec,
+          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+          HttpDataSourceException.TYPE_OPEN);
     }
     return url;
   }
@@ -687,29 +716,34 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * Attempts to skip the specified number of bytes in full.
    *
    * @param bytesToSkip The number of bytes to skip.
-   * @throws InterruptedIOException If the thread is interrupted during the operation.
-   * @throws IOException If an error occurs reading from the source.
-   * @return Whether the bytes were skipped in full. If {@code false} then the data ended before the
-   *     specified number of bytes were skipped. Always {@code true} if {@code bytesToSkip == 0}.
+   * @param dataSpec The {@link DataSpec}.
+   * @throws IOException If the thread is interrupted during the operation, or if the data ended
+   *     before skipping the specified number of bytes.
    */
-  private boolean skipFully(long bytesToSkip) throws IOException {
+  private void skipFully(long bytesToSkip, DataSpec dataSpec) throws IOException {
     if (bytesToSkip == 0) {
-      return true;
+      return;
     }
     byte[] skipBuffer = new byte[4096];
     while (bytesToSkip > 0) {
       int readLength = (int) min(bytesToSkip, skipBuffer.length);
       int read = castNonNull(inputStream).read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
-        throw new InterruptedIOException();
+        throw new HttpDataSourceException(
+            new InterruptedIOException(),
+            dataSpec,
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSourceException.TYPE_OPEN);
       }
       if (read == -1) {
-        return false;
+        throw new HttpDataSourceException(
+            dataSpec,
+            PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+            HttpDataSourceException.TYPE_OPEN);
       }
       bytesToSkip -= read;
       bytesTransferred(read);
     }
-    return true;
   }
 
   /**

@@ -358,16 +358,10 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     transferStarted(dataSpec);
 
     try {
-      if (!skipFully(bytesToSkip)) {
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
-      }
-    } catch (IOException e) {
+      skipFully(bytesToSkip, dataSpec);
+    } catch (HttpDataSourceException e) {
       closeConnectionQuietly();
-      throw new HttpDataSourceException(
-          e,
-          dataSpec,
-          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
-          HttpDataSourceException.TYPE_OPEN);
+      throw e;
     }
 
     return bytesToRead;
@@ -452,29 +446,43 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * Attempts to skip the specified number of bytes in full.
    *
    * @param bytesToSkip The number of bytes to skip.
-   * @throws InterruptedIOException If the thread is interrupted during the operation.
-   * @throws IOException If an error occurs reading from the source.
-   * @return Whether the bytes were skipped in full. If {@code false} then the data ended before the
-   *     specified number of bytes were skipped. Always {@code true} if {@code bytesToSkip == 0}.
+   * @param dataSpec The {@link DataSpec}.
+   * @throws HttpDataSourceException If the thread is interrupted during the operation, or an error
+   *     occurs while reading from the source, or if the data ended before skipping the specified
+   *     number of bytes.
    */
-  private boolean skipFully(long bytesToSkip) throws IOException {
+  private void skipFully(long bytesToSkip, DataSpec dataSpec) throws HttpDataSourceException {
     if (bytesToSkip == 0) {
-      return true;
+      return;
     }
     byte[] skipBuffer = new byte[4096];
-    while (bytesToSkip > 0) {
-      int readLength = (int) min(bytesToSkip, skipBuffer.length);
-      int read = castNonNull(responseByteStream).read(skipBuffer, 0, readLength);
-      if (Thread.currentThread().isInterrupted()) {
-        throw new InterruptedIOException();
+    try {
+      while (bytesToSkip > 0) {
+        int readLength = (int) min(bytesToSkip, skipBuffer.length);
+        int read = castNonNull(responseByteStream).read(skipBuffer, 0, readLength);
+        if (Thread.currentThread().isInterrupted()) {
+          throw new InterruptedIOException();
+        }
+        if (read == -1) {
+          throw new HttpDataSourceException(
+              dataSpec,
+              PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+              HttpDataSourceException.TYPE_OPEN);
+        }
+        bytesToSkip -= read;
+        bytesTransferred(read);
       }
-      if (read == -1) {
-        return false;
+      return;
+    } catch (IOException e) {
+      if (e instanceof HttpDataSourceException) {
+        throw (HttpDataSourceException) e;
+      } else {
+        throw new HttpDataSourceException(
+            dataSpec,
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSourceException.TYPE_OPEN);
       }
-      bytesToSkip -= read;
-      bytesTransferred(read);
     }
-    return true;
   }
 
   /**
