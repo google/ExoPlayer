@@ -238,7 +238,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   public void onProvisionError(Exception error, boolean thrownByExoMediaDrm) {
-    onError(error, thrownByExoMediaDrm);
+    onError(
+        error,
+        thrownByExoMediaDrm
+            ? DrmUtil.ERROR_SOURCE_EXO_MEDIA_DRM
+            : DrmUtil.ERROR_SOURCE_PROVISIONING);
   }
 
   // DrmSession implementation.
@@ -361,7 +365,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     } catch (NotProvisionedException e) {
       provisioningManager.provisionRequired(this);
     } catch (Exception e) {
-      onError(e, /* thrownByExoMediaDrm= */ true);
+      onError(e, DrmUtil.ERROR_SOURCE_EXO_MEDIA_DRM);
     }
 
     return false;
@@ -411,7 +415,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                     + licenseDurationRemainingSec);
             postKeyRequest(sessionId, ExoMediaDrm.KEY_TYPE_OFFLINE, allowRetry);
           } else if (licenseDurationRemainingSec <= 0) {
-            onError(new KeysExpiredException(), /* thrownByExoMediaDrm= */ false);
+            onError(new KeysExpiredException(), DrmUtil.ERROR_SOURCE_LICENSE_ACQUISITION);
           } else {
             state = STATE_OPENED_WITH_KEYS;
             dispatchEvent(DrmSessionEventListener.EventDispatcher::drmKeysRestored);
@@ -439,7 +443,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       mediaDrm.restoreKeys(sessionId, offlineLicenseKeySetId);
       return true;
     } catch (Exception e) {
-      onError(e, /* thrownByExoMediaDrm= */ true);
+      onError(e, DrmUtil.ERROR_SOURCE_EXO_MEDIA_DRM);
     }
     return false;
   }
@@ -508,14 +512,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (e instanceof NotProvisionedException) {
       provisioningManager.provisionRequired(this);
     } else {
-      onError(e, thrownByExoMediaDrm);
+      onError(
+          e,
+          thrownByExoMediaDrm
+              ? DrmUtil.ERROR_SOURCE_EXO_MEDIA_DRM
+              : DrmUtil.ERROR_SOURCE_LICENSE_ACQUISITION);
     }
   }
 
-  private void onError(Exception e, boolean thrownByExoMediaDrm) {
+  private void onError(Exception e, @DrmUtil.ErrorSource int errorSource) {
     lastException =
-        new DrmSessionException(
-            e, DrmUtil.getErrorCodeForMediaDrmException(e, thrownByExoMediaDrm));
+        new DrmSessionException(e, DrmUtil.getErrorCodeForMediaDrmException(e, errorSource));
     Log.e(TAG, "DRM session error", e);
     dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionManagerError(e));
     if (state != STATE_OPENED_WITH_KEYS) {

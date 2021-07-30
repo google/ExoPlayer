@@ -20,14 +20,36 @@ import android.media.MediaDrm;
 import android.media.MediaDrmResetException;
 import android.media.NotProvisionedException;
 import androidx.annotation.DoNotInline;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** DRM-related utility methods. */
 public final class DrmUtil {
+
+  /** Identifies the operation which caused a DRM-related error. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      value = {
+        ERROR_SOURCE_EXO_MEDIA_DRM,
+        ERROR_SOURCE_LICENSE_ACQUISITION,
+        ERROR_SOURCE_PROVISIONING
+      })
+  public @interface ErrorSource {}
+
+  /** Corresponds to failures caused by an {@link ExoMediaDrm} method call. */
+  public static final int ERROR_SOURCE_EXO_MEDIA_DRM = 1;
+  /** Corresponds to failures caused by an operation related to obtaining DRM licenses. */
+  public static final int ERROR_SOURCE_LICENSE_ACQUISITION = 2;
+  /** Corresponds to failures caused by an operation related to provisioning the device. */
+  public static final int ERROR_SOURCE_PROVISIONING = 3;
 
   /**
    * Returns the {@link PlaybackException.ErrorCode} that corresponds to the given DRM-related
@@ -35,15 +57,13 @@ public final class DrmUtil {
    *
    * @param exception The DRM-related exception for which to obtain a corresponding {@link
    *     PlaybackException.ErrorCode}.
-   * @param thrownByExoMediaDrm Whether the given exception originated in a {@link ExoMediaDrm}
-   *     method. Exceptions that did not originate in {@link ExoMediaDrm} are assumed to originate
-   *     in the license request.
+   * @param errorSource The {@link ErrorSource} for the given {@code exception}.
    * @return The {@link PlaybackException.ErrorCode} that corresponds to the given DRM-related
    *     exception.
    */
   @PlaybackException.ErrorCode
   public static int getErrorCodeForMediaDrmException(
-      Exception exception, boolean thrownByExoMediaDrm) {
+      Exception exception, @ErrorSource int errorSource) {
     if (Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isMediaDrmStateException(exception)) {
       return PlatformOperationsWrapperV21.mediaDrmStateExceptionToErrorCode(exception);
     } else if (Util.SDK_INT >= 23
@@ -61,13 +81,17 @@ public final class DrmUtil {
       return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
     } else if (exception instanceof KeysExpiredException) {
       return PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED;
-    } else if (thrownByExoMediaDrm) {
+    } else if (errorSource == ERROR_SOURCE_EXO_MEDIA_DRM) {
       // A MediaDrm exception was thrown but it was impossible to determine the cause. Because no
       // better diagnosis tools were provided, we treat this as a system error.
       return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    } else {
-      // The error happened during the license request.
+    } else if (errorSource == ERROR_SOURCE_LICENSE_ACQUISITION) {
       return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
+    } else if (errorSource == ERROR_SOURCE_PROVISIONING) {
+      return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
+    } else {
+      // Should never happen.
+      throw new IllegalArgumentException();
     }
   }
 
