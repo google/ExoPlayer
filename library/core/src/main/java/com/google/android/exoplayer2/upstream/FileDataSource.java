@@ -58,7 +58,9 @@ public final class FileDataSource extends BaseDataSource {
 
     /** Creates a {@code FileDataSourceException}. */
     public FileDataSourceException(
-        String message, Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+        @Nullable String message,
+        @Nullable Throwable cause,
+        @PlaybackException.ErrorCode int errorCode) {
       super(message, cause, errorCode);
     }
   }
@@ -100,25 +102,22 @@ public final class FileDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
+    Uri uri = dataSpec.uri;
+    this.uri = uri;
+    transferInitializing(dataSpec);
+    this.file = openLocalFile(uri);
     try {
-      Uri uri = dataSpec.uri;
-      this.uri = uri;
-
-      transferInitializing(dataSpec);
-
-      this.file = openLocalFile(uri);
       file.seek(dataSpec.position);
       bytesRemaining =
           dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position : dataSpec.length;
-      if (bytesRemaining < 0) {
-        throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
-      }
-    } catch (FileDataSourceException e) {
-      throw e;
-    } catch (DataSourceException e) {
-      throw new FileDataSourceException(e, e.reason);
-    } catch (IOException | RuntimeException e) {
+    } catch (IOException e) {
       throw new FileDataSourceException(e, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+    if (bytesRemaining < 0) {
+      throw new FileDataSourceException(
+          /* message= */ null,
+          /* cause= */ null,
+          PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
 
     opened = true;
@@ -186,7 +185,7 @@ public final class FileDataSource extends BaseDataSource {
                     + " avoid this. path=%s,query=%s,fragment=%s",
                 uri.getPath(), uri.getQuery(), uri.getFragment()),
             e,
-            PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+            PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
       }
 
       // TODO(internal b/193503588): Add tests to ensure the correct error codes are assigned under
