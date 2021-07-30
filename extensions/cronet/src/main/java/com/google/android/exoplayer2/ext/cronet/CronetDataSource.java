@@ -1126,13 +1126,15 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     if (message != null) {
       if (message.contains("net::ERR_INTERNET_DISCONNECTED")) {
         return PlaybackException.ERROR_CODE_IO_NETWORK_UNAVAILABLE;
+      } else if (message.contains("net::ERR_CONTENT_LENGTH_MISMATCH")
+          || message.contains("net::ERR_SOCKET_NOT_CONNECTED")) {
+        return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
       }
     }
     if (occurredWhileOpeningConnection) {
       return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED;
-    } else {
-      return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
     }
+    return PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
   }
 
   private static boolean isCompressed(UrlResponseInfo info) {

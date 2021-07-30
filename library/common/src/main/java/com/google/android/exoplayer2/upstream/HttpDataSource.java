@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -206,6 +208,36 @@ public interface HttpDataSource extends DataSource {
     public static final int TYPE_READ = 2;
     /** The error occurred in closing a {@code HttpDataSource}. */
     public static final int TYPE_CLOSE = 3;
+
+    /**
+     * Returns a {@code HttpDataSourceException} whose error code is assigned according to the cause
+     * and type.
+     */
+    public static HttpDataSourceException createForIOException(
+        IOException cause, DataSpec dataSpec, @Type int type) {
+      @PlaybackException.ErrorCode int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
+      if (cause instanceof SocketTimeoutException) {
+        errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
+      } else if (cause instanceof UnknownHostException) {
+        errorCode = PlaybackException.ERROR_CODE_IO_DNS_FAILED;
+      } else {
+        @Nullable String message = cause.getMessage();
+        if (message != null) {
+          if (Ascii.toLowerCase(message).matches("cleartext.*not permitted.*")) {
+            errorCode = PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED;
+          } else if (message.contains("unexpected end of stream")) {
+            errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
+          }
+        }
+
+        if (type == TYPE_OPEN && errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED) {
+          errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED;
+        }
+      }
+      return errorCode == PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED
+          ? new CleartextNotPermittedException(cause, dataSpec)
+          : new HttpDataSourceException(cause, dataSpec, errorCode, type);
+    }
 
     /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;

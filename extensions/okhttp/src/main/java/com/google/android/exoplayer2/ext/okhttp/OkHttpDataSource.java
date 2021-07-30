@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.upstream.HttpUtil;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
 import java.io.IOException;
@@ -289,17 +288,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       responseBody = Assertions.checkNotNull(response.body());
       responseByteStream = responseBody.byteStream();
     } catch (IOException e) {
-      @Nullable String message = e.getMessage();
-      if (message != null
-          && Ascii.toLowerCase(message).matches("cleartext communication.*not permitted.*")) {
-        throw new CleartextNotPermittedException(e, dataSpec);
-      }
-      throw new HttpDataSourceException(
-          "Unable to connect",
-          e,
-          dataSpec,
-          PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
-          HttpDataSourceException.TYPE_OPEN);
+      throw HttpDataSourceException.createForIOException(
+          e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
     int responseCode = response.code();
@@ -372,11 +362,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     try {
       return readInternal(buffer, offset, length);
     } catch (IOException e) {
-      throw new HttpDataSourceException(
-          e,
-          Assertions.checkNotNull(dataSpec),
-          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
-          HttpDataSourceException.TYPE_READ);
+      throw HttpDataSourceException.createForIOException(
+          e, castNonNull(dataSpec), HttpDataSourceException.TYPE_READ);
     }
   }
 
