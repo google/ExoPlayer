@@ -50,6 +50,7 @@
     *   Change interface of `LoadErrorHandlingPolicy` to support configuring the
         behavior of track and location fallback. Location fallback is currently
         only supported for DASH manifests with multiple base URLs.
+    *   Disable platform transcoding when playing content URIs on Android 12.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and

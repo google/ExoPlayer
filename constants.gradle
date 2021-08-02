@@ -17,8 +17,8 @@ project.ext {
     releaseVersionCode = 2014002
     minSdkVersion = 16
     appTargetSdkVersion = 29
-    targetSdkVersion = 30
-    compileSdkVersion = 30
+    targetSdkVersion = 31
+    compileSdkVersion = 31
     dexmakerVersion = '2.28.1'
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
