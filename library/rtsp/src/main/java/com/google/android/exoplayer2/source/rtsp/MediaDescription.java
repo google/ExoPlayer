@@ -314,7 +314,8 @@ import java.util.HashMap;
 
     // Format of the parameter: RFC3640 Section 4.4.1:
     //   <parameter name>=<value>[; <parameter name>=<value>].
-    String[] parameters = Util.split(fmtpComponents[1], ";\\s?");
+    // Split with implicit limit of 0 to handle an optional trailing semicolon.
+    String[] parameters = fmtpComponents[1].split(";\\s?");
     ImmutableMap.Builder<String, String> formatParametersBuilder = new ImmutableMap.Builder<>();
     for (String parameter : parameters) {
       // The parameter values can bear equal signs, so splitAtFirst must be used.
