@@ -27,6 +27,7 @@ import android.view.Choreographer.FrameCallback;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -346,7 +347,7 @@ public final class VideoFrameReleaseHelper {
       return;
     }
     this.surfacePlaybackFrameRate = surfacePlaybackFrameRate;
-    setSurfaceFrameRateV30(surface, surfacePlaybackFrameRate);
+    SurfaceApi30.setFrameRate(surface, surfacePlaybackFrameRate);
   }
 
   /** Clears the frame-rate of the current {@link #surface}. */
@@ -355,20 +356,7 @@ public final class VideoFrameReleaseHelper {
       return;
     }
     surfacePlaybackFrameRate = 0;
-    setSurfaceFrameRateV30(surface, /* frameRate= */ 0);
-  }
-
-  @RequiresApi(30)
-  private static void setSurfaceFrameRateV30(Surface surface, float frameRate) {
-    int compatibility =
-        frameRate == 0
-            ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
-            : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
-    try {
-      surface.setFrameRate(frameRate, compatibility);
-    } catch (IllegalStateException e) {
-      Log.e(TAG, "Failed to call Surface.setFrameRate", e);
-    }
+    SurfaceApi30.setFrameRate(surface, /* frameRate= */ 0);
   }
 
   // Display refresh rate and vsync logic.
@@ -415,6 +403,24 @@ public final class VideoFrameReleaseHelper {
       }
     }
     return displayHelper;
+  }
+
+  // Nested classes.
+
+  @RequiresApi(30)
+  private static final class SurfaceApi30 {
+    @DoNotInline
+    public static void setFrameRate(Surface surface, float frameRate) {
+      int compatibility =
+          frameRate == 0
+              ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
+              : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
+      try {
+        surface.setFrameRate(frameRate, compatibility);
+      } catch (IllegalStateException e) {
+        Log.e(TAG, "Failed to call Surface.setFrameRate", e);
+      }
+    }
   }
 
   /** Helper for listening to changes to the default display. */
