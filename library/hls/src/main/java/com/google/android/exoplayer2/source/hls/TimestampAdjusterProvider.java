@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.util.TimestampAdjuster.MODE_SHARED;
+
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -40,7 +42,7 @@ public final class TimestampAdjusterProvider {
   public TimestampAdjuster getAdjuster(int discontinuitySequence) {
     @Nullable TimestampAdjuster adjuster = timestampAdjusters.get(discontinuitySequence);
     if (adjuster == null) {
-      adjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
+      adjuster = new TimestampAdjuster(MODE_SHARED);
       timestampAdjusters.put(discontinuitySequence, adjuster);
     }
     return adjuster;
