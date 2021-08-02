@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
-import static com.google.android.exoplayer2.util.TimestampAdjuster.DO_NOT_OFFSET;
+import static com.google.android.exoplayer2.util.TimestampAdjuster.MODE_NO_OFFSET;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -47,8 +47,9 @@ public class TimestampAdjusterTest {
   }
 
   @Test
-  public void adjustSampleTimestamp_doNotOffset() {
-    TimestampAdjuster adjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ DO_NOT_OFFSET);
+  public void adjustSampleTimestamp_noOffset() {
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(/* firstSampleTimestampUs= */ MODE_NO_OFFSET);
     long firstAdjustedTimestampUs = adjuster.adjustSampleTimestamp(/* timeUs= */ 2000);
     long secondAdjustedTimestampUs = adjuster.adjustSampleTimestamp(/* timeUs= */ 6000);
 
@@ -57,11 +58,11 @@ public class TimestampAdjusterTest {
   }
 
   @Test
-  public void adjustSampleTimestamp_afterResetToNotOffset() {
+  public void adjustSampleTimestamp_afterResetToNoOffset() {
     TimestampAdjuster adjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
     // Let the adjuster establish an offset, to make sure that reset really clears it.
     adjuster.adjustSampleTimestamp(/* timeUs= */ 1000);
-    adjuster.reset(/* firstSampleTimestampUs= */ DO_NOT_OFFSET);
+    adjuster.reset(/* firstSampleTimestampUs= */ MODE_NO_OFFSET);
     long firstAdjustedTimestampUs = adjuster.adjustSampleTimestamp(/* timeUs= */ 2000);
     long secondAdjustedTimestampUs = adjuster.adjustSampleTimestamp(/* timeUs= */ 6000);
 

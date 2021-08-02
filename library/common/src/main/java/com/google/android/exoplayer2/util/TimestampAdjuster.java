@@ -19,25 +19,38 @@ import androidx.annotation.GuardedBy;
 import com.google.android.exoplayer2.C;
 
 /**
- * Offsets timestamps according to an initial sample timestamp offset. MPEG-2 TS timestamps scaling
- * and adjustment is supported, taking into account timestamp rollover.
+ * Adjusts and offsets sample timestamps. MPEG-2 TS timestamps scaling and adjustment is supported,
+ * taking into account timestamp rollover.
  */
 public final class TimestampAdjuster {
 
   /**
    * A special {@code firstSampleTimestampUs} value indicating that presentation timestamps should
-   * not be offset.
+   * not be offset. In this mode:
+   *
+   * <ul>
+   *   <li>{@link #getFirstSampleTimestampUs()} will always return {@link C#TIME_UNSET}.
+   *   <li>The only timestamp adjustment performed is to account for MPEG-2 TS timestamp rollover.
+   * </ul>
    */
-  public static final long DO_NOT_OFFSET = Long.MAX_VALUE;
+  public static final long MODE_NO_OFFSET = Long.MAX_VALUE;
+
+  /**
+   * A special {@code firstSampleTimestampUs} value indicating that the adjuster will be shared by
+   * multiple threads. In this mode:
+   *
+   * <ul>
+   *   <li>{@link #getFirstSampleTimestampUs()} will always return {@link C#TIME_UNSET}.
+   *   <li>Calling threads must call {@link #sharedInitializeOrWait} prior to adjusting timestamps.
+   * </ul>
+   */
+  public static final long MODE_SHARED = Long.MAX_VALUE - 1;
 
   /**
    * The value one greater than the largest representable (33 bit) MPEG-2 TS 90 kHz clock
    * presentation timestamp.
    */
   private static final long MAX_PTS_PLUS_ONE = 0x200000000L;
-
-  @GuardedBy("this")
-  private boolean sharedInitializationStarted;
 
   @GuardedBy("this")
   private long firstSampleTimestampUs;
@@ -49,10 +62,18 @@ public final class TimestampAdjuster {
   private long lastUnadjustedTimestampUs;
 
   /**
+   * Next sample timestamps for calling threads in shared mode when {@link #timestampOffsetUs} has
+   * not yet been set.
+   */
+  private final ThreadLocal<Long> nextSampleTimestampUs;
+
+  /**
    * @param firstSampleTimestampUs The desired value of the first adjusted sample timestamp in
-   *     microseconds, or {@link #DO_NOT_OFFSET} if timestamps should not be offset.
+   *     microseconds, or {@link #MODE_NO_OFFSET} if timestamps should not be offset, or {@link
+   *     #MODE_SHARED} if the adjuster will be used in shared mode.
    */
   public TimestampAdjuster(long firstSampleTimestampUs) {
+    nextSampleTimestampUs = new ThreadLocal<>();
     reset(firstSampleTimestampUs);
   }
 
@@ -60,37 +81,33 @@ public final class TimestampAdjuster {
    * For shared timestamp adjusters, performs necessary initialization actions for a caller.
    *
    * <ul>
-   *   <li>If the adjuster does not yet have a target {@link #getFirstSampleTimestampUs first sample
-   *       timestamp} and if {@code canInitialize} is {@code true}, then initialization is started
-   *       by setting the target first sample timestamp to {@code firstSampleTimestampUs}. The call
-   *       returns, allowing the caller to proceed. Initialization completes when a caller adjusts
-   *       the first timestamp.
-   *   <li>If {@code canInitialize} is {@code true} and the adjuster already has a target {@link
-   *       #getFirstSampleTimestampUs first sample timestamp}, then the call returns to allow the
-   *       caller to proceed only if {@code firstSampleTimestampUs} is equal to the target. This
-   *       ensures a caller that's previously started initialization can continue to proceed. It
-   *       also allows other callers with the same {@code firstSampleTimestampUs} to proceed, since
-   *       in this case it doesn't matter which caller adjusts the first timestamp to complete
-   *       initialization.
-   *   <li>If {@code canInitialize} is {@code false} or if {@code firstSampleTimestampUs} differs
-   *       from the target {@link #getFirstSampleTimestampUs first sample timestamp}, then the call
-   *       blocks until initialization completes. If initialization has already been completed the
-   *       call returns immediately.
+   *   <li>If the adjuster has already established a {@link #getTimestampOffsetUs timestamp offset}
+   *       then this method is a no-op.
+   *   <li>If {@code canInitialize} is {@code true} and the adjuster has not yet established a
+   *       timestamp offset, then the adjuster records the desired first sample timestamp for the
+   *       calling thread and returns to allow the caller to proceed. If the timestamp offset has
+   *       still not been established when the caller attempts to adjust its first timestamp, then
+   *       the recorded timestamp is used to set it.
+   *   <li>If {@code canInitialize} is {@code false} and the adjuster has not yet established a
+   *       timestamp offset, then the call blocks until the timestamp offset is set.
    * </ul>
    *
    * @param canInitialize Whether the caller is able to initialize the adjuster, if needed.
-   * @param firstSampleTimestampUs The desired value of the first adjusted sample timestamp in
-   *     microseconds. Only used if {@code canInitialize} is {@code true}.
+   * @param nextSampleTimestampUs The desired timestamp for the next sample loaded by the calling
+   *     thread, in microseconds. Only used if {@code canInitialize} is {@code true}.
    * @throws InterruptedException If the thread is interrupted whilst blocked waiting for
    *     initialization to complete.
    */
-  public synchronized void sharedInitializeOrWait(
-      boolean canInitialize, long firstSampleTimestampUs) throws InterruptedException {
-    if (canInitialize && !sharedInitializationStarted) {
-      reset(firstSampleTimestampUs);
-      sharedInitializationStarted = true;
-    }
-    if (!canInitialize || this.firstSampleTimestampUs != firstSampleTimestampUs) {
+  public synchronized void sharedInitializeOrWait(boolean canInitialize, long nextSampleTimestampUs)
+      throws InterruptedException {
+    Assertions.checkState(firstSampleTimestampUs == MODE_SHARED);
+    if (timestampOffsetUs != C.TIME_UNSET) {
+      // Already initialized.
+      return;
+    } else if (canInitialize) {
+      this.nextSampleTimestampUs.set(nextSampleTimestampUs);
+    } else {
+      // Wait for another calling thread to complete initialization.
       while (timestampOffsetUs == C.TIME_UNSET) {
         wait();
       }
@@ -99,22 +116,22 @@ public final class TimestampAdjuster {
 
   /**
    * Returns the value of the first adjusted sample timestamp in microseconds, or {@link
-   * #DO_NOT_OFFSET} if timestamps will not be offset.
+   * C#TIME_UNSET} if timestamps will not be offset or if the adjuster is in shared mode.
    */
   public synchronized long getFirstSampleTimestampUs() {
-    return firstSampleTimestampUs;
+    return firstSampleTimestampUs == MODE_NO_OFFSET || firstSampleTimestampUs == MODE_SHARED
+        ? C.TIME_UNSET
+        : firstSampleTimestampUs;
   }
 
   /**
-   * Returns the last value obtained from {@link #adjustSampleTimestamp}. If {@link
-   * #adjustSampleTimestamp} has not been called, returns the result of calling {@link
-   * #getFirstSampleTimestampUs()} unless that value is {@link #DO_NOT_OFFSET}, in which case {@link
-   * C#TIME_UNSET} is returned.
+   * Returns the last adjusted timestamp, in microseconds. If no timestamps have been adjusted yet
+   * then the result of {@link #getFirstSampleTimestampUs()} is returned.
    */
   public synchronized long getLastAdjustedTimestampUs() {
     return lastUnadjustedTimestampUs != C.TIME_UNSET
         ? lastUnadjustedTimestampUs + timestampOffsetUs
-        : firstSampleTimestampUs != DO_NOT_OFFSET ? firstSampleTimestampUs : C.TIME_UNSET;
+        : getFirstSampleTimestampUs();
   }
 
   /**
@@ -129,13 +146,13 @@ public final class TimestampAdjuster {
    * Resets the instance.
    *
    * @param firstSampleTimestampUs The desired value of the first adjusted sample timestamp after
-   *     this reset, in microseconds, or {@link #DO_NOT_OFFSET} if timestamps should not be offset.
+   *     this reset in microseconds, or {@link #MODE_NO_OFFSET} if timestamps should not be offset,
+   *     or {@link #MODE_SHARED} if the adjuster will be used in shared mode.
    */
   public synchronized void reset(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
-    timestampOffsetUs = firstSampleTimestampUs == DO_NOT_OFFSET ? 0 : C.TIME_UNSET;
+    timestampOffsetUs = firstSampleTimestampUs == MODE_NO_OFFSET ? 0 : C.TIME_UNSET;
     lastUnadjustedTimestampUs = C.TIME_UNSET;
-    sharedInitializationStarted = false;
   }
 
   /**
@@ -174,7 +191,11 @@ public final class TimestampAdjuster {
       return C.TIME_UNSET;
     }
     if (timestampOffsetUs == C.TIME_UNSET) {
-      timestampOffsetUs = firstSampleTimestampUs - timeUs;
+      long desiredSampleTimestampUs =
+          firstSampleTimestampUs == MODE_SHARED
+              ? Assertions.checkNotNull(nextSampleTimestampUs.get())
+              : firstSampleTimestampUs;
+      timestampOffsetUs = desiredSampleTimestampUs - timeUs;
       // Notify threads waiting for the timestamp offset to be determined.
       notifyAll();
     }
