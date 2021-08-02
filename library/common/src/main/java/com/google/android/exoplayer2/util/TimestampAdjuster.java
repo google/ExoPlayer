@@ -53,8 +53,7 @@ public final class TimestampAdjuster {
    *     microseconds, or {@link #DO_NOT_OFFSET} if timestamps should not be offset.
    */
   public TimestampAdjuster(long firstSampleTimestampUs) {
-    this.firstSampleTimestampUs = firstSampleTimestampUs;
-    lastSampleTimestampUs = C.TIME_UNSET;
+    reset(firstSampleTimestampUs);
   }
 
   /**
@@ -80,18 +79,18 @@ public final class TimestampAdjuster {
    * </ul>
    *
    * @param canInitialize Whether the caller is able to initialize the adjuster, if needed.
-   * @param startTimeUs The desired first sample timestamp of the caller, in microseconds. Only used
-   *     if {@code canInitialize} is {@code true}.
+   * @param firstSampleTimestampUs The desired value of the first adjusted sample timestamp in
+   *     microseconds. Only used if {@code canInitialize} is {@code true}.
    * @throws InterruptedException If the thread is interrupted whilst blocked waiting for
    *     initialization to complete.
    */
-  public synchronized void sharedInitializeOrWait(boolean canInitialize, long startTimeUs)
-      throws InterruptedException {
+  public synchronized void sharedInitializeOrWait(
+      boolean canInitialize, long firstSampleTimestampUs) throws InterruptedException {
     if (canInitialize && !sharedInitializationStarted) {
-      firstSampleTimestampUs = startTimeUs;
+      reset(firstSampleTimestampUs);
       sharedInitializationStarted = true;
     }
-    if (!canInitialize || startTimeUs != firstSampleTimestampUs) {
+    if (!canInitialize || this.firstSampleTimestampUs != firstSampleTimestampUs) {
       while (lastSampleTimestampUs == C.TIME_UNSET) {
         wait();
       }
@@ -134,7 +133,7 @@ public final class TimestampAdjuster {
   }
 
   /**
-   * Resets the instance to its initial state.
+   * Resets the instance.
    *
    * @param firstSampleTimestampUs The desired value of the first adjusted sample timestamp after
    *     this reset, in microseconds, or {@link #DO_NOT_OFFSET} if timestamps should not be offset.
@@ -142,6 +141,7 @@ public final class TimestampAdjuster {
   public synchronized void reset(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
     lastSampleTimestampUs = C.TIME_UNSET;
+    timestampOffsetUs = 0;
     sharedInitializationStarted = false;
   }
 
