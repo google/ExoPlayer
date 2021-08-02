@@ -46,7 +46,7 @@ public final class TimestampAdjuster {
   private long timestampOffsetUs;
 
   @GuardedBy("this")
-  private long lastSampleTimestampUs;
+  private long lastUnadjustedTimestampUs;
 
   /**
    * @param firstSampleTimestampUs The desired value of the first adjusted sample timestamp in
@@ -91,7 +91,7 @@ public final class TimestampAdjuster {
       sharedInitializationStarted = true;
     }
     if (!canInitialize || this.firstSampleTimestampUs != firstSampleTimestampUs) {
-      while (lastSampleTimestampUs == C.TIME_UNSET) {
+      while (timestampOffsetUs == C.TIME_UNSET) {
         wait();
       }
     }
@@ -108,28 +108,21 @@ public final class TimestampAdjuster {
   /**
    * Returns the last value obtained from {@link #adjustSampleTimestamp}. If {@link
    * #adjustSampleTimestamp} has not been called, returns the result of calling {@link
-   * #getFirstSampleTimestampUs()}. If this value is {@link #DO_NOT_OFFSET}, returns {@link
-   * C#TIME_UNSET}.
+   * #getFirstSampleTimestampUs()} unless that value is {@link #DO_NOT_OFFSET}, in which case {@link
+   * C#TIME_UNSET} is returned.
    */
   public synchronized long getLastAdjustedTimestampUs() {
-    return lastSampleTimestampUs != C.TIME_UNSET
-        ? (lastSampleTimestampUs + timestampOffsetUs)
+    return lastUnadjustedTimestampUs != C.TIME_UNSET
+        ? lastUnadjustedTimestampUs + timestampOffsetUs
         : firstSampleTimestampUs != DO_NOT_OFFSET ? firstSampleTimestampUs : C.TIME_UNSET;
   }
 
   /**
-   * Returns the offset between the input of {@link #adjustSampleTimestamp(long)} and its output. If
-   * {@link #DO_NOT_OFFSET} was provided to the constructor, 0 is returned. If the timestamp
-   * adjuster is yet not initialized, {@link C#TIME_UNSET} is returned.
-   *
-   * @return The offset between {@link #adjustSampleTimestamp(long)}'s input and output. {@link
-   *     C#TIME_UNSET} if the adjuster is not yet initialized and 0 if timestamps should not be
-   *     offset.
+   * Returns the offset between the input of {@link #adjustSampleTimestamp(long)} and its output, or
+   * {@link C#TIME_UNSET} if the offset has not yet been determined.
    */
   public synchronized long getTimestampOffsetUs() {
-    return firstSampleTimestampUs == DO_NOT_OFFSET
-        ? 0
-        : lastSampleTimestampUs == C.TIME_UNSET ? C.TIME_UNSET : timestampOffsetUs;
+    return timestampOffsetUs;
   }
 
   /**
@@ -140,8 +133,8 @@ public final class TimestampAdjuster {
    */
   public synchronized void reset(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
-    lastSampleTimestampUs = C.TIME_UNSET;
-    timestampOffsetUs = 0;
+    timestampOffsetUs = firstSampleTimestampUs == DO_NOT_OFFSET ? 0 : C.TIME_UNSET;
+    lastUnadjustedTimestampUs = C.TIME_UNSET;
     sharedInitializationStarted = false;
   }
 
@@ -155,10 +148,10 @@ public final class TimestampAdjuster {
     if (pts90Khz == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
-    if (lastSampleTimestampUs != C.TIME_UNSET) {
+    if (lastUnadjustedTimestampUs != C.TIME_UNSET) {
       // The wrap count for the current PTS may be closestWrapCount or (closestWrapCount - 1),
       // and we need to snap to the one closest to lastSampleTimestampUs.
-      long lastPts = usToNonWrappedPts(lastSampleTimestampUs);
+      long lastPts = usToNonWrappedPts(lastUnadjustedTimestampUs);
       long closestWrapCount = (lastPts + (MAX_PTS_PLUS_ONE / 2)) / MAX_PTS_PLUS_ONE;
       long ptsWrapBelow = pts90Khz + (MAX_PTS_PLUS_ONE * (closestWrapCount - 1));
       long ptsWrapAbove = pts90Khz + (MAX_PTS_PLUS_ONE * closestWrapCount);
@@ -180,18 +173,12 @@ public final class TimestampAdjuster {
     if (timeUs == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
-    // Record the adjusted PTS to adjust for wraparound next time.
-    if (lastSampleTimestampUs != C.TIME_UNSET) {
-      lastSampleTimestampUs = timeUs;
-    } else {
-      if (firstSampleTimestampUs != DO_NOT_OFFSET) {
-        // Calculate the timestamp offset.
-        timestampOffsetUs = firstSampleTimestampUs - timeUs;
-      }
-      lastSampleTimestampUs = timeUs;
-      // Notify threads waiting for this adjuster to be initialized.
+    if (timestampOffsetUs == C.TIME_UNSET) {
+      timestampOffsetUs = firstSampleTimestampUs - timeUs;
+      // Notify threads waiting for the timestamp offset to be determined.
       notifyAll();
     }
+    lastUnadjustedTimestampUs = timeUs;
     return timeUs + timestampOffsetUs;
   }
 

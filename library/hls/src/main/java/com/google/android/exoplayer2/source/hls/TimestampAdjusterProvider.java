@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 
 /** Provides {@link TimestampAdjuster} instances for use during HLS playbacks. */
@@ -37,9 +38,9 @@ public final class TimestampAdjusterProvider {
    * @return A {@link TimestampAdjuster}.
    */
   public TimestampAdjuster getAdjuster(int discontinuitySequence) {
-    TimestampAdjuster adjuster = timestampAdjusters.get(discontinuitySequence);
+    @Nullable TimestampAdjuster adjuster = timestampAdjusters.get(discontinuitySequence);
     if (adjuster == null) {
-      adjuster = new TimestampAdjuster(TimestampAdjuster.DO_NOT_OFFSET);
+      adjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
       timestampAdjusters.put(discontinuitySequence, adjuster);
     }
     return adjuster;
