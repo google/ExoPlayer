@@ -20,8 +20,10 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,9 +33,9 @@ import java.util.regex.Pattern;
  * Provides a CSS parser for STYLE blocks in Webvtt files. Supports only a subset of the CSS
  * features.
  */
-/* package */ final class CssParser {
+/* package */ final class WebvttCssParser {
 
-  private static final String TAG = "CssParser";
+  private static final String TAG = "WebvttCssParser";
 
   private static final String RULE_START = "{";
   private static final String RULE_END = "}";
@@ -41,6 +43,7 @@ import java.util.regex.Pattern;
   private static final String PROPERTY_BGCOLOR = "background-color";
   private static final String PROPERTY_FONT_FAMILY = "font-family";
   private static final String PROPERTY_FONT_WEIGHT = "font-weight";
+  private static final String PROPERTY_FONT_SIZE = "font-size";
   private static final String PROPERTY_RUBY_POSITION = "ruby-position";
   private static final String VALUE_OVER = "over";
   private static final String VALUE_UNDER = "under";
@@ -54,12 +57,14 @@ import java.util.regex.Pattern;
   private static final String VALUE_ITALIC = "italic";
 
   private static final Pattern VOICE_NAME_PATTERN = Pattern.compile("\\[voice=\"([^\"]*)\"\\]");
+  private static final Pattern FONT_SIZE_PATTERN =
+      Pattern.compile("^((?:[0-9]*\\.)?[0-9]+)(px|em|%)$");
 
   // Temporary utility data structures.
   private final ParsableByteArray styleInput;
   private final StringBuilder stringBuilder;
 
-  public CssParser() {
+  public WebvttCssParser() {
     styleInput = new ParsableByteArray();
     stringBuilder = new StringBuilder();
   }
@@ -213,6 +218,8 @@ import java.util.regex.Pattern;
       if (VALUE_ITALIC.equals(value)) {
         style.setItalic(true);
       }
+    } else if (PROPERTY_FONT_SIZE.equals(property)) {
+      parseFontSize(value, style);
     }
     // TODO: Fill remaining supported styles.
   }
@@ -334,6 +341,31 @@ import java.util.regex.Pattern;
     }
     input.skipBytes(position - input.getPosition());
     return stringBuilder.toString();
+  }
+
+  private static void parseFontSize(String fontSize, WebvttCssStyle style) {
+    Matcher matcher = FONT_SIZE_PATTERN.matcher(Ascii.toLowerCase(fontSize));
+    if (!matcher.matches()) {
+      Log.w(TAG, "Invalid font-size: '" + fontSize + "'.");
+      return;
+    }
+    String unit = Assertions.checkNotNull(matcher.group(2));
+    switch (unit) {
+      case "px":
+        style.setFontSizeUnit(WebvttCssStyle.FONT_SIZE_UNIT_PIXEL);
+        break;
+      case "em":
+        style.setFontSizeUnit(WebvttCssStyle.FONT_SIZE_UNIT_EM);
+        break;
+      case "%":
+        style.setFontSizeUnit(WebvttCssStyle.FONT_SIZE_UNIT_PERCENT);
+        break;
+      default:
+        // this line should never be reached because when the fontSize matches the FONT_SIZE_PATTERN
+        // unit must be one of: px, em, %
+        throw new IllegalStateException();
+    }
+    style.setFontSize(Float.parseFloat(Assertions.checkNotNull(matcher.group(1))));
   }
 
   /**

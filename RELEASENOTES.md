@@ -116,6 +116,8 @@
 *   Text:
     *   TTML: Inherit the `rubyPosition` value from a containing `<span
         ruby="container">` element.
+    *   WebVTT: Add support for CSS `font-size` property
+        ([#8964](https://github.com/google/ExoPlayer/issues/8964)).
 *   Ad playback:
     *   Support changing ad break positions in the player logic
         ([#5067](https://github.com/google/ExoPlayer/issues/5067).

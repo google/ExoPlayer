@@ -263,7 +263,7 @@ public final class WebvttCssStyle {
     return this;
   }
 
-  public WebvttCssStyle setFontSizeUnit(short unit) {
+  public WebvttCssStyle setFontSizeUnit(@FontSizeUnit int unit) {
     this.fontSizeUnit = unit;
     return this;
   }
