@@ -79,16 +79,22 @@ public final class ContentDataSource extends BaseDataSource {
 
       transferInitializing(dataSpec);
 
-      Bundle providerOptions = new Bundle();
-      if (Util.SDK_INT >= 31) {
-        Api31.disableTranscoding(providerOptions);
+      AssetFileDescriptor assetFileDescriptor;
+      if ("content".equals(dataSpec.uri.getScheme())) {
+        Bundle providerOptions = new Bundle();
+        if (Util.SDK_INT >= 31) {
+          Api31.disableTranscoding(providerOptions);
+        }
+        assetFileDescriptor =
+            resolver.openTypedAssetFileDescriptor(uri, /* mimeType= */ "*/*", providerOptions);
+      } else {
+        // This path supports file URIs, although support may be removed in the future. See
+        // [Internal ref: b/195384732].
+        assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
       }
-
-      AssetFileDescriptor assetFileDescriptor =
-          resolver.openTypedAssetFileDescriptor(uri, /* mimeType= */ "*/*", providerOptions);
       this.assetFileDescriptor = assetFileDescriptor;
       if (assetFileDescriptor == null) {
-        // openTypedAssetFileDescriptor returns null if the provider recently crashed.
+        // assetFileDescriptor may be null if the provider recently crashed.
         throw new ContentDataSourceException(
             new IOException("Could not open file descriptor for: " + uri),
             PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
