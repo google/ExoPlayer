@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import static com.google.android.exoplayer2.text.webvtt.CssParser.parseNextToken;
+import static com.google.android.exoplayer2.text.webvtt.WebvttCssParser.parseNextToken;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -29,15 +29,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link CssParser}. */
+/** Unit test for {@link WebvttCssParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class CssParserTest {
+public final class WebvttCssParserTest {
 
-  private CssParser parser;
+  private WebvttCssParser parser;
 
   @Before
   public void setUp() {
-    parser = new CssParser();
+    parser = new WebvttCssParser();
   }
 
   @Test
@@ -232,13 +232,13 @@ public final class CssParserTest {
 
   private void assertSkipsToEndOfSkip(String expectedLine, String s) {
     ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(s));
-    CssParser.skipWhitespaceAndComments(input);
+    WebvttCssParser.skipWhitespaceAndComments(input);
     assertThat(input.readLine()).isEqualTo(expectedLine);
   }
 
   private void assertInputLimit(String expectedLine, String s) {
     ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(s));
-    CssParser.skipStyleBlock(input);
+    WebvttCssParser.skipStyleBlock(input);
     assertThat(input.readLine()).isEqualTo(expectedLine);
   }
 
