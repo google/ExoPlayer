@@ -592,6 +592,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       }
       putNormalizedAttribute(KEY_SUB_TYPE, subType);
       name = parser.getAttributeValue(null, KEY_NAME);
+      putNormalizedAttribute(KEY_NAME, name);
       url = parseRequiredString(parser, KEY_URL);
       maxWidth = parseInt(parser, KEY_MAX_WIDTH, Format.NO_VALUE);
       maxHeight = parseInt(parser, KEY_MAX_HEIGHT, Format.NO_VALUE);
