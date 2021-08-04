@@ -67,7 +67,6 @@ public final class ListenerSet<T> {
   }
 
   private static final int MSG_ITERATION_FINISHED = 0;
-  private static final int MSG_LAZY_RELEASE = 1;
 
   private final Clock clock;
   private final HandlerWrapper handler;
@@ -220,37 +219,15 @@ public final class ListenerSet<T> {
     released = true;
   }
 
-  /**
-   * Releases the set of listeners after all already scheduled {@link Looper} messages were able to
-   * trigger final events.
-   *
-   * <p>After the specified released callback event, no other events are sent to a listener.
-   *
-   * @param releaseEventFlag An integer flag indicating the type of the release event, or {@link
-   *     C#INDEX_UNSET} to report this event without a flag.
-   * @param releaseEvent The release event.
-   */
-  public void lazyRelease(int releaseEventFlag, Event<T> releaseEvent) {
-    handler.obtainMessage(MSG_LAZY_RELEASE, releaseEventFlag, 0, releaseEvent).sendToTarget();
-  }
-
   private boolean handleMessage(Message message) {
-    if (message.what == MSG_ITERATION_FINISHED) {
-      for (ListenerHolder<T> holder : listeners) {
-        holder.iterationFinished(iterationFinishedEvent);
-        if (handler.hasMessages(MSG_ITERATION_FINISHED)) {
-          // The invocation above triggered new events (and thus scheduled a new message). We need
-          // to stop here because this new message will take care of informing every listener about
-          // the new update (including the ones already called here).
-          break;
-        }
+    for (ListenerHolder<T> holder : listeners) {
+      holder.iterationFinished(iterationFinishedEvent);
+      if (handler.hasMessages(MSG_ITERATION_FINISHED)) {
+        // The invocation above triggered new events (and thus scheduled a new message). We need
+        // to stop here because this new message will take care of informing every listener about
+        // the new update (including the ones already called here).
+        break;
       }
-    } else if (message.what == MSG_LAZY_RELEASE) {
-      int releaseEventFlag = message.arg1;
-      @SuppressWarnings("unchecked")
-      Event<T> releaseEvent = (Event<T>) message.obj;
-      sendEvent(releaseEventFlag, releaseEvent);
-      release();
     }
     return true;
   }
