@@ -81,6 +81,48 @@ public class RtspMediaTrackTest {
   }
 
   @Test
+  public void generatePayloadFormat_withFmtpTrailingSemicolon_succeeds() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(
+                MEDIA_TYPE_VIDEO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 96)
+            .setConnection("IN IP4 0.0.0.0")
+            .setBitrate(500_000)
+            .addAttribute(ATTR_RTPMAP, "96 H264/90000")
+            .addAttribute(
+                ATTR_FMTP,
+                "96 packetization-mode=1;profile-level-id=64001F;sprop-parameter-sets=Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA;")
+            .addAttribute(ATTR_CONTROL, "track1")
+            .build();
+
+    RtpPayloadFormat format = RtspMediaTrack.generatePayloadFormat(mediaDescription);
+    RtpPayloadFormat expectedFormat =
+        new RtpPayloadFormat(
+            new Format.Builder()
+                .setSampleMimeType(MimeTypes.VIDEO_H264)
+                .setAverageBitrate(500_000)
+                .setPixelWidthHeightRatio(1.0f)
+                .setHeight(544)
+                .setWidth(960)
+                .setCodecs("avc1.64001F")
+                .setInitializationData(
+                    ImmutableList.of(
+                        new byte[] {
+                          0, 0, 0, 1, 103, 100, 0, 31, -84, -39, 64, -16, 17, 105, -78, 0, 0, 3, 0,
+                          8, 0, 0, 3, 1, -100, 30, 48, 99, 44
+                        },
+                        new byte[] {0, 0, 0, 1, 104, -21, -29, -53, 34, -64}))
+                .build(),
+            /* rtpPayloadType= */ 96,
+            /* clockRate= */ 90_000,
+            /* fmtpParameters= */ ImmutableMap.of(
+                "packetization-mode", "1",
+                "profile-level-id", "64001F",
+                "sprop-parameter-sets", "Z2QAH6zZQPARabIAAAMACAAAAwGcHjBjLA==,aOvjyyLA"));
+
+    assertThat(format).isEqualTo(expectedFormat);
+  }
+
+  @Test
   public void generatePayloadFormat_withAacMediaDescription_succeeds() {
     MediaDescription mediaDescription =
         new MediaDescription.Builder(

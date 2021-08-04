@@ -300,7 +300,7 @@ import java.util.HashMap;
    * {@link MediaDescription} does not contain any FMTP attribute.
    *
    * <p>FMTP format reference: RFC2327 Page 27. The spaces around the FMTP attribute delimiters are
-   * removed. For example,
+   * removed.
    */
   public ImmutableMap<String, String> getFmtpParametersAsMap() {
     @Nullable String fmtpAttributeValue = attributes.get(ATTR_FMTP);
@@ -314,7 +314,8 @@ import java.util.HashMap;
 
     // Format of the parameter: RFC3640 Section 4.4.1:
     //   <parameter name>=<value>[; <parameter name>=<value>].
-    String[] parameters = Util.split(fmtpComponents[1], ";\\s?");
+    // Split with an explicit limit of 0 to handle an optional trailing semicolon.
+    String[] parameters = fmtpComponents[1].split(";\\s?", /* limit= */ 0);
     ImmutableMap.Builder<String, String> formatParametersBuilder = new ImmutableMap.Builder<>();
     for (String parameter : parameters) {
       // The parameter values can bear equal signs, so splitAtFirst must be used.
