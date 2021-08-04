@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.analytics;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.os.Looper;
 import android.util.SparseArray;
@@ -50,6 +51,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -82,6 +84,7 @@ public class AnalyticsCollector
 
   private ListenerSet<AnalyticsListener> listeners;
   private @MonotonicNonNull Player player;
+  private @MonotonicNonNull HandlerWrapper handler;
   private boolean isSeeking;
 
   /**
@@ -131,6 +134,7 @@ public class AnalyticsCollector
     Assertions.checkState(
         this.player == null || mediaPeriodQueueTracker.mediaPeriodQueue.isEmpty());
     this.player = checkNotNull(player);
+    handler = clock.createHandler(looper, null);
     listeners =
         listeners.copy(
             looper,
@@ -146,10 +150,13 @@ public class AnalyticsCollector
   public void release() {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     eventTimes.put(AnalyticsListener.EVENT_PLAYER_RELEASED, eventTime);
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_PLAYER_RELEASED,
+        listener -> listener.onPlayerReleased(eventTime));
     // Release listeners lazily so that all events that got triggered as part of player.release()
     // are still delivered to all listeners.
-    listeners.lazyRelease(
-        AnalyticsListener.EVENT_PLAYER_RELEASED, listener -> listener.onPlayerReleased(eventTime));
+    checkStateNotNull(handler).post(() -> listeners.release());
   }
 
   /**
