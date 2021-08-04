@@ -347,7 +347,7 @@ public final class VideoFrameReleaseHelper {
       return;
     }
     this.surfacePlaybackFrameRate = surfacePlaybackFrameRate;
-    SurfaceApi30.setFrameRate(surface, surfacePlaybackFrameRate);
+    Api30.setSurfaceFrameRate(surface, surfacePlaybackFrameRate);
   }
 
   /** Clears the frame-rate of the current {@link #surface}. */
@@ -356,7 +356,7 @@ public final class VideoFrameReleaseHelper {
       return;
     }
     surfacePlaybackFrameRate = 0;
-    SurfaceApi30.setFrameRate(surface, /* frameRate= */ 0);
+    Api30.setSurfaceFrameRate(surface, /* frameRate= */ 0);
   }
 
   // Display refresh rate and vsync logic.
@@ -408,9 +408,9 @@ public final class VideoFrameReleaseHelper {
   // Nested classes.
 
   @RequiresApi(30)
-  private static final class SurfaceApi30 {
+  private static final class Api30 {
     @DoNotInline
-    public static void setFrameRate(Surface surface, float frameRate) {
+    public static void setSurfaceFrameRate(Surface surface, float frameRate) {
       int compatibility =
           frameRate == 0
               ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT

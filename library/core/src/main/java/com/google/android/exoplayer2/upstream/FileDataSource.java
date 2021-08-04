@@ -192,7 +192,7 @@ public final class FileDataSource extends BaseDataSource {
       // different SDK versions.
       throw new FileDataSourceException(
           e,
-          Util.SDK_INT >= 21 && PlatformOperationsWrapperV21.isPermissionError(e.getCause())
+          Util.SDK_INT >= 21 && Api21.isPermissionError(e.getCause())
               ? PlaybackException.ERROR_CODE_IO_NO_PERMISSION
               : PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
     } catch (SecurityException e) {
@@ -203,7 +203,7 @@ public final class FileDataSource extends BaseDataSource {
   }
 
   @RequiresApi(21)
-  private static final class PlatformOperationsWrapperV21 {
+  private static final class Api21 {
     @DoNotInline
     private static boolean isPermissionError(@Nullable Throwable e) {
       return e instanceof ErrnoException && ((ErrnoException) e).errno == OsConstants.EACCES;
