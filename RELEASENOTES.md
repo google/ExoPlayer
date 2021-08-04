@@ -144,6 +144,12 @@
     *   Deprecate `setControlDispatcher` in `MediaSessionConnector`. The
         `ControlDispatcher` parameter has also been deprecated in all
         `MediaSessionConnector` listener methods.
+*   HLS:
+    *   Report audio track type in
+        `AnalyticsListener.onDownstreamFormatChanged()` for audio-only
+        playlists, so that the `PlaybackStatsListener` can derive audio
+        format-related information.
+        ([#9175](https://github.com/google/ExoPlayer/issues/9175)).
 
 ### 2.14.2 (2021-07-20)
 
