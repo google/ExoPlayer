@@ -669,12 +669,11 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         if (message != null && Ascii.toLowerCase(message).contains("err_cleartext_not_permitted")) {
           throw new CleartextNotPermittedException(connectionOpenException, dataSpec);
         }
-        @PlaybackException.ErrorCode
-        int errorCode =
-            getErrorCodeForException(
-                connectionOpenException, /* occurredWhileOpeningConnection*/ true);
         throw new OpenException(
-            connectionOpenException, dataSpec, errorCode, getStatus(urlRequest));
+            connectionOpenException,
+            dataSpec,
+            PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+            getStatus(urlRequest));
       } else if (!connectionOpened) {
         // The timeout was reached before the connection was opened.
         throw new OpenException(
@@ -685,10 +684,13 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+      // An interruption means the operation is being cancelled, in which case this exception should
+      // not cause the player to fail. If it does, it likely means that the owner of the operation
+      // is failing to swallow the interruption, which makes us enter an invalid state.
       throw new OpenException(
           new InterruptedIOException(),
           dataSpec,
-          PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK,
           Status.INVALID);
     }
 
@@ -1029,7 +1031,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         throw new OpenException(
             e,
             dataSpec,
-            getErrorCodeForException(e, /* occurredWhileOpeningConnection= */ false),
+            e instanceof SocketTimeoutException
+                ? PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+                : PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
             Status.READING_RESPONSE);
       }
     }
@@ -1099,11 +1103,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (exception instanceof HttpDataSourceException) {
         throw (HttpDataSourceException) exception;
       } else {
-        throw new HttpDataSourceException(
-            exception,
-            dataSpec,
-            getErrorCodeForException(exception, /* occurredWhileOpeningConnection= */ false),
-            HttpDataSourceException.TYPE_READ);
+        throw HttpDataSourceException.createForIOException(
+            exception, dataSpec, HttpDataSourceException.TYPE_READ);
       }
     }
   }
@@ -1114,27 +1115,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       readBuffer.limit(0);
     }
     return readBuffer;
-  }
-
-  @PlaybackException.ErrorCode
-  private static int getErrorCodeForException(
-      IOException exception, boolean occurredWhileOpeningConnection) {
-    if (exception instanceof UnknownHostException) {
-      return PlaybackException.ERROR_CODE_IO_DNS_FAILED;
-    }
-    @Nullable String message = exception.getMessage();
-    if (message != null) {
-      if (message.contains("net::ERR_INTERNET_DISCONNECTED")) {
-        return PlaybackException.ERROR_CODE_IO_NETWORK_UNAVAILABLE;
-      } else if (message.contains("net::ERR_CONTENT_LENGTH_MISMATCH")
-          || message.contains("net::ERR_SOCKET_NOT_CONNECTED")) {
-        return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
-      }
-    }
-    if (occurredWhileOpeningConnection) {
-      return PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED;
-    }
-    return PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
   }
 
   private static boolean isCompressed(UrlResponseInfo info) {

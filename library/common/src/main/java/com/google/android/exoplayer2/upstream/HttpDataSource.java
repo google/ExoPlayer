@@ -23,11 +23,11 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -215,24 +215,20 @@ public interface HttpDataSource extends DataSource {
      */
     public static HttpDataSourceException createForIOException(
         IOException cause, DataSpec dataSpec, @Type int type) {
-      @PlaybackException.ErrorCode int errorCode = PlaybackException.ERROR_CODE_IO_UNSPECIFIED;
+      @PlaybackException.ErrorCode int errorCode;
+      @Nullable String message = cause.getMessage();
       if (cause instanceof SocketTimeoutException) {
         errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
-      } else if (cause instanceof UnknownHostException) {
-        errorCode = PlaybackException.ERROR_CODE_IO_DNS_FAILED;
+      } else if (cause instanceof InterruptedIOException) {
+        // An interruption means the operation is being cancelled, in which case this exception
+        // should not cause the player to fail. If it does, it likely means that the owner of the
+        // operation is failing to swallow the interruption, which makes us enter an invalid state.
+        errorCode = PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+      } else if (message != null
+          && Ascii.toLowerCase(message).matches("cleartext.*not permitted.*")) {
+        errorCode = PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED;
       } else {
-        @Nullable String message = cause.getMessage();
-        if (message != null) {
-          if (Ascii.toLowerCase(message).matches("cleartext.*not permitted.*")) {
-            errorCode = PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED;
-          } else if (message.contains("unexpected end of stream")) {
-            errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED;
-          }
-        }
-
-        if (type == TYPE_OPEN && errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED) {
-          errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED;
-        }
+        errorCode = PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED;
       }
       return errorCode == PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED
           ? new CleartextNotPermittedException(cause, dataSpec)
