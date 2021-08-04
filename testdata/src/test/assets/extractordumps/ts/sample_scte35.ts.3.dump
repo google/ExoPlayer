@@ -27,11 +27,11 @@ track 257:
     sampleRate = 44100
     language = und
   sample 0:
-    time = 66733
+    time = 74700
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 1:
-    time = 92855
+    time = 100822
     flags = 1
     data = length 1254, hash 73FB07B8
 track 600:
@@ -39,5 +39,5 @@ track 600:
   sample count = 0
   format 0:
     sampleMimeType = application/x-scte35
-    subsampleOffsetUs = -1355512
+    subsampleOffsetUs = -1400000
 tracksEnded = true

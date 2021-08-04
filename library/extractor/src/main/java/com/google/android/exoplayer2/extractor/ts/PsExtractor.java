@@ -135,16 +135,23 @@ public final class PsExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    boolean hasNotEncounteredFirstTimestamp =
-        timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET;
-    if (hasNotEncounteredFirstTimestamp
-        || (timestampAdjuster.getFirstSampleTimestampUs() != 0
-            && timestampAdjuster.getFirstSampleTimestampUs() != timeUs)) {
-      // - If the timestamp adjuster in the PS stream has not encountered any sample, it's going to
-      // treat the first timestamp encountered as sample time 0, which is incorrect. In this case,
-      // we have to set the first sample timestamp manually.
-      // - If the timestamp adjuster has its timestamp set manually before, and now we seek to a
-      // different position, we need to set the first sample timestamp manually again.
+    // If the timestamp adjuster has not yet established a timestamp offset, we need to reset its
+    // expected first sample timestamp to be the new seek position. Without this, the timestamp
+    // adjuster would incorrectly establish its timestamp offset assuming that the first sample
+    // after this seek corresponds to the start of the stream (or a previous seek position, if there
+    // was one).
+    boolean resetTimestampAdjuster = timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET;
+    if (!resetTimestampAdjuster) {
+      long adjusterFirstSampleTimestampUs = timestampAdjuster.getFirstSampleTimestampUs();
+      // Also reset the timestamp adjuster if its offset was calculated based on a non-zero position
+      // in the stream (other than the position being seeked to), since in this case the offset may
+      // not be accurate.
+      resetTimestampAdjuster =
+          adjusterFirstSampleTimestampUs != C.TIME_UNSET
+              && adjusterFirstSampleTimestampUs != 0
+              && adjusterFirstSampleTimestampUs != timeUs;
+    }
+    if (resetTimestampAdjuster) {
       timestampAdjuster.reset(timeUs);
     }
 
