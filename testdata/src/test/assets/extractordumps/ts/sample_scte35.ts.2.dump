@@ -17,11 +17,11 @@ track 256:
     initializationData:
       data = length 22, hash CE183139
   sample 0:
-    time = 77854
+    time = 33366
     flags = 1
     data = length 20711, hash 34341E8
   sample 1:
-    time = 111221
+    time = 66733
     flags = 0
     data = length 18112, hash EC44B35B
 track 257:
@@ -35,19 +35,19 @@ track 257:
     sampleRate = 44100
     language = und
   sample 0:
-    time = 66943
+    time = 22455
     flags = 1
     data = length 1253, hash 727FD1C6
   sample 1:
-    time = 93065
+    time = 48577
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 2:
-    time = 119188
+    time = 74700
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 3:
-    time = 145310
+    time = 100822
     flags = 1
     data = length 1254, hash 73FB07B8
 track 600:
@@ -55,17 +55,17 @@ track 600:
   sample count = 3
   format 0:
     sampleMimeType = application/x-scte35
-    subsampleOffsetUs = -1355512
+    subsampleOffsetUs = -1400000
   sample 0:
-    time = 77854
+    time = 33366
     flags = 1
     data = length 35, hash A892AAAF
   sample 1:
-    time = 77854
+    time = 33366
     flags = 1
     data = length 35, hash A892AAAF
   sample 2:
-    time = 77854
+    time = 33366
     flags = 1
     data = length 35, hash DFA3EF74
 tracksEnded = true
