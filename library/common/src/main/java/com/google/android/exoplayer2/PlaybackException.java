@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -48,13 +49,10 @@ public class PlaybackException extends Exception implements Bundleable {
         ERROR_CODE_TIMEOUT,
         ERROR_CODE_FAILED_RUNTIME_CHECK,
         ERROR_CODE_IO_UNSPECIFIED,
-        ERROR_CODE_IO_NETWORK_UNAVAILABLE,
         ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
         ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
-        ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED,
         ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE,
         ERROR_CODE_IO_BAD_HTTP_STATUS,
-        ERROR_CODE_IO_DNS_FAILED,
         ERROR_CODE_IO_FILE_NOT_FOUND,
         ERROR_CODE_IO_NO_PERMISSION,
         ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
@@ -107,32 +105,38 @@ public class PlaybackException extends Exception implements Bundleable {
 
   /** Caused by an Input/Output error which could not be identified. */
   public static final int ERROR_CODE_IO_UNSPECIFIED = 2000;
-  /** Caused by the lack of network connectivity while trying to access a network resource. */
-  public static final int ERROR_CODE_IO_NETWORK_UNAVAILABLE = 2001;
-  /** Caused by a failure while establishing a network connection. */
-  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_FAILED = 2002;
+  /**
+   * Caused by a network connection failure.
+   *
+   * <p>The following is a non-exhaustive list of possible reasons:
+   *
+   * <ul>
+   *   <li>There is no network connectivity (you can check this by querying {@link
+   *       ConnectivityManager#getActiveNetwork}).
+   *   <li>The URL's domain is misspelled or does not exist.
+   *   <li>The target host is unreachable.
+   *   <li>The server unexpectedly closes the connection.
+   * </ul>
+   */
+  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_FAILED = 2001;
   /** Caused by a network timeout, meaning the server is taking too long to fulfill a request. */
-  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT = 2003;
-  /** Caused by an existing connection being unexpectedly closed. */
-  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED = 2004;
+  public static final int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT = 2002;
   /**
    * Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.
    *
    * <p>For example, this can happen when the player is expecting a piece of media, but the server
    * returns a paywall HTML page, with content type "text/html".
    */
-  public static final int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE = 2005;
+  public static final int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE = 2003;
   /** Caused by an HTTP server returning an unexpected HTTP response status code. */
-  public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2006;
-  /** Caused by the player failing to resolve a hostname. */
-  public static final int ERROR_CODE_IO_DNS_FAILED = 2007;
+  public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2004;
   /** Caused by a non-existent file. */
-  public static final int ERROR_CODE_IO_FILE_NOT_FOUND = 2008;
+  public static final int ERROR_CODE_IO_FILE_NOT_FOUND = 2005;
   /**
    * Caused by lack of permission to perform an IO operation. For example, lack of permission to
    * access internet or external storage.
    */
-  public static final int ERROR_CODE_IO_NO_PERMISSION = 2009;
+  public static final int ERROR_CODE_IO_NO_PERMISSION = 2006;
   /**
    * Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
    * https://) when the app's Network Security Configuration does not permit it.
@@ -140,9 +144,9 @@ public class PlaybackException extends Exception implements Bundleable {
    * <p>See <a href="https://exoplayer.dev/issues/cleartext-not-permitted">this corresponding
    * troubleshooting topic</a>.
    */
-  public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2010;
+  public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2007;
   /** Caused by reading data out of the data bound. */
-  public static final int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE = 2011;
+  public static final int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE = 2008;
 
   // Content parsing errors (3xxx).
 
@@ -234,20 +238,14 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_FAILED_RUNTIME_CHECK";
       case ERROR_CODE_IO_UNSPECIFIED:
         return "ERROR_CODE_IO_UNSPECIFIED";
-      case ERROR_CODE_IO_NETWORK_UNAVAILABLE:
-        return "ERROR_CODE_IO_NETWORK_UNAVAILABLE";
       case ERROR_CODE_IO_NETWORK_CONNECTION_FAILED:
         return "ERROR_CODE_IO_NETWORK_CONNECTION_FAILED";
       case ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT:
         return "ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT";
-      case ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED:
-        return "ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED";
       case ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE:
         return "ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE";
       case ERROR_CODE_IO_BAD_HTTP_STATUS:
         return "ERROR_CODE_IO_BAD_HTTP_STATUS";
-      case ERROR_CODE_IO_DNS_FAILED:
-        return "ERROR_CODE_IO_DNS_FAILED";
       case ERROR_CODE_IO_FILE_NOT_FOUND:
         return "ERROR_CODE_IO_FILE_NOT_FOUND";
       case ERROR_CODE_IO_NO_PERMISSION:
