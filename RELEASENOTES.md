@@ -138,8 +138,10 @@
 *   Media2 extension:
     *   Deprecate `setControlDispatcher` in `SessionPlayerConnector`.
 *   RTSP:
-    *   Use standard RTSP header names.
+    *   Use standard RTSP header names
         ([#9182](https://github.com/google/ExoPlayer/issues/9182)).
+    *   Handle an extra semicolon in SDP fmtp attribute
+        ([#9247](https://github.com/google/ExoPlayer/pull/9247)).
 *   MediaSession extension:
     *   Deprecate `setControlDispatcher` in `MediaSessionConnector`. The
         `ControlDispatcher` parameter has also been deprecated in all
