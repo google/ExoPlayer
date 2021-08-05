@@ -28,8 +28,8 @@ import java.nio.ByteBuffer;
  * <p>Query whether {@link #supportsSampleMimeType(String) sample MIME types are supported} and
  * {@link #addTrack(Format) add all tracks}, then {@link #writeSampleData(int, ByteBuffer, boolean,
  * long) write sample data} to mux samples. Once any sample data has been written, it is not
- * possible to add tracks. After writing all sample data, {@link #release() release} the instance to
- * finish writing to the output and return any resources to the system.
+ * possible to add tracks. After writing all sample data, {@link #release(boolean) release} the
+ * instance to finish writing to the output and return any resources to the system.
  */
 /* package */ interface Muxer {
 

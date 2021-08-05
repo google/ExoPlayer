@@ -204,8 +204,10 @@ public final class Transformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
-     * values are:
+     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. The
+     * output MIME type should be supported by the {@link
+     * Muxer.Factory#supportsOutputMimeType(String) muxer}. Values supported by the default {@link
+     * FrameworkMuxer} are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_MP4}
@@ -261,7 +263,8 @@ public final class Transformer {
     }
 
     /**
-     * Sets the factory for muxers that write the media container.
+     * Sets the factory for muxers that write the media container. The default value is a {@link
+     * FrameworkMuxer.Factory}.
      *
      * @param muxerFactory A {@link Muxer.Factory}.
      * @return This builder.
@@ -407,7 +410,8 @@ public final class Transformer {
    * sources}, the highest bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
-   *     output container format and are described in {@link MediaMuxer#addTrack(MediaFormat)}.
+   *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
+   *     described in {@link MediaMuxer#addTrack(MediaFormat)}.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
@@ -431,7 +435,8 @@ public final class Transformer {
    * sources}, the highest bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
-   *     output container format and are described in {@link MediaMuxer#addTrack(MediaFormat)}.
+   *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
+   *     described in {@link MediaMuxer#addTrack(MediaFormat)}.
    * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
    *     The file referenced by this ParcelFileDescriptor should not be used before the
    *     transformation is completed. It is the responsibility of the caller to close the

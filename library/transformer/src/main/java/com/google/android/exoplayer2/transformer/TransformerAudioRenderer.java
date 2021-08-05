@@ -222,8 +222,8 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Attempts to process decoder output audio, and returns whether it may be possible to process
-   * more data immediately by calling this method again.
+   * Attempts to process decoder output data, and returns whether it may be possible to process more
+   * data immediately by calling this method again.
    */
   private boolean drainDecoderToFeedSonic() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
