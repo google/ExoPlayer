@@ -142,6 +142,8 @@
         ([#9182](https://github.com/google/ExoPlayer/issues/9182)).
     *   Handle an extra semicolon in SDP fmtp attribute
         ([#9247](https://github.com/google/ExoPlayer/pull/9247)).
+    *   Fix handling of special characters in the RTSP session ID
+        ([#9254](https://github.com/google/ExoPlayer/issues/9254)).
 *   MediaSession extension:
     *   Deprecate `setControlDispatcher` in `MediaSessionConnector`. The
         `ControlDispatcher` parameter has also been deprecated in all
