@@ -142,6 +142,8 @@
     *   Deprecate `setControlDispatcher` in `LeanbackPlayerAdapter`.
 *   Media2 extension:
     *   Deprecate `setControlDispatcher` in `SessionPlayerConnector`.
+*   GVR extension:
+    *   Remove `GvrAudioProcessor`, which has been deprecated since 2.11.0.
 *   RTSP:
     *   Use standard RTSP header names
         ([#9182](https://github.com/google/ExoPlayer/issues/9182)).
