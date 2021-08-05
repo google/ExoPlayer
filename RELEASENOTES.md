@@ -92,6 +92,11 @@
     *   Remove `CastPlayer` specific playlist manipulation methods. Use
         `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
         instead.
+    *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
+        constants in `C` instead.
+    *   Remove `C.MSG_*` constants. Use identically named constants in
+        `Renderer` instead, except for `C.MSG_SET_SURFACE`, which is replaced
+        with `Renderer.MSG_SET_VIDEO_OUTPUT`.
 *   UI:
     *   Add `setUseRewindAction` and `setUseFastForwardAction` to
         `PlayerNotificationManager`, and `setUseFastForwardActionInCompactView`

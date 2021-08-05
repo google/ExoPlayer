@@ -708,30 +708,6 @@ public final class C {
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
-  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_OUTPUT}. */
-  @Deprecated public static final int MSG_SET_SURFACE = 1;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VOLUME}. */
-  @Deprecated public static final int MSG_SET_VOLUME = 2;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_AUDIO_ATTRIBUTES}. */
-  @Deprecated public static final int MSG_SET_AUDIO_ATTRIBUTES = 3;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_SCALING_MODE}. */
-  @Deprecated public static final int MSG_SET_SCALING_MODE = 4;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_AUX_EFFECT_INFO}. */
-  @Deprecated public static final int MSG_SET_AUX_EFFECT_INFO = 5;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER}. */
-  @Deprecated public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_CAMERA_MOTION_LISTENER}. */
-  @Deprecated public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
-
-  /** @deprecated Use {@code Renderer.MSG_CUSTOM_BASE}. */
-  @Deprecated public static final int MSG_CUSTOM_BASE = 10000;
-
   /**
    * The stereo mode for 360/3D/VR videos. One of {@link Format#NO_VALUE}, {@link
    * #STEREO_MODE_MONO}, {@link #STEREO_MODE_TOP_BOTTOM}, {@link #STEREO_MODE_LEFT_RIGHT} or {@link
