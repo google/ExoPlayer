@@ -192,7 +192,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
      * provided name, the parent element parser will be queried, and so on up the chain.
      *
      * @param key The name of the attribute.
-     * @return The stashed value, or null if the attribute was not be found.
+     * @return The stashed value, or null if the attribute was not found.
      */
     @Nullable
     protected final Object getNormalizedAttribute(String key) {
@@ -595,6 +595,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       }
       putNormalizedAttribute(KEY_SUB_TYPE, subType);
       name = parser.getAttributeValue(null, KEY_NAME);
+      putNormalizedAttribute(KEY_NAME, name);
       url = parseRequiredString(parser, KEY_URL);
       maxWidth = parseInt(parser, KEY_MAX_WIDTH, Format.NO_VALUE);
       maxHeight = parseInt(parser, KEY_MAX_HEIGHT, Format.NO_VALUE);
