@@ -92,9 +92,9 @@ import java.util.regex.Pattern;
   private static final Pattern CONTENT_LENGTH_HEADER_PATTERN =
       Pattern.compile("Content-Length:\\s?(\\d+)", CASE_INSENSITIVE);
 
-  // Session header pattern, see RFC2326 Section 12.37.
+  // Session header pattern, see RFC2326 Sections 3.4 and 12.37.
   private static final Pattern SESSION_HEADER_PATTERN =
-      Pattern.compile("(\\w+)(?:;\\s?timeout=(\\d+))?");
+      Pattern.compile("([\\w$-_.+]+)(?:;\\s?timeout=(\\d+))?");
 
   // WWW-Authenticate header pattern, see RFC2068 Sections 14.46 and RFC2069.
   private static final Pattern WWW_AUTHENTICATION_HEADER_DIGEST_PATTERN =
