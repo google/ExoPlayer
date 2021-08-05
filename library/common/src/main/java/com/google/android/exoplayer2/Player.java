@@ -1543,6 +1543,9 @@ public interface Player {
    */
   boolean isCommandAvailable(@Command int command);
 
+  /** Returns whether the player can be used to advertise a media session. */
+  boolean canAdvertiseSession();
+
   /**
    * Returns the player's currently available {@link Commands}.
    *

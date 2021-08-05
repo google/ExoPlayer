@@ -89,6 +89,16 @@ public abstract class BasePlayer implements Player {
     return getAvailableCommands().contains(command);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>BasePlayer and its descendents will return {@code true}.
+   */
+  @Override
+  public final boolean canAdvertiseSession() {
+    return true;
+  }
+
   @Override
   public final void play() {
     setPlayWhenReady(true);

@@ -152,6 +152,11 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
+  public boolean canAdvertiseSession() {
+    return player.canAdvertiseSession();
+  }
+
+  @Override
   public Commands getAvailableCommands() {
     return player.getAvailableCommands();
   }
