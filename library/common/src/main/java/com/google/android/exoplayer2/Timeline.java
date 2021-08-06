@@ -710,7 +710,7 @@ public abstract class Timeline implements Bundleable {
      * 0} (inclusive) and {@code removedAdGroupCount} (exclusive) will be empty.
      */
     public int getRemovedAdGroupCount() {
-      return adPlaybackState.adGroupCount;
+      return adPlaybackState.removedAdGroupCount;
     }
 
     /**
