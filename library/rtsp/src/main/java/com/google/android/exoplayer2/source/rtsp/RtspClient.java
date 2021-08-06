@@ -47,7 +47,9 @@ import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackExc
 import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspSessionHeader;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -65,6 +67,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** The RTSP client. */
 /* package */ final class RtspClient implements Closeable {
 
+  private static final String TAG = "RtspClient";
   private static final long DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS = 30_000;
 
   /** A listener for session information update. */
@@ -100,6 +103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Uri uri;
   @Nullable private final RtspAuthUserInfo rtspAuthUserInfo;
   private final String userAgent;
+  private final boolean debugLoggingEnabled;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
   private final SparseArray<RtspRequest> pendingRequests;
@@ -131,12 +135,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       SessionInfoListener sessionInfoListener,
       PlaybackEventListener playbackEventListener,
       String userAgent,
-      Uri uri) {
+      Uri uri,
+      boolean debugLoggingEnabled) {
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
     this.uri = RtspMessageUtil.removeUserInfo(uri);
     this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
     this.userAgent = userAgent;
+    this.debugLoggingEnabled = debugLoggingEnabled;
     pendingSetupRtpLoadInfos = new ArrayDeque<>();
     pendingRequests = new SparseArray<>();
     messageSender = new MessageSender();
@@ -239,6 +245,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     messageSender.sendSetupRequest(loadInfo.getTrackUri(), loadInfo.getTransport(), sessionId);
+  }
+
+  private void maybeLogMessage(List<String> message) {
+    if (debugLoggingEnabled) {
+      Log.d(TAG, Joiner.on("\n").join(message));
+    }
   }
 
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
@@ -396,7 +408,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int cSeq = Integer.parseInt(checkNotNull(request.headers.get(RtspHeaders.CSEQ)));
       checkState(pendingRequests.get(cSeq) == null);
       pendingRequests.append(cSeq, request);
-      messageChannel.send(RtspMessageUtil.serializeRequest(request));
+      List<String> message = RtspMessageUtil.serializeRequest(request);
+      maybeLogMessage(message);
+      messageChannel.send(message);
       lastRequest = request;
     }
   }
@@ -421,6 +435,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void handleRtspMessage(List<String> message) {
+      maybeLogMessage(message);
       RtspResponse response = RtspMessageUtil.parseResponse(message);
 
       int cSeq = Integer.parseInt(checkNotNull(response.headers.get(RtspHeaders.CSEQ)));

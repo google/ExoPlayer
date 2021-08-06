@@ -69,6 +69,7 @@ public final class RtspMediaSource extends BaseMediaSource {
     private long timeoutMs;
     private String userAgent;
     private boolean forceUseRtpTcp;
+    private boolean debugLoggingEnabled;
 
     public Factory() {
       timeoutMs = DEFAULT_TIMEOUT_MS;
@@ -99,6 +100,20 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     public Factory setUserAgent(String userAgent) {
       this.userAgent = userAgent;
+      return this;
+    }
+
+    /**
+     * Sets whether to log RTSP messages, the default value is {@code false}.
+     *
+     * <p>This option presents a privacy risk, since it may expose sensitive information such as
+     * user's credentials.
+     *
+     * @param debugLoggingEnabled Whether to log RTSP messages.
+     * @return This Factory, for convenience.
+     */
+    public Factory setDebugLoggingEnabled(boolean debugLoggingEnabled) {
+      this.debugLoggingEnabled = debugLoggingEnabled;
       return this;
     }
 
@@ -186,7 +201,8 @@ public final class RtspMediaSource extends BaseMediaSource {
           forceUseRtpTcp
               ? new TransferRtpDataChannelFactory(timeoutMs)
               : new UdpDataSourceRtpDataChannelFactory(timeoutMs),
-          userAgent);
+          userAgent,
+          debugLoggingEnabled);
     }
   }
 
@@ -209,6 +225,7 @@ public final class RtspMediaSource extends BaseMediaSource {
   private final RtpDataChannel.Factory rtpDataChannelFactory;
   private final String userAgent;
   private final Uri uri;
+  private final boolean debugLoggingEnabled;
 
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
@@ -217,11 +234,15 @@ public final class RtspMediaSource extends BaseMediaSource {
 
   @VisibleForTesting
   /* package */ RtspMediaSource(
-      MediaItem mediaItem, RtpDataChannel.Factory rtpDataChannelFactory, String userAgent) {
+      MediaItem mediaItem,
+      RtpDataChannel.Factory rtpDataChannelFactory,
+      String userAgent,
+      boolean debugLoggingEnabled) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
     this.uri = checkNotNull(this.mediaItem.playbackProperties).uri;
+    this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;
   }
@@ -259,7 +280,8 @@ public final class RtspMediaSource extends BaseMediaSource {
           timelineIsPlaceholder = false;
           notifySourceInfoRefreshed();
         },
-        userAgent);
+        userAgent,
+        debugLoggingEnabled);
   }
 
   @Override

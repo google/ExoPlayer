@@ -108,7 +108,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       RtpDataChannel.Factory rtpDataChannelFactory,
       Uri uri,
       Listener listener,
-      String userAgent) {
+      String userAgent,
+      boolean debugLoggingEnabled) {
     this.allocator = allocator;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.listener = listener;
@@ -120,7 +121,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* sessionInfoListener= */ internalListener,
             /* playbackEventListener= */ internalListener,
             /* userAgent= */ userAgent,
-            /* uri= */ uri);
+            /* uri= */ uri,
+            debugLoggingEnabled);
     rtspLoaderWrappers = new ArrayList<>();
     selectedLoadInfos = new ArrayList<>();
 

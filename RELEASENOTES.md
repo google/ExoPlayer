@@ -162,8 +162,8 @@
         format-related information.
         ([#9175](https://github.com/google/ExoPlayer/issues/9175)).
 *   SS:
-    *   Propagate `StreamIndex` element `Name` attribute value as `Format`
-        label ([#9252](https://github.com/google/ExoPlayer/issues/9252)).
+    *   Propagate `StreamIndex` element `Name` attribute value as `Format` label
+        ([#9252](https://github.com/google/ExoPlayer/issues/9252)).
 
 ### 2.14.2 (2021-07-20)
 
