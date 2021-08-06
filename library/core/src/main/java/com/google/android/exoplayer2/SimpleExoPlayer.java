@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.C.TRACK_TYPE_AUDIO;
+import static com.google.android.exoplayer2.C.TRACK_TYPE_CAMERA_MOTION;
+import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_ATTRIBUTES;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_SESSION_ID;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUX_EFFECT_INFO;
@@ -792,15 +795,15 @@ public class SimpleExoPlayer extends BasePlayer
       deviceInfo = createDeviceInfo(streamVolumeManager);
       videoSize = VideoSize.UNKNOWN;
 
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-      sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
-      sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
+      sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+      sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+      sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
+      sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
+      sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
       sendRendererMessage(
-          C.TRACK_TYPE_VIDEO, MSG_SET_VIDEO_FRAME_METADATA_LISTENER, frameMetadataListener);
+          TRACK_TYPE_VIDEO, MSG_SET_VIDEO_FRAME_METADATA_LISTENER, frameMetadataListener);
       sendRendererMessage(
-          C.TRACK_TYPE_CAMERA_MOTION, MSG_SET_CAMERA_MOTION_LISTENER, frameMetadataListener);
+          TRACK_TYPE_CAMERA_MOTION, MSG_SET_CAMERA_MOTION_LISTENER, frameMetadataListener);
     } finally {
       constructorFinished.open();
     }
@@ -860,7 +863,7 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
     verifyApplicationThread();
     this.videoScalingMode = videoScalingMode;
-    sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
+    sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
   }
 
   @Override
@@ -1026,7 +1029,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
-      sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
+      sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
       analyticsCollector.onAudioAttributesChanged(audioAttributes);
       for (AudioListener audioListener : audioListeners) {
@@ -1065,8 +1068,8 @@ public class SimpleExoPlayer extends BasePlayer
       initializeKeepSessionIdAudioTrack(audioSessionId);
     }
     this.audioSessionId = audioSessionId;
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-    sendRendererMessage(C.TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+    sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     analyticsCollector.onAudioSessionIdChanged(audioSessionId);
     for (AudioListener audioListener : audioListeners) {
       audioListener.onAudioSessionIdChanged(audioSessionId);
@@ -1081,7 +1084,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
     verifyApplicationThread();
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_AUX_EFFECT_INFO, auxEffectInfo);
+    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUX_EFFECT_INFO, auxEffectInfo);
   }
 
   @Override
@@ -1121,7 +1124,7 @@ public class SimpleExoPlayer extends BasePlayer
       return;
     }
     this.skipSilenceEnabled = skipSilenceEnabled;
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
+    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
     notifySkipSilenceEnabledChanged();
   }
 
@@ -1979,7 +1982,7 @@ public class SimpleExoPlayer extends BasePlayer
     // as to ensure onRenderedFirstFrame callbacks are still called in this case.
     List<PlayerMessage> messages = new ArrayList<>();
     for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
+      if (renderer.getTrackType() == TRACK_TYPE_VIDEO) {
         messages.add(
             player
                 .createMessage(renderer)
@@ -2054,7 +2057,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void sendVolumeToRenderers() {
     float scaledVolume = audioVolume * audioFocusManager.getVolumeMultiplier();
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, MSG_SET_VOLUME, scaledVolume);
+    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_VOLUME, scaledVolume);
   }
 
   @SuppressWarnings("SuspiciousMethodCalls")
