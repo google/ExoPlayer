@@ -22,7 +22,6 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;

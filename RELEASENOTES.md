@@ -54,6 +54,8 @@
         listing audio offload encodings as supported for passthrough mode on
         mobile devices
         ([#9239](https://github.com/google/ExoPlayer/issues/9239)).
+    *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
+        `com.google.android.exoplayer2.DeviceInfo`.
 *   Android 12 compatibility:
     *   Disable platform transcoding when playing content URIs on Android 12.
     *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
