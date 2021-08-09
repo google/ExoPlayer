@@ -30,11 +30,9 @@ import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link DashManifest}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DashManifestTest {
 
   private static final UtcTimingElement UTC_TIMING = new UtcTimingElement("", "");

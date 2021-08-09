@@ -29,11 +29,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link VarintReader}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class VarintReaderTest {
 
   private static final byte MAX_BYTE = (byte) 0xFF;

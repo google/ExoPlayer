@@ -35,11 +35,9 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** End-to-end tests using DASH samples. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class DashPlaybackTest {
 
   @Rule

@@ -30,11 +30,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link EventSampleStream}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class EventSampleStreamTest {
 
   private static final String SCHEME_ID = "urn:test";

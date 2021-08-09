@@ -27,11 +27,9 @@ import com.google.android.exoplayer2.util.Util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link XingSeeker}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class XingSeekerTest {
 
   // Xing header/payload from http://storage.googleapis.com/exoplayer-test-media-0/play.mp3.

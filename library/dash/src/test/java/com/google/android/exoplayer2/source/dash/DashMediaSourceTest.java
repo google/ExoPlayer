@@ -43,12 +43,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link DashMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class DashMediaSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION =

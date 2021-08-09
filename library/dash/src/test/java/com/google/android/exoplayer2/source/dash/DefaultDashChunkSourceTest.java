@@ -55,12 +55,10 @@ import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowSystemClock;
 
 /** Unit test for {@link DefaultDashChunkSource}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DefaultDashChunkSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW =

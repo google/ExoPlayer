@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Unit tests for {@link FlacFrameReader}.
@@ -37,7 +36,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  * href="https://xiph.org/flac/documentation_tools_flac.html">flac</a> command.
  */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class FlacFrameReaderTest {
 
   @Test

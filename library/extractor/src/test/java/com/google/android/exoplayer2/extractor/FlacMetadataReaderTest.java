@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Unit tests for {@link FlacMetadataReader}.
@@ -42,7 +41,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  * href="https://xiph.org/flac/documentation_tools_metaflac.html">metaflac</a> command.
  */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class FlacMetadataReaderTest {
 
   @Test

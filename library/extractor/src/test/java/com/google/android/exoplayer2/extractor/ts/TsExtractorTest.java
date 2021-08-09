@@ -42,11 +42,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link TsExtractor}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
-@DoNotInstrument
 public final class TsExtractorTest {
 
   @Parameters(name = "{0}")

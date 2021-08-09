@@ -30,11 +30,9 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link DefaultOggSeeker}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class DefaultOggSeekerTest {
 
   private final Random random = new Random(/* seed= */ 0);
