@@ -1281,7 +1281,13 @@ public class StyledPlayerControlView extends FrameLayout {
     int width = Math.min(itemWidth, maxWidth);
     settingsWindow.setWidth(width);
 
-    int maxHeight = getHeight() - settingsWindowMargin * 2;
+    View centerView = findViewById(R.id.exo_controls_background);
+    int topBar = 0;
+    if (centerView instanceof ViewGroup && ((ViewGroup) centerView).getChildCount() > 0)
+      topBar = ((ViewGroup) centerView).getChildAt(0).getBottom();
+    int[] bottomBarLocation = new int[2];
+    findViewById(R.id.exo_bottom_bar).getLocationOnScreen(bottomBarLocation);
+    int maxHeight = bottomBarLocation[1] - topBar - settingsWindowMargin;
     int totalHeight = settingsView.getMeasuredHeight();
     int height = Math.min(maxHeight, totalHeight);
     settingsWindow.setHeight(height);
@@ -1297,9 +1303,9 @@ public class StyledPlayerControlView extends FrameLayout {
     needToHideBars = true;
 
     int xoff = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-    int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
+    int yoff = - settingsWindowMargin / 2;
 
-    settingsWindow.showAsDropDown(anchorView, xoff, yoff);
+    settingsWindow.showAsDropDown(findViewById(R.id.exo_bottom_bar), xoff, yoff);
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1484,8 +1490,8 @@ public class StyledPlayerControlView extends FrameLayout {
     if ((width != oldWidth || height != oldHeight) && settingsWindow.isShowing()) {
       updateSettingsWindowSize();
       int xOffset = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-      int yOffset = -settingsWindow.getHeight() - settingsWindowMargin;
-      settingsWindow.update(v, xOffset, yOffset, -1, -1);
+      int yOffset = - settingsWindowMargin / 2;
+      settingsWindow.update(findViewById(R.id.exo_bottom_bar), xOffset, yOffset, -1, -1);
     }
   }
 
