@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.util;
+package com.google.android.exoplayer2.mediacodec;
 
 import java.util.NoSuchElementException;
 
@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
  * <p>Use this class instead of a {@link java.util.Deque} to avoid boxing int primitives to {@link
  * Integer} instances.
  */
-public final class IntArrayQueue {
+/* package */ final class IntArrayQueue {
 
   /** Default capacity needs to be a power of 2. */
   private static final int DEFAULT_INITIAL_CAPACITY = 16;
