@@ -17,7 +17,7 @@ project.ext {
     releaseVersionCode = 2014002
     minSdkVersion = 16
     appTargetSdkVersion = 29
-    // Upgrading this requires [Internal ref: b/162763326] to be fixed, or some
+    // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.
     targetSdkVersion = 30
     compileSdkVersion = 31
