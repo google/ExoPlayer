@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.device.DeviceInfo;
-import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -470,22 +469,6 @@ public interface ExoPlayer extends Player {
 
   /** The device component of an {@link ExoPlayer}. */
   interface DeviceComponent {
-
-    /**
-     * Adds a listener to receive device events.
-     *
-     * @deprecated Use {@link #addListener(Listener)}.
-     */
-    @Deprecated
-    void addDeviceListener(DeviceListener listener);
-
-    /**
-     * Removes a listener of device events.
-     *
-     * @deprecated Use {@link #removeListener(Listener)}.
-     */
-    @Deprecated
-    void removeDeviceListener(DeviceListener listener);
 
     /** Gets the device information. */
     DeviceInfo getDeviceInfo();

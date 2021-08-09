@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.device.DeviceInfo;
-import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -874,12 +873,7 @@ public interface Player {
    * <p>All methods have no-op default implementations to allow selective overrides.
    */
   interface Listener
-      extends VideoListener,
-          AudioListener,
-          TextOutput,
-          MetadataOutput,
-          DeviceListener,
-          EventListener {
+      extends VideoListener, AudioListener, TextOutput, MetadataOutput, EventListener {
 
     @Override
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
@@ -949,10 +943,10 @@ public interface Player {
     @Override
     default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
 
-    @Override
+    /** Called when the device information changes. */
     default void onDeviceInfoChanged(DeviceInfo deviceInfo) {}
 
-    @Override
+    /** Called when the device volume or mute state changes. */
     default void onDeviceVolumeChanged(int volume, boolean muted) {}
 
     @Override

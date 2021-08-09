@@ -102,6 +102,7 @@
     *   Remove `C.MSG_*` constants. Use identically named constants in
         `Renderer` instead, except for `C.MSG_SET_SURFACE`, which is replaced
         with `Renderer.MSG_SET_VIDEO_OUTPUT`.
+    *   Remove `DeviceListener`. Use `Player.Listener` instead.
 *   UI:
     *   Add `setUseRewindAction` and `setUseFastForwardAction` to
         `PlayerNotificationManager`, and `setUseFastForwardActionInCompactView`

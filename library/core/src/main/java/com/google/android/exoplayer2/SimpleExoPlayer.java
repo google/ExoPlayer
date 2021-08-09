@@ -55,7 +55,6 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.device.DeviceInfo;
-import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -667,7 +666,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final CopyOnWriteArraySet<AudioListener> audioListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
-  private final CopyOnWriteArraySet<DeviceListener> deviceListeners;
+  private final CopyOnWriteArraySet<Listener> deviceListeners;
   private final AnalyticsCollector analyticsCollector;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
@@ -1382,7 +1381,7 @@ public class SimpleExoPlayer extends BasePlayer
     addVideoListener(listener);
     addTextOutput(listener);
     addMetadataOutput(listener);
-    addDeviceListener(listener);
+    deviceListeners.add(listener);
     EventListener eventListener = listener;
     addListener(eventListener);
   }
@@ -1402,7 +1401,7 @@ public class SimpleExoPlayer extends BasePlayer
     removeVideoListener(listener);
     removeTextOutput(listener);
     removeMetadataOutput(listener);
-    removeDeviceListener(listener);
+    deviceListeners.remove(listener);
     EventListener eventListener = listener;
     removeListener(eventListener);
   }
@@ -1910,21 +1909,6 @@ public class SimpleExoPlayer extends BasePlayer
       default:
         break;
     }
-  }
-
-  @Deprecated
-  @Override
-  public void addDeviceListener(DeviceListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
-    deviceListeners.add(listener);
-  }
-
-  @Deprecated
-  @Override
-  public void removeDeviceListener(DeviceListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    deviceListeners.remove(listener);
   }
 
   @Override
@@ -2476,7 +2460,8 @@ public class SimpleExoPlayer extends BasePlayer
       DeviceInfo deviceInfo = createDeviceInfo(streamVolumeManager);
       if (!deviceInfo.equals(SimpleExoPlayer.this.deviceInfo)) {
         SimpleExoPlayer.this.deviceInfo = deviceInfo;
-        for (DeviceListener deviceListener : deviceListeners) {
+        // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+        for (Listener deviceListener : deviceListeners) {
           deviceListener.onDeviceInfoChanged(deviceInfo);
         }
       }
@@ -2484,7 +2469,8 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
-      for (DeviceListener deviceListener : deviceListeners) {
+      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+      for (Listener deviceListener : deviceListeners) {
         deviceListener.onDeviceVolumeChanged(streamVolume, streamMuted);
       }
     }
