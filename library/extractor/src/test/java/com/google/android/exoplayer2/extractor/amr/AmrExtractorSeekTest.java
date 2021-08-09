@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
@@ -51,7 +50,7 @@ public final class AmrExtractorSeekTest {
   @Before
   public void setUp() {
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
+        new DefaultDataSource.Factory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

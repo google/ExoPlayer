@@ -38,6 +38,37 @@ import java.util.Map;
  */
 public final class PriorityDataSource implements DataSource {
 
+  /** {@link DataSource.Factory} for {@link PriorityDataSource} instances. */
+  public static final class Factory implements DataSource.Factory {
+
+    private final DataSource.Factory upstreamFactory;
+    private final PriorityTaskManager priorityTaskManager;
+    private final int priority;
+
+    /**
+     * Creates an instance.
+     *
+     * @param upstreamFactory A {@link DataSource.Factory} that provides upstream {@link DataSource
+     *     DataSources} for {@link PriorityDataSource} instances created by the factory.
+     * @param priorityTaskManager The {@link PriorityTaskManager} to which tasks using {@link
+     *     PriorityDataSource} instances created by this factory will be registered.
+     * @param priority The priority of the tasks using {@link PriorityDataSource} instances created
+     *     by this factory.
+     */
+    public Factory(
+        DataSource.Factory upstreamFactory, PriorityTaskManager priorityTaskManager, int priority) {
+      this.upstreamFactory = upstreamFactory;
+      this.priorityTaskManager = priorityTaskManager;
+      this.priority = priority;
+    }
+
+    @Override
+    public PriorityDataSource createDataSource() {
+      return new PriorityDataSource(
+          upstreamFactory.createDataSource(), priorityTaskManager, priority);
+    }
+  }
+
   private final DataSource upstream;
   private final PriorityTaskManager priorityTaskManager;
   private final int priority;

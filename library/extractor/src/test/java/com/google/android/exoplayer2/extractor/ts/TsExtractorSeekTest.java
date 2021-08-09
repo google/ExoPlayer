@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
@@ -62,7 +61,7 @@ public final class TsExtractorSeekTest {
             .get(AUDIO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
+        new DefaultDataSource.Factory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

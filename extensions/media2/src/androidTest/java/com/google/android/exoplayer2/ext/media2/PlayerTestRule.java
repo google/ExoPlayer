@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.List;
@@ -116,10 +116,10 @@ import org.junit.rules.ExternalResource;
 
   private final class InstrumentingDataSourceFactory implements DataSource.Factory {
 
-    private final DefaultDataSourceFactory defaultDataSourceFactory;
+    private final DefaultDataSource.Factory defaultDataSourceFactory;
 
     public InstrumentingDataSourceFactory(Context context) {
-      defaultDataSourceFactory = new DefaultDataSourceFactory(context);
+      defaultDataSourceFactory = new DefaultDataSource.Factory(context);
     }
 
     @Override

@@ -19,10 +19,8 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 
-/**
- * A {@link Factory} that produces {@link DefaultDataSource} instances that delegate to {@link
- * DefaultHttpDataSource}s for non-file/asset/content URIs.
- */
+/** @deprecated Use {@link DefaultDataSource.Factory} instead. */
+@Deprecated
 public final class DefaultDataSourceFactory implements Factory {
 
   private final Context context;

@@ -40,11 +40,11 @@ the Cronet network stack and also support playback of non-http(s) content.
 CronetDataSource.Factory cronetDataSourceFactory =
     new CronetDataSource.Factory(cronetEngine, executor);
 
-// Wrap the CronetDataSource.Factory in a DefaultDataSourceFactory, which adds
+// Wrap the CronetDataSource.Factory in a DefaultDataSource.Factory, which adds
 // in support for requesting data from other sources (e.g., files, resources,
 // etc).
-DefaultDataSourceFactory dataSourceFactory =
-    new DefaultDataSourceFactory(
+DefaultDataSource.Factory dataSourceFactory =
+    new DefaultDataSource.Factory(
         context,
         /* baseDataSourceFactory= */ cronetDataSourceFactory);
 

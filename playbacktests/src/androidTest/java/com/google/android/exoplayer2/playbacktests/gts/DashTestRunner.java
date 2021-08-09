@@ -51,8 +51,8 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -286,7 +286,7 @@ import java.util.List;
         return DrmSessionManager.DRM_UNSUPPORTED;
       }
       MediaDrmCallback drmCallback =
-          new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory());
+          new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSource.Factory());
       DefaultDrmSessionManager drmSessionManager =
           new DefaultDrmSessionManager.Builder()
               .setUuidAndExoMediaDrmProvider(
@@ -327,7 +327,7 @@ import java.util.List;
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory
-              : new DefaultDataSourceFactory(host);
+              : new DefaultDataSource.Factory(host);
       return new DashMediaSource.Factory(dataSourceFactory)
           .setDrmSessionManager(drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))

@@ -55,6 +55,63 @@ import java.util.Map;
  */
 public final class DefaultDataSource implements DataSource {
 
+  /** {@link DataSource.Factory} for {@link DefaultDataSource} instances. */
+  public static final class Factory implements DataSource.Factory {
+
+    private final Context context;
+    private final DataSource.Factory baseDataSourceFactory;
+    @Nullable private TransferListener transferListener;
+
+    /**
+     * Creates an instance.
+     *
+     * @param context A context.
+     */
+    public Factory(Context context) {
+      this(context, new DefaultHttpDataSource.Factory());
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param context A context.
+     * @param baseDataSourceFactory The {@link DataSource.Factory} to be used to create base {@link
+     *     DataSource DataSources} for {@link DefaultDataSource} instances. The base {@link
+     *     DataSource} is normally an {@link HttpDataSource}, and is responsible for fetching data
+     *     over HTTP and HTTPS, as well as any other URI schemes not otherwise supported by {@link
+     *     DefaultDataSource}.
+     */
+    public Factory(Context context, DataSource.Factory baseDataSourceFactory) {
+      this.context = context.getApplicationContext();
+      this.baseDataSourceFactory = baseDataSourceFactory;
+    }
+
+    /**
+     * Sets the {@link TransferListener} that will be used.
+     *
+     * <p>The default is {@code null}.
+     *
+     * <p>See {@link DataSource#addTransferListener(TransferListener)}.
+     *
+     * @param transferListener The listener that will be used.
+     * @return This factory.
+     */
+    public Factory setTransferListener(@Nullable TransferListener transferListener) {
+      this.transferListener = transferListener;
+      return this;
+    }
+
+    @Override
+    public DefaultDataSource createDataSource() {
+      DefaultDataSource dataSource =
+          new DefaultDataSource(context, baseDataSourceFactory.createDataSource());
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
+      return dataSource;
+    }
+  }
+
   private static final String TAG = "DefaultDataSource";
 
   private static final String SCHEME_ASSET = "asset";

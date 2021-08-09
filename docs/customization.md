@@ -53,10 +53,10 @@ default network stack with cross-protocol redirects enabled:
 HttpDataSource.Factory httpDataSourceFactory =
     new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
 
-// Wrap the HttpDataSource.Factory in a DefaultDataSourceFactory, which adds in
+// Wrap the HttpDataSource.Factory in a DefaultDataSource.Factory, which adds in
 // support for requesting data from other sources (e.g., files, resources, etc).
-DefaultDataSourceFactory dataSourceFactory =
-    new DefaultDataSourceFactory(context, httpDataSourceFactory);
+DefaultDataSource.Factory dataSourceFactory =
+    new DefaultDataSource.Factory(context, httpDataSourceFactory);
 
 // Inject the DefaultDataSourceFactory when creating the player.
 SimpleExoPlayer player =

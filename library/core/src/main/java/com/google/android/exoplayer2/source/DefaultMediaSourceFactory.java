@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
@@ -119,7 +119,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param context Any context.
    */
   public DefaultMediaSourceFactory(Context context) {
-    this(new DefaultDataSourceFactory(context));
+    this(new DefaultDataSource.Factory(context));
   }
 
   /**
@@ -130,7 +130,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     its container.
    */
   public DefaultMediaSourceFactory(Context context, ExtractorsFactory extractorsFactory) {
-    this(new DefaultDataSourceFactory(context), extractorsFactory);
+    this(new DefaultDataSource.Factory(context), extractorsFactory);
   }
 
   /**
