@@ -138,6 +138,15 @@ public interface DrmSession {
   byte[] getOfflineLicenseKeySetId();
 
   /**
+   * Returns whether this session requires use of a secure decoder for the given MIME type. Assumes
+   * a license policy that requires the highest level of security supported by the session.
+   *
+   * <p>The session must be in {@link #getState() state} {@link #STATE_OPENED} or {@link
+   * #STATE_OPENED_WITH_KEYS}.
+   */
+  boolean requiresSecureDecoder(String mimeType);
+
+  /**
    * Increments the reference count. When the caller no longer needs to use the instance, it must
    * call {@link #release(DrmSessionEventListener.EventDispatcher)} to decrement the reference
    * count.

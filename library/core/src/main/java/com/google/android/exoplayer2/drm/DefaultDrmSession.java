@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.drm;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
@@ -283,6 +284,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable
   public byte[] getOfflineLicenseKeySetId() {
     return offlineLicenseKeySetId;
+  }
+
+  @Override
+  public boolean requiresSecureDecoder(String mimeType) {
+    return mediaDrm.requiresSecureDecoder(checkStateNotNull(sessionId), mimeType);
   }
 
   @Override

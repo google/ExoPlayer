@@ -461,6 +461,15 @@ public interface ExoMediaDrm {
   Map<String, String> queryKeyStatus(byte[] sessionId);
 
   /**
+   * Returns whether the given session requires use of a secure decoder for the given MIME type.
+   * Assumes a license policy that requires the highest level of security supported by the session.
+   *
+   * @param sessionId The ID of the session.
+   * @param mimeType The content MIME type to query.
+   */
+  boolean requiresSecureDecoder(byte[] sessionId, String mimeType);
+
+  /**
    * Increments the reference count. When the caller no longer needs to use the instance, it must
    * call {@link #release()} to decrement the reference count.
    *

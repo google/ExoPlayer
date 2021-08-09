@@ -70,6 +70,11 @@ public final class ErrorStateDrmSession implements DrmSession {
   }
 
   @Override
+  public boolean requiresSecureDecoder(String mimeType) {
+    return false;
+  }
+
+  @Override
   public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     // Do nothing.
   }

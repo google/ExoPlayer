@@ -94,6 +94,12 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
+  public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
+    // Should not be invoked. No session should exist.
+    throw new IllegalStateException();
+  }
+
+  @Override
   public void acquire() {
     // Do nothing.
   }

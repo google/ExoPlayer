@@ -273,6 +273,11 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
+  public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
+    return false;
+  }
+
+  @Override
   public void acquire() {
     Assertions.checkState(referenceCount > 0);
     referenceCount++;

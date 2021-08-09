@@ -2099,39 +2099,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // the case is to occur, so we re-initialize in this case.
       return true;
     }
-    if (!codecInfo.secure && maybeRequiresSecureDecoder(newMediaCrypto, newFormat)) {
+
+    boolean requiresSecureDecoder;
+    if (newMediaCrypto.forceAllowInsecureDecoderComponents) {
+      requiresSecureDecoder = false;
+    } else {
+      requiresSecureDecoder = newSession.requiresSecureDecoder(newFormat.sampleMimeType);
+    }
+    if (!codecInfo.secure && requiresSecureDecoder) {
       // Re-initialization is required because newSession might require switching to the secure
       // output path.
       return true;
     }
 
     return false;
-  }
-
-  /**
-   * Returns whether a {@link DrmSession} may require a secure decoder for a given {@link Format}.
-   *
-   * @param sessionMediaCrypto The {@link DrmSession}'s {@link FrameworkMediaCrypto}.
-   * @param format The {@link Format}.
-   * @return Whether a secure decoder may be required.
-   */
-  private boolean maybeRequiresSecureDecoder(
-      FrameworkMediaCrypto sessionMediaCrypto, Format format) {
-    if (sessionMediaCrypto.forceAllowInsecureDecoderComponents) {
-      return false;
-    }
-    MediaCrypto mediaCrypto;
-    try {
-      mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
-    } catch (MediaCryptoException e) {
-      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
-      return true;
-    }
-    try {
-      return mediaCrypto.requiresSecureDecoderComponent(format.sampleMimeType);
-    } finally {
-      mediaCrypto.release();
-    }
   }
 
   private void reinitializeCodec() throws ExoPlaybackException {
