@@ -50,11 +50,16 @@
     *   Change interface of `LoadErrorHandlingPolicy` to support configuring the
         behavior of track and location fallback. Location fallback is currently
         only supported for DASH manifests with multiple base URLs.
-    *   Disable platform transcoding when playing content URIs on Android 12.
     *   Restrict use of `AudioTrack.isDirectPlaybackSupported` to TVs, to avoid
         listing audio offload encodings as supported for passthrough mode on
         mobile devices
         ([#9239](https://github.com/google/ExoPlayer/issues/9239)).
+*   Android 12 compatibility:
+    *   Disable platform transcoding when playing content URIs on Android 12.
+    *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
+        calls from the player to `Surface.setFrameRate`. This is useful for
+        applications wanting to call `Surface.setFrameRate` directly from
+        application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
 *   Remove deprecated symbols:
     *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
     *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and

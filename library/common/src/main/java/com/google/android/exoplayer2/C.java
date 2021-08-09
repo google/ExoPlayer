@@ -21,6 +21,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -490,6 +491,23 @@ public final class C {
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
   /** A default video scaling mode for {@link MediaCodec}-based renderers. */
   public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+
+  /** Strategies for calling {@link Surface#setFrameRate}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF, VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS})
+  public @interface VideoChangeFrameRateStrategy {}
+  /**
+   * Strategy to never call {@link Surface#setFrameRate}. Use this strategy if you prefer to call
+   * {@link Surface#setFrameRate} directly from application code.
+   */
+  public static final int VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF = Integer.MIN_VALUE;
+  /**
+   * Strategy to call {@link Surface#setFrameRate} with {@link
+   * Surface#CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS} when the output frame rate is known.
+   */
+  public static final int VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS =
+      Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS;
 
   /**
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
@@ -982,7 +1000,7 @@ public final class C {
     FORMAT_UNSUPPORTED_SUBTYPE,
     FORMAT_UNSUPPORTED_TYPE
   })
-  public static @interface FormatSupport {}
+  public @interface FormatSupport {}
   // TODO(b/172315872) Renderer was a link. Link to equivalent concept or remove @code.
   /** The {@code Renderer} is capable of rendering the format. */
   public static final int FORMAT_HANDLED = 0b100;
@@ -1023,6 +1041,7 @@ public final class C {
    * audio MIME type.
    */
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
+
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
    * #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.

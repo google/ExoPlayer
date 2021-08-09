@@ -120,36 +120,42 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_SCALING_MODE = 4;
   /**
+   * The type of a message that can be passed to a video renderer via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be one of the integer strategy
+   * constants in {@link C.VideoChangeFrameRateStrategy}.
+   */
+  int MSG_SET_CHANGE_FRAME_RATE_STRATEGY = 5;
+  /**
    * A type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AuxEffectInfo}
    * instance representing an auxiliary audio effect for the underlying audio track.
    */
-  int MSG_SET_AUX_EFFECT_INFO = 5;
+  int MSG_SET_AUX_EFFECT_INFO = 6;
   /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be a {@link
    * VideoFrameMetadataListener} instance, or null.
    */
-  int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
+  int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 7;
   /**
    * The type of a message that can be passed to a camera motion renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be a {@link CameraMotionListener}
    * instance, or null.
    */
-  int MSG_SET_CAMERA_MOTION_LISTENER = 7;
+  int MSG_SET_CAMERA_MOTION_LISTENER = 8;
   /**
    * The type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Boolean} instance
    * telling whether to enable or disable skipping silences in the audio stream.
    */
-  int MSG_SET_SKIP_SILENCE_ENABLED = 8;
+  int MSG_SET_SKIP_SILENCE_ENABLED = 9;
   /**
    * The type of a message that can be passed to audio and video renderers via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be an {@link Integer} instance
    * representing the audio session ID that will be attached to the underlying audio track. Video
    * renderers that support tunneling will use the audio session ID when tunneling is enabled.
    */
-  int MSG_SET_AUDIO_SESSION_ID = 9;
+  int MSG_SET_AUDIO_SESSION_ID = 10;
   /**
    * The type of a message that can be passed to a {@link Renderer} via {@link
    * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
@@ -157,7 +163,7 @@ public interface Renderer extends PlayerMessage.Target {
    *
    * <p>The message payload must be a {@link WakeupListener} instance.
    */
-  int MSG_SET_WAKEUP_LISTENER = 10;
+  int MSG_SET_WAKEUP_LISTENER = 11;
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.

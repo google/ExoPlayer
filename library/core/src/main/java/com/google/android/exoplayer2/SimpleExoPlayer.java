@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_ATTRIBUTES;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_SESSION_ID;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUX_EFFECT_INFO;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
@@ -130,6 +131,7 @@ public class SimpleExoPlayer extends BasePlayer
     private boolean handleAudioBecomingNoisy;
     private boolean skipSilenceEnabled;
     @C.VideoScalingMode private int videoScalingMode;
+    @C.VideoChangeFrameRateStrategy private int videoChangeFrameRateStrategy;
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
     private long seekBackIncrementMs;
@@ -168,6 +170,8 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@code handleAudioBecomingNoisy}: {@code false}
      *   <li>{@code skipSilenceEnabled}: {@code false}
      *   <li>{@link C.VideoScalingMode}: {@link C#VIDEO_SCALING_MODE_DEFAULT}
+     *   <li>{@link C.VideoChangeFrameRateStrategy}: {@link
+     *       C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
      *   <li>{@code seekBackIncrementMs}: {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}
@@ -267,6 +271,7 @@ public class SimpleExoPlayer extends BasePlayer
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
       videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
+      videoChangeFrameRateStrategy = C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS;
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       seekBackIncrementMs = C.DEFAULT_SEEK_BACK_INCREMENT_MS;
@@ -462,9 +467,8 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * Sets the {@link C.VideoScalingMode} that will be used by the player.
      *
-     * <p>Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link
-     * Renderer} is enabled and if the output surface is owned by a {@link
-     * android.view.SurfaceView}.
+     * <p>The scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer} is
+     * enabled and if the output surface is owned by a {@link SurfaceView}.
      *
      * @param videoScalingMode A {@link C.VideoScalingMode}.
      * @return This builder.
@@ -473,6 +477,27 @@ public class SimpleExoPlayer extends BasePlayer
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       Assertions.checkState(!buildCalled);
       this.videoScalingMode = videoScalingMode;
+      return this;
+    }
+
+    /**
+     * Sets a {@link C.VideoChangeFrameRateStrategy} that will be used by the player when provided
+     * with a video output {@link Surface}.
+     *
+     * <p>The strategy only applies if a {@link MediaCodec}-based video {@link Renderer} is enabled.
+     * Applications wishing to use {@link Surface#CHANGE_FRAME_RATE_ALWAYS} should set the mode to
+     * {@link C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF} to disable calls to {@link
+     * Surface#setFrameRate} from ExoPlayer, and should then call {@link Surface#setFrameRate}
+     * directly from application code.
+     *
+     * @param videoChangeFrameRateStrategy A {@link C.VideoChangeFrameRateStrategy}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setVideoChangeFrameRateStrategy(
+        @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
+      Assertions.checkState(!buildCalled);
+      this.videoChangeFrameRateStrategy = videoChangeFrameRateStrategy;
       return this;
     }
 
@@ -661,6 +686,7 @@ public class SimpleExoPlayer extends BasePlayer
   private boolean surfaceHolderSurfaceIsVideoOutput;
   @Nullable private TextureView textureView;
   @C.VideoScalingMode private int videoScalingMode;
+  @C.VideoChangeFrameRateStrategy private int videoChangeFrameRateStrategy;
   private int surfaceWidth;
   private int surfaceHeight;
   @Nullable private DecoderCounters videoDecoderCounters;
@@ -714,6 +740,7 @@ public class SimpleExoPlayer extends BasePlayer
       priorityTaskManager = builder.priorityTaskManager;
       audioAttributes = builder.audioAttributes;
       videoScalingMode = builder.videoScalingMode;
+      videoChangeFrameRateStrategy = builder.videoChangeFrameRateStrategy;
       skipSilenceEnabled = builder.skipSilenceEnabled;
       detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
       componentListener = new ComponentListener();
@@ -799,6 +826,8 @@ public class SimpleExoPlayer extends BasePlayer
       sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
+      sendRendererMessage(
+          TRACK_TYPE_VIDEO, MSG_SET_CHANGE_FRAME_RATE_STRATEGY, videoChangeFrameRateStrategy);
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
       sendRendererMessage(
           TRACK_TYPE_VIDEO, MSG_SET_VIDEO_FRAME_METADATA_LISTENER, frameMetadataListener);
@@ -851,14 +880,6 @@ public class SimpleExoPlayer extends BasePlayer
     return this;
   }
 
-  /**
-   * Sets the video scaling mode.
-   *
-   * <p>Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer}
-   * is enabled and if the output surface is owned by a {@link android.view.SurfaceView}.
-   *
-   * @param videoScalingMode The {@link C.VideoScalingMode}.
-   */
   @Override
   public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
     verifyApplicationThread();
@@ -870,6 +891,24 @@ public class SimpleExoPlayer extends BasePlayer
   @C.VideoScalingMode
   public int getVideoScalingMode() {
     return videoScalingMode;
+  }
+
+  @Override
+  public void setVideoChangeFrameRateStrategy(
+      @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
+    verifyApplicationThread();
+    if (this.videoChangeFrameRateStrategy == videoChangeFrameRateStrategy) {
+      return;
+    }
+    this.videoChangeFrameRateStrategy = videoChangeFrameRateStrategy;
+    sendRendererMessage(
+        TRACK_TYPE_VIDEO, MSG_SET_CHANGE_FRAME_RATE_STRATEGY, videoChangeFrameRateStrategy);
+  }
+
+  @Override
+  @C.VideoChangeFrameRateStrategy
+  public int getVideoChangeFrameRateStrategy() {
+    return videoChangeFrameRateStrategy;
   }
 
   @Override

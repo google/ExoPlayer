@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.content.Context;
 import android.media.AudioTrack;
+import android.media.MediaCodec;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -241,6 +242,9 @@ public interface ExoPlayer extends Player {
     /**
      * Sets the {@link C.VideoScalingMode}.
      *
+     * <p>The scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer} is
+     * enabled and if the output surface is owned by a {@link SurfaceView}.
+     *
      * @param videoScalingMode The {@link C.VideoScalingMode}.
      */
     void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
@@ -248,6 +252,25 @@ public interface ExoPlayer extends Player {
     /** Returns the {@link C.VideoScalingMode}. */
     @C.VideoScalingMode
     int getVideoScalingMode();
+
+    /**
+     * Sets a {@link C.VideoChangeFrameRateStrategy} that will be used by the player when provided
+     * with a video output {@link Surface}.
+     *
+     * <p>The strategy only applies if a {@link MediaCodec}-based video {@link Renderer} is enabled.
+     * Applications wishing to use {@link Surface#CHANGE_FRAME_RATE_ALWAYS} should set the mode to
+     * {@link C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF} to disable calls to {@link
+     * Surface#setFrameRate} from ExoPlayer, and should then call {@link Surface#setFrameRate}
+     * directly from application code.
+     *
+     * @param videoChangeFrameRateStrategy A {@link C.VideoChangeFrameRateStrategy}.
+     */
+    void setVideoChangeFrameRateStrategy(
+        @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy);
+
+    /** Returns the {@link C.VideoChangeFrameRateStrategy}. */
+    @C.VideoChangeFrameRateStrategy
+    int getVideoChangeFrameRateStrategy();
 
     /**
      * Adds a listener to receive video events.
