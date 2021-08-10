@@ -271,7 +271,7 @@ implements <a href="../../audio/AudioProcessor.html" title="interface in com.goo
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInput(java.nio.ByteBuffer)">queueInput</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;input)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInput(java.nio.ByteBuffer)">queueInput</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.</div>
@@ -352,8 +352,8 @@ implements <a href="../../audio/AudioProcessor.html" title="interface in com.goo
                               float&nbsp;y,
                               float&nbsp;z)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Updates the listener head orientation. May be called on any thread. See
- <code>GvrAudioSurround.updateNativeOrientation</code>.</div>
+<div class="block">Updates the listener head orientation. May be called on any thread. See <code>
+ GvrAudioSurround.updateNativeOrientation</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>w</code> - The w component of the quaternion.</dd>
@@ -415,7 +415,7 @@ implements <a href="../../audio/AudioProcessor.html" title="interface in com.goo
 <ul class="blockList">
 <li class="blockList">
 <h4>queueInput</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;queueInput&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;input)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;queueInput&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../audio/AudioProcessor.html#queueInput(java.nio.ByteBuffer)">AudioProcessor</a></code></span></div>
 <div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.
@@ -427,7 +427,7 @@ implements <a href="../../audio/AudioProcessor.html" title="interface in com.goo
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../audio/AudioProcessor.html#queueInput(java.nio.ByteBuffer)">queueInput</a></code>&nbsp;in interface&nbsp;<code><a href="../../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>input</code> - The input buffer to process.</dd>
+<dd><code>inputBuffer</code> - The input buffer to process.</dd>
 </dl>
 </li>
 </ul>
@@ -440,11 +440,10 @@ implements <a href="../../audio/AudioProcessor.html" title="interface in com.goo
 <pre class="methodSignature">public&nbsp;void&nbsp;queueEndOfStream()</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../audio/AudioProcessor.html#queueEndOfStream()">AudioProcessor</a></code></span></div>
-<div class="block">Queues an end of stream signal. After this method has been called,
- <a href="../../audio/AudioProcessor.html#queueInput(java.nio.ByteBuffer)"><code>AudioProcessor.queueInput(ByteBuffer)</code></a> may not be called until after the next call to
- <a href="../../audio/AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>. Calling <a href="../../audio/AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> will return any remaining output data. Multiple
- calls may be required to read all of the remaining output data. <a href="../../audio/AudioProcessor.html#isEnded()"><code>AudioProcessor.isEnded()</code></a> will return
- <code>true</code> once all remaining output data has been read.</div>
+<div class="block">Queues an end of stream signal. After this method has been called, <a href="../../audio/AudioProcessor.html#queueInput(java.nio.ByteBuffer)"><code>AudioProcessor.queueInput(ByteBuffer)</code></a> may not be called until after the next call to <a href="../../audio/AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>.
+ Calling <a href="../../audio/AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> will return any remaining output data. Multiple calls may be
+ required to read all of the remaining output data. <a href="../../audio/AudioProcessor.html#isEnded()"><code>AudioProcessor.isEnded()</code></a> will return <code>true</code>
+ once all remaining output data has been read.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../audio/AudioProcessor.html#queueEndOfStream()">queueEndOfStream</a></code>&nbsp;in interface&nbsp;<code><a href="../../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>

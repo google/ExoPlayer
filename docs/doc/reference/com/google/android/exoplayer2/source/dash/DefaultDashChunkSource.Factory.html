@@ -202,8 +202,9 @@ implements <a href="DashChunkSource.Factory.html" title="interface in com.google
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                      <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                     <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
                      int&nbsp;periodIndex,
                      int[]&nbsp;adaptationSetIndices,
                      <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
@@ -277,7 +278,7 @@ implements <a href="DashChunkSource.Factory.html" title="interface in com.google
 <dd><code>chunkExtractorFactory</code> - Creates <a href="../chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> instances to use for extracting
      chunks.</dd>
 <dd><code>dataSourceFactory</code> - Creates the <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to use for downloading chunks.</dd>
-<dd><code>maxSegmentsPerLoad</code> - See <a href="DefaultDashChunkSource.html#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)"><code>DefaultDashChunkSource(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory, com.google.android.exoplayer2.upstream.LoaderErrorThrower, com.google.android.exoplayer2.source.dash.manifest.DashManifest, int, int[], com.google.android.exoplayer2.trackselection.ExoTrackSelection, int, com.google.android.exoplayer2.upstream.DataSource, long, int, boolean, java.util.List&lt;com.google.android.exoplayer2.Format&gt;, com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)</code></a>.</dd>
+<dd><code>maxSegmentsPerLoad</code> - See <a href="DefaultDashChunkSource.html#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)"><code>DefaultDashChunkSource(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory, com.google.android.exoplayer2.upstream.LoaderErrorThrower, com.google.android.exoplayer2.source.dash.manifest.DashManifest, com.google.android.exoplayer2.source.dash.BaseUrlExclusionList, int, int[], com.google.android.exoplayer2.trackselection.ExoTrackSelection, int, com.google.android.exoplayer2.upstream.DataSource, long, int, boolean, java.util.List&lt;com.google.android.exoplayer2.Format&gt;, com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -291,7 +292,7 @@ implements <a href="DashChunkSource.Factory.html" title="interface in com.google
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">
+<a id="createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -299,6 +300,7 @@ implements <a href="DashChunkSource.Factory.html" title="interface in com.google
 <h4>createDashChunkSource</h4>
 <pre class="methodSignature">public&nbsp;<a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a>&nbsp;createDashChunkSource&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                                              <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                                             <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
                                              int&nbsp;periodIndex,
                                              int[]&nbsp;adaptationSetIndices,
                                              <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
@@ -312,10 +314,11 @@ implements <a href="DashChunkSource.Factory.html" title="interface in com.google
                                              <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DashChunkSource.Factory.html#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></code></dd>
+<dd><code><a href="DashChunkSource.Factory.html#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="DashChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
+<dd><code>baseUrlExclusionList</code> - The base URL exclusion list.</dd>
 <dd><code>periodIndex</code> - The index of the corresponding period in the manifest.</dd>
 <dd><code>adaptationSetIndices</code> - The indices of the corresponding adaptation sets in the period.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>

@@ -193,8 +193,8 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startTimeUs">startTimeUs</a></span></code></th>
 <td class="colLast">
-<div class="block">The start time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data
- being loaded does not contain media samples.</div>
+<div class="block">The start time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data being
+ loaded does not contain media samples.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -222,7 +222,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type">type</a></span></code></th>
 <td class="colLast">
-<div class="block">The type of the chunk.</div>
+<div class="block">The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the chunk.</div>
 </td>
 </tr>
 </table>
@@ -356,9 +356,9 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <ul class="blockList">
 <li class="blockList">
 <h4>type</h4>
-<pre>public final&nbsp;int type</pre>
-<div class="block">The type of the chunk. One of the <code>DATA_TYPE_*</code> constants defined in <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>. For
- reporting only.</div>
+<pre><a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
+public final&nbsp;int type</pre>
+<div class="block">The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the chunk. For reporting only.</div>
 </li>
 </ul>
 <a id="trackFormat">
@@ -402,8 +402,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>startTimeUs</h4>
 <pre>public final&nbsp;long startTimeUs</pre>
-<div class="block">The start time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data
- being loaded does not contain media samples.</div>
+<div class="block">The start time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data being
+ loaded does not contain media samples.</div>
 </li>
 </ul>
 <a id="endTimeUs">
@@ -444,6 +444,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>Chunk</h4>
 <pre>public&nbsp;Chunk&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+             <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
              int&nbsp;type,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
              int&nbsp;trackSelectionReason,

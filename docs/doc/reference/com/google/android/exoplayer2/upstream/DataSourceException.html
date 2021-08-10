@@ -147,8 +147,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt>All Implemented Interfaces:</dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><code><a href="AssetDataSource.AssetDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">AssetDataSource.AssetDataSourceException</a></code>, <code><a href="ContentDataSource.ContentDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource.ContentDataSourceException</a></code>, <code><a href="FileDataSource.FileDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource.FileDataSourceException</a></code>, <code><a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code>, <code><a href="RawResourceDataSource.RawResourceDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">RawResourceDataSource.RawResourceDataSourceException</a></code>, <code><a href="UdpDataSource.UdpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">UdpDataSource.UdpDataSourceException</a></code></dd>
+</dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DataSourceException</span>
+<pre>public class <span class="typeNameLabel">DataSourceException</span>
 extends <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Used to specify reason of a DataSource error.</div>
 <dl>
@@ -179,15 +183,17 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#POSITION_OUT_OF_RANGE">POSITION_OUT_OF_RANGE</a></span></code></th>
 <td class="colLast">
-<div class="block">Indicates that the <a href="DataSpec.html#position"><code>starting position</code></a> of the request was outside the
- bounds of the data.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE"><code>PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</code></a>.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reason">reason</a></span></code></th>
 <td class="colLast">
-<div class="block">The reason of this <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>.</div>
+<div class="block">The reason of this <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>, should be one of the <code>ERROR_CODE_IO_*</code> in
+ <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -209,6 +215,28 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int)">DataSourceException</a></span>&#8203;(int&nbsp;reason)</code></th>
+<td class="colLast">
+<div class="block">Constructs a DataSourceException.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,int)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                   int&nbsp;reason)</code></th>
+<td class="colLast">
+<div class="block">Constructs a DataSourceException.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,int)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                   <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                   int&nbsp;reason)</code></th>
+<td class="colLast">
+<div class="block">Constructs a DataSourceException.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable,int)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                   int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Constructs a DataSourceException.</div>
 </td>
@@ -236,7 +264,8 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCausedByPositionOutOfRange(java.io.IOException)">isCausedByPositionOutOfRange</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;e)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a> was caused by a <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSourceException</code></a> whose
- <a href="#reason"><code>reason</code></a> is <a href="#POSITION_OUT_OF_RANGE"><code>POSITION_OUT_OF_RANGE</code></a> in its cause stack.</div>
+ <a href="#reason"><code>reason</code></a> is <a href="../PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE"><code>PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</code></a> in its
+ cause stack.</div>
 </td>
 </tr>
 </table>
@@ -276,7 +305,11 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>POSITION_OUT_OF_RANGE</h4>
-<pre>public static final&nbsp;int POSITION_OUT_OF_RANGE</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int POSITION_OUT_OF_RANGE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE"><code>PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</code></a>.</div>
+</div>
 <div class="block">Indicates that the <a href="DataSpec.html#position"><code>starting position</code></a> of the request was outside the
  bounds of the data.</div>
 <dl>
@@ -291,8 +324,10 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>reason</h4>
-<pre>public final&nbsp;int reason</pre>
-<div class="block">The reason of this <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>. It can only be <a href="#POSITION_OUT_OF_RANGE"><code>POSITION_OUT_OF_RANGE</code></a>.</div>
+<pre><a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+public final&nbsp;int reason</pre>
+<div class="block">The reason of this <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>, should be one of the <code>ERROR_CODE_IO_*</code> in
+ <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -308,14 +343,72 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <a id="&lt;init&gt;(int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DataSourceException</h4>
-<pre>public&nbsp;DataSourceException&#8203;(int&nbsp;reason)</pre>
+<pre>public&nbsp;DataSourceException&#8203;(<a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                           int&nbsp;reason)</pre>
 <div class="block">Constructs a DataSourceException.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>reason</code> - Reason of the error. It can only be <a href="#POSITION_OUT_OF_RANGE"><code>POSITION_OUT_OF_RANGE</code></a>.</dd>
+<dd><code>reason</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.Throwable,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DataSourceException</h4>
+<pre>public&nbsp;DataSourceException&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                           <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                           int&nbsp;reason)</pre>
+<div class="block">Constructs a DataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The error cause.</dd>
+<dd><code>reason</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DataSourceException</h4>
+<pre>public&nbsp;DataSourceException&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                           <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                           int&nbsp;reason)</pre>
+<div class="block">Constructs a DataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>message</code> - The error message.</dd>
+<dd><code>reason</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DataSourceException</h4>
+<pre>public&nbsp;DataSourceException&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                           @Nullable
+                           <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                           <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                           int&nbsp;reason)</pre>
+<div class="block">Constructs a DataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>message</code> - The error message.</dd>
+<dd><code>cause</code> - The error cause.</dd>
+<dd><code>reason</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -337,7 +430,8 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <h4>isCausedByPositionOutOfRange</h4>
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;isCausedByPositionOutOfRange&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;e)</pre>
 <div class="block">Returns whether the given <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><code>IOException</code></a> was caused by a <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSourceException</code></a> whose
- <a href="#reason"><code>reason</code></a> is <a href="#POSITION_OUT_OF_RANGE"><code>POSITION_OUT_OF_RANGE</code></a> in its cause stack.</div>
+ <a href="#reason"><code>reason</code></a> is <a href="../PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE"><code>PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</code></a> in its
+ cause stack.</div>
 </li>
 </ul>
 </li>

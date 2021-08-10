@@ -218,7 +218,7 @@ implements <a href="CacheEvictor.html" title="interface in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStartFile(com.google.android.exoplayer2.upstream.cache.Cache,java.lang.String,long,long)">onStartFile</a></span>&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
            long&nbsp;position,
-           long&nbsp;maxLength)</code></th>
+           long&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Called when a writer starts writing to the cache.</div>
 </td>
@@ -315,7 +315,7 @@ implements <a href="CacheEvictor.html" title="interface in com.google.android.ex
 <pre class="methodSignature">public&nbsp;void&nbsp;onStartFile&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                         long&nbsp;position,
-                        long&nbsp;maxLength)</pre>
+                        long&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="CacheEvictor.html#onStartFile(com.google.android.exoplayer2.upstream.cache.Cache,java.lang.String,long,long)">CacheEvictor</a></code></span></div>
 <div class="block">Called when a writer starts writing to the cache.</div>
 <dl>
@@ -325,7 +325,7 @@ implements <a href="CacheEvictor.html" title="interface in com.google.android.ex
 <dd><code>cache</code> - The source of the event.</dd>
 <dd><code>key</code> - The key being written.</dd>
 <dd><code>position</code> - The starting position of the data being written.</dd>
-<dd><code>maxLength</code> - The length of the data being written, or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</dd>
+<dd><code>length</code> - The length of the data being written, or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</dd>
 </dl>
 </li>
 </ul>

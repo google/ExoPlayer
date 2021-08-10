@@ -467,7 +467,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>getText</h4>
-<pre class="methodSignature">@Nullable
+<pre class="methodSignature">@Pure
+@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;getText()</pre>
 <div class="block">Gets the cue text.</div>
 <dl>
@@ -496,7 +497,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSeque
 <ul class="blockList">
 <li class="blockList">
 <h4>getBitmap</h4>
-<pre class="methodSignature">@Nullable
+<pre class="methodSignature">@Pure
+@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;getBitmap()</pre>
 <div class="block">Gets the cue image.</div>
 <dl>
@@ -528,7 +530,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bi
 <ul class="blockList">
 <li class="blockList">
 <h4>getTextAlignment</h4>
-<pre class="methodSignature">@Nullable
+<pre class="methodSignature">@Pure
+@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;getTextAlignment()</pre>
 <div class="block">Gets the alignment of the cue text within the cue box, or null if the alignment is undefined.</div>
 <dl>
@@ -578,7 +581,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout
 <ul class="blockList">
 <li class="blockList">
 <h4>getLine</h4>
-<pre class="methodSignature">public&nbsp;float&nbsp;getLine()</pre>
+<pre class="methodSignature">@Pure
+public&nbsp;float&nbsp;getLine()</pre>
 <div class="block">Gets the position of the <code>lineAnchor</code> of the cue box within the viewport in the
  direction orthogonal to the writing direction.</div>
 <dl>
@@ -593,7 +597,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout
 <ul class="blockList">
 <li class="blockList">
 <h4>getLineType</h4>
-<pre class="methodSignature"><a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
+<pre class="methodSignature">@Pure
+<a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
 public&nbsp;int&nbsp;getLineType()</pre>
 <div class="block">Gets the type of the value of <a href="#getLine()"><code>getLine()</code></a>.</div>
 <dl>
@@ -623,7 +628,8 @@ public&nbsp;int&nbsp;getLineType()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getLineAnchor</h4>
-<pre class="methodSignature"><a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+<pre class="methodSignature">@Pure
+<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
 public&nbsp;int&nbsp;getLineAnchor()</pre>
 <div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
 <dl>
@@ -653,7 +659,8 @@ public&nbsp;int&nbsp;getLineAnchor()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPosition</h4>
-<pre class="methodSignature">public&nbsp;float&nbsp;getPosition()</pre>
+<pre class="methodSignature">@Pure
+public&nbsp;float&nbsp;getPosition()</pre>
 <div class="block">Gets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
  box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
 <dl>
@@ -683,7 +690,8 @@ public&nbsp;int&nbsp;getLineAnchor()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPositionAnchor</h4>
-<pre class="methodSignature"><a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
+<pre class="methodSignature">@Pure
+<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
 public&nbsp;int&nbsp;getPositionAnchor()</pre>
 <div class="block">Gets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
 <dl>
@@ -715,7 +723,8 @@ public&nbsp;int&nbsp;getPositionAnchor()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTextSizeType</h4>
-<pre class="methodSignature"><a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
+<pre class="methodSignature">@Pure
+<a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
 public&nbsp;int&nbsp;getTextSizeType()</pre>
 <div class="block">Gets the default text size type for this cue's text.</div>
 <dl>
@@ -730,7 +739,8 @@ public&nbsp;int&nbsp;getTextSizeType()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTextSize</h4>
-<pre class="methodSignature">public&nbsp;float&nbsp;getTextSize()</pre>
+<pre class="methodSignature">@Pure
+public&nbsp;float&nbsp;getTextSize()</pre>
 <div class="block">Gets the default text size for this cue's text.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -759,7 +769,8 @@ public&nbsp;int&nbsp;getTextSizeType()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSize</h4>
-<pre class="methodSignature">public&nbsp;float&nbsp;getSize()</pre>
+<pre class="methodSignature">@Pure
+public&nbsp;float&nbsp;getSize()</pre>
 <div class="block">Gets the size of the cue box in the writing direction specified as a fraction of the viewport
  size in that direction.</div>
 <dl>
@@ -788,7 +799,8 @@ public&nbsp;int&nbsp;getTextSizeType()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getBitmapHeight</h4>
-<pre class="methodSignature">public&nbsp;float&nbsp;getBitmapHeight()</pre>
+<pre class="methodSignature">@Pure
+public&nbsp;float&nbsp;getBitmapHeight()</pre>
 <div class="block">Gets the bitmap height as a fraction of the viewport size.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -844,7 +856,8 @@ public&nbsp;int&nbsp;getTextSizeType()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getWindowColor</h4>
-<pre class="methodSignature">@ColorInt
+<pre class="methodSignature">@Pure
+@ColorInt
 public&nbsp;int&nbsp;getWindowColor()</pre>
 <div class="block">Gets the fill color of the window.</div>
 <dl>
@@ -884,7 +897,8 @@ public&nbsp;int&nbsp;getWindowColor()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getVerticalType</h4>
-<pre class="methodSignature"><a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
+<pre class="methodSignature">@Pure
+<a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
 public&nbsp;int&nbsp;getVerticalType()</pre>
 <div class="block">Gets the vertical formatting for this Cue.</div>
 <dl>

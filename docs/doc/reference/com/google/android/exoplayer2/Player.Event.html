@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>PlaybackPreparer (ExoPlayer library)</title>
+<title>Player.Event (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
@@ -19,18 +19,12 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="PlaybackPreparer (ExoPlayer library)";
+            parent.document.title="Player.Event (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var data = {"i0":38};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -86,16 +80,14 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li>Required&nbsp;|&nbsp;</li>
+<li>Optional</li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Element</li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -114,80 +106,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
-<h2 title="Interface PlaybackPreparer" class="title">Interface PlaybackPreparer</h2>
+<h2 title="Annotation Type Player.Event" class="title">Annotation Type Player.Event</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public interface <span class="typeNameLabel">PlaybackPreparer</span></pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> instead.</div>
-</div>
-</li>
-</ul>
-</div>
-<div class="summary">
-<ul class="blockList">
-<li class="blockList">
-<!-- ========== METHOD SUMMARY =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="method.summary">
-<!--   -->
-</a>
-<h3>Method Summary</h3>
-<table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Method</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preparePlayback()">preparePlayback</a></span>()</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
-</li>
-</ul>
-</div>
-<div class="details">
-<ul class="blockList">
-<li class="blockList">
-<!-- ============ METHOD DETAIL ========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="method.detail">
-<!--   -->
-</a>
-<h3>Method Detail</h3>
-<a id="preparePlayback()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>preparePlayback</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;preparePlayback()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead.</div>
-</div>
-</li>
-</ul>
-</li>
-</ul>
-</section>
+<pre><a href="https://developer.android.com/reference/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">@Documented</a>
+<a href="https://developer.android.com/reference/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="externalLink">@Retention</a>(<a href="https://developer.android.com/reference/java/lang/annotation/RetentionPolicy.html?is-external=true#SOURCE" title="class or interface in java.lang.annotation" class="externalLink" target="_top">SOURCE</a>)
+public static @interface <span class="memberNameLabel">Player.Event</span></pre>
+<div class="block">Events that can be reported via <a href="Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.Listener.onEvents(Player, Events)</code></a>.
+
+ <p>One of the <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a><code>.EVENT_*</code> values.</div>
 </li>
 </ul>
 </div>
@@ -236,16 +167,14 @@ void&nbsp;preparePlayback()</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li>Required&nbsp;|&nbsp;</li>
+<li>Optional</li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Element</li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

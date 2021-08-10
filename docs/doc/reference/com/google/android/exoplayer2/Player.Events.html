@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public static final class <span class="typeNameLabel">Player.Events</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A set of <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>Player.EventFlags</code></a>.</div>
+<div class="block">A set of <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -156,7 +156,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.util.ExoFlags)">Events</a></span>&#8203;(<a href="util/ExoFlags.html" title="class in com.google.android.exoplayer2.util">ExoFlags</a>&nbsp;flags)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.util.FlagSet)">Events</a></span>&#8203;(<a href="util/FlagSet.html" title="class in com.google.android.exoplayer2.util">FlagSet</a>&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance.</div>
 </td>
@@ -183,24 +183,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(int)">contains</a></span>&#8203;(int&nbsp;event)</code></th>
 <td class="colLast">
-<div class="block">Returns whether the given event occurred.</div>
+<div class="block">Returns whether the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> occurred.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(int...)">containsAny</a></span>&#8203;(int...&nbsp;events)</code></th>
 <td class="colLast">
-<div class="block">Returns whether any of the given events occurred.</div>
+<div class="block">Returns whether any of the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a> occurred.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>event</code></a> at the given index.</div>
+<div class="block">Returns the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> at the given index.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">
@@ -213,7 +223,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -231,17 +241,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.util.ExoFlags)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.util.FlagSet)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Events</h4>
-<pre>public&nbsp;Events&#8203;(<a href="util/ExoFlags.html" title="class in com.google.android.exoplayer2.util">ExoFlags</a>&nbsp;flags)</pre>
+<pre>public&nbsp;Events&#8203;(<a href="util/FlagSet.html" title="class in com.google.android.exoplayer2.util">FlagSet</a>&nbsp;flags)</pre>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>flags</code> - The <a href="util/ExoFlags.html" title="class in com.google.android.exoplayer2.util"><code>ExoFlags</code></a> containing the <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>Player.EventFlags</code></a> in the set.</dd>
+<dd><code>flags</code> - The <a href="util/FlagSet.html" title="class in com.google.android.exoplayer2.util"><code>FlagSet</code></a> containing the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -261,14 +271,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>contains</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;contains&#8203;(<a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2">@EventFlags</a>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;contains&#8203;(<a href="Player.Event.html" title="annotation in com.google.android.exoplayer2">@Event</a>
                         int&nbsp;event)</pre>
-<div class="block">Returns whether the given event occurred.</div>
+<div class="block">Returns whether the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>event</code> - The <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>event</code></a>.</dd>
+<dd><code>event</code> - The <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the event occurred.</dd>
+<dd>Whether the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> occurred.</dd>
 </dl>
 </li>
 </ul>
@@ -278,14 +288,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>containsAny</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;containsAny&#8203;(<a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2">@EventFlags</a>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;containsAny&#8203;(<a href="Player.Event.html" title="annotation in com.google.android.exoplayer2">@Event</a>
                            int...&nbsp;events)</pre>
-<div class="block">Returns whether any of the given events occurred.</div>
+<div class="block">Returns whether any of the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a> occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>events</code> - The <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a>.</dd>
+<dd><code>events</code> - The <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether any of the events occurred.</dd>
+<dd>Whether any of the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a> occurred.</dd>
 </dl>
 </li>
 </ul>
@@ -302,12 +312,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="get(int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre class="methodSignature"><a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2">@EventFlags</a>
+<pre class="methodSignature"><a href="Player.Event.html" title="annotation in com.google.android.exoplayer2">@Event</a>
 public&nbsp;int&nbsp;get&#8203;(int&nbsp;index)</pre>
-<div class="block">Returns the <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>event</code></a> at the given index.
+<div class="block">Returns the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> at the given index.
 
  <p>Although index-based access is possible, it doesn't imply a particular order of these
  events.</div>
@@ -315,9 +325,36 @@ public&nbsp;int&nbsp;get&#8203;(int&nbsp;index)</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>index</code> - The index. Must be between 0 (inclusive) and <a href="#size()"><code>size()</code></a> (exclusive).</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="Player.EventFlags.html" title="annotation in com.google.android.exoplayer2"><code>event</code></a> at the given index.</dd>
+<dd>The <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> at the given index.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="externalLink" target="_top">IndexOutOfBoundsException</a></code> - If index is outside the allowed range.</dd>
+</dl>
+</li>
+</ul>
+<a id="hashCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="equals(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>equals</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>

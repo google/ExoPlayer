@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":42,"i2":42,"i3":10,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41,"i17":41,"i18":41,"i19":41,"i20":41,"i21":41,"i22":41,"i23":41,"i24":41,"i25":41,"i26":41,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":9,"i33":10,"i34":10,"i35":10};
+var data = {"i0":10,"i1":42,"i2":42,"i3":10,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41,"i17":41,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":9,"i24":10,"i25":10,"i26":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -141,7 +141,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  <p>When building formats, populate all fields whose values are known and relevant to the type of
  format being constructed. For information about different types of format, see ExoPlayer's <a href="https://exoplayer.dev/supported-formats.html">Supported formats page</a>.
 
- <h3>Fields commonly relevant to all formats</h3>
+ <h2>Fields commonly relevant to all formats</h2>
 
  <ul>
    <li><a href="#id"><code>id</code></a>
@@ -155,7 +155,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
    <li><a href="#metadata"><code>metadata</code></a>
  </ul>
 
- <h3 id="container-formats">Fields relevant to container formats</h3>
+ <h2 id="container-formats">Fields relevant to container formats</h2>
 
  <ul>
    <li><a href="#containerMimeType"><code>containerMimeType</code></a>
@@ -167,7 +167,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
        of the track. See the sections below for <a href="#video-formats">video</a>, <a href="#audio-formats">audio</a> and <a href="#text-formats">text</a> formats.
  </ul>
 
- <h3 id="sample-formats">Fields relevant to sample formats</h3>
+ <h2 id="sample-formats">Fields relevant to sample formats</h2>
 
  <ul>
    <li><a href="#sampleMimeType"><code>sampleMimeType</code></a>
@@ -179,7 +179,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
        for <a href="#video-formats">video</a>, <a href="#audio-formats">audio</a> and <a href="#text-formats">text</a> formats.
  </ul>
 
- <h3 id="video-formats">Fields relevant to video formats</h3>
+ <h2 id="video-formats">Fields relevant to video formats</h2>
 
  <ul>
    <li><a href="#width"><code>width</code></a>
@@ -192,7 +192,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
    <li><a href="#colorInfo"><code>colorInfo</code></a>
  </ul>
 
- <h3 id="audio-formats">Fields relevant to audio formats</h3>
+ <h2 id="audio-formats">Fields relevant to audio formats</h2>
 
  <ul>
    <li><a href="#channelCount"><code>channelCount</code></a>
@@ -202,7 +202,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
    <li><a href="#encoderPadding"><code>encoderPadding</code></a>
  </ul>
 
- <h3 id="text-formats">Fields relevant to text formats</h3>
+ <h2 id="text-formats">Fields relevant to text formats</h2>
 
  <ul>
    <li><a href="#accessibilityChannel"><code>accessibilityChannel</code></a>
@@ -634,50 +634,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,java.util.List,int,int,java.lang.String)">createAudioContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                          <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
-                          int&nbsp;bitrate,
-                          int&nbsp;channelCount,
-                          int&nbsp;sampleRate,
-                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                          int&nbsp;selectionFlags,
-                          int&nbsp;roleFlags,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String,com.google.android.exoplayer2.metadata.Metadata)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                       int&nbsp;bitrate,
-                       int&nbsp;maxInputSize,
-                       int&nbsp;channelCount,
-                       int&nbsp;sampleRate,
-                       int&nbsp;pcmEncoding,
-                       int&nbsp;encoderDelay,
-                       int&nbsp;encoderPadding,
-                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
-                       int&nbsp;selectionFlags,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
-                       <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
@@ -696,7 +652,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
@@ -715,7 +671,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">createContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
@@ -732,20 +688,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createImageSampleFormat(java.lang.String,java.lang.String,int,java.util.List,java.lang.String)">createImageSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                       int&nbsp;selectionFlags,
-                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i18" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createSampleFormat(java.lang.String,java.lang.String)">createSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType)</code></th>
@@ -755,113 +698,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">createTextContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                         int&nbsp;bitrate,
-                         int&nbsp;selectionFlags,
-                         int&nbsp;roleFlags,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i20" class="altColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String,int)">createTextContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                         int&nbsp;bitrate,
-                         int&nbsp;selectionFlags,
-                         int&nbsp;roleFlags,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
-                         int&nbsp;accessibilityChannel)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i21" class="rowColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String)">createTextSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                      int&nbsp;selectionFlags,
-                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String,int,long,java.util.List)">createTextSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                      int&nbsp;selectionFlags,
-                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
-                      int&nbsp;accessibilityChannel,
-                      long&nbsp;subsampleOffsetUs,
-                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i23" class="rowColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,float,java.util.List,int,int)">createVideoContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                          <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
-                          int&nbsp;bitrate,
-                          int&nbsp;width,
-                          int&nbsp;height,
-                          float&nbsp;frameRate,
-                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                          int&nbsp;selectionFlags,
-                          int&nbsp;roleFlags)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i24" class="altColor">
-<td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,byte%5B%5D,int,com.google.android.exoplayer2.video.ColorInfo,com.google.android.exoplayer2.drm.DrmInitData)">createVideoSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                       int&nbsp;bitrate,
-                       int&nbsp;maxInputSize,
-                       int&nbsp;width,
-                       int&nbsp;height,
-                       float&nbsp;frameRate,
-                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                       int&nbsp;rotationDegrees,
-                       float&nbsp;pixelWidthHeightRatio,
-                       byte[]&nbsp;projectionData,
-                       int&nbsp;stereoMode,
-                       <a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo,
-                       <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i25" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,com.google.android.exoplayer2.drm.DrmInitData)">createVideoSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
@@ -881,7 +718,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,com.google.android.exoplayer2.drm.DrmInitData)">createVideoSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
@@ -899,17 +736,17 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPixelCount()">getPixelCount</a></span>()</code></th>
 <td class="colLast">
@@ -917,12 +754,12 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  are known, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializationDataEquals(com.google.android.exoplayer2.Format)">initializationDataEquals</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</code></th>
 <td class="colLast">
@@ -930,24 +767,24 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  equal.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toLogString(com.google.android.exoplayer2.Format)">toLogString</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
 <div class="block">Returns a prettier <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> than <a href="#toString()" target="_top"><code>toString()</code></a>, intended for logging.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withManifestFormatInfo(com.google.android.exoplayer2.Format)">withManifestFormatInfo</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
@@ -1186,8 +1023,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>initializationData</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt; initializationData</pre>
-<div class="block">Initialization data that must be provided to the decoder. Will not be null, but may be empty
- if initialization data is not required.</div>
+<div class="block">Initialization data that must be provided to the decoder. Will not be null, but may be empty if
+ initialization data is not required.</div>
 </li>
 </ul>
 <a id="drmInitData">
@@ -1391,40 +1228,6 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cla
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createVideoContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,float,java.util.List,int,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createVideoContainerFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoContainerFormat&#8203;(@Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                                                @Nullable
-                                                <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
-                                                int&nbsp;bitrate,
-                                                int&nbsp;width,
-                                                int&nbsp;height,
-                                                float&nbsp;frameRate,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                                                <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                                int&nbsp;selectionFlags,
-                                                <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-                                                int&nbsp;roleFlags)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
 <a id="createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,com.google.android.exoplayer2.drm.DrmInitData)">
 <!--   -->
 </a>
@@ -1476,76 +1279,6 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
                                              float&nbsp;pixelWidthHeightRatio,
                                              @Nullable
                                              <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createVideoSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,float,java.util.List,int,float,byte[],int,com.google.android.exoplayer2.video.ColorInfo,com.google.android.exoplayer2.drm.DrmInitData)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createVideoSampleFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat&#8203;(@Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                                             int&nbsp;bitrate,
-                                             int&nbsp;maxInputSize,
-                                             int&nbsp;width,
-                                             int&nbsp;height,
-                                             float&nbsp;frameRate,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                                             int&nbsp;rotationDegrees,
-                                             float&nbsp;pixelWidthHeightRatio,
-                                             @Nullable
-                                             byte[]&nbsp;projectionData,
-                                             <a href="C.StereoMode.html" title="annotation in com.google.android.exoplayer2">@StereoMode</a>
-                                             int&nbsp;stereoMode,
-                                             @Nullable
-                                             <a href="video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo,
-                                             @Nullable
-                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createAudioContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.android.exoplayer2.metadata.Metadata,int,int,int,java.util.List,int,int,java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createAudioContainerFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioContainerFormat&#8203;(@Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                                                @Nullable
-                                                <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata,
-                                                int&nbsp;bitrate,
-                                                int&nbsp;channelCount,
-                                                int&nbsp;sampleRate,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                                                <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                                int&nbsp;selectionFlags,
-                                                <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-                                                int&nbsp;roleFlags,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </div>
@@ -1606,167 +1339,6 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
                                              <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                              <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
                                              int&nbsp;selectionFlags,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String,com.google.android.exoplayer2.metadata.Metadata)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createAudioSampleFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat&#8203;(@Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                                             int&nbsp;bitrate,
-                                             int&nbsp;maxInputSize,
-                                             int&nbsp;channelCount,
-                                             int&nbsp;sampleRate,
-                                             <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
-                                             int&nbsp;pcmEncoding,
-                                             int&nbsp;encoderDelay,
-                                             int&nbsp;encoderPadding,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-                                             @Nullable
-                                             <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
-                                             <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                             int&nbsp;selectionFlags,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
-                                             @Nullable
-                                             <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createTextContainerFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat&#8203;(@Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                                               int&nbsp;bitrate,
-                                               <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                               int&nbsp;selectionFlags,
-                                               <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-                                               int&nbsp;roleFlags,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createTextContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createTextContainerFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat&#8203;(@Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
-                                               int&nbsp;bitrate,
-                                               <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                               int&nbsp;selectionFlags,
-                                               <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-                                               int&nbsp;roleFlags,
-                                               @Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
-                                               int&nbsp;accessibilityChannel)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createTextSampleFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat&#8203;(@Nullable
-                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                            @Nullable
-                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                            <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                            int&nbsp;selectionFlags,
-                                            @Nullable
-                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createTextSampleFormat(java.lang.String,java.lang.String,int,java.lang.String,int,long,java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createTextSampleFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat&#8203;(@Nullable
-                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                            @Nullable
-                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                            <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                            int&nbsp;selectionFlags,
-                                            @Nullable
-                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
-                                            int&nbsp;accessibilityChannel,
-                                            long&nbsp;subsampleOffsetUs,
-                                            @Nullable
-                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="createImageSampleFormat(java.lang.String,java.lang.String,int,java.util.List,java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createImageSampleFormat</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createImageSampleFormat&#8203;(@Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
-                                             <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                             int&nbsp;selectionFlags,
-                                             @Nullable
-                                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                                              @Nullable
                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>

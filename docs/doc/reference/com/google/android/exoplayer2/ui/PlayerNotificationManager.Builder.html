@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -156,12 +156,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,int,java.lang.String)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+       int&nbsp;notificationId,
+       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,int,java.lang.String,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
        int&nbsp;notificationId,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
        <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code></th>
 <td class="colLast">
-<div class="block">Creates an instance.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context,int,java.lang.String)"><code>Builder(Context, int, String)</code></a> instead, then call <a href="#setMediaDescriptionAdapter(com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)"><code>setMediaDescriptionAdapter(MediaDescriptionAdapter)</code></a>.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -233,54 +243,61 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaDescriptionAdapter(com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">setMediaDescriptionAdapter</a></span>&#8203;(<a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</code></th>
+<td class="colLast">
+<div class="block">The <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a> to be queried for the notification contents.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNextActionIconResourceId(int)">setNextActionIconResourceId</a></span>&#8203;(int&nbsp;nextActionIconResourceId)</code></th>
 <td class="colLast">
 <div class="block">The resource id of the drawable to be used as the icon of action <a href="PlayerNotificationManager.html#ACTION_NEXT"><code>PlayerNotificationManager.ACTION_NEXT</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNotificationListener(com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener)">setNotificationListener</a></span>&#8203;(<a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code></th>
 <td class="colLast">
 <div class="block">The <a href="PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a> to be used.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPauseActionIconResourceId(int)">setPauseActionIconResourceId</a></span>&#8203;(int&nbsp;pauseActionIconResourceId)</code></th>
 <td class="colLast">
 <div class="block">The resource id of the drawable to be used as the icon of action <a href="PlayerNotificationManager.html#ACTION_PAUSE"><code>PlayerNotificationManager.ACTION_PAUSE</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayActionIconResourceId(int)">setPlayActionIconResourceId</a></span>&#8203;(int&nbsp;playActionIconResourceId)</code></th>
 <td class="colLast">
 <div class="block">The resource id of the drawable to be used as the icon of action <a href="PlayerNotificationManager.html#ACTION_PLAY"><code>PlayerNotificationManager.ACTION_PLAY</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreviousActionIconResourceId(int)">setPreviousActionIconResourceId</a></span>&#8203;(int&nbsp;previousActionIconResourceId)</code></th>
 <td class="colLast">
 <div class="block">The resource id of the drawable to be used as the icon of action <a href="PlayerNotificationManager.html#ACTION_PREVIOUS"><code>PlayerNotificationManager.ACTION_PREVIOUS</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRewindActionIconResourceId(int)">setRewindActionIconResourceId</a></span>&#8203;(int&nbsp;rewindActionIconResourceId)</code></th>
 <td class="colLast">
 <div class="block">The resource id of the drawable to be used as the icon of action <a href="PlayerNotificationManager.html#ACTION_REWIND"><code>PlayerNotificationManager.ACTION_REWIND</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSmallIconResourceId(int)">setSmallIconResourceId</a></span>&#8203;(int&nbsp;smallIconResourceId)</code></th>
 <td class="colLast">
 <div class="block">The resource id of the small icon of the notification shown in the status bar.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStopActionIconResourceId(int)">setStopActionIconResourceId</a></span>&#8203;(int&nbsp;stopActionIconResourceId)</code></th>
 <td class="colLast">
@@ -314,20 +331,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="&lt;init&gt;(android.content.Context,int,java.lang.String,com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+               int&nbsp;notificationId,
+               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
+               <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context,int,java.lang.String)"><code>Builder(Context, int, String)</code></a> instead, then call <a href="#setMediaDescriptionAdapter(com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)"><code>setMediaDescriptionAdapter(MediaDescriptionAdapter)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,int,java.lang.String)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
 <pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                int&nbsp;notificationId,
-               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
-               <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId)</pre>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>notificationId</code> - The id of the notification to be posted. Must be greater than 0.</dd>
 <dd><code>channelId</code> - The id of the notification channel.</dd>
-<dd><code>mediaDescriptionAdapter</code> - The <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a> to be used.</dd>
 </dl>
 </li>
 </ul>
@@ -566,6 +597,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The key of the group the media notification should belong to.
 
  <p>The default is <code>null</code></div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMediaDescriptionAdapter(com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaDescriptionAdapter</h4>
+<pre class="methodSignature">public&nbsp;<a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a>&nbsp;setMediaDescriptionAdapter&#8203;(<a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a>&nbsp;mediaDescriptionAdapter)</pre>
+<div class="block">The <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a> to be queried for the notification contents.
+
+ <p>The default is <a href="DefaultMediaDescriptionAdapter.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultMediaDescriptionAdapter</code></a> with no <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top"><code>PendingIntent</code></a></div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>

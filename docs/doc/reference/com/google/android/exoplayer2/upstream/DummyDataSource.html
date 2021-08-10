@@ -236,7 +236,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
-    int&nbsp;readLength)</code></th>
+    int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
@@ -369,7 +369,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
                 int&nbsp;offset,
-                int&nbsp;readLength)</pre>
+                int&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
 
@@ -383,7 +383,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
+<dd><code>length</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes read, or <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
      may be less than <code>length</code> because the end of the input (or available data) was

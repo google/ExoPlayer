@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":42,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -213,7 +213,7 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -236,22 +236,13 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTag()">getTag</a></span>()</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getMediaItem()"><code>getMediaItem()</code></a> and <a href="../../MediaItem.PlaybackProperties.html#tag"><code>MediaItem.PlaybackProperties.tag</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowSourceInfoRefreshError()">maybeThrowSourceInfoRefreshError</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Throws any pending error encountered while loading or refreshing source information.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadCanceled(com.google.android.exoplayer2.upstream.ParsingLoadable,long,long,boolean)">onLoadCanceled</a></span>&#8203;(<a href="../../upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
               long&nbsp;elapsedRealtimeMs,
@@ -261,7 +252,7 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
 <div class="block">Called when a load has been canceled.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadCompleted(com.google.android.exoplayer2.upstream.ParsingLoadable,long,long)">onLoadCompleted</a></span>&#8203;(<a href="../../upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
                long&nbsp;elapsedRealtimeMs,
@@ -270,7 +261,7 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
 <div class="block">Called when a load has completed.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadError(com.google.android.exoplayer2.upstream.ParsingLoadable,long,long,java.io.IOException,int)">onLoadError</a></span>&#8203;(<a href="../../upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
            long&nbsp;elapsedRealtimeMs,
@@ -281,7 +272,7 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
 <div class="block">Called when a load encounters an error.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></span>&#8203;(<a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
 <td class="colLast">
@@ -289,14 +280,14 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
  TransferListener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">releasePeriod</a></span>&#8203;(<a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;period)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">releasePeriod</a></span>&#8203;(<a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code></th>
 <td class="colLast">
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseSourceInternal()">releaseSourceInternal</a></span>()</code></th>
 <td class="colLast">
@@ -366,24 +357,6 @@ implements <a href="../../upstream/Loader.Callback.html" title="interface in com
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getTag()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getTag</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-@Nullable
-public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getTag()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getMediaItem()"><code>getMediaItem()</code></a> and <a href="../../MediaItem.PlaybackProperties.html#tag"><code>MediaItem.PlaybackProperties.tag</code></a> instead.</div>
-</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../MediaSource.html#getTag()">getTag</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
-</dl>
-</li>
-</ul>
 <a id="getMediaItem()">
 <!--   -->
 </a>
@@ -476,7 +449,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>releasePeriod</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;releasePeriod&#8203;(<a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;period)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;releasePeriod&#8203;(<a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">MediaSource</a></code></span></div>
 <div class="block">Releases the period.
 
@@ -485,7 +458,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">releasePeriod</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>period</code> - The period to release.</dd>
+<dd><code>mediaPeriod</code> - The period to release.</dd>
 </dl>
 </li>
 </ul>

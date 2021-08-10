@@ -446,7 +446,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
-<code><a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#onReset()">onReset</a>, <a href="../BaseRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readSource</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#setIndex(int)">setIndex</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a>, <a href="../BaseRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a></code></li>
+<code><a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,int)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,int)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#onReset()">onReset</a>, <a href="../BaseRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readSource</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#setIndex(int)">setIndex</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a>, <a href="../BaseRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -815,16 +815,15 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isReady()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#isReady()">Renderer</a></code></span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.
- <p>
- If the renderer is in the <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a> state then returning true indicates that the
- renderer has everything that it needs to continue playback. Returning false indicates that
+
+ <p>If the renderer is in the <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a> state then returning true indicates that
+ the renderer has everything that it needs to continue playback. Returning false indicates that
  the player should pause until the renderer is ready.
- <p>
- If the renderer is in the <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state then returning true indicates that the
- renderer is ready for playback to be started. Returning false indicates that it is not.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+
+ <p>If the renderer is in the <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state then returning true indicates that
+ the renderer is ready for playback to be started. Returning false indicates that it is not.
+
+ <p>This method may be called when the renderer is in the following states: <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../Renderer.html#isReady()">isReady</a></code>&nbsp;in interface&nbsp;<code><a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -943,8 +942,8 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStarted()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onStarted()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is started.
- <p>
- The default implementation is a no-op.</div>
+
+ <p>The default implementation is a no-op.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../BaseRenderer.html#onStarted()">onStarted</a></code>&nbsp;in class&nbsp;<code><a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></code></dd>
@@ -977,8 +976,8 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onDisabled()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onDisabled()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is disabled.
- <p>
- The default implementation is a no-op.</div>
+
+ <p>The default implementation is a no-op.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../BaseRenderer.html#onDisabled()">onDisabled</a></code>&nbsp;in class&nbsp;<code><a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></code></dd>

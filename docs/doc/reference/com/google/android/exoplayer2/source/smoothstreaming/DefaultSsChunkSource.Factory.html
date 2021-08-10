@@ -185,7 +185,7 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
 <td class="colFirst"><code><a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener)">createChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                  <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
-                 int&nbsp;elementIndex,
+                 int&nbsp;streamElementIndex,
                  <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
                  <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">
@@ -243,7 +243,7 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
 <h4>createChunkSource</h4>
 <pre class="methodSignature">public&nbsp;<a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a>&nbsp;createChunkSource&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                                        <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
-                                       int&nbsp;elementIndex,
+                                       int&nbsp;streamElementIndex,
                                        <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
                                        @Nullable
                                        <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
@@ -255,7 +255,7 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
-<dd><code>elementIndex</code> - The index of the corresponding stream element in the manifest.</dd>
+<dd><code>streamElementIndex</code> - The index of the corresponding stream element in the manifest.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.
      May be null if no listener is available.</dd>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -155,7 +155,7 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></h3>
-<code><a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a></code></li>
+<code><a href="LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a>, <a href="LoadErrorHandlingPolicy.FallbackSelection.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackSelection</a>, <a href="LoadErrorHandlingPolicy.FallbackType.html" title="annotation in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackType</a>, <a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a></code></li>
 </ul>
 </li>
 </ul>
@@ -175,13 +175,20 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_LOCATION_EXCLUSION_MS">DEFAULT_LOCATION_EXCLUSION_MS</a></span></code></th>
+<td class="colLast">
+<div class="block">The default duration for which a location is excluded in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_LOADABLE_RETRY_COUNT">DEFAULT_MIN_LOADABLE_RETRY_COUNT</a></span></code></th>
 <td class="colLast">
 <div class="block">The default minimum number of times to retry loading data prior to propagating the error.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE">DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE</a></span></code></th>
 <td class="colLast">
@@ -189,14 +196,30 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
  streams.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TRACK_BLACKLIST_MS">DEFAULT_TRACK_BLACKLIST_MS</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#DEFAULT_TRACK_EXCLUSION_MS"><code>DEFAULT_TRACK_EXCLUSION_MS</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TRACK_EXCLUSION_MS">DEFAULT_TRACK_EXCLUSION_MS</a></span></code></th>
 <td class="colLast">
 <div class="block">The default duration for which a track is excluded in milliseconds.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></h3>
+<code><a href="LoadErrorHandlingPolicy.html#FALLBACK_TYPE_LOCATION">FALLBACK_TYPE_LOCATION</a>, <a href="LoadErrorHandlingPolicy.html#FALLBACK_TYPE_TRACK">FALLBACK_TYPE_TRACK</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -244,11 +267,12 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBlacklistDurationMsFor(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo)">getBlacklistDurationMsFor</a></span>&#8203;(<a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</code></th>
+<td class="colFirst"><code><a href="LoadErrorHandlingPolicy.FallbackSelection.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackSelection</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFallbackSelectionFor(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackOptions,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo)">getFallbackSelectionFor</a></span>&#8203;(<a href="LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a>&nbsp;fallbackOptions,
+                       <a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</code></th>
 <td class="colLast">
-<div class="block">Returns the exclusion duration, given by <a href="#DEFAULT_TRACK_BLACKLIST_MS"><code>DEFAULT_TRACK_BLACKLIST_MS</code></a>, if the load error
- was an <a href="HttpDataSource.InvalidResponseCodeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidResponseCodeException</code></a> with response code HTTP 404, 410 or 416, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
+<div class="block">Returns whether a loader should fall back to using another resource on encountering an error,
+ and if so the duration for which the failing resource should be excluded.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -266,6 +290,13 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <div class="block">Retries for any exception that is not a subclass of <a href="../ParserException.html" title="class in com.google.android.exoplayer2"><code>ParserException</code></a>, <a href="https://developer.android.com/reference/java/io/FileNotFoundException.html" title="class or interface in java.io" class="externalLink"><code>FileNotFoundException</code></a>, <a href="HttpDataSource.CleartextNotPermittedException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.CleartextNotPermittedException</code></a> or <a href="Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>Loader.UnexpectedLoaderException</code></a>.</div>
 </td>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEligibleForFallback(java.io.IOException)">isEligibleForFallback</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;exception)</code></th>
+<td class="colLast">
+<div class="block">Returns whether an error should trigger a fallback if possible.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -279,7 +310,7 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></h3>
-<code><a href="LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor(int,long,java.io.IOException,int)">getBlacklistDurationMsFor</a>, <a href="LoadErrorHandlingPolicy.html#getRetryDelayMsFor(int,long,java.io.IOException,int)">getRetryDelayMsFor</a>, <a href="LoadErrorHandlingPolicy.html#onLoadTaskConcluded(long)">onLoadTaskConcluded</a></code></li>
+<code><a href="LoadErrorHandlingPolicy.html#onLoadTaskConcluded(long)">onLoadTaskConcluded</a></code></li>
 </ul>
 </li>
 </ul>
@@ -326,17 +357,48 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 </dl>
 </li>
 </ul>
+<a id="DEFAULT_TRACK_EXCLUSION_MS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_TRACK_EXCLUSION_MS</h4>
+<pre>public static final&nbsp;long DEFAULT_TRACK_EXCLUSION_MS</pre>
+<div class="block">The default duration for which a track is excluded in milliseconds.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="DEFAULT_TRACK_BLACKLIST_MS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_TRACK_BLACKLIST_MS</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;long DEFAULT_TRACK_BLACKLIST_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#DEFAULT_TRACK_EXCLUSION_MS"><code>DEFAULT_TRACK_EXCLUSION_MS</code></a> instead.</div>
+</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="DEFAULT_LOCATION_EXCLUSION_MS">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>DEFAULT_TRACK_BLACKLIST_MS</h4>
-<pre>public static final&nbsp;long DEFAULT_TRACK_BLACKLIST_MS</pre>
-<div class="block">The default duration for which a track is excluded in milliseconds.</div>
+<h4>DEFAULT_LOCATION_EXCLUSION_MS</h4>
+<pre>public static final&nbsp;long DEFAULT_LOCATION_EXCLUSION_MS</pre>
+<div class="block">The default duration for which a location is excluded in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_LOCATION_EXCLUSION_MS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -386,23 +448,34 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getBlacklistDurationMsFor(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo)">
+<a id="getFallbackSelectionFor(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackOptions,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getBlacklistDurationMsFor</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getBlacklistDurationMsFor&#8203;(<a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</pre>
-<div class="block">Returns the exclusion duration, given by <a href="#DEFAULT_TRACK_BLACKLIST_MS"><code>DEFAULT_TRACK_BLACKLIST_MS</code></a>, if the load error
- was an <a href="HttpDataSource.InvalidResponseCodeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidResponseCodeException</code></a> with response code HTTP 404, 410 or 416, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
+<h4>getFallbackSelectionFor</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="LoadErrorHandlingPolicy.FallbackSelection.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackSelection</a>&nbsp;getFallbackSelectionFor&#8203;(<a href="LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a>&nbsp;fallbackOptions,
+                                                                         <a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</pre>
+<div class="block">Returns whether a loader should fall back to using another resource on encountering an error,
+ and if so the duration for which the failing resource should be excluded.
+
+ <ul>
+   <li>This policy will only specify a fallback if <a href="#isEligibleForFallback(java.io.IOException)"><code>isEligibleForFallback(java.io.IOException)</code></a> returns <code>
+       true</code> for the error.
+   <li>This policy will always specify a location fallback rather than a track fallback if both
+       <a href="LoadErrorHandlingPolicy.FallbackOptions.html#isFallbackAvailable(int)"><code>are available</code></a>.
+   <li>When a fallback is specified, the duration for which the failing resource will be
+       excluded is <a href="#DEFAULT_LOCATION_EXCLUSION_MS"><code>DEFAULT_LOCATION_EXCLUSION_MS</code></a> or <a href="#DEFAULT_TRACK_EXCLUSION_MS"><code>DEFAULT_TRACK_EXCLUSION_MS</code></a>, depending on the fallback type.
+ </ul></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo)">getBlacklistDurationMsFor</a></code>&nbsp;in interface&nbsp;<code><a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></code></dd>
+<dd><code><a href="LoadErrorHandlingPolicy.html#getFallbackSelectionFor(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackOptions,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo)">getFallbackSelectionFor</a></code>&nbsp;in interface&nbsp;<code><a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fallbackOptions</code> - The available fallback options.</dd>
 <dd><code>loadErrorInfo</code> - A <a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.LoadErrorInfo</code></a> holding information about the load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The exclusion duration in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should
-     not be excluded.</dd>
+<dd>The selected fallback, or <code>null</code> if the calling loader should not fall back.</dd>
 </dl>
 </li>
 </ul>
@@ -421,14 +494,15 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadErrorInfo</code> - A <a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.LoadErrorInfo</code></a> holding information about the load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of milliseconds to wait before attempting the load again, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.</dd>
+<dd>The duration to wait before retrying in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
+     error is fatal and should not be retried.</dd>
 </dl>
 </li>
 </ul>
 <a id="getMinimumLoadableRetryCount(int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getMinimumLoadableRetryCount</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getMinimumLoadableRetryCount&#8203;(int&nbsp;dataType)</pre>
@@ -438,14 +512,24 @@ implements <a href="LoadErrorHandlingPolicy.html" title="interface in com.google
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="LoadErrorHandlingPolicy.html#getMinimumLoadableRetryCount(int)">getMinimumLoadableRetryCount</a></code>&nbsp;in interface&nbsp;<code><a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataType</code> - One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data to
-     load.</dd>
+<dd><code>dataType</code> - One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data being
+     loaded.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The minimum number of times to retry a load in the case of a load error, before
-     propagating the error.</dd>
+<dd>The minimum number of times to retry a load before a load error that can be retried may
+     be considered fatal.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Loader.html#startLoading(T,com.google.android.exoplayer2.upstream.Loader.Callback,int)"><code>Loader.startLoading(Loadable, Callback, int)</code></a></dd>
 </dl>
+</li>
+</ul>
+<a id="isEligibleForFallback(java.io.IOException)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isEligibleForFallback</h4>
+<pre class="methodSignature">protected&nbsp;boolean&nbsp;isEligibleForFallback&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;exception)</pre>
+<div class="block">Returns whether an error should trigger a fallback if possible.</div>
 </li>
 </ul>
 </li>

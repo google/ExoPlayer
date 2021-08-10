@@ -238,8 +238,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trim()">trim</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Hints to the allocator that it should make a best effort to release any excess
- <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
 </td>
 </tr>
 </table>
@@ -293,8 +292,8 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
                         int&nbsp;individualAllocationSize,
                         int&nbsp;initialAllocationCount)</pre>
 <div class="block">Constructs an instance with some <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front.
- <p>
- Note: <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front will never be discarded by <a href="#trim()"><code>trim()</code></a>.</div>
+
+ <p>Note: <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front will never be discarded by <a href="#trim()"><code>trim()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trimOnReset</code> - Whether memory is freed when the allocator is reset. Should be true unless
@@ -341,8 +340,8 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <pre class="methodSignature">public&nbsp;<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocate()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#allocate()">Allocator</a></code></span></div>
 <div class="block">Obtain an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.
- <p>
- When the caller has finished with the <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>, it should be returned by calling
+
+ <p>When the caller has finished with the <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>, it should be returned by calling
  <a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation)"><code>Allocator.release(Allocation)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -394,8 +393,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <h4>trim</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;trim()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#trim()">Allocator</a></code></span></div>
-<div class="block">Hints to the allocator that it should make a best effort to release any excess
- <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Allocator.html#trim()">trim</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>

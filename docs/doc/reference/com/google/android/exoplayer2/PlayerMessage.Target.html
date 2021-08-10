@@ -158,7 +158,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(int,java.lang.Object)">handleMessage</a></span>&#8203;(int&nbsp;messageType,
-             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)</code></th>
+             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</code></th>
 <td class="colLast">
 <div class="block">Handles a message delivered to the target.</div>
 </td>
@@ -188,13 +188,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>handleMessage</h4>
 <pre class="methodSignature">void&nbsp;handleMessage&#8203;(int&nbsp;messageType,
                    @Nullable
-                   <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)
+                   <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
             throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Handles a message delivered to the target.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>messageType</code> - The message type.</dd>
-<dd><code>payload</code> - The message payload.</dd>
+<dd><code>message</code> - The message payload.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurred whilst handling the message. Should only be
      thrown by targets that handle messages on the playback thread.</dd>

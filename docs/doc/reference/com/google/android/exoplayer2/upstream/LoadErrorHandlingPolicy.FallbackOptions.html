@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>ExoFlags (ExoPlayer library)</title>
+<title>LoadErrorHandlingPolicy.FallbackOptions (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,13 +19,13 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="ExoFlags (ExoPlayer library)";
+            parent.document.title="LoadErrorHandlingPolicy.FallbackOptions (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -86,15 +86,15 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -113,55 +113,101 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
-<h2 title="Class ExoFlags" class="title">Class ExoFlags</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream</a></div>
+<h2 title="Class LoadErrorHandlingPolicy.FallbackOptions" class="title">Class LoadErrorHandlingPolicy.FallbackOptions</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.util.ExoFlags</li>
+<li>com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackOptions</li>
 </ul>
 </li>
 </ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></dd>
+</dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ExoFlags</span>
+<pre>public static final class <span class="typeNameLabel">LoadErrorHandlingPolicy.FallbackOptions</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A set of integer flags.
-
- <p>Intended for usages where the number of flags may exceed 32 and can no longer be represented
- by an IntDef.
-
- <p>Instances are immutable.</div>
+<div class="block">Holds information about the available fallback options.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
+<!-- =========== FIELD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
-<li class="blockList"><a id="nested.class.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
-<h3>Nested Class Summary</h3>
+<h3>Field Summary</h3>
 <table class="memberSummary">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Class</th>
+<th class="colSecond" scope="col">Field</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoFlags.Builder.html" title="class in com.google.android.exoplayer2.util">ExoFlags.Builder</a></span></code></th>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numberOfExcludedLocations">numberOfExcludedLocations</a></span></code></th>
 <td class="colLast">
-<div class="block">A builder for <a href="ExoFlags.html" title="class in com.google.android.exoplayer2.util"><code>ExoFlags</code></a> instances.</div>
+<div class="block">The number of locations that are already excluded.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numberOfExcludedTracks">numberOfExcludedTracks</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of tracks that are already excluded.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numberOfLocations">numberOfLocations</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of available locations.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numberOfTracks">numberOfTracks</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of tracks.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,int)">FallbackOptions</a></span>&#8203;(int&nbsp;numberOfLocations,
+               int&nbsp;numberOfExcludedLocations,
+               int&nbsp;numberOfTracks,
+               int&nbsp;numberOfExcludedTracks)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
 </td>
 </tr>
 </table>
@@ -184,40 +230,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(int)">contains</a></span>&#8203;(int&nbsp;flag)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFallbackAvailable(int)">isFallbackAvailable</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
-<div class="block">Returns whether the set contains the given flag.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(int...)">containsAny</a></span>&#8203;(int...&nbsp;flags)</code></th>
-<td class="colLast">
-<div class="block">Returns whether the set contains at least one of the given flags.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
-<td class="colLast">
-<div class="block">Returns the flag at the given index.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the number of flags in this set.</div>
+<div class="block">Returns whether a fallback is available for the given <a href="LoadErrorHandlingPolicy.FallbackType.html" title="annotation in com.google.android.exoplayer2.upstream"><code>fallback type</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -226,7 +241,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -237,6 +252,79 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="numberOfLocations">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numberOfLocations</h4>
+<pre>public final&nbsp;int numberOfLocations</pre>
+<div class="block">The number of available locations.</div>
+</li>
+</ul>
+<a id="numberOfExcludedLocations">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numberOfExcludedLocations</h4>
+<pre>public final&nbsp;int numberOfExcludedLocations</pre>
+<div class="block">The number of locations that are already excluded.</div>
+</li>
+</ul>
+<a id="numberOfTracks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numberOfTracks</h4>
+<pre>public final&nbsp;int numberOfTracks</pre>
+<div class="block">The number of tracks.</div>
+</li>
+</ul>
+<a id="numberOfExcludedTracks">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>numberOfExcludedTracks</h4>
+<pre>public final&nbsp;int numberOfExcludedTracks</pre>
+<div class="block">The number of tracks that are already excluded.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(int,int,int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FallbackOptions</h4>
+<pre>public&nbsp;FallbackOptions&#8203;(int&nbsp;numberOfLocations,
+                       int&nbsp;numberOfExcludedLocations,
+                       int&nbsp;numberOfTracks,
+                       int&nbsp;numberOfExcludedTracks)</pre>
+<div class="block">Creates an instance.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -244,91 +332,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="contains(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>contains</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;contains&#8203;(int&nbsp;flag)</pre>
-<div class="block">Returns whether the set contains the given flag.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>flag</code> - The flag.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the set contains the flag.</dd>
-</dl>
-</li>
-</ul>
-<a id="containsAny(int...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>containsAny</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;containsAny&#8203;(int...&nbsp;flags)</pre>
-<div class="block">Returns whether the set contains at least one of the given flags.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>flags</code> - The flags.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the set contains at least one of the flags.</dd>
-</dl>
-</li>
-</ul>
-<a id="size()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>size</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;size()</pre>
-<div class="block">Returns the number of flags in this set.</div>
-</li>
-</ul>
-<a id="get(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>get</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;get&#8203;(int&nbsp;index)</pre>
-<div class="block">Returns the flag at the given index.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - The index. Must be between 0 (inclusive) and <a href="#size()"><code>size()</code></a> (exclusive).</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The flag at the given index.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="externalLink" target="_top">IndexOutOfBoundsException</a></code> - If index is outside the allowed range.</dd>
-</dl>
-</li>
-</ul>
-<a id="equals(java.lang.Object)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>equals</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
-                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
-</dl>
-</li>
-</ul>
-<a id="hashCode()">
+<a id="isFallbackAvailable(int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>hashCode</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
-</dl>
+<h4>isFallbackAvailable</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isFallbackAvailable&#8203;(<a href="LoadErrorHandlingPolicy.FallbackType.html" title="annotation in com.google.android.exoplayer2.upstream">@FallbackType</a>
+                                   int&nbsp;type)</pre>
+<div class="block">Returns whether a fallback is available for the given <a href="LoadErrorHandlingPolicy.FallbackType.html" title="annotation in com.google.android.exoplayer2.upstream"><code>fallback type</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -382,15 +394,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

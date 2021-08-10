@@ -244,41 +244,39 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lazyRelease(int,com.google.android.exoplayer2.util.ListenerSet.Event)">lazyRelease</a></span>&#8203;(int&nbsp;releaseEventFlag,
-           <a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;releaseEvent)</code></th>
-<td class="colLast">
-<div class="block">Releases the set of listeners after all already scheduled <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> messages were able to
- trigger final events.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)">queueEvent</a></span>&#8203;(int&nbsp;eventFlag,
           <a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;event)</code></th>
 <td class="colLast">
 <div class="block">Adds an event that is sent to the listeners when <a href="#flushEvents()"><code>flushEvents()</code></a> is called.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the set of listeners immediately.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(T)">remove</a></span>&#8203;(<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Removes a listener from the set.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)">sendEvent</a></span>&#8203;(int&nbsp;eventFlag,
          <a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;event)</code></th>
 <td class="colLast">
 <div class="block"><a href="#queueEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)"><code>Queues</code></a> a single event and immediately <a href="#flushEvents()"><code>flushes</code></a> the event queue to notify all listeners.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of added listeners.</div>
 </td>
 </tr>
 </table>
@@ -391,6 +389,16 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 </dl>
 </li>
 </ul>
+<a id="size()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>size</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;size()</pre>
+<div class="block">Returns the number of added listeners.</div>
+</li>
+</ul>
 <a id="queueEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)">
 <!--   -->
 </a>
@@ -438,32 +446,13 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 <a id="release()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
 <div class="block">Releases the set of listeners immediately.
 
  <p>This will ensure no events are sent to any listener after this method has been called.</div>
-</li>
-</ul>
-<a id="lazyRelease(int,com.google.android.exoplayer2.util.ListenerSet.Event)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>lazyRelease</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;lazyRelease&#8203;(int&nbsp;releaseEventFlag,
-                        <a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;releaseEvent)</pre>
-<div class="block">Releases the set of listeners after all already scheduled <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> messages were able to
- trigger final events.
-
- <p>After the specified released callback event, no other events are sent to a listener.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>releaseEventFlag</code> - An integer flag indicating the type of the release event, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> to report this event without a flag.</dd>
-<dd><code>releaseEvent</code> - The release event.</dd>
-</dl>
 </li>
 </ul>
 </li>

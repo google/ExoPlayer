@@ -224,7 +224,7 @@ implements <a href="ExoMediaDrm.html" title="interface in com.google.android.exo
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></span>&#8203;(byte[]&nbsp;initData)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
 <div class="block">Creates an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for a given session.</div>
 </td>
@@ -838,7 +838,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaCrypto</h4>
-<pre class="methodSignature">public&nbsp;<a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&nbsp;createMediaCrypto&#8203;(byte[]&nbsp;initData)
+<pre class="methodSignature">public&nbsp;<a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&nbsp;createMediaCrypto&#8203;(byte[]&nbsp;sessionId)
                                        throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoMediaDrm.html#createMediaCrypto(byte%5B%5D)">ExoMediaDrm</a></code></span></div>
 <div class="block">Creates an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for a given session.</div>
@@ -846,7 +846,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ExoMediaDrm.html#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></code>&nbsp;in interface&nbsp;<code><a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initData</code> - The ID of the session.</dd>
+<dd><code>sessionId</code> - The ID of the session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the given session.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

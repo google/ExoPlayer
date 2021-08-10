@@ -200,7 +200,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,long,int,boolean)">consume</a></span>&#8203;(<a href="../../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
        long&nbsp;timestamp,
        int&nbsp;sequenceNumber,
-       boolean&nbsp;isFrameBoundary)</code></th>
+       boolean&nbsp;rtpMarker)</code></th>
 <td class="colLast">
 <div class="block">Consumes the payload from the an RTP packet.</div>
 </td>
@@ -321,7 +321,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <pre class="methodSignature">public&nbsp;void&nbsp;consume&#8203;(<a href="../../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                     long&nbsp;timestamp,
                     int&nbsp;sequenceNumber,
-                    boolean&nbsp;isFrameBoundary)</pre>
+                    boolean&nbsp;rtpMarker)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RtpPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray,long,int,boolean)">RtpPayloadReader</a></code></span></div>
 <div class="block">Consumes the payload from the an RTP packet.</div>
 <dl>
@@ -333,7 +333,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
      unit, the duration conveyed by it depends on the frequency of the media that the RTP packet
      is carrying.</dd>
 <dd><code>sequenceNumber</code> - The sequence number of the RTP packet.</dd>
-<dd><code>isFrameBoundary</code> - The marker bit of the RTP packet. The interpretation of this bit is specific
+<dd><code>rtpMarker</code> - The marker bit of the RTP packet. The interpretation of this bit is specific
      to each payload format.</dd>
 </dl>
 </li>

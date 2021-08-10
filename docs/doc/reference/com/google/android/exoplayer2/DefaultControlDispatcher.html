@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42,"i16":42};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -87,13 +87,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -133,48 +133,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultControlDispatcher</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultControlDispatcher</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></pre>
-<div class="block">Default <a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> or configure the player to customize operations.</div>
+</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_FAST_FORWARD_MS">DEFAULT_FAST_FORWARD_MS</a></span></code></th>
-<td class="colLast">
-<div class="block">The default fast forward increment, in milliseconds.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_REWIND_MS">DEFAULT_REWIND_MS</a></span></code></th>
-<td class="colLast">
-<div class="block">The default rewind increment, in milliseconds.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -191,6 +162,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultControlDispatcher</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -198,6 +170,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">DefaultControlDispatcher</a></span>&#8203;(long&nbsp;fastForwardIncrementMs,
                         long&nbsp;rewindIncrementMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance with the given increments.</div>
 </td>
 </tr>
@@ -223,6 +196,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchFastForward(com.google.android.exoplayer2.Player)">dispatchFastForward</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a fast forward operation.</div>
 </td>
 </tr>
@@ -230,13 +204,15 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchNext(com.google.android.exoplayer2.Player)">dispatchNext</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="Player.html#next()"><code>Player.next()</code></a> operation.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Dispatches a <a href="Player.html#seekToNextWindow()"><code>Player.seekToNextWindow()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchPrepare(com.google.android.exoplayer2.Player)">dispatchPrepare</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#prepare()"><code>Player.prepare()</code></a> operation.</div>
 </td>
 </tr>
@@ -244,13 +220,15 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchPrevious(com.google.android.exoplayer2.Player)">dispatchPrevious</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="Player.html#previous()"><code>Player.previous()</code></a> operation.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Dispatches a <a href="Player.html#seekToPreviousWindow()"><code>Player.seekToPreviousWindow()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchRewind(com.google.android.exoplayer2.Player)">dispatchRewind</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a rewind operation.</div>
 </td>
 </tr>
@@ -260,6 +238,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
               int&nbsp;windowIndex,
               long&nbsp;positionMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a> operation.</div>
 </td>
 </tr>
@@ -268,6 +247,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">dispatchSetPlaybackParameters</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
 </td>
 </tr>
@@ -276,6 +256,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">dispatchSetPlayWhenReady</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                         boolean&nbsp;playWhenReady)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 </td>
 </tr>
@@ -284,6 +265,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">dispatchSetRepeatMode</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      int&nbsp;repeatMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 </td>
 </tr>
@@ -292,6 +274,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">dispatchSetShuffleModeEnabled</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 </td>
 </tr>
@@ -300,20 +283,23 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchStop(com.google.android.exoplayer2.Player,boolean)">dispatchStop</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
             boolean&nbsp;reset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#stop()"><code>Player.stop()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFastForwardIncrementMs()">getFastForwardIncrementMs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFastForwardIncrementMs(com.google.android.exoplayer2.Player)">getFastForwardIncrementMs</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the fast forward increment in milliseconds.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRewindIncrementMs()">getRewindIncrementMs</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRewindIncrementMs(com.google.android.exoplayer2.Player)">getRewindIncrementMs</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the rewind increment in milliseconds.</div>
 </td>
 </tr>
@@ -321,6 +307,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFastForwardEnabled()">isFastForwardEnabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
@@ -328,25 +315,8 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isRewindEnabled()">isRewindEnabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
-</td>
-</tr>
-<tr id="i15" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFastForwardIncrementMs(long)">setFastForwardIncrementMs</a></span>&#8203;(long&nbsp;fastForwardMs)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component.</div>
-</div>
-</td>
-</tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRewindIncrementMs(long)">setRewindIncrementMs</a></span>&#8203;(long&nbsp;rewindMs)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component.</div>
-</div>
 </td>
 </tr>
 </table>
@@ -366,44 +336,6 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a id="DEFAULT_FAST_FORWARD_MS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_FAST_FORWARD_MS</h4>
-<pre>public static final&nbsp;int DEFAULT_FAST_FORWARD_MS</pre>
-<div class="block">The default fast forward increment, in milliseconds.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="DEFAULT_REWIND_MS">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>DEFAULT_REWIND_MS</h4>
-<pre>public static final&nbsp;int DEFAULT_REWIND_MS</pre>
-<div class="block">The default rewind increment, in milliseconds.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultControlDispatcher.DEFAULT_REWIND_MS">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -418,6 +350,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>DefaultControlDispatcher</h4>
 <pre>public&nbsp;DefaultControlDispatcher()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </li>
 </ul>
@@ -429,6 +362,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <h4>DefaultControlDispatcher</h4>
 <pre>public&nbsp;DefaultControlDispatcher&#8203;(long&nbsp;fastForwardIncrementMs,
                                 long&nbsp;rewindIncrementMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance with the given increments.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -456,6 +390,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dispatchPrepare</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchPrepare&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#prepare()"><code>Player.prepare()</code></a> operation.</div>
 <dl>
@@ -476,6 +411,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <h4>dispatchSetPlayWhenReady</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetPlayWhenReady&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                         boolean&nbsp;playWhenReady)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 <dl>
@@ -498,6 +434,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSeekTo&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                               int&nbsp;windowIndex,
                               long&nbsp;positionMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSeekTo(com.google.android.exoplayer2.Player,int,long)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a> operation.</div>
 <dl>
@@ -520,8 +457,9 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dispatchPrevious</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchPrevious&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchPrevious(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="Player.html#previous()"><code>Player.previous()</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#seekToPreviousWindow()"><code>Player.seekToPreviousWindow()</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ControlDispatcher.html#dispatchPrevious(com.google.android.exoplayer2.Player)">dispatchPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
@@ -539,8 +477,9 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dispatchNext</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchNext&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchNext(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
-<div class="block">Dispatches a <a href="Player.html#next()"><code>Player.next()</code></a> operation.</div>
+<div class="block">Dispatches a <a href="Player.html#seekToNextWindow()"><code>Player.seekToNextWindow()</code></a> operation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ControlDispatcher.html#dispatchNext(com.google.android.exoplayer2.Player)">dispatchNext</a></code>&nbsp;in interface&nbsp;<code><a href="ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
@@ -558,6 +497,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dispatchRewind</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchRewind&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchRewind(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a rewind operation.</div>
 <dl>
@@ -577,6 +517,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dispatchFastForward</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchFastForward&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchFastForward(com.google.android.exoplayer2.Player)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a fast forward operation.</div>
 <dl>
@@ -598,6 +539,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetRepeatMode&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                      <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                      int&nbsp;repeatMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 <dl>
@@ -619,6 +561,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <h4>dispatchSetShuffleModeEnabled</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetShuffleModeEnabled&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                              boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 <dl>
@@ -640,6 +583,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <h4>dispatchStop</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchStop&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                             boolean&nbsp;reset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchStop(com.google.android.exoplayer2.Player,boolean)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#stop()"><code>Player.stop()</code></a> operation.</div>
 <dl>
@@ -661,6 +605,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <h4>dispatchSetPlaybackParameters</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchSetPlaybackParameters&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                              <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">ControlDispatcher</a></code></span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
 <dl>
@@ -681,6 +626,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>isRewindEnabled</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isRewindEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#isRewindEnabled()">ControlDispatcher</a></code></span></div>
 <div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
 <dl>
@@ -696,6 +642,7 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>isFastForwardEnabled</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isFastForwardEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ControlDispatcher.html#isFastForwardEnabled()">ControlDispatcher</a></code></span></div>
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 <dl>
@@ -704,52 +651,26 @@ implements <a href="ControlDispatcher.html" title="interface in com.google.andro
 </dl>
 </li>
 </ul>
-<a id="getRewindIncrementMs()">
+<a id="getRewindIncrementMs(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getRewindIncrementMs</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getRewindIncrementMs()</pre>
+<pre class="methodSignature">public&nbsp;long&nbsp;getRewindIncrementMs&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the rewind increment in milliseconds.</div>
 </li>
 </ul>
-<a id="getFastForwardIncrementMs()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getFastForwardIncrementMs</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getFastForwardIncrementMs()</pre>
-<div class="block">Returns the fast forward increment in milliseconds.</div>
-</li>
-</ul>
-<a id="setRewindIncrementMs(long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setRewindIncrementMs</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setRewindIncrementMs&#8203;(long&nbsp;rewindMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component. This
-     makes sure the UI gets updated and is in sync with the new values.</div>
-</div>
-</li>
-</ul>
-<a id="setFastForwardIncrementMs(long)">
+<a id="getFastForwardIncrementMs(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>setFastForwardIncrementMs</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Create a new instance instead and pass the new instance to the UI component. This
-     makes sure the UI gets updated and is in sync with the new values.</div>
-</div>
+<h4>getFastForwardIncrementMs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getFastForwardIncrementMs&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the fast forward increment in milliseconds.</div>
 </li>
 </ul>
 </li>
@@ -804,13 +725,13 @@ public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(long&nbsp;fastForwardMs)<
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
