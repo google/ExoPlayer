@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * CacheDataSource.Factory cacheDataSourceFactory =
  *     new CacheDataSource.Factory()
  *         .setCache(cache)
- *         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
+ *         .setUpstreamDataSourceFactory(new DefaultHttpDataSource.Factory());
  * // Create a downloader for the first representation of the first adaptation set of the first
  * // period.
  * DashDownloader dashDownloader =

@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -83,7 +83,7 @@ public interface MediaSourceFactory {
    * #setDrmSessionManager(DrmSessionManager) concrete DrmSessionManager} are provided.
    *
    * @param drmHttpDataSourceFactory The HTTP data source factory, or {@code null} to use {@link
-   *     DefaultHttpDataSourceFactory}.
+   *     DefaultHttpDataSource.Factory}.
    * @return This factory, for convenience.
    * @deprecated Use {@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)} and pass an
    *     implementation that configures the returned {@link DrmSessionManager} with the desired

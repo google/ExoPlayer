@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
@@ -51,10 +50,10 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
   /**
    * Sets the {@link HttpDataSource.Factory} to be used for creating {@link HttpMediaDrmCallback
    * HttpMediaDrmCallbacks} which executes key and provisioning requests over HTTP. If {@code null}
-   * is passed the {@link DefaultHttpDataSourceFactory} is used.
+   * is passed the {@link DefaultHttpDataSource.Factory} is used.
    *
    * @param drmHttpDataSourceFactory The HTTP data source factory or {@code null} to use {@link
-   *     DefaultHttpDataSourceFactory}.
+   *     DefaultHttpDataSource.Factory}.
    */
   public void setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {

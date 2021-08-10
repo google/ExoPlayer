@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -51,10 +51,9 @@ import org.junit.runner.RunWith;
 public final class DashWidevineOfflineTest {
 
   private static final String TAG = "DashWidevineOfflineTest";
-  private static final String USER_AGENT = "ExoPlayerPlaybackTests";
 
   private DashTestRunner testRunner;
-  private DefaultHttpDataSourceFactory httpDataSourceFactory;
+  private DefaultHttpDataSource.Factory httpDataSourceFactory;
   private OfflineLicenseHelper offlineLicenseHelper;
   private byte[] offlineLicenseKeySetId;
 
@@ -75,7 +74,7 @@ public final class DashWidevineOfflineTest {
 
     boolean useL1Widevine = DashTestRunner.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
     String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(true, useL1Widevine);
-    httpDataSourceFactory = new DefaultHttpDataSourceFactory(USER_AGENT);
+    httpDataSourceFactory = new DefaultHttpDataSource.Factory();
     if (Util.SDK_INT >= 18) {
       offlineLicenseHelper =
           OfflineLicenseHelper.newWidevineInstance(
