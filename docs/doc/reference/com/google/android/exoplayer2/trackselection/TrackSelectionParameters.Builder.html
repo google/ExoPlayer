@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -157,22 +157,30 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Constructor</th>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colSecond" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment"><a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> constraints will not be set when using this constructor.</div>
+<div class="deprecationComment"><a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> constraints will not be set using this constructor.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
 <div class="block">Creates a builder with default initial values.</div>
 </td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">Builder</a></span>&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;initialValues)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -201,40 +209,143 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDisabledTextTrackSelectionFlags(int)">setDisabledTextTrackSelectionFlags</a></span>&#8203;(int&nbsp;disabledTextTrackSelectionFlags)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoSizeConstraints()">clearVideoSizeConstraints</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Sets a bitmask of selection flags that are disabled for text track selections.</div>
+<div class="block">Equivalent to <a href="#setMaxVideoSize(int,int)"><code>setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearViewportSizeConstraints()">clearViewportSizeConstraints</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Equivalent to <a href="#setViewportSize(int,int,boolean)"><code>setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE,
+ true)</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setForceHighestSupportedBitrate(boolean)">setForceHighestSupportedBitrate</a></span>&#8203;(boolean&nbsp;forceHighestSupportedBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to force selection of the highest bitrate audio and video tracks that comply
+ with all other constraints.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setForceLowestBitrate(boolean)">setForceLowestBitrate</a></span>&#8203;(boolean&nbsp;forceLowestBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to force selection of the single lowest bitrate audio and video tracks that
+ comply with all other constraints.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxAudioBitrate(int)">setMaxAudioBitrate</a></span>&#8203;(int&nbsp;maxAudioBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets the maximum allowed audio bitrate.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxAudioChannelCount(int)">setMaxAudioChannelCount</a></span>&#8203;(int&nbsp;maxAudioChannelCount)</code></th>
+<td class="colLast">
+<div class="block">Sets the maximum allowed audio channel count.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxVideoBitrate(int)">setMaxVideoBitrate</a></span>&#8203;(int&nbsp;maxVideoBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets the maximum allowed video bitrate.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxVideoFrameRate(int)">setMaxVideoFrameRate</a></span>&#8203;(int&nbsp;maxVideoFrameRate)</code></th>
+<td class="colLast">
+<div class="block">Sets the maximum allowed video frame rate.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxVideoSize(int,int)">setMaxVideoSize</a></span>&#8203;(int&nbsp;maxVideoWidth,
+               int&nbsp;maxVideoHeight)</code></th>
+<td class="colLast">
+<div class="block">Sets the maximum allowed video width and height.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxVideoSizeSd()">setMaxVideoSizeSd</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Equivalent to <a href="#setMaxVideoSize(int,int)"><code>setMaxVideoSize(1279, 719)</code></a>.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMinVideoBitrate(int)">setMinVideoBitrate</a></span>&#8203;(int&nbsp;minVideoBitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets the minimum allowed video bitrate.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMinVideoFrameRate(int)">setMinVideoFrameRate</a></span>&#8203;(int&nbsp;minVideoFrameRate)</code></th>
+<td class="colLast">
+<div class="block">Sets the minimum allowed video frame rate.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMinVideoSize(int,int)">setMinVideoSize</a></span>&#8203;(int&nbsp;minVideoWidth,
+               int&nbsp;minVideoHeight)</code></th>
+<td class="colLast">
+<div class="block">Sets the minimum allowed video width and height.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredAudioLanguage(java.lang.String)">setPreferredAudioLanguage</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;preferredAudioLanguage)</code></th>
 <td class="colLast">
 <div class="block">Sets the preferred language for audio and forced text tracks.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredAudioLanguages(java.lang.String...)">setPreferredAudioLanguages</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;preferredAudioLanguages)</code></th>
 <td class="colLast">
 <div class="block">Sets the preferred languages for audio and forced text tracks.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredAudioMimeType(java.lang.String)">setPreferredAudioMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets the preferred sample MIME type for audio tracks.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredAudioMimeTypes(java.lang.String...)">setPreferredAudioMimeTypes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</code></th>
+<td class="colLast">
+<div class="block">Sets the preferred sample MIME types for audio tracks.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredAudioRoleFlags(int)">setPreferredAudioRoleFlags</a></span>&#8203;(int&nbsp;preferredAudioRoleFlags)</code></th>
 <td class="colLast">
 <div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for audio tracks.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredTextLanguage(java.lang.String)">setPreferredTextLanguage</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;preferredTextLanguage)</code></th>
 <td class="colLast">
 <div class="block">Sets the preferred language for text tracks.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(android.content.Context)">setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
@@ -242,27 +353,60 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  settings of <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredTextLanguages(java.lang.String...)">setPreferredTextLanguages</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;preferredTextLanguages)</code></th>
 <td class="colLast">
 <div class="block">Sets the preferred languages for text tracks.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredTextRoleFlags(int)">setPreferredTextRoleFlags</a></span>&#8203;(int&nbsp;preferredTextRoleFlags)</code></th>
 <td class="colLast">
 <div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for text tracks.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredVideoMimeType(java.lang.String)">setPreferredVideoMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Sets the preferred sample MIME type for video tracks.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredVideoMimeTypes(java.lang.String...)">setPreferredVideoMimeTypes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</code></th>
+<td class="colLast">
+<div class="block">Sets the preferred sample MIME types for video tracks.</div>
+</td>
+</tr>
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSelectUndeterminedTextLanguage(boolean)">setSelectUndeterminedTextLanguage</a></span>&#8203;(boolean&nbsp;selectUndeterminedTextLanguage)</code></th>
 <td class="colLast">
 <div class="block">Sets whether a text track with undetermined language should be selected if no track with
  <a href="#setPreferredTextLanguages(java.lang.String...)"><code>a preferred language</code></a> is available, or if the
  preferred language is unset.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setViewportSize(int,int,boolean)">setViewportSize</a></span>&#8203;(int&nbsp;viewportWidth,
+               int&nbsp;viewportHeight,
+               boolean&nbsp;viewportOrientationMayChange)</code></th>
+<td class="colLast">
+<div class="block">Sets the viewport size to constrain adaptive video selections so that only tracks suitable
+ for the viewport are selected.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setViewportSizeToPhysicalDisplaySize(android.content.Context,boolean)">setViewportSizeToPhysicalDisplaySize</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                    boolean&nbsp;viewportOrientationMayChange)</code></th>
+<td class="colLast">
+<div class="block">Equivalent to calling <a href="#setViewportSize(int,int,boolean)"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size
+ obtained from <a href="../util/Util.html#getCurrentDisplayModeSize(android.content.Context)"><code>Util.getCurrentDisplayModeSize(Context)</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -289,6 +433,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;Builder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment"><a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink"><code>Context</code></a> constraints will not be set using this constructor. Use <a href="#%3Cinit%3E(android.content.Context)" target="_top"><code>Builder(Context)</code></a> instead.</div>
+</div>
+</li>
+</ul>
 <a id="&lt;init&gt;(android.content.Context)">
 <!--   -->
 </a>
@@ -303,18 +460,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;()">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;Builder()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment"><a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> constraints will not be set when using this constructor. Use
-     <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> instead.</div>
-</div>
+<pre>protected&nbsp;Builder&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;initialValues)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>initialValues</code> - The <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> from which the initial values of
+     the builder are obtained.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -327,6 +484,226 @@ public&nbsp;Builder()</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setMaxVideoSizeSd()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxVideoSizeSd</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoSizeSd()</pre>
+<div class="block">Equivalent to <a href="#setMaxVideoSize(int,int)"><code>setMaxVideoSize(1279, 719)</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="clearVideoSizeConstraints()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoSizeConstraints</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearVideoSizeConstraints()</pre>
+<div class="block">Equivalent to <a href="#setMaxVideoSize(int,int)"><code>setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxVideoSize(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxVideoSize</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoSize&#8203;(int&nbsp;maxVideoWidth,
+                                                        int&nbsp;maxVideoHeight)</pre>
+<div class="block">Sets the maximum allowed video width and height.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxVideoWidth</code> - Maximum allowed video width in pixels.</dd>
+<dd><code>maxVideoHeight</code> - Maximum allowed video height in pixels.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxVideoFrameRate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxVideoFrameRate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoFrameRate&#8203;(int&nbsp;maxVideoFrameRate)</pre>
+<div class="block">Sets the maximum allowed video frame rate.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxVideoFrameRate</code> - Maximum allowed video frame rate in hertz.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxVideoBitrate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxVideoBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxVideoBitrate&#8203;(int&nbsp;maxVideoBitrate)</pre>
+<div class="block">Sets the maximum allowed video bitrate.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxVideoBitrate</code> - Maximum allowed video bitrate in bits per second.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMinVideoSize(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMinVideoSize</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoSize&#8203;(int&nbsp;minVideoWidth,
+                                                        int&nbsp;minVideoHeight)</pre>
+<div class="block">Sets the minimum allowed video width and height.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minVideoWidth</code> - Minimum allowed video width in pixels.</dd>
+<dd><code>minVideoHeight</code> - Minimum allowed video height in pixels.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMinVideoFrameRate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMinVideoFrameRate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoFrameRate&#8203;(int&nbsp;minVideoFrameRate)</pre>
+<div class="block">Sets the minimum allowed video frame rate.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minVideoFrameRate</code> - Minimum allowed video frame rate in hertz.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMinVideoBitrate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMinVideoBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMinVideoBitrate&#8203;(int&nbsp;minVideoBitrate)</pre>
+<div class="block">Sets the minimum allowed video bitrate.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minVideoBitrate</code> - Minimum allowed video bitrate in bits per second.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setViewportSizeToPhysicalDisplaySize(android.content.Context,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setViewportSizeToPhysicalDisplaySize</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setViewportSizeToPhysicalDisplaySize&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                                             boolean&nbsp;viewportOrientationMayChange)</pre>
+<div class="block">Equivalent to calling <a href="#setViewportSize(int,int,boolean)"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size
+ obtained from <a href="../util/Util.html#getCurrentDisplayModeSize(android.content.Context)"><code>Util.getCurrentDisplayModeSize(Context)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - Any context.</dd>
+<dd><code>viewportOrientationMayChange</code> - Whether the viewport orientation may change during
+     playback.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="clearViewportSizeConstraints()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearViewportSizeConstraints</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;clearViewportSizeConstraints()</pre>
+<div class="block">Equivalent to <a href="#setViewportSize(int,int,boolean)"><code>setViewportSize(Integer.MAX_VALUE, Integer.MAX_VALUE,
+ true)</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setViewportSize(int,int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setViewportSize</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setViewportSize&#8203;(int&nbsp;viewportWidth,
+                                                        int&nbsp;viewportHeight,
+                                                        boolean&nbsp;viewportOrientationMayChange)</pre>
+<div class="block">Sets the viewport size to constrain adaptive video selections so that only tracks suitable
+ for the viewport are selected.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>viewportWidth</code> - Viewport width in pixels.</dd>
+<dd><code>viewportHeight</code> - Viewport height in pixels.</dd>
+<dd><code>viewportOrientationMayChange</code> - Whether the viewport orientation may change during
+     playback.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPreferredVideoMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredVideoMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoMimeType&#8203;(@Nullable
+                                                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Sets the preferred sample MIME type for video tracks.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mimeType</code> - The preferred MIME type for video tracks, or <code>null</code> to clear a
+     previously set preference.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPreferredVideoMimeTypes(java.lang.String...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredVideoMimeTypes</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</pre>
+<div class="block">Sets the preferred sample MIME types for video tracks.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mimeTypes</code> - The preferred MIME types for video tracks in order of preference, or an
+     empty list for no preference.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
 <a id="setPreferredAudioLanguage(java.lang.String)">
 <!--   -->
 </a>
@@ -375,6 +752,73 @@ public&nbsp;Builder()</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>preferredAudioRoleFlags</code> - Preferred audio role flags.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxAudioChannelCount(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxAudioChannelCount</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxAudioChannelCount&#8203;(int&nbsp;maxAudioChannelCount)</pre>
+<div class="block">Sets the maximum allowed audio channel count.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxAudioChannelCount</code> - Maximum allowed audio channel count.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMaxAudioBitrate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxAudioBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setMaxAudioBitrate&#8203;(int&nbsp;maxAudioBitrate)</pre>
+<div class="block">Sets the maximum allowed audio bitrate.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxAudioBitrate</code> - Maximum allowed audio bitrate in bits per second.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPreferredAudioMimeType(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredAudioMimeType</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioMimeType&#8203;(@Nullable
+                                                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Sets the preferred sample MIME type for audio tracks.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mimeType</code> - The preferred MIME type for audio tracks, or <code>null</code> to clear a
+     previously set preference.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPreferredAudioMimeTypes(java.lang.String...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredAudioMimeTypes</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredAudioMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>...&nbsp;mimeTypes)</pre>
+<div class="block">Sets the preferred sample MIME types for audio tracks.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mimeTypes</code> - The preferred MIME types for audio tracks in order of preference, or an
+     empty list for no preference.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -471,19 +915,37 @@ public&nbsp;Builder()</pre>
 </dl>
 </li>
 </ul>
-<a id="setDisabledTextTrackSelectionFlags(int)">
+<a id="setForceLowestBitrate(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setDisabledTextTrackSelectionFlags</h4>
-<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setDisabledTextTrackSelectionFlags&#8203;(<a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                                                           int&nbsp;disabledTextTrackSelectionFlags)</pre>
-<div class="block">Sets a bitmask of selection flags that are disabled for text track selections.</div>
+<h4>setForceLowestBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setForceLowestBitrate&#8203;(boolean&nbsp;forceLowestBitrate)</pre>
+<div class="block">Sets whether to force selection of the single lowest bitrate audio and video tracks that
+ comply with all other constraints.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>disabledTextTrackSelectionFlags</code> - A bitmask of <a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.SelectionFlags</code></a> that are
-     disabled for text track selections.</dd>
+<dd><code>forceLowestBitrate</code> - Whether to force selection of the single lowest bitrate audio and
+     video tracks.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setForceHighestSupportedBitrate(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setForceHighestSupportedBitrate</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setForceHighestSupportedBitrate&#8203;(boolean&nbsp;forceHighestSupportedBitrate)</pre>
+<div class="block">Sets whether to force selection of the highest bitrate audio and video tracks that comply
+ with all other constraints.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>forceHighestSupportedBitrate</code> - Whether to force selection of the highest bitrate audio
+     and video tracks.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>

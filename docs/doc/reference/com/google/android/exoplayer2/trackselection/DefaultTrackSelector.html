@@ -148,7 +148,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
 <div class="block">A default <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> suitable for most use cases. Track selections are made according
  to configurable <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>, which can be set by calling <a href="#setParameters(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)"><code>setParameters(Parameters)</code></a>.
 
- <h3>Modifying parameters</h3>
+ <h2>Modifying parameters</h2>
 
  To modify only some aspects of the parameters currently used by a selector, it's possible to
  obtain a <a href="DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.ParametersBuilder</code></a> initialized with the current <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>. The desired
@@ -181,7 +181,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
 
  Selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> support many different options, some of which are described below.
 
- <h3>Selecting specific tracks</h3>
+ <h2>Selecting specific tracks</h2>
 
  Track selection overrides can be used to select specific tracks. To specify an override for a
  renderer, it's first necessary to obtain the tracks that have been mapped to it:
@@ -208,7 +208,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
          .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride));
  </code></pre>
 
- <h3>Constraint based track selection</h3>
+ <h2>Constraint based track selection</h2>
 
  Whilst track selection overrides make it possible to select specific tracks, the recommended way
  of controlling which tracks are selected is by specifying constraints. For example consider the
@@ -236,14 +236,14 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
        only applied to periods whose tracks match those for which the override was set.
  </ul>
 
- <h3>Disabling renderers</h3>
+ <h2>Disabling renderers</h2>
 
  Renderers can be disabled using <a href="DefaultTrackSelector.ParametersBuilder.html#setRendererDisabled(int,boolean)"><code>DefaultTrackSelector.ParametersBuilder.setRendererDisabled(int, boolean)</code></a>. Disabling a
  renderer differs from setting a <code>null</code> override because the renderer is disabled
  unconditionally, whereas a <code>null</code> override is applied only when the track groups available
  to the renderer match the <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> for which it was specified.
 
- <h3>Tunneling</h3>
+ <h2>Tunneling</h2>
 
  Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
  support it. Tunneled playback is enabled by passing an audio session ID to <a href="DefaultTrackSelector.ParametersBuilder.html#setTunnelingEnabled(boolean)"><code>DefaultTrackSelector.ParametersBuilder.setTunnelingEnabled(boolean)</code></a>.</div>
@@ -285,7 +285,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></span></code></th>
 <td class="colLast">
-<div class="block">Extends <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> by adding fields that are specific to <a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
+<div class="block">Extends <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> by adding fields that are specific to <a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">

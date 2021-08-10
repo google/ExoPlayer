@@ -232,8 +232,10 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format)">createRendererException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                       <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,int)">createRendererException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                       <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                       boolean&nbsp;isRecoverable,
+                       int&nbsp;errorCode)</code></th>
 <td class="colLast">
 <div class="block">Creates an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
  this renderer.</div>
@@ -241,9 +243,9 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean)">createRendererException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,int)">createRendererException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                        <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                       boolean&nbsp;isRecoverable)</code></th>
+                       int&nbsp;errorCode)</code></th>
 <td class="colLast">
 <div class="block">Creates an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
  this renderer.</div>
@@ -317,8 +319,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReadingPositionUs()">getReadingPositionUs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the renderer time up to which the renderer has read samples from the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
- current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
+<div class="block">Returns the renderer time up to which the renderer has read samples, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
@@ -352,7 +353,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(int,java.lang.Object)">handleMessage</a></span>&#8203;(int&nbsp;messageType,
-             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)</code></th>
+             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</code></th>
 <td class="colLast">
 <div class="block">Handles a message delivered to the target.</div>
 </td>
@@ -565,8 +566,8 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <pre>public&nbsp;BaseRenderer&#8203;(int&nbsp;trackType)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>trackType</code> - The track type that the renderer handles. One of the <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>
- <code>TRACK_TYPE_*</code> constants.</dd>
+<dd><code>trackType</code> - The track type that the renderer handles. One of the <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>
+     TRACK_TYPE_*</code> constants.</dd>
 </dl>
 </li>
 </ul>
@@ -721,9 +722,8 @@ public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.androi
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#start()">Renderer</a></code></span></div>
 <div class="block">Starts the renderer, meaning that calls to <a href="Renderer.html#render(long,long)"><code>Renderer.render(long, long)</code></a> will cause media to be
  rendered.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Renderer.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -786,9 +786,8 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;hasReadStreamToEnd()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#hasReadStreamToEnd()">Renderer</a></code></span></div>
 <div class="block">Returns whether the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Renderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a></code>&nbsp;in interface&nbsp;<code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -803,8 +802,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>getReadingPositionUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getReadingPositionUs()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getReadingPositionUs()">Renderer</a></code></span></div>
-<div class="block">Returns the renderer time up to which the renderer has read samples from the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
- current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
+<div class="block">Returns the renderer time up to which the renderer has read samples, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
 
  <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
 <dl>
@@ -823,9 +821,8 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#setCurrentStreamFinal()">Renderer</a></code></span></div>
 <div class="block">Signals to the renderer that the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied
  before it is next disabled or reset.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Renderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a></code>&nbsp;in interface&nbsp;<code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -859,9 +856,8 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#maybeThrowStreamError()">Renderer</a></code></span></div>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>. Does
  nothing if no such error exists.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Renderer.html#maybeThrowStreamError()">maybeThrowStreamError</a></code>&nbsp;in interface&nbsp;<code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -881,12 +877,11 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
                          throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#resetPosition(long)">Renderer</a></code></span></div>
 <div class="block">Signals to the renderer that a position discontinuity has occurred.
- <p>
- After a position discontinuity, the renderer's <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> is guaranteed to provide
+
+ <p>After a position discontinuity, the renderer's <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> is guaranteed to provide
  samples starting from a key frame.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Renderer.html#resetPosition(long)">resetPosition</a></code>&nbsp;in interface&nbsp;<code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -923,9 +918,8 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <pre class="methodSignature">public final&nbsp;void&nbsp;disable()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#disable()">Renderer</a></code></span></div>
 <div class="block">Disable the renderer, transitioning it to the <a href="Renderer.html#STATE_DISABLED"><code>Renderer.STATE_DISABLED</code></a> state.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Renderer.html#disable()">disable</a></code>&nbsp;in interface&nbsp;<code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
@@ -981,7 +975,7 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <h4>handleMessage</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;handleMessage&#8203;(int&nbsp;messageType,
                           @Nullable
-                          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;payload)
+                          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
                    throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)">PlayerMessage.Target</a></code></span></div>
 <div class="block">Handles a message delivered to the target.</div>
@@ -990,7 +984,7 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <dd><code><a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)">handleMessage</a></code>&nbsp;in interface&nbsp;<code><a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>messageType</code> - The message type.</dd>
-<dd><code>payload</code> - The message payload.</dd>
+<dd><code>message</code> - The message payload.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurred whilst handling the message. Should only be
      thrown by targets that handle messages on the playback thread.</dd>
@@ -1078,8 +1072,8 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStarted()
                   throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called when the renderer is started.
- <p>
- The default implementation is a no-op.</div>
+
+ <p>The default implementation is a no-op.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs.</dd>
@@ -1106,8 +1100,8 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <h4>onDisabled</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onDisabled()</pre>
 <div class="block">Called when the renderer is disabled.
- <p>
- The default implementation is a no-op.</div>
+
+ <p>The default implementation is a no-op.</div>
 </li>
 </ul>
 <a id="onReset()">
@@ -1176,25 +1170,7 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <div class="block">Returns the index of the renderer within the player.</div>
 </li>
 </ul>
-<a id="createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createRendererException</h4>
-<pre class="methodSignature">protected final&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createRendererException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                                                             @Nullable
-                                                             <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block">Creates an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
- this renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cause</code> - The cause of the exception.</dd>
-<dd><code>format</code> - The current format used by the renderer. May be null.</dd>
-</dl>
-</li>
-</ul>
-<a id="createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean)">
+<a id="createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1203,7 +1179,34 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <pre class="methodSignature">protected final&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createRendererException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                                                              @Nullable
                                                              <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                                                             boolean&nbsp;isRecoverable)</pre>
+                                                             <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                                                             int&nbsp;errorCode)</pre>
+<div class="block">Creates an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
+ this renderer.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the exception.</dd>
+<dd><code>format</code> - The current format used by the renderer. May be null.</dd>
+<dd><code>errorCode</code> - A <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a> to identify the cause of the playback
+     failure.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance, in which <a href="ExoPlaybackException.html#isRecoverable"><code>ExoPlaybackException.isRecoverable</code></a> is <code>
+     false</code>.</dd>
+</dl>
+</li>
+</ul>
+<a id="createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createRendererException</h4>
+<pre class="methodSignature">protected final&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createRendererException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                                             @Nullable
+                                                             <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                                             boolean&nbsp;isRecoverable,
+                                                             <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                                                             int&nbsp;errorCode)</pre>
 <div class="block">Creates an <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> of type <a href="ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a> for
  this renderer.</div>
 <dl>
@@ -1211,6 +1214,10 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <dd><code>cause</code> - The cause of the exception.</dd>
 <dd><code>format</code> - The current format used by the renderer. May be null.</dd>
 <dd><code>isRecoverable</code> - If the error is recoverable by disabling and re-enabling the renderer.</dd>
+<dd><code>errorCode</code> - A <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a> to identify the cause of the playback
+     failure.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
 </dl>
 </li>
 </ul>

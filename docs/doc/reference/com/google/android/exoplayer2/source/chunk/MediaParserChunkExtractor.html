@@ -249,7 +249,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></span>&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></span>&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
 <td class="colLast">
 <div class="block">Reads from the given <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
@@ -379,7 +379,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;read&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)
+<pre class="methodSignature">public&nbsp;boolean&nbsp;read&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput)">ChunkExtractor</a></code></span></div>
 <div class="block">Reads from the given <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
@@ -387,7 +387,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ChunkExtractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></code>&nbsp;in interface&nbsp;<code><a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>extractorInput</code> - The input to read from.</dd>
+<dd><code>input</code> - The input to read from.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether there is any data left to extract. Returns false if the end of input has been
      reached.</dd>

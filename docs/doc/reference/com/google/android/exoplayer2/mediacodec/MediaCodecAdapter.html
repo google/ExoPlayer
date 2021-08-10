@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -232,6 +232,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#needsReconfiguration()">needsReconfiguration</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Whether the adapter needs to be reconfigured before it is used.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBuffer(int,int,int,long,int)">queueInputBuffer</a></span>&#8203;(int&nbsp;index,
                 int&nbsp;offset,
@@ -242,7 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Submit an input buffer for decoding.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueSecureInputBuffer(int,int,com.google.android.exoplayer2.decoder.CryptoInfo,long,int)">queueSecureInputBuffer</a></span>&#8203;(int&nbsp;index,
                       int&nbsp;offset,
@@ -253,14 +260,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Submit an input buffer that is potentially encrypted for decoding.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(int,boolean)">releaseOutputBuffer</a></span>&#8203;(int&nbsp;index,
                    boolean&nbsp;render)</code></th>
@@ -268,7 +275,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Returns the buffer to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(int,long)">releaseOutputBuffer</a></span>&#8203;(int&nbsp;index,
                    long&nbsp;renderTimeStampNs)</code></th>
@@ -277,7 +284,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  it on the output surface.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnFrameRenderedListener(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.OnFrameRenderedListener,android.os.Handler)">setOnFrameRenderedListener</a></span>&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</code></th>
@@ -285,21 +292,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Registers a callback to be invoked when an output frame is rendered on the output surface.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputSurface(android.view.Surface)">setOutputSurface</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
 <div class="block">Dynamically sets the output surface of a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(android.os.Bundle)">setParameters</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</code></th>
 <td class="colLast">
 <div class="block">Communicate additional parameter changes to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instance.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(int)">setVideoScalingMode</a></span>&#8203;(int&nbsp;scalingMode)</code></th>
 <td class="colLast">
@@ -545,7 +552,7 @@ void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/
 <a id="setVideoScalingMode(int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>setVideoScalingMode</h4>
 <pre class="methodSignature">void&nbsp;setVideoScalingMode&#8203;(<a href="../C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
@@ -555,6 +562,16 @@ void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#setVideoScalingMode(int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setVideoScalingMode(int)</code></a></dd>
 </dl>
+</li>
+</ul>
+<a id="needsReconfiguration()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>needsReconfiguration</h4>
+<pre class="methodSignature">boolean&nbsp;needsReconfiguration()</pre>
+<div class="block">Whether the adapter needs to be reconfigured before it is used.</div>
 </li>
 </ul>
 </li>

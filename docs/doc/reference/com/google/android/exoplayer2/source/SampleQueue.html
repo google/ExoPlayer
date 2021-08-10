@@ -450,7 +450,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 </tr>
 <tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)">sampleData</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;buffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)">sampleData</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
           int&nbsp;length,
           int&nbsp;sampleDataPart)</code></th>
 <td class="colLast">
@@ -1122,7 +1122,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;sampleData&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;buffer,
+<pre class="methodSignature">public final&nbsp;void&nbsp;sampleData&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                              int&nbsp;length,
                              <a href="../extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@SampleDataPart</a>
                              int&nbsp;sampleDataPart)</pre>
@@ -1132,7 +1132,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../extractor/TrackOutput.html#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,int)">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - A <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> from which to read the sample data.</dd>
+<dd><code>data</code> - A <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> from which to read the sample data.</dd>
 <dd><code>length</code> - The number of bytes to read, starting from <code>data.getPosition()</code>.</dd>
 <dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
 </dl>

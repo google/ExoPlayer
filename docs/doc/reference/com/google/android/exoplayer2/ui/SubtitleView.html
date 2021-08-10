@@ -330,8 +330,8 @@ implements <a href="../text/TextOutput.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBottomPaddingFraction(float)">setBottomPaddingFraction</a></span>&#8203;(float&nbsp;bottomPaddingFraction)</code></th>
 <td class="colLast">
-<div class="block">Sets the bottom padding fraction to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>,
- as a fraction of the view's remaining height after its top and bottom padding have been
+<div class="block">Sets the bottom padding fraction to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>, as
+ a fraction of the view's remaining height after its top and bottom padding have been
  subtracted.</div>
 </td>
 </tr>
@@ -642,8 +642,8 @@ implements <a href="../text/TextOutput.html" title="interface in com.google.andr
 <pre class="methodSignature">public&nbsp;void&nbsp;setFractionalTextSize&#8203;(float&nbsp;fractionOfHeight)</pre>
 <div class="block">Sets the text size to be a fraction of the view's remaining height after its top and bottom
  padding have been subtracted.
- <p>
- Equivalent to <code>#setFractionalTextSize(fractionOfHeight, false)</code>.</div>
+
+ <p>Equivalent to <code>#setFractionalTextSize(fractionOfHeight, false)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>fractionOfHeight</code> - A fraction between 0 and 1.</dd>
@@ -663,9 +663,9 @@ implements <a href="../text/TextOutput.html" title="interface in com.google.andr
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>fractionOfHeight</code> - A fraction between 0 and 1.</dd>
 <dd><code>ignorePadding</code> - Set to true if <code>fractionOfHeight</code> should be interpreted as a
-     fraction of this view's height ignoring any top and bottom padding. Set to false if
-     <code>fractionOfHeight</code> should be interpreted as a fraction of this view's remaining
-     height after the top and bottom padding has been subtracted.</dd>
+     fraction of this view's height ignoring any top and bottom padding. Set to false if <code>
+     fractionOfHeight</code> should be interpreted as a fraction of this view's remaining height after
+     the top and bottom padding has been subtracted.</dd>
 </dl>
 </li>
 </ul>
@@ -676,8 +676,8 @@ implements <a href="../text/TextOutput.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>setApplyEmbeddedStyles</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setApplyEmbeddedStyles&#8203;(boolean&nbsp;applyEmbeddedStyles)</pre>
-<div class="block">Sets whether styling embedded within the cues should be applied. Enabled by default.
- Overrides any setting made with <a href="#setApplyEmbeddedFontSizes(boolean)"><code>setApplyEmbeddedFontSizes(boolean)</code></a>.</div>
+<div class="block">Sets whether styling embedded within the cues should be applied. Enabled by default. Overrides
+ any setting made with <a href="#setApplyEmbeddedFontSizes(boolean)"><code>setApplyEmbeddedFontSizes(boolean)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>applyEmbeddedStyles</code> - Whether styling embedded within the cues should be applied.</dd>
@@ -691,8 +691,8 @@ implements <a href="../text/TextOutput.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>setApplyEmbeddedFontSizes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setApplyEmbeddedFontSizes&#8203;(boolean&nbsp;applyEmbeddedFontSizes)</pre>
-<div class="block">Sets whether font sizes embedded within the cues should be applied. Enabled by default.
- Only takes effect if <a href="#setApplyEmbeddedStyles(boolean)"><code>setApplyEmbeddedStyles(boolean)</code></a> is set to true.</div>
+<div class="block">Sets whether font sizes embedded within the cues should be applied. Enabled by default. Only
+ takes effect if <a href="#setApplyEmbeddedStyles(boolean)"><code>setApplyEmbeddedStyles(boolean)</code></a> is set to true.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>applyEmbeddedFontSizes</code> - Whether font sizes embedded within the cues should be applied.</dd>
@@ -733,11 +733,11 @@ implements <a href="../text/TextOutput.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>setBottomPaddingFraction</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setBottomPaddingFraction&#8203;(float&nbsp;bottomPaddingFraction)</pre>
-<div class="block">Sets the bottom padding fraction to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>,
- as a fraction of the view's remaining height after its top and bottom padding have been
+<div class="block">Sets the bottom padding fraction to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>, as
+ a fraction of the view's remaining height after its top and bottom padding have been
  subtracted.
- <p>
- Note that this padding is applied in addition to any standard view padding.</div>
+
+ <p>Note that this padding is applied in addition to any standard view padding.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bottomPaddingFraction</code> - The bottom padding fraction.</dd>

@@ -145,6 +145,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Loader</span></a> (implements com.google.android.exoplayer2.upstream.<a href="LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>)</li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Loader.LoadErrorAction</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">LoaderErrorThrower.Dummy</span></a> (implements com.google.android.exoplayer2.upstream.<a href="LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>)</li>
+<li class="circle">com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">LoadErrorHandlingPolicy.FallbackOptions</span></a></li>
+<li class="circle">com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.FallbackSelection.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">LoadErrorHandlingPolicy.FallbackSelection</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">LoadErrorHandlingPolicy.LoadErrorInfo</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">ParsingLoadable</span></a>&lt;T&gt; (implements com.google.android.exoplayer2.upstream.<a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a>)</li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">PriorityDataSource</span></a> (implements com.google.android.exoplayer2.upstream.<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>)</li>
@@ -159,9 +161,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">java.io.<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><span class="typeNameLink" target="_top">IOException</span></a>
 <ul>
+<li class="circle">com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">DataSourceException</span></a>
+<ul>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="AssetDataSource.AssetDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">AssetDataSource.AssetDataSourceException</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="ContentDataSource.ContentDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">ContentDataSource.ContentDataSourceException</span></a></li>
-<li class="circle">com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">DataSourceException</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="FileDataSource.FileDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">FileDataSource.FileDataSourceException</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">HttpDataSource.HttpDataSourceException</span></a>
 <ul>
@@ -170,9 +173,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="HttpDataSource.InvalidResponseCodeException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">HttpDataSource.InvalidResponseCodeException</span></a></li>
 </ul>
 </li>
-<li class="circle">com.google.android.exoplayer2.upstream.<a href="Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Loader.UnexpectedLoaderException</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="RawResourceDataSource.RawResourceDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">RawResourceDataSource.RawResourceDataSourceException</span></a></li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="UdpDataSource.UdpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">UdpDataSource.UdpDataSourceException</span></a></li>
+</ul>
+</li>
+<li class="circle">com.google.android.exoplayer2.upstream.<a href="Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Loader.UnexpectedLoaderException</span></a></li>
 </ul>
 </li>
 </ul>
@@ -222,6 +227,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream"><span class="typeNameLink">DataSpec.Flags</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream"><span class="typeNameLink">DataSpec.HttpMethod</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
 <li class="circle">com.google.android.exoplayer2.upstream.<a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream"><span class="typeNameLink">HttpDataSource.HttpDataSourceException.Type</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.upstream.<a href="LoadErrorHandlingPolicy.FallbackType.html" title="annotation in com.google.android.exoplayer2.upstream"><span class="typeNameLink">LoadErrorHandlingPolicy.FallbackType</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
 </ul>
 </section>
 </div>

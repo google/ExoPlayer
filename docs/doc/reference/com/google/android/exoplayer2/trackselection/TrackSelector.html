@@ -139,7 +139,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  the player's <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s. The <a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> implementation should be
  suitable for most use cases.
 
- <h3>Interactions with the player</h3>
+ <h2>Interactions with the player</h2>
 
  The following interactions occur between the player and its track selector during playback.
 
@@ -168,7 +168,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
        will call <a href="TrackSelector.InvalidationListener.html#onTrackSelectionsInvalidated()"><code>TrackSelector.InvalidationListener.onTrackSelectionsInvalidated()</code></a>.
  </ul>
 
- <h3>Renderer configuration</h3>
+ <h2>Renderer configuration</h2>
 
  The <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> returned by <a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)"><code>selectTracks(RendererCapabilities[],
  TrackGroupArray, MediaPeriodId, Timeline)</code></a> contains not only <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>s for each
@@ -180,7 +180,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  configure renderers in a particular way if certain tracks are selected. Hence it makes sense to
  determine the track selection and corresponding renderer configurations in a single step.
 
- <h3>Threading model</h3>
+ <h2>Threading model</h2>
 
  All calls made by the player into the track selector are on the player's internal playback
  thread. The track selector may call <a href="TrackSelector.InvalidationListener.html#onTrackSelectionsInvalidated()"><code>TrackSelector.InvalidationListener.onTrackSelectionsInvalidated()</code></a>

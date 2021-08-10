@@ -298,8 +298,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unescapeStream(byte%5B%5D,int)">unescapeStream</a></span>&#8203;(byte[]&nbsp;data,
               int&nbsp;limit)</code></th>
 <td class="colLast">
-<div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with
- [0, 0].</div>
+<div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with [0,
+ 0].</div>
 </td>
 </tr>
 </table>
@@ -378,10 +378,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>unescapeStream</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;unescapeStream&#8203;(byte[]&nbsp;data,
                                  int&nbsp;limit)</pre>
-<div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with
- [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
- <p>
- Executions of this method are mutually exclusive, so it should not be called with very large
+<div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with [0,
+ 0]. The unescaped data is returned in-place, with the return value indicating its length.
+
+ <p>Executions of this method are mutually exclusive, so it should not be called with very large
  buffers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -401,9 +401,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;discardToSps&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data)</pre>
 <div class="block">Discards data from the buffer up to the first SPS, where <code>data.position()</code> is interpreted
  as the length of the buffer.
- <p>
- When the method returns, <code>data.position()</code> will contain the new length of the buffer. If
- the buffer is not empty it is guaranteed to start with an SPS.</div>
+
+ <p>When the method returns, <code>data.position()</code> will contain the new length of the buffer.
+ If the buffer is not empty it is guaranteed to start with an SPS.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - Buffer containing start code delimited NAL units.</dd>
@@ -522,16 +522,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                               int&nbsp;endOffset,
                               boolean[]&nbsp;prefixFlags)</pre>
 <div class="block">Finds the first NAL unit in <code>data</code>.
- <p>
- If <code>prefixFlags</code> is null then the first three bytes of a NAL unit must be entirely
+
+ <p>If <code>prefixFlags</code> is null then the first three bytes of a NAL unit must be entirely
  contained within the part of the array being searched in order for it to be found.
- <p>
- When <code>prefixFlags</code> is non-null, this method supports finding NAL units whose first four
- bytes span <code>data</code> arrays passed to successive calls. To use this feature, pass the same
- <code>prefixFlags</code> parameter to successive calls. State maintained in this parameter enables
- the detection of such NAL units. Note that when using this feature, the return value may be 3,
- 2 or 1 less than <code>startOffset</code>, to indicate a NAL unit starting 3, 2 or 1 bytes before
- the first byte in the current array.</div>
+
+ <p>When <code>prefixFlags</code> is non-null, this method supports finding NAL units whose first
+ four bytes span <code>data</code> arrays passed to successive calls. To use this feature, pass the
+ same <code>prefixFlags</code> parameter to successive calls. State maintained in this parameter
+ enables the detection of such NAL units. Note that when using this feature, the return value
+ may be 3, 2 or 1 less than <code>startOffset</code>, to indicate a NAL unit starting 3, 2 or 1 bytes
+ before the first byte in the current array.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The data to search.</dd>

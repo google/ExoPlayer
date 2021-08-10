@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -178,6 +178,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>static <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createFallbackOptions(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">createFallbackOptions</a></span>&#8203;(<a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
+<td class="colLast">
+<div class="block">Returns the <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.FallbackOptions</code></a> with the tracks of the given <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> and with a single location option indicating that there are no alternative
+ locations available.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>static @NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTrackSelectionsForDefinitions(com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition%5B%5D,com.google.android.exoplayer2.trackselection.TrackSelectionUtil.AdaptiveTrackSelectionFactory)">createTrackSelectionsForDefinitions</a></span>&#8203;(@NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>[]&nbsp;definitions,
                                    <a href="TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a>&nbsp;adaptiveTrackSelectionFactory)</code></th>
@@ -186,7 +194,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  multi-track adaptive selection.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasTrackOfType(com.google.android.exoplayer2.trackselection.TrackSelectionArray,int)">hasTrackOfType</a></span>&#8203;(<a href="TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections,
               int&nbsp;trackType)</code></th>
@@ -194,7 +202,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns if a <a href="TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionArray</code></a> has at least one track of the given type.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateParametersWithOverride(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,int,com.google.android.exoplayer2.source.TrackGroupArray,boolean,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)">updateParametersWithOverride</a></span>&#8203;(<a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
                             int&nbsp;rendererIndex,
@@ -279,12 +287,29 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="hasTrackOfType(com.google.android.exoplayer2.trackselection.TrackSelectionArray,int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>hasTrackOfType</h4>
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;hasTrackOfType&#8203;(<a href="TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections,
                                      int&nbsp;trackType)</pre>
 <div class="block">Returns if a <a href="TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionArray</code></a> has at least one track of the given type.</div>
+</li>
+</ul>
+<a id="createFallbackOptions(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>createFallbackOptions</h4>
+<pre class="methodSignature">public static&nbsp;<a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a>&nbsp;createFallbackOptions&#8203;(<a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
+<div class="block">Returns the <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.FallbackOptions</code></a> with the tracks of the given <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> and with a single location option indicating that there are no alternative
+ locations available.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackSelection</code> - The track selection to get the number of total and excluded tracks.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.FallbackOptions</code></a> for the given track selection.</dd>
+</dl>
 </li>
 </ul>
 </li>

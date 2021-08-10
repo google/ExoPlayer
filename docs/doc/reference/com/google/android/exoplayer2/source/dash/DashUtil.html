@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -162,6 +162,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildDataSpec(java.lang.String,com.google.android.exoplayer2.source.dash.manifest.RangedUri,java.lang.String,int)">buildDataSpec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+             <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
+             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey,
+             int&nbsp;flags)</code></th>
+<td class="colLast">
+<div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadChunkIndex(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation)">loadChunkIndex</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
               int&nbsp;trackType,
@@ -170,7 +180,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadChunkIndex(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation,int)">loadChunkIndex</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+              int&nbsp;trackType,
+              <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+              int&nbsp;baseUrlIndex)</code></th>
+<td class="colLast">
+<div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadFormatWithDrmInitData(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.source.dash.manifest.Period)">loadFormatWithDrmInitData</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                          <a href="manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&nbsp;period)</code></th>
@@ -178,7 +198,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Loads a <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for acquiring keys for a given period in a DASH manifest.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadInitializationData(com.google.android.exoplayer2.source.chunk.ChunkExtractor,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.source.dash.manifest.Representation,boolean)">loadInitializationData</a></span>&#8203;(<a href="../chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor</a>&nbsp;chunkExtractor,
+                      <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                      <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+                      boolean&nbsp;loadIndex)</code></th>
+<td class="colLast">
+<div class="block">Loads initialization data for the <code>representation</code> and optionally index data then returns
+ a <a href="../chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BundledChunkExtractor</code></a> which contains the output.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadManifest(com.google.android.exoplayer2.upstream.DataSource,android.net.Uri)">loadManifest</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
             <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
@@ -186,11 +217,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Loads a DASH manifest.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadSampleFormat(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation)">loadSampleFormat</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                 int&nbsp;trackType,
                 <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)</code></th>
+<td class="colLast">
+<div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadSampleFormat(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation,int)">loadSampleFormat</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                int&nbsp;trackType,
+                <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+                int&nbsp;baseUrlIndex)</code></th>
 <td class="colLast">
 <div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
@@ -219,6 +260,29 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="buildDataSpec(java.lang.String,com.google.android.exoplayer2.source.dash.manifest.RangedUri,java.lang.String,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildDataSpec</h4>
+<pre class="methodSignature">public static&nbsp;<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;buildDataSpec&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                                     <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
+                                     @Nullable
+                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey,
+                                     int&nbsp;flags)</pre>
+<div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>baseUrl</code> - The base url with which to resolve the request URI.</dd>
+<dd><code>requestUri</code> - The <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> of the data to request.</dd>
+<dd><code>cacheKey</code> - An optional cache key.</dd>
+<dd><code>flags</code> - Flags to be set on the returned <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>. See <a href="../../upstream/DataSpec.Builder.html#setFlags(int)"><code>DataSpec.Builder.setFlags(int)</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+</dl>
+</li>
+</ul>
 <a id="buildDataSpec(com.google.android.exoplayer2.source.dash.manifest.Representation,com.google.android.exoplayer2.source.dash.manifest.RangedUri,int)">
 <!--   -->
 </a>
@@ -228,7 +292,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;buildDataSpec&#8203;(<a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                                      <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
                                      int&nbsp;flags)</pre>
-<div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+<div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.
+
+ <p>Uses the first base URL of the representation to build the data spec.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>representation</code> - The <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a> to which the request belongs.</dd>
@@ -282,6 +348,32 @@ public static&nbsp;<a href="../../Format.html" title="class in com.google.androi
 </dl>
 </li>
 </ul>
+<a id="loadSampleFormat(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadSampleFormat</h4>
+<pre class="methodSignature">@Nullable
+public static&nbsp;<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;loadSampleFormat&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                                      int&nbsp;trackType,
+                                      <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+                                      int&nbsp;baseUrlIndex)
+                               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
+<dd><code>trackType</code> - The type of the representation. Typically one of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants.</dd>
+<dd><code>representation</code> - The representation which initialization chunk belongs to.</dd>
+<dd><code>baseUrlIndex</code> - The index of the base URL to be picked from the <a href="manifest/Representation.html#baseUrls"><code>list of base URLs</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the given representation.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - Thrown when there is an error while loading.</dd>
+</dl>
+</li>
+</ul>
 <a id="loadSampleFormat(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation)">
 <!--   -->
 </a>
@@ -293,7 +385,9 @@ public static&nbsp;<a href="../../Format.html" title="class in com.google.androi
                                       int&nbsp;trackType,
                                       <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)
                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+<div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
+
+ <p>Uses the first base URL for loading the format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -306,10 +400,37 @@ public static&nbsp;<a href="../../Format.html" title="class in com.google.androi
 </dl>
 </li>
 </ul>
+<a id="loadChunkIndex(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadChunkIndex</h4>
+<pre class="methodSignature">@Nullable
+public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;loadChunkIndex&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                                        int&nbsp;trackType,
+                                        <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+                                        int&nbsp;baseUrlIndex)
+                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
+<dd><code>trackType</code> - The type of the representation. Typically one of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants.</dd>
+<dd><code>representation</code> - The representation which initialization chunk belongs to.</dd>
+<dd><code>baseUrlIndex</code> - The index of the base URL with which to resolve the request URI.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> of the given representation, or null if no initialization or
+     index data exists.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - Thrown when there is an error while loading.</dd>
+</dl>
+</li>
+</ul>
 <a id="loadChunkIndex(com.google.android.exoplayer2.upstream.DataSource,int,com.google.android.exoplayer2.source.dash.manifest.Representation)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>loadChunkIndex</h4>
 <pre class="methodSignature">@Nullable
@@ -317,7 +438,9 @@ public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com
                                         int&nbsp;trackType,
                                         <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)
                                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
-<div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
+<div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.
+
+ <p>Uses the first base URL for loading the index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -326,6 +449,32 @@ public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> of the given representation, or null if no initialization or
      index data exists.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - Thrown when there is an error while loading.</dd>
+</dl>
+</li>
+</ul>
+<a id="loadInitializationData(com.google.android.exoplayer2.source.chunk.ChunkExtractor,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.source.dash.manifest.Representation,boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>loadInitializationData</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;loadInitializationData&#8203;(<a href="../chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor</a>&nbsp;chunkExtractor,
+                                          <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                                          <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
+                                          boolean&nbsp;loadIndex)
+                                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Loads initialization data for the <code>representation</code> and optionally index data then returns
+ a <a href="../chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BundledChunkExtractor</code></a> which contains the output.
+
+ <p>Uses the first base URL for loading the initialization data.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>chunkExtractor</code> - The <a href="../chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> to use.</dd>
+<dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
+<dd><code>representation</code> - The representation which initialization chunk belongs to.</dd>
+<dd><code>loadIndex</code> - Whether to load index data too.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - Thrown when there is an error while loading.</dd>
 </dl>

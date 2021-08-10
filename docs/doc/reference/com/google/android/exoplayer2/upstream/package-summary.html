@@ -190,7 +190,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></th>
 <td class="colLast">
-<div class="block">Defines how errors encountered by loaders are handled.</div>
+<div class="block">A policy that defines how load errors are handled.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -382,9 +382,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a></th>
 <td class="colLast">
-<div class="block">Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers
- in a thread safe way to avoid the potential of creating snapshots of an inconsistent or
- unintended state.</div>
+<div class="block">Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers in
+ a thread safe way to avoid the potential of creating snapshots of an inconsistent or unintended
+ state.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -410,6 +410,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colFirst" scope="row"><a href="LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream">LoaderErrorThrower.Dummy</a></th>
 <td class="colLast">
 <div class="block">A <a href="LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoaderErrorThrower</code></a> that never throws.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a></th>
+<td class="colLast">
+<div class="block">Holds information about the available fallback options.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.FallbackSelection.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackSelection</a></th>
+<td class="colLast">
+<div class="block">A selected fallback option.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -575,7 +587,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException.Type</a></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">The type of operation that produced the error.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.FallbackType.html" title="annotation in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackType</a></th>
+<td class="colLast">
+<div class="block">Fallback type.</div>
+</td>
 </tr>
 </tbody>
 </table>

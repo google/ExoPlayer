@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,10 +133,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">RtmpDataSourceFactory</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">RtmpDataSourceFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></pre>
-<div class="block">A <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> that produces <a href="RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp"><code>RtmpDataSource</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="RtmpDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.rtmp"><code>RtmpDataSource.Factory</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -158,11 +161,15 @@ implements <a href="../../upstream/DataSource.Factory.html" title="interface in 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">RtmpDataSourceFactory</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.TransferListener)">RtmpDataSourceFactory</a></span>&#8203;(<a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -176,7 +183,7 @@ implements <a href="../../upstream/DataSource.Factory.html" title="interface in 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -186,6 +193,7 @@ implements <a href="../../upstream/DataSource.Factory.html" title="interface in 
 <td class="colFirst"><code><a href="RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSource</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDataSource()">createDataSource</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
 </td>
 </tr>
@@ -220,6 +228,7 @@ implements <a href="../../upstream/DataSource.Factory.html" title="interface in 
 <li class="blockList">
 <h4>RtmpDataSourceFactory</h4>
 <pre>public&nbsp;RtmpDataSourceFactory()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.TransferListener)">
@@ -230,6 +239,7 @@ implements <a href="../../upstream/DataSource.Factory.html" title="interface in 
 <h4>RtmpDataSourceFactory</h4>
 <pre>public&nbsp;RtmpDataSourceFactory&#8203;(@Nullable
                              <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - An optional listener.</dd>
@@ -253,6 +263,7 @@ implements <a href="../../upstream/DataSource.Factory.html" title="interface in 
 <li class="blockList">
 <h4>createDataSource</h4>
 <pre class="methodSignature">public&nbsp;<a href="RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSource</a>&nbsp;createDataSource()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.Factory.html#createDataSource()">DataSource.Factory</a></code></span></div>
 <div class="block">Creates a <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
 <dl>

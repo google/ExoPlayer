@@ -240,10 +240,12 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Constructor</th>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colSecond" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</code></th>
 <td class="colLast">
@@ -253,6 +255,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 int&nbsp;connectTimeoutMs,
@@ -266,6 +269,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 int&nbsp;connectTimeoutMs,
@@ -280,6 +284,22 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>protected </code></td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,int,boolean,boolean,java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,com.google.common.base.Predicate,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
+                int&nbsp;requestPriority,
+                int&nbsp;connectTimeoutMs,
+                int&nbsp;readTimeoutMs,
+                boolean&nbsp;resetTimeoutOnRedirects,
+                boolean&nbsp;handleSetCookieRequests,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
+                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
+                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                boolean&nbsp;keepPostFor302Redirects)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
@@ -289,7 +309,8 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 </div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
@@ -303,7 +324,8 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 </div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
+<td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
@@ -409,7 +431,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
-    int&nbsp;readLength)</code></th>
+    int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
@@ -606,7 +628,7 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
 <a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>CronetDataSource</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
@@ -623,6 +645,28 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
 </div>
+</li>
+</ul>
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,int,boolean,boolean,java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,com.google.common.base.Predicate,boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CronetDataSource</h4>
+<pre>protected&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+                           <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
+                           int&nbsp;requestPriority,
+                           int&nbsp;connectTimeoutMs,
+                           int&nbsp;readTimeoutMs,
+                           boolean&nbsp;resetTimeoutOnRedirects,
+                           boolean&nbsp;handleSetCookieRequests,
+                           @Nullable
+                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
+                           @Nullable
+                           <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
+                           @Nullable
+                           <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                           boolean&nbsp;keepPostFor302Redirects)</pre>
 </li>
 </ul>
 </li>
@@ -807,7 +851,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
                 int&nbsp;offset,
-                int&nbsp;readLength)
+                int&nbsp;length)
          throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
@@ -824,7 +868,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
+<dd><code>length</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes read, or <a href="../../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
      may be less than <code>length</code> because the end of the input (or available data) was

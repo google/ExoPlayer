@@ -336,7 +336,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,boolean,int)">onBytesTransferred</a></span>&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                   <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                   boolean&nbsp;isNetwork,
-                  int&nbsp;bytes)</code></th>
+                  int&nbsp;bytesTransferred)</code></th>
 <td class="colLast">
 <div class="block">Called incrementally during a transfer.</div>
 </td>
@@ -698,7 +698,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;onBytesTransferred&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                boolean&nbsp;isNetwork,
-                               int&nbsp;bytes)</pre>
+                               int&nbsp;bytesTransferred)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TransferListener.html#onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,boolean,int)">TransferListener</a></code></span></div>
 <div class="block">Called incrementally during a transfer.</div>
 <dl>
@@ -708,7 +708,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <dd><code>source</code> - The source performing the transfer.</dd>
 <dd><code>dataSpec</code> - Describes the data being transferred.</dd>
 <dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
-<dd><code>bytes</code> - The number of bytes transferred since the previous call to this method</dd>
+<dd><code>bytesTransferred</code> - The number of bytes transferred since the previous call to this method.</dd>
 </dl>
 </li>
 </ul>

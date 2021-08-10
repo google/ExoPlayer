@@ -213,8 +213,8 @@ implements <a href="Cache.Listener.html" title="interface in com.google.android.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRegionEndTimeMs(long)">getRegionEndTimeMs</a></span>&#8203;(long&nbsp;byteOffset)</code></th>
 <td class="colLast">
-<div class="block">When provided with a byte offset, this method locates the cached region within which the
- offset falls, and returns the approximate end position in milliseconds of that region.</div>
+<div class="block">When provided with a byte offset, this method locates the cached region within which the offset
+ falls, and returns the approximate end position in milliseconds of that region.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -344,16 +344,15 @@ implements <a href="Cache.Listener.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>getRegionEndTimeMs</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getRegionEndTimeMs&#8203;(long&nbsp;byteOffset)</pre>
-<div class="block">When provided with a byte offset, this method locates the cached region within which the
- offset falls, and returns the approximate end position in milliseconds of that region. If the
- byte offset does not fall within a cached region then <a href="#NOT_CACHED"><code>NOT_CACHED</code></a> is returned.
- If the cached region extends to the end of the stream, <a href="#CACHED_TO_END"><code>CACHED_TO_END</code></a> is returned.</div>
+<div class="block">When provided with a byte offset, this method locates the cached region within which the offset
+ falls, and returns the approximate end position in milliseconds of that region. If the byte
+ offset does not fall within a cached region then <a href="#NOT_CACHED"><code>NOT_CACHED</code></a> is returned. If the cached
+ region extends to the end of the stream, <a href="#CACHED_TO_END"><code>CACHED_TO_END</code></a> is returned.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>byteOffset</code> - The byte offset in the underlying stream.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The end position of the corresponding cache region, <a href="#NOT_CACHED"><code>NOT_CACHED</code></a>, or
-     <a href="#CACHED_TO_END"><code>CACHED_TO_END</code></a>.</dd>
+<dd>The end position of the corresponding cache region, <a href="#NOT_CACHED"><code>NOT_CACHED</code></a>, or <a href="#CACHED_TO_END"><code>CACHED_TO_END</code></a>.</dd>
 </dl>
 </li>
 </ul>

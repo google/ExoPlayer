@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -128,9 +128,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">Cue</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
 <div class="block">Contains information about a specific cue, including textual content and formatting data.</div>
 </li>
 </ul>
@@ -188,6 +193,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="../Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -245,20 +257,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DIMEN_UNSET">DIMEN_UNSET</a></span></code></th>
 <td class="colLast">
 <div class="block">An unset position, width or size.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
 <div class="block">The empty cue.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#line">line</a></span></code></th>
 <td class="colLast">
@@ -266,35 +283,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  direction (determined by <a href="#verticalType"><code>verticalType</code></a>), or <a href="#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LINE_TYPE_FRACTION">LINE_TYPE_FRACTION</a></span></code></th>
 <td class="colLast">
 <div class="block">Value for <a href="#lineType"><code>lineType</code></a> when <a href="#line"><code>line</code></a> is a fractional position.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LINE_TYPE_NUMBER">LINE_TYPE_NUMBER</a></span></code></th>
 <td class="colLast">
 <div class="block">Value for <a href="#lineType"><code>lineType</code></a> when <a href="#line"><code>line</code></a> is a line number.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lineAnchor">lineAnchor</a></span></code></th>
 <td class="colLast">
 <div class="block">The cue box anchor positioned by <a href="#line"><code>line</code></a> when <a href="#lineType"><code>lineType</code></a> is <a href="#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lineType">lineType</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of the <a href="#line"><code>line</code></a> value.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#multiRowAlignment">multiRowAlignment</a></span></code></th>
 <td class="colLast">
@@ -302,7 +319,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  is undefined.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#position">position</a></span></code></th>
 <td class="colLast">
@@ -310,21 +327,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  the direction orthogonal to <a href="#line"><code>line</code></a>, or <a href="#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#positionAnchor">positionAnchor</a></span></code></th>
 <td class="colLast">
 <div class="block">The cue box anchor positioned by <a href="#position"><code>position</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shearDegrees">shearDegrees</a></span></code></th>
 <td class="colLast">
 <div class="block">The shear angle in degrees to be applied to this Cue, expressed in graphics coordinates.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size">size</a></span></code></th>
 <td class="colLast">
@@ -332,42 +349,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  in that direction, or <a href="#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#text">text</a></span></code></th>
 <td class="colLast">
 <div class="block">The cue text, or null if this is an image cue.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TEXT_SIZE_TYPE_ABSOLUTE">TEXT_SIZE_TYPE_ABSOLUTE</a></span></code></th>
 <td class="colLast">
 <div class="block">Text size is measured in number of pixels.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TEXT_SIZE_TYPE_FRACTIONAL">TEXT_SIZE_TYPE_FRACTIONAL</a></span></code></th>
 <td class="colLast">
 <div class="block">Text size is measured as a fraction of the viewport size minus the view padding.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING">TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING</a></span></code></th>
 <td class="colLast">
 <div class="block">Text size is measured as a fraction of the viewport size, ignoring the view padding</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#textAlignment">textAlignment</a></span></code></th>
 <td class="colLast">
 <div class="block">The alignment of the cue text within the cue box, or null if the alignment is undefined.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#textSize">textSize</a></span></code></th>
 <td class="colLast">
@@ -375,7 +392,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  text size.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#textSizeType">textSizeType</a></span></code></th>
 <td class="colLast">
@@ -383,28 +400,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  default text size.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_UNSET">TYPE_UNSET</a></span></code></th>
 <td class="colLast">
 <div class="block">An unset anchor, line, text size or vertical type value.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VERTICAL_TYPE_LR">VERTICAL_TYPE_LR</a></span></code></th>
 <td class="colLast">
 <div class="block">Vertical left-to-right (e.g.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VERTICAL_TYPE_RL">VERTICAL_TYPE_RL</a></span></code></th>
 <td class="colLast">
 <div class="block">Vertical right-to-left (e.g.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#verticalType">verticalType</a></span></code></th>
 <td class="colLast">
@@ -412,14 +429,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  (and so should be horizontal).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowColor">windowColor</a></span></code></th>
 <td class="colLast">
 <div class="block">The fill color of the window.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowColorSet">windowColorSet</a></span></code></th>
 <td class="colLast">
@@ -525,13 +542,30 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a new <a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a> initialized with the same values as this Cue.</div>
 </td>
 </tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -965,12 +999,21 @@ public final&nbsp;int verticalType</pre>
 <a id="shearDegrees">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>shearDegrees</h4>
 <pre>public final&nbsp;float shearDegrees</pre>
 <div class="block">The shear angle in degrees to be applied to this Cue, expressed in graphics coordinates. This
  results in a skew transform for the block along the inline progression axis.</div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&gt; CREATOR</pre>
 </li>
 </ul>
 </li>
@@ -1132,11 +1175,53 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
 <a id="buildUpon()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>buildUpon</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;buildUpon()</pre>
 <div class="block">Returns a new <a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a> initialized with the same values as this Cue.</div>
+</li>
+</ul>
+<a id="equals(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>equals</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="hashCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toBundle()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toBundle</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Bundleable.html#toBundle()">Bundleable</a></code></span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>

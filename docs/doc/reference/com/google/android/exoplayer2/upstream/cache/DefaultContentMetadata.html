@@ -216,7 +216,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(java.lang.String)">contains</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(java.lang.String)">contains</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the metadata is available.</div>
 </td>
@@ -242,7 +242,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,byte%5B%5D)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,byte%5B%5D)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
    byte[]&nbsp;defaultValue)</code></th>
 <td class="colLast">
 <div class="block">Returns a metadata value.</div>
@@ -250,7 +250,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,long)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,long)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
    long&nbsp;defaultValue)</code></th>
 <td class="colLast">
 <div class="block">Returns a metadata value.</div>
@@ -258,7 +258,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,java.lang.String)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,java.lang.String)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</code></th>
 <td class="colLast">
 <div class="block">Returns a metadata value.</div>
@@ -373,7 +373,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature">@Nullable
-public final&nbsp;byte[]&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+public final&nbsp;byte[]&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                         @Nullable
                         byte[]&nbsp;defaultValue)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#get(java.lang.String,byte%5B%5D)">ContentMetadata</a></code></span></div>
@@ -382,7 +382,7 @@ public final&nbsp;byte[]&nbsp;get&#8203;(<a href="https://developer.android.com/
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ContentMetadata.html#get(java.lang.String,byte%5B%5D)">get</a></code>&nbsp;in interface&nbsp;<code><a href="ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - Key of the metadata to be returned.</dd>
+<dd><code>key</code> - Key of the metadata to be returned.</dd>
 <dd><code>defaultValue</code> - Value to return if the metadata doesn't exist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata value.</dd>
@@ -396,7 +396,7 @@ public final&nbsp;byte[]&nbsp;get&#8203;(<a href="https://developer.android.com/
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature">@Nullable
-public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                         @Nullable
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#get(java.lang.String,java.lang.String)">ContentMetadata</a></code></span></div>
@@ -405,7 +405,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ContentMetadata.html#get(java.lang.String,java.lang.String)">get</a></code>&nbsp;in interface&nbsp;<code><a href="ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - Key of the metadata to be returned.</dd>
+<dd><code>key</code> - Key of the metadata to be returned.</dd>
 <dd><code>defaultValue</code> - Value to return if the metadata doesn't exist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata value.</dd>
@@ -418,7 +418,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre class="methodSignature">public final&nbsp;long&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
+<pre class="methodSignature">public final&nbsp;long&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                       long&nbsp;defaultValue)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#get(java.lang.String,long)">ContentMetadata</a></code></span></div>
 <div class="block">Returns a metadata value.</div>
@@ -426,7 +426,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ContentMetadata.html#get(java.lang.String,long)">get</a></code>&nbsp;in interface&nbsp;<code><a href="ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - Key of the metadata to be returned.</dd>
+<dd><code>key</code> - Key of the metadata to be returned.</dd>
 <dd><code>defaultValue</code> - Value to return if the metadata doesn't exist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The metadata value.</dd>
@@ -439,7 +439,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <ul class="blockList">
 <li class="blockList">
 <h4>contains</h4>
-<pre class="methodSignature">public final&nbsp;boolean&nbsp;contains&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<pre class="methodSignature">public final&nbsp;boolean&nbsp;contains&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#contains(java.lang.String)">ContentMetadata</a></code></span></div>
 <div class="block">Returns whether the metadata is available.</div>
 <dl>
