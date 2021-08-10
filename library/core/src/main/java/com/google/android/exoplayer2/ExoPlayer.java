@@ -23,6 +23,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
@@ -33,6 +34,8 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -47,8 +50,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -59,7 +62,7 @@ import java.util.List;
 
 /**
  * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from {@link
- * SimpleExoPlayer.Builder}.
+ * Builder}.
  *
  * <h2>Player components</h2>
  *
@@ -73,10 +76,10 @@ import java.util.List;
  *   <li><b>{@link MediaSource MediaSources}</b> that define the media to be played, load the media,
  *       and from which the loaded media can be read. MediaSources are created from {@link MediaItem
  *       MediaItems} by the {@link MediaSourceFactory} injected into the player {@link
- *       SimpleExoPlayer.Builder#setMediaSourceFactory Builder}, or can be added directly by methods
- *       like {@link #setMediaSource(MediaSource)}. The library provides a {@link
- *       DefaultMediaSourceFactory} for progressive media files, DASH, SmoothStreaming and HLS,
- *       which also includes functionality for side-loading subtitle files and clipping media.
+ *       Builder#setMediaSourceFactory Builder}, or can be added directly by methods like {@link
+ *       #setMediaSource(MediaSource)}. The library provides a {@link DefaultMediaSourceFactory} for
+ *       progressive media files, DASH, SmoothStreaming and HLS, which also includes functionality
+ *       for side-loading subtitle files and clipping media.
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A
@@ -506,12 +509,6 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * The default timeout for calls to {@link #release} and {@link #setForegroundMode}, in
-   * milliseconds.
-   */
-  long DEFAULT_RELEASE_TIMEOUT_MS = 500;
-
-  /**
    * A listener for audio offload events.
    *
    * <p>This class is experimental, and might be renamed, moved or removed in a future release.
@@ -519,7 +516,7 @@ public interface ExoPlayer extends Player {
   interface AudioOffloadListener {
     /**
      * Called when the player has started or stopped offload scheduling using {@link
-     * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean)}.
+     * #experimentalSetOffloadSchedulingEnabled(boolean)}.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
@@ -534,39 +531,28 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * A builder for {@link ExoPlayer} instances.
+   * A builder for {@link SimpleExoPlayer} instances.
    *
-   * <p>See {@link #Builder(Context, Renderer...)} for the list of default values.
-   *
-   * @deprecated Use {@link SimpleExoPlayer.Builder} instead.
+   * <p>See {@link #Builder(Context)} for the list of default values.
    */
-  @Deprecated
+  @SuppressWarnings("deprecation")
   final class Builder {
 
-    private final Renderer[] renderers;
-
-    private Clock clock;
-    private TrackSelector trackSelector;
-    private MediaSourceFactory mediaSourceFactory;
-    private LoadControl loadControl;
-    private BandwidthMeter bandwidthMeter;
-    private Looper looper;
-    @Nullable private AnalyticsCollector analyticsCollector;
-    private boolean useLazyPreparation;
-    private SeekParameters seekParameters;
-    private boolean pauseAtEndOfMediaItems;
-    private long releaseTimeoutMs;
-    private LivePlaybackSpeedControl livePlaybackSpeedControl;
-    private boolean buildCalled;
-
-    private long setForegroundModeTimeoutMs;
+    private final SimpleExoPlayer.Builder wrappedBuilder;
 
     /**
-     * Creates a builder with a list of {@link Renderer Renderers}.
+     * Creates a builder.
+     *
+     * <p>Use {@link #Builder(Context, RenderersFactory)}, {@link #Builder(Context,
+     * RenderersFactory)} or {@link #Builder(Context, RenderersFactory, ExtractorsFactory)} instead,
+     * if you intend to provide a custom {@link RenderersFactory} or a custom {@link
+     * ExtractorsFactory}. This is to ensure that ProGuard or R8 can remove ExoPlayer's {@link
+     * DefaultRenderersFactory} and {@link DefaultExtractorsFactory} from the APK.
      *
      * <p>The builder uses the following default values:
      *
      * <ul>
+     *   <li>{@link RenderersFactory}: {@link DefaultRenderersFactory}
      *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
      *   <li>{@link MediaSourceFactory}: {@link DefaultMediaSourceFactory}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
@@ -576,23 +562,70 @@ public interface ExoPlayer extends Player {
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
      *       Looper}
      *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
+     *   <li>{@link PriorityTaskManager}: {@code null} (not used)
+     *   <li>{@link AudioAttributes}: {@link AudioAttributes#DEFAULT}, not handling audio focus
+     *   <li>{@link C.WakeMode}: {@link C#WAKE_MODE_NONE}
+     *   <li>{@code handleAudioBecomingNoisy}: {@code false}
+     *   <li>{@code skipSilenceEnabled}: {@code false}
+     *   <li>{@link C.VideoScalingMode}: {@link C#VIDEO_SCALING_MODE_DEFAULT}
+     *   <li>{@link C.VideoChangeFrameRateStrategy}: {@link
+     *       C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
-     *   <li>{@code releaseTimeoutMs}: {@link ExoPlayer#DEFAULT_RELEASE_TIMEOUT_MS}
+     *   <li>{@code seekBackIncrementMs}: {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}
+     *   <li>{@code seekForwardIncrementMs}: {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}
+     *   <li>{@code releaseTimeoutMs}: {@link #DEFAULT_RELEASE_TIMEOUT_MS}
+     *   <li>{@code detachSurfaceTimeoutMs}: {@link #DEFAULT_DETACH_SURFACE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
      * @param context A {@link Context}.
-     * @param renderers The {@link Renderer Renderers} to be used by the player.
      */
-    public Builder(Context context, Renderer... renderers) {
-      this(
-          renderers,
-          new DefaultTrackSelector(context),
-          new DefaultMediaSourceFactory(context),
-          new DefaultLoadControl(),
-          DefaultBandwidthMeter.getSingletonInstance(context));
+    public Builder(Context context) {
+      wrappedBuilder = new SimpleExoPlayer.Builder(context);
+    }
+
+    /**
+     * Creates a builder with a custom {@link RenderersFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
+     *     player.
+     */
+    public Builder(Context context, RenderersFactory renderersFactory) {
+      wrappedBuilder = new SimpleExoPlayer.Builder(context, renderersFactory);
+    }
+
+    /**
+     * Creates a builder with a custom {@link ExtractorsFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
+     *     its container.
+     */
+    public Builder(Context context, ExtractorsFactory extractorsFactory) {
+      wrappedBuilder = new SimpleExoPlayer.Builder(context, extractorsFactory);
+    }
+
+    /**
+     * Creates a builder with a custom {@link RenderersFactory} and {@link ExtractorsFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
+     *     player.
+     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
+     *     its container.
+     */
+    public Builder(
+        Context context, RenderersFactory renderersFactory, ExtractorsFactory extractorsFactory) {
+      wrappedBuilder = new SimpleExoPlayer.Builder(context, renderersFactory, extractorsFactory);
     }
 
     /**
@@ -601,44 +634,45 @@ public interface ExoPlayer extends Player {
      * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's default
      * components can be removed by ProGuard or R8.
      *
-     * @param renderers The {@link Renderer Renderers} to be used by the player.
+     * @param context A {@link Context}.
+     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
+     *     player.
      * @param trackSelector A {@link TrackSelector}.
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
+     * @param analyticsCollector An {@link AnalyticsCollector}.
      */
     public Builder(
-        Renderer[] renderers,
+        Context context,
+        RenderersFactory renderersFactory,
         TrackSelector trackSelector,
         MediaSourceFactory mediaSourceFactory,
         LoadControl loadControl,
-        BandwidthMeter bandwidthMeter) {
-      Assertions.checkArgument(renderers.length > 0);
-      this.renderers = renderers;
-      this.trackSelector = trackSelector;
-      this.mediaSourceFactory = mediaSourceFactory;
-      this.loadControl = loadControl;
-      this.bandwidthMeter = bandwidthMeter;
-      looper = Util.getCurrentOrMainLooper();
-      useLazyPreparation = true;
-      seekParameters = SeekParameters.DEFAULT;
-      livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
-      clock = Clock.DEFAULT;
-      releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
+        BandwidthMeter bandwidthMeter,
+        AnalyticsCollector analyticsCollector) {
+      wrappedBuilder =
+          new SimpleExoPlayer.Builder(
+              context,
+              renderersFactory,
+              trackSelector,
+              mediaSourceFactory,
+              loadControl,
+              bandwidthMeter,
+              analyticsCollector);
     }
 
     /**
-     * Set a limit on the time a call to {@link ExoPlayer#setForegroundMode} can spend. If a call to
-     * {@link ExoPlayer#setForegroundMode} takes more than {@code timeoutMs} milliseconds to
-     * complete, the player will raise an error via {@link Player.Listener#onPlayerError}.
+     * Set a limit on the time a call to {@link #setForegroundMode} can spend. If a call to {@link
+     * #setForegroundMode} takes more than {@code timeoutMs} milliseconds to complete, the player
+     * will raise an error via {@link Player.Listener#onPlayerError}.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      *
      * @param timeoutMs The time limit in milliseconds.
      */
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
-      Assertions.checkState(!buildCalled);
-      setForegroundModeTimeoutMs = timeoutMs;
+      wrappedBuilder.experimentalSetForegroundModeTimeoutMs(timeoutMs);
       return this;
     }
 
@@ -650,8 +684,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setTrackSelector(TrackSelector trackSelector) {
-      Assertions.checkState(!buildCalled);
-      this.trackSelector = trackSelector;
+      wrappedBuilder.setTrackSelector(trackSelector);
       return this;
     }
 
@@ -663,8 +696,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
-      Assertions.checkState(!buildCalled);
-      this.mediaSourceFactory = mediaSourceFactory;
+      wrappedBuilder.setMediaSourceFactory(mediaSourceFactory);
       return this;
     }
 
@@ -676,8 +708,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setLoadControl(LoadControl loadControl) {
-      Assertions.checkState(!buildCalled);
-      this.loadControl = loadControl;
+      wrappedBuilder.setLoadControl(loadControl);
       return this;
     }
 
@@ -689,8 +720,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
-      Assertions.checkState(!buildCalled);
-      this.bandwidthMeter = bandwidthMeter;
+      wrappedBuilder.setBandwidthMeter(bandwidthMeter);
       return this;
     }
 
@@ -703,8 +733,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setLooper(Looper looper) {
-      Assertions.checkState(!buildCalled);
-      this.looper = looper;
+      wrappedBuilder.setLooper(looper);
       return this;
     }
 
@@ -716,8 +745,124 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
-      Assertions.checkState(!buildCalled);
-      this.analyticsCollector = analyticsCollector;
+      wrappedBuilder.setAnalyticsCollector(analyticsCollector);
+      return this;
+    }
+
+    /**
+     * Sets an {@link PriorityTaskManager} that will be used by the player.
+     *
+     * <p>The priority {@link C#PRIORITY_PLAYBACK} will be set while the player is loading.
+     *
+     * @param priorityTaskManager A {@link PriorityTaskManager}, or null to not use one.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
+      wrappedBuilder.setPriorityTaskManager(priorityTaskManager);
+      return this;
+    }
+
+    /**
+     * Sets {@link AudioAttributes} that will be used by the player and whether to handle audio
+     * focus.
+     *
+     * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
+     * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * @param audioAttributes {@link AudioAttributes}.
+     * @param handleAudioFocus Whether the player should handle audio focus.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+      wrappedBuilder.setAudioAttributes(audioAttributes, handleAudioFocus);
+      return this;
+    }
+
+    /**
+     * Sets the {@link C.WakeMode} that will be used by the player.
+     *
+     * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK}
+     * permission. It should be used together with a foreground {@link android.app.Service} for use
+     * cases where playback occurs and the screen is off (e.g. background audio playback). It is not
+     * useful when the screen will be kept on during playback (e.g. foreground video playback).
+     *
+     * <p>When enabled, the locks ({@link android.os.PowerManager.WakeLock} / {@link
+     * android.net.wifi.WifiManager.WifiLock}) will be held whenever the player is in the {@link
+     * #STATE_READY} or {@link #STATE_BUFFERING} states with {@code playWhenReady = true}. The locks
+     * held depend on the specified {@link C.WakeMode}.
+     *
+     * @param wakeMode A {@link C.WakeMode}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setWakeMode(@C.WakeMode int wakeMode) {
+      wrappedBuilder.setWakeMode(wakeMode);
+      return this;
+    }
+
+    /**
+     * Sets whether the player should pause automatically when audio is rerouted from a headset to
+     * device speakers. See the <a
+     * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">
+     * audio becoming noisy</a> documentation for more information.
+     *
+     * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
+     *     rerouted from a headset to device speakers.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
+      wrappedBuilder.setHandleAudioBecomingNoisy(handleAudioBecomingNoisy);
+      return this;
+    }
+
+    /**
+     * Sets whether silences silences in the audio stream is enabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences is enabled.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+      wrappedBuilder.setSkipSilenceEnabled(skipSilenceEnabled);
+      return this;
+    }
+
+    /**
+     * Sets the {@link C.VideoScalingMode} that will be used by the player.
+     *
+     * <p>The scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer} is
+     * enabled and if the output surface is owned by a {@link SurfaceView}.
+     *
+     * @param videoScalingMode A {@link C.VideoScalingMode}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
+      wrappedBuilder.setVideoScalingMode(videoScalingMode);
+      return this;
+    }
+
+    /**
+     * Sets a {@link C.VideoChangeFrameRateStrategy} that will be used by the player when provided
+     * with a video output {@link Surface}.
+     *
+     * <p>The strategy only applies if a {@link MediaCodec}-based video {@link Renderer} is enabled.
+     * Applications wishing to use {@link Surface#CHANGE_FRAME_RATE_ALWAYS} should set the mode to
+     * {@link C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF} to disable calls to {@link
+     * Surface#setFrameRate} from ExoPlayer, and should then call {@link Surface#setFrameRate}
+     * directly from application code.
+     *
+     * @param videoChangeFrameRateStrategy A {@link C.VideoChangeFrameRateStrategy}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setVideoChangeFrameRateStrategy(
+        @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
+      wrappedBuilder.setVideoChangeFrameRateStrategy(videoChangeFrameRateStrategy);
       return this;
     }
 
@@ -733,8 +878,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
-      Assertions.checkState(!buildCalled);
-      this.useLazyPreparation = useLazyPreparation;
+      wrappedBuilder.setUseLazyPreparation(useLazyPreparation);
       return this;
     }
 
@@ -746,8 +890,33 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSeekParameters(SeekParameters seekParameters) {
-      Assertions.checkState(!buildCalled);
-      this.seekParameters = seekParameters;
+      wrappedBuilder.setSeekParameters(seekParameters);
+      return this;
+    }
+
+    /**
+     * Sets the {@link #seekBack()} increment.
+     *
+     * @param seekBackIncrementMs The seek back increment, in milliseconds.
+     * @return This builder.
+     * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
+      wrappedBuilder.setSeekBackIncrementMs(seekBackIncrementMs);
+      return this;
+    }
+
+    /**
+     * Sets the {@link #seekForward()} increment.
+     *
+     * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
+     * @return This builder.
+     * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
+      wrappedBuilder.setSeekForwardIncrementMs(seekForwardIncrementMs);
       return this;
     }
 
@@ -763,8 +932,23 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
-      Assertions.checkState(!buildCalled);
-      this.releaseTimeoutMs = releaseTimeoutMs;
+      wrappedBuilder.setReleaseTimeoutMs(releaseTimeoutMs);
+      return this;
+    }
+
+    /**
+     * Sets a timeout for detaching a surface from the player.
+     *
+     * <p>If detaching a surface or replacing a surface takes more than {@code
+     * detachSurfaceTimeoutMs} to complete, the player will report an error via {@link
+     * Player.Listener#onPlayerError}.
+     *
+     * @param detachSurfaceTimeoutMs The timeout for detaching a surface, in milliseconds.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
+      wrappedBuilder.setDetachSurfaceTimeoutMs(detachSurfaceTimeoutMs);
       return this;
     }
 
@@ -781,8 +965,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
-      Assertions.checkState(!buildCalled);
-      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
+      wrappedBuilder.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
       return this;
     }
 
@@ -795,8 +978,7 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
-      Assertions.checkState(!buildCalled);
-      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      wrappedBuilder.setLivePlaybackSpeedControl(livePlaybackSpeedControl);
       return this;
     }
 
@@ -810,45 +992,28 @@ public interface ExoPlayer extends Player {
      */
     @VisibleForTesting
     public Builder setClock(Clock clock) {
-      Assertions.checkState(!buildCalled);
-      this.clock = clock;
+      wrappedBuilder.setClock(clock);
       return this;
     }
 
     /**
-     * Builds an {@link ExoPlayer} instance.
+     * Builds a {@link SimpleExoPlayer} instance.
      *
-     * @throws IllegalStateException If {@code build} has already been called.
+     * @throws IllegalStateException If this method has already been called.
      */
-    public ExoPlayer build() {
-      Assertions.checkState(!buildCalled);
-      buildCalled = true;
-      ExoPlayerImpl player =
-          new ExoPlayerImpl(
-              renderers,
-              trackSelector,
-              mediaSourceFactory,
-              loadControl,
-              bandwidthMeter,
-              analyticsCollector,
-              useLazyPreparation,
-              seekParameters,
-              C.DEFAULT_SEEK_BACK_INCREMENT_MS,
-              C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
-              livePlaybackSpeedControl,
-              releaseTimeoutMs,
-              pauseAtEndOfMediaItems,
-              clock,
-              looper,
-              /* wrappingPlayer= */ null,
-              /* additionalPermanentAvailableCommands= */ Commands.EMPTY);
-
-      if (setForegroundModeTimeoutMs > 0) {
-        player.experimentalSetForegroundModeTimeoutMs(setForegroundModeTimeoutMs);
-      }
-      return player;
+    public SimpleExoPlayer build() {
+      return wrappedBuilder.build();
     }
   }
+
+  /**
+   * The default timeout for calls to {@link #release} and {@link #setForegroundMode}, in
+   * milliseconds.
+   */
+  long DEFAULT_RELEASE_TIMEOUT_MS = 500;
+
+  /** The default timeout for detaching a surface from the player, in milliseconds. */
+  long DEFAULT_DETACH_SURFACE_TIMEOUT_MS = 2_000;
 
   /**
    * Equivalent to {@link Player#getPlayerError()}, except the exception is guaranteed to be an

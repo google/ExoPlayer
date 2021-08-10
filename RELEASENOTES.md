@@ -4,6 +4,8 @@
 *   Core Library:
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
+    *   Make `ExoPlayer.Builder` return a `SimpleExoPlayer` instance.
+    *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
 *   Android 12 compatibility:
     *   Disable platform transcoding when playing content URIs on Android 12.
     *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
