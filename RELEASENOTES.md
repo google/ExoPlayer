@@ -19,6 +19,9 @@
         `Renderer` instead, except for `C.MSG_SET_SURFACE`, which is replaced
         with `Renderer.MSG_SET_VIDEO_OUTPUT`.
     *   Remove `DeviceListener`. Use `Player.Listener` instead.
+    *   Remove `CacheDataSourceFactory`. Use `CacheDataSource.Factory` instead.
+    *   Remove `CacheDataSinkFactory`. Use `CacheDataSink.Factory` instead.
+    *   Remove `FileDataSourceFactory`. Use `FileDataSource.Factory` instead.
 
 ### 2.15.0 (2021-08-10)
 
