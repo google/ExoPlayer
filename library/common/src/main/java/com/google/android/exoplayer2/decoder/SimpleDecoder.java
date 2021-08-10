@@ -40,9 +40,9 @@ public abstract class SimpleDecoder<
 
   private int availableInputBufferCount;
   private int availableOutputBufferCount;
-  private I dequeuedInputBuffer;
+  @Nullable private I dequeuedInputBuffer;
 
-  private E exception;
+  @Nullable private E exception;
   private boolean flushed;
   private boolean released;
   private int skippedOutputBufferCount;
@@ -51,6 +51,7 @@ public abstract class SimpleDecoder<
    * @param inputBuffers An array of nulls that will be used to store references to input buffers.
    * @param outputBuffers An array of nulls that will be used to store references to output buffers.
    */
+  @SuppressWarnings("nullness:method.invocation")
   protected SimpleDecoder(I[] inputBuffers, O[] outputBuffers) {
     lock = new Object();
     queuedInputBuffers = new ArrayDeque<>();
@@ -178,6 +179,7 @@ public abstract class SimpleDecoder<
    * @throws E The decode exception.
    */
   private void maybeThrowException() throws E {
+    @Nullable E exception = this.exception;
     if (exception != null) {
       throw exception;
     }
