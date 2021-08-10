@@ -983,6 +983,8 @@ public abstract class Timeline implements Bundleable {
         }
       };
 
+  protected Timeline() {}
+
   /** Returns whether the timeline is empty. */
   public final boolean isEmpty() {
     return getWindowCount() == 0;
