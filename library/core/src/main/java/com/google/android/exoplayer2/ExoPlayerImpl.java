@@ -671,6 +671,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void seekTo(int windowIndex, long positionMs) {
+    Assertions.checkArgument(positionMs >= 0);
     Timeline timeline = playbackInfo.timeline;
     if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
       throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);

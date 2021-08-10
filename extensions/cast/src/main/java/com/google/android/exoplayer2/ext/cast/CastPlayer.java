@@ -431,6 +431,7 @@ public final class CastPlayer extends BasePlayer {
   @SuppressWarnings("deprecation")
   @Override
   public void seekTo(int windowIndex, long positionMs) {
+    Assertions.checkArgument(positionMs >= 0 || positionMs == C.TIME_UNSET);
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.
