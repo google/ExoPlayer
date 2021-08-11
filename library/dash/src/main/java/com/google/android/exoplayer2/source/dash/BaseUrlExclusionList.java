@@ -34,8 +34,8 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Holds the state of {@link #exclude(BaseUrl, long) excluded} base URLs to be used {@link
- * #selectBaseUrl(List) to select} a base URL based on these exclusions.
+ * Holds the state of {@link #exclude(BaseUrl, long) excluded} base URLs to be used to {@link
+ * #selectBaseUrl(List) select} a base URL based on these exclusions.
  */
 public final class BaseUrlExclusionList {
 
