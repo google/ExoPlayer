@@ -1,25 +1,5 @@
 # Release notes
 
-### dev-v2 (not yet released)
-*   Core Library:
-    *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
-        `com.google.android.exoplayer2.DeviceInfo`.
-*   Android 12 compatibility:
-    *   Disable platform transcoding when playing content URIs on Android 12.
-    *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
-        calls from the player to `Surface.setFrameRate`. This is useful for
-        applications wanting to call `Surface.setFrameRate` directly from
-        application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
-*   GVR extension:
-    *   Remove `GvrAudioProcessor`, which has been deprecated since 2.11.0.
-*   Remove deprecated symbols:
-    *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
-        constants in `C` instead.
-    *   Remove `C.MSG_*` constants. Use identically named constants in
-        `Renderer` instead, except for `C.MSG_SET_SURFACE`, which is replaced
-        with `Renderer.MSG_SET_VIDEO_OUTPUT`.
-    *   Remove `DeviceListener`. Use `Player.Listener` instead.
-
 ### 2.15.0 (2021-08-10)
 
 *   Core Library:
@@ -96,6 +76,12 @@
         available commands.
     *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
         `getFastForwardIncrementMs` to take the player as parameter.
+*   DASH:
+    *   Add support for multiple base URLs and DVB attributes in the manifest.
+        Apps that are using `DefaultLoadErrorHandlingPolicy` with such manifests
+        have base URL fallback automatically enabled
+        ([#771](https://github.com/google/ExoPlayer/issues/771),
+        [#7654](https://github.com/google/ExoPlayer/issues/7654)).
 *   HLS:
     *   Fix issue that could cause some playbacks to be stuck buffering
         ([#8850](https://github.com/google/ExoPlayer/issues/8850),
@@ -188,12 +174,6 @@
         ([#9158](https://github.com/google/ExoPlayer/issues/9158)).
     *   Fix issue around TS synchronization when reading a file's duration
         ([#9100](https://github.com/google/ExoPlayer/pull/9100)).
-*   DASH:
-    *   Add support for multiple base URLs and DVB attributes in the manifest.
-        Apps that are using `DefaultLoadErrorHandlingPolicy` with such manifests
-        have base URL fallback automatically enabled
-        ([#771](https://github.com/google/ExoPlayer/issues/771),
-        [#7654](https://github.com/google/ExoPlayer/issues/7654)).
 *   HLS:
     *   Fix issue where playback of a live event could become stuck rather than
         transitioning to `STATE_ENDED` when the event ends
