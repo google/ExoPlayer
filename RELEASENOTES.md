@@ -101,6 +101,12 @@
         available commands.
     *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
         `getFastForwardIncrementMs` to take the player as parameter.
+*   DASH:
+    *   Add support for multiple base URLs and DVB attributes in the manifest.
+        Apps that are using `DefaultLoadErrorHandlingPolicy` with such manifests
+        have base URL fallback automatically enabled
+        ([#771](https://github.com/google/ExoPlayer/issues/771),
+        [#7654](https://github.com/google/ExoPlayer/issues/7654)).
 *   HLS:
     *   Fix issue that could cause some playbacks to be stuck buffering
         ([#8850](https://github.com/google/ExoPlayer/issues/8850),
@@ -193,12 +199,6 @@
         ([#9158](https://github.com/google/ExoPlayer/issues/9158)).
     *   Fix issue around TS synchronization when reading a file's duration
         ([#9100](https://github.com/google/ExoPlayer/pull/9100)).
-*   DASH:
-    *   Add support for multiple base URLs and DVB attributes in the manifest.
-        Apps that are using `DefaultLoadErrorHandlingPolicy` with such manifests
-        have base URL fallback automatically enabled
-        ([#771](https://github.com/google/ExoPlayer/issues/771),
-        [#7654](https://github.com/google/ExoPlayer/issues/7654)).
 *   HLS:
     *   Fix issue where playback of a live event could become stuck rather than
         transitioning to `STATE_ENDED` when the event ends
