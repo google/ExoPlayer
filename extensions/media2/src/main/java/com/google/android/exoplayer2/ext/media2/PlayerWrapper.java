@@ -166,7 +166,7 @@ import java.util.List;
   /**
    * @deprecated Use a {@link ForwardingPlayer} and pass it to the constructor instead. You can also
    *     customize some operations when configuring the player (for example by using {@code
-   *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+   *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
    */
   @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {

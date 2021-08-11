@@ -24,6 +24,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -130,7 +131,7 @@ public class VpxPlaybackTest {
                     videoRendererEventListener,
                     /* maxDroppedFramesToNotify= */ -1)
               };
-      player = new SimpleExoPlayer.Builder(context, renderersFactory).build();
+      player = new ExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(

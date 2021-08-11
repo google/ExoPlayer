@@ -50,7 +50,7 @@ DefaultDataSource.Factory dataSourceFactory =
 
 // Inject the DefaultDataSourceFactory when creating the player.
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
         .build();
 ~~~

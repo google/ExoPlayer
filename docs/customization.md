@@ -60,7 +60,7 @@ DefaultDataSource.Factory dataSourceFactory =
 
 // Inject the DefaultDataSourceFactory when creating the player.
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
         .build();
 ~~~
@@ -82,7 +82,7 @@ DataSource.Factory cacheDataSourceFactory =
         .setCache(simpleCache)
         .setUpstreamDataSourceFactory(httpDataSourceFactory);
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+SimpleExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(
         new DefaultMediaSourceFactory(cacheDataSourceFactory))
     .build();
@@ -107,7 +107,7 @@ DataSource.Factory dataSourceFactory = () -> {
   return dataSource;
 };
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+SimpleExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
     .build();
 ~~~
@@ -158,7 +158,7 @@ LoadErrorHandlingPolicy loadErrorHandlingPolicy =
     };
 
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context)
                 .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy))
@@ -181,7 +181,7 @@ DefaultExtractorsFactory extractorsFactory =
     new DefaultExtractorsFactory()
         .setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING);
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+SimpleExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(
         new DefaultMediaSourceFactory(context, extractorsFactory))
     .build();

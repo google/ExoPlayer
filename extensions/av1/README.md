@@ -74,13 +74,13 @@ Once you've followed the instructions above to check out, build and depend on
 the extension, the next step is to tell ExoPlayer to use `Libgav1VideoRenderer`.
 How you do this depends on which player API you're using:
 
-* If you're passing a `DefaultRenderersFactory` to `SimpleExoPlayer.Builder`,
-  you can enable using the extension by setting the `extensionRendererMode`
-  parameter of the `DefaultRenderersFactory` constructor to
-  `EXTENSION_RENDERER_MODE_ON`. This will use `Libgav1VideoRenderer` for
-  playback if `MediaCodecVideoRenderer` doesn't support decoding the input AV1
-  stream. Pass `EXTENSION_RENDERER_MODE_PREFER` to give `Libgav1VideoRenderer`
-  priority over `MediaCodecVideoRenderer`.
+* If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you can
+  enable using the extension by setting the `extensionRendererMode` parameter of
+  the `DefaultRenderersFactory` constructor to `EXTENSION_RENDERER_MODE_ON`.
+  This will use `Libgav1VideoRenderer` for playback if `MediaCodecVideoRenderer`
+  doesn't support decoding the input AV1 stream. Pass
+  `EXTENSION_RENDERER_MODE_PREFER` to give `Libgav1VideoRenderer` priority over
+  `MediaCodecVideoRenderer`.
 * If you've subclassed `DefaultRenderersFactory`, add a `Libvgav1VideoRenderer`
   to the output list in `buildVideoRenderers`. ExoPlayer will use the first
   `Renderer` in the list that supports the input media format.

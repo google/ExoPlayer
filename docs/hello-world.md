@@ -92,12 +92,12 @@ to prevent build errors.
 
 ## Creating the player ##
 
-You can create an `ExoPlayer` instance using `SimpleExoPlayer.Builder`, which
-provides a range of customization options. The code below is the simplest
-example of creating an instance.
+You can create an `ExoPlayer` instance using `ExoPlayer.Builder`, which provides
+a range of customization options. The code below is the simplest example of
+creating an instance.
 
 ~~~
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+SimpleExoPlayer player = new ExoPlayer.Builder(context).build();
 ~~~
 {: .language-java}
 

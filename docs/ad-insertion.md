@@ -49,7 +49,7 @@ MediaSourceFactory mediaSourceFactory =
     new DefaultMediaSourceFactory(context)
         .setAdsLoaderProvider(adsLoaderProvider)
         .setAdViewProvider(playerView);
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+SimpleExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(mediaSourceFactory)
     .build();
 ~~~

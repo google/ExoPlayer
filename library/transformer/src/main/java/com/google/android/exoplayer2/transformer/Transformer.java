@@ -37,6 +37,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -477,7 +478,7 @@ public final class Transformer {
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
     player =
-        new SimpleExoPlayer.Builder(
+        new ExoPlayer.Builder(
                 context, new TransformerRenderersFactory(muxerWrapper, transformation))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)

@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -314,7 +315,7 @@ import java.util.List;
     protected SimpleExoPlayer buildExoPlayer(
         HostActivity host, Surface surface, MappingTrackSelector trackSelector) {
       SimpleExoPlayer player =
-          new SimpleExoPlayer.Builder(host, new DebugRenderersFactory(host))
+          new ExoPlayer.Builder(host, new DebugRenderersFactory(host))
               .setTrackSelector(trackSelector)
               .build();
       player.setVideoSurface(surface);

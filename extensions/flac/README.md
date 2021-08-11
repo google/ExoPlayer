@@ -75,13 +75,12 @@ renderer.
 
 ### Using `LibflacAudioRenderer` ###
 
-* If you're passing a `DefaultRenderersFactory` to `SimpleExoPlayer.Builder`,
-  you can enable using the extension by setting the `extensionRendererMode`
-  parameter of the `DefaultRenderersFactory` constructor to
-  `EXTENSION_RENDERER_MODE_ON`. This will use `LibflacAudioRenderer` for
-  playback if `MediaCodecAudioRenderer` doesn't support the input format. Pass
-  `EXTENSION_RENDERER_MODE_PREFER` to give `LibflacAudioRenderer` priority over
-  `MediaCodecAudioRenderer`.
+* If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you can
+  enable using the extension by setting the `extensionRendererMode` parameter of
+  the `DefaultRenderersFactory` constructor to `EXTENSION_RENDERER_MODE_ON`.
+  This will use `LibflacAudioRenderer` for playback if `MediaCodecAudioRenderer`
+  doesn't support the input format. Pass `EXTENSION_RENDERER_MODE_PREFER` to
+  give `LibflacAudioRenderer` priority over `MediaCodecAudioRenderer`.
 * If you've subclassed `DefaultRenderersFactory`, add a `LibflacAudioRenderer`
   to the output list in `buildAudioRenderers`. ExoPlayer will use the first
   `Renderer` in the list that supports the input media format.

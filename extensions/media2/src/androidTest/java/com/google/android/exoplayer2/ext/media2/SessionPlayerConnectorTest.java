@@ -44,6 +44,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -169,7 +170,7 @@ public class SessionPlayerConnectorTest {
     SimpleExoPlayer simpleExoPlayer = null;
     SessionPlayerConnector playerConnector = null;
     try {
-      simpleExoPlayer = new SimpleExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
+      simpleExoPlayer = new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
       playerConnector =
           new SessionPlayerConnector(simpleExoPlayer, new DefaultMediaItemConverter());
       playerConnector.setControlDispatcher(controlDispatcher);
@@ -194,8 +195,7 @@ public class SessionPlayerConnectorTest {
     Player forwardingPlayer = null;
     SessionPlayerConnector playerConnector = null;
     try {
-      Player simpleExoPlayer =
-          new SimpleExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
+      Player simpleExoPlayer = new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
       forwardingPlayer =
           new ForwardingPlayer(simpleExoPlayer) {
             @Override

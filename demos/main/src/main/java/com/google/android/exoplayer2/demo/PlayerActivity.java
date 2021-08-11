@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -272,7 +273,7 @@ public class PlayerActivity extends AppCompatActivity
       trackSelector.setParameters(trackSelectorParameters);
       lastSeenTrackGroupArray = null;
       player =
-          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+          new ExoPlayer.Builder(/* context= */ this, renderersFactory)
               .setMediaSourceFactory(mediaSourceFactory)
               .setTrackSelector(trackSelector)
               .build();

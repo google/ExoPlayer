@@ -59,7 +59,7 @@ RenderersFactory audioOnlyRenderersFactory =
                 context, MediaCodecSelector.DEFAULT, handler, audioListener)
            };
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, audioOnlyRenderersFactory).build();
+    new ExoPlayer.Builder(context, audioOnlyRenderersFactory).build();
 ~~~
 {: .language-java}
 
@@ -81,14 +81,14 @@ an app that only needs to play mp4 files can provide a factory like:
 ExtractorsFactory mp4ExtractorFactory =
     () -> new Extractor[] {new Mp4Extractor()};
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, mp4ExtractorFactory).build();
+    new ExoPlayer.Builder(context, mp4ExtractorFactory).build();
 ~~~
 {: .language-java}
 
 This will allow other `Extractor` implementations to be removed by code
 shrinking, which can result in a significant reduction in size.
 
-You should pass `ExtractorsFactory.EMPTY` to the `SimpleExoPlayer.Builder`
+You should pass `ExtractorsFactory.EMPTY` to the `ExoPlayer.Builder`
 constructor, if your app is doing one of the following:
 
 * Not playing progressive media at all, for example because it only
@@ -99,18 +99,18 @@ constructor, if your app is doing one of the following:
 ~~~
 // Only playing DASH, HLS or SmoothStreaming.
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+    new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
 
 // Providing a customized `DefaultMediaSourceFactory`
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY)
+    new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context, customExtractorsFactory))
         .build();
 
 // Using a MediaSource directly.
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+    new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
 ProgressiveMediaSource mediaSource =
     new ProgressiveMediaSource.Factory(
             dataSourceFactory, customExtractorsFactory)

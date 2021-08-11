@@ -176,7 +176,7 @@ public final class MediaSessionConnector {
      * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
      *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
      *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+     *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param command The command name.
      * @param extras Optional parameters for the command, may be null.
      * @param cb A result receiver to which a result may be sent by the command, may be null.
@@ -299,7 +299,7 @@ public final class MediaSessionConnector {
      * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
      *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
      *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+     *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
     void onSkipToPrevious(Player player, @Deprecated ControlDispatcher controlDispatcher);
     /**
@@ -309,7 +309,7 @@ public final class MediaSessionConnector {
      * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
      *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
      *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+     *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
     void onSkipToQueueItem(Player player, @Deprecated ControlDispatcher controlDispatcher, long id);
     /**
@@ -319,7 +319,7 @@ public final class MediaSessionConnector {
      * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
      *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
      *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+     *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
     void onSkipToNext(Player player, @Deprecated ControlDispatcher controlDispatcher);
   }
@@ -377,7 +377,7 @@ public final class MediaSessionConnector {
      * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
      *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
      *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+     *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param mediaButtonEvent The {@link Intent}.
      * @return True if the event was handled, false otherwise.
      */
@@ -397,7 +397,7 @@ public final class MediaSessionConnector {
      * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
      *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
      *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+     *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param action The name of the action which was sent by a media controller.
      * @param extras Optional extras sent by a media controller, may be null.
      */
@@ -562,7 +562,7 @@ public final class MediaSessionConnector {
   /**
    * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
    *     You can also customize some operations when configuring the player (for example by using
-   *     {@code SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+   *     {@code ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
    */
   @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {

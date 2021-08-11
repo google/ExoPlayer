@@ -70,7 +70,7 @@ When a player has been initialized, it can be attached to the view by calling
 
 ~~~
 // Instantiate the player.
-player = new SimpleExoPlayer.Builder(context).build();
+player = new ExoPlayer.Builder(context).build();
 // Attach player to the view.
 playerView.setPlayer(player);
 // Set the media source to be played.
@@ -157,7 +157,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
 private void initializePlayer() {
   // Instantiate the player.
-  player = new SimpleExoPlayer.Builder(context).build();
+  player = new ExoPlayer.Builder(context).build();
   // Attach player to the view.
   playerControlView.setPlayer(player);
   // Prepare the player with the dash media source.

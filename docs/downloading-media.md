@@ -322,7 +322,7 @@ DataSource.Factory cacheDataSourceFactory =
         .setUpstreamDataSourceFactory(httpDataSourceFactory)
         .setCacheWriteDataSinkFactory(null); // Disable writing.
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+SimpleExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(
         new DefaultMediaSourceFactory(cacheDataSourceFactory))
     .build();

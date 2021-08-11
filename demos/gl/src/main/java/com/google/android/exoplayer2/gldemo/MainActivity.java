@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -172,7 +173,7 @@ public final class MainActivity extends Activity {
       throw new IllegalStateException();
     }
 
-    SimpleExoPlayer player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
+    SimpleExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
     player.setMediaSource(mediaSource);
     player.prepare();

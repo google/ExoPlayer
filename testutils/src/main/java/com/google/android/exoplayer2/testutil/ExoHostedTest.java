@@ -248,7 +248,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
     renderersFactory.setAllowedVideoJoiningTimeMs(/* allowedVideoJoiningTimeMs= */ 0);
     SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(host, renderersFactory).setTrackSelector(trackSelector).build();
+        new ExoPlayer.Builder(host, renderersFactory).setTrackSelector(trackSelector).build();
     player.setVideoSurface(surface);
     return player;
   }

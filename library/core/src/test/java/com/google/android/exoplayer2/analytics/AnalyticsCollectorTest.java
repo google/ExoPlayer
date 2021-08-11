@@ -69,6 +69,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -1944,7 +1945,7 @@ public final class AnalyticsCollectorTest {
   public void recursiveListenerInvocation_arrivesInCorrectOrder() {
     AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
     analyticsCollector.setPlayer(
-        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.myLooper());
     AnalyticsListener listener1 = mock(AnalyticsListener.class);
     AnalyticsListener listener2 =

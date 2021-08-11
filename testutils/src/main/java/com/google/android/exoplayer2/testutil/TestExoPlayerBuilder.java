@@ -22,6 +22,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -276,7 +277,7 @@ public class TestExoPlayerBuilder {
                   };
     }
 
-    return new SimpleExoPlayer.Builder(context, playerRenderersFactory)
+    return new ExoPlayer.Builder(context, playerRenderersFactory)
         .setTrackSelector(trackSelector)
         .setLoadControl(loadControl)
         .setBandwidthMeter(bandwidthMeter)

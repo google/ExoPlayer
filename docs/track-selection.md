@@ -9,7 +9,7 @@ of which can be provided whenever an `ExoPlayer` is built.
 ~~~
 DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
 SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+    new ExoPlayer.Builder(context)
         .setTrackSelector(trackSelector)
         .build();
 ~~~

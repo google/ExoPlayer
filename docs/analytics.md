@@ -246,7 +246,7 @@ class ExtendedCollector extends AnalyticsCollector {
 }
 
 // Usage - Setup and listener registration.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+SimpleExoPlayer player = new ExoPlayer.Builder(context)
     .setAnalyticsCollector(new ExtendedCollector())
     .build();
 player.addAnalyticsListener(new ExtendedListener() {

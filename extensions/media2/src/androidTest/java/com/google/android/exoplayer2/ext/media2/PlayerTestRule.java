@@ -21,6 +21,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -69,7 +70,7 @@ import org.junit.rules.ExternalResource;
 
               DataSource.Factory dataSourceFactory = new InstrumentingDataSourceFactory(context);
               exoPlayer =
-                  new SimpleExoPlayer.Builder(context)
+                  new ExoPlayer.Builder(context)
                       .setLooper(Looper.myLooper())
                       .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
                       .build();

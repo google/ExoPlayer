@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -150,7 +151,7 @@ public final class RtspPlaybackTest {
   private SimpleExoPlayer createSimpleExoPlayer(
       int serverRtspPortNumber, RtpDataChannel.Factory rtpDataChannelFactory) {
     SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(clock)
             .build();
     player.setMediaSource(

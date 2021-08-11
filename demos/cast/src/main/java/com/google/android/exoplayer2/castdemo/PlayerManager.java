@@ -21,6 +21,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -94,7 +95,7 @@ import java.util.ArrayList;
     currentItemIndex = C.INDEX_UNSET;
 
     trackSelector = new DefaultTrackSelector(context);
-    exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
+    exoPlayer = new ExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
