@@ -57,5 +57,4 @@ public final class ByteArrayDataSink implements DataSink {
   public byte[] getData() {
     return stream == null ? null : stream.toByteArray();
   }
-
 }

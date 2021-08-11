@@ -76,7 +76,6 @@ public interface AudioProcessor {
     public UnhandledAudioFormatException(AudioFormat inputAudioFormat) {
       super("Unhandled format: " + inputAudioFormat);
     }
-
   }
 
   /** An empty, direct {@link ByteBuffer}. */
@@ -109,16 +108,16 @@ public interface AudioProcessor {
    * The caller retains ownership of the provided buffer. Calling this method invalidates any
    * previous buffer returned by {@link #getOutput()}.
    *
-   * @param buffer The input buffer to process.
+   * @param inputBuffer The input buffer to process.
    */
-  void queueInput(ByteBuffer buffer);
+  void queueInput(ByteBuffer inputBuffer);
 
   /**
-   * Queues an end of stream signal. After this method has been called,
-   * {@link #queueInput(ByteBuffer)} may not be called until after the next call to
-   * {@link #flush()}. Calling {@link #getOutput()} will return any remaining output data. Multiple
-   * calls may be required to read all of the remaining output data. {@link #isEnded()} will return
-   * {@code true} once all remaining output data has been read.
+   * Queues an end of stream signal. After this method has been called, {@link
+   * #queueInput(ByteBuffer)} may not be called until after the next call to {@link #flush()}.
+   * Calling {@link #getOutput()} will return any remaining output data. Multiple calls may be
+   * required to read all of the remaining output data. {@link #isEnded()} will return {@code true}
+   * once all remaining output data has been read.
    */
   void queueEndOfStream();
 

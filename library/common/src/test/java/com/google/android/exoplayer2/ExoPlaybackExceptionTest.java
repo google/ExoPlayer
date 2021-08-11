@@ -31,7 +31,7 @@ public class ExoPlaybackExceptionTest {
   public void roundTripViaBundle_ofExoPlaybackExceptionTypeRemote_yieldsEqualInstance() {
     ExoPlaybackException before = ExoPlaybackException.createForRemote(/* message= */ "test");
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
-    assertThat(areEqual(before, after)).isTrue();
+    assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
   }
 
   @Test
@@ -43,25 +43,29 @@ public class ExoPlaybackExceptionTest {
             /* rendererIndex= */ 123,
             /* rendererFormat= */ new Format.Builder().setCodecs("anyCodec").build(),
             /* rendererFormatSupport= */ C.FORMAT_UNSUPPORTED_SUBTYPE,
-            /* isRecoverable= */ true);
+            /* isRecoverable= */ true,
+            /* errorCode= */ PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
 
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
-    assertThat(areEqual(before, after)).isTrue();
+    assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
   }
 
   @Test
   public void
-      roundTripViaBundle_ofExoPlaybackExceptionTypeRendererWithPrivateCause_yieldsRemoteExceptionWithSameMessage() {
+      roundTripViaBundle_ofExoPlaybackExceptionTypeUnexpectedWithPrivateCause_yieldsRemoteExceptionWithSameMessage() {
     ExoPlaybackException before =
-        ExoPlaybackException.createForRenderer(
-            new Exception(/* message= */ "anonymous exception that class loader cannot know") {});
+        ExoPlaybackException.createForUnexpected(
+            new RuntimeException(
+                /* message= */ "anonymous exception that class loader cannot know") {},
+            PlaybackException.ERROR_CODE_TIMEOUT);
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
 
     assertThat(after.getCause()).isInstanceOf(RemoteException.class);
     assertThat(after.getCause()).hasMessageThat().isEqualTo(before.getCause().getMessage());
   }
 
-  private static boolean areEqual(ExoPlaybackException a, ExoPlaybackException b) {
+  private static boolean areExoPlaybackExceptionsEqual(
+      ExoPlaybackException a, ExoPlaybackException b) {
     if (a == null || b == null) {
       return a == b;
     }
@@ -73,10 +77,10 @@ public class ExoPlaybackExceptionTest {
         && a.rendererFormatSupport == b.rendererFormatSupport
         && a.timestampMs == b.timestampMs
         && a.isRecoverable == b.isRecoverable
-        && areEqual(a.getCause(), b.getCause());
+        && areThrowablesEqual(a.getCause(), b.getCause());
   }
 
-  private static boolean areEqual(Throwable a, Throwable b) {
+  private static boolean areThrowablesEqual(Throwable a, Throwable b) {
     if (a == null || b == null) {
       return a == b;
     }

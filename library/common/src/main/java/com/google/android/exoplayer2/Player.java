@@ -32,8 +32,9 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -41,6 +42,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -96,15 +98,6 @@ public interface Player {
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
 
     /**
-     * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
-     *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
-     *     window).manifest} for a given window index.
-     */
-    @Deprecated
-    default void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
-
-    /**
      * Called when playback transitions to a media item or starts repeating a media item according
      * to the current {@link #getRepeatMode() repeat mode}.
      *
@@ -136,30 +129,20 @@ public interface Player {
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
-     * Called when the static metadata changes.
-     *
-     * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances,
-     * where the elements correspond to the {@link #getCurrentTrackSelections() current track
-     * selections}, or an empty list if there are no track selections or the selected tracks contain
-     * no static metadata.
-     *
-     * <p>The metadata is considered static in the sense that it comes from the tracks' declared
-     * Formats, rather than being timed (or dynamic) metadata, which is represented within a
-     * metadata track.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param metadataList The static metadata.
+     * @deprecated Use {@link Player#getMediaMetadata()} and {@link
+     *     #onMediaMetadataChanged(MediaMetadata)} for access to structured metadata, or access the
+     *     raw static metadata directly from the {@link TrackSelection#getFormat(int) track
+     *     selections' formats}.
      */
+    @Deprecated
     default void onStaticMetadataChanged(List<Metadata> metadataList) {}
 
     /**
      * Called when the combined {@link MediaMetadata} changes.
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata sourced from {@link #onStaticMetadataChanged(List)} and
-     * {@link MetadataOutput#onMetadata(Metadata)}.
+     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
+     * selections' formats} and {@link MetadataOutput#onMetadata(Metadata)}.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -167,6 +150,9 @@ public interface Player {
      * @param mediaMetadata The combined {@link MediaMetadata}.
      */
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    /** Called when the playlist {@link MediaMetadata} changes. */
+    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
      * Called when the player starts or stops loading the source.
@@ -206,9 +192,9 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param state The new playback {@link State state}.
+     * @param playbackState The new playback {@link State state}.
      */
-    default void onPlaybackStateChanged(@State int state) {}
+    default void onPlaybackStateChanged(@State int playbackState) {}
 
     /**
      * Called when the value returned from {@link #getPlayWhenReady()} changes.
@@ -271,9 +257,25 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
+     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
+     * to this method in order to include more information about the error.
+     *
      * @param error The error.
      */
-    default void onPlayerError(ExoPlaybackException error) {}
+    default void onPlayerError(PlaybackException error) {}
+
+    /**
+     * Called when the {@link PlaybackException} returned by {@link #getPlayerError()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
+     * to this method in order to include more information about the error.
+     *
+     * @param error The new error, or null if the error is being cleared.
+     */
+    default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
 
     /**
      * @deprecated Use {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} instead.
@@ -312,6 +314,37 @@ public interface Player {
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
+     * Called when the value of {@link #getSeekBackIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
+     */
+    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getSeekForwardIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
+     */
+    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getMaxSeekToPreviousPosition()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param maxSeekToPreviousPositionMs The maximum position for which {@link #seekToPrevious()}
+     *     seeks to the previous position, in milliseconds.
+     */
+    default void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {}
+
+    /**
      * @deprecated Seeks are processed without delay. Listen to {@link
      *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
      *     #DISCONTINUITY_REASON_SEEK} instead.
@@ -325,8 +358,7 @@ public interface Player {
      * <p>State changes and events that happen within one {@link Looper} message queue iteration are
      * reported together and only after all individual callbacks were triggered.
      *
-     * <p>Only state changes represented by {@link EventFlags events} are reported through this
-     * method.
+     * <p>Only state changes represented by {@link Event events} are reported through this method.
      *
      * <p>Listeners should prefer this method over individual callbacks in the following cases:
      *
@@ -353,37 +385,37 @@ public interface Player {
     default void onEvents(Player player, Events events) {}
   }
 
-  /** A set of {@link EventFlags}. */
+  /** A set of {@link Event events}. */
   final class Events {
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
 
     /**
      * Creates an instance.
      *
-     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link Event events}.
      */
-    public Events(ExoFlags flags) {
+    public Events(FlagSet flags) {
       this.flags = flags;
     }
 
     /**
-     * Returns whether the given event occurred.
+     * Returns whether the given {@link Event} occurred.
      *
-     * @param event The {@link EventFlags event}.
-     * @return Whether the event occurred.
+     * @param event The {@link Event}.
+     * @return Whether the {@link Event} occurred.
      */
-    public boolean contains(@EventFlags int event) {
+    public boolean contains(@Event int event) {
       return flags.contains(event);
     }
 
     /**
-     * Returns whether any of the given events occurred.
+     * Returns whether any of the given {@link Event events} occurred.
      *
-     * @param events The {@link EventFlags events}.
-     * @return Whether any of the events occurred.
+     * @param events The {@link Event events}.
+     * @return Whether any of the {@link Event events} occurred.
      */
-    public boolean containsAny(@EventFlags int... events) {
+    public boolean containsAny(@Event int... events) {
       return flags.containsAny(events);
     }
 
@@ -393,18 +425,35 @@ public interface Player {
     }
 
     /**
-     * Returns the {@link EventFlags event} at the given index.
+     * Returns the {@link Event} at the given index.
      *
      * <p>Although index-based access is possible, it doesn't imply a particular order of these
      * events.
      *
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
-     * @return The {@link EventFlags event} at the given index.
+     * @return The {@link Event} at the given index.
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
-    @EventFlags
+    @Event
     public int get(int index) {
       return flags.get(index);
+    }
+
+    @Override
+    public int hashCode() {
+      return flags.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Events)) {
+        return false;
+      }
+      Events other = (Events) obj;
+      return flags.equals(other.flags);
     }
   }
 
@@ -570,16 +619,52 @@ public interface Player {
    *
    * <p>Instances are immutable.
    */
-  final class Commands {
+  final class Commands implements Bundleable {
 
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
 
-      private final ExoFlags.Builder flagsBuilder;
+      @Command
+      private static final int[] SUPPORTED_COMMANDS = {
+        COMMAND_PLAY_PAUSE,
+        COMMAND_PREPARE_STOP,
+        COMMAND_SEEK_TO_DEFAULT_POSITION,
+        COMMAND_SEEK_IN_CURRENT_WINDOW,
+        COMMAND_SEEK_TO_PREVIOUS_WINDOW,
+        COMMAND_SEEK_TO_PREVIOUS,
+        COMMAND_SEEK_TO_NEXT_WINDOW,
+        COMMAND_SEEK_TO_NEXT,
+        COMMAND_SEEK_TO_WINDOW,
+        COMMAND_SEEK_BACK,
+        COMMAND_SEEK_FORWARD,
+        COMMAND_SET_SPEED_AND_PITCH,
+        COMMAND_SET_SHUFFLE_MODE,
+        COMMAND_SET_REPEAT_MODE,
+        COMMAND_GET_CURRENT_MEDIA_ITEM,
+        COMMAND_GET_TIMELINE,
+        COMMAND_GET_MEDIA_ITEMS_METADATA,
+        COMMAND_SET_MEDIA_ITEMS_METADATA,
+        COMMAND_CHANGE_MEDIA_ITEMS,
+        COMMAND_GET_AUDIO_ATTRIBUTES,
+        COMMAND_GET_VOLUME,
+        COMMAND_GET_DEVICE_VOLUME,
+        COMMAND_SET_VOLUME,
+        COMMAND_SET_DEVICE_VOLUME,
+        COMMAND_ADJUST_DEVICE_VOLUME,
+        COMMAND_SET_VIDEO_SURFACE,
+        COMMAND_GET_TEXT
+      };
+
+      private final FlagSet.Builder flagsBuilder;
 
       /** Creates a builder. */
       public Builder() {
-        flagsBuilder = new ExoFlags.Builder();
+        flagsBuilder = new FlagSet.Builder();
+      }
+
+      private Builder(Commands commands) {
+        flagsBuilder = new FlagSet.Builder();
+        flagsBuilder.addAll(commands.flags);
       }
 
       /**
@@ -632,6 +717,54 @@ public interface Player {
       }
 
       /**
+       * Adds all existing {@link Command commands}.
+       *
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAllCommands() {
+        flagsBuilder.addAll(SUPPORTED_COMMANDS);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command}.
+       *
+       * @param command A {@link Command}.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder remove(@Command int command) {
+        flagsBuilder.remove(command);
+        return this;
+      }
+
+      /**
+       * Removes a {@link Command} if the provided condition is true. Does nothing otherwise.
+       *
+       * @param command A {@link Command}.
+       * @param condition A condition.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeIf(@Command int command, boolean condition) {
+        flagsBuilder.removeIf(command, condition);
+        return this;
+      }
+
+      /**
+       * Removes {@link Command commands}.
+       *
+       * @param commands The {@link Command commands} to remove.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder removeAll(@Command int... commands) {
+        flagsBuilder.removeAll(commands);
+        return this;
+      }
+
+      /**
        * Builds a {@link Commands} instance.
        *
        * @throws IllegalStateException If this method has already been called.
@@ -644,10 +777,15 @@ public interface Player {
     /** An empty set of commands. */
     public static final Commands EMPTY = new Builder().build();
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
 
-    private Commands(ExoFlags flags) {
+    private Commands(FlagSet flags) {
       this.flags = flags;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     /** Returns whether the set of commands contains the specified {@link Command}. */
@@ -688,6 +826,46 @@ public interface Player {
     public int hashCode() {
       return flags.hashCode();
     }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FIELD_COMMANDS})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_COMMANDS = 0;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      ArrayList<Integer> commandsBundle = new ArrayList<>();
+      for (int i = 0; i < flags.size(); i++) {
+        commandsBundle.add(flags.get(i));
+      }
+      bundle.putIntegerArrayList(keyForField(FIELD_COMMANDS), commandsBundle);
+      return bundle;
+    }
+
+    /** Object that can restore {@link Commands} from a {@link Bundle}. */
+    public static final Creator<Commands> CREATOR = Commands::fromBundle;
+
+    private static Commands fromBundle(Bundle bundle) {
+      @Nullable
+      ArrayList<Integer> commands = bundle.getIntegerArrayList(keyForField(FIELD_COMMANDS));
+      if (commands == null) {
+        return Commands.EMPTY;
+      }
+      Builder builder = new Builder();
+      for (int i = 0; i < commands.size(); i++) {
+        builder.add(commands.get(i));
+      }
+      return builder.build();
+    }
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
   }
 
   /**
@@ -721,7 +899,7 @@ public interface Player {
     default void onAvailableCommandsChanged(Commands availableCommands) {}
 
     @Override
-    default void onPlaybackStateChanged(@State int state) {}
+    default void onPlaybackStateChanged(@State int playbackState) {}
 
     @Override
     default void onPlayWhenReadyChanged(
@@ -741,7 +919,10 @@ public interface Player {
     default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
     @Override
-    default void onPlayerError(ExoPlaybackException error) {}
+    default void onPlayerError(PlaybackException error) {}
+
+    @Override
+    default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
 
     @Override
     default void onPositionDiscontinuity(
@@ -749,6 +930,12 @@ public interface Player {
 
     @Override
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
+
+    @Override
+    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
+
+    @Override
+    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
 
     @Override
     default void onAudioSessionIdChanged(int audioSessionId) {}
@@ -790,7 +977,7 @@ public interface Player {
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
     @Override
-    default void onStaticMetadataChanged(List<Metadata> metadataList) {}
+    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
   }
 
   /**
@@ -907,15 +1094,15 @@ public interface Player {
   })
   @interface DiscontinuityReason {}
   /**
-   * Automatic playback transition from one period in the timeline to the next without explicit
-   * interaction by this player. The period index may be the same as it was before the discontinuity
-   * in case the current period is repeated.
+   * Automatic playback transition from one period in the timeline to the next. The period index may
+   * be the same as it was before the discontinuity in case the current period is repeated.
    *
    * <p>This reason also indicates an automatic transition from the content period to an inserted ad
-   * period or vice versa.
+   * period or vice versa. Or a transition caused by another player (e.g. multiple controllers can
+   * control the same playback on a remote device).
    */
   int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
-  /** Seek within the current period or to another period by this player. */
+  /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
@@ -939,7 +1126,13 @@ public interface Player {
   @interface TimelineChangeReason {}
   /** Timeline changed as a result of a change of the playlist items or the order of the items. */
   int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
-  /** Timeline changed as a result of a dynamic update introduced by the played media. */
+  /**
+   * Timeline changed as a result of a source update (e.g. result of a dynamic update by the played
+   * media).
+   *
+   * <p>This reason also indicates a change caused by another player (e.g. multiple controllers can
+   * control the same playback on the remote device).
+   */
   int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
   /**
@@ -958,7 +1151,12 @@ public interface Player {
   @interface MediaItemTransitionReason {}
   /** The media item has been repeated. */
   int MEDIA_ITEM_TRANSITION_REASON_REPEAT = 0;
-  /** Playback has automatically transitioned to the next media item. */
+  /**
+   * Playback has automatically transitioned to the next media item.
+   *
+   * <p>This reason also indicates a transition caused by another player (e.g. multiple controllers
+   * can control the same playback on a remote device).
+   */
   int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
   /** A seek to another media item has occurred. */
   int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
@@ -972,7 +1170,7 @@ public interface Player {
   /**
    * Events that can be reported via {@link Listener#onEvents(Player, Events)}.
    *
-   * <p>One of the {@link Player}{@code .EVENT_*} flags.
+   * <p>One of the {@link Player}{@code .EVENT_*} values.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -992,17 +1190,21 @@ public interface Player {
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
     EVENT_AVAILABLE_COMMANDS_CHANGED,
-    EVENT_MEDIA_METADATA_CHANGED
+    EVENT_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_METADATA_CHANGED,
+    EVENT_SEEK_BACK_INCREMENT_CHANGED,
+    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+    EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED
   })
-  @interface EventFlags {}
+  @interface Event {}
   /** {@link #getCurrentTimeline()} changed. */
   int EVENT_TIMELINE_CHANGED = 0;
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
   /** {@link #getCurrentTrackGroups()} or {@link #getCurrentTrackSelections()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
-  /** {@link #getCurrentStaticMetadata()} changed. */
-  int EVENT_STATIC_METADATA_CHANGED = 3;
+  /** @deprecated Use {@link #EVENT_MEDIA_METADATA_CHANGED} for structured metadata changes. */
+  @Deprecated int EVENT_STATIC_METADATA_CHANGED = 3;
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 4;
   /** {@link #getPlaybackState()} changed. */
@@ -1030,15 +1232,25 @@ public interface Player {
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
   /** {@link #getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = 15;
+  /** {@link #getPlaylistMetadata()} changed. */
+  int EVENT_PLAYLIST_METADATA_CHANGED = 16;
+  /** {@link #getSeekBackIncrement()} changed. */
+  int EVENT_SEEK_BACK_INCREMENT_CHANGED = 17;
+  /** {@link #getSeekForwardIncrement()} changed. */
+  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 18;
+  /** {@link #getMaxSeekToPreviousPosition()} changed. */
+  int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 19;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
-   * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
-   * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
-   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
-   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
+   * #COMMAND_SEEK_IN_CURRENT_WINDOW}, {@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW}, {@link
+   * #COMMAND_SEEK_TO_PREVIOUS}, {@link #COMMAND_SEEK_TO_NEXT_WINDOW}, {@link
+   * #COMMAND_SEEK_TO_NEXT}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link #COMMAND_SEEK_BACK}, {@link
+   * #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
+   * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
+   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_TIMELINE}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_SET_MEDIA_ITEMS_METADATA}, {@link
    * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
@@ -1047,19 +1259,25 @@ public interface Player {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
+    COMMAND_INVALID,
     COMMAND_PLAY_PAUSE,
     COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
-    COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-    COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
-    COMMAND_SEEK_TO_MEDIA_ITEM,
+    COMMAND_SEEK_IN_CURRENT_WINDOW,
+    COMMAND_SEEK_TO_PREVIOUS_WINDOW,
+    COMMAND_SEEK_TO_PREVIOUS,
+    COMMAND_SEEK_TO_NEXT_WINDOW,
+    COMMAND_SEEK_TO_NEXT,
+    COMMAND_SEEK_TO_WINDOW,
+    COMMAND_SEEK_BACK,
+    COMMAND_SEEK_FORWARD,
     COMMAND_SET_SPEED_AND_PITCH,
     COMMAND_SET_SHUFFLE_MODE,
     COMMAND_SET_REPEAT_MODE,
     COMMAND_GET_CURRENT_MEDIA_ITEM,
-    COMMAND_GET_MEDIA_ITEMS,
+    COMMAND_GET_TIMELINE,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_SET_MEDIA_ITEMS_METADATA,
     COMMAND_CHANGE_MEDIA_ITEMS,
     COMMAND_GET_AUDIO_ATTRIBUTES,
     COMMAND_GET_VOLUME,
@@ -1078,43 +1296,56 @@ public interface Player {
   /** Command to seek to the default position of the current window. */
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
   /** Command to seek anywhere into the current window. */
-  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 4;
-  /** Command to seek to the default position of the next window. */
-  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 5;
+  int COMMAND_SEEK_IN_CURRENT_WINDOW = 4;
   /** Command to seek to the default position of the previous window. */
-  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
+  int COMMAND_SEEK_TO_PREVIOUS_WINDOW = 5;
+  /** Command to seek to an earlier position in the current or previous window. */
+  int COMMAND_SEEK_TO_PREVIOUS = 6;
+  /** Command to seek to the default position of the next window. */
+  int COMMAND_SEEK_TO_NEXT_WINDOW = 7;
+  /** Command to seek to a later position in the current or next window. */
+  int COMMAND_SEEK_TO_NEXT = 8;
   /** Command to seek anywhere in any window. */
-  int COMMAND_SEEK_TO_MEDIA_ITEM = 7;
+  int COMMAND_SEEK_TO_WINDOW = 9;
+  /** Command to seek back by a fixed increment into the current window. */
+  int COMMAND_SEEK_BACK = 10;
+  /** Command to seek forward by a fixed increment into the current window. */
+  int COMMAND_SEEK_FORWARD = 11;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 8;
+  int COMMAND_SET_SPEED_AND_PITCH = 12;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 9;
+  int COMMAND_SET_SHUFFLE_MODE = 13;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 10;
+  int COMMAND_SET_REPEAT_MODE = 14;
   /** Command to get the {@link MediaItem} of the current window. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 11;
-  /** Command to get the current timeline and its {@link MediaItem MediaItems}. */
-  int COMMAND_GET_MEDIA_ITEMS = 12;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 15;
+  /** Command to get the information about the current timeline. */
+  int COMMAND_GET_TIMELINE = 16;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 13;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 17;
+  /** Command to set the {@link MediaItem MediaItems} metadata. */
+  int COMMAND_SET_MEDIA_ITEMS_METADATA = 18;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 14;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 19;
   /** Command to get the player current {@link AudioAttributes}. */
-  int COMMAND_GET_AUDIO_ATTRIBUTES = 15;
+  int COMMAND_GET_AUDIO_ATTRIBUTES = 20;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 16;
+  int COMMAND_GET_VOLUME = 21;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 17;
+  int COMMAND_GET_DEVICE_VOLUME = 22;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 18;
+  int COMMAND_SET_VOLUME = 23;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 19;
+  int COMMAND_SET_DEVICE_VOLUME = 24;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 20;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 25;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 21;
+  int COMMAND_SET_VIDEO_SURFACE = 26;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 22;
+  int COMMAND_GET_TEXT = 27;
+
+  /** Represents an invalid {@link Command}. */
+  int COMMAND_INVALID = -1;
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
@@ -1123,9 +1354,11 @@ public interface Player {
   Looper getApplicationLooper();
 
   /**
-   * Registers a listener to receive events from the player. The listener's methods will be called
-   * on the thread that was used to construct the player. However, if the thread used to construct
-   * the player does not have a {@link Looper}, then the listener will be called on the main thread.
+   * Registers a listener to receive events from the player.
+   *
+   * <p>The listener's methods will be called on the thread that was used to construct the player.
+   * However, if the thread used to construct the player does not have a {@link Looper}, then the
+   * listener will be called on the main thread.
    *
    * @param listener The listener to register.
    * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
@@ -1135,6 +1368,10 @@ public interface Player {
 
   /**
    * Registers a listener to receive all events from the player.
+   *
+   * <p>The listener's methods will be called on the thread that was used to construct the player.
+   * However, if the thread used to construct the player does not have a {@link Looper}, then the
+   * listener will be called on the main thread.
    *
    * @param listener The listener to register.
    */
@@ -1293,12 +1530,12 @@ public interface Player {
    *
    * <p>This method does not execute the command.
    *
-   * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
-   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor generate
-   * a {@link #getPlayerError()} player error}.
+   * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
+   * if {@link #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor
+   * generate a {@link #getPlayerError()} player error}.
    *
-   * <p>{@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}
-   * are unavailable if there is no such {@link MediaItem}.
+   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
+   * unavailable if there is no such {@link MediaItem}.
    *
    * @param command A {@link Command}.
    * @return Whether the {@link Command} is available.
@@ -1313,12 +1550,12 @@ public interface Player {
    * Listener#onAvailableCommandsChanged(Commands)} to get an update when the available commands
    * change.
    *
-   * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
-   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor generate
-   * a {@link #getPlayerError()} player error}.
+   * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
+   * if {@link #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor
+   * generate a {@link #getPlayerError()} player error}.
    *
-   * <p>{@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}
-   * are unavailable if there is no such {@link MediaItem}.
+   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
+   * unavailable if there is no such {@link MediaItem}.
    *
    * @return The currently available {@link Commands}.
    * @see Listener#onAvailableCommandsChanged
@@ -1365,22 +1602,17 @@ public interface Player {
 
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
-   * reported via {@link Listener#onPlayerError(ExoPlaybackException)} at the time of failure. It
-   * can be queried using this method until the player is re-prepared.
+   * reported via {@link Listener#onPlayerError(PlaybackException)} at the time of failure. It can
+   * be queried using this method until the player is re-prepared.
    *
    * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
    * {@link #STATE_IDLE}.
    *
    * @return The error, or {@code null}.
-   * @see Listener#onPlayerError(ExoPlaybackException)
+   * @see Listener#onPlayerError(PlaybackException)
    */
   @Nullable
-  ExoPlaybackException getPlayerError();
-
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Nullable
-  ExoPlaybackException getPlaybackError();
+  PlaybackException getPlayerError();
 
   /**
    * Resumes playback as soon as {@link #getPlaybackState()} == {@link #STATE_READY}. Equivalent to
@@ -1485,6 +1717,32 @@ public interface Player {
   void seekTo(int windowIndex, long positionMs);
 
   /**
+   * Returns the {@link #seekBack()} increment.
+   *
+   * @return The seek back increment, in milliseconds.
+   * @see Listener#onSeekBackIncrementChanged(long)
+   */
+  long getSeekBackIncrement();
+
+  /** Seeks back in the current window by {@link #getSeekBackIncrement()} milliseconds. */
+  void seekBack();
+
+  /**
+   * Returns the {@link #seekForward()} increment.
+   *
+   * @return The seek forward increment, in milliseconds.
+   * @see Listener#onSeekForwardIncrementChanged(long)
+   */
+  long getSeekForwardIncrement();
+
+  /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
+  void seekForward();
+
+  /** @deprecated Use {@link #hasPreviousWindow()} instead. */
+  @Deprecated
+  boolean hasPrevious();
+
+  /**
    * Returns whether a previous window exists, which may depend on the current repeat mode and
    * whether shuffle mode is enabled.
    *
@@ -1492,18 +1750,55 @@ public interface Player {
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  boolean hasPrevious();
+  boolean hasPreviousWindow();
+
+  /** @deprecated Use {@link #seekToPreviousWindow()} instead. */
+  @Deprecated
+  void previous();
 
   /**
    * Seeks to the default position of the previous window, which may depend on the current repeat
-   * mode and whether shuffle mode is enabled. Does nothing if {@link #hasPrevious()} is {@code
-   * false}.
+   * mode and whether shuffle mode is enabled. Does nothing if {@link #hasPreviousWindow()} is
+   * {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  void previous();
+  void seekToPreviousWindow();
+
+  /**
+   * Returns the maximum position for which {@link #seekToPrevious()} seeks to the previous window,
+   * in milliseconds.
+   *
+   * @return The maximum seek to previous position, in milliseconds.
+   * @see Listener#onMaxSeekToPreviousPositionChanged(int)
+   */
+  int getMaxSeekToPreviousPosition();
+
+  /**
+   * Seeks to an earlier position in the current or previous window (if available). More precisely:
+   *
+   * <ul>
+   *   <li>If the timeline is empty or seeking is not possible, does nothing.
+   *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and {@link
+   *       #isCurrentWindowSeekable() unseekable}, then:
+   *       <ul>
+   *         <li>If {@link #hasPreviousWindow() a previous window exists}, seeks to the default
+   *             position of the previous window.
+   *         <li>Otherwise, does nothing.
+   *       </ul>
+   *   <li>Otherwise, if {@link #hasPreviousWindow() a previous window exists} and the {@link
+   *       #getCurrentPosition() current position} is less than {@link
+   *       #getMaxSeekToPreviousPosition()}, seeks to the default position of the previous window.
+   *   <li>Otherwise, seeks to 0 in the current window.
+   * </ul>
+   */
+  void seekToPrevious();
+
+  /** @deprecated Use {@link #hasNextWindow()} instead. */
+  @Deprecated
+  boolean hasNext();
 
   /**
    * Returns whether a next window exists, which may depend on the current repeat mode and whether
@@ -1513,17 +1808,35 @@ public interface Player {
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  boolean hasNext();
+  boolean hasNextWindow();
+
+  /** @deprecated Use {@link #seekToNextWindow()} instead. */
+  @Deprecated
+  void next();
 
   /**
    * Seeks to the default position of the next window, which may depend on the current repeat mode
-   * and whether shuffle mode is enabled. Does nothing if {@link #hasNext()} is {@code false}.
+   * and whether shuffle mode is enabled. Does nothing if {@link #hasNextWindow()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  void next();
+  void seekToNextWindow();
+
+  /**
+   * Seeks to a later position in the current or next window (if available). More precisely:
+   *
+   * <ul>
+   *   <li>If the timeline is empty or seeking is not possible, does nothing.
+   *   <li>Otherwise, if {@link #hasNextWindow() a next window exists}, seeks to the default
+   *       position of the next window.
+   *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and has not
+   *       ended, seeks to the live edge of the current window.
+   *   <li>Otherwise, does nothing.
+   * </ul>
+   */
+  void seekToNext();
 
   /**
    * Attempts to set the playback parameters. Passing {@link PlaybackParameters#DEFAULT} resets the
@@ -1601,18 +1914,12 @@ public interface Player {
   TrackSelectionArray getCurrentTrackSelections();
 
   /**
-   * Returns the current static metadata for the track selections.
-   *
-   * <p>The returned {@code metadataList} is an immutable list of {@link Metadata} instances, where
-   * the elements correspond to the {@link #getCurrentTrackSelections() current track selections},
-   * or an empty list if there are no track selections or the selected tracks contain no static
-   * metadata.
-   *
-   * <p>This metadata is considered static in that it comes from the tracks' declared Formats,
-   * rather than being timed (or dynamic) metadata, which is represented within a metadata track.
-   *
-   * @see Listener#onStaticMetadataChanged(List)
+   * @deprecated Use {@link #getMediaMetadata()} and {@link
+   *     Listener#onMediaMetadataChanged(MediaMetadata)} for access to structured metadata, or
+   *     access the raw static metadata directly from the {@link TrackSelection#getFormat(int) track
+   *     selections' formats}.
    */
+  @Deprecated
   List<Metadata> getCurrentStaticMetadata();
 
   /**
@@ -1620,10 +1927,19 @@ public interface Player {
    * supported.
    *
    * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata sourced from {@link Listener#onStaticMetadataChanged(List)} and
-   * {@link MetadataOutput#onMetadata(Metadata)}.
+   * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
+   * formats} and {@link MetadataOutput#onMetadata(Metadata)}.
    */
   MediaMetadata getMediaMetadata();
+
+  /**
+   * Returns the playlist {@link MediaMetadata}, as set by {@link
+   * #setPlaylistMetadata(MediaMetadata)}, or {@link MediaMetadata#EMPTY} if not supported.
+   */
+  MediaMetadata getPlaylistMetadata();
+
+  /** Sets the playlist {@link MediaMetadata}. */
+  void setPlaylistMetadata(MediaMetadata mediaMetadata);
 
   /**
    * Returns the current manifest. The type depends on the type of media being played. May be null.
@@ -1649,9 +1965,9 @@ public interface Player {
   int getCurrentWindowIndex();
 
   /**
-   * Returns the index of the window that will be played if {@link #next()} is called, which may
-   * depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
-   * C#INDEX_UNSET} if {@link #hasNext()} is {@code false}.
+   * Returns the index of the window that will be played if {@link #seekToNextWindow()} is called,
+   * which may depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
+   * C#INDEX_UNSET} if {@link #hasNextWindow()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
@@ -1660,23 +1976,15 @@ public interface Player {
   int getNextWindowIndex();
 
   /**
-   * Returns the index of the window that will be played if {@link #previous()} is called, which may
-   * depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
-   * C#INDEX_UNSET} if {@link #hasPrevious()} is {@code false}.
+   * Returns the index of the window that will be played if {@link #seekToPreviousWindow()} is
+   * called, which may depend on the current repeat mode and whether shuffle mode is enabled.
+   * Returns {@link C#INDEX_UNSET} if {@link #hasPreviousWindow()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
   int getPreviousWindowIndex();
-
-  /**
-   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
-   *     instead.
-   */
-  @Deprecated
-  @Nullable
-  Object getCurrentTag();
 
   /**
    * Returns the media item of the current window in the timeline. May be null if the timeline is

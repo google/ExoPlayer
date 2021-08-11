@@ -84,6 +84,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Nullable private final TransferListener transferListener;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+  private final BaseUrlExclusionList baseUrlExclusionList;
   private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final Allocator allocator;
@@ -107,6 +108,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public DashMediaPeriod(
       int id,
       DashManifest manifest,
+      BaseUrlExclusionList baseUrlExclusionList,
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
@@ -121,6 +123,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       PlayerEmsgCallback playerEmsgCallback) {
     this.id = id;
     this.manifest = manifest;
+    this.baseUrlExclusionList = baseUrlExclusionList;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
@@ -766,6 +769,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         chunkSourceFactory.createDashChunkSource(
             manifestLoaderErrorThrower,
             manifest,
+            baseUrlExclusionList,
             periodIndex,
             trackGroupInfo.adaptationSetIndices,
             selection,

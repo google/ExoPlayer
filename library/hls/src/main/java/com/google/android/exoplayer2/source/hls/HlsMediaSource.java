@@ -451,17 +451,6 @@ public final class HlsMediaSource extends BaseMediaSource
     this.useSessionKeys = useSessionKeys;
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return playbackProperties.tag;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaItem;
@@ -513,24 +502,25 @@ public final class HlsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
+  public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist mediaPlaylist) {
     long windowStartTimeMs =
-        playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs) : C.TIME_UNSET;
+        mediaPlaylist.hasProgramDateTime ? C.usToMs(mediaPlaylist.startTimeUs) : C.TIME_UNSET;
     // For playlist types EVENT and VOD we know segments are never removed, so the presentation
     // started at the same time as the window. Otherwise, we don't know the presentation start time.
     long presentationStartTimeMs =
-        playlist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
-                || playlist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
+        mediaPlaylist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+                || mediaPlaylist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
             ? windowStartTimeMs
             : C.TIME_UNSET;
     // The master playlist is non-null because the first playlist has been fetched by now.
     HlsManifest manifest =
-        new HlsManifest(checkNotNull(playlistTracker.getMasterPlaylist()), playlist);
+        new HlsManifest(checkNotNull(playlistTracker.getMasterPlaylist()), mediaPlaylist);
     SinglePeriodTimeline timeline =
         playlistTracker.isLive()
-            ? createTimelineForLive(playlist, presentationStartTimeMs, windowStartTimeMs, manifest)
+            ? createTimelineForLive(
+                mediaPlaylist, presentationStartTimeMs, windowStartTimeMs, manifest)
             : createTimelineForOnDemand(
-                playlist, presentationStartTimeMs, windowStartTimeMs, manifest);
+                mediaPlaylist, presentationStartTimeMs, windowStartTimeMs, manifest);
     refreshSourceInfo(timeline);
   }
 

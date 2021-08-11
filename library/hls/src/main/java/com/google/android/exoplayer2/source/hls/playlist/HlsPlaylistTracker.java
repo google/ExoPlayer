@@ -67,20 +67,19 @@ public interface HlsPlaylistTracker {
   /** Called on playlist loading events. */
   interface PlaylistEventListener {
 
-    /**
-     * Called a playlist changes.
-     */
+    /** Called a playlist changes. */
     void onPlaylistChanged();
 
     /**
      * Called if an error is encountered while loading a playlist.
      *
      * @param url The loaded url that caused the error.
-     * @param exclusionDurationMs The duration for which the playlist should be excluded. Or {@link
-     *     C#TIME_UNSET} if the playlist should not be excluded.
+     * @param loadErrorInfo The load error info.
+     * @param forceRetry Whether retry should be forced without considering exclusion.
      * @return True if excluding did not encounter errors. False otherwise.
      */
-    boolean onPlaylistError(Uri url, long exclusionDurationMs);
+    boolean onPlaylistError(
+        Uri url, LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo, boolean forceRetry);
   }
 
   /** Thrown when a playlist is considered to be stuck due to a server side error. */
@@ -124,10 +123,12 @@ public interface HlsPlaylistTracker {
    * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
    *     playlist.
    * @param eventDispatcher A dispatcher to notify of events.
-   * @param listener A callback for the primary playlist change events.
+   * @param primaryPlaylistListener A callback for the primary playlist change events.
    */
   void start(
-      Uri initialPlaylistUri, EventDispatcher eventDispatcher, PrimaryPlaylistListener listener);
+      Uri initialPlaylistUri,
+      EventDispatcher eventDispatcher,
+      PrimaryPlaylistListener primaryPlaylistListener);
 
   /**
    * Stops the playlist tracker and releases any acquired resources.
@@ -206,6 +207,15 @@ public interface HlsPlaylistTracker {
    * @throws IOException The underyling error.
    */
   void maybeThrowPlaylistRefreshError(Uri url) throws IOException;
+
+  /**
+   * Excludes the given media playlist for the given duration, in milliseconds.
+   *
+   * @param playlistUrl The URL of the media playlist.
+   * @param exclusionDurationMs The duration for which to exclude the playlist.
+   * @return Whether exclusion was successful.
+   */
+  boolean excludeMediaPlaylist(Uri playlistUrl, long exclusionDurationMs);
 
   /**
    * Requests a playlist refresh and removes it from the exclusion list.

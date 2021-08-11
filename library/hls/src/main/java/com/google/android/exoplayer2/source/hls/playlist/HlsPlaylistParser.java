@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry.VariantInfo;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
@@ -140,14 +139,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
   private static final Pattern REGEX_FRAME_RATE = Pattern.compile("FRAME-RATE=([\\d\\.]+)\\b");
-  private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
-      + ":(\\d+)\\b");
+  private static final Pattern REGEX_TARGET_DURATION =
+      Pattern.compile(TAG_TARGET_DURATION + ":(\\d+)\\b");
   private static final Pattern REGEX_ATTR_DURATION = Pattern.compile("DURATION=([\\d\\.]+)\\b");
   private static final Pattern REGEX_PART_TARGET_DURATION =
       Pattern.compile("PART-TARGET=([\\d\\.]+)\\b");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
-  private static final Pattern REGEX_PLAYLIST_TYPE = Pattern.compile(TAG_PLAYLIST_TYPE
-      + ":(.+)\\b");
+  private static final Pattern REGEX_PLAYLIST_TYPE =
+      Pattern.compile(TAG_PLAYLIST_TYPE + ":(.+)\\b");
   private static final Pattern REGEX_CAN_SKIP_UNTIL =
       Pattern.compile("CAN-SKIP-UNTIL=([\\d\\.]+)\\b");
   private static final Pattern REGEX_CAN_SKIP_DATE_RANGES =
@@ -159,17 +158,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile("PART-HOLD-BACK=([\\d\\.]+)\\b");
   private static final Pattern REGEX_CAN_BLOCK_RELOAD =
       compileBooleanAttrPattern("CAN-BLOCK-RELOAD");
-  private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
-      + ":(\\d+)\\b");
-  private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
-      + ":([\\d\\.]+)\\b");
+  private static final Pattern REGEX_MEDIA_SEQUENCE =
+      Pattern.compile(TAG_MEDIA_SEQUENCE + ":(\\d+)\\b");
+  private static final Pattern REGEX_MEDIA_DURATION =
+      Pattern.compile(TAG_MEDIA_DURATION + ":([\\d\\.]+)\\b");
   private static final Pattern REGEX_MEDIA_TITLE =
       Pattern.compile(TAG_MEDIA_DURATION + ":[\\d\\.]+\\b,(.+)");
   private static final Pattern REGEX_LAST_MSN = Pattern.compile("LAST-MSN" + "=(\\d+)\\b");
   private static final Pattern REGEX_LAST_PART = Pattern.compile("LAST-PART" + "=(\\d+)\\b");
   private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=(-?[\\d\\.]+)\\b");
-  private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
-      + ":(\\d+(?:@\\d+)?)\\b");
+  private static final Pattern REGEX_BYTERANGE =
+      Pattern.compile(TAG_BYTERANGE + ":(\\d+(?:@\\d+)?)\\b");
   private static final Pattern REGEX_ATTR_BYTERANGE =
       Pattern.compile("BYTERANGE=\"(\\d+(?:@\\d+)?)\\b\"");
   private static final Pattern REGEX_BYTERANGE_START = Pattern.compile("BYTERANGE-START=(\\d+)\\b");
@@ -194,8 +193,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile("KEYFORMATVERSIONS=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
-  private static final Pattern REGEX_TYPE = Pattern.compile("TYPE=(" + TYPE_AUDIO + "|" + TYPE_VIDEO
-      + "|" + TYPE_SUBTITLES + "|" + TYPE_CLOSED_CAPTIONS + ")");
+  private static final Pattern REGEX_TYPE =
+      Pattern.compile(
+          "TYPE=("
+              + TYPE_AUDIO
+              + "|"
+              + TYPE_VIDEO
+              + "|"
+              + TYPE_SUBTITLES
+              + "|"
+              + TYPE_CLOSED_CAPTIONS
+              + ")");
   private static final Pattern REGEX_PRELOAD_HINT_TYPE =
       Pattern.compile("TYPE=(" + TYPE_PART + "|" + TYPE_MAP + ")");
   private static final Pattern REGEX_LANGUAGE = Pattern.compile("LANGUAGE=\"(.+?)\"");
@@ -247,8 +255,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     try {
       if (!checkPlaylistHeader(reader)) {
-        throw new UnrecognizedInputFormatException("Input does not start with the #EXTM3U header.",
-            uri);
+        throw ParserException.createForMalformedManifest(
+            /* message= */ "Input does not start with the #EXTM3U header.", /* cause= */ null);
       }
       while ((line = reader.readLine()) != null) {
         line = line.trim();
@@ -278,7 +286,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     } finally {
       Util.closeQuietly(reader);
     }
-    throw new ParserException("Failed to parse the playlist, could not identify any tags.");
+    throw ParserException.createForMalformedManifest(
+        "Failed to parse the playlist, could not identify any tags.", /* cause= */ null);
   }
 
   private static boolean checkPlaylistHeader(BufferedReader reader) throws IOException {
@@ -396,7 +405,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           uri =
               UriUtil.resolveToUri(baseUri, parseStringAttr(line, REGEX_URI, variableDefinitions));
         } else if (!iterator.hasNext()) {
-          throw new ParserException("#EXT-X-STREAM-INF must be followed by another line");
+          throw ParserException.createForMalformedManifest(
+              "#EXT-X-STREAM-INF must be followed by another line", /* cause= */ null);
         } else {
           // The following line contains #EXT-X-STREAM-INF's URI.
           line = replaceVariableReferences(iterator.next(), variableDefinitions);
@@ -508,7 +518,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             formatBuilder.setChannelCount(channelCount);
             if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType) && channelsString.endsWith("/JOC")) {
               sampleMimeType = MimeTypes.AUDIO_E_AC3_JOC;
-              formatBuilder.setCodecs(Ac3Util.E_AC_3_CODEC_STRING);
+              formatBuilder.setCodecs(Ac3Util.E_AC3_JOC_CODEC_STRING);
             }
           }
           formatBuilder.setSampleMimeType(sampleMimeType);
@@ -712,9 +722,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         if (fullSegmentEncryptionKeyUri != null && fullSegmentEncryptionIV == null) {
           // See RFC 8216, Section 4.3.2.5.
-          throw new ParserException(
-              "The encryption IV attribute must be present when an initialization segment is "
-                  + "encrypted with METHOD=AES-128.");
+          throw ParserException.createForMalformedManifest(
+              "The encryption IV attribute must be present when an initialization segment is"
+                  + " encrypted with METHOD=AES-128.",
+              /* cause= */ null);
         }
         initializationSegment =
             new Segment(
@@ -1191,7 +1202,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     if (value != null) {
       return value;
     } else {
-      throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
+      throw ParserException.createForMalformedManifest(
+          "Couldn't match " + pattern.pattern() + " in " + line, /* cause= */ null);
     }
   }
 

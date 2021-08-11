@@ -18,10 +18,8 @@ package com.google.android.exoplayer2.source.dash;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.fail;
-import static org.robolectric.annotation.LooperMode.Mode.PAUSED;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -45,12 +43,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
+import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link DashMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(PAUSED)
+@DoNotInstrument
 public final class DashMediaSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION =
@@ -136,35 +134,6 @@ public final class DashMediaSourceTest {
     assertThat(dashMediaItem.playbackProperties).isNotNull();
     assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
     assertThat(dashMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factoryCreateMediaSource_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(tag).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(new Object());
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility

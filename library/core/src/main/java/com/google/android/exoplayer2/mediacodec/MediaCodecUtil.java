@@ -48,8 +48,8 @@ public final class MediaCodecUtil {
 
   /**
    * Thrown when an error occurs querying the device for its underlying media capabilities.
-   * <p>
-   * Such failures are not expected in normal operation and are normally temporary (e.g. if the
+   *
+   * <p>Such failures are not expected in normal operation and are normally temporary (e.g. if the
    * mediaserver process has crashed and is yet to restart).
    */
   public static class DecoderQueryException extends Exception {
@@ -57,7 +57,6 @@ public final class MediaCodecUtil {
     private DecoderQueryException(Throwable cause) {
       super("Failed to query underlying media codecs", cause);
     }
-
   }
 
   private static final String TAG = "MediaCodecUtil";
@@ -175,8 +174,12 @@ public final class MediaCodecUtil {
       mediaCodecList = new MediaCodecListCompatV16();
       decoderInfos = getDecoderInfosInternal(key, mediaCodecList);
       if (!decoderInfos.isEmpty()) {
-        Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
-            + ". Assuming: " + decoderInfos.get(0).name);
+        Log.w(
+            TAG,
+            "MediaCodecList API didn't list secure decoder for: "
+                + mimeType
+                + ". Assuming: "
+                + decoderInfos.get(0).name);
       }
     }
     applyWorkarounds(mimeType, decoderInfos);
@@ -383,9 +386,7 @@ public final class MediaCodecUtil {
    */
   @Nullable
   private static String getCodecMimeType(
-      android.media.MediaCodecInfo info,
-      String name,
-      String mimeType) {
+      android.media.MediaCodecInfo info, String name, String mimeType) {
     String[] supportedTypes = info.getSupportedTypes();
     for (String supportedType : supportedTypes) {
       if (supportedType.equalsIgnoreCase(mimeType)) {
@@ -507,7 +508,8 @@ public final class MediaCodecUtil {
     }
 
     // VP8 decoder on Samsung Galaxy S4 cannot be queried.
-    if (Util.SDK_INT <= 19 && Util.DEVICE.startsWith("jflte")
+    if (Util.SDK_INT <= 19
+        && Util.DEVICE.startsWith("jflte")
         && "OMX.qcom.video.decoder.vp8".equals(name)) {
       return false;
     }
@@ -920,9 +922,7 @@ public final class MediaCodecUtil {
 
   private interface MediaCodecListCompat {
 
-    /**
-     * The number of codecs in the list.
-     */
+    /** The number of codecs in the list. */
     int getCodecCount();
 
     /**
@@ -932,9 +932,7 @@ public final class MediaCodecUtil {
      */
     android.media.MediaCodecInfo getCodecInfoAt(int index);
 
-    /**
-     * Returns whether secure decoders are explicitly listed, if present.
-     */
+    /** Returns whether secure decoders are explicitly listed, if present. */
     boolean secureDecodersExplicit();
 
     /** Whether the specified {@link CodecCapabilities} {@code feature} is supported. */
@@ -993,7 +991,6 @@ public final class MediaCodecUtil {
         mediaCodecInfos = new MediaCodecList(codecKind).getCodecInfos();
       }
     }
-
   }
 
   private static final class MediaCodecListCompatV16 implements MediaCodecListCompat {
@@ -1027,7 +1024,6 @@ public final class MediaCodecUtil {
         String feature, String mimeType, CodecCapabilities capabilities) {
       return false;
     }
-
   }
 
   private static final class CodecKey {

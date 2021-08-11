@@ -23,5 +23,4 @@ public final class BehindLiveWindowException extends IOException {
   public BehindLiveWindowException() {
     super();
   }
-
 }

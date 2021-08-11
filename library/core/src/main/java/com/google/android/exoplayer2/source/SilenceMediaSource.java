@@ -148,17 +148,6 @@ public final class SilenceMediaSource extends BaseMediaSource {
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {}
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Nullable
-  @Override
-  public Object getTag() {
-    return Assertions.checkNotNull(mediaItem.playbackProperties).tag;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaItem;

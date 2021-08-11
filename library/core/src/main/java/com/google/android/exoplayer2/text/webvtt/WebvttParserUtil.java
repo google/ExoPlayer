@@ -40,7 +40,8 @@ public final class WebvttParserUtil {
     int startPosition = input.getPosition();
     if (!isWebvttHeaderLine(input)) {
       input.setPosition(startPosition);
-      throw new ParserException("Expected WEBVTT. Got " + input.readLine());
+      throw ParserException.createForMalformedContainer(
+          "Expected WEBVTT. Got " + input.readLine(), /* cause= */ null);
     }
   }
 
@@ -113,5 +114,4 @@ public final class WebvttParserUtil {
     }
     return null;
   }
-
 }

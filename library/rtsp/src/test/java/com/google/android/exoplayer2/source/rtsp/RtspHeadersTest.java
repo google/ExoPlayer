@@ -65,6 +65,31 @@ public final class RtspHeadersTest {
   }
 
   @Test
+  public void buildUpon_createEqualHeaders() {
+    RtspHeaders headers =
+        new RtspHeaders.Builder()
+            .addAll(
+                ImmutableMap.of(
+                    "Content-Length", "707",
+                    "Transport", "RTP/AVP;unicast;client_port=65458-65459\r\n"))
+            .build();
+
+    assertThat(headers.buildUpon().build()).isEqualTo(headers);
+  }
+
+  @Test
+  public void buildUpon_buildsUponExistingHeaders() {
+    RtspHeaders headers = new RtspHeaders.Builder().add("Content-Length", "707").build();
+
+    assertThat(headers.buildUpon().add("Content-Encoding", "utf-8").build())
+        .isEqualTo(
+            new RtspHeaders.Builder()
+                .add("Content-Length", "707")
+                .add("Content-Encoding", "utf-8")
+                .build());
+  }
+
+  @Test
   public void get_getsHeaderValuesCaseInsensitively() {
     RtspHeaders headers =
         new RtspHeaders.Builder()
@@ -135,14 +160,15 @@ public final class RtspHeadersTest {
             .build();
     assertThat(headers.asMultiMap())
         .containsExactly(
-            "accept", "application/sdp",
-            "cseq", "3",
-            "content-length", "707",
-            "transport", "RTP/AVP;unicast;client_port=65458-65459");
+            "Accept", "application/sdp",
+            "CSeq", "3",
+            "Content-Length", "707",
+            "Transport", "RTP/AVP;unicast;client_port=65458-65459");
   }
 
   @Test
-  public void asMap_withMultipleValuesMappedToTheSameName_getsTheMappedValuesInAdditionOrder() {
+  public void
+      asMultiMap_withMultipleValuesMappedToTheSameName_getsTheMappedValuesInAdditionOrder() {
     RtspHeaders headers =
         new RtspHeaders.Builder()
             .addAll(
@@ -156,14 +182,16 @@ public final class RtspHeadersTest {
             .build();
     ListMultimap<String, String> headersMap = headers.asMultiMap();
 
-    assertThat(headersMap.keySet()).containsExactly("accept", "cseq", "transport").inOrder();
+    assertThat(headersMap.keySet())
+        .containsExactly(RtspHeaders.ACCEPT, RtspHeaders.CSEQ, RtspHeaders.TRANSPORT)
+        .inOrder();
     assertThat(headersMap)
-        .valuesForKey("accept")
+        .valuesForKey(RtspHeaders.ACCEPT)
         .containsExactly("application/sdp", "application/sip")
         .inOrder();
-    assertThat(headersMap).valuesForKey("cseq").containsExactly("3", "5").inOrder();
+    assertThat(headersMap).valuesForKey(RtspHeaders.CSEQ).containsExactly("3", "5").inOrder();
     assertThat(headersMap)
-        .valuesForKey("transport")
+        .valuesForKey(RtspHeaders.TRANSPORT)
         .containsExactly(
             "RTP/AVP;unicast;client_port=65456-65457", "RTP/AVP;unicast;client_port=65458-65459")
         .inOrder();

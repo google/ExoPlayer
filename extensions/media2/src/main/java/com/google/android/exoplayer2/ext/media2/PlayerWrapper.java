@@ -15,6 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
+import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.util.Util.postOrRun;
 
 import android.os.Handler;
@@ -27,8 +35,9 @@ import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -154,6 +163,12 @@ import java.util.List;
     }
   }
 
+  /**
+   * @deprecated Use a {@link ForwardingPlayer} and pass it to the constructor instead. You can also
+   *     customize some operations when configuring the player (for example by using {@code
+   *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+   */
+  @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     this.controlDispatcher = controlDispatcher;
   }
@@ -231,11 +246,13 @@ import java.util.List;
   }
 
   public boolean skipToPreviousPlaylistItem() {
-    return controlDispatcher.dispatchPrevious(player);
+    return player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)
+        && controlDispatcher.dispatchPrevious(player);
   }
 
   public boolean skipToNextPlaylistItem() {
-    return controlDispatcher.dispatchNext(player);
+    return player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)
+        && controlDispatcher.dispatchNext(player);
   }
 
   public boolean skipToPlaylistItem(@IntRange(from = 0) int index) {
@@ -247,7 +264,8 @@ import java.util.List;
     Assertions.checkState(0 <= index && index < timeline.getWindowCount());
     int windowIndex = player.getCurrentWindowIndex();
     if (windowIndex != index) {
-      return controlDispatcher.dispatchSeekTo(player, index, C.TIME_UNSET);
+      return player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)
+          && controlDispatcher.dispatchSeekTo(player, index, C.TIME_UNSET);
     }
     return false;
   }
@@ -258,13 +276,15 @@ import java.util.List;
   }
 
   public boolean setRepeatMode(int repeatMode) {
-    return controlDispatcher.dispatchSetRepeatMode(
-        player, Utils.getExoPlayerRepeatMode(repeatMode));
+    return player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)
+        && controlDispatcher.dispatchSetRepeatMode(
+            player, Utils.getExoPlayerRepeatMode(repeatMode));
   }
 
   public boolean setShuffleMode(int shuffleMode) {
-    return controlDispatcher.dispatchSetShuffleModeEnabled(
-        player, Utils.getExoPlayerShuffleMode(shuffleMode));
+    return player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)
+        && controlDispatcher.dispatchSetShuffleModeEnabled(
+            player, Utils.getExoPlayerShuffleMode(shuffleMode));
   }
 
   @Nullable
@@ -314,8 +334,9 @@ import java.util.List;
   public boolean play() {
     if (player.getPlaybackState() == Player.STATE_ENDED) {
       boolean seekHandled =
-          controlDispatcher.dispatchSeekTo(
-              player, player.getCurrentWindowIndex(), /* positionMs= */ 0);
+          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)
+              && controlDispatcher.dispatchSeekTo(
+                  player, player.getCurrentWindowIndex(), /* positionMs= */ 0);
       if (!seekHandled) {
         return false;
       }
@@ -325,7 +346,8 @@ import java.util.List;
     if (playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE) {
       return false;
     }
-    return controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+    return player.isCommandAvailable(COMMAND_PLAY_PAUSE)
+        && controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
   }
 
   public boolean pause() {
@@ -334,11 +356,13 @@ import java.util.List;
     if (!playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE) {
       return false;
     }
-    return controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+    return player.isCommandAvailable(COMMAND_PLAY_PAUSE)
+        && controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
   }
 
   public boolean seekTo(long position) {
-    return controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), position);
+    return player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)
+        && controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), position);
   }
 
   public long getCurrentPosition() {
@@ -443,7 +467,7 @@ import java.util.List;
 
   public AudioAttributesCompat getAudioAttributes() {
     AudioAttributes audioAttributes = AudioAttributes.DEFAULT;
-    if (player.isCommandAvailable(Player.COMMAND_GET_AUDIO_ATTRIBUTES)) {
+    if (player.isCommandAvailable(COMMAND_GET_AUDIO_ATTRIBUTES)) {
       audioAttributes = player.getAudioAttributes();
     }
     return Utils.getAudioAttributesCompat(audioAttributes);
@@ -480,11 +504,11 @@ import java.util.List;
   }
 
   public boolean canSkipToPreviousPlaylistItem() {
-    return player.hasPrevious();
+    return player.hasPreviousWindow();
   }
 
   public boolean canSkipToNextPlaylistItem() {
-    return player.hasNext();
+    return player.hasNextWindow();
   }
 
   public boolean hasError() {
@@ -564,15 +588,13 @@ import java.util.List;
 
   private final class ComponentListener implements Player.Listener {
 
-    // Player.EventListener implementation.
-
     @Override
     public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
       updateSessionPlayerState();
     }
 
     @Override
-    public void onPlaybackStateChanged(@Player.State int state) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       handlePlayerStateChanged();
     }
 
@@ -585,7 +607,7 @@ import java.util.List;
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       updateSessionPlayerState();
     }
 
@@ -615,8 +637,6 @@ import java.util.List;
       updatePlaylist(timeline);
       listener.onPlaylistChanged();
     }
-
-    // AudioListener implementation.
 
     @Override
     public void onAudioAttributesChanged(AudioAttributes audioAttributes) {

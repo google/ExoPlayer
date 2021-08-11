@@ -256,13 +256,12 @@ public final class TrackSelectionDialogBuilder {
   }
 
   // Reflection calls can't verify null safety of return values or parameters.
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings("nullness:argument")
   @Nullable
   private Dialog buildForAndroidX() {
     try {
       // This method uses reflection to avoid a dependency on AndroidX appcompat that adds 800KB to
       // the APK size even with shrinking. See https://issuetracker.google.com/161514204.
-      // LINT.IfChange
       Class<?> builderClazz = Class.forName("androidx.appcompat.app.AlertDialog$Builder");
       Constructor<?> builderConstructor = builderClazz.getConstructor(Context.class, int.class);
       Object builder = builderConstructor.newInstance(context, themeResId);
@@ -283,7 +282,6 @@ public final class TrackSelectionDialogBuilder {
           .getMethod("setNegativeButton", int.class, DialogInterface.OnClickListener.class)
           .invoke(builder, android.R.string.cancel, null);
       return (Dialog) builderClazz.getMethod("create").invoke(builder);
-      // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     } catch (ClassNotFoundException e) {
       // Expected if the AndroidX compat library is not available.
       return null;

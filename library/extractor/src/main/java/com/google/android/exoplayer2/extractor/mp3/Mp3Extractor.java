@@ -101,22 +101,16 @@ public final class Mp3Extractor implements Extractor {
           ((id0 == 'C' && id1 == 'O' && id2 == 'M' && (id3 == 'M' || majorVersion == 2))
               || (id0 == 'M' && id1 == 'L' && id2 == 'L' && (id3 == 'T' || majorVersion == 2)));
 
-  /**
-   * The maximum number of bytes to search when synchronizing, before giving up.
-   */
+  /** The maximum number of bytes to search when synchronizing, before giving up. */
   private static final int MAX_SYNC_BYTES = 128 * 1024;
   /**
    * The maximum number of bytes to peek when sniffing, excluding the ID3 header, before giving up.
    */
   private static final int MAX_SNIFF_BYTES = 32 * 1024;
-  /**
-   * Maximum length of data read into {@link #scratch}.
-   */
+  /** Maximum length of data read into {@link #scratch}. */
   private static final int SCRATCH_LENGTH = 10;
 
-  /**
-   * Mask that includes the audio header values that must match between frames.
-   */
+  /** Mask that includes the audio header values that must match between frames. */
   private static final int MPEG_AUDIO_HEADER_MASK = 0xFFFE0C00;
 
   private static final int SEEK_HEADER_XING = 0x58696e67;
@@ -153,17 +147,15 @@ public final class Mp3Extractor implements Extractor {
     this(0);
   }
 
-  /**
-   * @param flags Flags that control the extractor's behavior.
-   */
+  /** @param flags Flags that control the extractor's behavior. */
   public Mp3Extractor(@Flags int flags) {
     this(flags, C.TIME_UNSET);
   }
 
   /**
    * @param flags Flags that control the extractor's behavior.
-   * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or
-   *     {@link C#TIME_UNSET} if forcing is not required.
+   * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or {@link
+   *     C#TIME_UNSET} if forcing is not required.
    */
   public Mp3Extractor(@Flags int flags, long forcedFirstSampleTimestampUs) {
     this.flags = flags;
@@ -365,7 +357,8 @@ public final class Mp3Extractor implements Extractor {
         // The header doesn't match the candidate header or is invalid. Try the next byte offset.
         if (searchedBytes++ == searchLimitBytes) {
           if (!sniffing) {
-            throw new ParserException("Searched too many bytes.");
+            throw ParserException.createForMalformedContainer(
+                "Searched too many bytes.", /* cause= */ null);
           }
           return false;
         }
@@ -473,9 +466,10 @@ public final class Mp3Extractor implements Extractor {
   private Seeker maybeReadSeekFrame(ExtractorInput input) throws IOException {
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
     input.peekFully(frame.getData(), 0, synchronizedHeader.frameSize);
-    int xingBase = (synchronizedHeader.version & 1) != 0
-        ? (synchronizedHeader.channels != 1 ? 36 : 21) // MPEG 1
-        : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
+    int xingBase =
+        (synchronizedHeader.version & 1) != 0
+            ? (synchronizedHeader.channels != 1 ? 36 : 21) // MPEG 1
+            : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
     int seekHeader = getSeekFrameHeader(frame, xingBase);
     @Nullable Seeker seeker;
     if (seekHeader == SEEK_HEADER_XING || seekHeader == SEEK_HEADER_INFO) {
@@ -518,9 +512,7 @@ public final class Mp3Extractor implements Extractor {
     Util.castNonNull(extractorOutput);
   }
 
-  /**
-   * Returns whether the headers match in those bits masked by {@link #MPEG_AUDIO_HEADER_MASK}.
-   */
+  /** Returns whether the headers match in those bits masked by {@link #MPEG_AUDIO_HEADER_MASK}. */
   private static boolean headersMatch(int headerA, long headerB) {
     return (headerA & MPEG_AUDIO_HEADER_MASK) == (headerB & MPEG_AUDIO_HEADER_MASK);
   }

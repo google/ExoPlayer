@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -211,7 +212,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       } catch (DecoderException e) {
         Log.e(TAG, "Video codec error", e);
         eventDispatcher.videoCodecError(e);
-        throw createRendererException(e, inputFormat);
+        throw createRendererException(e, inputFormat, PlaybackException.ERROR_CODE_DECODING_FAILED);
       }
       decoderCounters.ensureUpdated();
     }
@@ -691,9 +692,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     } catch (DecoderException e) {
       Log.e(TAG, "Video codec error", e);
       eventDispatcher.videoCodecError(e);
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(
+          e, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     } catch (OutOfMemoryError e) {
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(
+          e, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     }
   }
 

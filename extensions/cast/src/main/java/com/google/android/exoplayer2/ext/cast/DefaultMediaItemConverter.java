@@ -43,29 +43,29 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   private static final String KEY_REQUEST_HEADERS = "requestHeaders";
 
   @Override
-  public MediaItem toMediaItem(MediaQueueItem item) {
+  public MediaItem toMediaItem(MediaQueueItem mediaQueueItem) {
     // `item` came from `toMediaQueueItem()` so the custom JSON data must be set.
-    MediaInfo mediaInfo = item.getMedia();
+    MediaInfo mediaInfo = mediaQueueItem.getMedia();
     Assertions.checkNotNull(mediaInfo);
     return getMediaItem(Assertions.checkNotNull(mediaInfo.getCustomData()));
   }
 
   @Override
-  public MediaQueueItem toMediaQueueItem(MediaItem item) {
-    Assertions.checkNotNull(item.playbackProperties);
-    if (item.playbackProperties.mimeType == null) {
+  public MediaQueueItem toMediaQueueItem(MediaItem mediaItem) {
+    Assertions.checkNotNull(mediaItem.playbackProperties);
+    if (mediaItem.playbackProperties.mimeType == null) {
       throw new IllegalArgumentException("The item must specify its mimeType");
     }
     MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-    if (item.mediaMetadata.title != null) {
-      metadata.putString(MediaMetadata.KEY_TITLE, item.mediaMetadata.title.toString());
+    if (mediaItem.mediaMetadata.title != null) {
+      metadata.putString(MediaMetadata.KEY_TITLE, mediaItem.mediaMetadata.title.toString());
     }
     MediaInfo mediaInfo =
-        new MediaInfo.Builder(item.playbackProperties.uri.toString())
+        new MediaInfo.Builder(mediaItem.playbackProperties.uri.toString())
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-            .setContentType(item.playbackProperties.mimeType)
+            .setContentType(mediaItem.playbackProperties.mimeType)
             .setMetadata(metadata)
-            .setCustomData(getCustomData(item))
+            .setCustomData(getCustomData(mediaItem))
             .build();
     return new MediaQueueItem.Builder(mediaInfo).build();
   }

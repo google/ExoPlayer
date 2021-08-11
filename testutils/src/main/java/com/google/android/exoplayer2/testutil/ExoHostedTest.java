@@ -84,19 +84,23 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
    *     the test will not assert an expected playing time.
    */
   public ExoHostedTest(String tag, boolean fullPlaybackNoSeeking) {
-    this(tag, fullPlaybackNoSeeking ? EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
-        : EXPECTED_PLAYING_TIME_UNSET, true);
+    this(
+        tag,
+        fullPlaybackNoSeeking
+            ? EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
+            : EXPECTED_PLAYING_TIME_UNSET,
+        true);
   }
 
   /**
    * @param tag A tag to use for logging.
    * @param expectedPlayingTimeMs The expected playing time. If set to a non-negative value, the
-   *     test will assert that the total time spent playing the media was within
-   *     {@link #MAX_PLAYING_TIME_DISCREPANCY_MS} of the specified value.
-   *     {@link #EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS} should be passed to assert that the
-   *     expected playing time equals the duration of the media being played. Else
-   *     {@link #EXPECTED_PLAYING_TIME_UNSET} should be passed to indicate that the test should not
-   *     assert an expected playing time.
+   *     test will assert that the total time spent playing the media was within {@link
+   *     #MAX_PLAYING_TIME_DISCREPANCY_MS} of the specified value. {@link
+   *     #EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS} should be passed to assert that the expected
+   *     playing time equals the duration of the media being played. Else {@link
+   *     #EXPECTED_PLAYING_TIME_UNSET} should be passed to indicate that the test should not assert
+   *     an expected playing time.
    * @param failOnPlayerError Whether a player error should be considered a test failure.
    */
   public ExoHostedTest(String tag, long expectedPlayingTimeMs, boolean failOnPlayerError) {
@@ -161,8 +165,10 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     }
     logMetrics(audioDecoderCounters, videoDecoderCounters);
     if (expectedPlayingTimeMs != EXPECTED_PLAYING_TIME_UNSET) {
-      long playingTimeToAssertMs = expectedPlayingTimeMs == EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
-          ? sourceDurationMs : expectedPlayingTimeMs;
+      long playingTimeToAssertMs =
+          expectedPlayingTimeMs == EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
+              ? sourceDurationMs
+              : expectedPlayingTimeMs;
       // Assert that the playback spanned the correct duration of time.
       long minAllowedActualPlayingTimeMs = playingTimeToAssertMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
       long maxAllowedActualPlayingTimeMs = playingTimeToAssertMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
@@ -189,7 +195,9 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       }
     }
     if (events.contains(EVENT_PLAYER_ERROR)) {
-      playerError = checkNotNull(player.getPlayerError());
+      // The exception is guaranteed to be an ExoPlaybackException because the underlying player is
+      // an ExoPlayer instance.
+      playerError = (ExoPlaybackException) checkNotNull(player.getPlayerError());
       onPlayerErrorInternal(playerError);
     }
     if (events.contains(EVENT_PLAYBACK_STATE_CHANGED)) {
@@ -240,17 +248,13 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
     renderersFactory.setAllowedVideoJoiningTimeMs(/* allowedVideoJoiningTimeMs= */ 0);
     SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(host, renderersFactory)
-            .setTrackSelector(trackSelector)
-            .build();
+        new SimpleExoPlayer.Builder(host, renderersFactory).setTrackSelector(trackSelector).build();
     player.setVideoSurface(surface);
     return player;
   }
 
   protected abstract MediaSource buildSource(
-      HostActivity host,
-      DrmSessionManager drmSessionManager,
-      FrameLayout overlayFrameLayout);
+      HostActivity host, DrmSessionManager drmSessionManager, FrameLayout overlayFrameLayout);
 
   protected void onPlayerErrorInternal(ExoPlaybackException error) {
     // Do nothing. Interested subclasses may override.

@@ -133,7 +133,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private static final long MAXIMUM_READ_AHEAD_BYTES_STREAM = 10 * 1024 * 1024;
 
-  private final @Flags int flags;
+  @Flags private final int flags;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -166,9 +166,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   @FileType private int fileType;
   @Nullable private MotionPhotoMetadata motionPhotoMetadata;
 
-  /**
-   * Creates a new extractor for unfragmented MP4 streams.
-   */
+  /** Creates a new extractor for unfragmented MP4 streams. */
   public Mp4Extractor() {
     this(/* flags= */ 0);
   }
@@ -362,7 +360,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
 
     if (atomSize < atomHeaderBytesRead) {
-      throw new ParserException("Atom size less than header length (unsupported).");
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Atom size less than header length (unsupported).");
     }
 
     if (shouldParseContainerAtom(atomType)) {
@@ -452,9 +451,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
   }
 
-  /**
-   * Updates the stored track metadata to reflect the contents of the specified moov atom.
-   */
+  /** Updates the stored track metadata to reflect the contents of the specified moov atom. */
   private void processMoovAtom(ContainerAtom moov) throws ParserException {
     int firstVideoTrackIndex = C.INDEX_UNSET;
     long durationUs = C.TIME_UNSET;
@@ -503,8 +500,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       long trackDurationUs =
           track.durationUs != C.TIME_UNSET ? track.durationUs : trackSampleTable.durationUs;
       durationUs = max(durationUs, trackDurationUs);
-      Mp4Track mp4Track = new Mp4Track(track, trackSampleTable,
-          extractorOutput.track(i, track.type));
+      Mp4Track mp4Track =
+          new Mp4Track(track, trackSampleTable, extractorOutput.track(i, track.type));
 
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
@@ -602,7 +599,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           nalLength.setPosition(0);
           int nalLengthInt = nalLength.readInt();
           if (nalLengthInt < 0) {
-            throw new ParserException("Invalid NAL length");
+            throw ParserException.createForMalformedContainer(
+                "Invalid NAL length", /* cause= */ null);
           }
           sampleCurrentNalBytesRemaining = nalLengthInt;
           // Write a start code for the current NAL unit.
@@ -634,8 +632,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
     }
-    trackOutput.sampleMetadata(track.sampleTable.timestampsUs[sampleIndex],
-        track.sampleTable.flags[sampleIndex], sampleSize, 0, null);
+    trackOutput.sampleMetadata(
+        track.sampleTable.timestampsUs[sampleIndex],
+        track.sampleTable.flags[sampleIndex],
+        sampleSize,
+        0,
+        null);
     track.sampleIndex++;
     sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesRead = 0;
@@ -908,7 +910,5 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       this.sampleTable = sampleTable;
       this.trackOutput = trackOutput;
     }
-
   }
-
 }

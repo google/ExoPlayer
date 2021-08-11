@@ -23,6 +23,8 @@ import android.util.Base64;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
 import java.io.IOException;
@@ -48,19 +50,19 @@ public final class DataSchemeDataSource extends BaseDataSource {
     this.dataSpec = dataSpec;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
-    if (!SCHEME_DATA.equals(scheme)) {
-      throw new ParserException("Unsupported scheme: " + scheme);
-    }
+    Assertions.checkArgument(SCHEME_DATA.equals(scheme), "Unsupported scheme: " + scheme);
     String[] uriParts = Util.split(uri.getSchemeSpecificPart(), ",");
     if (uriParts.length != 2) {
-      throw new ParserException("Unexpected URI format: " + uri);
+      throw ParserException.createForMalformedDataOfUnknownType(
+          "Unexpected URI format: " + uri, /* cause= */ null);
     }
     String dataString = uriParts[1];
     if (uriParts[0].contains(";base64")) {
       try {
         data = Base64.decode(dataString, /* flags= */ Base64.DEFAULT);
       } catch (IllegalArgumentException e) {
-        throw new ParserException("Error while parsing Base64 encoded string: " + dataString, e);
+        throw ParserException.createForMalformedDataOfUnknownType(
+            "Error while parsing Base64 encoded string: " + dataString, e);
       }
     } else {
       // TODO: Add support for other charsets.
@@ -68,7 +70,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
     }
     if (dataSpec.position > data.length) {
       data = null;
-      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
     readPosition = (int) dataSpec.position;
     bytesRemaining = data.length - readPosition;
@@ -80,19 +82,19 @@ public final class DataSchemeDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) {
+    if (length == 0) {
       return 0;
     }
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    readLength = min(readLength, bytesRemaining);
-    System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
-    readPosition += readLength;
-    bytesRemaining -= readLength;
-    bytesTransferred(readLength);
-    return readLength;
+    length = min(length, bytesRemaining);
+    System.arraycopy(castNonNull(data), readPosition, buffer, offset, length);
+    readPosition += length;
+    bytesRemaining -= length;
+    bytesTransferred(length);
+    return length;
   }
 
   @Override

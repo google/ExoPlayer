@@ -153,7 +153,7 @@ public final class FlacFrameReader {
     SampleNumberHolder sampleNumberHolder = new SampleNumberHolder();
     if (!checkAndReadFirstSampleNumber(
         scratch, flacStreamMetadata, isBlockSizeVariable, sampleNumberHolder)) {
-      throw new ParserException();
+      throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
     }
 
     return sampleNumberHolder.sampleNumber;

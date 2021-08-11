@@ -279,7 +279,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public void load() throws IOException {
       while (!loadCanceled) {
-        // TODO(internal b/172331505) Use a buffered read.
         byte firstByte = dataInputStream.readByte();
         if (firstByte == INTERLEAVED_MESSAGE_MARKER) {
           handleInterleavedBinaryData();

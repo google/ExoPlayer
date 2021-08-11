@@ -22,7 +22,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import android.os.Handler;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -148,22 +147,22 @@ public class ListenerSetTest {
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_2));
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
     inOrder.verify(listener1).callback3();
     inOrder.verify(listener2).callback3();
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_3));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_3));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_3));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_3));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -178,7 +177,7 @@ public class ListenerSetTest {
               boolean eventSent;
 
               @Override
-              public void iterationFinished(ExoFlags flags) {
+              public void iterationFinished(FlagSet flags) {
                 if (!eventSent) {
                   listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
                   eventSent = true;
@@ -198,14 +197,14 @@ public class ListenerSetTest {
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
     inOrder.verify(listener3).callback2();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_2));
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
     inOrder.verify(listener3).callback1();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1));
-    inOrder.verify(listener3).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1));
+    inOrder.verify(listener3).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -248,8 +247,8 @@ public class ListenerSetTest {
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -273,8 +272,8 @@ public class ListenerSetTest {
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
-    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createFlagSet(EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -302,7 +301,7 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener1).callback1();
-    verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1));
+    verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
@@ -323,7 +322,7 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener2, times(2)).callback1();
-    verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1));
+    verify(listener2).iterationFinished(createFlagSet(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
@@ -350,7 +349,7 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener1).callback1();
-    verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1));
+    verify(listener1).iterationFinished(createFlagSet(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
@@ -367,34 +366,6 @@ public class ListenerSetTest {
     verify(listener, never()).callback1();
   }
 
-  @Test
-  public void lazyRelease_stopsForwardingEventsFromNewHandlerMessagesAndCallsReleaseCallback() {
-    ListenerSet<TestListener> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
-    TestListener listener = mock(TestListener.class);
-    listenerSet.add(listener);
-
-    // In-line event before release.
-    listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
-    // Message triggering event sent before release.
-    new Handler().post(() -> listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1));
-    // Lazy release with release callback.
-    listenerSet.lazyRelease(EVENT_ID_3, TestListener::callback3);
-    // In-line event after release.
-    listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
-    // Message triggering event sent after release.
-    new Handler().post(() -> listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2));
-    ShadowLooper.runMainLooperToNextTask();
-
-    // Verify all events are delivered except for the one triggered by the message sent after the
-    // lazy release.
-    verify(listener, times(3)).callback1();
-    verify(listener).callback3();
-    verify(listener).iterationFinished(createExoFlags(EVENT_ID_1));
-    verify(listener).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_3));
-    verifyNoMoreInteractions(listener);
-  }
-
   private interface TestListener {
     default void callback1() {}
 
@@ -402,11 +373,11 @@ public class ListenerSetTest {
 
     default void callback3() {}
 
-    default void iterationFinished(ExoFlags flags) {}
+    default void iterationFinished(FlagSet flags) {}
   }
 
-  private static ExoFlags createExoFlags(int... flagValues) {
-    ExoFlags.Builder flagsBuilder = new ExoFlags.Builder();
+  private static FlagSet createFlagSet(int... flagValues) {
+    FlagSet.Builder flagsBuilder = new FlagSet.Builder();
     for (int value : flagValues) {
       flagsBuilder.add(value);
     }

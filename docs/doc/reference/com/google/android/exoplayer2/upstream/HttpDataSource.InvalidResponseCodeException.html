@@ -124,10 +124,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">java.io.IOException</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.DataSourceException</a></li>
+<li>
+<ul class="inheritance">
 <li><a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -231,6 +236,13 @@ extends <a href="HttpDataSource.HttpDataSourceException.html" title="class in co
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></h3>
 <code><a href="HttpDataSource.HttpDataSourceException.html#dataSpec">dataSpec</a>, <a href="HttpDataSource.HttpDataSourceException.html#type">type</a>, <a href="HttpDataSource.HttpDataSourceException.html#TYPE_CLOSE">TYPE_CLOSE</a>, <a href="HttpDataSource.HttpDataSourceException.html#TYPE_OPEN">TYPE_OPEN</a>, <a href="HttpDataSource.HttpDataSourceException.html#TYPE_READ">TYPE_READ</a></code></li>
 </ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.upstream.DataSourceException">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></h3>
+<code><a href="DataSourceException.html#POSITION_OUT_OF_RANGE">POSITION_OUT_OF_RANGE</a>, <a href="DataSourceException.html#reason">reason</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -248,23 +260,25 @@ extends <a href="HttpDataSource.HttpDataSourceException.html" title="class in co
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.io.IOException,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
+                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                            <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                            byte[]&nbsp;responseBody)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec)">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
                             <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
                             <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.io.IOException,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
+     byte[])</code></a>.</div>
 </div>
 </td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
-                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
-                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
-                            <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-                            byte[]&nbsp;responseBody)</code></th>
-<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec)">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
@@ -272,7 +286,8 @@ extends <a href="HttpDataSource.HttpDataSourceException.html" title="class in co
                             <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.io.IOException,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
+     byte[])</code></a>.</div>
 </div>
 </td>
 </tr>
@@ -287,6 +302,20 @@ extends <a href="HttpDataSource.HttpDataSourceException.html" title="class in co
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></h3>
+<code><a href="HttpDataSource.HttpDataSourceException.html#createForIOException(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">createForIOException</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.DataSourceException">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></h3>
+<code><a href="DataSourceException.html#isCausedByPositionOutOfRange(java.io.IOException)">isCausedByPositionOutOfRange</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Throwable">
 <!--   -->
@@ -379,7 +408,8 @@ public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
                                     <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
                                     <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.io.IOException,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
+     byte[])</code></a>.</div>
 </div>
 </li>
 </ul>
@@ -396,11 +426,12 @@ public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
                                     <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
                                     <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,java.lang.String,java.io.IOException,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte%5B%5D)"><code>InvalidResponseCodeException(int, String, IOException, Map, DataSpec,
+     byte[])</code></a>.</div>
 </div>
 </li>
 </ul>
-<a id="&lt;init&gt;(int,java.lang.String,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte[])">
+<a id="&lt;init&gt;(int,java.lang.String,java.io.IOException,java.util.Map,com.google.android.exoplayer2.upstream.DataSpec,byte[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -409,6 +440,8 @@ public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
 <pre>public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
                                     @Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
+                                    @Nullable
+                                    <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                                     <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
                                     <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                     byte[]&nbsp;responseBody)</pre>

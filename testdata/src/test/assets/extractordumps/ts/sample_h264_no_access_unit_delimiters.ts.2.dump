@@ -19,19 +19,19 @@ track 256:
       data = length 29, hash 4C2CAE9C
       data = length 9, hash D971CD89
   sample 0:
-    time = 111221
+    time = 66733
     flags = 0
     data = length 734, hash AF0D9485
   sample 1:
-    time = 111221
+    time = 66733
     flags = 1
     data = length 10938, hash 68420875
   sample 2:
-    time = 177954
+    time = 133466
     flags = 0
     data = length 6, hash 34E6CF79
   sample 3:
-    time = 177954
+    time = 133466
     flags = 0
     data = length 518, hash 546C177
 tracksEnded = true

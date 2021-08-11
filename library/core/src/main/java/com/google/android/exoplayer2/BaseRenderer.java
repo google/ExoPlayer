@@ -45,8 +45,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private boolean throwRendererExceptionIsExecuting;
 
   /**
-   * @param trackType The track type that the renderer handles. One of the {@link C}
-   * {@code TRACK_TYPE_*} constants.
+   * @param trackType The track type that the renderer handles. One of the {@link C} {@code
+   *     TRACK_TYPE_*} constants.
    */
   public BaseRenderer(int trackType) {
     this.trackType = trackType;
@@ -113,7 +113,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
-    readingPositionUs = offsetUs;
+    if (readingPositionUs == C.TIME_END_OF_SOURCE) {
+      readingPositionUs = startPositionUs;
+    }
     streamFormats = formats;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats, startPositionUs, offsetUs);
@@ -194,7 +196,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -253,8 +255,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is started.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
@@ -273,8 +275,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is disabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    */
   protected void onDisabled() {
     // Do nothing.
@@ -325,9 +327,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return Assertions.checkNotNull(configuration);
   }
 
-  /**
-   * Returns the index of the renderer within the player.
-   */
+  /** Returns the index of the renderer within the player. */
   protected final int getIndex() {
     return index;
   }
@@ -338,10 +338,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    *
    * @param cause The cause of the exception.
    * @param format The current format used by the renderer. May be null.
+   * @param errorCode A {@link PlaybackException.ErrorCode} to identify the cause of the playback
+   *     failure.
+   * @return The created instance, in which {@link ExoPlaybackException#isRecoverable} is {@code
+   *     false}.
    */
   protected final ExoPlaybackException createRendererException(
-      Throwable cause, @Nullable Format format) {
-    return createRendererException(cause, format, /* isRecoverable= */ false);
+      Throwable cause, @Nullable Format format, @PlaybackException.ErrorCode int errorCode) {
+    return createRendererException(cause, format, /* isRecoverable= */ false, errorCode);
   }
 
   /**
@@ -351,9 +355,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param cause The cause of the exception.
    * @param format The current format used by the renderer. May be null.
    * @param isRecoverable If the error is recoverable by disabling and re-enabling the renderer.
+   * @param errorCode A {@link PlaybackException.ErrorCode} to identify the cause of the playback
+   *     failure.
+   * @return The created instance.
    */
   protected final ExoPlaybackException createRendererException(
-      Throwable cause, @Nullable Format format, boolean isRecoverable) {
+      Throwable cause,
+      @Nullable Format format,
+      boolean isRecoverable,
+      @PlaybackException.ErrorCode int errorCode) {
     @C.FormatSupport int formatSupport = C.FORMAT_HANDLED;
     if (format != null && !throwRendererExceptionIsExecuting) {
       // Prevent recursive re-entry from subclass supportsFormat implementations.
@@ -367,7 +377,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       }
     }
     return ExoPlaybackException.createForRenderer(
-        cause, getName(), getIndex(), format, formatSupport, isRecoverable);
+        cause, getName(), getIndex(), format, formatSupport, isRecoverable, errorCode);
   }
 
   /**

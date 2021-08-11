@@ -71,6 +71,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
@@ -730,7 +731,9 @@ public final class AnalyticsCollectorTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .throwPlaybackException(
+                ExoPlaybackException.createForSource(
+                    new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
             .waitForPlaybackState(Player.STATE_IDLE)
             .seek(/* positionMs= */ 0)
             .prepare()
@@ -1348,11 +1351,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(contentBeforeMidroll);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(
-            contentBeforeMidroll,
-            contentBeforeMidroll,
-            midrollAd,
-            midrollAd)
+        .containsExactly(contentBeforeMidroll, contentBeforeMidroll, midrollAd, midrollAd)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll);
@@ -1553,7 +1552,9 @@ public final class AnalyticsCollectorTest {
                     throws ExoPlaybackException {
                   // Fail when enabling the renderer. This will happen during the period transition.
                   throw createRendererException(
-                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                      new IllegalStateException(),
+                      ExoPlayerTestRunner.AUDIO_FORMAT,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED);
                 }
               }
             };
@@ -1585,7 +1586,9 @@ public final class AnalyticsCollectorTest {
                   // Fail when rendering the audio stream. This will happen during the period
                   // transition.
                   throw createRendererException(
-                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                      new IllegalStateException(),
+                      ExoPlayerTestRunner.AUDIO_FORMAT,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED);
                 }
               }
             };
@@ -1620,7 +1623,9 @@ public final class AnalyticsCollectorTest {
                   // period transition (as the first time is when enabling the stream initially).
                   if (++streamChangeCount == 2) {
                     throw createRendererException(
-                        new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                        new IllegalStateException(),
+                        ExoPlayerTestRunner.AUDIO_FORMAT,
+                        PlaybackException.ERROR_CODE_UNSPECIFIED);
                   }
                 }
               }
@@ -1665,7 +1670,7 @@ public final class AnalyticsCollectorTest {
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
         player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
+    TestPlayerRunHelper.runUntilError(player);
     ShadowLooper.runMainLooperToNextTask();
     player.release();
     surface.release();
@@ -1946,7 +1951,7 @@ public final class AnalyticsCollectorTest {
         spy(
             new AnalyticsListener() {
               @Override
-              public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
+              public void onPlayerError(EventTime eventTime, PlaybackException error) {
                 analyticsCollector.onSurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
               }
             });
@@ -1955,7 +1960,9 @@ public final class AnalyticsCollectorTest {
     analyticsCollector.addListener(listener2);
     analyticsCollector.addListener(listener3);
 
-    analyticsCollector.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
+    analyticsCollector.onPlayerError(
+        ExoPlaybackException.createForSource(
+            new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED));
 
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     inOrder.verify(listener1).onPlayerError(any(), any());
@@ -2145,7 +2152,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
+    public void onPlayerError(EventTime eventTime, PlaybackException error) {
       reportedEvents.add(new ReportedEvent(EVENT_PLAYER_ERROR, eventTime));
     }
 
@@ -2237,7 +2244,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {
+    public void onAudioEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_ENABLED, eventTime));
     }
 
@@ -2256,7 +2263,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {
+    public void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_DISABLED, eventTime));
     }
 
@@ -2277,7 +2284,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {
+    public void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_ENABLED, eventTime));
     }
 
@@ -2301,7 +2308,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {
+    public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_DISABLED, eventTime));
     }
 

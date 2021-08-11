@@ -286,13 +286,11 @@ public class WebServerDispatcher extends Dispatcher {
         case "gzip":
           setResponseBody(
               response, Util.gzip(resourceData), /* chunked= */ resource.resolvesToUnknownLength);
-          response
-              .setHeader("Content-Encoding", "gzip");
+          response.setHeader("Content-Encoding", "gzip");
           break;
         case "identity":
           setResponseBody(response, resourceData, /* chunked= */ resource.resolvesToUnknownLength);
-          response
-              .setHeader("Content-Encoding", "identity");
+          response.setHeader("Content-Encoding", "identity");
           break;
         default:
           throw new IllegalStateException("Unexpected content coding: " + preferredContentCoding);

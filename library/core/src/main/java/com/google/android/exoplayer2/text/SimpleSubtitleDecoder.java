@@ -29,7 +29,7 @@ public abstract class SimpleSubtitleDecoder
   private final String name;
 
   /** @param name The name of the decoder. */
-  @SuppressWarnings("nullness:method.invocation.invalid")
+  @SuppressWarnings("nullness:method.invocation")
   protected SimpleSubtitleDecoder(String name) {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     this.name = name;
@@ -42,7 +42,7 @@ public abstract class SimpleSubtitleDecoder
   }
 
   @Override
-  public void setPositionUs(long timeUs) {
+  public void setPositionUs(long positionUs) {
     // Do nothing
   }
 
@@ -89,5 +89,4 @@ public abstract class SimpleSubtitleDecoder
    */
   protected abstract Subtitle decode(byte[] data, int size, boolean reset)
       throws SubtitleDecoderException;
-
 }

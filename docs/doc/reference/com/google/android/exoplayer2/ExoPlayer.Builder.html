@@ -416,7 +416,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Set a limit on the time a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> can spend. If a call to
  <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>timeoutMs</code> milliseconds to
- complete, the player will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.
+ complete, the player will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
@@ -593,7 +593,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a timeout for calls to <a href="Player.html#release()"><code>Player.release()</code></a> and <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a>.
 
  <p>If a call to <a href="Player.html#release()"><code>Player.release()</code></a> or <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>
- timeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
+ timeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>releaseTimeoutMs</code> - The release timeout, in milliseconds.</dd>

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
+import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -37,6 +39,8 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackSelection;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -58,7 +62,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     public SsChunkSource createChunkSource(
         LoaderErrorThrower manifestLoaderErrorThrower,
         SsManifest manifest,
-        int elementIndex,
+        int streamElementIndex,
         ExoTrackSelection trackSelection,
         @Nullable TransferListener transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
@@ -66,9 +70,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
         dataSource.addTransferListener(transferListener);
       }
       return new DefaultSsChunkSource(
-          manifestLoaderErrorThrower, manifest, elementIndex, trackSelection, dataSource);
+          manifestLoaderErrorThrower, manifest, streamElementIndex, trackSelection, dataSource);
     }
-
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -112,9 +115,19 @@ public class DefaultSsChunkSource implements SsChunkSource {
               ? Assertions.checkNotNull(manifest.protectionElement).trackEncryptionBoxes
               : null;
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : 0;
-      Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
-          C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
-          trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
+      Track track =
+          new Track(
+              manifestTrackIndex,
+              streamElement.type,
+              streamElement.timescale,
+              C.TIME_UNSET,
+              manifest.durationUs,
+              format,
+              Track.TRANSFORMATION_NONE,
+              trackEncryptionBoxes,
+              nalUnitLengthFieldLength,
+              null,
+              null);
       FragmentedMp4Extractor extractor =
           new FragmentedMp4Extractor(
               FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
@@ -146,8 +159,9 @@ public class DefaultSsChunkSource implements SsChunkSource {
       // There's no overlap between the old and new elements because at least one is empty.
       currentManifestChunkOffset += currentElementChunkCount;
     } else {
-      long currentElementEndTimeUs = currentElement.getStartTimeUs(currentElementChunkCount - 1)
-          + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
+      long currentElementEndTimeUs =
+          currentElement.getStartTimeUs(currentElementChunkCount - 1)
+              + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
       long newElementStartTimeUs = newElement.getStartTimeUs(0);
       if (currentElementEndTimeUs <= newElementStartTimeUs) {
         // There's no overlap between the old and new elements.
@@ -272,10 +286,19 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
+      Chunk chunk,
+      boolean cancelable,
+      LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+    @Nullable
+    FallbackSelection fallbackSelection =
+        loadErrorHandlingPolicy.getFallbackSelectionFor(
+            createFallbackOptions(trackSelection), loadErrorInfo);
     return cancelable
-        && exclusionDurationMs != C.TIME_UNSET
-        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
+        && fallbackSelection != null
+        && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
+        && trackSelection.blacklist(
+            trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }
 
   @Override
@@ -325,8 +348,9 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
     StreamElement currentElement = manifest.streamElements[streamElementIndex];
     int lastChunkIndex = currentElement.chunkCount - 1;
-    long lastChunkEndTimeUs = currentElement.getStartTimeUs(lastChunkIndex)
-        + currentElement.getChunkDurationUs(lastChunkIndex);
+    long lastChunkEndTimeUs =
+        currentElement.getStartTimeUs(lastChunkIndex)
+            + currentElement.getChunkDurationUs(lastChunkIndex);
     return lastChunkEndTimeUs - playbackPositionUs;
   }
 

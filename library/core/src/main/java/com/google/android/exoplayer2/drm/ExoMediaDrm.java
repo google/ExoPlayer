@@ -37,7 +37,7 @@ import java.util.UUID;
 /**
  * Used to obtain keys for decrypting protected media streams.
  *
- * <h3>Reference counting</h3>
+ * <h2>Reference counting</h2>
  *
  * <p>Access to an instance is managed by reference counting, where {@link #acquire()} increments
  * the reference count and {@link #release()} decrements it. When the reference count drops to 0

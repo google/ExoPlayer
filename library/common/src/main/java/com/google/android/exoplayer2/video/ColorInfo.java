@@ -22,23 +22,67 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
+import org.checkerframework.dataflow.qual.Pure;
 
 /** Stores color info. */
 public final class ColorInfo implements Parcelable {
 
   /**
+   * Returns the {@link C.ColorSpace} corresponding to the given ISO color primary code, as per
+   * table A.7.21.1 in Rec. ITU-T T.832 (03/2009), or {@link Format#NO_VALUE} if no mapping can be
+   * made.
+   */
+  @Pure
+  @C.ColorSpace
+  public static int isoColorPrimariesToColorSpace(int isoColorPrimaries) {
+    switch (isoColorPrimaries) {
+      case 1:
+        return C.COLOR_SPACE_BT709;
+      case 4: // BT.470M.
+      case 5: // BT.470BG.
+      case 6: // SMPTE 170M.
+      case 7: // SMPTE 240M.
+        return C.COLOR_SPACE_BT601;
+      case 9:
+        return C.COLOR_SPACE_BT2020;
+      default:
+        return Format.NO_VALUE;
+    }
+  }
+
+  /**
+   * Returns the {@link C.ColorTransfer} corresponding to the given ISO transfer characteristics
+   * code, as per table A.7.21.2 in Rec. ITU-T T.832 (03/2009), or {@link Format#NO_VALUE} if no
+   * mapping can be made.
+   */
+  @Pure
+  @C.ColorTransfer
+  public static int isoTransferCharacteristicsToColorTransfer(int isoTransferCharacteristics) {
+    switch (isoTransferCharacteristics) {
+      case 1: // BT.709.
+      case 6: // SMPTE 170M.
+      case 7: // SMPTE 240M.
+        return C.COLOR_TRANSFER_SDR;
+      case 16:
+        return C.COLOR_TRANSFER_ST2084;
+      case 18:
+        return C.COLOR_TRANSFER_HLG;
+      default:
+        return Format.NO_VALUE;
+    }
+  }
+
+  /**
    * The color space of the video. Valid values are {@link C#COLOR_SPACE_BT601}, {@link
    * C#COLOR_SPACE_BT709}, {@link C#COLOR_SPACE_BT2020} or {@link Format#NO_VALUE} if unknown.
    */
-  @C.ColorSpace
-  public final int colorSpace;
+  @C.ColorSpace public final int colorSpace;
 
   /**
    * The color range of the video. Valid values are {@link C#COLOR_RANGE_LIMITED}, {@link
    * C#COLOR_RANGE_FULL} or {@link Format#NO_VALUE} if unknown.
    */
-  @C.ColorRange
-  public final int colorRange;
+  @C.ColorRange public final int colorRange;
 
   /**
    * The color transfer characteristics of the video. Valid values are {@link C#COLOR_TRANSFER_HLG},
@@ -99,8 +143,15 @@ public final class ColorInfo implements Parcelable {
 
   @Override
   public String toString() {
-    return "ColorInfo(" + colorSpace + ", " + colorRange + ", " + colorTransfer
-        + ", " + (hdrStaticInfo != null) + ")";
+    return "ColorInfo("
+        + colorSpace
+        + ", "
+        + colorRange
+        + ", "
+        + colorTransfer
+        + ", "
+        + (hdrStaticInfo != null)
+        + ")";
   }
 
   @Override

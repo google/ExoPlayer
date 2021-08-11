@@ -325,7 +325,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
   public final TrackSelectorResult selectTracks(
       RendererCapabilities[] rendererCapabilities,
       TrackGroupArray trackGroups,
-      MediaPeriodId mediaPeriodId,
+      MediaPeriodId periodId,
       Timeline timeline)
       throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
@@ -404,7 +404,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             mappedTrackInfo,
             rendererFormatSupports,
             rendererMixedMimeTypeAdaptationSupports,
-            mediaPeriodId,
+            periodId,
             timeline);
     return new TrackSelectorResult(result.first, result.second, mappedTrackInfo);
   }

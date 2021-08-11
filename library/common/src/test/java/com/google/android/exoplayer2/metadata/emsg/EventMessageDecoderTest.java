@@ -50,7 +50,7 @@ public final class EventMessageDecoderTest {
     assertThat(eventMessage.value).isEqualTo("123");
     assertThat(eventMessage.durationMs).isEqualTo(3000);
     assertThat(eventMessage.id).isEqualTo(1000403);
-    assertThat(eventMessage.messageData).isEqualTo(new byte[]{0, 1, 2, 3, 4});
+    assertThat(eventMessage.messageData).isEqualTo(new byte[] {0, 1, 2, 3, 4});
   }
 
   @Test

@@ -63,11 +63,11 @@ public final class TeeDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int max) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    int bytesRead = upstream.read(buffer, offset, max);
+    int bytesRead = upstream.read(buffer, offset, length);
     if (bytesRead > 0) {
       // TODO: Consider continuing even if writes to the sink fail.
       dataSink.write(buffer, offset, bytesRead);
@@ -100,5 +100,4 @@ public final class TeeDataSource implements DataSource {
       }
     }
   }
-
 }

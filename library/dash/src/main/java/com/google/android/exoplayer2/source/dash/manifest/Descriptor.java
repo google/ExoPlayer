@@ -23,13 +23,9 @@ public final class Descriptor {
 
   /** The scheme URI. */
   public final String schemeIdUri;
-  /**
-   * The value, or null.
-   */
+  /** The value, or null. */
   @Nullable public final String value;
-  /**
-   * The identifier, or null.
-   */
+  /** The identifier, or null. */
   @Nullable public final String id;
 
   /**
@@ -52,7 +48,8 @@ public final class Descriptor {
       return false;
     }
     Descriptor other = (Descriptor) obj;
-    return Util.areEqual(schemeIdUri, other.schemeIdUri) && Util.areEqual(value, other.value)
+    return Util.areEqual(schemeIdUri, other.schemeIdUri)
+        && Util.areEqual(value, other.value)
         && Util.areEqual(id, other.id);
   }
 

@@ -61,7 +61,7 @@ public final class BundleUtil {
   }
 
   // Method.invoke may take null "key".
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings("nullness:argument")
   @Nullable
   private static IBinder getBinderByReflection(Bundle bundle, @Nullable String key) {
     @Nullable Method getIBinder = getIBinderMethod;
@@ -85,7 +85,7 @@ public final class BundleUtil {
   }
 
   // Method.invoke may take null "key" and "binder".
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings("nullness:argument")
   private static void putBinderByReflection(
       Bundle bundle, @Nullable String key, @Nullable IBinder binder) {
     @Nullable Method putIBinder = putIBinderMethod;

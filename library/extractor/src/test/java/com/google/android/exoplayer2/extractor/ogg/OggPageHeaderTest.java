@@ -28,9 +28,11 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link OggPageHeader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class OggPageHeaderTest {
 
   private final Random random;
@@ -172,4 +174,3 @@ public final class OggPageHeaderTest {
     S get() throws E;
   }
 }
-

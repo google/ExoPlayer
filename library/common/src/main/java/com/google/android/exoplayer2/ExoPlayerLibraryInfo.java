@@ -21,18 +21,16 @@ import java.util.HashSet;
 /** Information about the ExoPlayer library. */
 public final class ExoPlayerLibraryInfo {
 
-  /**
-   * A tag to use when logging library information.
-   */
+  /** A tag to use when logging library information. */
   public static final String TAG = "ExoPlayer";
 
   /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "2.14.2";
+  public static final String VERSION = "2.15.0";
 
   /** The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "ExoPlayerLib/2.14.2";
+  public static final String VERSION_SLASHY = "ExoPlayerLib/2.15.0";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
@@ -42,7 +40,7 @@ public final class ExoPlayerLibraryInfo {
    * integer version 123045006 (123-045-006).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final int VERSION_INT = 2014002;
+  public static final int VERSION_INT = 2015000;
 
   /**
    * The default user agent for requests made by the library.
@@ -73,9 +71,7 @@ public final class ExoPlayerLibraryInfo {
 
   private ExoPlayerLibraryInfo() {} // Prevents instantiation.
 
-  /**
-   * Returns a string consisting of registered module names separated by ", ".
-   */
+  /** Returns a string consisting of registered module names separated by ", ". */
   public static synchronized String registeredModules() {
     return registeredModulesString;
   }
@@ -90,5 +86,4 @@ public final class ExoPlayerLibraryInfo {
       registeredModulesString = registeredModulesString + ", " + name;
     }
   }
-
 }

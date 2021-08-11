@@ -1,5 +1,150 @@
 # Release notes
 
+### 2.15.0 (2021-08-10)
+
+*   Core Library:
+    *   Add `MediaCodecAdapter.needsReconfiguration` method.
+    *   Add `getSeekBackIncrement`, `seekBack`, `getSeekForwardIncrement`,
+        `seekForward`, `getMaxSeekToPreviousPosition`, `seekToPrevious` and
+        `seekToNext` methods to `Player`.
+    *   Rename `Player` methods:
+        *   `hasPrevious` to `hasPreviousWindow`.
+        *   `previous` to `seekToPreviousWindow`.
+        *   `hasNext` to `hasNextWindow`.
+        *   `next` to `seekToNextWindow`.
+    *   Rename `Player` commands:
+        *   `COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM` to
+            `COMMAND_SEEK_IN_CURRENT_WINDOW`.
+        *   `COMMAND_SEEK_TO_NEXT_MEDIA_ITEM` to `COMMAND_SEEK_TO_NEXT_WINDOW`.
+        *   `COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM` to
+            `COMMAND_SEEK_TO_PREVIOUS_WINDOW`.
+        *   `COMMAND_SEEK_TO_MEDIA_ITEM` to `COMMAND_SEEK_TO_WINDOW`.
+        *   `COMMAND_GET_MEDIA_ITEMS` to `COMMAND_GET_TIMELINE`.
+    *   Rename `Player.EventFlags` IntDef to `Player.Event`.
+    *   Make `Player` depend on the new `PlaybackException` class instead of
+        `ExoPlaybackException`:
+        *   `Player.getPlayerError` now returns a `PlaybackException`.
+        *   `Player.Listener.onPlayerError` now receives a `PlaybackException`.
+        *   Add a new listener method `Player.Listener.onPlayerErrorChanged`,
+            which is equivalent to `onPlayerError` except that it is also called
+            when the player error becomes `null`.
+        *   `Player` implementations like `ExoPlayer` may use
+            `PlaybackException` subclasses (like `ExoPlaybackException`), so
+            users can downcast the `PlaybackException` instance to obtain
+            implementation-specific fields (like
+            `ExoPlaybackException.rendererIndex`).
+    *   `PlaybackException` introduces an `errorCode` which identifies the cause
+        of the failure in order to simplify error handling
+        ([#1611](https://github.com/google/ExoPlayer/issues/1611)).
+    *   Add a `DefaultMediaDescriptionAdapter` for the
+        `PlayerNotificationManager`, that makes use of the `Player`
+        `MediaMetadata` to populate the notification fields.
+    *   Add `@FallbackType` to `LoadErrorHandlingPolicy` to support
+        customization of the exclusion duration for locations and tracks.
+    *   Change interface of `LoadErrorHandlingPolicy` to support configuring the
+        behavior of track and location fallback. Location fallback is currently
+        only supported for DASH manifests with multiple base URLs.
+    *   Restrict use of `AudioTrack.isDirectPlaybackSupported` to TVs, to avoid
+        listing audio offload encodings as supported for passthrough mode on
+        mobile devices
+        ([#9239](https://github.com/google/ExoPlayer/issues/9239)).
+*   Extractors:
+    *   Add support for DTS-UHD in MP4
+        ([#9163](https://github.com/google/ExoPlayer/issues/9163)).
+*   Text:
+    *   TTML: Inherit the `rubyPosition` value from a containing `<span
+        ruby="container">` element.
+    *   WebVTT: Add support for CSS `font-size` property
+        ([#8964](https://github.com/google/ExoPlayer/issues/8964)).
+*   Ad playback:
+    *   Support changing ad break positions in the player logic
+        ([#5067](https://github.com/google/ExoPlayer/issues/5067)).
+    *   Support resuming content with an offset after an ad group.
+*   UI:
+    *   Add `setUseRewindAction` and `setUseFastForwardAction` to
+        `PlayerNotificationManager`, and `setUseFastForwardActionInCompactView`
+        and `setUseRewindActionInCompactView` to show the actions in compact
+        view mode.
+    *   Remove `rewind_increment` and `fastforward_increment` attributes from
+        `PlayerControlView` and `StyledPlayerControlView`. These increments can
+        be customized by configuring the `Player` (see `setSeekBackIncrementMs`
+        and `setSeekForwardIncrementMs` in `SimpleExoPlayer.Builder`), or by
+        using a `ForwardingPlayer` that overrides `getSeekBackIncrement`,
+        `seekBack`, `getSeekForwardIncrement` and `seekForward`. The rewind and
+        fast forward buttons can be disabled by using a `ForwardingPlayer` that
+        removes `COMMAND_SEEK_BACK` and `COMMAND_SEEK_FORWARD` from the
+        available commands.
+    *   Update `DefaultControlDispatcher` `getRewindIncrementMs` and
+        `getFastForwardIncrementMs` to take the player as parameter.
+*   DASH:
+    *   Add support for multiple base URLs and DVB attributes in the manifest.
+        Apps that are using `DefaultLoadErrorHandlingPolicy` with such manifests
+        have base URL fallback automatically enabled
+        ([#771](https://github.com/google/ExoPlayer/issues/771),
+        [#7654](https://github.com/google/ExoPlayer/issues/7654)).
+*   HLS:
+    *   Fix issue that could cause some playbacks to be stuck buffering
+        ([#8850](https://github.com/google/ExoPlayer/issues/8850),
+        [#9153](https://github.com/google/ExoPlayer/issues/9153)).
+    *   Report audio track type in
+        `AnalyticsListener.onDownstreamFormatChanged()` for audio-only
+        playlists, so that the `PlaybackStatsListener` can derive audio
+        format-related information
+        ([#9175](https://github.com/google/ExoPlayer/issues/9175)).
+*   RTSP:
+    *   Use standard RTSP header names
+        ([#9182](https://github.com/google/ExoPlayer/issues/9182)).
+    *   Handle an extra semicolon in SDP fmtp attribute
+        ([#9247](https://github.com/google/ExoPlayer/pull/9247)).
+    *   Fix handling of special characters in the RTSP session ID
+        ([#9254](https://github.com/google/ExoPlayer/issues/9254)).
+*   SmoothStreaming:
+    *   Propagate `StreamIndex` element `Name` attribute value as `Format` label
+        ([#9252](https://github.com/google/ExoPlayer/issues/9252)).
+*   Cronet extension:
+    *   Add `CronetDataSource.Factory.setRequestPriority` to allow setting the
+        priority of requests made by `CronetDataSource` instances.
+*   OkHttp extension:
+    *   Switch to OkHttp 4.9.1. This increases the extension's minimum SDK
+        version requirement from 16 to 21.
+*   Remove deprecated symbols:
+    *   Remove `CastPlayer` specific playlist manipulation methods. Use
+        `setMediaItems`, `addMediaItems`, `removeMediaItem` and `moveMediaItem`
+        instead.
+    *   Remove `Format.create` methods. Use `Format.Builder` instead.
+    *   Remove `MediaSource.getTag`. Use `MediaSource.getMediaItem` and
+        `MediaItem.PlaybackProperties.tag` instead.
+    *   Remove `PlaybackPreparer`. UI components that previously had
+        `setPlaybackPreparer` methods will now call `Player.prepare` by default.
+        If this behavior is sufficient, use of `PlaybackPreparer` can be removed
+        from application code without replacement. For custom preparation logic,
+        use a `ForwardingPlayer` that implements custom preparation logic in
+        `prepare`.
+    *   Remove `Player.Listener.onTimelineChanged(Timeline, Object, int)`. Use
+        `Player.Listener.onTimelineChanged(Timeline, int)` instead. The manifest
+        can be accessed using `Player.getCurrentManifest`.
+    *   Remove `Player.getCurrentTag`. Use `Player.getCurrentMediaItem` and
+        `MediaItem.PlaybackProperties.tag` instead.
+    *   Remove `Player.getPlaybackError`. Use `Player.getPlayerError` instead.
+    *   Remove `PlayerNotificationManager` constructors and `createWith`
+        methods. Use `PlayerNotificationManager.Builder` instead.
+    *   Remove `PlayerNotificationManager.setNotificationListener`. Use
+        `PlayerNotificationManager.Builder.setNotificationListener` instead.
+    *   Remove `PlayerNotificationManager` `setUseNavigationActions` and
+        `setUseNavigationActionsInCompactView`. Use `setUseNextAction`,
+        `setUsePreviousAction`, `setUseNextActionInCompactView` and
+        `setUsePreviousActionInCompactView` instead.
+    *   Remove `setRewindIncrementMs` and `setFastForwardIncrementMs` from UI
+        components. These increments can be customized by configuring the
+        `Player` (see `setSeekBackIncrementMs` and `setSeekForwardIncrementMs`
+        in `SimpleExoPlayer.Builder`), or by using a `ForwardingPlayer` that
+        overrides `getSeekBackIncrement`, `seekBack`, `getSeekForwardIncrement`
+        and `seekForward`. The rewind and fast forward buttons can be disabled
+        by using a `ForwardingPlayer` that removes `COMMAND_SEEK_BACK` and
+        `COMMAND_SEEK_FORWARD` from the available commands.
+    *   Remove `Timeline.getWindow(int, Window, boolean)`. Use
+        `Timeline.getWindow(int, Window)` instead, which will always set tags.
+
 ### 2.14.2 (2021-07-20)
 
 *   Core Library:
@@ -37,7 +182,7 @@
         `EXT-X-MAP` tag in a media playlist, would not be loaded when
         encountered during playback
         ([#9004](https://github.com/google/ExoPlayer/issues/9004)).
-    *   Forward the FRAME-RATE value from the master playlist to renditions.
+    *   Forward the `FRAME-RATE` value from the master playlist to renditions.
         ([#8960](https://github.com/google/ExoPlayer/issues/8960)).
     *   Fix issue where HLS events would start at positions greater than
         specified by an `EXT-X-START` tag when placed in a playlist
@@ -56,9 +201,10 @@
     *   Fix handling of emsg messages with an unset duration
         ([#9123](https://github.com/google/ExoPlayer/issues/9123)).
 *   UI:
-    *   Add `PendingIntent.FLAG_IMMUTABLE` flag when creating a broadcast intent
-        in `PlayerNotificationManager`. This is required to avoid an error on
-        Android 12.
+    *   Add `PendingIntent.FLAG_IMMUTABLE` when creating broadcast intents in
+        `PlayerNotificationManager`. This is required by a
+        [behaviour change](https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability)
+        in Android 12.
     *   Fix focusability of `StyledPlayerView` and `StyledPlayerControlView`
         popup menus on API levels prior to 26
         ([#9061](https://github.com/google/ExoPlayer/issues/9061)).
@@ -70,7 +216,7 @@
     *   Don't propagate `AttributeSet` from `SubtitleView` constructor into
         `CanvasSubtitleOutput`. Just passing the `Context` is enough, and
         ensures programmatic changes to the `SubtitleView` will propagate down.
-*   RTSP
+*   RTSP:
     *   Fix session description (SDP) parsing to use a HashMap-like behaviour
         for duplicated attributes.
         ([#9014](https://github.com/google/ExoPlayer/issues/9014)).

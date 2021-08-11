@@ -734,7 +734,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
 
     // The reasonDetail parameter to createFriendlyObstruction is annotated @Nullable but the
     // annotation is not kept in the obfuscated dependency.
-    @SuppressWarnings("nullness:argument.type.incompatible")
+    @SuppressWarnings("nullness:argument")
     @Override
     public FriendlyObstruction createFriendlyObstruction(
         View view,

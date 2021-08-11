@@ -22,8 +22,8 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -147,29 +147,33 @@ public final class PlaybackStatsListener
   // PlaybackSessionManager.Listener implementation.
 
   @Override
-  public void onSessionCreated(EventTime eventTime, String session) {
+  public void onSessionCreated(EventTime eventTime, String sessionId) {
     PlaybackStatsTracker tracker = new PlaybackStatsTracker(keepHistory, eventTime);
-    playbackStatsTrackers.put(session, tracker);
-    sessionStartEventTimes.put(session, eventTime);
+    playbackStatsTrackers.put(sessionId, tracker);
+    sessionStartEventTimes.put(sessionId, eventTime);
   }
 
   @Override
-  public void onSessionActive(EventTime eventTime, String session) {
-    checkNotNull(playbackStatsTrackers.get(session)).onForeground();
+  public void onSessionActive(EventTime eventTime, String sessionId) {
+    checkNotNull(playbackStatsTrackers.get(sessionId)).onForeground();
   }
 
   @Override
-  public void onAdPlaybackStarted(EventTime eventTime, String contentSession, String adSession) {
-    checkNotNull(playbackStatsTrackers.get(contentSession)).onInterruptedByAd();
+  public void onAdPlaybackStarted(
+      EventTime eventTime, String contentSessionId, String adSessionId) {
+    checkNotNull(playbackStatsTrackers.get(contentSessionId)).onInterruptedByAd();
   }
 
   @Override
-  public void onSessionFinished(EventTime eventTime, String session, boolean automaticTransition) {
-    PlaybackStatsTracker tracker = checkNotNull(playbackStatsTrackers.remove(session));
-    EventTime startEventTime = checkNotNull(sessionStartEventTimes.remove(session));
+  public void onSessionFinished(
+      EventTime eventTime, String sessionId, boolean automaticTransitionToNextPlayback) {
+    PlaybackStatsTracker tracker = checkNotNull(playbackStatsTrackers.remove(sessionId));
+    EventTime startEventTime = checkNotNull(sessionStartEventTimes.remove(sessionId));
     long discontinuityFromPositionMs =
-        session.equals(discontinuityFromSession) ? this.discontinuityFromPositionMs : C.TIME_UNSET;
-    tracker.onFinished(eventTime, automaticTransition, discontinuityFromPositionMs);
+        sessionId.equals(discontinuityFromSession)
+            ? this.discontinuityFromPositionMs
+            : C.TIME_UNSET;
+    tracker.onFinished(eventTime, automaticTransitionToNextPlayback, discontinuityFromPositionMs);
     PlaybackStats playbackStats = tracker.build(/* isFinal= */ true);
     finishedPlaybackStats = PlaybackStats.merge(finishedPlaybackStats, playbackStats);
     if (callback != null) {
@@ -182,12 +186,12 @@ public final class PlaybackStatsListener
   @Override
   public void onPositionDiscontinuity(
       EventTime eventTime,
-      Player.PositionInfo oldPositionInfo,
-      Player.PositionInfo newPositionInfo,
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
       @Player.DiscontinuityReason int reason) {
     if (discontinuityFromSession == null) {
       discontinuityFromSession = sessionManager.getActiveSessionId();
-      discontinuityFromPositionMs = oldPositionInfo.positionMs;
+      discontinuityFromPositionMs = oldPosition.positionMs;
     }
     discontinuityReason = reason;
   }
@@ -489,7 +493,7 @@ public final class PlaybackStatsListener
         int droppedFrameCount,
         boolean hasAudioUnderun,
         boolean startedLoading,
-        @Nullable ExoPlaybackException fatalError,
+        @Nullable PlaybackException fatalError,
         @Nullable Exception nonFatalException,
         long bandwidthTimeMs,
         long bandwidthBytes,

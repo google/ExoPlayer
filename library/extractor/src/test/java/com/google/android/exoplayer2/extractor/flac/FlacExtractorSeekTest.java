@@ -32,9 +32,11 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Seeking tests for {@link FlacExtractor}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class FlacExtractorSeekTest {
 
   private static final String TEST_FILE_SEEK_TABLE = "media/flac/bear.flac";

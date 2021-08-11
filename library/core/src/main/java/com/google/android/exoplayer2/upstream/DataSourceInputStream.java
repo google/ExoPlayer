@@ -44,17 +44,15 @@ public final class DataSourceInputStream extends InputStream {
     singleByteArray = new byte[1];
   }
 
-  /**
-   * Returns the total number of bytes that have been read or skipped.
-   */
+  /** Returns the total number of bytes that have been read or skipped. */
   public long bytesRead() {
     return totalBytesRead;
   }
 
   /**
    * Optional call to open the underlying {@link DataSource}.
-   * <p>
-   * Calling this method does nothing if the {@link DataSource} is already open. Calling this
+   *
+   * <p>Calling this method does nothing if the {@link DataSource} is already open. Calling this
    * method is optional, since the read and skip methods will automatically open the underlying
    * {@link DataSource} if it's not open already.
    *
@@ -102,5 +100,4 @@ public final class DataSourceInputStream extends InputStream {
       opened = true;
     }
   }
-
 }

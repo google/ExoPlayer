@@ -322,7 +322,7 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">onPlayerError</a></span>&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerError(com.google.android.exoplayer2.PlaybackException)">onPlayerError</a></span>&#8203;(<a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</code></th>
 <td class="colLast">
 <div class="block">Called when an error occurs.</div>
 </td>
@@ -379,14 +379,14 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></h3>
-<code><a href="../Player.EventListener.html#onLoadingChanged(boolean)">onLoadingChanged</a>, <a href="../Player.EventListener.html#onPlayerStateChanged(boolean,int)">onPlayerStateChanged</a>, <a href="../Player.EventListener.html#onPositionDiscontinuity(int)">onPositionDiscontinuity</a>, <a href="../Player.EventListener.html#onSeekProcessed()">onSeekProcessed</a>, <a href="../Player.EventListener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,java.lang.Object,int)">onTimelineChanged</a></code></li>
+<code><a href="../Player.EventListener.html#onLoadingChanged(boolean)">onLoadingChanged</a>, <a href="../Player.EventListener.html#onMaxSeekToPreviousPositionChanged(int)">onMaxSeekToPreviousPositionChanged</a>, <a href="../Player.EventListener.html#onPlayerStateChanged(boolean,int)">onPlayerStateChanged</a>, <a href="../Player.EventListener.html#onPositionDiscontinuity(int)">onPositionDiscontinuity</a>, <a href="../Player.EventListener.html#onSeekProcessed()">onSeekProcessed</a>, <a href="../Player.EventListener.html#onStaticMetadataChanged(java.util.List)">onStaticMetadataChanged</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.Player.Listener">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></h3>
-<code><a href="../Player.Listener.html#onAudioAttributesChanged(com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a>, <a href="../Player.Listener.html#onAudioSessionIdChanged(int)">onAudioSessionIdChanged</a>, <a href="../Player.Listener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../Player.Listener.html#onCues(java.util.List)">onCues</a>, <a href="../Player.Listener.html#onDeviceInfoChanged(com.google.android.exoplayer2.device.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../Player.Listener.html#onDeviceVolumeChanged(int,boolean)">onDeviceVolumeChanged</a>, <a href="../Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)">onEvents</a>, <a href="../Player.Listener.html#onIsLoadingChanged(boolean)">onIsLoadingChanged</a>, <a href="../Player.Listener.html#onIsPlayingChanged(boolean)">onIsPlayingChanged</a>, <a href="../Player.Listener.html#onMediaMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../Player.Listener.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a>, <a href="../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a>, <a href="../Player.Listener.html#onPlaybackSuppressionReasonChanged(int)">onPlaybackSuppressionReasonChanged</a>, <a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,int)">onPlayWhenReadyChanged</a>, <a href="../Player.Listener.html#onRenderedFirstFrame()">onRenderedFirstFrame</a>, <a href="../Player.Listener.html#onRepeatModeChanged(int)">onRepeatModeChanged</a>, <a href="../Player.Listener.html#onShuffleModeEnabledChanged(boolean)">onShuffleModeEnabledChanged</a>, <a href="../Player.Listener.html#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a>, <a href="../Player.Listener.html#onStaticMetadataChanged(java.util.List)">onStaticMetadataChanged</a>, <a href="../Player.Listener.html#onSurfaceSizeChanged(int,int)">onSurfaceSizeChanged</a>, <a href="../Player.Listener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a>, <a href="../Player.Listener.html#onVolumeChanged(float)">onVolumeChanged</a></code></li>
+<code><a href="../Player.Listener.html#onAudioAttributesChanged(com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a>, <a href="../Player.Listener.html#onAudioSessionIdChanged(int)">onAudioSessionIdChanged</a>, <a href="../Player.Listener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../Player.Listener.html#onCues(java.util.List)">onCues</a>, <a href="../Player.Listener.html#onDeviceInfoChanged(com.google.android.exoplayer2.device.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../Player.Listener.html#onDeviceVolumeChanged(int,boolean)">onDeviceVolumeChanged</a>, <a href="../Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)">onEvents</a>, <a href="../Player.Listener.html#onIsLoadingChanged(boolean)">onIsLoadingChanged</a>, <a href="../Player.Listener.html#onIsPlayingChanged(boolean)">onIsPlayingChanged</a>, <a href="../Player.Listener.html#onMediaMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../Player.Listener.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a>, <a href="../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a>, <a href="../Player.Listener.html#onPlaybackSuppressionReasonChanged(int)">onPlaybackSuppressionReasonChanged</a>, <a href="../Player.Listener.html#onPlayerErrorChanged(com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a>, <a href="../Player.Listener.html#onPlaylistMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a>, <a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,int)">onPlayWhenReadyChanged</a>, <a href="../Player.Listener.html#onRenderedFirstFrame()">onRenderedFirstFrame</a>, <a href="../Player.Listener.html#onRepeatModeChanged(int)">onRepeatModeChanged</a>, <a href="../Player.Listener.html#onSeekBackIncrementChanged(long)">onSeekBackIncrementChanged</a>, <a href="../Player.Listener.html#onSeekForwardIncrementChanged(long)">onSeekForwardIncrementChanged</a>, <a href="../Player.Listener.html#onShuffleModeEnabledChanged(boolean)">onShuffleModeEnabledChanged</a>, <a href="../Player.Listener.html#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a>, <a href="../Player.Listener.html#onSurfaceSizeChanged(int,int)">onSurfaceSizeChanged</a>, <a href="../Player.Listener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a>, <a href="../Player.Listener.html#onVolumeChanged(float)">onVolumeChanged</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.video.VideoListener">
@@ -751,24 +751,27 @@ implements <a href="../Player.Listener.html" title="interface in com.google.andr
 </dl>
 </li>
 </ul>
-<a id="onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">
+<a id="onPlayerError(com.google.android.exoplayer2.PlaybackException)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlayerError</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onPlayerError&#8203;(<a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">Player.EventListener</a></code></span></div>
+<pre class="methodSignature">public&nbsp;void&nbsp;onPlayerError&#8203;(<a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)">Player.EventListener</a></code></span></div>
 <div class="block">Called when an error occurs. The playback state will transition to <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a>
  immediately after this method is called. The player instance can still be used, and <a href="../Player.html#release()"><code>Player.release()</code></a> must still be called on the player should it no longer be required.
 
  <p><a href="../Player.EventListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.EventListener.onEvents(Player, Events)</code></a> will also be called to report this event along with
- other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.</div>
+ other events that happen in the same <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration.
+
+ <p>Implementations of Player may pass an instance of a subclass of <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a>
+ to this method in order to include more information about the error.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dd><code><a href="../Player.EventListener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></code></dd>
+<dd><code><a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>error</code> - The error.</dd>
 </dl>

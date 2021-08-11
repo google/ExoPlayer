@@ -984,9 +984,8 @@ public class UtilTest {
     assertThat(Arrays.copyOf(output.getData(), output.limit())).isEqualTo(testData);
   }
 
-  // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void normalizeLanguageCode_keepsUndefinedTagsUnchanged() {
     assertThat(Util.normalizeLanguageCode(null)).isNull();
     assertThat(Util.normalizeLanguageCode("")).isEmpty();
@@ -994,9 +993,8 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
   }
 
-  // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void normalizeLanguageCode_normalizesCodeToTwoLetterISOAndLowerCase_keepingAllSubtags() {
     assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
@@ -1014,9 +1012,8 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("sv-illegalSubtag")).isEqualTo("sv-illegalsubtag");
   }
 
-  // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void normalizeLanguageCode_iso6392BibliographicalAndTextualCodes_areNormalizedToSameTag() {
     // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
     assertThat(Util.normalizeLanguageCode("alb")).isEqualTo(Util.normalizeLanguageCode("sqi"));
@@ -1042,9 +1039,8 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("wel")).isEqualTo(Util.normalizeLanguageCode("cym"));
   }
 
-  // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void
       normalizeLanguageCode_deprecatedLanguageTagsAndModernReplacement_areNormalizedToSameTag() {
     // See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, "ISO 639:1988"
@@ -1081,9 +1077,8 @@ public class UtilTest {
         .isEqualTo(Util.normalizeLanguageCode("zh-hsn"));
   }
 
-  // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void normalizeLanguageCode_macrolanguageTags_areFullyMaintained() {
     // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
     assertThat(Util.normalizeLanguageCode("zh-cmn")).isEqualTo("zh-cmn");
@@ -1131,6 +1126,40 @@ public class UtilTest {
   public void getStringForTime_withNegativeTime_setsNegativePrefix() {
     assertThat(getStringForTime(new StringBuilder(), new Formatter(), /* timeMs= */ -35000))
         .isEqualTo("-00:35");
+  }
+
+  @Test
+  public void getErrorCodeFromPlatformDiagnosticsInfo_withValidInput_returnsExpectedValue() {
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_1"))
+        .isEqualTo(1);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_neg_1"))
+        .isEqualTo(-1);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaCodec2.error_3"))
+        .isEqualTo(3);
+    assertThat(
+            Util.getErrorCodeFromPlatformDiagnosticsInfo(
+                "android.media.MediaCodec.weird_error_neg_10000"))
+        .isEqualTo(-10000);
+    assertThat(
+            Util.getErrorCodeFromPlatformDiagnosticsInfo(
+                "android.media.MediaCodec.weird_error_negx_10000"))
+        .isEqualTo(10000);
+    assertThat(
+            Util.getErrorCodeFromPlatformDiagnosticsInfo(
+                "android.media.MediaCodec.weird_error_xneg_10000"))
+        .isEqualTo(10000);
+  }
+
+  @Test
+  public void getErrorCodeFromPlatformDiagnosticsInfo_withInvalidInput_returnsZero() {
+    // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("")).isEqualTo(0);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.empty"))
+        .isEqualTo(0);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_neg_1a"))
+        .isEqualTo(0);
+    assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.error_a1"))
+        .isEqualTo(0);
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

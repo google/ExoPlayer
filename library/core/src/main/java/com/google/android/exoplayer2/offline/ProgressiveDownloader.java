@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -45,14 +44,6 @@ public final class ProgressiveDownloader implements Downloader {
   private volatile @MonotonicNonNull RunnableFutureTask<Void, IOException> downloadRunnable;
   private volatile boolean isCanceled;
 
-  /** @deprecated Use {@link #ProgressiveDownloader(MediaItem, CacheDataSource.Factory)} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public ProgressiveDownloader(
-      Uri uri, @Nullable String customCacheKey, CacheDataSource.Factory cacheDataSourceFactory) {
-    this(uri, customCacheKey, cacheDataSourceFactory, Runnable::run);
-  }
-
   /**
    * Creates a new instance.
    *
@@ -63,22 +54,6 @@ public final class ProgressiveDownloader implements Downloader {
   public ProgressiveDownloader(
       MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
     this(mediaItem, cacheDataSourceFactory, Runnable::run);
-  }
-
-  /**
-   * @deprecated Use {@link #ProgressiveDownloader(MediaItem, CacheDataSource.Factory, Executor)}
-   *     instead.
-   */
-  @Deprecated
-  public ProgressiveDownloader(
-      Uri uri,
-      @Nullable String customCacheKey,
-      CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    this(
-        new MediaItem.Builder().setUri(uri).setCustomCacheKey(customCacheKey).build(),
-        cacheDataSourceFactory,
-        executor);
   }
 
   /**
@@ -102,14 +77,10 @@ public final class ProgressiveDownloader implements Downloader {
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
-    @SuppressWarnings("methodref.receiver.bound.invalid")
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     CacheWriter.ProgressListener progressListener = this::onProgress;
     cacheWriter =
-        new CacheWriter(
-            dataSource,
-            dataSpec,
-            /* temporaryBuffer= */ null,
-            progressListener);
+        new CacheWriter(dataSource, dataSpec, /* temporaryBuffer= */ null, progressListener);
     priorityTaskManager = cacheDataSourceFactory.getUpstreamPriorityTaskManager();
   }
 

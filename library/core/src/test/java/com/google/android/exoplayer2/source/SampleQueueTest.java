@@ -35,6 +35,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -554,7 +555,10 @@ public final class SampleQueueTest {
     assertReadNothing(/* formatRequired= */ false);
     sampleQueue.maybeThrowError();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
-    when(mockDrmSession.getError()).thenReturn(new DrmSession.DrmSessionException(new Exception()));
+    when(mockDrmSession.getError())
+        .thenReturn(
+            new DrmSession.DrmSessionException(
+                new Exception(), PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR));
     assertReadNothing(/* formatRequired= */ false);
     try {
       sampleQueue.maybeThrowError();
@@ -1384,30 +1388,21 @@ public final class SampleQueueTest {
 
   // Internal methods.
 
-  /**
-   * Writes standard test data to {@code sampleQueue}.
-   */
+  /** Writes standard test data to {@code sampleQueue}. */
   private void writeTestData() {
     writeTestData(
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, SAMPLE_FLAGS);
   }
 
-  private void writeTestDataWithEncryptedSections() {
-    writeTestData(
-        ENCRYPTED_SAMPLE_DATA,
-        ENCRYPTED_SAMPLE_SIZES,
-        ENCRYPTED_SAMPLE_OFFSETS,
-        ENCRYPTED_SAMPLE_TIMESTAMPS,
-        ENCRYPTED_SAMPLE_FORMATS,
-        ENCRYPTED_SAMPLES_FLAGS);
-  }
-
-  /**
-   * Writes the specified test data to {@code sampleQueue}.
-   */
+  /** Writes the specified test data to {@code sampleQueue}. */
   @SuppressWarnings("ReferenceEquality")
-  private void writeTestData(byte[] data, int[] sampleSizes, int[] sampleOffsets,
-      long[] sampleTimestamps, Format[] sampleFormats, int[] sampleFlags) {
+  private void writeTestData(
+      byte[] data,
+      int[] sampleSizes,
+      int[] sampleOffsets,
+      long[] sampleTimestamps,
+      Format[] sampleFormats,
+      int[] sampleFlags) {
     sampleQueue.sampleData(new ParsableByteArray(data), data.length);
     Format format = null;
     for (int i = 0; i < sampleTimestamps.length; i++) {
@@ -1422,6 +1417,16 @@ public final class SampleQueueTest {
           sampleOffsets[i],
           (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
     }
+  }
+
+  private void writeTestDataWithEncryptedSections() {
+    writeTestData(
+        ENCRYPTED_SAMPLE_DATA,
+        ENCRYPTED_SAMPLE_SIZES,
+        ENCRYPTED_SAMPLE_OFFSETS,
+        ENCRYPTED_SAMPLE_TIMESTAMPS,
+        ENCRYPTED_SAMPLE_FORMATS,
+        ENCRYPTED_SAMPLES_FLAGS);
   }
 
   /** Writes a {@link Format} to the {@code sampleQueue}. */
@@ -1440,9 +1445,7 @@ public final class SampleQueueTest {
         (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
   }
 
-  /**
-   * Asserts correct reading of standard test data from {@code sampleQueue}.
-   */
+  /** Asserts correct reading of standard test data from {@code sampleQueue}. */
   private void assertReadTestData() {
     assertReadTestData(/* startFormat= */ null, 0);
   }
@@ -1724,9 +1727,7 @@ public final class SampleQueueTest {
     assertThat(allocator.getTotalBytesAllocated()).isEqualTo(ALLOCATION_SIZE * count);
   }
 
-  /**
-   * Asserts {@code inputBuffer} does not contain any sample data.
-   */
+  /** Asserts {@code inputBuffer} does not contain any sample data. */
   private void assertInputBufferContainsNoSampleData() {
     if (inputBuffer.data == null) {
       return;

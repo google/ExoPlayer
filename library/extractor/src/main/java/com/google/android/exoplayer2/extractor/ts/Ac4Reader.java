@@ -99,10 +99,10 @@ public final class Ac4Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
-    generator.generateNewId();
-    formatId = generator.getFormatId();
-    output = extractorOutput.track(generator.getTrackId(), C.TRACK_TYPE_AUDIO);
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    idGenerator.generateNewId();
+    formatId = idGenerator.getFormatId();
+    output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_AUDIO);
   }
 
   @Override

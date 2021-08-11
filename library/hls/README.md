@@ -18,9 +18,9 @@ instances and pass them directly to the player. For advanced download use cases,
 
 ## Links ##
 
-* [Developer Guide][].
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.source.hls.*`
-  belong to this module.
+*   [Developer Guide][].
+*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.source.hls.*` belong to
+    this module.
 
 [Developer Guide]: https://exoplayer.dev/hls.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

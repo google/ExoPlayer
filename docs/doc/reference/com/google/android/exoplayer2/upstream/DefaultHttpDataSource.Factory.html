@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -230,19 +230,27 @@ implements <a href="HttpDataSource.Factory.html" title="interface in com.google.
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeepPostFor302Redirects(boolean)">setKeepPostFor302Redirects</a></span>&#8203;(boolean&nbsp;keepPostFor302Redirects)</code></th>
+<td class="colLast">
+<div class="block">Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
+ POST request.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReadTimeoutMs(int)">setReadTimeoutMs</a></span>&#8203;(int&nbsp;readTimeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the read timeout, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">setTransferListener</a></span>&#8203;(<a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that will be used.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserAgent(java.lang.String)">setUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
@@ -449,6 +457,17 @@ public final&nbsp;<a href="HttpDataSource.RequestProperties.html" title="class i
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory.</dd>
 </dl>
+</li>
+</ul>
+<a id="setKeepPostFor302Redirects(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setKeepPostFor302Redirects</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a>&nbsp;setKeepPostFor302Redirects&#8203;(boolean&nbsp;keepPostFor302Redirects)</pre>
+<div class="block">Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
+ POST request.</div>
 </li>
 </ul>
 <a id="createDataSource()">

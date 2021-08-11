@@ -372,11 +372,11 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   @Override
   public synchronized void onBytesTransferred(
-      DataSource source, DataSpec dataSpec, boolean isNetwork, int bytes) {
+      DataSource source, DataSpec dataSpec, boolean isNetwork, int bytesTransferred) {
     if (!isTransferAtFullNetworkSpeed(dataSpec, isNetwork)) {
       return;
     }
-    sampleBytesTransferred += bytes;
+    sampleBytesTransferred += bytesTransferred;
   }
 
   @Override

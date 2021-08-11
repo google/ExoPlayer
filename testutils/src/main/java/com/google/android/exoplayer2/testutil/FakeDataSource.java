@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
@@ -39,9 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public class FakeDataSource extends BaseDataSource {
 
-  /**
-   * Factory to create a {@link FakeDataSource}.
-   */
+  /** Factory to create a {@link FakeDataSource}. */
   public static class Factory implements DataSource.Factory {
 
     protected @MonotonicNonNull FakeDataSet fakeDataSet;
@@ -118,7 +117,7 @@ public class FakeDataSource extends BaseDataSource {
     }
 
     if (dataSpec.position > totalLength) {
-      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
 
     // Scan through the segments, configuring them for the current read.
@@ -128,8 +127,10 @@ public class FakeDataSource extends BaseDataSource {
     for (Segment segment : fakeData.getSegments()) {
       segment.bytesRead = (int) min(max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
-      findingCurrentSegmentIndex &= segment.isErrorSegment() ? segment.exceptionCleared
-          : (!segment.isActionSegment() && segment.bytesRead == segment.length);
+      findingCurrentSegmentIndex &=
+          segment.isErrorSegment()
+              ? segment.exceptionCleared
+              : (!segment.isActionSegment() && segment.bytesRead == segment.length);
       if (findingCurrentSegmentIndex) {
         currentSegmentIndex++;
       }
@@ -147,7 +148,7 @@ public class FakeDataSource extends BaseDataSource {
   }
 
   @Override
-  public final int read(byte[] buffer, int offset, int readLength) throws IOException {
+  public final int read(byte[] buffer, int offset, int length) throws IOException {
     Assertions.checkState(sourceOpened);
     while (true) {
       FakeData fakeData = Util.castNonNull(this.fakeData);
@@ -167,22 +168,22 @@ public class FakeDataSource extends BaseDataSource {
         Util.castNonNull(current.action).run();
       } else {
         // Read at most bytesRemaining.
-        readLength = (int) min(readLength, bytesRemaining);
+        length = (int) min(length, bytesRemaining);
         // Do not allow crossing of the segment boundary.
-        readLength = min(readLength, current.length - current.bytesRead);
+        length = min(length, current.length - current.bytesRead);
         // Perform the read and return.
-        Assertions.checkArgument(buffer.length - offset >= readLength);
+        Assertions.checkArgument(buffer.length - offset >= length);
         if (current.data != null) {
-          System.arraycopy(current.data, current.bytesRead, buffer, offset, readLength);
+          System.arraycopy(current.data, current.bytesRead, buffer, offset, length);
         }
-        onDataRead(readLength);
-        bytesTransferred(readLength);
-        bytesRemaining -= readLength;
-        current.bytesRead += readLength;
+        onDataRead(length);
+        bytesTransferred(length);
+        bytesRemaining -= length;
+        current.bytesRead += length;
         if (current.bytesRead == current.length) {
           currentSegmentIndex++;
         }
-        return readLength;
+        return length;
       }
     }
   }

@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.upstream.crypto;
 
 import androidx.annotation.Nullable;
 
-/**
- * Utility functions for the crypto package.
- */
+/** Utility functions for the crypto package. */
 /* package */ final class CryptoUtil {
 
   private CryptoUtil() {}
@@ -42,5 +40,4 @@ import androidx.annotation.Nullable;
     }
     return hash;
   }
-
 }

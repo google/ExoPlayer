@@ -68,8 +68,8 @@ public final class ClippedPlaybackTest {
                   .addListener(
                       new Player.Listener() {
                         @Override
-                        public void onPlaybackStateChanged(@Player.State int state) {
-                          if (state == Player.STATE_ENDED) {
+                        public void onPlaybackStateChanged(@Player.State int playbackState) {
+                          if (playbackState == Player.STATE_ENDED) {
                             playbackEnded.open();
                           }
                         }
@@ -122,8 +122,8 @@ public final class ClippedPlaybackTest {
                   .addListener(
                       new Player.Listener() {
                         @Override
-                        public void onPlaybackStateChanged(@Player.State int state) {
-                          if (state == Player.STATE_ENDED) {
+                        public void onPlaybackStateChanged(@Player.State int playbackState) {
+                          if (playbackState == Player.STATE_ENDED) {
                             playbackEnded.open();
                           }
                         }

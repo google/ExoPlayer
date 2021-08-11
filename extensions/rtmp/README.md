@@ -35,18 +35,17 @@ locally. Instructions for doing this can be found in ExoPlayer's
 ## Using the extension ##
 
 ExoPlayer requests data through `DataSource` instances. These instances are
-either instantiated and injected from application code, or obtained from
-instances of `DataSource.Factory` that are instantiated and injected from
-application code.
+obtained from instances of `DataSource.Factory`, which are instantiated and
+injected from application code.
 
 `DefaultDataSource` will automatically use the RTMP extension whenever it's
 available. Hence if your application is using `DefaultDataSource` or
 `DefaultDataSourceFactory`, adding support for RTMP streams is as simple as
 adding a dependency to the RTMP extension as described above. No changes to your
 application code are required. Alternatively, if you know that your application
-doesn't need to handle any other protocols, you can update any `DataSource`s and
+doesn't need to handle any other protocols, you can update any
 `DataSource.Factory` instantiations in your application code to use
-`RtmpDataSource` and `RtmpDataSourceFactory` directly.
+`RtmpDataSource.Factory` directly.
 
 ## Links ##
 

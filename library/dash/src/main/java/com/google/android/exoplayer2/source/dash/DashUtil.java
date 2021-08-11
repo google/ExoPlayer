@@ -46,6 +46,29 @@ public final class DashUtil {
   /**
    * Builds a {@link DataSpec} for a given {@link RangedUri} belonging to {@link Representation}.
    *
+   * @param baseUrl The base url with which to resolve the request URI.
+   * @param requestUri The {@link RangedUri} of the data to request.
+   * @param cacheKey An optional cache key.
+   * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
+   *     DataSpec.Builder#setFlags(int)}.
+   * @return The {@link DataSpec}.
+   */
+  public static DataSpec buildDataSpec(
+      String baseUrl, RangedUri requestUri, @Nullable String cacheKey, int flags) {
+    return new DataSpec.Builder()
+        .setUri(requestUri.resolveUri(baseUrl))
+        .setPosition(requestUri.start)
+        .setLength(requestUri.length)
+        .setKey(cacheKey)
+        .setFlags(flags)
+        .build();
+  }
+
+  /**
+   * Builds a {@link DataSpec} for a given {@link RangedUri} belonging to {@link Representation}.
+   *
+   * <p>Uses the first base URL of the representation to build the data spec.
+   *
    * @param representation The {@link Representation} to which the request belongs.
    * @param requestUri The {@link RangedUri} of the data to request.
    * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
@@ -54,13 +77,8 @@ public final class DashUtil {
    */
   public static DataSpec buildDataSpec(
       Representation representation, RangedUri requestUri, int flags) {
-    return new DataSpec.Builder()
-        .setUri(requestUri.resolveUri(representation.baseUrl))
-        .setPosition(requestUri.start)
-        .setLength(requestUri.length)
-        .setKey(representation.getCacheKey())
-        .setFlags(flags)
-        .build();
+    return buildDataSpec(
+        representation.baseUrls.get(0).url, requestUri, representation.getCacheKey(), flags);
   }
 
   /**
@@ -96,6 +114,7 @@ public final class DashUtil {
       }
     }
     Format manifestFormat = representation.format;
+    @Nullable
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
     return sampleFormat == null
         ? manifestFormat
@@ -109,18 +128,22 @@ public final class DashUtil {
    * @param trackType The type of the representation. Typically one of the {@link
    *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
+   * @param baseUrlIndex The index of the base URL to be picked from the {@link
+   *     Representation#baseUrls list of base URLs}.
    * @return the sample {@link Format} of the given representation.
    * @throws IOException Thrown when there is an error while loading.
    */
   @Nullable
   public static Format loadSampleFormat(
-      DataSource dataSource, int trackType, Representation representation) throws IOException {
+      DataSource dataSource, int trackType, Representation representation, int baseUrlIndex)
+      throws IOException {
     if (representation.getInitializationUri() == null) {
       return null;
     }
     ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
     try {
-      loadInitializationData(chunkExtractor, dataSource, representation, /* loadIndex= */ false);
+      loadInitializationData(
+          chunkExtractor, dataSource, representation, baseUrlIndex, /* loadIndex= */ false);
     } finally {
       chunkExtractor.release();
     }
@@ -128,8 +151,58 @@ public final class DashUtil {
   }
 
   /**
+   * Loads initialization data for the {@code representation} and returns the sample {@link Format}.
+   *
+   * <p>Uses the first base URL for loading the format.
+   *
+   * @param dataSource The source from which the data should be loaded.
+   * @param trackType The type of the representation. Typically one of the {@link
+   *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
+   * @param representation The representation which initialization chunk belongs to.
+   * @return the sample {@link Format} of the given representation.
+   * @throws IOException Thrown when there is an error while loading.
+   */
+  @Nullable
+  public static Format loadSampleFormat(
+      DataSource dataSource, int trackType, Representation representation) throws IOException {
+    return loadSampleFormat(dataSource, trackType, representation, /* baseUrlIndex= */ 0);
+  }
+
+  /**
    * Loads initialization and index data for the {@code representation} and returns the {@link
    * ChunkIndex}.
+   *
+   * @param dataSource The source from which the data should be loaded.
+   * @param trackType The type of the representation. Typically one of the {@link
+   *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
+   * @param representation The representation which initialization chunk belongs to.
+   * @param baseUrlIndex The index of the base URL with which to resolve the request URI.
+   * @return The {@link ChunkIndex} of the given representation, or null if no initialization or
+   *     index data exists.
+   * @throws IOException Thrown when there is an error while loading.
+   */
+  @Nullable
+  public static ChunkIndex loadChunkIndex(
+      DataSource dataSource, int trackType, Representation representation, int baseUrlIndex)
+      throws IOException {
+    if (representation.getInitializationUri() == null) {
+      return null;
+    }
+    ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
+    try {
+      loadInitializationData(
+          chunkExtractor, dataSource, representation, baseUrlIndex, /* loadIndex= */ true);
+    } finally {
+      chunkExtractor.release();
+    }
+    return chunkExtractor.getChunkIndex();
+  }
+
+  /**
+   * Loads initialization and index data for the {@code representation} and returns the {@link
+   * ChunkIndex}.
+   *
+   * <p>Uses the first base URL for loading the index.
    *
    * @param dataSource The source from which the data should be loaded.
    * @param trackType The type of the representation. Typically one of the {@link
@@ -142,16 +215,7 @@ public final class DashUtil {
   @Nullable
   public static ChunkIndex loadChunkIndex(
       DataSource dataSource, int trackType, Representation representation) throws IOException {
-    if (representation.getInitializationUri() == null) {
-      return null;
-    }
-    ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
-    try {
-      loadInitializationData(chunkExtractor, dataSource, representation, /* loadIndex= */ true);
-    } finally {
-      chunkExtractor.release();
-    }
-    return chunkExtractor.getChunkIndex();
+    return loadChunkIndex(dataSource, trackType, representation, /* baseUrlIndex= */ 0);
   }
 
   /**
@@ -161,6 +225,7 @@ public final class DashUtil {
    * @param chunkExtractor The {@link ChunkExtractor} to use.
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
+   * @param baseUrlIndex The index of the base URL with which to resolve the request URI.
    * @param loadIndex Whether to load index data too.
    * @throws IOException Thrown when there is an error while loading.
    */
@@ -168,35 +233,66 @@ public final class DashUtil {
       ChunkExtractor chunkExtractor,
       DataSource dataSource,
       Representation representation,
+      int baseUrlIndex,
       boolean loadIndex)
       throws IOException {
     RangedUri initializationUri = Assertions.checkNotNull(representation.getInitializationUri());
-    RangedUri requestUri;
+    @Nullable RangedUri requestUri;
     if (loadIndex) {
-      RangedUri indexUri = representation.getIndexUri();
+      @Nullable RangedUri indexUri = representation.getIndexUri();
       if (indexUri == null) {
         return;
       }
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrl);
+      requestUri =
+          initializationUri.attemptMerge(indexUri, representation.baseUrls.get(baseUrlIndex).url);
       if (requestUri == null) {
-        loadInitializationData(dataSource, representation, chunkExtractor, initializationUri);
+        loadInitializationData(
+            dataSource, representation, baseUrlIndex, chunkExtractor, initializationUri);
         requestUri = indexUri;
       }
     } else {
       requestUri = initializationUri;
     }
-    loadInitializationData(dataSource, representation, chunkExtractor, requestUri);
+    loadInitializationData(dataSource, representation, baseUrlIndex, chunkExtractor, requestUri);
+  }
+
+  /**
+   * Loads initialization data for the {@code representation} and optionally index data then returns
+   * a {@link BundledChunkExtractor} which contains the output.
+   *
+   * <p>Uses the first base URL for loading the initialization data.
+   *
+   * @param chunkExtractor The {@link ChunkExtractor} to use.
+   * @param dataSource The source from which the data should be loaded.
+   * @param representation The representation which initialization chunk belongs to.
+   * @param loadIndex Whether to load index data too.
+   * @throws IOException Thrown when there is an error while loading.
+   */
+  public static void loadInitializationData(
+      ChunkExtractor chunkExtractor,
+      DataSource dataSource,
+      Representation representation,
+      boolean loadIndex)
+      throws IOException {
+    loadInitializationData(
+        chunkExtractor, dataSource, representation, /* baseUrlIndex= */ 0, loadIndex);
   }
 
   private static void loadInitializationData(
       DataSource dataSource,
       Representation representation,
+      int baseUrlIndex,
       ChunkExtractor chunkExtractor,
       RangedUri requestUri)
       throws IOException {
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, /* flags= */ 0);
+    DataSpec dataSpec =
+        DashUtil.buildDataSpec(
+            representation.baseUrls.get(baseUrlIndex).url,
+            requestUri,
+            representation.getCacheKey(),
+            /* flags= */ 0);
     InitializationChunk initializationChunk =
         new InitializationChunk(
             dataSource,

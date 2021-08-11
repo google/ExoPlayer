@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":6,"i3":10,"i4":10,"i5":10,"i6":10,"i7":6,"i8":10,"i9":6,"i10":10,"i11":10,"i12":10,"i13":6,"i14":10,"i15":42,"i16":6,"i17":6,"i18":10,"i19":10,"i20":10,"i21":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":6,"i3":10,"i4":10,"i5":10,"i6":10,"i7":6,"i8":10,"i9":6,"i10":10,"i11":10,"i12":10,"i13":6,"i14":10,"i15":6,"i16":6,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,7 +134,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="AbstractConcatenatedTimeline.html" title="class in com.google.android.exoplayer2">AbstractConcatenatedTimeline</a></code>, <code><a href="testutil/FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline</a></code>, <code><a href="source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a></code>, <code><a href="source/MaskingMediaSource.PlaceholderTimeline.html" title="class in com.google.android.exoplayer2.source">MaskingMediaSource.PlaceholderTimeline</a></code>, <code><a href="source/SinglePeriodTimeline.html" title="class in com.google.android.exoplayer2.source">SinglePeriodTimeline</a></code></dd>
+<dd><code><a href="AbstractConcatenatedTimeline.html" title="class in com.google.android.exoplayer2">AbstractConcatenatedTimeline</a></code>, <code><a href="testutil/FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline</a></code>, <code><a href="source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a></code>, <code><a href="source/MaskingMediaSource.PlaceholderTimeline.html" title="class in com.google.android.exoplayer2.source">MaskingMediaSource.PlaceholderTimeline</a></code>, <code><a href="source/SinglePeriodTimeline.html" title="class in com.google.android.exoplayer2.source">SinglePeriodTimeline</a></code>, <code><a href="Timeline.RemotableTimeline.html" title="class in com.google.android.exoplayer2">Timeline.RemotableTimeline</a></code></dd>
 </dl>
 <hr>
 <pre>public abstract class <span class="typeNameLabel">Timeline</span>
@@ -161,7 +161,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 
  <p>The following examples illustrate timelines for various use cases.
 
- <h3 id="single-file">Single media file or on-demand stream</h3>
+ <h2 id="single-file">Single media file or on-demand stream</h2>
 
  <p style="align:center"><img src="doc-files/timeline-single-file.svg" alt="Example timeline for a
  single file">
@@ -171,7 +171,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  playback. The window's default position is typically at the start of the period (indicated by the
  black dot in the figure above).
 
- <h3>Playlist of media files or on-demand streams</h3>
+ <h2>Playlist of media files or on-demand streams</h2>
 
  <p style="align:center"><img src="doc-files/timeline-playlist.svg" alt="Example timeline for a
  playlist of files">
@@ -182,7 +182,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  (e.g. their durations and whether the window is seekable) will often only become known when the
  player starts buffering the corresponding file or stream.
 
- <h3 id="live-limited">Live stream with limited availability</h3>
+ <h2 id="live-limited">Live stream with limited availability</h2>
 
  <p style="align:center"><img src="doc-files/timeline-live-limited.svg" alt="Example timeline for
  a live stream with limited availability">
@@ -195,7 +195,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  changes to the live window. Its default position is typically near to the live edge (indicated by
  the black dot in the figure above).
 
- <h3>Live stream with indefinite availability</h3>
+ <h2>Live stream with indefinite availability</h2>
 
  <p style="align:center"><img src="doc-files/timeline-live-indefinite.svg" alt="Example timeline
  for a live stream with indefinite availability">
@@ -204,7 +204,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  starts at the beginning of the period to indicate that all of the previously broadcast content
  can still be played.
 
- <h3 id="live-multi-period">Live stream with multiple periods</h3>
+ <h2 id="live-multi-period">Live stream with multiple periods</h2>
 
  <p style="align:center"><img src="doc-files/timeline-live-multi-period.svg" alt="Example timeline
  for a live stream with multiple periods">
@@ -214,7 +214,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  limited availability</a> case, except that the window may span more than one period. Multiple
  periods are also possible in the indefinite availability case.
 
- <h3>On-demand stream followed by live stream</h3>
+ <h2>On-demand stream followed by live stream</h2>
 
  <p style="align:center"><img src="doc-files/timeline-advanced.svg" alt="Example timeline for an
  on-demand stream followed by a live stream">
@@ -224,7 +224,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  of the on-demand stream ends, playback of the live stream will start from its default position
  near the live edge.
 
- <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
+ <h2 id="single-file-midrolls">On-demand stream with mid-roll ads</h2>
 
  <p style="align:center"><img src="doc-files/timeline-single-file-midrolls.svg" alt="Example
  timeline for an on-demand stream with mid-roll ad groups">
@@ -259,6 +259,13 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Timeline.RemotableTimeline.html" title="class in com.google.android.exoplayer2">Timeline.RemotableTimeline</a></span></code></th>
+<td class="colLast">
+<div class="block">A concrete class of <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> to restore a <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> instance from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> sent by another process via <a href="https://developer.android.com/reference/android/os/IBinder.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top"><code>IBinder</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></span></code></th>
 <td class="colLast">
@@ -337,7 +344,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -473,17 +480,6 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window,boolean)">getWindow</a></span>&#8203;(int&nbsp;windowIndex,
-         <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         boolean&nbsp;setTag)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window)"><code>getWindow(int, Window)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i16" class="altColor">
 <td class="colFirst"><code>abstract <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">getWindow</a></span>&#8203;(int&nbsp;windowIndex,
          <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
@@ -492,26 +488,26 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Populates a <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>abstract int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindowCount()">getWindowCount</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the number of windows in the timeline.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEmpty()">isEmpty</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the timeline is empty.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLastPeriod(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,int,boolean)">isLastPeriod</a></span>&#8203;(int&nbsp;periodIndex,
             <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
@@ -523,12 +519,16 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  repeatMode</code> and whether shuffling is enabled.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle(boolean)">toBundle</a></span>&#8203;(boolean&nbsp;excludeMediaItems)</code></th>
 </tr>
 </table>
 <ul class="blockList">
@@ -722,21 +722,6 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The populated <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>, for convenience.</dd>
 </dl>
-</li>
-</ul>
-<a id="getWindow(int,com.google.android.exoplayer2.Timeline.Window,boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getWindow</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public final&nbsp;<a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow&#8203;(int&nbsp;windowIndex,
-                                       <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                       boolean&nbsp;setTag)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window)"><code>getWindow(int, Window)</code></a> instead. Tags will always be set.</div>
-</div>
 </li>
 </ul>
 <a id="getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">
@@ -980,6 +965,24 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/util/
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toBundle(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toBundle</h4>
+<pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle&#8203;(boolean&nbsp;excludeMediaItems)</pre>
+<div class="block">
+
+ <p>The <a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window)"><code>getWindow(int, Window)</code></a> windows} and <a href="#getPeriod(int,com.google.android.exoplayer2.Timeline.Period)"><code>periods</code></a> of
+ an instance restored by <a href="#CREATOR"><code>CREATOR</code></a> may have missing fields as described in <a href="Timeline.Window.html#toBundle()"><code>Timeline.Window.toBundle()</code></a> and <a href="Timeline.Period.html#toBundle()"><code>Timeline.Period.toBundle()</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>excludeMediaItems</code> - Whether to exclude all <a href="Timeline.Window.html#mediaItem"><code>media items</code></a> of windows
+     in the timeline.</dd>
 </dl>
 </li>
 </ul>

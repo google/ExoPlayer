@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -262,15 +262,6 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTag()">getTag</a></span>()</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getMediaItem()"><code>getMediaItem()</code></a> and <a href="../MediaItem.PlaybackProperties.html#tag"><code>MediaItem.PlaybackProperties.tag</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSingleWindow()">isSingleWindow</a></span>()</code></th>
 <td class="colLast">
@@ -278,7 +269,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <div class="block">Returns true if the media source is guaranteed to never have zero or more than one window.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChildSourceInfoRefreshed(java.lang.Void,com.google.android.exoplayer2.source.MediaSource,com.google.android.exoplayer2.Timeline)">onChildSourceInfoRefreshed</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Void.html" title="class or interface in java.lang" class="externalLink" target="_top">Void</a>&nbsp;id,
                           <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
@@ -288,7 +279,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></span>&#8203;(<a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
 <td class="colLast">
@@ -297,7 +288,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
  TransferListener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">releasePeriod</a></span>&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code></th>
 <td class="colLast">
@@ -351,8 +342,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <h4>LoopingMediaSource</h4>
 <pre>public&nbsp;LoopingMediaSource&#8203;(<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;childSource)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Loops the provided source indefinitely. Note that it is usually better to use
- <a href="../Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a>.</div>
+<div class="block">Loops the provided source indefinitely. Note that it is usually better to use <a href="../Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>childSource</code> - The <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to loop.</dd>
@@ -386,20 +376,6 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getTag()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getTag</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-@Nullable
-public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getTag()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getMediaItem()"><code>getMediaItem()</code></a> and <a href="../MediaItem.PlaybackProperties.html#tag"><code>MediaItem.PlaybackProperties.tag</code></a> instead.</div>
-</div>
-</li>
-</ul>
 <a id="getMediaItem()">
 <!--   -->
 </a>

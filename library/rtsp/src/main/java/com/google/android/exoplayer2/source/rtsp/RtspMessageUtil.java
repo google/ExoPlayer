@@ -92,9 +92,9 @@ import java.util.regex.Pattern;
   private static final Pattern CONTENT_LENGTH_HEADER_PATTERN =
       Pattern.compile("Content-Length:\\s?(\\d+)", CASE_INSENSITIVE);
 
-  // Session header pattern, see RFC2326 Section 12.37.
+  // Session header pattern, see RFC2326 Sections 3.4 and 12.37.
   private static final Pattern SESSION_HEADER_PATTERN =
-      Pattern.compile("(\\w+)(?:;\\s?timeout=(\\d+))?");
+      Pattern.compile("([\\w$-_.+]+)(?:;\\s?timeout=(\\d+))?");
 
   // WWW-Authenticate header pattern, see RFC2068 Sections 14.46 and RFC2069.
   private static final Pattern WWW_AUTHENTICATION_HEADER_DIGEST_PATTERN =
@@ -347,7 +347,7 @@ import java.util.regex.Pattern;
         return C.LENGTH_UNSET;
       }
     } catch (NumberFormatException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(line, e);
     }
   }
 
@@ -386,7 +386,7 @@ import java.util.regex.Pattern;
   public static RtspSessionHeader parseSessionHeader(String headerValue) throws ParserException {
     Matcher matcher = SESSION_HEADER_PATTERN.matcher(headerValue);
     if (!matcher.matches()) {
-      throw new ParserException(headerValue);
+      throw ParserException.createForMalformedManifest(headerValue, /* cause= */ null);
     }
 
     String sessionId = checkNotNull(matcher.group(1));
@@ -397,7 +397,7 @@ import java.util.regex.Pattern;
       try {
         timeoutMs = Integer.parseInt(timeoutString) * C.MILLIS_PER_SECOND;
       } catch (NumberFormatException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedManifest(headerValue, e);
       }
     }
 
@@ -434,7 +434,8 @@ import java.util.regex.Pattern;
           /* nonce= */ "",
           /* opaque= */ "");
     }
-    throw new ParserException("Invalid WWW-Authenticate header " + headerValue);
+    throw ParserException.createForMalformedManifest(
+        "Invalid WWW-Authenticate header " + headerValue, /* cause= */ null);
   }
 
   private static String getRtspStatusReasonPhrase(int statusCode) {
@@ -476,7 +477,7 @@ import java.util.regex.Pattern;
     try {
       return Integer.parseInt(intString);
     } catch (NumberFormatException e) {
-      throw new ParserException(e);
+      throw ParserException.createForMalformedManifest(intString, e);
     }
   }
 

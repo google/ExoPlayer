@@ -45,6 +45,8 @@ en:
         url:    retrieving-metadata.html
       - title:  Live streaming
         url:    live-streaming.html
+      - title:  Network stacks
+        url:    network-stacks.html
       - title:  Debug logging
         url:    debug-logging.html
       - title:  Analytics

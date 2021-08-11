@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.net.Uri;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
@@ -214,7 +215,8 @@ public final class RtspMediaSource extends BaseMediaSource {
   private boolean timelineIsLive;
   private boolean timelineIsPlaceholder;
 
-  private RtspMediaSource(
+  @VisibleForTesting
+  /* package */ RtspMediaSource(
       MediaItem mediaItem, RtpDataChannel.Factory rtpDataChannelFactory, String userAgent) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
@@ -250,7 +252,7 @@ public final class RtspMediaSource extends BaseMediaSource {
         allocator,
         rtpDataChannelFactory,
         uri,
-        (timing) -> {
+        /* listener= */ timing -> {
           timelineDurationUs = C.msToUs(timing.getDurationMs());
           timelineIsSeekable = !timing.isLive();
           timelineIsLive = timing.isLive();

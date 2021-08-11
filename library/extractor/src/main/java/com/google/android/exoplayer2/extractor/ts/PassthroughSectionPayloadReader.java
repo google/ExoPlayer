@@ -62,9 +62,10 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
   @Override
   public void consume(ParsableByteArray sectionData) {
     assertInitialized();
+    long sampleTimestampUs = timestampAdjuster.getLastAdjustedTimestampUs();
     long subsampleOffsetUs = timestampAdjuster.getTimestampOffsetUs();
-    if (subsampleOffsetUs == C.TIME_UNSET) {
-      // Don't output samples without a known subsample offset.
+    if (sampleTimestampUs == C.TIME_UNSET || subsampleOffsetUs == C.TIME_UNSET) {
+      // Don't output samples without a known sample timestamp and subsample offset.
       return;
     }
     if (subsampleOffsetUs != format.subsampleOffsetUs) {
@@ -73,12 +74,7 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
     }
     int sampleSize = sectionData.bytesLeft();
     output.sampleData(sectionData, sampleSize);
-    output.sampleMetadata(
-        timestampAdjuster.getLastAdjustedTimestampUs(),
-        C.BUFFER_FLAG_KEY_FRAME,
-        sampleSize,
-        0,
-        null);
+    output.sampleMetadata(sampleTimestampUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
   }
 
   @EnsuresNonNull({"timestampAdjuster", "output"})

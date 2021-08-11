@@ -39,9 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** A host activity for performing playback tests. */
 public final class HostActivity extends Activity implements SurfaceHolder.Callback {
 
-  /**
-   * Interface for tests that run inside of a {@link HostActivity}.
-   */
+  /** Interface for tests that run inside of a {@link HostActivity}. */
   public interface HostedTest {
 
     /**
@@ -74,11 +72,10 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
     /**
      * Called on the test thread after the test has finished and been stopped.
-     * <p>
-     * Implementations may use this method to assert that test criteria were met.
+     *
+     * <p>Implementations may use this method to assert that test criteria were met.
      */
     void onFinished();
-
   }
 
   private static final String TAG = "HostActivity";
@@ -99,8 +96,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    * Executes a {@link HostedTest} inside the host.
    *
    * @param hostedTest The test to execute.
-   * @param timeoutMs The number of milliseconds to wait for the test to finish. If the timeout
-   *     is exceeded then the test will fail.
+   * @param timeoutMs The number of milliseconds to wait for the test to finish. If the timeout is
+   *     exceeded then the test will fail.
    */
   public void runTest(HostedTest hostedTest, long timeoutMs) {
     runTest(hostedTest, timeoutMs, /* failOnTimeoutOrForceStop= */ true);
@@ -145,8 +142,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         hostedTest.onFinished();
         Log.d(TAG, "Pass conditions checked.");
       } else {
-        String message = "Test force stopped. Activity may have been paused whilst "
-            + "test was in progress.";
+        String message =
+            "Test force stopped. Activity may have been paused whilst " + "test was in progress.";
         Log.e(TAG, message);
         if (failOnTimeoutOrForceStop) {
           fail(message);
@@ -171,8 +168,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setContentView(
         getResources().getIdentifier("exo_testutils_host_activity", "layout", getPackageName()));
-    surfaceView = findViewById(
-        getResources().getIdentifier("surface_view", "id", getPackageName()));
+    surfaceView =
+        findViewById(getResources().getIdentifier("surface_view", "id", getPackageName()));
     surfaceView.getHolder().addCallback(this);
     overlayFrameLayout =
         findViewById(getResources().getIdentifier("overlay_frame_layout", "id", getPackageName()));

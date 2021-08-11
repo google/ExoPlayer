@@ -84,16 +84,11 @@ public final class ColorParserTest {
   @Test
   public void rgbaColorParsing() {
     assertThat(parseTtmlColor("rgba(255,255,255,255)")).isEqualTo(WHITE);
-    assertThat(parseTtmlColor("rgba(255,255,255,255)"))
-        .isEqualTo(argb(255, 255, 255, 255));
+    assertThat(parseTtmlColor("rgba(255,255,255,255)")).isEqualTo(argb(255, 255, 255, 255));
     assertThat(parseTtmlColor("rgba(0, 0, 0, 255)")).isEqualTo(BLACK);
-    assertThat(parseTtmlColor("rgba(0, 0, 255, 0)"))
-        .isEqualTo(argb(0, 0, 0, 255));
+    assertThat(parseTtmlColor("rgba(0, 0, 255, 0)")).isEqualTo(argb(0, 0, 0, 255));
     assertThat(parseTtmlColor("rgba(255, 0, 0, 255)")).isEqualTo(RED);
-    assertThat(parseTtmlColor("rgba(255, 0, 255, 0)"))
-        .isEqualTo(argb(0, 255, 0, 255));
-    assertThat(parseTtmlColor("rgba(255, 0, 0, 205)"))
-        .isEqualTo(argb(205, 255, 0, 0));
+    assertThat(parseTtmlColor("rgba(255, 0, 255, 0)")).isEqualTo(argb(0, 255, 0, 255));
+    assertThat(parseTtmlColor("rgba(255, 0, 0, 205)")).isEqualTo(argb(205, 255, 0, 0));
   }
-
 }

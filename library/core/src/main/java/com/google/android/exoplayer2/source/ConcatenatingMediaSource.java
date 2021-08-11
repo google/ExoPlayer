@@ -86,8 +86,8 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   private ShuffleOrder shuffleOrder;
 
   /**
-   * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same
-   *     {@link MediaSource} instance to be present more than once in the array.
+   * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same {@link
+   *     MediaSource} instance to be present more than once in the array.
    */
   public ConcatenatingMediaSource(MediaSource... mediaSources) {
     this(/* isAtomic= */ false, mediaSources);
@@ -1040,4 +1040,3 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     }
   }
 }
-

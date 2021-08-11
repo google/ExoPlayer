@@ -47,8 +47,8 @@ public final class PriorityDataSource implements DataSource {
    * @param priorityTaskManager The priority manager to which the task is registered.
    * @param priority The priority of the task.
    */
-  public PriorityDataSource(DataSource upstream, PriorityTaskManager priorityTaskManager,
-      int priority) {
+  public PriorityDataSource(
+      DataSource upstream, PriorityTaskManager priorityTaskManager, int priority) {
     this.upstream = Assertions.checkNotNull(upstream);
     this.priorityTaskManager = Assertions.checkNotNull(priorityTaskManager);
     this.priority = priority;
@@ -67,9 +67,9 @@ public final class PriorityDataSource implements DataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int max) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     priorityTaskManager.proceedOrThrow(priority);
-    return upstream.read(buffer, offset, max);
+    return upstream.read(buffer, offset, length);
   }
 
   @Override
@@ -87,5 +87,4 @@ public final class PriorityDataSource implements DataSource {
   public void close() throws IOException {
     upstream.close();
   }
-
 }

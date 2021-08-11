@@ -179,8 +179,8 @@ public final class DtsReader implements ElementaryStreamReader {
     sampleSize = DtsUtil.getDtsFrameSize(frameData);
     // In this class a sample is an access unit (frame in DTS), but the format's sample rate
     // specifies the number of PCM audio samples per second.
-    sampleDurationUs = (int) (C.MICROS_PER_SECOND
-        * DtsUtil.parseDtsAudioSampleCount(frameData) / format.sampleRate);
+    sampleDurationUs =
+        (int)
+            (C.MICROS_PER_SECOND * DtsUtil.parseDtsAudioSampleCount(frameData) / format.sampleRate);
   }
-
 }

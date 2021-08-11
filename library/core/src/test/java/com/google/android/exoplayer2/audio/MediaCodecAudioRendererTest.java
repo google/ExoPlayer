@@ -37,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -55,10 +56,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link MediaCodecAudioRenderer} */
-@Config(sdk = 29)
 @RunWith(AndroidJUnit4.class)
 public class MediaCodecAudioRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
@@ -245,7 +244,9 @@ public class MediaCodecAudioRendererTest {
                       "rendererName",
                       /* rendererIndex= */ 0,
                       format,
-                      C.FORMAT_HANDLED));
+                      C.FORMAT_HANDLED,
+                      /* isRecoverable= */ false,
+                      PlaybackException.ERROR_CODE_UNSPECIFIED));
             }
           }
         };

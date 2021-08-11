@@ -75,18 +75,17 @@ public final class PrivFrame extends Id3Frame {
     dest.writeByteArray(privateData);
   }
 
-  public static final Parcelable.Creator<PrivFrame> CREATOR = new Parcelable.Creator<PrivFrame>() {
+  public static final Parcelable.Creator<PrivFrame> CREATOR =
+      new Parcelable.Creator<PrivFrame>() {
 
-    @Override
-    public PrivFrame createFromParcel(Parcel in) {
-      return new PrivFrame(in);
-    }
+        @Override
+        public PrivFrame createFromParcel(Parcel in) {
+          return new PrivFrame(in);
+        }
 
-    @Override
-    public PrivFrame[] newArray(int size) {
-      return new PrivFrame[size];
-    }
-
-  };
-
+        @Override
+        public PrivFrame[] newArray(int size) {
+          return new PrivFrame[size];
+        }
+      };
 }

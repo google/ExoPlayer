@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
@@ -539,7 +540,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         if (eventDispatcher != null) {
           eventDispatcher.drmSessionManagerError(error);
         }
-        return new ErrorStateDrmSession(new DrmSessionException(error));
+        return new ErrorStateDrmSession(
+            new DrmSessionException(error, PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR));
       }
     }
 
@@ -873,14 +875,14 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     }
 
     @Override
-    public void onProvisionError(Exception error) {
+    public void onProvisionError(Exception error, boolean thrownByExoMediaDrm) {
       provisioningSession = null;
       ImmutableList<DefaultDrmSession> sessionsToNotify =
           ImmutableList.copyOf(sessionsAwaitingProvisioning);
       // Clear the list before calling onProvisionError in case provisioning is re-requested.
       sessionsAwaitingProvisioning.clear();
       for (DefaultDrmSession session : sessionsToNotify) {
-        session.onProvisionError(error);
+        session.onProvisionError(error, thrownByExoMediaDrm);
       }
     }
 

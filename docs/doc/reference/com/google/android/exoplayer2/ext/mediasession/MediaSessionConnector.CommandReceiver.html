@@ -190,6 +190,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>onCommand</h4>
 <pre class="methodSignature">boolean&nbsp;onCommand&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                  <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
                   <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;command,
                   @Nullable
@@ -197,13 +198,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                   @Nullable
                   <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" title="class or interface in android.os" class="externalLink" target="_top">ResultReceiver</a>&nbsp;cb)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>. The
- receiver may handle the command, but is not required to do so. Changes to the player should
- be made via the <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+ receiver may handle the command, but is not required to do so.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
-<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
-     changes to the player.</dd>
+<dd><code>controlDispatcher</code> - This parameter is deprecated. Use <code>player</code> instead. Operations
+     can be customized by passing a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> to <a href="MediaSessionConnector.html#setPlayer(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.setPlayer(Player)</code></a>, or
+     when configuring the player (for example by using <code>
+     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</dd>
 <dd><code>command</code> - The command name.</dd>
 <dd><code>extras</code> - Optional parameters for the command, may be null.</dd>
 <dd><code>cb</code> - A result receiver to which a result may be sent by the command, may be null.</dd>

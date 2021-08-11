@@ -255,7 +255,7 @@ public final class DownloadManager {
     downloads = Collections.emptyList();
     listeners = new CopyOnWriteArraySet<>();
 
-    @SuppressWarnings("methodref.receiver.bound.invalid")
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     Handler mainHandler = Util.createHandlerForCurrentOrMainLooper(this::handleMainMessage);
     this.applicationHandler = mainHandler;
     HandlerThread internalThread = new HandlerThread("ExoPlayer:DownloadManager");
@@ -270,7 +270,7 @@ public final class DownloadManager {
             minRetryCount,
             downloadsPaused);
 
-    @SuppressWarnings("methodref.receiver.bound.invalid")
+    @SuppressWarnings("nullness:methodref.receiver.bound")
     RequirementsWatcher.Listener requirementsListener = this::onRequirementsStateChanged;
     this.requirementsListener = requirementsListener;
     requirementsWatcher =
@@ -1316,7 +1316,7 @@ public final class DownloadManager {
       contentLength = C.LENGTH_UNSET;
     }
 
-    @SuppressWarnings("nullness:assignment.type.incompatible")
+    @SuppressWarnings("nullness:assignment")
     public void cancel(boolean released) {
       if (released) {
         // Download threads are GC roots for as long as they're running. The time taken for

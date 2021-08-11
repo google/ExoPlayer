@@ -27,5 +27,4 @@ public final class OpusDecoderException extends DecoderException {
   /* package */ OpusDecoderException(String message, Throwable cause) {
     super(message, cause);
   }
-
 }

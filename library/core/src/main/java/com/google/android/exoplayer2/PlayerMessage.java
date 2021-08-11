@@ -35,11 +35,11 @@ public final class PlayerMessage {
      * Handles a message delivered to the target.
      *
      * @param messageType The message type.
-     * @param payload The message payload.
+     * @param message The message payload.
      * @throws ExoPlaybackException If an error occurred whilst handling the message. Should only be
      *     thrown by targets that handle messages on the playback thread.
      */
-    void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException;
+    void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException;
   }
 
   /** A sender for messages. */
@@ -245,8 +245,7 @@ public final class PlayerMessage {
 
   /**
    * Sends the message. If the target throws an {@link ExoPlaybackException} then it is propagated
-   * out of the player as an error using {@link
-   * Player.Listener#onPlayerError(ExoPlaybackException)}.
+   * out of the player as an error using {@link Player.Listener#onPlayerError(PlaybackException)}.
    *
    * @return This message.
    * @throws IllegalStateException If this message has already been sent.

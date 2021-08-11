@@ -104,8 +104,8 @@ public final class PsshAtomUtil {
 
   /**
    * Parses the version from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
-   * <p>
-   * The version is only parsed if the data is a valid PSSH atom.
+   *
+   * <p>The version is only parsed if the data is a valid PSSH atom.
    *
    * @param atom The atom to parse.
    * @return The parsed version. -1 if the input is not a valid PSSH atom, or if the PSSH atom has
@@ -201,7 +201,5 @@ public final class PsshAtomUtil {
       this.version = version;
       this.schemeData = schemeData;
     }
-
   }
-
 }

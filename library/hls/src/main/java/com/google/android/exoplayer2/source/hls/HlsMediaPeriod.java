@@ -268,8 +268,8 @@ public final class HlsMediaPeriod
     int[] streamChildIndices = new int[selections.length];
     int[] selectionChildIndices = new int[selections.length];
     for (int i = 0; i < selections.length; i++) {
-      streamChildIndices[i] = streams[i] == null ? C.INDEX_UNSET
-          : streamWrapperIndices.get(streams[i]);
+      streamChildIndices[i] =
+          streams[i] == null ? C.INDEX_UNSET : streamWrapperIndices.get(streams[i]);
       selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
         TrackGroup trackGroup = selections[i].getTrackGroup();
@@ -297,8 +297,14 @@ public final class HlsMediaPeriod
         childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
       }
       HlsSampleStreamWrapper sampleStreamWrapper = sampleStreamWrappers[i];
-      boolean wasReset = sampleStreamWrapper.selectTracks(childSelections, mayRetainStreamFlags,
-          childStreams, streamResetFlags, positionUs, forceReset);
+      boolean wasReset =
+          sampleStreamWrapper.selectTracks(
+              childSelections,
+              mayRetainStreamFlags,
+              childStreams,
+              streamResetFlags,
+              positionUs,
+              forceReset);
       boolean wrapperEnabled = false;
       for (int j = 0; j < selections.length; j++) {
         SampleStream childStream = childStreams[j];
@@ -320,7 +326,8 @@ public final class HlsMediaPeriod
           // that the first wrapper will correspond to a variant, or else an audio rendition, or
           // else a text rendition, in that order.
           sampleStreamWrapper.setIsTimestampMaster(true);
-          if (wasReset || enabledSampleStreamWrappers.length == 0
+          if (wasReset
+              || enabledSampleStreamWrappers.length == 0
               || sampleStreamWrapper != enabledSampleStreamWrappers[0]) {
             // The wrapper responsible for initializing the timestamp adjusters was reset or
             // changed. We need to reset the timestamp adjuster provider and all other wrappers.
@@ -458,10 +465,11 @@ public final class HlsMediaPeriod
   }
 
   @Override
-  public boolean onPlaylistError(Uri url, long exclusionDurationMs) {
+  public boolean onPlaylistError(
+      Uri url, LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo, boolean forceRetry) {
     boolean exclusionSucceeded = true;
     for (HlsSampleStreamWrapper streamWrapper : sampleStreamWrappers) {
-      exclusionSucceeded &= streamWrapper.onPlaylistError(url, exclusionDurationMs);
+      exclusionSucceeded &= streamWrapper.onPlaylistError(url, loadErrorInfo, forceRetry);
     }
     callback.onContinueLoadingRequested(this);
     return exclusionSucceeded;
@@ -620,9 +628,13 @@ public final class HlsMediaPeriod
         numberOfAudioCodecs <= 1
             && numberOfVideoCodecs <= 1
             && numberOfAudioCodecs + numberOfVideoCodecs > 0;
+    int trackType =
+        !useVideoVariantsOnly && numberOfAudioCodecs > 0
+            ? C.TRACK_TYPE_AUDIO
+            : C.TRACK_TYPE_DEFAULT;
     HlsSampleStreamWrapper sampleStreamWrapper =
         buildSampleStreamWrapper(
-            C.TRACK_TYPE_DEFAULT,
+            trackType,
             selectedPlaylistUrls,
             selectedPlaylistFormats,
             masterPlaylist.muxedAudioFormat,
@@ -866,5 +878,4 @@ public final class HlsMediaPeriod
         .setLanguage(language)
         .build();
   }
-
 }

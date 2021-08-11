@@ -30,5 +30,4 @@ public final class UtcTimingElement {
   public String toString() {
     return schemeIdUri + ", " + value;
   }
-
 }

@@ -231,7 +231,7 @@ import java.util.List;
     for (int i = 0; i < segmentStrings.size(); i++) {
       List<String> values = COLON_SPLITTER.splitToList(segmentStrings.get(i));
       if (values.size() != 3) {
-        throw new ParserException();
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ null);
       }
       try {
         long startTimeMs = Long.parseLong(values.get(0));
@@ -240,7 +240,7 @@ import java.util.List;
         int speedDivisor = 1 << (speedMode - 1);
         segments.add(new SlowMotionData.Segment(startTimeMs, endTimeMs, speedDivisor));
       } catch (NumberFormatException e) {
-        throw new ParserException(e);
+        throw ParserException.createForMalformedContainer(/* message= */ null, /* cause= */ e);
       }
     }
     return new SlowMotionData(segments);
@@ -260,7 +260,7 @@ import java.util.List;
       case "Super_SlowMotion_Deflickering_On":
         return TYPE_SUPER_SLOW_DEFLICKERING_ON;
       default:
-        throw new ParserException("Invalid SEF name");
+        throw ParserException.createForMalformedContainer("Invalid SEF name", /* cause= */ null);
     }
   }
 

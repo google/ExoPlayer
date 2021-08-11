@@ -32,9 +32,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A package internal representation of TTML node.
- */
+/** A package internal representation of TTML node. */
 /* package */ final class TtmlNode {
 
   public static final String TAG_TT = "tt";
@@ -342,8 +340,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       boolean isPNode = TAG_P.equals(tag);
       for (int i = 0; i < getChildCount(); i++) {
-        getChild(i).traverseForText(timeUs, descendsPNode || isPNode, resolvedRegionId,
-            regionOutputs);
+        getChild(i)
+            .traverseForText(timeUs, descendsPNode || isPNode, resolvedRegionId, regionOutputs);
       }
       if (isPNode) {
         TtmlRenderUtil.endParagraph(getRegionOutputText(resolvedRegionId, regionOutputs));
@@ -473,5 +471,4 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       builder.delete(builder.length() - 1, builder.length());
     }
   }
-
 }

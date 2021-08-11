@@ -65,8 +65,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
 
   @Override
   @Nullable
-  public final byte[] get(String name, @Nullable byte[] defaultValue) {
-    @Nullable byte[] bytes = metadata.get(name);
+  public final byte[] get(String key, @Nullable byte[] defaultValue) {
+    @Nullable byte[] bytes = metadata.get(key);
     if (bytes != null) {
       return Arrays.copyOf(bytes, bytes.length);
     } else {
@@ -76,8 +76,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
 
   @Override
   @Nullable
-  public final String get(String name, @Nullable String defaultValue) {
-    @Nullable byte[] bytes = metadata.get(name);
+  public final String get(String key, @Nullable String defaultValue) {
+    @Nullable byte[] bytes = metadata.get(key);
     if (bytes != null) {
       return new String(bytes, Charsets.UTF_8);
     } else {
@@ -86,8 +86,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
   }
 
   @Override
-  public final long get(String name, long defaultValue) {
-    @Nullable byte[] bytes = metadata.get(name);
+  public final long get(String key, long defaultValue) {
+    @Nullable byte[] bytes = metadata.get(key);
     if (bytes != null) {
       return ByteBuffer.wrap(bytes).getLong();
     } else {
@@ -96,8 +96,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
   }
 
   @Override
-  public final boolean contains(String name) {
-    return metadata.containsKey(name);
+  public final boolean contains(String key) {
+    return metadata.containsKey(key);
   }
 
   @Override
@@ -168,5 +168,4 @@ public final class DefaultContentMetadata implements ContentMetadata {
       throw new IllegalArgumentException();
     }
   }
-
 }

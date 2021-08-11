@@ -594,5 +594,4 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     Log.w(TAG, "Failed to parse uint8 attribute value");
     return -1;
   }
-
 }

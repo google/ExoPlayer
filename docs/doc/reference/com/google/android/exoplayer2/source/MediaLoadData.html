@@ -150,7 +150,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataType">dataType</a></span></code></th>
 <td class="colLast">
-<div class="block">One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>DATA_TYPE_*</code> constants defining the type of data.</div>
+<div class="block">The <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -273,8 +273,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>dataType</h4>
-<pre>public final&nbsp;int dataType</pre>
-<div class="block">One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>DATA_TYPE_*</code> constants defining the type of data.</div>
+<pre><a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
+public final&nbsp;int dataType</pre>
+<div class="block">The <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a>.</div>
 </li>
 </ul>
 <a id="trackType">
@@ -361,7 +362,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <ul class="blockList">
 <li class="blockList">
 <h4>MediaLoadData</h4>
-<pre>public&nbsp;MediaLoadData&#8203;(int&nbsp;dataType)</pre>
+<pre>public&nbsp;MediaLoadData&#8203;(<a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
+                     int&nbsp;dataType)</pre>
 <div class="block">Creates an instance with the given <a href="#dataType"><code>dataType</code></a>.</div>
 </li>
 </ul>
@@ -371,7 +373,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MediaLoadData</h4>
-<pre>public&nbsp;MediaLoadData&#8203;(int&nbsp;dataType,
+<pre>public&nbsp;MediaLoadData&#8203;(<a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
+                     int&nbsp;dataType,
                      int&nbsp;trackType,
                      @Nullable
                      <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,

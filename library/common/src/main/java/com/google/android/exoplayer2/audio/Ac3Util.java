@@ -66,21 +66,13 @@ public final class Ac3Util {
      * #STREAM_TYPE_UNDEFINED} otherwise.
      */
     public final @StreamType int streamType;
-    /**
-     * The audio sampling rate in Hz.
-     */
+    /** The audio sampling rate in Hz. */
     public final int sampleRate;
-    /**
-     * The number of audio channels
-     */
+    /** The number of audio channels */
     public final int channelCount;
-    /**
-     * The size of the frame.
-     */
+    /** The size of the frame. */
     public final int frameSize;
-    /**
-     * Number of audio samples in the frame.
-     */
+    /** Number of audio samples in the frame. */
     public final int sampleCount;
 
     private SyncFrameInfo(
@@ -97,16 +89,15 @@ public final class Ac3Util {
       this.frameSize = frameSize;
       this.sampleCount = sampleCount;
     }
-
   }
 
   /**
-   * A non-standard codec string for E-AC-3. Use of this constant allows for disambiguation between
-   * regular AC-3 ("ec-3") and E-AC-3 ("ec+3") streams from the codec string alone. The standard is
-   * to use "ec-3" for both, as per the <a href="https://mp4ra.org/#/codecs">MP4RA registered codec
-   * types</a>.
+   * A non-standard codec string for E-AC3-JOC. Use of this constant allows for disambiguation
+   * between regular E-AC3 ("ec-3") and E-AC3-JOC ("ec+3") streams from the codec string alone. The
+   * standard is to use "ec-3" for both, as per the <a href="https://mp4ra.org/#/codecs">MP4RA
+   * registered codec types</a>.
    */
-  public static final String E_AC_3_CODEC_STRING = "ec+3";
+  public static final String E_AC3_JOC_CODEC_STRING = "ec+3";
   /** Maximum rate for an AC-3 audio stream, in bytes per second. */
   public static final int AC3_MAX_RATE_BYTES_PER_SECOND = 640 * 1000 / 8;
   /** Maximum rate for an E-AC-3 audio stream, in bytes per second. */
@@ -125,27 +116,17 @@ public final class Ac3Util {
    */
   public static final int TRUEHD_SYNCFRAME_PREFIX_LENGTH = 10;
 
-  /**
-   * The number of new samples per (E-)AC-3 audio block.
-   */
+  /** The number of new samples per (E-)AC-3 audio block. */
   private static final int AUDIO_SAMPLES_PER_AUDIO_BLOCK = 256;
   /** Each syncframe has 6 blocks that provide 256 new audio samples. See subsection 4.1. */
   private static final int AC3_SYNCFRAME_AUDIO_SAMPLE_COUNT = 6 * AUDIO_SAMPLES_PER_AUDIO_BLOCK;
-  /**
-   * Number of audio blocks per E-AC-3 syncframe, indexed by numblkscod.
-   */
+  /** Number of audio blocks per E-AC-3 syncframe, indexed by numblkscod. */
   private static final int[] BLOCKS_PER_SYNCFRAME_BY_NUMBLKSCOD = new int[] {1, 2, 3, 6};
-  /**
-   * Sample rates, indexed by fscod.
-   */
+  /** Sample rates, indexed by fscod. */
   private static final int[] SAMPLE_RATE_BY_FSCOD = new int[] {48000, 44100, 32000};
-  /**
-   * Sample rates, indexed by fscod2 (E-AC-3).
-   */
+  /** Sample rates, indexed by fscod2 (E-AC-3). */
   private static final int[] SAMPLE_RATE_BY_FSCOD2 = new int[] {24000, 22050, 16000};
-  /**
-   * Channel counts, indexed by acmod.
-   */
+  /** Channel counts, indexed by acmod. */
   private static final int[] CHANNEL_COUNT_BY_ACMOD = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
   /** Nominal bitrates in kbps, indexed by frmsizecod / 2. (See table 4.13.) */
   private static final int[] BITRATE_BY_HALF_FRMSIZECOD =
@@ -323,7 +304,7 @@ public final class Ac3Util {
         }
         if (streamType == SyncFrameInfo.STREAM_TYPE_TYPE0) {
           if (data.readBit()) { // pgmscle
-            data.skipBits(6); //pgmscl
+            data.skipBits(6); // pgmscl
           }
           if (acmod == 0 && data.readBit()) { // pgmscl2e
             data.skipBits(6); // pgmscl2
@@ -569,7 +550,9 @@ public final class Ac3Util {
 
   private static int getAc3SyncframeSize(int fscod, int frmsizecod) {
     int halfFrmsizecod = frmsizecod / 2;
-    if (fscod < 0 || fscod >= SAMPLE_RATE_BY_FSCOD.length || frmsizecod < 0
+    if (fscod < 0
+        || fscod >= SAMPLE_RATE_BY_FSCOD.length
+        || frmsizecod < 0
         || halfFrmsizecod >= SYNCFRAME_SIZE_WORDS_BY_HALF_FRMSIZECOD_44_1.length) {
       // Invalid values provided.
       return C.LENGTH_UNSET;
@@ -587,5 +570,4 @@ public final class Ac3Util {
   }
 
   private Ac3Util() {}
-
 }

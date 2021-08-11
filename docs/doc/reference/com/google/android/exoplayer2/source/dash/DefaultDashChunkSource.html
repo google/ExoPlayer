@@ -217,9 +217,10 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)">DefaultDashChunkSource</a></span>&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)">DefaultDashChunkSource</a></span>&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
                       <a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                       <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                      <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
                       int&nbsp;periodIndex,
                       int[]&nbsp;adaptationSetIndices,
                       <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
@@ -319,10 +320,10 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a></span>&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">onChunkLoadError</a></span>&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                 boolean&nbsp;cancelable,
-                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;e,
-                long&nbsp;exclusionDurationMs)</code></th>
+                <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
+                <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
@@ -402,7 +403,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -411,6 +412,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <pre>public&nbsp;DefaultDashChunkSource&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
                               <a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                               <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                              <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
                               int&nbsp;periodIndex,
                               int[]&nbsp;adaptationSetIndices,
                               <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
@@ -428,6 +430,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
      chunks.</dd>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
+<dd><code>baseUrlExclusionList</code> - The base URL exclusion list.</dd>
 <dd><code>periodIndex</code> - The index of the period in the manifest.</dd>
 <dd><code>adaptationSetIndices</code> - The indices of the adaptation sets in the period.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>
@@ -632,7 +635,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </dl>
 </li>
 </ul>
-<a id="onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">
+<a id="onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -640,20 +643,20 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <h4>onChunkLoadError</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onChunkLoadError&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                                 boolean&nbsp;cancelable,
-                                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;e,
-                                long&nbsp;exclusionDurationMs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">ChunkSource</a></code></span></div>
+                                <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
+                                <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dd><code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunk</code> - The chunk whose load encountered the error.</dd>
 <dd><code>cancelable</code> - Whether the load can be canceled.</dd>
-<dd><code>e</code> - The error.</dd>
-<dd><code>exclusionDurationMs</code> - The duration for which the associated track may be excluded, or
-     <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be excluded.</dd>
+<dd><code>loadErrorInfo</code> - The load error info.</dd>
+<dd><code>loadErrorHandlingPolicy</code> - The load error handling policy to customize the behaviour of
+     handling the load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the load should be canceled so that a replacement chunk can be loaded instead.
      Must be <code>false</code> if <code>cancelable</code> is <code>false</code>. If <code>true</code>, <a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)"><code>ChunkSource.getNextChunk(long, long, List, ChunkHolder)</code></a> will be called to obtain the replacement
@@ -687,6 +690,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                                        <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                                        int&nbsp;trackSelectionReason,
                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
+                                       @Nullable
                                        <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
                                        <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
 </li>

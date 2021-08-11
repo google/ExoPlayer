@@ -57,8 +57,8 @@ public final class TimelineQueueEditor
 
   /**
    * Adapter to get {@link MediaDescriptionCompat} of items in the queue and to notify the
-   * application about changes in the queue to sync the data structure backing the
-   * {@link MediaSessionConnector}.
+   * application about changes in the queue to sync the data structure backing the {@link
+   * MediaSessionConnector}.
    */
   public interface QueueDataAdapter {
     /**
@@ -83,9 +83,7 @@ public final class TimelineQueueEditor
     void move(int from, int to);
   }
 
-  /**
-   * Used to evaluate whether two {@link MediaDescriptionCompat} are considered equal.
-   */
+  /** Used to evaluate whether two {@link MediaDescriptionCompat} are considered equal. */
   interface MediaDescriptionEqualityChecker {
     /**
      * Returns {@code true} whether the descriptions are considered equal.
@@ -181,7 +179,7 @@ public final class TimelineQueueEditor
   @Override
   public boolean onCommand(
       Player player,
-      ControlDispatcher controlDispatcher,
+      @Deprecated ControlDispatcher controlDispatcher,
       String command,
       @Nullable Bundle extras,
       @Nullable ResultReceiver cb) {

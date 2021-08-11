@@ -22,6 +22,8 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Text information ID3 frame. */
 public final class TextInformationFrame extends Id3Frame {
@@ -76,10 +78,68 @@ public final class TextInformationFrame extends Id3Frame {
       case "TYE":
       case "TYER":
         try {
-          builder.setYear(Integer.parseInt(value));
+          builder.setRecordingYear(Integer.parseInt(value));
         } catch (NumberFormatException e) {
           // Do nothing, invalid input.
         }
+        break;
+      case "TDA":
+      case "TDAT":
+        try {
+          int month = Integer.parseInt(value.substring(2, 4));
+          int day = Integer.parseInt(value.substring(0, 2));
+          builder.setRecordingMonth(month).setRecordingDay(day);
+        } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+          // Do nothing, invalid input.
+        }
+        break;
+      case "TDRC":
+        List<Integer> recordingDate = parseId3v2point4TimestampFrameForDate(value);
+        switch (recordingDate.size()) {
+          case 3:
+            builder.setRecordingDay(recordingDate.get(2));
+            // fall through
+          case 2:
+            builder.setRecordingMonth(recordingDate.get(1));
+            // fall through
+          case 1:
+            builder.setRecordingYear(recordingDate.get(0));
+            // fall through
+            break;
+          default:
+            // Do nothing.
+            break;
+        }
+        break;
+      case "TDRL":
+        List<Integer> releaseDate = parseId3v2point4TimestampFrameForDate(value);
+        switch (releaseDate.size()) {
+          case 3:
+            builder.setReleaseDay(releaseDate.get(2));
+            // fall through
+          case 2:
+            builder.setReleaseMonth(releaseDate.get(1));
+            // fall through
+          case 1:
+            builder.setReleaseYear(releaseDate.get(0));
+            // fall through
+            break;
+          default:
+            // Do nothing.
+            break;
+        }
+        break;
+      case "TCM":
+      case "TCOM":
+        builder.setComposer(value);
+        break;
+      case "TP3":
+      case "TPE3":
+        builder.setConductor(value);
+        break;
+      case "TXT":
+      case "TEXT":
+        builder.setWriter(value);
         break;
       default:
         break;
@@ -136,4 +196,28 @@ public final class TextInformationFrame extends Id3Frame {
           return new TextInformationFrame[size];
         }
       };
+
+  // Private methods
+
+  private static List<Integer> parseId3v2point4TimestampFrameForDate(String value) {
+    // Timestamp string format is ISO-8601, can be `yyyy-MM-ddTHH:mm:ss`, or reduced precision
+    // at each point, for example `yyyy-MM` or `yyyy-MM-ddTHH:mm`.
+    List<Integer> dates = new ArrayList<>();
+    try {
+      if (value.length() >= 10) {
+        dates.add(Integer.parseInt(value.substring(0, 4)));
+        dates.add(Integer.parseInt(value.substring(5, 7)));
+        dates.add(Integer.parseInt(value.substring(8, 10)));
+      } else if (value.length() >= 7) {
+        dates.add(Integer.parseInt(value.substring(0, 4)));
+        dates.add(Integer.parseInt(value.substring(5, 7)));
+      } else if (value.length() >= 4) {
+        dates.add(Integer.parseInt(value.substring(0, 4)));
+      }
+    } catch (NumberFormatException e) {
+      // Invalid output, return.
+      return new ArrayList<>();
+    }
+    return dates;
+  }
 }

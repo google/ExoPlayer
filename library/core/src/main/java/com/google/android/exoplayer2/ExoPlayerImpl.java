@@ -88,6 +88,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Nullable private final AnalyticsCollector analyticsCollector;
   private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
+  private final long seekBackIncrementMs;
+  private final long seekForwardIncrementMs;
   private final Clock clock;
 
   @RepeatMode private int repeatMode;
@@ -102,6 +104,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean pauseAtEndOfMediaItems;
   private Commands availableCommands;
   private MediaMetadata mediaMetadata;
+  private MediaMetadata playlistMetadata;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -124,6 +127,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *     loads and other initial preparation steps happen immediately. If true, these initial
    *     preparations are triggered only when the player starts buffering the media.
    * @param seekParameters The {@link SeekParameters}.
+   * @param seekBackIncrementMs The {@link #seekBack()} increment in milliseconds.
+   * @param seekForwardIncrementMs The {@link #seekForward()} increment in milliseconds.
    * @param livePlaybackSpeedControl The {@link LivePlaybackSpeedControl}.
    * @param releaseTimeoutMs The timeout for calls to {@link #release()} in milliseconds.
    * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
@@ -145,6 +150,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       @Nullable AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
       SeekParameters seekParameters,
+      long seekBackIncrementMs,
+      long seekForwardIncrementMs,
       LivePlaybackSpeedControl livePlaybackSpeedControl,
       long releaseTimeoutMs,
       boolean pauseAtEndOfMediaItems,
@@ -169,6 +176,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.analyticsCollector = analyticsCollector;
     this.useLazyPreparation = useLazyPreparation;
     this.seekParameters = seekParameters;
+    this.seekBackIncrementMs = seekBackIncrementMs;
+    this.seekForwardIncrementMs = seekForwardIncrementMs;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
     this.clock = clock;
@@ -197,8 +206,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 COMMAND_SET_SHUFFLE_MODE,
                 COMMAND_SET_REPEAT_MODE,
                 COMMAND_GET_CURRENT_MEDIA_ITEM,
-                COMMAND_GET_MEDIA_ITEMS,
+                COMMAND_GET_TIMELINE,
                 COMMAND_GET_MEDIA_ITEMS_METADATA,
+                COMMAND_SET_MEDIA_ITEMS_METADATA,
                 COMMAND_CHANGE_MEDIA_ITEMS)
             .addAll(additionalPermanentAvailableCommands)
             .build();
@@ -206,9 +216,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
         new Commands.Builder()
             .addAll(permanentAvailableCommands)
             .add(COMMAND_SEEK_TO_DEFAULT_POSITION)
-            .add(COMMAND_SEEK_TO_MEDIA_ITEM)
+            .add(COMMAND_SEEK_TO_WINDOW)
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
+    playlistMetadata = MediaMetadata.EMPTY;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -710,6 +721,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public long getSeekBackIncrement() {
+    return seekBackIncrementMs;
+  }
+
+  @Override
+  public long getSeekForwardIncrement() {
+    return seekForwardIncrementMs;
+  }
+
+  @Override
+  public int getMaxSeekToPreviousPosition() {
+    return C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (playbackParameters == null) {
       playbackParameters = PlaybackParameters.DEFAULT;
@@ -760,9 +786,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         // One of the renderers timed out releasing its resources.
         stop(
             /* reset= */ false,
-            ExoPlaybackException.createForRenderer(
-                new ExoTimeoutException(
-                    ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
+            ExoPlaybackException.createForUnexpected(
+                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE),
+                PlaybackException.ERROR_CODE_TIMEOUT));
       }
     }
   }
@@ -829,8 +855,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
           Player.EVENT_PLAYER_ERROR,
           listener ->
               listener.onPlayerError(
-                  ExoPlaybackException.createForRenderer(
-                      new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE))));
+                  ExoPlaybackException.createForUnexpected(
+                      new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE),
+                      PlaybackException.ERROR_CODE_TIMEOUT)));
     }
     listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
@@ -977,6 +1004,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return new TrackSelectionArray(playbackInfo.trackSelectorResult.selections);
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     return playbackInfo.staticMetadata;
@@ -996,6 +1024,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
     mediaMetadata = newMediaMetadata;
     listeners.sendEvent(
         EVENT_MEDIA_METADATA_CHANGED, listener -> listener.onMediaMetadataChanged(mediaMetadata));
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMetadata() {
+    return playlistMetadata;
+  }
+
+  @Override
+  public void setPlaylistMetadata(MediaMetadata playlistMetadata) {
+    checkNotNull(playlistMetadata);
+    if (playlistMetadata.equals(this.playlistMetadata)) {
+      return;
+    }
+    this.playlistMetadata = playlistMetadata;
+    listeners.sendEvent(
+        EVENT_PLAYLIST_METADATA_CHANGED,
+        listener -> listener.onPlaylistMetadataChanged(this.playlistMetadata));
   }
 
   @Override
@@ -1220,7 +1265,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 .windowIndex;
         mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
       }
-      mediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
+      newMediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
     }
     if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       newMediaMetadata =
@@ -1232,16 +1277,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> {
-            @Nullable Object manifest = null;
-            if (newPlaybackInfo.timeline.getWindowCount() == 1) {
-              // Legacy behavior was to report the manifest for single window timelines only.
-              Timeline.Window window = new Timeline.Window();
-              manifest = newPlaybackInfo.timeline.getWindow(0, window).manifest;
-            }
-            listener.onTimelineChanged(newPlaybackInfo.timeline, manifest, timelineChangeReason);
-            listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason);
-          });
+          listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
     }
     if (positionDiscontinuity) {
       PositionInfo previousPositionInfo =
@@ -1262,11 +1298,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(finalMediaItem, mediaItemTransitionReason));
     }
-    if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError
-        && newPlaybackInfo.playbackError != null) {
+    if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError) {
       listeners.queueEvent(
           Player.EVENT_PLAYER_ERROR,
-          listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
+          listener -> listener.onPlayerErrorChanged(newPlaybackInfo.playbackError));
+      if (newPlaybackInfo.playbackError != null) {
+        listeners.queueEvent(
+            Player.EVENT_PLAYER_ERROR,
+            listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
+      }
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);

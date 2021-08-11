@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLE
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -38,6 +39,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
@@ -127,6 +129,8 @@ public class SimpleExoPlayer extends BasePlayer
     @C.VideoScalingMode private int videoScalingMode;
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
+    private long seekBackIncrementMs;
+    private long seekForwardIncrementMs;
     private LivePlaybackSpeedControl livePlaybackSpeedControl;
     private long releaseTimeoutMs;
     private long detachSurfaceTimeoutMs;
@@ -163,6 +167,8 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link C.VideoScalingMode}: {@link C#VIDEO_SCALING_MODE_DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
+     *   <li>{@code seekBackIncrementMs}: {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS}
+     *   <li>{@code seekForwardIncrementMs}: {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}
      *   <li>{@code releaseTimeoutMs}: {@link ExoPlayer#DEFAULT_RELEASE_TIMEOUT_MS}
      *   <li>{@code detachSurfaceTimeoutMs}: {@link #DEFAULT_DETACH_SURFACE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
@@ -260,6 +266,8 @@ public class SimpleExoPlayer extends BasePlayer
       videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
+      seekBackIncrementMs = C.DEFAULT_SEEK_BACK_INCREMENT_MS;
+      seekForwardIncrementMs = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
       livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
       clock = Clock.DEFAULT;
       releaseTimeoutMs = ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
@@ -496,6 +504,36 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
+     * Sets the {@link #seekBack()} increment.
+     *
+     * @param seekBackIncrementMs The seek back increment, in milliseconds.
+     * @return This builder.
+     * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
+      checkArgument(seekBackIncrementMs > 0);
+      Assertions.checkState(!buildCalled);
+      this.seekBackIncrementMs = seekBackIncrementMs;
+      return this;
+    }
+
+    /**
+     * Sets the {@link #seekForward()} increment.
+     *
+     * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
+     * @return This builder.
+     * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
+      checkArgument(seekForwardIncrementMs > 0);
+      Assertions.checkState(!buildCalled);
+      this.seekForwardIncrementMs = seekForwardIncrementMs;
+      return this;
+    }
+
+    /**
      * Sets a timeout for calls to {@link #release} and {@link #setForegroundMode}.
      *
      * <p>If a call to {@link #release} or {@link #setForegroundMode} takes more than {@code
@@ -724,6 +762,8 @@ public class SimpleExoPlayer extends BasePlayer
               analyticsCollector,
               builder.useLazyPreparation,
               builder.seekParameters,
+              builder.seekBackIncrementMs,
+              builder.seekForwardIncrementMs,
               builder.livePlaybackSpeedControl,
               builder.releaseTimeoutMs,
               builder.pauseAtEndOfMediaItems,
@@ -1263,17 +1303,17 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Deprecated
   @Override
-  public void addMetadataOutput(MetadataOutput listener) {
+  public void addMetadataOutput(MetadataOutput output) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
-    metadataOutputs.add(listener);
+    Assertions.checkNotNull(output);
+    metadataOutputs.add(output);
   }
 
   @Deprecated
   @Override
-  public void removeMetadataOutput(MetadataOutput listener) {
+  public void removeMetadataOutput(MetadataOutput output) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    metadataOutputs.remove(listener);
+    metadataOutputs.remove(output);
   }
 
   // ExoPlayer implementation
@@ -1563,6 +1603,24 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public long getSeekBackIncrement() {
+    verifyApplicationThread();
+    return player.getSeekBackIncrement();
+  }
+
+  @Override
+  public long getSeekForwardIncrement() {
+    verifyApplicationThread();
+    return player.getSeekForwardIncrement();
+  }
+
+  @Override
+  public int getMaxSeekToPreviousPosition() {
+    verifyApplicationThread();
+    return player.getMaxSeekToPreviousPosition();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);
@@ -1665,6 +1723,7 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getCurrentTrackSelections();
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     verifyApplicationThread();
@@ -1674,6 +1733,16 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public MediaMetadata getMediaMetadata() {
     return player.getMediaMetadata();
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMetadata() {
+    return player.getPlaylistMetadata();
+  }
+
+  @Override
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
+    player.setPlaylistMetadata(mediaMetadata);
   }
 
   @Override
@@ -1919,6 +1988,7 @@ public class SimpleExoPlayer extends BasePlayer
                 .send());
       }
     }
+    boolean messageDeliveryTimedOut = false;
     if (this.videoOutput != null && this.videoOutput != videoOutput) {
       // We're replacing an output. Block to ensure that this output will not be accessed by the
       // renderers after this method returns.
@@ -1929,11 +1999,7 @@ public class SimpleExoPlayer extends BasePlayer
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
-        // One of the renderers timed out releasing its resources.
-        player.stop(
-            /* reset= */ false,
-            ExoPlaybackException.createForRenderer(
-                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE)));
+        messageDeliveryTimedOut = true;
       }
       if (this.videoOutput == ownedSurface) {
         // We're replacing a surface that we are responsible for releasing.
@@ -1942,6 +2008,13 @@ public class SimpleExoPlayer extends BasePlayer
       }
     }
     this.videoOutput = videoOutput;
+    if (messageDeliveryTimedOut) {
+      player.stop(
+          /* reset= */ false,
+          ExoPlaybackException.createForUnexpected(
+              new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE),
+              PlaybackException.ERROR_CODE_TIMEOUT));
+    }
   }
 
   /**
@@ -2424,16 +2497,16 @@ public class SimpleExoPlayer extends BasePlayer
     @Nullable private CameraMotionListener internalCameraMotionListener;
 
     @Override
-    public void handleMessage(int messageType, @Nullable Object payload) {
+    public void handleMessage(int messageType, @Nullable Object message) {
       switch (messageType) {
         case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
-          videoFrameMetadataListener = (VideoFrameMetadataListener) payload;
+          videoFrameMetadataListener = (VideoFrameMetadataListener) message;
           break;
         case MSG_SET_CAMERA_MOTION_LISTENER:
-          cameraMotionListener = (CameraMotionListener) payload;
+          cameraMotionListener = (CameraMotionListener) message;
           break;
         case MSG_SET_SPHERICAL_SURFACE_VIEW:
-          SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) payload;
+          SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) message;
           if (surfaceView == null) {
             internalVideoFrameMetadataListener = null;
             internalCameraMotionListener = null;

@@ -17,13 +17,8 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.Player.RepeatMode;
 
-/**
- * Dispatches operations to the {@link Player}.
- *
- * <p>Implementations may choose to suppress (e.g. prevent playback from resuming if audio focus is
- * denied) or modify (e.g. change the seek position to prevent a user from seeking past a
- * non-skippable advert) operations.
- */
+/** @deprecated Use a {@link ForwardingPlayer} or configure the player to customize operations. */
+@Deprecated
 public interface ControlDispatcher {
 
   /**
@@ -55,7 +50,7 @@ public interface ControlDispatcher {
   boolean dispatchSeekTo(Player player, int windowIndex, long positionMs);
 
   /**
-   * Dispatches a {@link Player#previous()} operation.
+   * Dispatches a {@link Player#seekToPreviousWindow()} operation.
    *
    * @param player The {@link Player} to which the operation should be dispatched.
    * @return True if the operation was dispatched. False if suppressed.
@@ -63,7 +58,7 @@ public interface ControlDispatcher {
   boolean dispatchPrevious(Player player);
 
   /**
-   * Dispatches a {@link Player#next()} operation.
+   * Dispatches a {@link Player#seekToNextWindow()} operation.
    *
    * @param player The {@link Player} to which the operation should be dispatched.
    * @return True if the operation was dispatched. False if suppressed.

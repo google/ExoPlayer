@@ -44,9 +44,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Default implementation for {@link HlsPlaylistTracker}. */
 public final class DefaultHlsPlaylistTracker
@@ -65,7 +65,7 @@ public final class DefaultHlsPlaylistTracker
   private final HlsPlaylistParserFactory playlistParserFactory;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final HashMap<Uri, MediaPlaylistBundle> playlistBundles;
-  private final List<PlaylistEventListener> listeners;
+  private final CopyOnWriteArrayList<PlaylistEventListener> listeners;
   private final double playlistStuckTargetDurationCoefficient;
 
   @Nullable private EventDispatcher eventDispatcher;
@@ -116,7 +116,7 @@ public final class DefaultHlsPlaylistTracker
     this.playlistParserFactory = playlistParserFactory;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.playlistStuckTargetDurationCoefficient = playlistStuckTargetDurationCoefficient;
-    listeners = new ArrayList<>();
+    listeners = new CopyOnWriteArrayList<>();
     playlistBundles = new HashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
   }
@@ -228,6 +228,15 @@ public final class DefaultHlsPlaylistTracker
     return isLive;
   }
 
+  @Override
+  public boolean excludeMediaPlaylist(Uri playlistUrl, long exclusionDurationMs) {
+    @Nullable MediaPlaylistBundle bundle = playlistBundles.get(playlistUrl);
+    if (bundle != null) {
+      return !bundle.excludePlaylist(exclusionDurationMs);
+    }
+    return false;
+  }
+
   // Loader.Callback implementation.
 
   @Override
@@ -243,6 +252,8 @@ public final class DefaultHlsPlaylistTracker
     }
     this.masterPlaylist = masterPlaylist;
     primaryMediaPlaylistUrl = masterPlaylist.variants.get(0).url;
+    // Add a temporary playlist listener for loading the first primary playlist.
+    listeners.add(new FirstPrimaryMediaPlaylistListener());
     createBundles(masterPlaylist.mediaPlaylistUrls);
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
@@ -407,17 +418,16 @@ public final class DefaultHlsPlaylistTracker
       primaryMediaPlaylistSnapshot = newSnapshot;
       primaryPlaylistListener.onPrimaryPlaylistRefreshed(newSnapshot);
     }
-    int listenersSize = listeners.size();
-    for (int i = 0; i < listenersSize; i++) {
-      listeners.get(i).onPlaylistChanged();
+    for (PlaylistEventListener listener : listeners) {
+      listener.onPlaylistChanged();
     }
   }
 
-  private boolean notifyPlaylistError(Uri playlistUrl, long exclusionDurationMs) {
-    int listenersSize = listeners.size();
+  private boolean notifyPlaylistError(
+      Uri playlistUrl, LoadErrorInfo loadErrorInfo, boolean forceRetry) {
     boolean anyExclusionFailed = false;
-    for (int i = 0; i < listenersSize; i++) {
-      anyExclusionFailed |= !listeners.get(i).onPlaylistError(playlistUrl, exclusionDurationMs);
+    for (PlaylistEventListener listener : listeners) {
+      anyExclusionFailed |= !listener.onPlaylistError(playlistUrl, loadErrorInfo, forceRetry);
     }
     return anyExclusionFailed;
   }
@@ -567,7 +577,9 @@ public final class DefaultHlsPlaylistTracker
         processLoadedPlaylist((HlsMediaPlaylist) result, loadEventInfo);
         eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
       } else {
-        playlistError = new ParserException("Loaded playlist has unexpected type.");
+        playlistError =
+            ParserException.createForMalformedManifest(
+                "Loaded playlist has unexpected type.", /* cause= */ null);
         eventDispatcher.loadError(
             loadEventInfo, C.DATA_TYPE_MANIFEST, playlistError, /* wasCanceled= */ true);
       }
@@ -630,16 +642,9 @@ public final class DefaultHlsPlaylistTracker
       MediaLoadData mediaLoadData = new MediaLoadData(loadable.type);
       LoadErrorInfo loadErrorInfo =
           new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
-      LoadErrorAction loadErrorAction;
-      long exclusionDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
-      boolean shouldExclude = exclusionDurationMs != C.TIME_UNSET;
-
       boolean exclusionFailed =
-          notifyPlaylistError(playlistUrl, exclusionDurationMs) || !shouldExclude;
-      if (shouldExclude) {
-        exclusionFailed |= excludePlaylist(exclusionDurationMs);
-      }
-
+          notifyPlaylistError(playlistUrl, loadErrorInfo, /* forceRetry= */ false);
+      LoadErrorAction loadErrorAction;
       if (exclusionFailed) {
         long retryDelay = loadErrorHandlingPolicy.getRetryDelayMsFor(loadErrorInfo);
         loadErrorAction =
@@ -692,7 +697,7 @@ public final class DefaultHlsPlaylistTracker
       long elapsedRealtime =
           mediaPlaylistLoader.startLoading(
               mediaPlaylistLoadable,
-              this,
+              /* callback= */ this,
               loadErrorHandlingPolicy.getMinimumLoadableRetryCount(mediaPlaylistLoadable.type));
       eventDispatcher.loadStarted(
           new LoadEventInfo(
@@ -711,30 +716,31 @@ public final class DefaultHlsPlaylistTracker
         lastSnapshotChangeMs = currentTimeMs;
         onPlaylistUpdated(playlistUrl, playlistSnapshot);
       } else if (!playlistSnapshot.hasEndTag) {
+        boolean forceRetry = false;
+        @Nullable IOException playlistError = null;
         if (loadedPlaylist.mediaSequence + loadedPlaylist.segments.size()
             < playlistSnapshot.mediaSequence) {
           // TODO: Allow customization of playlist resets handling.
           // The media sequence jumped backwards. The server has probably reset. We do not try
           // excluding in this case.
+          forceRetry = true;
           playlistError = new PlaylistResetException(playlistUrl);
-          notifyPlaylistError(playlistUrl, C.TIME_UNSET);
         } else if (currentTimeMs - lastSnapshotChangeMs
             > C.usToMs(playlistSnapshot.targetDurationUs)
                 * playlistStuckTargetDurationCoefficient) {
           // TODO: Allow customization of stuck playlists handling.
           playlistError = new PlaylistStuckException(playlistUrl);
-          LoadErrorInfo loadErrorInfo =
+        }
+        if (playlistError != null) {
+          this.playlistError = playlistError;
+          notifyPlaylistError(
+              playlistUrl,
               new LoadErrorInfo(
                   loadEventInfo,
                   new MediaLoadData(C.DATA_TYPE_MANIFEST),
                   playlistError,
-                  /* errorCount= */ 1);
-          long exclusionDurationMs =
-              loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
-          notifyPlaylistError(playlistUrl, exclusionDurationMs);
-          if (exclusionDurationMs != C.TIME_UNSET) {
-            excludePlaylist(exclusionDurationMs);
-          }
+                  /* errorCount= */ 1),
+              forceRetry);
         }
       }
       long durationUntilNextLoadUs = 0L;
@@ -796,6 +802,53 @@ public final class DefaultHlsPlaylistTracker
     private boolean excludePlaylist(long exclusionDurationMs) {
       excludeUntilMs = SystemClock.elapsedRealtime() + exclusionDurationMs;
       return playlistUrl.equals(primaryMediaPlaylistUrl) && !maybeSelectNewPrimaryUrl();
+    }
+  }
+
+  /**
+   * Takes care of handling load errors of the first media playlist and applies exclusion according
+   * to the {@link LoadErrorHandlingPolicy} before the first media period has been created and
+   * prepared.
+   */
+  private class FirstPrimaryMediaPlaylistListener implements PlaylistEventListener {
+
+    @Override
+    public void onPlaylistChanged() {
+      // Remove the temporary playlist listener that is waiting for the first playlist only.
+      listeners.remove(this);
+    }
+
+    @Override
+    public boolean onPlaylistError(Uri url, LoadErrorInfo loadErrorInfo, boolean forceRetry) {
+      if (primaryMediaPlaylistSnapshot == null) {
+        long nowMs = SystemClock.elapsedRealtime();
+        int variantExclusionCounter = 0;
+        List<Variant> variants = castNonNull(masterPlaylist).variants;
+        for (int i = 0; i < variants.size(); i++) {
+          @Nullable
+          MediaPlaylistBundle mediaPlaylistBundle = playlistBundles.get(variants.get(i).url);
+          if (mediaPlaylistBundle != null && nowMs < mediaPlaylistBundle.excludeUntilMs) {
+            variantExclusionCounter++;
+          }
+        }
+        LoadErrorHandlingPolicy.FallbackOptions fallbackOptions =
+            new LoadErrorHandlingPolicy.FallbackOptions(
+                /* numberOfLocations= */ 1,
+                /* numberOfExcludedLocations= */ 0,
+                /* numberOfTracks= */ masterPlaylist.variants.size(),
+                /* numberOfExcludedTracks= */ variantExclusionCounter);
+        @Nullable
+        LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
+            loadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
+        if (fallbackSelection != null
+            && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK) {
+          @Nullable MediaPlaylistBundle mediaPlaylistBundle = playlistBundles.get(url);
+          if (mediaPlaylistBundle != null) {
+            mediaPlaylistBundle.excludePlaylist(fallbackSelection.exclusionDurationMs);
+          }
+        }
+      }
+      return false;
     }
   }
 }

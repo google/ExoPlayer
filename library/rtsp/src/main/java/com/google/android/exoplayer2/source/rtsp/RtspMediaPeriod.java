@@ -419,12 +419,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void endTracks() {
-      // TODO(b/172331505) Implement this method.
+      handler.post(RtspMediaPeriod.this::maybeFinishPrepare);
     }
 
     @Override
     public void seekMap(SeekMap seekMap) {
-      // TODO(b/172331505) Implement this method.
+      // RTSP does not support seek map.
     }
 
     // Loadable.Callback implementation.
@@ -465,16 +465,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long loadDurationMs,
         IOException error,
         int errorCount) {
-      /* TODO(b/172331505) Sort out the retry policy.
-      Three cases for IOException:
-        - Socket open failure for RTP or RTCP.
-          - RETRY for the RTCP open failure.
-        - ExtractorInput read IOException (socket timeout, etc)
-          - Keep retrying unless playback is stopped.
-        - RtpPayloadReader consume ParserException (mal-formatted RTP packet)
-          - Don't retry? (if a packet is distorted on the fly, the packet is likely discarded by the
-           system, i.e. the server's sent a mal-formatted packet).
-      */
       if (!prepared) {
         preparationError = error;
       } else {
@@ -514,13 +504,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onPlaybackStarted(
         long startPositionUs, ImmutableList<RtspTrackTiming> trackTimingList) {
       // Validate that the trackTimingList contains timings for the selected tracks.
-      ArrayList<Uri> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
+      ArrayList<String> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
       for (int i = 0; i < trackTimingList.size(); i++) {
-        trackUrisWithTiming.add(trackTimingList.get(i).uri);
+        trackUrisWithTiming.add(checkNotNull(trackTimingList.get(i).uri.getPath()));
       }
       for (int i = 0; i < selectedLoadInfos.size(); i++) {
         RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
-        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri())) {
+        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri().getPath())) {
           playbackException =
               new RtspPlaybackException(
                   "Server did not provide timing for track " + loadInfo.getTrackUri());
@@ -560,8 +550,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         RtspMediaTrack rtspMediaTrack = tracks.get(i);
         RtspLoaderWrapper loaderWrapper =
             new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ i, rtpDataChannelFactory);
-        loaderWrapper.startLoading();
         rtspLoaderWrappers.add(loaderWrapper);
+        loaderWrapper.startLoading();
       }
 
       listener.onSourceInfoRefreshed(timing);

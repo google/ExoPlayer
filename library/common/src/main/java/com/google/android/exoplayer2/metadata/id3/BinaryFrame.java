@@ -75,7 +75,5 @@ public final class BinaryFrame extends Id3Frame {
         public BinaryFrame[] newArray(int size) {
           return new BinaryFrame[size];
         }
-
       };
-
 }

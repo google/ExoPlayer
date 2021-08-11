@@ -245,7 +245,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;target,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
@@ -358,7 +358,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;target,
+<pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
@@ -373,7 +373,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ExtractorInput.html#read(byte%5B%5D,int,int)">read</a></code>&nbsp;in interface&nbsp;<code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>target</code> - A target array into which data should be written.</dd>
+<dd><code>buffer</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
 <dd><code>length</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

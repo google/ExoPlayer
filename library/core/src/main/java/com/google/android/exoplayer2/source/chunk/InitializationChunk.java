@@ -54,8 +54,15 @@ public final class InitializationChunk extends Chunk {
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
       ChunkExtractor chunkExtractor) {
-    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, trackFormat, trackSelectionReason,
-        trackSelectionData, C.TIME_UNSET, C.TIME_UNSET);
+    super(
+        dataSource,
+        dataSpec,
+        C.DATA_TYPE_MEDIA_INITIALIZATION,
+        trackFormat,
+        trackSelectionReason,
+        trackSelectionData,
+        C.TIME_UNSET,
+        C.TIME_UNSET);
     this.chunkExtractor = chunkExtractor;
   }
 

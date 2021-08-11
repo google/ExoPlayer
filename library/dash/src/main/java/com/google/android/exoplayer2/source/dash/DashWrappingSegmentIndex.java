@@ -87,5 +87,4 @@ public final class DashWrappingSegmentIndex implements DashSegmentIndex {
   public boolean isExplicit() {
     return true;
   }
-
 }

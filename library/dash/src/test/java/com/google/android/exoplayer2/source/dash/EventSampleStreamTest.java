@@ -30,9 +30,11 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link EventSampleStream}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class EventSampleStreamTest {
 
   private static final String SCHEME_ID = "urn:test";
@@ -63,9 +65,12 @@ public final class EventSampleStreamTest {
    */
   @Test
   public void readDataReturnFormatForFirstRead() {
-    EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[0], new EventMessage[0]);
-    EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
+    EventStream eventStream =
+        new EventStream(SCHEME_ID, VALUE, TIME_SCALE, new long[0], new EventMessage[0]);
+    // Make the event stream appendable so that the format is read. Otherwise, the format will be
+    // skipped and the end of input will be read.
+    EventSampleStream sampleStream =
+        new EventSampleStream(eventStream, FORMAT, /* eventStreamAppendable= */ true);
 
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_FORMAT_READ);
@@ -78,8 +83,8 @@ public final class EventSampleStreamTest {
    */
   @Test
   public void readDataOutOfBoundReturnEndOfStreamAfterFormatForNonDynamicEventSampleStream() {
-    EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[0], new EventMessage[0]);
+    EventStream eventStream =
+        new EventStream(SCHEME_ID, VALUE, TIME_SCALE, new long[0], new EventMessage[0]);
     EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
     // first read - read format
     readData(sampleStream);
@@ -95,8 +100,8 @@ public final class EventSampleStreamTest {
    */
   @Test
   public void readDataOutOfBoundReturnEndOfStreamAfterFormatForDynamicEventSampleStream() {
-    EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[0], new EventMessage[0]);
+    EventStream eventStream =
+        new EventStream(SCHEME_ID, VALUE, TIME_SCALE, new long[0], new EventMessage[0]);
     EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, true);
     // first read - read format
     readData(sampleStream);
@@ -113,16 +118,20 @@ public final class EventSampleStreamTest {
   public void readDataReturnDataAfterFormat() {
     long presentationTimeUs = 1000000;
     EventMessage eventMessage = newEventMessageWithId(1);
-    EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs}, new EventMessage[] {eventMessage});
+    EventStream eventStream =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs},
+            new EventMessage[] {eventMessage});
     EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
     // first read - read format
     readData(sampleStream);
 
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage));
   }
 
   /**
@@ -136,9 +145,13 @@ public final class EventSampleStreamTest {
     long presentationTimeUs2 = 2000000;
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
-    EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2},
-        new EventMessage[] {eventMessage1, eventMessage2});
+    EventStream eventStream =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2},
+            new EventMessage[] {eventMessage1, eventMessage2});
     EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
     // first read - read format
     readData(sampleStream);
@@ -147,8 +160,7 @@ public final class EventSampleStreamTest {
     int result = readData(sampleStream);
     assertThat(skipped).isEqualTo(1);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage2));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage2));
   }
 
   /**
@@ -162,9 +174,13 @@ public final class EventSampleStreamTest {
     long presentationTimeUs2 = 2000000;
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
-    EventStream eventStream = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2},
-        new EventMessage[] {eventMessage1, eventMessage2});
+    EventStream eventStream =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2},
+            new EventMessage[] {eventMessage1, eventMessage2});
     EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
     // first read - read format
     readData(sampleStream);
@@ -172,8 +188,7 @@ public final class EventSampleStreamTest {
     sampleStream.seekToUs(presentationTimeUs2);
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage2));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage2));
   }
 
   /**
@@ -190,12 +205,20 @@ public final class EventSampleStreamTest {
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
     EventMessage eventMessage3 = newEventMessageWithId(3);
-    EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2},
-        new EventMessage[] {eventMessage1, eventMessage2});
-    EventStream eventStream2 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
-        new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
+    EventStream eventStream1 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2},
+            new EventMessage[] {eventMessage1, eventMessage2});
+    EventStream eventStream2 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
+            new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
     EventSampleStream sampleStream = new EventSampleStream(eventStream1, FORMAT, true);
     // first read - read format
     readData(sampleStream);
@@ -206,8 +229,7 @@ public final class EventSampleStreamTest {
     sampleStream.updateEventStream(eventStream2, true);
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage3));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage3));
   }
 
   /**
@@ -224,12 +246,20 @@ public final class EventSampleStreamTest {
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
     EventMessage eventMessage3 = newEventMessageWithId(3);
-    EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2},
-        new EventMessage[] {eventMessage1, eventMessage2});
-    EventStream eventStream2 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
-        new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
+    EventStream eventStream1 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2},
+            new EventMessage[] {eventMessage1, eventMessage2});
+    EventStream eventStream2 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
+            new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
     EventSampleStream sampleStream = new EventSampleStream(eventStream1, FORMAT, true);
     // first read - read format
     readData(sampleStream);
@@ -238,8 +268,7 @@ public final class EventSampleStreamTest {
     sampleStream.updateEventStream(eventStream2, true);
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage3));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage3));
   }
 
   /**
@@ -257,12 +286,20 @@ public final class EventSampleStreamTest {
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
     EventMessage eventMessage3 = newEventMessageWithId(3);
-    EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1},
-        new EventMessage[] {eventMessage1});
-    EventStream eventStream2 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
-        new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
+    EventStream eventStream1 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1},
+            new EventMessage[] {eventMessage1});
+    EventStream eventStream2 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
+            new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
     EventSampleStream sampleStream = new EventSampleStream(eventStream1, FORMAT, true);
     // first read - read format
     readData(sampleStream);
@@ -273,8 +310,7 @@ public final class EventSampleStreamTest {
     sampleStream.updateEventStream(eventStream2, true);
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage2));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage2));
   }
 
   /**
@@ -291,12 +327,20 @@ public final class EventSampleStreamTest {
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
     EventMessage eventMessage3 = newEventMessageWithId(3);
-    EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2},
-        new EventMessage[] {eventMessage1, eventMessage2});
-    EventStream eventStream2 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
-        new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
+    EventStream eventStream1 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2},
+            new EventMessage[] {eventMessage1, eventMessage2});
+    EventStream eventStream2 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
+            new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
     EventSampleStream sampleStream = new EventSampleStream(eventStream1, FORMAT, true);
     // first read - read format
     readData(sampleStream);
@@ -305,8 +349,7 @@ public final class EventSampleStreamTest {
     sampleStream.updateEventStream(eventStream2, true);
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage2));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage2));
   }
 
   /**
@@ -323,12 +366,20 @@ public final class EventSampleStreamTest {
     EventMessage eventMessage1 = newEventMessageWithId(1);
     EventMessage eventMessage2 = newEventMessageWithId(2);
     EventMessage eventMessage3 = newEventMessageWithId(3);
-    EventStream eventStream1 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1},
-        new EventMessage[] {eventMessage1});
-    EventStream eventStream2 = new EventStream(SCHEME_ID, VALUE, TIME_SCALE,
-        new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
-        new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
+    EventStream eventStream1 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1},
+            new EventMessage[] {eventMessage1});
+    EventStream eventStream2 =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs1, presentationTimeUs2, presentationTimeUs3},
+            new EventMessage[] {eventMessage1, eventMessage2, eventMessage3});
     EventSampleStream sampleStream = new EventSampleStream(eventStream1, FORMAT, true);
     // first read - read format
     readData(sampleStream);
@@ -337,8 +388,7 @@ public final class EventSampleStreamTest {
     sampleStream.updateEventStream(eventStream2, true);
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
-    assertThat(inputBuffer.data.array())
-        .isEqualTo(getEncodedMessage(eventMessage3));
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage3));
   }
 
   private int readData(EventSampleStream sampleStream) {
@@ -353,5 +403,4 @@ public final class EventSampleStreamTest {
   private byte[] getEncodedMessage(EventMessage eventMessage) {
     return eventMessageEncoder.encode(eventMessage);
   }
-
 }

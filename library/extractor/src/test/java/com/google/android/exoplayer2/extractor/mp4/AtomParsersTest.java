@@ -19,32 +19,39 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link AtomParsers}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class AtomParsersTest {
 
   private static final String ATOM_HEADER = "000000000000000000000000";
   private static final String SAMPLE_COUNT = "00000004";
-  private static final byte[] FOUR_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000004"
-      + SAMPLE_COUNT + "1234");
-  private static final byte[] EIGHT_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000008"
-      + SAMPLE_COUNT + "01020304");
-  private static final byte[] SIXTEEN_BIT_STZ2 = Util.getBytesFromHexString(ATOM_HEADER + "00000010"
-      + SAMPLE_COUNT + "0001000200030004");
+  private static final byte[] FOUR_BIT_STZ2 =
+      Util.getBytesFromHexString(ATOM_HEADER + "00000004" + SAMPLE_COUNT + "1234");
+  private static final byte[] EIGHT_BIT_STZ2 =
+      Util.getBytesFromHexString(ATOM_HEADER + "00000008" + SAMPLE_COUNT + "01020304");
+  private static final byte[] SIXTEEN_BIT_STZ2 =
+      Util.getBytesFromHexString(ATOM_HEADER + "00000010" + SAMPLE_COUNT + "0001000200030004");
 
   @Test
-  public void parseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() {
-    byte[] cencSinf = new byte[] {
-        0, 0, 0, 24, 115, 105, 110, 102, // size (4), 'sinf' (4)
-        0, 0, 0, 16, 115, 99, 104, 109, // size (4), 'schm' (4)
-        0, 0, 0, 0, 88, 88, 88, 88}; // version (1), flags (3), 'xxxx' (4)
-    assertThat(AtomParsers.parseCommonEncryptionSinfFromParent(
-        new ParsableByteArray(cencSinf), 0, cencSinf.length)).isNull();
+  public void parseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() throws ParserException {
+    byte[] cencSinf =
+        new byte[] {
+          0, 0, 0, 24, 115, 105, 110, 102, // size (4), 'sinf' (4)
+          0, 0, 0, 16, 115, 99, 104, 109, // size (4), 'schm' (4)
+          0, 0, 0, 0, 88, 88, 88, 88
+        }; // version (1), flags (3), 'xxxx' (4)
+    assertThat(
+            AtomParsers.parseCommonEncryptionSinfFromParent(
+                new ParsableByteArray(cencSinf), 0, cencSinf.length))
+        .isNull();
   }
 
   @Test
@@ -70,5 +77,4 @@ public final class AtomParsersTest {
       assertThat(box.readNextSampleSize()).isEqualTo(i + 1);
     }
   }
-
 }

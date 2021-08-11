@@ -20,13 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.id3.ApicFrame;
-import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,12 +42,25 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.userRating).isNull();
     assertThat(mediaMetadata.overallRating).isNull();
     assertThat(mediaMetadata.artworkData).isNull();
+    assertThat(mediaMetadata.artworkDataType).isNull();
     assertThat(mediaMetadata.artworkUri).isNull();
     assertThat(mediaMetadata.trackNumber).isNull();
     assertThat(mediaMetadata.totalTrackCount).isNull();
     assertThat(mediaMetadata.folderType).isNull();
     assertThat(mediaMetadata.isPlayable).isNull();
-    assertThat(mediaMetadata.year).isNull();
+    assertThat(mediaMetadata.recordingYear).isNull();
+    assertThat(mediaMetadata.recordingMonth).isNull();
+    assertThat(mediaMetadata.recordingDay).isNull();
+    assertThat(mediaMetadata.releaseYear).isNull();
+    assertThat(mediaMetadata.releaseMonth).isNull();
+    assertThat(mediaMetadata.releaseDay).isNull();
+    assertThat(mediaMetadata.composer).isNull();
+    assertThat(mediaMetadata.conductor).isNull();
+    assertThat(mediaMetadata.writer).isNull();
+    assertThat(mediaMetadata.discNumber).isNull();
+    assertThat(mediaMetadata.totalDiscCount).isNull();
+    assertThat(mediaMetadata.genre).isNull();
+    assertThat(mediaMetadata.compilation).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -70,9 +76,10 @@ public class MediaMetadataTest {
   @Test
   public void builderSetArtworkData_setsArtworkData() {
     byte[] bytes = new byte[] {35, 12, 6, 77};
-    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setArtworkData(bytes).build();
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder().setArtworkData(new byte[] {35, 12, 6, 77}, null).build();
 
-    assertThat(Arrays.equals(mediaMetadata.artworkData, bytes)).isTrue();
+    assertThat(mediaMetadata.artworkData).isEqualTo(bytes);
   }
 
   @Test
@@ -95,69 +102,30 @@ public class MediaMetadataTest {
             .setMediaUri(Uri.parse("https://www.google.com"))
             .setUserRating(new HeartRating(false))
             .setOverallRating(new PercentageRating(87.4f))
-            .setArtworkData(new byte[] {-88, 12, 3, 2, 124, -54, -33, 69})
+            .setArtworkData(
+                new byte[] {-88, 12, 3, 2, 124, -54, -33, 69}, MediaMetadata.PICTURE_TYPE_MEDIA)
             .setTrackNumber(4)
             .setTotalTrackCount(12)
             .setFolderType(MediaMetadata.FOLDER_TYPE_PLAYLISTS)
             .setIsPlayable(true)
-            .setYear(2000)
+            .setRecordingYear(2000)
+            .setRecordingMonth(11)
+            .setRecordingDay(23)
+            .setReleaseYear(2001)
+            .setReleaseMonth(1)
+            .setReleaseDay(2)
+            .setComposer("Composer")
+            .setConductor("Conductor")
+            .setWriter("Writer")
+            .setDiscNumber(1)
+            .setTotalDiscCount(3)
+            .setGenre("Pop")
+            .setCompilation("Amazing songs.")
             .setExtras(extras) // Extras is not implemented in MediaMetadata.equals(Object o).
             .build();
 
     MediaMetadata fromBundle = MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle());
     assertThat(fromBundle).isEqualTo(mediaMetadata);
     assertThat(fromBundle.extras.getString("exampleKey")).isEqualTo("exampleValue");
-  }
-
-  @Test
-  public void builderPopulatedFromTextInformationFrameEntry_setsValues() {
-    String title = "the title";
-    String artist = "artist";
-    String albumTitle = "album title";
-    String albumArtist = "album Artist";
-    String trackNumberInfo = "11/17";
-    String year = "2000";
-
-    List<Metadata.Entry> entries =
-        ImmutableList.of(
-            new TextInformationFrame(/* id= */ "TT2", /* description= */ null, /* value= */ title),
-            new TextInformationFrame(/* id= */ "TP1", /* description= */ null, /* value= */ artist),
-            new TextInformationFrame(
-                /* id= */ "TAL", /* description= */ null, /* value= */ albumTitle),
-            new TextInformationFrame(
-                /* id= */ "TP2", /* description= */ null, /* value= */ albumArtist),
-            new TextInformationFrame(
-                /* id= */ "TRK", /* description= */ null, /* value= */ trackNumberInfo),
-            new TextInformationFrame(/* id= */ "TYE", /* description= */ null, /* value= */ year));
-    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
-
-    for (Metadata.Entry entry : entries) {
-      entry.populateMediaMetadata(builder);
-    }
-
-    assertThat(builder.build().title.toString()).isEqualTo(title);
-    assertThat(builder.build().artist.toString()).isEqualTo(artist);
-    assertThat(builder.build().albumTitle.toString()).isEqualTo(albumTitle);
-    assertThat(builder.build().albumArtist.toString()).isEqualTo(albumArtist);
-    assertThat(builder.build().trackNumber).isEqualTo(11);
-    assertThat(builder.build().totalTrackCount).isEqualTo(17);
-    assertThat(builder.build().year).isEqualTo(2000);
-  }
-
-  @Test
-  public void builderPopulatedFromApicFrameEntry_setsArtwork() {
-    byte[] pictureData = new byte[] {-12, 52, 33, 85, 34, 22, 1, -55};
-    Metadata.Entry entry =
-        new ApicFrame(
-            /* mimeType= */ MimeTypes.BASE_TYPE_IMAGE,
-            /* description= */ "an image",
-            /* pictureType= */ 0x03,
-            pictureData);
-
-    MediaMetadata.Builder builder = MediaMetadata.EMPTY.buildUpon();
-    entry.populateMediaMetadata(builder);
-
-    MediaMetadata mediaMetadata = builder.build();
-    assertThat(mediaMetadata.artworkData).isEqualTo(pictureData);
   }
 }

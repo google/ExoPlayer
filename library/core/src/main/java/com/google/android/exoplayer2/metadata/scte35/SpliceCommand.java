@@ -31,5 +31,4 @@ public abstract class SpliceCommand implements Metadata.Entry {
   public int describeContents() {
     return 0;
   }
-
 }

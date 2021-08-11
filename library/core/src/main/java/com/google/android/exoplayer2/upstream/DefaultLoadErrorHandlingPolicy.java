@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static java.lang.Math.min;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.HttpDataSource.CleartextNotPermittedException;
@@ -36,7 +37,11 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE = 6;
   /** The default duration for which a track is excluded in milliseconds. */
-  public static final long DEFAULT_TRACK_BLACKLIST_MS = 60_000;
+  public static final long DEFAULT_TRACK_EXCLUSION_MS = 60_000;
+  /** @deprecated Use {@link #DEFAULT_TRACK_EXCLUSION_MS} instead. */
+  @Deprecated public static final long DEFAULT_TRACK_BLACKLIST_MS = DEFAULT_TRACK_EXCLUSION_MS;
+  /** The default duration for which a location is excluded in milliseconds. */
+  public static final long DEFAULT_LOCATION_EXCLUSION_MS = 5 * 60_000;
 
   private static final int DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT = -1;
 
@@ -64,25 +69,33 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   }
 
   /**
-   * Returns the exclusion duration, given by {@link #DEFAULT_TRACK_BLACKLIST_MS}, if the load error
-   * was an {@link InvalidResponseCodeException} with response code HTTP 404, 410 or 416, or {@link
-   * C#TIME_UNSET} otherwise.
+   * Returns whether a loader should fall back to using another resource on encountering an error,
+   * and if so the duration for which the failing resource should be excluded.
+   *
+   * <ul>
+   *   <li>This policy will only specify a fallback if {@link #isEligibleForFallback} returns {@code
+   *       true} for the error.
+   *   <li>This policy will always specify a location fallback rather than a track fallback if both
+   *       {@link FallbackOptions#isFallbackAvailable(int) are available}.
+   *   <li>When a fallback is specified, the duration for which the failing resource will be
+   *       excluded is {@link #DEFAULT_LOCATION_EXCLUSION_MS} or {@link
+   *       #DEFAULT_TRACK_EXCLUSION_MS}, depending on the fallback type.
+   * </ul>
    */
   @Override
-  public long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
-    IOException exception = loadErrorInfo.exception;
-    if (exception instanceof InvalidResponseCodeException) {
-      int responseCode = ((InvalidResponseCodeException) exception).responseCode;
-      return responseCode == 403 // HTTP 403 Forbidden.
-              || responseCode == 404 // HTTP 404 Not Found.
-              || responseCode == 410 // HTTP 410 Gone.
-              || responseCode == 416 // HTTP 416 Range Not Satisfiable.
-              || responseCode == 500 // HTTP 500 Internal Server Error.
-              || responseCode == 503 // HTTP 503 Service Unavailable.
-          ? DEFAULT_TRACK_BLACKLIST_MS
-          : C.TIME_UNSET;
+  @Nullable
+  public FallbackSelection getFallbackSelectionFor(
+      FallbackOptions fallbackOptions, LoadErrorInfo loadErrorInfo) {
+    if (!isEligibleForFallback(loadErrorInfo.exception)) {
+      return null;
     }
-    return C.TIME_UNSET;
+    // Prefer location fallbacks to track fallbacks, when both are available.
+    if (fallbackOptions.isFallbackAvailable(FALLBACK_TYPE_LOCATION)) {
+      return new FallbackSelection(FALLBACK_TYPE_LOCATION, DEFAULT_LOCATION_EXCLUSION_MS);
+    } else if (fallbackOptions.isFallbackAvailable(FALLBACK_TYPE_TRACK)) {
+      return new FallbackSelection(FALLBACK_TYPE_TRACK, DEFAULT_TRACK_EXCLUSION_MS);
+    }
+    return null;
   }
 
   /**
@@ -115,5 +128,20 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
     } else {
       return minimumLoadableRetryCount;
     }
+  }
+
+  /** Returns whether an error should trigger a fallback if possible. */
+  protected boolean isEligibleForFallback(IOException exception) {
+    if (!(exception instanceof InvalidResponseCodeException)) {
+      return false;
+    }
+    InvalidResponseCodeException invalidResponseCodeException =
+        (InvalidResponseCodeException) exception;
+    return invalidResponseCodeException.responseCode == 403 // HTTP 403 Forbidden.
+        || invalidResponseCodeException.responseCode == 404 // HTTP 404 Not Found.
+        || invalidResponseCodeException.responseCode == 410 // HTTP 410 Gone.
+        || invalidResponseCodeException.responseCode == 416 // HTTP 416 Range Not Satisfiable.
+        || invalidResponseCodeException.responseCode == 500 // HTTP 500 Internal Server Error.
+        || invalidResponseCodeException.responseCode == 503; // HTTP 503 Service Unavailable.
   }
 }

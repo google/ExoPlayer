@@ -21,7 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** A timeout of an operation on the ExoPlayer playback thread. */
-public final class ExoTimeoutException extends Exception {
+public final class ExoTimeoutException extends RuntimeException {
 
   /**
    * The operation which produced the timeout error. One of {@link #TIMEOUT_OPERATION_RELEASE},

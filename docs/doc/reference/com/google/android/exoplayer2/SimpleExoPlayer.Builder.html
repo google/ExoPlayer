@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -327,40 +327,54 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekBackIncrementMs(long)">setSeekBackIncrementMs</a></span>&#8203;(long&nbsp;seekBackIncrementMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="BasePlayer.html#seekBack()"><code>BasePlayer.seekBack()</code></a> increment.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekForwardIncrementMs(long)">setSeekForwardIncrementMs</a></span>&#8203;(long&nbsp;seekForwardIncrementMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="BasePlayer.html#seekForward()"><code>BasePlayer.seekForward()</code></a> increment.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekParameters(com.google.android.exoplayer2.SeekParameters)">setSeekParameters</a></span>&#8203;(<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
 <td class="colLast">
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
 <div class="block">Sets whether silences silences in the audio stream is enabled.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackSelector(com.google.android.exoplayer2.trackselection.TrackSelector)">setTrackSelector</a></span>&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the player.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseLazyPreparation(boolean)">setUseLazyPreparation</a></span>&#8203;(boolean&nbsp;useLazyPreparation)</code></th>
 <td class="colLast">
 <div class="block">Sets whether media sources should be initialized lazily.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(int)">setVideoScalingMode</a></span>&#8203;(int&nbsp;videoScalingMode)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a> that will be used by the player.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWakeMode(int)">setWakeMode</a></span>&#8203;(int&nbsp;wakeMode)</code></th>
 <td class="colLast">
@@ -423,6 +437,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    <li><a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>: <a href="C.html#VIDEO_SCALING_MODE_DEFAULT"><code>C.VIDEO_SCALING_MODE_DEFAULT</code></a>
    <li><code>useLazyPreparation</code>: <code>true</code>
    <li><a href="SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>: <a href="SeekParameters.html#DEFAULT"><code>SeekParameters.DEFAULT</code></a>
+   <li><code>seekBackIncrementMs</code>: <a href="C.html#DEFAULT_SEEK_BACK_INCREMENT_MS"><code>C.DEFAULT_SEEK_BACK_INCREMENT_MS</code></a>
+   <li><code>seekForwardIncrementMs</code>: <a href="C.html#DEFAULT_SEEK_FORWARD_INCREMENT_MS"><code>C.DEFAULT_SEEK_FORWARD_INCREMENT_MS</code></a>
    <li><code>releaseTimeoutMs</code>: <a href="ExoPlayer.html#DEFAULT_RELEASE_TIMEOUT_MS"><code>ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS</code></a>
    <li><code>detachSurfaceTimeoutMs</code>: <a href="SimpleExoPlayer.html#DEFAULT_DETACH_SURFACE_TIMEOUT_MS"><code>SimpleExoPlayer.DEFAULT_DETACH_SURFACE_TIMEOUT_MS</code></a>
    <li><code>pauseAtEndOfMediaItems</code>: <code>false</code>
@@ -542,7 +558,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>experimentalSetForegroundModeTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;<a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a>&nbsp;experimentalSetForegroundModeTimeoutMs&#8203;(long&nbsp;timeoutMs)</pre>
 <div class="block">Set a limit on the time a call to <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a> can spend. If a call to <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>timeoutMs</code> milliseconds to complete, the player
- will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.
+ will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
@@ -831,6 +847,46 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="setSeekBackIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSeekBackIncrementMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a>&nbsp;setSeekBackIncrementMs&#8203;(@IntRange(from=1L)
+                                                      long&nbsp;seekBackIncrementMs)</pre>
+<div class="block">Sets the <a href="BasePlayer.html#seekBack()"><code>BasePlayer.seekBack()</code></a> increment.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>seekBackIncrementMs</code> - The seek back increment, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>seekBackIncrementMs</code> is non-positive.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSeekForwardIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSeekForwardIncrementMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer.Builder</a>&nbsp;setSeekForwardIncrementMs&#8203;(@IntRange(from=1L)
+                                                         long&nbsp;seekForwardIncrementMs)</pre>
+<div class="block">Sets the <a href="BasePlayer.html#seekForward()"><code>BasePlayer.seekForward()</code></a> increment.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>seekForwardIncrementMs</code> - The seek forward increment, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>seekForwardIncrementMs</code> is non-positive.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
 <a id="setReleaseTimeoutMs(long)">
 <!--   -->
 </a>
@@ -841,7 +897,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a timeout for calls to <a href="SimpleExoPlayer.html#release()"><code>SimpleExoPlayer.release()</code></a> and <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a>.
 
  <p>If a call to <a href="SimpleExoPlayer.html#release()"><code>SimpleExoPlayer.release()</code></a> or <a href="SimpleExoPlayer.html#setForegroundMode(boolean)"><code>SimpleExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>
- timeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
+ timeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>releaseTimeoutMs</code> - The release timeout, in milliseconds.</dd>
@@ -862,7 +918,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets a timeout for detaching a surface from the player.
 
  <p>If detaching a surface or replacing a surface takes more than <code>
- detachSurfaceTimeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a>.</div>
+ detachSurfaceTimeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>detachSurfaceTimeoutMs</code> - The timeout for detaching a surface, in milliseconds.</dd>

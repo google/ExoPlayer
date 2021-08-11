@@ -197,8 +197,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#autoReturn">autoReturn</a></span></code></th>
 <td class="colLast">
-<div class="block">If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is not <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, defines whether
- <a href="#breakDurationUs"><code>breakDurationUs</code></a> should be used to know when to return to the network feed.</div>
+<div class="block">If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is not <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, defines whether <a href="#breakDurationUs"><code>breakDurationUs</code></a> should be used to know when to return to the network feed.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -226,8 +225,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35" target="_top">SpliceInsertCommand.ComponentSplice</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#componentSpliceList">componentSpliceList</a></span></code></th>
 <td class="colLast">
-<div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is false, a non-empty list containing the
- <a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceInsertCommand.ComponentSplice</code></a>s.</div>
+<div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is false, a non-empty list containing the <a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceInsertCommand.ComponentSplice</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -410,9 +408,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <h4>spliceImmediateFlag</h4>
 <pre>public final&nbsp;boolean spliceImmediateFlag</pre>
 <div class="block">Whether splicing should be done at the nearest opportunity. If false, splicing should be done
- at the moment indicated by <a href="#programSplicePlaybackPositionUs"><code>programSplicePlaybackPositionUs</code></a> or
- <a href="SpliceInsertCommand.ComponentSplice.html#componentSplicePlaybackPositionUs"><code>SpliceInsertCommand.ComponentSplice.componentSplicePlaybackPositionUs</code></a>, depending on
- <a href="#programSpliceFlag"><code>programSpliceFlag</code></a>.</div>
+ at the moment indicated by <a href="#programSplicePlaybackPositionUs"><code>programSplicePlaybackPositionUs</code></a> or <a href="SpliceInsertCommand.ComponentSplice.html#componentSplicePlaybackPositionUs"><code>SpliceInsertCommand.ComponentSplice.componentSplicePlaybackPositionUs</code></a>, depending on <a href="#programSpliceFlag"><code>programSpliceFlag</code></a>.</div>
 </li>
 </ul>
 <a id="programSplicePts">
@@ -422,8 +418,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>programSplicePts</h4>
 <pre>public final&nbsp;long programSplicePts</pre>
-<div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is true, the PTS at which the program splice should occur.
- <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
+<div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is true, the PTS at which the program splice should occur. <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
 </li>
 </ul>
 <a id="programSplicePlaybackPositionUs">
@@ -443,8 +438,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>componentSpliceList</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35" target="_top">SpliceInsertCommand.ComponentSplice</a>&gt; componentSpliceList</pre>
-<div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is false, a non-empty list containing the
- <a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceInsertCommand.ComponentSplice</code></a>s. Otherwise, an empty list.</div>
+<div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is false, a non-empty list containing the <a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceInsertCommand.ComponentSplice</code></a>s. Otherwise, an empty list.</div>
 </li>
 </ul>
 <a id="autoReturn">
@@ -454,9 +448,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>autoReturn</h4>
 <pre>public final&nbsp;boolean autoReturn</pre>
-<div class="block">If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is not <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, defines whether
- <a href="#breakDurationUs"><code>breakDurationUs</code></a> should be used to know when to return to the network feed. If
- <a href="#breakDurationUs"><code>breakDurationUs</code></a> is <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the value is undefined.</div>
+<div class="block">If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is not <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, defines whether <a href="#breakDurationUs"><code>breakDurationUs</code></a> should be used to know when to return to the network feed. If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the value is undefined.</div>
 </li>
 </ul>
 <a id="breakDurationUs">

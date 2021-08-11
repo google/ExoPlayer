@@ -270,13 +270,20 @@ implements <a href="AudioSink.html" title="interface in com.google.android.exopl
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED">OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED</a></span></code></th>
+<td class="colLast">
+<div class="block">The audio sink will prefer offload playback, disabling gapless offload support.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED">OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED</a></span></code></th>
 <td class="colLast">
 <div class="block">The audio sink will prefer offload playback even if this might result in silence gaps between
  tracks.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED">OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED</a></span></code></th>
 <td class="colLast">
@@ -676,6 +683,23 @@ implements <a href="AudioSink.html" title="interface in com.google.android.exopl
 </dl>
 </li>
 </ul>
+<a id="OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED</h4>
+<pre>public static final&nbsp;int OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED</pre>
+<div class="block">The audio sink will prefer offload playback, disabling gapless offload support.
+
+ <p>Use this option if gapless has undesirable side effects. For example if it introduces
+ hardware issues.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="failOnSpuriousAudioTimestamp">
 <!--   -->
 </a>
@@ -685,8 +709,8 @@ implements <a href="AudioSink.html" title="interface in com.google.android.exopl
 <pre>public static&nbsp;boolean failOnSpuriousAudioTimestamp</pre>
 <div class="block">Whether to throw an <a href="DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.InvalidAudioTrackTimestampException</code></a> when a spurious timestamp is
  reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp(android.media.AudioTimestamp)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.
- <p>
- The flag must be set before creating a player. Should be set to <code>true</code> for testing and
+
+ <p>The flag must be set before creating a player. Should be set to <code>true</code> for testing and
  debugging purposes only.</div>
 </li>
 </ul>
@@ -1082,8 +1106,8 @@ public&nbsp;int&nbsp;getFormatSupport&#8203;(<a href="../Format.html" title="cla
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioSink.html#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">AudioSink</a></code></span></div>
 <div class="block">Sets attributes for audio playback. If the attributes have changed and if the sink is not
  configured for use with tunneling, then it is reset and the audio session id is cleared.
- <p>
- If the sink is configured for use with tunneling then the audio attributes are ignored. The
+
+ <p>If the sink is configured for use with tunneling then the audio attributes are ignored. The
  sink is not reset and the audio session id is not cleared. The passed attributes will be used
  if the sink is later re-configured into non-tunneled mode.</div>
 <dl>

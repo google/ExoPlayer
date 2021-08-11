@@ -180,14 +180,14 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toMediaItem(com.google.android.gms.cast.MediaQueueItem)">toMediaItem</a></span>&#8203;(com.google.android.gms.cast.MediaQueueItem&nbsp;item)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toMediaItem(com.google.android.gms.cast.MediaQueueItem)">toMediaItem</a></span>&#8203;(com.google.android.gms.cast.MediaQueueItem&nbsp;mediaQueueItem)</code></th>
 <td class="colLast">
 <div class="block">Converts a <code>MediaQueueItem</code> to a <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>com.google.android.gms.cast.MediaQueueItem</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toMediaQueueItem(com.google.android.exoplayer2.MediaItem)">toMediaQueueItem</a></span>&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;item)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toMediaQueueItem(com.google.android.exoplayer2.MediaItem)">toMediaQueueItem</a></span>&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
 <td class="colLast">
 <div class="block">Converts a <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to a <code>MediaQueueItem</code>.</div>
 </td>
@@ -241,14 +241,14 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>toMediaItem</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;toMediaItem&#8203;(com.google.android.gms.cast.MediaQueueItem&nbsp;item)</pre>
+<pre class="methodSignature">public&nbsp;<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;toMediaItem&#8203;(com.google.android.gms.cast.MediaQueueItem&nbsp;mediaQueueItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaItemConverter.html#toMediaItem(com.google.android.gms.cast.MediaQueueItem)">MediaItemConverter</a></code></span></div>
 <div class="block">Converts a <code>MediaQueueItem</code> to a <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaItemConverter.html#toMediaItem(com.google.android.gms.cast.MediaQueueItem)">toMediaItem</a></code>&nbsp;in interface&nbsp;<code><a href="MediaItemConverter.html" title="interface in com.google.android.exoplayer2.ext.cast">MediaItemConverter</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>item</code> - The <code>MediaQueueItem</code>.</dd>
+<dd><code>mediaQueueItem</code> - The <code>MediaQueueItem</code>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The equivalent <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
 </dl>
@@ -260,14 +260,14 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toMediaQueueItem</h4>
-<pre class="methodSignature">public&nbsp;com.google.android.gms.cast.MediaQueueItem&nbsp;toMediaQueueItem&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;item)</pre>
+<pre class="methodSignature">public&nbsp;com.google.android.gms.cast.MediaQueueItem&nbsp;toMediaQueueItem&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaItemConverter.html#toMediaQueueItem(com.google.android.exoplayer2.MediaItem)">MediaItemConverter</a></code></span></div>
 <div class="block">Converts a <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to a <code>MediaQueueItem</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaItemConverter.html#toMediaQueueItem(com.google.android.exoplayer2.MediaItem)">toMediaQueueItem</a></code>&nbsp;in interface&nbsp;<code><a href="MediaItemConverter.html" title="interface in com.google.android.exoplayer2.ext.cast">MediaItemConverter</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>item</code> - The <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+<dd><code>mediaItem</code> - The <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An equivalent <code>MediaQueueItem</code>.</dd>
 </dl>

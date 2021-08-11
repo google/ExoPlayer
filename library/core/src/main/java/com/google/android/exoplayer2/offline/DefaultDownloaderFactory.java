@@ -108,7 +108,6 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     }
   }
 
-  // LINT.IfChange
   private static SparseArray<Constructor<? extends Downloader>> createDownloaderConstructors() {
     SparseArray<Constructor<? extends Downloader>> array = new SparseArray<>();
     try {
@@ -150,5 +149,4 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
       throw new IllegalStateException("Downloader constructor missing", e);
     }
   }
-  // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
 }

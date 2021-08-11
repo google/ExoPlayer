@@ -44,12 +44,12 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
   private static final String STYLE_START = "STYLE";
 
   private final ParsableByteArray parsableWebvttData;
-  private final CssParser cssParser;
+  private final WebvttCssParser cssParser;
 
   public WebvttDecoder() {
     super("WebvttDecoder");
     parsableWebvttData = new ParsableByteArray();
-    cssParser = new CssParser();
+    cssParser = new WebvttCssParser();
   }
 
   @Override
@@ -117,5 +117,4 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
   private static void skipComment(ParsableByteArray parsableWebvttData) {
     while (!TextUtils.isEmpty(parsableWebvttData.readLine())) {}
   }
-
 }

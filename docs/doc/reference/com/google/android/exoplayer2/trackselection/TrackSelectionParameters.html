@@ -88,13 +88,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -215,18 +215,105 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disabledTextTrackSelectionFlags">disabledTextTrackSelectionFlags</a></span></code></th>
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceHighestSupportedBitrate">forceHighestSupportedBitrate</a></span></code></th>
 <td class="colLast">
-<div class="block">Bitmask of selection flags that are disabled for text track selections.</div>
+<div class="block">Whether to force selection of the highest bitrate audio and video tracks that comply with all
+ other constraints.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceLowestBitrate">forceLowestBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether to force selection of the single lowest bitrate audio and video tracks that comply with
+ all other constraints.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxAudioBitrate">maxAudioBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum allowed audio bitrate in bits per second.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxAudioChannelCount">maxAudioChannelCount</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum allowed audio channel count.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoBitrate">maxVideoBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum allowed video bitrate in bits per second.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoFrameRate">maxVideoFrameRate</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum allowed video frame rate in hertz.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoHeight">maxVideoHeight</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum allowed video height in pixels.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoWidth">maxVideoWidth</a></span></code></th>
+<td class="colLast">
+<div class="block">Maximum allowed video width in pixels.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoBitrate">minVideoBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block">Minimum allowed video bitrate in bits per second.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoFrameRate">minVideoFrameRate</a></span></code></th>
+<td class="colLast">
+<div class="block">Minimum allowed video frame rate in hertz.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoHeight">minVideoHeight</a></span></code></th>
+<td class="colLast">
+<div class="block">Minimum allowed video height in pixels.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoWidth">minVideoWidth</a></span></code></th>
+<td class="colLast">
+<div class="block">Minimum allowed video width in pixels.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioLanguages">preferredAudioLanguages</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred languages for audio and forced text tracks as IETF BCP 47 conformant tags in
  order of preference.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioMimeTypes">preferredAudioMimeTypes</a></span></code></th>
+<td class="colLast">
+<div class="block">The preferred sample MIME types for audio tracks in order of preference, or an empty list for
+ no preference.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -251,10 +338,39 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredVideoMimeTypes">preferredVideoMimeTypes</a></span></code></th>
+<td class="colLast">
+<div class="block">The preferred sample MIME types for video tracks in order of preference, or an empty list for
+ no preference.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether a text track with undetermined language should be selected if no track with <a href="#preferredTextLanguages"><code>preferredTextLanguages</code></a> is available, or if <a href="#preferredTextLanguages"><code>preferredTextLanguages</code></a> is unset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#viewportHeight">viewportHeight</a></span></code></th>
+<td class="colLast">
+<div class="block">Viewport height in pixels.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#viewportOrientationMayChange">viewportOrientationMayChange</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the viewport orientation may change during playback.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#viewportWidth">viewportWidth</a></span></code></th>
+<td class="colLast">
+<div class="block">Viewport width in pixels.</div>
 </td>
 </tr>
 </table>
@@ -265,6 +381,29 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h3>Fields inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
 <code><a href="https://developer.android.com/reference/android/os/Parcelable.html#CONTENTS_FILE_DESCRIPTOR" title="class or interface in android.os" class="externalLink">CONTENTS_FILE_DESCRIPTOR</a>, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#PARCELABLE_WRITE_RETURN_VALUE" title="class or interface in android.os" class="externalLink" target="_top">PARCELABLE_WRITE_RETURN_VALUE</a></code></li>
 </ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colSecond" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.trackselection.TrackSelectionParameters.Builder)">TrackSelectionParameters</a></span>&#8203;(<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;builder)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
 </li>
 </ul>
 </section>
@@ -355,6 +494,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  <p>This instance will not have the following settings:
 
  <ul>
+   <li><a href="TrackSelectionParameters.Builder.html#setViewportSizeToPhysicalDisplaySize(android.content.Context,boolean)"><code>Viewport
+       constraints</code></a> configured for the primary display.
    <li><a href="TrackSelectionParameters.Builder.html#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(android.content.Context)"><code>Preferred text language and role flags</code></a> configured to the accessibility settings of
        <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a>.
  </ul></div>
@@ -371,6 +512,151 @@ public static final&nbsp;<a href="TrackSelectionParameters.html" title="class in
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">This instance is not configured using <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink"><code>Context</code></a> constraints. Use <a href="#getDefaults(android.content.Context)" target="_top"><code>getDefaults(Context)</code></a> instead.</div>
 </div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionParameters</a>&gt; CREATOR</pre>
+</li>
+</ul>
+<a id="maxVideoWidth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxVideoWidth</h4>
+<pre>public final&nbsp;int maxVideoWidth</pre>
+<div class="block">Maximum allowed video width in pixels. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).
+
+ <p>To constrain adaptive video track selections to be suitable for a given viewport (the region
+ of the display within which video will be played), use (<a href="#viewportWidth"><code>viewportWidth</code></a>, <a href="#viewportHeight"><code>viewportHeight</code></a> and <a href="#viewportOrientationMayChange"><code>viewportOrientationMayChange</code></a>) instead.</div>
+</li>
+</ul>
+<a id="maxVideoHeight">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxVideoHeight</h4>
+<pre>public final&nbsp;int maxVideoHeight</pre>
+<div class="block">Maximum allowed video height in pixels. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).
+
+ <p>To constrain adaptive video track selections to be suitable for a given viewport (the region
+ of the display within which video will be played), use (<a href="#viewportWidth"><code>viewportWidth</code></a>, <a href="#viewportHeight"><code>viewportHeight</code></a> and <a href="#viewportOrientationMayChange"><code>viewportOrientationMayChange</code></a>) instead.</div>
+</li>
+</ul>
+<a id="maxVideoFrameRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxVideoFrameRate</h4>
+<pre>public final&nbsp;int maxVideoFrameRate</pre>
+<div class="block">Maximum allowed video frame rate in hertz. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e.
+ no constraint).</div>
+</li>
+</ul>
+<a id="maxVideoBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxVideoBitrate</h4>
+<pre>public final&nbsp;int maxVideoBitrate</pre>
+<div class="block">Maximum allowed video bitrate in bits per second. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e. no constraint).</div>
+</li>
+</ul>
+<a id="minVideoWidth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoWidth</h4>
+<pre>public final&nbsp;int minVideoWidth</pre>
+<div class="block">Minimum allowed video width in pixels. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a id="minVideoHeight">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoHeight</h4>
+<pre>public final&nbsp;int minVideoHeight</pre>
+<div class="block">Minimum allowed video height in pixels. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a id="minVideoFrameRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoFrameRate</h4>
+<pre>public final&nbsp;int minVideoFrameRate</pre>
+<div class="block">Minimum allowed video frame rate in hertz. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a id="minVideoBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoBitrate</h4>
+<pre>public final&nbsp;int minVideoBitrate</pre>
+<div class="block">Minimum allowed video bitrate in bits per second. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a id="viewportWidth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>viewportWidth</h4>
+<pre>public final&nbsp;int viewportWidth</pre>
+<div class="block">Viewport width in pixels. Constrains video track selections for adaptive content so that only
+ tracks suitable for the viewport are selected. The default value is the physical width of the
+ primary display, in pixels.</div>
+</li>
+</ul>
+<a id="viewportHeight">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>viewportHeight</h4>
+<pre>public final&nbsp;int viewportHeight</pre>
+<div class="block">Viewport height in pixels. Constrains video track selections for adaptive content so that only
+ tracks suitable for the viewport are selected. The default value is the physical height of the
+ primary display, in pixels.</div>
+</li>
+</ul>
+<a id="viewportOrientationMayChange">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>viewportOrientationMayChange</h4>
+<pre>public final&nbsp;boolean viewportOrientationMayChange</pre>
+<div class="block">Whether the viewport orientation may change during playback. Constrains video track selections
+ for adaptive content so that only tracks suitable for the viewport are selected. The default
+ value is <code>true</code>.</div>
+</li>
+</ul>
+<a id="preferredVideoMimeTypes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preferredVideoMimeTypes</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt; preferredVideoMimeTypes</pre>
+<div class="block">The preferred sample MIME types for video tracks in order of preference, or an empty list for
+ no preference. The default is an empty list.</div>
 </li>
 </ul>
 <a id="preferredAudioLanguages">
@@ -395,6 +681,38 @@ public static final&nbsp;<a href="TrackSelectionParameters.html" title="class in
 public final&nbsp;int preferredAudioRoleFlags</pre>
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for audio tracks. <code>0</code> selects the default track if
  there is one, or the first track if there's no default. The default value is <code>0</code>.</div>
+</li>
+</ul>
+<a id="maxAudioChannelCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxAudioChannelCount</h4>
+<pre>public final&nbsp;int maxAudioChannelCount</pre>
+<div class="block">Maximum allowed audio channel count. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).</div>
+</li>
+</ul>
+<a id="maxAudioBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxAudioBitrate</h4>
+<pre>public final&nbsp;int maxAudioBitrate</pre>
+<div class="block">Maximum allowed audio bitrate in bits per second. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e. no constraint).</div>
+</li>
+</ul>
+<a id="preferredAudioMimeTypes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preferredAudioMimeTypes</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt; preferredAudioMimeTypes</pre>
+<div class="block">The preferred sample MIME types for audio tracks in order of preference, or an empty list for
+ no preference. The default is an empty list.</div>
 </li>
 </ul>
 <a id="preferredTextLanguages">
@@ -435,24 +753,45 @@ public final&nbsp;int preferredTextRoleFlags</pre>
  default value is <code>false</code>.</div>
 </li>
 </ul>
-<a id="disabledTextTrackSelectionFlags">
+<a id="forceLowestBitrate">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>disabledTextTrackSelectionFlags</h4>
-<pre><a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-public final&nbsp;int disabledTextTrackSelectionFlags</pre>
-<div class="block">Bitmask of selection flags that are disabled for text track selections. See <a href="../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.SelectionFlags</code></a>. The default value is <code>0</code> (i.e. no flags).</div>
+<h4>forceLowestBitrate</h4>
+<pre>public final&nbsp;boolean forceLowestBitrate</pre>
+<div class="block">Whether to force selection of the single lowest bitrate audio and video tracks that comply with
+ all other constraints. The default value is <code>false</code>.</div>
 </li>
 </ul>
-<a id="CREATOR">
+<a id="forceHighestSupportedBitrate">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>CREATOR</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionParameters</a>&gt; CREATOR</pre>
+<h4>forceHighestSupportedBitrate</h4>
+<pre>public final&nbsp;boolean forceHighestSupportedBitrate</pre>
+<div class="block">Whether to force selection of the highest bitrate audio and video tracks that comply with all
+ other constraints. The default value is <code>false</code>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.trackselection.TrackSelectionParameters.Builder)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>TrackSelectionParameters</h4>
+<pre>protected&nbsp;TrackSelectionParameters&#8203;(<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;builder)</pre>
 </li>
 </ul>
 </li>
@@ -592,13 +931,13 @@ public final&nbsp;int disabledTextTrackSelectionFlags</pre>
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

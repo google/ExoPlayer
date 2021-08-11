@@ -48,15 +48,12 @@ import java.io.IOException;
  */
 public final class FakeExtractorInput implements ExtractorInput {
 
-  /**
-   * Thrown when simulating an {@link IOException}.
-   */
+  /** Thrown when simulating an {@link IOException}. */
   public static final class SimulatedIOException extends IOException {
 
     public SimulatedIOException(String message) {
       super(message);
     }
-
   }
 
   private final byte[] data;
@@ -72,8 +69,11 @@ public final class FakeExtractorInput implements ExtractorInput {
   private final SparseBooleanArray failedReadPositions;
   private final SparseBooleanArray failedPeekPositions;
 
-  private FakeExtractorInput(byte[] data, boolean simulateUnknownLength,
-      boolean simulatePartialReads, boolean simulateIOErrors) {
+  private FakeExtractorInput(
+      byte[] data,
+      boolean simulateUnknownLength,
+      boolean simulatePartialReads,
+      boolean simulateIOErrors) {
     this.data = data;
     this.simulateUnknownLength = simulateUnknownLength;
     this.simulatePartialReads = simulatePartialReads;
@@ -107,10 +107,10 @@ public final class FakeExtractorInput implements ExtractorInput {
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     checkIOException(readPosition, failedReadPositions);
     length = getLengthToRead(readPosition, length, partiallySatisfiedTargetReadPositions);
-    return readFullyInternal(target, offset, length, true) ? length : C.RESULT_END_OF_INPUT;
+    return readFullyInternal(buffer, offset, length, true) ? length : C.RESULT_END_OF_INPUT;
   }
 
   @Override
@@ -222,8 +222,13 @@ public final class FakeExtractorInput implements ExtractorInput {
       throw new EOFException();
     }
     if (position + length > data.length) {
-      throw new EOFException("Attempted to move past end of data: (" + position + " + "
-          + length + ") > " + data.length);
+      throw new EOFException(
+          "Attempted to move past end of data: ("
+              + position
+              + " + "
+              + length
+              + ") > "
+              + data.length);
     }
     return true;
   }
@@ -235,7 +240,8 @@ public final class FakeExtractorInput implements ExtractorInput {
       return requestedLength == 0 ? 0 : Integer.MAX_VALUE;
     }
     int targetPosition = position + requestedLength;
-    if (simulatePartialReads && requestedLength > 1
+    if (simulatePartialReads
+        && requestedLength > 1
         && !partiallySatisfiedTargetPositions.get(targetPosition)) {
       partiallySatisfiedTargetPositions.put(targetPosition, true);
       return 1;
@@ -273,9 +279,7 @@ public final class FakeExtractorInput implements ExtractorInput {
     return true;
   }
 
-  /**
-   * Builder of {@link FakeExtractorInput} instances.
-   */
+  /** Builder of {@link FakeExtractorInput} instances. */
   public static final class Builder {
 
     private byte[] data;
@@ -308,10 +312,8 @@ public final class FakeExtractorInput implements ExtractorInput {
     }
 
     public FakeExtractorInput build() {
-      return new FakeExtractorInput(data, simulateUnknownLength, simulatePartialReads,
-          simulateIOErrors);
+      return new FakeExtractorInput(
+          data, simulateUnknownLength, simulatePartialReads, simulateIOErrors);
     }
-
   }
-
 }

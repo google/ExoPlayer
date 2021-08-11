@@ -122,7 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code></dd>
+<dd><code><a href="../analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code>, <code><a href="ads/ServerSideInsertedAdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">ServerSideInsertedAdsMediaSource</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">MediaSourceEventListener</span></pre>
@@ -342,7 +342,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry.
- <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior. This
+ <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a> is the appropriate place to implement such behavior. This
  method is called to provide the application with an opportunity to log the error if it wishes
  to do so.</div>
 <dl>

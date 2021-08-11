@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -217,6 +217,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#excludeMediaPlaylist(android.net.Uri,long)">excludeMediaPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;playlistUrl,
+                    long&nbsp;exclusionDurationMs)</code></th>
+<td class="colLast">
+<div class="block">Excludes the given media playlist for the given duration, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInitialStartTimeUs()">getInitialStartTimeUs</a></span>()</code></th>
 <td class="colLast">
@@ -224,14 +232,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  media playlist has been loaded.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMasterPlaylist()">getMasterPlaylist</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the master playlist.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaylistSnapshot(android.net.Uri,boolean)">getPlaylistSnapshot</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
                    boolean&nbsp;isForPlayback)</code></th>
@@ -239,14 +247,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLive()">isLive</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the tracked playlists describe a live stream.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSnapshotValid(android.net.Uri)">isSnapshotValid</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
@@ -254,7 +262,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  meaning all the segments referenced by the playlist are expected to be available.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPlaylistRefreshError(android.net.Uri)">maybeThrowPlaylistRefreshError</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
@@ -262,7 +270,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  this method throws the underlying error.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPrimaryPlaylistRefreshError()">maybeThrowPrimaryPlaylistRefreshError</a></span>()</code></th>
 <td class="colLast">
@@ -270,30 +278,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  method throws the underlying error.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#refreshPlaylist(android.net.Uri)">refreshPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
 <div class="block">Requests a playlist refresh and removes it from the exclusion list.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">removeListener</a></span>&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)">start</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
      <a href="../../MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-     <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</code></th>
+     <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;primaryPlaylistListener)</code></th>
 <td class="colLast">
 <div class="block">Starts the playlist tracker.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
@@ -325,7 +333,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>start</h4>
 <pre class="methodSignature">void&nbsp;start&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
            <a href="../../MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-           <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</pre>
+           <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;primaryPlaylistListener)</pre>
 <div class="block">Starts the playlist tracker.
 
  <p>Must be called from the playback thread. A tracker may be restarted after a <a href="#stop()"><code>stop()</code></a>
@@ -335,7 +343,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>initialPlaylistUri</code> - Uri of the HLS stream. Can point to a media playlist or a master
      playlist.</dd>
 <dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
-<dd><code>listener</code> - A callback for the primary playlist change events.</dd>
+<dd><code>primaryPlaylistListener</code> - A callback for the primary playlist change events.</dd>
 </dl>
 </li>
 </ul>
@@ -478,6 +486,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>url</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - The underyling error.</dd>
+</dl>
+</li>
+</ul>
+<a id="excludeMediaPlaylist(android.net.Uri,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>excludeMediaPlaylist</h4>
+<pre class="methodSignature">boolean&nbsp;excludeMediaPlaylist&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;playlistUrl,
+                             long&nbsp;exclusionDurationMs)</pre>
+<div class="block">Excludes the given media playlist for the given duration, in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playlistUrl</code> - The URL of the media playlist.</dd>
+<dd><code>exclusionDurationMs</code> - The duration for which to exclude the playlist.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether exclusion was successful.</dd>
 </dl>
 </li>
 </ul>

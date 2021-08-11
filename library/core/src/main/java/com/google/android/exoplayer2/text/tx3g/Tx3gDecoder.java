@@ -92,19 +92,20 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
         && (initializationData.get(0).length == 48 || initializationData.get(0).length == 53)) {
       byte[] initializationBytes = initializationData.get(0);
       defaultFontFace = initializationBytes[24];
-      defaultColorRgba = ((initializationBytes[26] & 0xFF) << 24)
-          | ((initializationBytes[27] & 0xFF) << 16)
-          | ((initializationBytes[28] & 0xFF) << 8)
-          | (initializationBytes[29] & 0xFF);
+      defaultColorRgba =
+          ((initializationBytes[26] & 0xFF) << 24)
+              | ((initializationBytes[27] & 0xFF) << 16)
+              | ((initializationBytes[28] & 0xFF) << 8)
+              | (initializationBytes[29] & 0xFF);
       String fontFamily =
           Util.fromUtf8Bytes(initializationBytes, 43, initializationBytes.length - 43);
       defaultFontFamily = TX3G_SERIF.equals(fontFamily) ? C.SERIF_NAME : C.SANS_SERIF_NAME;
-      //font size (initializationBytes[25]) is 5% of video height
+      // font size (initializationBytes[25]) is 5% of video height
       calculatedVideoTrackHeight = 20 * initializationBytes[25];
       customVerticalPlacement = (initializationBytes[0] & 0x20) != 0;
       if (customVerticalPlacement) {
-        int requestedVerticalPlacement = ((initializationBytes[10] & 0xFF) << 8)
-            | (initializationBytes[11] & 0xFF);
+        int requestedVerticalPlacement =
+            ((initializationBytes[10] & 0xFF) << 8) | (initializationBytes[11] & 0xFF);
         defaultVerticalPlacement =
             Util.constrainValue(
                 (float) requestedVerticalPlacement / calculatedVideoTrackHeight, 0.0f, 0.95f);
@@ -131,10 +132,9 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     }
     // Attach default styles.
     SpannableStringBuilder cueText = new SpannableStringBuilder(cueTextString);
-    attachFontFace(cueText, defaultFontFace, DEFAULT_FONT_FACE, 0, cueText.length(),
-        SPAN_PRIORITY_LOW);
-    attachColor(cueText, defaultColorRgba, DEFAULT_COLOR, 0, cueText.length(),
-        SPAN_PRIORITY_LOW);
+    attachFontFace(
+        cueText, defaultFontFace, DEFAULT_FONT_FACE, 0, cueText.length(), SPAN_PRIORITY_LOW);
+    attachColor(cueText, defaultColorRgba, DEFAULT_COLOR, 0, cueText.length(), SPAN_PRIORITY_LOW);
     attachFontFamily(cueText, defaultFontFamily, 0, cueText.length());
     float verticalPlacement = defaultVerticalPlacement;
     // Find and attach additional styles.
@@ -180,8 +180,8 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     return parsableByteArray.readString(textLength, Charsets.UTF_8);
   }
 
-  private void applyStyleRecord(ParsableByteArray parsableByteArray,
-      SpannableStringBuilder cueText) throws SubtitleDecoderException {
+  private void applyStyleRecord(ParsableByteArray parsableByteArray, SpannableStringBuilder cueText)
+      throws SubtitleDecoderException {
     assertTrue(parsableByteArray.bytesLeft() >= SIZE_STYLE_RECORD);
     int start = parsableByteArray.readUnsignedShort();
     int end = parsableByteArray.readUnsignedShort();
@@ -203,8 +203,13 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     attachColor(cueText, colorRgba, defaultColorRgba, start, end, SPAN_PRIORITY_HIGH);
   }
 
-  private static void attachFontFace(SpannableStringBuilder cueText, int fontFace,
-      int defaultFontFace, int start, int end, int spanPriority) {
+  private static void attachFontFace(
+      SpannableStringBuilder cueText,
+      int fontFace,
+      int defaultFontFace,
+      int start,
+      int end,
+      int spanPriority) {
     if (fontFace != defaultFontFace) {
       final int flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | spanPriority;
       boolean isBold = (fontFace & FONT_FACE_BOLD) != 0;
@@ -228,11 +233,19 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     }
   }
 
-  private static void attachColor(SpannableStringBuilder cueText, int colorRgba,
-      int defaultColorRgba, int start, int end, int spanPriority) {
+  private static void attachColor(
+      SpannableStringBuilder cueText,
+      int colorRgba,
+      int defaultColorRgba,
+      int start,
+      int end,
+      int spanPriority) {
     if (colorRgba != defaultColorRgba) {
       int colorArgb = ((colorRgba & 0xFF) << 24) | (colorRgba >>> 8);
-      cueText.setSpan(new ForegroundColorSpan(colorArgb), start, end,
+      cueText.setSpan(
+          new ForegroundColorSpan(colorArgb),
+          start,
+          end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | spanPriority);
     }
   }

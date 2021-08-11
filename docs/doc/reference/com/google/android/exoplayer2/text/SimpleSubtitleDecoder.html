@@ -237,7 +237,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionUs(long)">setPositionUs</a></span>&#8203;(long&nbsp;timeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionUs(long)">setPositionUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
 <div class="block">Informs the decoder of the current playback position.</div>
 </td>
@@ -326,16 +326,16 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <ul class="blockList">
 <li class="blockList">
 <h4>setPositionUs</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setPositionUs&#8203;(long&nbsp;timeUs)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setPositionUs&#8203;(long&nbsp;positionUs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SubtitleDecoder.html#setPositionUs(long)">SubtitleDecoder</a></code></span></div>
 <div class="block">Informs the decoder of the current playback position.
- <p>
- Must be called prior to each attempt to dequeue output buffers from the decoder.</div>
+
+ <p>Must be called prior to each attempt to dequeue output buffers from the decoder.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="SubtitleDecoder.html#setPositionUs(long)">setPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timeUs</code> - The current playback position in microseconds.</dd>
+<dd><code>positionUs</code> - The current playback position in microseconds.</dd>
 </dl>
 </li>
 </ul>

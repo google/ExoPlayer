@@ -25,9 +25,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-/**
- * Information about an ongoing playback.
- */
+/** Information about an ongoing playback. */
 /* package */ final class PlaybackInfo {
 
   /**

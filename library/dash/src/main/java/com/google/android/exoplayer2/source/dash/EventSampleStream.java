@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * A {@link SampleStream} consisting of serialized {@link EventMessage}s read from an
- * {@link EventStream}.
+ * A {@link SampleStream} consisting of serialized {@link EventMessage}s read from an {@link
+ * EventStream}.
  */
 /* package */ final class EventSampleStream implements SampleStream {
 
@@ -100,18 +100,19 @@ import java.io.IOException;
   @Override
   public int readData(
       FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+    boolean noMoreEventsInStream = currentIndex == eventTimesUs.length;
+    if (noMoreEventsInStream && !eventStreamAppendable) {
+      buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+      return C.RESULT_BUFFER_READ;
+    }
     if ((readFlags & FLAG_REQUIRE_FORMAT) != 0 || !isFormatSentDownstream) {
       formatHolder.format = upstreamFormat;
       isFormatSentDownstream = true;
       return C.RESULT_FORMAT_READ;
     }
-    if (currentIndex == eventTimesUs.length) {
-      if (!eventStreamAppendable) {
-        buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-        return C.RESULT_BUFFER_READ;
-      } else {
-        return C.RESULT_NOTHING_READ;
-      }
+    if (noMoreEventsInStream) {
+      // More events may be appended later.
+      return C.RESULT_NOTHING_READ;
     }
     int sampleIndex = currentIndex++;
     byte[] serializedEvent = eventMessageEncoder.encode(eventStream.events[sampleIndex]);
@@ -129,5 +130,4 @@ import java.io.IOException;
     currentIndex = newIndex;
     return skipped;
   }
-
 }

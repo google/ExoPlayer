@@ -86,17 +86,6 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     }
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return mediaSource.getTag();
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return mediaSource.getMediaItem();

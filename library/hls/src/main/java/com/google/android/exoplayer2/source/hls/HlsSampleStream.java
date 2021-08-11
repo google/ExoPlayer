@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
-/**
- * {@link SampleStream} for a particular sample queue in HLS.
- */
+/** {@link SampleStream} for a particular sample queue in HLS. */
 /* package */ final class HlsSampleStream implements SampleStream {
 
   private final int trackGroupIndex;

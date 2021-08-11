@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 /**
  * Sonic audio stream processor for time/pitch stretching.
- * <p>
- * Based on https://github.com/waywardgeek/sonic.
+ *
+ * <p>Based on https://github.com/waywardgeek/sonic.
  */
 /* package */ final class Sonic {
 
@@ -512,5 +512,4 @@ import java.util.Arrays;
       }
     }
   }
-
 }

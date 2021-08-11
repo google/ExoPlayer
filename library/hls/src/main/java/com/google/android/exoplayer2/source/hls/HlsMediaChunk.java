@@ -48,9 +48,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * An HLS {@link MediaChunk}.
- */
+/** An HLS {@link MediaChunk}. */
 /* package */ final class HlsMediaChunk extends MediaChunk {
 
   /**
@@ -229,14 +227,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final AtomicInteger uidSource = new AtomicInteger();
 
-  /**
-   * A unique identifier for the chunk.
-   */
+  /** A unique identifier for the chunk. */
   public final int uid;
 
-  /**
-   * The discontinuity sequence number of the chunk.
-   */
+  /** The discontinuity sequence number of the chunk. */
   public final int discontinuitySequenceNumber;
 
   /** The url of the playlist from which this chunk was obtained. */

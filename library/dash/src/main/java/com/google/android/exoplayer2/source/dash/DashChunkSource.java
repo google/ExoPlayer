@@ -35,6 +35,7 @@ public interface DashChunkSource extends ChunkSource {
     /**
      * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
      * @param manifest The initial manifest.
+     * @param baseUrlExclusionList The base URL exclusion list.
      * @param periodIndex The index of the corresponding period in the manifest.
      * @param adaptationSetIndices The indices of the corresponding adaptation sets in the period.
      * @param trackSelection The track selection.
@@ -51,6 +52,7 @@ public interface DashChunkSource extends ChunkSource {
     DashChunkSource createDashChunkSource(
         LoaderErrorThrower manifestLoaderErrorThrower,
         DashManifest manifest,
+        BaseUrlExclusionList baseUrlExclusionList,
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,

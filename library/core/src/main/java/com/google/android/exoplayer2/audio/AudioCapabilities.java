@@ -88,9 +88,12 @@ public final class AudioCapabilities {
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
     }
-    if (Util.SDK_INT >= 29) {
+    // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
+    // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
+    // it on TV devices, which generally shouldn't support audio offload for surround encodings.
+    if (Util.SDK_INT >= 29 && Util.isTv(context)) {
       return new AudioCapabilities(
-          AudioTrackWrapperV29.getDirectPlaybackSupportedEncodingsV29(), DEFAULT_MAX_CHANNEL_COUNT);
+          Api29.getDirectPlaybackSupportedEncodingsV29(), DEFAULT_MAX_CHANNEL_COUNT);
     }
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
@@ -147,9 +150,7 @@ public final class AudioCapabilities {
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
-  /**
-   * Returns the maximum number of channels the device can play at the same time.
-   */
+  /** Returns the maximum number of channels the device can play at the same time. */
   public int getMaxChannelCount() {
     return maxChannelCount;
   }
@@ -174,8 +175,11 @@ public final class AudioCapabilities {
 
   @Override
   public String toString() {
-    return "AudioCapabilities[maxChannelCount=" + maxChannelCount
-        + ", supportedEncodings=" + Arrays.toString(supportedEncodings) + "]";
+    return "AudioCapabilities[maxChannelCount="
+        + maxChannelCount
+        + ", supportedEncodings="
+        + Arrays.toString(supportedEncodings)
+        + "]";
   }
 
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {
@@ -184,7 +188,7 @@ public final class AudioCapabilities {
   }
 
   @RequiresApi(29)
-  private static final class AudioTrackWrapperV29 {
+  private static final class Api29 {
     @DoNotInline
     public static int[] getDirectPlaybackSupportedEncodingsV29() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();

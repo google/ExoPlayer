@@ -67,13 +67,12 @@ import java.util.List;
  *       exoplayer-smoothstreaming module to be added</a> to the app).
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
  *       MediaItem.PlaybackProperties#uri uri} doesn't match one of the above. It tries to infer the
- *       required extractor by using the {@link
- *       com.google.android.exoplayer2.extractor.DefaultExtractorsFactory} or the {@link
+ *       required extractor by using the {@link DefaultExtractorsFactory} or the {@link
  *       ExtractorsFactory} provided in the constructor. An {@link UnrecognizedInputFormatException}
  *       is thrown if none of the available extractors can read the stream.
  * </ul>
  *
- * <h3>Ad support for media items with ad tag URIs</h3>
+ * <h2>Ad support for media items with ad tag URIs</h2>
  *
  * <p>To support media items with {@link MediaItem.PlaybackProperties#adsConfiguration ads
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
@@ -437,7 +436,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private static SparseArray<MediaSourceFactory> loadDelegates(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     SparseArray<MediaSourceFactory> factories = new SparseArray<>();
-    // LINT.IfChange
     try {
       Class<? extends MediaSourceFactory> factoryClazz =
           Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
@@ -477,7 +475,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     } catch (Exception e) {
       // Expected if the app was built without the RTSP module.
     }
-    // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     factories.put(
         C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory));
     return factories;

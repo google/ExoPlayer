@@ -21,9 +21,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link Extractor}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class ExtractorTest {
 
   @Test
@@ -34,5 +36,4 @@ public final class ExtractorTest {
     assertThat(C.RESULT_END_OF_INPUT != Extractor.RESULT_CONTINUE).isTrue();
     assertThat(C.RESULT_END_OF_INPUT != Extractor.RESULT_SEEK).isTrue();
   }
-
 }

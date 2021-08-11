@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,30 +27,31 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DataSourceExceptionTest {
 
-  private static final int REASON_OTHER = DataSourceException.POSITION_OUT_OF_RANGE - 1;
-
   @Test
   public void isCausedByPositionOutOfRange_reasonIsPositionOutOfRange_returnsTrue() {
-    DataSourceException e = new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+    DataSourceException e =
+        new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
   }
 
   @Test
   public void isCausedByPositionOutOfRange_reasonIsOther_returnsFalse() {
-    DataSourceException e = new DataSourceException(REASON_OTHER);
+    DataSourceException e = new DataSourceException(PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isFalse();
   }
 
   @Test
-  public void isCausedByPositionOutOfRange_indirectauseReasonIsPositionOutOfRange_returnsTrue() {
-    DataSourceException cause = new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+  public void isCausedByPositionOutOfRange_indirectCauseReasonIsPositionOutOfRange_returnsTrue() {
+    DataSourceException cause =
+        new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     IOException e = new IOException(new IOException(cause));
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
   }
 
   @Test
   public void isCausedByPositionOutOfRange_causeReasonIsOther_returnsFalse() {
-    DataSourceException cause = new DataSourceException(REASON_OTHER);
+    DataSourceException cause =
+        new DataSourceException(PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     IOException e = new IOException(new IOException(cause));
     assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isFalse();
   }

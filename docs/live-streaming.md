@@ -130,39 +130,26 @@ Available configuration values are:
 If automatic playback speed adjustment is not desired, it can be disabled by
 setting `minPlaybackSpeed` and `maxPlaybackSpeed` to `1.0f`.
 
-## BehindLiveWindowException ##
+## BehindLiveWindowException and ERROR_CODE_BEHIND_LIVE_WINDOW ##
 
 The playback position may fall behind the live window, for example if the player
 is paused or buffering for a long enough period of time. If this happens then
-playback will fail and a `BehindLiveWindowException` will be reported via
+playback will fail and an exception with error code
+`ERROR_CODE_BEHIND_LIVE_WINDOW` will be reported via
 `Player.Listener.onPlayerError`. Application code may wish to handle such
 errors by resuming playback at the default position. The [PlayerActivity][] of
 the demo app exemplifies this approach.
 
 ~~~
 @Override
-public void onPlayerError(ExoPlaybackException e) {
-  if (isBehindLiveWindow(e)) {
+public void onPlayerError(PlaybackException error) {
+  if (eror.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
     // Re-initialize player at the current live window default position.
     player.seekToDefaultPosition();
     player.prepare();
   } else {
     // Handle other errors.
   }
-}
-
-private static boolean isBehindLiveWindow(ExoPlaybackException e) {
-  if (e.type != ExoPlaybackException.TYPE_SOURCE) {
-    return false;
-  }
-  Throwable cause = e.getSourceException();
-  while (cause != null) {
-    if (cause instanceof BehindLiveWindowException) {
-      return true;
-    }
-    cause = cause.getCause();
-  }
-  return false;
 }
 ~~~
 {: .language-java}

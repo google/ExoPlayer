@@ -127,7 +127,8 @@ import java.io.IOException;
         bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
       }
       if (bytesToSkip > Integer.MAX_VALUE) {
-        throw new ParserException("Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
       }
       input.skipFully((int) bytesToSkip);
       chunkHeader = ChunkHeader.peek(input, scratch);

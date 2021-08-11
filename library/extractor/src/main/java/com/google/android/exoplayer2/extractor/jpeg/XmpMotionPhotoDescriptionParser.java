@@ -85,7 +85,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
     xpp.setInput(new StringReader(xmpString));
     xpp.next();
     if (!XmlPullParserUtil.isStartTag(xpp, "x:xmpmeta")) {
-      throw new ParserException("Couldn't find xmp metadata");
+      throw ParserException.createForMalformedContainer(
+          "Couldn't find xmp metadata", /* cause= */ null);
     }
     long motionPhotoPresentationTimestampUs = C.TIME_UNSET;
     List<MotionPhotoDescription.ContainerItem> containerItems = ImmutableList.of();

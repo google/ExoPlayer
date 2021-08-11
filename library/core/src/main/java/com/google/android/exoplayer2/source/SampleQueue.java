@@ -581,8 +581,8 @@ public class SampleQueue implements TrackOutput {
 
   @Override
   public final void sampleData(
-      ParsableByteArray buffer, int length, @SampleDataPart int sampleDataPart) {
-    sampleDataQueue.sampleData(buffer, length);
+      ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
+    sampleDataQueue.sampleData(data, length);
   }
 
   @Override

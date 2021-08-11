@@ -27,9 +27,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests {@link DefaultEbmlReader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class DefaultEbmlReaderTest {
 
   @Test
@@ -104,8 +106,7 @@ public class DefaultEbmlReaderTest {
 
   @Test
   public void floatElementFourBytes() throws IOException {
-    ExtractorInput input =
-        createTestInput(0x44, 0x89, 0x84, 0x3F, 0x80, 0x00, 0x00);
+    ExtractorInput input = createTestInput(0x44, 0x89, 0x84, 0x3F, 0x80, 0x00, 0x00);
     TestProcessor expected = new TestProcessor();
     expected.floatElement(TestProcessor.ID_DURATION, 1.0);
     assertEvents(input, expected.events);
@@ -206,8 +207,9 @@ public class DefaultEbmlReaderTest {
 
     @Override
     public void startMasterElement(int id, long contentPosition, long contentSize) {
-      events.add(formatEvent(id, "start contentPosition=" + contentPosition
-          + " contentSize=" + contentSize));
+      events.add(
+          formatEvent(
+              id, "start contentPosition=" + contentPosition + " contentSize=" + contentSize));
     }
 
     @Override
@@ -240,7 +242,5 @@ public class DefaultEbmlReaderTest {
     private static String formatEvent(int id, String event) {
       return "[" + Integer.toHexString(id) + "] " + event;
     }
-
   }
-
 }

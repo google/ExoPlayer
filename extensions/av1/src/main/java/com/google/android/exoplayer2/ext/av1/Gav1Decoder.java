@@ -34,11 +34,9 @@ import java.nio.ByteBuffer;
 public final class Gav1Decoder
     extends SimpleDecoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, Gav1DecoderException> {
 
-  // LINT.IfChange
   private static final int GAV1_ERROR = 0;
   private static final int GAV1_OK = 1;
   private static final int GAV1_DECODE_ONLY = 2;
-  // LINT.ThenChange(../../../../../../../jni/gav1_jni.cc)
 
   private final long gav1DecoderContext;
 

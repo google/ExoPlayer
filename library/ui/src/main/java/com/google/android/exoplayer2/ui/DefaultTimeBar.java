@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>A DefaultTimeBar can be customized by setting attributes, as outlined below.
  *
- * <h3>Attributes</h3>
+ * <h2>Attributes</h2>
  *
  * The following attributes can be set on a DefaultTimeBar when used in a layout XML file:
  *
@@ -152,12 +152,10 @@ public class DefaultTimeBar extends View implements TimeBar {
   /** Default color for played ad markers. */
   public static final int DEFAULT_PLAYED_AD_MARKER_COLOR = 0x33FFFF00;
 
-  // LINT.IfChange
   /** Vertical gravity for progress bar to be located at the center in the view. */
   public static final int BAR_GRAVITY_CENTER = 0;
   /** Vertical gravity for progress bar to be located at the bottom in the view. */
   public static final int BAR_GRAVITY_BOTTOM = 1;
-  // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
 
   /** The threshold in dps above the bar at which touch events trigger fine scrub mode. */
   private static final int FINE_SCRUB_Y_THRESHOLD_DP = -50;
@@ -245,7 +243,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   // Suppress warnings due to usage of View methods in the constructor.
-  @SuppressWarnings("nullness:method.invocation.invalid")
+  @SuppressWarnings("nullness:method.invocation")
   public DefaultTimeBar(
       Context context,
       @Nullable AttributeSet attrs,
@@ -291,19 +289,24 @@ public class DefaultTimeBar extends View implements TimeBar {
           defaultTouchTargetHeight =
               Math.max(scrubberDrawable.getMinimumHeight(), defaultTouchTargetHeight);
         }
-        barHeight = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_bar_height,
-            defaultBarHeight);
-        touchTargetHeight = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_touch_target_height,
-            defaultTouchTargetHeight);
+        barHeight =
+            a.getDimensionPixelSize(R.styleable.DefaultTimeBar_bar_height, defaultBarHeight);
+        touchTargetHeight =
+            a.getDimensionPixelSize(
+                R.styleable.DefaultTimeBar_touch_target_height, defaultTouchTargetHeight);
         barGravity = a.getInt(R.styleable.DefaultTimeBar_bar_gravity, BAR_GRAVITY_CENTER);
-        adMarkerWidth = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_ad_marker_width,
-            defaultAdMarkerWidth);
-        scrubberEnabledSize = a.getDimensionPixelSize(
-            R.styleable.DefaultTimeBar_scrubber_enabled_size, defaultScrubberEnabledSize);
-        scrubberDisabledSize = a.getDimensionPixelSize(
-            R.styleable.DefaultTimeBar_scrubber_disabled_size, defaultScrubberDisabledSize);
-        scrubberDraggedSize = a.getDimensionPixelSize(
-            R.styleable.DefaultTimeBar_scrubber_dragged_size, defaultScrubberDraggedSize);
+        adMarkerWidth =
+            a.getDimensionPixelSize(
+                R.styleable.DefaultTimeBar_ad_marker_width, defaultAdMarkerWidth);
+        scrubberEnabledSize =
+            a.getDimensionPixelSize(
+                R.styleable.DefaultTimeBar_scrubber_enabled_size, defaultScrubberEnabledSize);
+        scrubberDisabledSize =
+            a.getDimensionPixelSize(
+                R.styleable.DefaultTimeBar_scrubber_disabled_size, defaultScrubberDisabledSize);
+        scrubberDraggedSize =
+            a.getDimensionPixelSize(
+                R.styleable.DefaultTimeBar_scrubber_dragged_size, defaultScrubberDraggedSize);
         int playedColor = a.getInt(R.styleable.DefaultTimeBar_played_color, DEFAULT_PLAYED_COLOR);
         int scrubberColor =
             a.getInt(R.styleable.DefaultTimeBar_scrubber_color, DEFAULT_SCRUBBER_COLOR);
@@ -311,8 +314,8 @@ public class DefaultTimeBar extends View implements TimeBar {
             a.getInt(R.styleable.DefaultTimeBar_buffered_color, DEFAULT_BUFFERED_COLOR);
         int unplayedColor =
             a.getInt(R.styleable.DefaultTimeBar_unplayed_color, DEFAULT_UNPLAYED_COLOR);
-        int adMarkerColor = a.getInt(R.styleable.DefaultTimeBar_ad_marker_color,
-            DEFAULT_AD_MARKER_COLOR);
+        int adMarkerColor =
+            a.getInt(R.styleable.DefaultTimeBar_ad_marker_color, DEFAULT_AD_MARKER_COLOR);
         int playedAdMarkerColor =
             a.getInt(
                 R.styleable.DefaultTimeBar_played_ad_marker_color, DEFAULT_PLAYED_AD_MARKER_COLOR);
@@ -538,10 +541,10 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   @Override
-  public void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
-      int adGroupCount) {
-    Assertions.checkArgument(adGroupCount == 0
-        || (adGroupTimesMs != null && playedAdGroups != null));
+  public void setAdGroupTimesMs(
+      @Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups, int adGroupCount) {
+    Assertions.checkArgument(
+        adGroupCount == 0 || (adGroupTimesMs != null && playedAdGroups != null));
     this.adGroupCount = adGroupCount;
     this.adGroupTimesMs = adGroupTimesMs;
     this.playedAdGroups = playedAdGroups;
@@ -668,8 +671,12 @@ public class DefaultTimeBar extends View implements TimeBar {
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     int heightMode = MeasureSpec.getMode(heightMeasureSpec);
     int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-    int height = heightMode == MeasureSpec.UNSPECIFIED ? touchTargetHeight
-        : heightMode == MeasureSpec.EXACTLY ? heightSize : Math.min(touchTargetHeight, heightSize);
+    int height =
+        heightMode == MeasureSpec.UNSPECIFIED
+            ? touchTargetHeight
+            : heightMode == MeasureSpec.EXACTLY
+                ? heightSize
+                : Math.min(touchTargetHeight, heightSize);
     setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), height);
     updateDrawableState();
   }
@@ -889,8 +896,9 @@ public class DefaultTimeBar extends View implements TimeBar {
       long adGroupTimeMs = Util.constrainValue(adGroupTimesMs[i], 0, duration);
       int markerPositionOffset =
           (int) (progressBar.width() * adGroupTimeMs / duration) - adMarkerOffset;
-      int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
-          Math.max(0, markerPositionOffset));
+      int markerLeft =
+          progressBar.left
+              + Math.min(progressBar.width() - adMarkerWidth, Math.max(0, markerPositionOffset));
       Paint paint = playedAdGroups[i] ? playedAdMarkerPaint : adMarkerPaint;
       canvas.drawRect(markerLeft, barTop, markerLeft + adMarkerWidth, barBottom, paint);
     }
@@ -903,8 +911,10 @@ public class DefaultTimeBar extends View implements TimeBar {
     int playheadX = Util.constrainValue(scrubberBar.right, scrubberBar.left, progressBar.right);
     int playheadY = scrubberBar.centerY();
     if (scrubberDrawable == null) {
-      int scrubberSize = (scrubbing || isFocused()) ? scrubberDraggedSize
-          : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
+      int scrubberSize =
+          (scrubbing || isFocused())
+              ? scrubberDraggedSize
+              : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
       int playheadRadius = (int) ((scrubberSize * scrubberScale) / 2);
       canvas.drawCircle(playheadX, playheadY, playheadRadius, scrubberPaint);
     } else {
@@ -920,7 +930,8 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   private void updateDrawableState() {
-    if (scrubberDrawable != null && scrubberDrawable.isStateful()
+    if (scrubberDrawable != null
+        && scrubberDrawable.isStateful()
         && scrubberDrawable.setState(getDrawableState())) {
       invalidate();
     }
@@ -944,7 +955,8 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   private long getPositionIncrement() {
     return keyTimeIncrement == C.TIME_UNSET
-        ? (duration == C.TIME_UNSET ? 0 : (duration / keyCountIncrement)) : keyTimeIncrement;
+        ? (duration == C.TIME_UNSET ? 0 : (duration / keyCountIncrement))
+        : keyTimeIncrement;
   }
 
   private boolean setDrawableLayoutDirection(Drawable drawable) {

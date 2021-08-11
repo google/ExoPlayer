@@ -49,14 +49,10 @@ public final class C {
    */
   public static final long TIME_UNSET = Long.MIN_VALUE + 1;
 
-  /**
-   * Represents an unset or unknown index.
-   */
+  /** Represents an unset or unknown index. */
   public static final int INDEX_UNSET = -1;
 
-  /**
-   * Represents an unset or unknown position.
-   */
+  /** Represents an unset or unknown position. */
   public static final int POSITION_UNSET = -1;
 
   /** Represents an unset or unknown rate. */
@@ -74,9 +70,7 @@ public final class C {
   /** The number of microseconds in one second. */
   public static final long MICROS_PER_SECOND = 1000000L;
 
-  /**
-   * The number of nanoseconds in one second.
-   */
+  /** The number of nanoseconds in one second. */
   public static final long NANOS_PER_SECOND = 1000000000L;
 
   /** The number of bits per byte. */
@@ -115,14 +109,10 @@ public final class C {
    */
   @Deprecated public static final String UTF16LE_NAME = "UTF-16LE";
 
-  /**
-   * The name of the serif font family.
-   */
+  /** The name of the serif font family. */
   public static final String SERIF_NAME = "serif";
 
-  /**
-   * The name of the sans-serif font family.
-   */
+  /** The name of the sans-serif font family. */
   public static final String SANS_SERIF_NAME = "sans-serif";
 
   /**
@@ -133,22 +123,16 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
-  /**
-   * @see MediaCodec#CRYPTO_MODE_UNENCRYPTED
-   */
+  /** @see MediaCodec#CRYPTO_MODE_UNENCRYPTED */
   public static final int CRYPTO_MODE_UNENCRYPTED = MediaCodec.CRYPTO_MODE_UNENCRYPTED;
-  /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CTR
-   */
+  /** @see MediaCodec#CRYPTO_MODE_AES_CTR */
   public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
-  /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CBC
-   */
+  /** @see MediaCodec#CRYPTO_MODE_AES_CBC */
   public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
 
   /**
-   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
-   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
+   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to {@link
+   * AudioManager#AUDIO_SESSION_ID_GENERATE}.
    */
   public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
@@ -267,33 +251,19 @@ public final class C {
     STREAM_TYPE_VOICE_CALL
   })
   public @interface StreamType {}
-  /**
-   * @see AudioManager#STREAM_ALARM
-   */
+  /** @see AudioManager#STREAM_ALARM */
   public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
-  /**
-   * @see AudioManager#STREAM_DTMF
-   */
+  /** @see AudioManager#STREAM_DTMF */
   public static final int STREAM_TYPE_DTMF = AudioManager.STREAM_DTMF;
-  /**
-   * @see AudioManager#STREAM_MUSIC
-   */
+  /** @see AudioManager#STREAM_MUSIC */
   public static final int STREAM_TYPE_MUSIC = AudioManager.STREAM_MUSIC;
-  /**
-   * @see AudioManager#STREAM_NOTIFICATION
-   */
+  /** @see AudioManager#STREAM_NOTIFICATION */
   public static final int STREAM_TYPE_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
-  /**
-   * @see AudioManager#STREAM_RING
-   */
+  /** @see AudioManager#STREAM_RING */
   public static final int STREAM_TYPE_RING = AudioManager.STREAM_RING;
-  /**
-   * @see AudioManager#STREAM_SYSTEM
-   */
+  /** @see AudioManager#STREAM_SYSTEM */
   public static final int STREAM_TYPE_SYSTEM = AudioManager.STREAM_SYSTEM;
-  /**
-   * @see AudioManager#STREAM_VOICE_CALL
-   */
+  /** @see AudioManager#STREAM_VOICE_CALL */
   public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
   /** The default stream type used by audio renderers. Equal to {@link #STREAM_TYPE_MUSIC}. */
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
@@ -313,29 +283,17 @@ public final class C {
     CONTENT_TYPE_UNKNOWN
   })
   public @interface AudioContentType {}
-  /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_MOVIE
-   */
+  /** @see android.media.AudioAttributes#CONTENT_TYPE_MOVIE */
   public static final int CONTENT_TYPE_MOVIE = android.media.AudioAttributes.CONTENT_TYPE_MOVIE;
-  /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_MUSIC
-   */
+  /** @see android.media.AudioAttributes#CONTENT_TYPE_MUSIC */
   public static final int CONTENT_TYPE_MUSIC = android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
-  /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION
-   */
+  /** @see android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION */
   public static final int CONTENT_TYPE_SONIFICATION =
       android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION;
-  /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_SPEECH
-   */
-  public static final int CONTENT_TYPE_SPEECH =
-      android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
-  /**
-   * @see android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN
-   */
-  public static final int CONTENT_TYPE_UNKNOWN =
-      android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
+  /** @see android.media.AudioAttributes#CONTENT_TYPE_SPEECH */
+  public static final int CONTENT_TYPE_SPEECH = android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+  /** @see android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN */
+  public static final int CONTENT_TYPE_UNKNOWN = android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
   /**
    * Flags for audio attributes. Possible flag value is {@link #FLAG_AUDIBILITY_ENFORCED}.
@@ -349,9 +307,7 @@ public final class C {
       flag = true,
       value = {FLAG_AUDIBILITY_ENFORCED})
   public @interface AudioFlags {}
-  /**
-   * @see android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED
-   */
+  /** @see android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED */
   public static final int FLAG_AUDIBILITY_ENFORCED =
       android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
 
@@ -386,74 +342,46 @@ public final class C {
     USAGE_VOICE_COMMUNICATION_SIGNALLING
   })
   public @interface AudioUsage {}
-  /**
-   * @see android.media.AudioAttributes#USAGE_ALARM
-   */
+  /** @see android.media.AudioAttributes#USAGE_ALARM */
   public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
   /** @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY */
   public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
       android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
-   */
+  /** @see android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE */
   public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE =
       android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION
-   */
+  /** @see android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION */
   public static final int USAGE_ASSISTANCE_SONIFICATION =
       android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
   /** @see android.media.AudioAttributes#USAGE_ASSISTANT */
   public static final int USAGE_ASSISTANT = android.media.AudioAttributes.USAGE_ASSISTANT;
-  /**
-   * @see android.media.AudioAttributes#USAGE_GAME
-   */
+  /** @see android.media.AudioAttributes#USAGE_GAME */
   public static final int USAGE_GAME = android.media.AudioAttributes.USAGE_GAME;
-  /**
-   * @see android.media.AudioAttributes#USAGE_MEDIA
-   */
+  /** @see android.media.AudioAttributes#USAGE_MEDIA */
   public static final int USAGE_MEDIA = android.media.AudioAttributes.USAGE_MEDIA;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION
-   */
+  /** @see android.media.AudioAttributes#USAGE_NOTIFICATION */
   public static final int USAGE_NOTIFICATION = android.media.AudioAttributes.USAGE_NOTIFICATION;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED
-   */
+  /** @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT
-   */
+  /** @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST
-   */
+  /** @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT
-   */
+  /** @see android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT */
   public static final int USAGE_NOTIFICATION_EVENT =
       android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE
-   */
+  /** @see android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE */
   public static final int USAGE_NOTIFICATION_RINGTONE =
       android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
-  /**
-   * @see android.media.AudioAttributes#USAGE_UNKNOWN
-   */
+  /** @see android.media.AudioAttributes#USAGE_UNKNOWN */
   public static final int USAGE_UNKNOWN = android.media.AudioAttributes.USAGE_UNKNOWN;
-  /**
-   * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION
-   */
+  /** @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION */
   public static final int USAGE_VOICE_COMMUNICATION =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
-  /**
-   * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING
-   */
+  /** @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING */
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
@@ -518,13 +446,9 @@ public final class C {
         BUFFER_FLAG_DECODE_ONLY
       })
   public @interface BufferFlags {}
-  /**
-   * Indicates that a buffer holds a synchronization sample.
-   */
+  /** Indicates that a buffer holds a synchronization sample. */
   public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
-  /**
-   * Flag for empty buffers that signal that the end of the stream was reached.
-   */
+  /** Flag for empty buffers that signal that the end of the stream was reached. */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
   /** Indicates that a buffer has supplemental data. */
   public static final int BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA = 1 << 28; // 0x10000000
@@ -535,7 +459,6 @@ public final class C {
   /** Indicates that a buffer should be decoded but not rendered. */
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
-  // LINT.IfChange
   /**
    * Video decoder output modes. Possible modes are {@link #VIDEO_OUTPUT_MODE_NONE}, {@link
    * #VIDEO_OUTPUT_MODE_YUV} and {@link #VIDEO_OUTPUT_MODE_SURFACE_YUV}.
@@ -550,10 +473,6 @@ public final class C {
   public static final int VIDEO_OUTPUT_MODE_YUV = 0;
   /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
   public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
-  // LINT.ThenChange(
-  //     ../../../../../../../../../../../media/libraries/decoder_av1/src/main/jni/gav1_jni.cc,
-  //     ../../../../../../../../../../../media/libraries/decoder_vp9/src/main/jni/vpx_jni.cc
-  // )
 
   /**
    * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
@@ -582,9 +501,7 @@ public final class C {
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
   public @interface SelectionFlags {}
-  /**
-   * Indicates that the track should be selected if user preferences do not state otherwise.
-   */
+  /** Indicates that the track should be selected if user preferences do not state otherwise. */
   public static final int SELECTION_FLAG_DEFAULT = 1;
   /**
    * Indicates that the track should be selected if its language matches the language of the
@@ -613,17 +530,11 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTSP, TYPE_OTHER})
   public @interface ContentType {}
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
-   */
+  /** Value returned by {@link Util#inferContentType(String)} for DASH manifests. */
   public static final int TYPE_DASH = 0;
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests.
-   */
+  /** Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests. */
   public static final int TYPE_SS = 1;
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for HLS manifests.
-   */
+  /** Value returned by {@link Util#inferContentType(String)} for HLS manifests. */
   public static final int TYPE_HLS = 2;
   /** Value returned by {@link Util#inferContentType(String)} for RTSP. */
   public static final int TYPE_RTSP = 3;
@@ -633,27 +544,41 @@ public final class C {
    */
   public static final int TYPE_OTHER = 4;
 
-  /**
-   * A return value for methods where the end of an input was encountered.
-   */
+  /** A return value for methods where the end of an input was encountered. */
   public static final int RESULT_END_OF_INPUT = -1;
   /**
    * A return value for methods where the length of parsed data exceeds the maximum length allowed.
    */
   public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
-  /**
-   * A return value for methods where nothing was read.
-   */
+  /** A return value for methods where nothing was read. */
   public static final int RESULT_NOTHING_READ = -3;
-  /**
-   * A return value for methods where a buffer was read.
-   */
+  /** A return value for methods where a buffer was read. */
   public static final int RESULT_BUFFER_READ = -4;
-  /**
-   * A return value for methods where a format was read.
-   */
+  /** A return value for methods where a format was read. */
   public static final int RESULT_FORMAT_READ = -5;
 
+  /**
+   * Represents a type of data. May be one of {@link #DATA_TYPE_UNKNOWN}, {@link #DATA_TYPE_MEDIA},
+   * {@link #DATA_TYPE_MEDIA_INITIALIZATION}, {@link #DATA_TYPE_DRM}, {@link #DATA_TYPE_MANIFEST},
+   * {@link #DATA_TYPE_TIME_SYNCHRONIZATION}, {@link #DATA_TYPE_AD}, or {@link
+   * #DATA_TYPE_MEDIA_PROGRESSIVE_LIVE}. May also be an app-defined value (see {@link
+   * #DATA_TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        DATA_TYPE_UNKNOWN,
+        DATA_TYPE_MEDIA,
+        DATA_TYPE_MEDIA_INITIALIZATION,
+        DATA_TYPE_DRM,
+        DATA_TYPE_MANIFEST,
+        DATA_TYPE_TIME_SYNCHRONIZATION,
+        DATA_TYPE_AD,
+        DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
+      })
+  public @interface DataType {}
   /** A data type constant for data of unknown or unspecified type. */
   public static final int DATA_TYPE_UNKNOWN = 0;
   /** A data type constant for media, typically containing media samples. */
@@ -702,25 +627,15 @@ public final class C {
    */
   public static final int TRACK_TYPE_CUSTOM_BASE = 10000;
 
-  /**
-   * A selection reason constant for selections whose reasons are unknown or unspecified.
-   */
+  /** A selection reason constant for selections whose reasons are unknown or unspecified. */
   public static final int SELECTION_REASON_UNKNOWN = 0;
-  /**
-   * A selection reason constant for an initial track selection.
-   */
+  /** A selection reason constant for an initial track selection. */
   public static final int SELECTION_REASON_INITIAL = 1;
-  /**
-   * A selection reason constant for an manual (i.e. user initiated) track selection.
-   */
+  /** A selection reason constant for an manual (i.e. user initiated) track selection. */
   public static final int SELECTION_REASON_MANUAL = 2;
-  /**
-   * A selection reason constant for an adaptive track selection.
-   */
+  /** A selection reason constant for an adaptive track selection. */
   public static final int SELECTION_REASON_ADAPTIVE = 3;
-  /**
-   * A selection reason constant for a trick play track selection.
-   */
+  /** A selection reason constant for a trick play track selection. */
   public static final int SELECTION_REASON_TRICK_PLAY = 4;
   /**
    * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
@@ -730,6 +645,17 @@ public final class C {
 
   /** A default size in bytes for an individual allocation that forms part of a larger buffer. */
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
+
+  /** A default seek back increment, in milliseconds. */
+  public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5000;
+  /** A default seek forward increment, in milliseconds. */
+  public static final long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
+
+  /**
+   * A default maximum position for which a seek to previous will seek to the previous window, in
+   * milliseconds.
+   */
+  public static final int DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 3000;
 
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")
@@ -748,36 +674,36 @@ public final class C {
   public static final String CENC_TYPE_cbcs = "cbcs";
 
   /**
-   * The Nil UUID as defined by
-   * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
+   * The Nil UUID as defined by <a
+   * href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
    */
   public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
-   * UUID for the W3C
-   * <a href="https://w3c.github.io/encrypted-media/format-registry/initdata/cenc.html">Common PSSH
+   * UUID for the W3C <a
+   * href="https://w3c.github.io/encrypted-media/format-registry/initdata/cenc.html">Common PSSH
    * box</a>.
    */
   public static final UUID COMMON_PSSH_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
 
   /**
    * UUID for the ClearKey DRM scheme.
-   * <p>
-   * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
+   *
+   * <p>ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
    */
   public static final UUID CLEARKEY_UUID = new UUID(0xE2719D58A985B3C9L, 0x781AB030AF78D30EL);
 
   /**
    * UUID for the Widevine DRM scheme.
-   * <p>
-   * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
+   *
+   * <p>Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
    */
   public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
 
   /**
    * UUID for the PlayReady DRM scheme.
-   * <p>
-   * PlayReady is supported on all AndroidTV devices. Note that most other Android devices do not
+   *
+   * <p>PlayReady is supported on all AndroidTV devices. Note that most other Android devices do not
    * provide PlayReady support.
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
@@ -821,21 +747,15 @@ public final class C {
     STEREO_MODE_STEREO_MESH
   })
   public @interface StereoMode {}
-  /**
-   * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
-   */
+  /** Indicates Monoscopic stereo layout, used with 360/3D/VR videos. */
   public static final int STEREO_MODE_MONO = 0;
-  /**
-   * Indicates Top-Bottom stereo layout, used with 360/3D/VR videos.
-   */
+  /** Indicates Top-Bottom stereo layout, used with 360/3D/VR videos. */
   public static final int STEREO_MODE_TOP_BOTTOM = 1;
-  /**
-   * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
-   */
+  /** Indicates Left-Right stereo layout, used with 360/3D/VR videos. */
   public static final int STEREO_MODE_LEFT_RIGHT = 2;
   /**
-   * Indicates a stereo layout where the left and right eyes have separate meshes,
-   * used with 360/3D/VR videos.
+   * Indicates a stereo layout where the left and right eyes have separate meshes, used with
+   * 360/3D/VR videos.
    */
   public static final int STEREO_MODE_STEREO_MESH = 3;
 
@@ -847,17 +767,11 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT709
-   */
+  /** @see MediaFormat#COLOR_STANDARD_BT709 */
   public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT601_PAL
-   */
+  /** @see MediaFormat#COLOR_STANDARD_BT601_PAL */
   public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT2020
-   */
+  /** @see MediaFormat#COLOR_STANDARD_BT2020 */
   public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
 
   /**
@@ -868,17 +782,11 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
   public @interface ColorTransfer {}
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
-   */
+  /** @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO */
   public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_ST2084
-   */
+  /** @see MediaFormat#COLOR_TRANSFER_ST2084 */
   public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_HLG
-   */
+  /** @see MediaFormat#COLOR_TRANSFER_HLG */
   public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
   /**
@@ -889,13 +797,9 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
-  /**
-   * @see MediaFormat#COLOR_RANGE_LIMITED
-   */
+  /** @see MediaFormat#COLOR_RANGE_LIMITED */
   public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
-  /**
-   * @see MediaFormat#COLOR_RANGE_FULL
-   */
+  /** @see MediaFormat#COLOR_RANGE_FULL */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
 
   /** Video projection types. */
@@ -1155,8 +1059,8 @@ public final class C {
   }
 
   /**
-   * Converts a time in milliseconds to the corresponding time in microseconds, preserving
-   * {@link #TIME_UNSET} values and {@link #TIME_END_OF_SOURCE} values.
+   * Converts a time in milliseconds to the corresponding time in microseconds, preserving {@link
+   * #TIME_UNSET} values and {@link #TIME_END_OF_SOURCE} values.
    *
    * @param timeMs The time in milliseconds.
    * @return The corresponding time in microseconds.
@@ -1198,6 +1102,57 @@ public final class C {
         return "NO";
       default:
         throw new IllegalStateException();
+    }
+  }
+
+  // Copy of relevant error codes defined in MediaDrm.ErrorCodes from API 31.
+  // TODO (internal b/192337376): Remove once ExoPlayer depends on SDK 31.
+  private static final int ERROR_KEY_EXPIRED = 2;
+  private static final int ERROR_INSUFFICIENT_OUTPUT_PROTECTION = 4;
+  private static final int ERROR_INSUFFICIENT_SECURITY = 7;
+  private static final int ERROR_FRAME_TOO_LARGE = 8;
+  private static final int ERROR_CERTIFICATE_MALFORMED = 10;
+  private static final int ERROR_INIT_DATA = 15;
+  private static final int ERROR_KEY_NOT_LOADED = 16;
+  private static final int ERROR_LICENSE_PARSE = 17;
+  private static final int ERROR_LICENSE_POLICY = 18;
+  private static final int ERROR_LICENSE_RELEASE = 19;
+  private static final int ERROR_LICENSE_REQUEST_REJECTED = 20;
+  private static final int ERROR_LICENSE_RESTORE = 21;
+  private static final int ERROR_LICENSE_STATE = 22;
+  private static final int ERROR_PROVISIONING_CERTIFICATE = 24;
+  private static final int ERROR_PROVISIONING_CONFIG = 25;
+  private static final int ERROR_PROVISIONING_PARSE = 26;
+  private static final int ERROR_PROVISIONING_REQUEST_REJECTED = 27;
+  private static final int ERROR_PROVISIONING_RETRY = 28;
+
+  @PlaybackException.ErrorCode
+  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
+    switch (mediaDrmErrorCode) {
+      case ERROR_PROVISIONING_CONFIG:
+      case ERROR_PROVISIONING_PARSE:
+      case ERROR_PROVISIONING_REQUEST_REJECTED:
+      case ERROR_PROVISIONING_CERTIFICATE:
+      case ERROR_PROVISIONING_RETRY:
+        return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
+      case ERROR_LICENSE_PARSE:
+      case ERROR_LICENSE_RELEASE:
+      case ERROR_LICENSE_REQUEST_REJECTED:
+      case ERROR_LICENSE_RESTORE:
+      case ERROR_LICENSE_STATE:
+      case ERROR_CERTIFICATE_MALFORMED:
+        return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
+      case ERROR_LICENSE_POLICY:
+      case ERROR_INSUFFICIENT_OUTPUT_PROTECTION:
+      case ERROR_INSUFFICIENT_SECURITY:
+      case ERROR_KEY_EXPIRED:
+      case ERROR_KEY_NOT_LOADED:
+        return PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION;
+      case ERROR_INIT_DATA:
+      case ERROR_FRAME_TOO_LARGE:
+        return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
+      default:
+        return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
     }
   }
 }

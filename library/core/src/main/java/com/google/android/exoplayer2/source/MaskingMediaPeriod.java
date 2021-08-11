@@ -139,7 +139,7 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public void prepare(Callback callback, long preparePositionUs) {
+  public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
     if (mediaPeriod != null) {
       mediaPeriod.prepare(

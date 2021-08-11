@@ -137,9 +137,9 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
   }
 
   @Override
-  public boolean read(ExtractorInput extractorInput) throws IOException {
+  public boolean read(ExtractorInput input) throws IOException {
     maybeExecutePendingSeek();
-    inputReaderAdapter.setDataReader(extractorInput, extractorInput.getLength());
+    inputReaderAdapter.setDataReader(input, input.getLength());
     return mediaParser.advance(inputReaderAdapter);
   }
 

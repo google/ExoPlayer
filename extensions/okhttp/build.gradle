@@ -13,19 +13,17 @@
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
+android.defaultConfig.minSdkVersion 21
+
 dependencies {
     implementation project(modulePrefix + 'library-common')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'testutils')
-    testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    // Do not update to 3.13.X or later until minSdkVersion is increased to 21:
-    // https://cashapp.github.io/2019-02-05/okhttp-3-13-requires-android-5
-    // Since OkHttp is distributed as a jar rather than an aar, Gradle won't
-    // stop us from making this mistake!
-    api 'com.squareup.okhttp3:okhttp:3.12.11'
+    api 'com.squareup.okhttp3:okhttp:' + okhttpVersion
 }
 
 ext {

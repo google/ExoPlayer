@@ -345,8 +345,8 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <h4>TimelineQueueNavigator</h4>
 <pre>public&nbsp;TimelineQueueNavigator&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession)</pre>
 <div class="block">Creates an instance for a given <code>MediaSessionCompat</code>.
- <p>
- Equivalent to <code>TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)</code>.</div>
+
+ <p>Equivalent to <code>TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSession</code> - The <code>MediaSessionCompat</code>.</dd>
@@ -362,10 +362,10 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <pre>public&nbsp;TimelineQueueNavigator&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession,
                               int&nbsp;maxQueueSize)</pre>
 <div class="block">Creates an instance for a given <code>MediaSessionCompat</code> and maximum queue size.
- <p>
- If the number of windows in the <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>'s <a href="../../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> exceeds <code>maxQueueSize</code>,
- the media session queue will correspond to <code>maxQueueSize</code> windows centered on the one
- currently being played.</div>
+
+ <p>If the number of windows in the <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>'s <a href="../../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> exceeds <code>
+ maxQueueSize</code>, the media session queue will correspond to <code>maxQueueSize</code> windows centered
+ on the one currently being played.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSession</code> - The <code>MediaSessionCompat</code>.</dd>
@@ -489,6 +489,7 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <li class="blockList">
 <h4>onSkipToPrevious</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSkipToPrevious&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                             <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
                              <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToPrevious(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">MediaSessionConnector.QueueNavigator</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onSkipToPrevious()</code>.</div>
@@ -497,8 +498,10 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <dd><code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToPrevious(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">onSkipToPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
-<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
-     changes to the player.</dd>
+<dd><code>controlDispatcher</code> - This parameter is deprecated. Use <code>player</code> instead. Operations
+     can be customized by passing a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> to <a href="MediaSessionConnector.html#setPlayer(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.setPlayer(Player)</code></a>, or
+     when configuring the player (for example by using <code>
+     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</dd>
 </dl>
 </li>
 </ul>
@@ -509,6 +512,7 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <li class="blockList">
 <h4>onSkipToQueueItem</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSkipToQueueItem&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                              <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
                               <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                               long&nbsp;id)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToQueueItem(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,long)">MediaSessionConnector.QueueNavigator</a></code></span></div>
@@ -518,8 +522,10 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <dd><code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToQueueItem(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,long)">onSkipToQueueItem</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
-<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
-     changes to the player.</dd>
+<dd><code>controlDispatcher</code> - This parameter is deprecated. Use <code>player</code> instead. Operations
+     can be customized by passing a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> to <a href="MediaSessionConnector.html#setPlayer(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.setPlayer(Player)</code></a>, or
+     when configuring the player (for example by using <code>
+     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</dd>
 </dl>
 </li>
 </ul>
@@ -530,6 +536,7 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <li class="blockList">
 <h4>onSkipToNext</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSkipToNext&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                         <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
                          <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToNext(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">MediaSessionConnector.QueueNavigator</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onSkipToNext()</code>.</div>
@@ -538,8 +545,10 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <dd><code><a href="MediaSessionConnector.QueueNavigator.html#onSkipToNext(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher)">onSkipToNext</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
-<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
-     changes to the player.</dd>
+<dd><code>controlDispatcher</code> - This parameter is deprecated. Use <code>player</code> instead. Operations
+     can be customized by passing a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> to <a href="MediaSessionConnector.html#setPlayer(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.setPlayer(Player)</code></a>, or
+     when configuring the player (for example by using <code>
+     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</dd>
 </dl>
 </li>
 </ul>
@@ -550,6 +559,7 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
 <li class="blockList">
 <h4>onCommand</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onCommand&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                         <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
                          <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;command,
                          @Nullable
@@ -558,15 +568,16 @@ implements <a href="MediaSessionConnector.QueueNavigator.html" title="interface 
                          <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" title="class or interface in android.os" class="externalLink" target="_top">ResultReceiver</a>&nbsp;cb)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CommandReceiver.html#onCommand(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">MediaSessionConnector.CommandReceiver</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>. The
- receiver may handle the command, but is not required to do so. Changes to the player should
- be made via the <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+ receiver may handle the command, but is not required to do so.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSessionConnector.CommandReceiver.html#onCommand(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">onCommand</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
-<dd><code>controlDispatcher</code> - A <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> that should be used for dispatching
-     changes to the player.</dd>
+<dd><code>controlDispatcher</code> - This parameter is deprecated. Use <code>player</code> instead. Operations
+     can be customized by passing a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> to <a href="MediaSessionConnector.html#setPlayer(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.setPlayer(Player)</code></a>, or
+     when configuring the player (for example by using <code>
+     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</dd>
 <dd><code>command</code> - The command name.</dd>
 <dd><code>extras</code> - Optional parameters for the command, may be null.</dd>
 <dd><code>cb</code> - A result receiver to which a result may be sent by the command, may be null.</dd>

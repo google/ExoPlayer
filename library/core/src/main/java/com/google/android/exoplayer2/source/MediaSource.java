@@ -180,15 +180,6 @@ public interface MediaSource {
     return true;
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @Deprecated
-  @Nullable
-  default Object getTag() {
-    return null;
-  }
-
   /** Returns the {@link MediaItem} whose media is provided by the source. */
   MediaItem getMediaItem();
 

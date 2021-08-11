@@ -21,13 +21,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 
 /** An {@link RtpDataChannel} for UDP transport. */
 /* package */ final class UdpDataSourceRtpDataChannel implements RtpDataChannel {
@@ -94,11 +94,11 @@ import java.net.SocketTimeoutException;
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     try {
-      return dataSource.read(target, offset, length);
+      return dataSource.read(buffer, offset, length);
     } catch (UdpDataSource.UdpDataSourceException e) {
-      if (e.getCause() instanceof SocketTimeoutException) {
+      if (e.reason == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT) {
         return C.RESULT_END_OF_INPUT;
       } else {
         throw e;

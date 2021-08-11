@@ -53,8 +53,7 @@ public final class RtspMessageChannelTest {
             new RtspHeaders.Builder()
                 .add(RtspHeaders.CSEQ, "2")
                 .add(RtspHeaders.PUBLIC, "OPTIONS")
-                .build(),
-            "");
+                .build());
 
     RtspResponse describeResponse =
         new RtspResponse(
@@ -82,8 +81,7 @@ public final class RtspMessageChannelTest {
             new RtspHeaders.Builder()
                 .add(RtspHeaders.CSEQ, "5")
                 .add(RtspHeaders.TRANSPORT, "RTP/AVP/TCP;unicast;interleaved=0-1")
-                .build(),
-            "");
+                .build());
 
     // Channel: 0, size: 5, data: 01 02 03 04 05.
     byte[] interleavedData1 = Util.getBytesFromHexString("0000050102030405");
@@ -151,26 +149,26 @@ public final class RtspMessageChannelTest {
     assertThat(receivedRtspResponses)
         .containsExactly(
             /* optionsResponse */
-            ImmutableList.of("RTSP/1.0 200 OK", "cseq: 2", "public: OPTIONS", ""),
+            ImmutableList.of("RTSP/1.0 200 OK", "CSeq: 2", "Public: OPTIONS", ""),
             /* describeResponse */
             ImmutableList.of(
                 "RTSP/1.0 200 OK",
-                "cseq: 3",
-                "content-type: application/sdp",
-                "content-length: 28",
+                "CSeq: 3",
+                "Content-Type: application/sdp",
+                "Content-Length: 28",
                 "",
                 "v=安卓アンドロイド"),
             /* describeResponse2 */
             ImmutableList.of(
                 "RTSP/1.0 200 OK",
-                "cseq: 4",
-                "content-type: application/sdp",
-                "content-length: 73",
+                "CSeq: 4",
+                "Content-Type: application/sdp",
+                "Content-Length: 73",
                 "",
                 "v=安卓アンドロイド\n" + "o=test 2890844526 2890842807 IN IP4 127.0.0.1"),
             /* setupResponse */
             ImmutableList.of(
-                "RTSP/1.0 200 OK", "cseq: 5", "transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
+                "RTSP/1.0 200 OK", "CSeq: 5", "Transport: RTP/AVP/TCP;unicast;interleaved=0-1", ""))
         .inOrder();
     assertThat(receivedInterleavedData)
         .containsExactly(

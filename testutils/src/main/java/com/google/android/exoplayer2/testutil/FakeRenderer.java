@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -107,7 +108,9 @@ public class FakeRenderer extends BaseRenderer {
                 getName(),
                 getIndex(),
                 format,
-                C.FORMAT_UNSUPPORTED_TYPE);
+                C.FORMAT_UNSUPPORTED_TYPE,
+                /* isRecoverable= */ false,
+                PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
           }
           formatsRead.add(format);
           onFormatChanged(format);

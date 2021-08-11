@@ -14,16 +14,17 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
-        classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.1'
+        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.2'
     }
 }
 allprojects {
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
     if (it.hasProperty('externalBuildDir')) {

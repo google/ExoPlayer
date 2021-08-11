@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -287,8 +287,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdCountInAdGroup(int)">getAdCountInAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
-<div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or
- <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
+<div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -296,8 +295,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdDurationUs(int,int)">getAdDurationUs</a></span>&#8203;(int&nbsp;adGroupIndex,
                int&nbsp;adIndexInAdGroup)</code></th>
 <td class="colLast">
-<div class="block">Returns the duration of the ad at index <code>adIndexInAdGroup</code> in the ad group at
- <code>adGroupIndex</code>, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
+<div class="block">Returns the duration of the ad at index <code>adIndexInAdGroup</code> in the ad group at <code>
+ adGroupIndex</code>, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -348,19 +347,27 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getContentResumeOffsetUs(int)">getContentResumeOffsetUs</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns the offset in microseconds which should be added to the content stream when resuming
+ playback after the specified ad group.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationMs()">getDurationMs</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the duration of the period in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the duration of this period in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstAdIndexToPlay(int)">getFirstAdIndexToPlay</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
@@ -368,7 +375,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  number of ads in the ad group if no ads should be played.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextAdIndexToPlay(int,int)">getNextAdIndexToPlay</a></span>&#8203;(int&nbsp;adGroupIndex,
                     int&nbsp;lastPlayedAdIndex)</code></th>
@@ -378,7 +385,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  be played.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionInWindowMs()">getPositionInWindowMs</a></span>()</code></th>
 <td class="colLast">
@@ -386,7 +393,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  it belongs, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionInWindowUs()">getPositionInWindowUs</a></span>()</code></th>
 <td class="colLast">
@@ -394,19 +401,35 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  it belongs, in microseconds.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRemovedAdGroupCount()">getRemovedAdGroupCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of removed ad groups in the period.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPlayedAdGroup(int)">hasPlayedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
-<div class="block">Returns whether the ad group at index <code>adGroupIndex</code> has been played.</div>
+<div class="block">Returns whether all ads in the ad group at index <code>adGroupIndex</code> have been played,
+ skipped or failed.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isServerSideInsertedAdGroup(int)">isServerSideInsertedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the ad group at index <code>adGroupIndex</code> is server-side inserted and part
+ of the content stream.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.Object,java.lang.Object,int,long,long)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
@@ -417,7 +440,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Sets the data held by this period.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.Object,java.lang.Object,int,long,long,com.google.android.exoplayer2.source.ads.AdPlaybackState,boolean)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
@@ -430,7 +453,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Sets the data held by this period.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -702,6 +725,17 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <div class="block">Returns the number of ad groups in the period.</div>
 </li>
 </ul>
+<a id="getRemovedAdGroupCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRemovedAdGroupCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getRemovedAdGroupCount()</pre>
+<div class="block">Returns the number of removed ad groups in the period. Ad groups with indices between <code>
+ 0</code> (inclusive) and <code>removedAdGroupCount</code> (exclusive) will be empty.</div>
+</li>
+</ul>
 <a id="getAdGroupTimeUs(int)">
 <!--   -->
 </a>
@@ -765,12 +799,14 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <li class="blockList">
 <h4>hasPlayedAdGroup</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;hasPlayedAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
-<div class="block">Returns whether the ad group at index <code>adGroupIndex</code> has been played.</div>
+<div class="block">Returns whether all ads in the ad group at index <code>adGroupIndex</code> have been played,
+ skipped or failed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adGroupIndex</code> - The ad group index.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the ad group at index <code>adGroupIndex</code> has been played.</dd>
+<dd>Whether all ads in the ad group at index <code>adGroupIndex</code> have been played,
+     skipped or failed.</dd>
 </dl>
 </li>
 </ul>
@@ -818,8 +854,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <li class="blockList">
 <h4>getAdCountInAdGroup</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getAdCountInAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
-<div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or
- <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
+<div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adGroupIndex</code> - The ad group index.</dd>
@@ -836,8 +871,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <h4>getAdDurationUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getAdDurationUs&#8203;(int&nbsp;adGroupIndex,
                             int&nbsp;adIndexInAdGroup)</pre>
-<div class="block">Returns the duration of the ad at index <code>adIndexInAdGroup</code> in the ad group at
- <code>adGroupIndex</code>, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
+<div class="block">Returns the duration of the ad at index <code>adIndexInAdGroup</code> in the ad group at <code>
+ adGroupIndex</code>, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adGroupIndex</code> - The ad group index.</dd>
@@ -856,6 +891,40 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <pre class="methodSignature">public&nbsp;long&nbsp;getAdResumePositionUs()</pre>
 <div class="block">Returns the position offset in the first unplayed ad at which to begin playback, in
  microseconds.</div>
+</li>
+</ul>
+<a id="isServerSideInsertedAdGroup(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isServerSideInsertedAdGroup</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isServerSideInsertedAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns whether the ad group at index <code>adGroupIndex</code> is server-side inserted and part
+ of the content stream.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether this ad group is server-side inserted and part of the content stream.</dd>
+</dl>
+</li>
+</ul>
+<a id="getContentResumeOffsetUs(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getContentResumeOffsetUs</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getContentResumeOffsetUs&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns the offset in microseconds which should be added to the content stream when resuming
+ playback after the specified ad group.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The offset that should be added to the content stream, in microseconds.</dd>
+</dl>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">

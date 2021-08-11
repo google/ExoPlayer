@@ -142,17 +142,13 @@ import java.util.regex.Pattern;
               ? parseFontSize(styleValues[format.fontSizeIndex].trim())
               : Cue.DIMEN_UNSET,
           format.boldIndex != C.INDEX_UNSET
-              ? parseBooleanValue(styleValues[format.boldIndex].trim())
-              : false,
+              && parseBooleanValue(styleValues[format.boldIndex].trim()),
           format.italicIndex != C.INDEX_UNSET
-              ? parseBooleanValue(styleValues[format.italicIndex].trim())
-              : false,
+              && parseBooleanValue(styleValues[format.italicIndex].trim()),
           format.underlineIndex != C.INDEX_UNSET
-              ? parseBooleanValue(styleValues[format.underlineIndex].trim())
-              : false,
+              && parseBooleanValue(styleValues[format.underlineIndex].trim()),
           format.strikeoutIndex != C.INDEX_UNSET
-              ? parseBooleanValue(styleValues[format.strikeoutIndex].trim())
-              : false);
+              && parseBooleanValue(styleValues[format.strikeoutIndex].trim()));
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;

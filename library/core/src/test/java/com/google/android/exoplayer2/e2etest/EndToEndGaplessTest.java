@@ -39,7 +39,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowAudioTrack;
 import org.robolectric.shadows.ShadowMediaCodec;
@@ -47,7 +46,6 @@ import org.robolectric.shadows.ShadowMediaCodecList;
 
 /** End to end playback test for gapless audio playbacks. */
 @RunWith(AndroidJUnit4.class)
-@Config(sdk = 29)
 public class EndToEndGaplessTest {
   private static final int CODEC_INPUT_BUFFER_SIZE = 5120;
   private static final int CODEC_OUTPUT_BUFFER_SIZE = 5120;

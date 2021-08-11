@@ -69,10 +69,7 @@ import androidx.annotation.BinderThread;
   // on the sensor thread and read on the UI thread.
   private volatile float roll;
 
-  @SuppressWarnings({
-    "nullness:assignment.type.incompatible",
-    "nullness:argument.type.incompatible"
-  })
+  @SuppressWarnings({"nullness:assignment", "nullness:argument"})
   public TouchTracker(Context context, Listener listener, float pxPerDegrees) {
     this.listener = listener;
     this.pxPerDegrees = pxPerDegrees;

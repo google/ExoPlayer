@@ -320,11 +320,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  The player may be able to recover from the error (for example by recreating the AudioTrack,
  possibly with different settings) and continue. Hence applications should <em>not</em>
  implement this method to display a user visible error or initiate an application level retry
- (<a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement such behavior).
+ (<a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a> is the appropriate place to implement such behavior).
  This method is called to provide the application with an opportunity to log the error if it
  wishes to do so.
 
- <p>Fatal errors that cannot be recovered will be reported wrapped in a <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> by <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)"><code>Player.Listener.onPlayerError(ExoPlaybackException)</code></a>.</div>
+ <p>Fatal errors that cannot be recovered will be reported wrapped in a <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> by <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(PlaybackException)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>audioSinkError</code> - The error that occurred. Typically an <a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.InitializationException</code></a>,

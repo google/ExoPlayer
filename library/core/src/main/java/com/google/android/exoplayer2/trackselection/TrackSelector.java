@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.util.Assertions;
  * the player's {@link Renderer}s. The {@link DefaultTrackSelector} implementation should be
  * suitable for most use cases.
  *
- * <h3>Interactions with the player</h3>
+ * <h2>Interactions with the player</h2>
  *
  * The following interactions occur between the player and its track selector during playback.
  *
@@ -65,7 +65,7 @@ import com.google.android.exoplayer2.util.Assertions;
  *       will call {@link InvalidationListener#onTrackSelectionsInvalidated()}.
  * </ul>
  *
- * <h3>Renderer configuration</h3>
+ * <h2>Renderer configuration</h2>
  *
  * The {@link TrackSelectorResult} returned by {@link #selectTracks(RendererCapabilities[],
  * TrackGroupArray, MediaPeriodId, Timeline)} contains not only {@link TrackSelection}s for each
@@ -77,7 +77,7 @@ import com.google.android.exoplayer2.util.Assertions;
  * configure renderers in a particular way if certain tracks are selected. Hence it makes sense to
  * determine the track selection and corresponding renderer configurations in a single step.
  *
- * <h3>Threading model</h3>
+ * <h2>Threading model</h2>
  *
  * All calls made by the player into the track selector are on the player's internal playback
  * thread. The track selector may call {@link InvalidationListener#onTrackSelectionsInvalidated()}
@@ -85,9 +85,7 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public abstract class TrackSelector {
 
-  /**
-   * Notified when selections previously made by a {@link TrackSelector} are no longer valid.
-   */
+  /** Notified when selections previously made by a {@link TrackSelector} are no longer valid. */
   public interface InvalidationListener {
 
     /**
@@ -95,7 +93,6 @@ public abstract class TrackSelector {
      * longer valid. May be called from any thread.
      */
     void onTrackSelectionsInvalidated();
-
   }
 
   @Nullable private InvalidationListener listener;

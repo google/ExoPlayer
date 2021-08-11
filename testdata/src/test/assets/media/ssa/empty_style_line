@@ -1,0 +1,13 @@
+[Script Info]
+Title: SSA/ASS Test
+Script Type: V4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name
+Style: Empty
+
+[Events]
+Format:   Start     ,End       ,Style,Text
+Dialogue: 0:00:01.00,0:00:03.00,Empty,First line.

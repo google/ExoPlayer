@@ -55,8 +55,9 @@ import com.google.android.exoplayer2.util.Util;
       return null;
     }
     int sampleRate = mpegAudioHeader.sampleRate;
-    long durationUs = Util.scaleLargeTimestamp(numFrames,
-        C.MICROS_PER_SECOND * (sampleRate >= 32000 ? 1152 : 576), sampleRate);
+    long durationUs =
+        Util.scaleLargeTimestamp(
+            numFrames, C.MICROS_PER_SECOND * (sampleRate >= 32000 ? 1152 : 576), sampleRate);
     int entryCount = frame.readUnsignedShort();
     int scale = frame.readUnsignedShort();
     int entrySize = frame.readUnsignedShort();

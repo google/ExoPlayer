@@ -349,7 +349,7 @@ implements <a href="../trackselection/ExoTrackSelection.html" title="interface i
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isBlacklisted(int,long)">isBlacklisted</a></span>&#8203;(int&nbsp;index,
-             long&nbsp;exclusionDurationMs)</code></th>
+             long&nbsp;nowMs)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the track at the specified index in the selection is excluded.</div>
 </td>
@@ -363,7 +363,7 @@ implements <a href="../trackselection/ExoTrackSelection.html" title="interface i
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;speed)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
@@ -714,7 +714,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;speed)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../trackselection/ExoTrackSelection.html#onPlaybackSpeed(float)">ExoTrackSelection</a></code></span></div>
 <div class="block">Called to notify the selection of the current playback speed. The playback speed may affect
  adaptive track selection.</div>
@@ -722,7 +722,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../trackselection/ExoTrackSelection.html#onPlaybackSpeed(float)">onPlaybackSpeed</a></code>&nbsp;in interface&nbsp;<code><a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>speed</code> - The factor by which playback is sped up.</dd>
+<dd><code>playbackSpeed</code> - The factor by which playback is sped up.</dd>
 </dl>
 </li>
 </ul>
@@ -842,7 +842,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <li class="blockList">
 <h4>isBlacklisted</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isBlacklisted&#8203;(int&nbsp;index,
-                             long&nbsp;exclusionDurationMs)</pre>
+                             long&nbsp;nowMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../trackselection/ExoTrackSelection.html#isBlacklisted(int,long)">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns whether the track at the specified index in the selection is excluded.</div>
 <dl>
@@ -850,7 +850,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dd><code><a href="../trackselection/ExoTrackSelection.html#isBlacklisted(int,long)">isBlacklisted</a></code>&nbsp;in interface&nbsp;<code><a href="../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>index</code> - The index of the track in the selection.</dd>
-<dd><code>exclusionDurationMs</code> - The current time in the timebase of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a>.</dd>
+<dd><code>nowMs</code> - The current time in the timebase of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a>.</dd>
 </dl>
 </li>
 </ul>

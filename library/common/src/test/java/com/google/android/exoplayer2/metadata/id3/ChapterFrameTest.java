@@ -28,10 +28,11 @@ public final class ChapterFrameTest {
 
   @Test
   public void parcelable() {
-    Id3Frame[] subFrames = new Id3Frame[] {
-      new TextInformationFrame("TIT2", null, "title"),
-      new UrlLinkFrame("WXXX", "description", "url")
-    };
+    Id3Frame[] subFrames =
+        new Id3Frame[] {
+          new TextInformationFrame("TIT2", null, "title"),
+          new UrlLinkFrame("WXXX", "description", "url")
+        };
     ChapterFrame chapterFrameToParcel = new ChapterFrame("id", 0, 1, 2, 3, subFrames);
 
     Parcel parcel = Parcel.obtain();
@@ -43,5 +44,4 @@ public final class ChapterFrameTest {
 
     parcel.recycle();
   }
-
 }

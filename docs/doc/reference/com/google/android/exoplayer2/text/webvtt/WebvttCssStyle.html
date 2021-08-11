@@ -372,7 +372,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFontSizeUnit(short)">setFontSizeUnit</a></span>&#8203;(short&nbsp;unit)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFontSizeUnit(int)">setFontSizeUnit</a></span>&#8203;(int&nbsp;unit)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i20" class="altColor">
@@ -621,7 +621,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                <a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;classes,
                                @Nullable
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;voice)</pre>
-<div class="block">Returns a value in a score system compliant with the CSS Specificity rules.</div>
+<div class="block">Returns a value in a score system compliant with the CSS Specificity rules.
+
+ <p>The score works as follows:
+
+ <ul>
+   <li>Id match adds 0x40000000 to the score.
+   <li>Each class and voice match adds 4 to the score.
+   <li>Tag matching adds 2 to the score.
+   <li>Universal selector matching scores 1.
+ </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The id of the cue if present, <code>null</code> otherwise.</dd>
@@ -631,14 +640,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The score of the match, zero if there is no match.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a>
-     <p>The score works as follows:
-     <ul>
-       <li>Id match adds 0x40000000 to the score.
-       <li>Each class and voice match adds 4 to the score.
-       <li>Tag matching adds 2 to the score.
-       <li>Universal selector matching scores 1.
-     </ul></dd>
+<dd><a href="https://www.w3.org/TR/CSS2/cascade.html">CSS Cascading</a></dd>
 </dl>
 </li>
 </ul>
@@ -795,13 +797,14 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.ht
 <pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSize&#8203;(float&nbsp;fontSize)</pre>
 </li>
 </ul>
-<a id="setFontSizeUnit(short)">
+<a id="setFontSizeUnit(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFontSizeUnit</h4>
-<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSizeUnit&#8203;(short&nbsp;unit)</pre>
+<pre class="methodSignature">public&nbsp;<a href="WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a>&nbsp;setFontSizeUnit&#8203;(<a href="WebvttCssStyle.FontSizeUnit.html" title="annotation in com.google.android.exoplayer2.text.webvtt">@FontSizeUnit</a>
+                                      int&nbsp;unit)</pre>
 </li>
 </ul>
 <a id="getFontSizeUnit()">

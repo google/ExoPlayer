@@ -185,8 +185,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RESULT_END_OF_INPUT">RESULT_END_OF_INPUT</a></span></code></th>
 <td class="colLast">
-<div class="block">Returned by <a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>read(ExtractorInput, PositionHolder)</code></a> if the end of the
- <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> was reached.</div>
+<div class="block">Returned by <a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>read(ExtractorInput, PositionHolder)</code></a> if the end of the <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> was reached.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -310,8 +309,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>RESULT_END_OF_INPUT</h4>
 <pre>static final&nbsp;int RESULT_END_OF_INPUT</pre>
-<div class="block">Returned by <a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>read(ExtractorInput, PositionHolder)</code></a> if the end of the
- <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> was reached. Equal to <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a>.</div>
+<div class="block">Returned by <a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>read(ExtractorInput, PositionHolder)</code></a> if the end of the <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> was reached. Equal to <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.Extractor.RESULT_END_OF_INPUT">Constant Field Values</a></dd>
@@ -410,8 +408,8 @@ int&nbsp;read&#8203;(<a href="ExtractorInput.html" title="interface in com.googl
 <pre class="methodSignature">void&nbsp;seek&#8203;(long&nbsp;position,
           long&nbsp;timeUs)</pre>
 <div class="block">Notifies the extractor that a seek has occurred.
- <p>
- Following a call to this method, the <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed to the next invocation of
+
+ <p>Following a call to this method, the <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed to the next invocation of
  <a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>read(ExtractorInput, PositionHolder)</code></a> is required to provide data starting from <code>
  position</code> in the stream. Valid random access positions are the start of the stream and
  positions that can be obtained from any <a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> passed to the <a href="ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>

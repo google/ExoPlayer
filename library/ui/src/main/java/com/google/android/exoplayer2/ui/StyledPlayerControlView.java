@@ -15,15 +15,19 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TRACKS_CHANGED;
@@ -57,10 +61,11 @@ import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackPreparer;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -89,7 +94,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
  * layout file.
  *
- * <h3>Attributes</h3>
+ * <h2>Attributes</h2>
  *
  * The following attributes can be set on a StyledPlayerControlView when used in a layout XML file:
  *
@@ -120,17 +125,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       <ul>
  *         <li>Corresponding method: {@link #setShowNextButton(boolean)}
  *         <li>Default: true
- *       </ul>
- *   <li><b>{@code rewind_increment}</b> - The duration of the rewind applied when the user taps the
- *       rewind button, in milliseconds. Use zero to disable the rewind button.
- *       <ul>
- *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS}
- *       </ul>
- *   <li><b>{@code fastforward_increment}</b> - Like {@code rewind_increment}, but for fast forward.
- *       <ul>
- *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
- *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS}
  *       </ul>
  *   <li><b>{@code repeat_toggle_modes}</b> - A flagged enumeration value specifying which repeat
  *       mode toggle options are enabled. Valid values are: {@code none}, {@code one}, {@code all},
@@ -172,7 +166,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       unless the layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
- * <h3>Overriding drawables</h3>
+ * <h2>Overriding drawables</h2>
  *
  * The drawables used by StyledPlayerControlView (with its default layout file) can be overridden by
  * drawables with the same names defined in your application. The drawables that can be overridden
@@ -197,7 +191,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code exo_styled_controls_vr}</b> - The VR icon.
  * </ul>
  *
- * <h3>Overriding the layout file</h3>
+ * <h2>Overriding the layout file</h2>
  *
  * To customize the layout of StyledPlayerControlView throughout your app, or just for certain
  * configurations, you can define {@code exo_styled_player_control_view.xml} layout files in your
@@ -302,7 +296,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>All child views are optional and so can be omitted if not required, however where defined they
  * must be of the expected type.
  *
- * <h3 id="CustomLayout">Specifying a custom layout file</h3>
+ * <h2 id="CustomLayout">Specifying a custom layout file</h2>
  *
  * Defining your own {@code exo_styled_player_control_view.xml} is useful to customize the layout of
  * StyledPlayerControlView throughout your application. It's also possible to customize the layout
@@ -417,7 +411,6 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private Player player;
   private ControlDispatcher controlDispatcher;
   @Nullable private ProgressUpdateListener progressUpdateListener;
-  @Nullable private PlaybackPreparer playbackPreparer;
 
   @Nullable private OnFullScreenModeChangedListener onFullScreenModeChangedListener;
   private boolean isFullScreen;
@@ -433,8 +426,6 @@ public class StyledPlayerControlView extends FrameLayout {
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
-  private long rewindMs;
-  private long fastForwardMs;
 
   private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
   private Resources resources;
@@ -472,10 +463,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   @SuppressWarnings({
-    "nullness:argument.type.incompatible",
-    "nullness:assignment.type.incompatible",
-    "nullness:method.invocation.invalid",
-    "nullness:methodref.receiver.bound.invalid"
+    "nullness:argument",
+    "nullness:assignment",
+    "nullness:method.invocation",
+    "nullness:methodref.receiver.bound"
   })
   public StyledPlayerControlView(
       Context context,
@@ -484,8 +475,6 @@ public class StyledPlayerControlView extends FrameLayout {
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_styled_player_control_view;
-    rewindMs = DefaultControlDispatcher.DEFAULT_REWIND_MS;
-    fastForwardMs = DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
@@ -504,10 +493,6 @@ public class StyledPlayerControlView extends FrameLayout {
               .getTheme()
               .obtainStyledAttributes(playbackAttrs, R.styleable.StyledPlayerControlView, 0, 0);
       try {
-        rewindMs = a.getInt(R.styleable.StyledPlayerControlView_rewind_increment, (int) rewindMs);
-        fastForwardMs =
-            a.getInt(
-                R.styleable.StyledPlayerControlView_fastforward_increment, (int) fastForwardMs);
         controllerLayoutId =
             a.getResourceId(
                 R.styleable.StyledPlayerControlView_controller_layout_id, controllerLayoutId);
@@ -555,7 +540,7 @@ public class StyledPlayerControlView extends FrameLayout {
     playedAdGroups = new boolean[0];
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
-    controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
+    controlDispatcher = new DefaultControlDispatcher();
     updateProgressAction = this::updateProgress;
 
     durationView = findViewById(R.id.exo_duration);
@@ -849,24 +834,11 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The view calls {@link
-   *     ControlDispatcher#dispatchPrepare(Player)} instead of {@link
-   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that the view
-   *     uses by default, calls {@link Player#prepare()}. If you wish to customize this behaviour,
-   *     you can provide a custom implementation of {@link
-   *     ControlDispatcher#dispatchPrepare(Player)}.
+   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
+   *     You can also customize some operations when configuring the player (for example by using
+   *     {@link SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
    */
-  @SuppressWarnings("deprecation")
   @Deprecated
-  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    this.playbackPreparer = playbackPreparer;
-  }
-
-  /**
-   * Sets the {@link ControlDispatcher}.
-   *
-   * @param controlDispatcher The {@link ControlDispatcher}.
-   */
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     if (this.controlDispatcher != controlDispatcher) {
       this.controlDispatcher = controlDispatcher;
@@ -1147,21 +1119,14 @@ public class StyledPlayerControlView extends FrameLayout {
     boolean enableFastForward = false;
     boolean enableNext = false;
     if (player != null) {
-      Timeline timeline = player.getCurrentTimeline();
-      if (!timeline.isEmpty() && !player.isPlayingAd()) {
-        boolean isSeekable = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
-        timeline.getWindow(player.getCurrentWindowIndex(), window);
-        enableSeeking = isSeekable;
-        enablePrevious =
-            isSeekable
-                || !window.isLive()
-                || player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
-        enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
-        enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
-        enableNext =
-            (window.isLive() && window.isDynamic)
-                || player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
-      }
+      enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW);
+      enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
+      enableRewind =
+          player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
+      enableFastForward =
+          player.isCommandAvailable(COMMAND_SEEK_FORWARD)
+              && controlDispatcher.isFastForwardEnabled();
+      enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
     }
 
     if (enableRewind) {
@@ -1181,9 +1146,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private void updateRewindButton() {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      rewindMs = ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs();
-    }
+    long rewindMs =
+        controlDispatcher instanceof DefaultControlDispatcher && player != null
+            ? ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs(player)
+            : C.DEFAULT_SEEK_BACK_INCREMENT_MS;
     int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
@@ -1196,9 +1162,10 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private void updateFastForwardButton() {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      fastForwardMs = ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs();
-    }
+    long fastForwardMs =
+        controlDispatcher instanceof DefaultControlDispatcher && player != null
+            ? ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs(player)
+            : C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
     int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
@@ -1362,8 +1329,9 @@ public class StyledPlayerControlView extends FrameLayout {
         }
         for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
           timeline.getPeriod(j, period);
-          int periodAdGroupCount = period.getAdGroupCount();
-          for (int adGroupIndex = 0; adGroupIndex < periodAdGroupCount; adGroupIndex++) {
+          int removedGroups = period.getRemovedAdGroupCount();
+          int totalGroups = period.getAdGroupCount();
+          for (int adGroupIndex = removedGroups; adGroupIndex < totalGroups; adGroupIndex++) {
             long adGroupTimeInPeriodUs = period.getAdGroupTimeUs(adGroupIndex);
             if (adGroupTimeInPeriodUs == C.TIME_END_OF_SOURCE) {
               if (period.durationUs == C.TIME_UNSET) {
@@ -1699,11 +1667,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {
-      if (playbackPreparer != null) {
-        playbackPreparer.preparePlayback();
-      } else {
-        controlDispatcher.dispatchPrepare(player);
-      }
+      controlDispatcher.dispatchPrepare(player);
     } else if (state == Player.STATE_ENDED) {
       seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }
@@ -1773,10 +1737,45 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private final class ComponentListener
-      implements Player.EventListener,
+      implements Player.Listener,
           TimeBar.OnScrubListener,
           OnClickListener,
           PopupWindow.OnDismissListener {
+
+    @Override
+    public void onEvents(Player player, Events events) {
+      if (events.containsAny(EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED)) {
+        updatePlayPauseButton();
+      }
+      if (events.containsAny(
+          EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
+        updateProgress();
+      }
+      if (events.contains(EVENT_REPEAT_MODE_CHANGED)) {
+        updateRepeatModeButton();
+      }
+      if (events.contains(EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+        updateShuffleButton();
+      }
+      if (events.containsAny(
+          EVENT_REPEAT_MODE_CHANGED,
+          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          EVENT_POSITION_DISCONTINUITY,
+          EVENT_TIMELINE_CHANGED,
+          EVENT_SEEK_BACK_INCREMENT_CHANGED,
+          EVENT_SEEK_FORWARD_INCREMENT_CHANGED)) {
+        updateNavigation();
+      }
+      if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
+        updateTimeline();
+      }
+      if (events.contains(EVENT_PLAYBACK_PARAMETERS_CHANGED)) {
+        updatePlaybackSpeedList();
+      }
+      if (events.contains(EVENT_TRACKS_CHANGED)) {
+        updateTrackLists();
+      }
+    }
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
@@ -1801,39 +1800,6 @@ public class StyledPlayerControlView extends FrameLayout {
         seekToTimeBarPosition(player, position);
       }
       controlViewLayoutManager.resetHideCallbacks();
-    }
-
-    @Override
-    public void onEvents(Player player, Events events) {
-      if (events.containsAny(EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED)) {
-        updatePlayPauseButton();
-      }
-      if (events.containsAny(
-          EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
-        updateProgress();
-      }
-      if (events.contains(EVENT_REPEAT_MODE_CHANGED)) {
-        updateRepeatModeButton();
-      }
-      if (events.contains(EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
-        updateShuffleButton();
-      }
-      if (events.containsAny(
-          EVENT_REPEAT_MODE_CHANGED,
-          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
-          EVENT_POSITION_DISCONTINUITY,
-          EVENT_TIMELINE_CHANGED)) {
-        updateNavigation();
-      }
-      if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
-        updateTimeline();
-      }
-      if (events.contains(EVENT_PLAYBACK_PARAMETERS_CHANGED)) {
-        updatePlaybackSpeedList();
-      }
-      if (events.contains(EVENT_TRACKS_CHANGED)) {
-        updateTrackLists();
-      }
     }
 
     @Override

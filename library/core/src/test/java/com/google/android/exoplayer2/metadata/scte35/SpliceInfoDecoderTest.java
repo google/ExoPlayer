@@ -46,22 +46,33 @@ public final class SpliceInfoDecoderTest {
 
   @Test
   public void wrappedAroundTimeSignalCommand() {
-    byte[] rawTimeSignalSection = new byte[] {
-        0, // table_id.
-        (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
-        0x14, // section_length(8).
-        0x00, // protocol_version.
-        0x00, // encrypted_packet, encryption_algorithm, pts_adjustment(1).
-        0x00, 0x00, 0x00, 0x00, // pts_adjustment(32).
-        0x00, // cw_index.
-        0x00, // tier(8).
-        0x00, // tier(4), splice_command_length(4).
-        0x05, // splice_command_length(8).
-        0x06, // splice_command_type = time_signal.
-        // Start of splice_time().
-        (byte) 0x80, // time_specified_flag, reserved, pts_time(1).
-        0x52, 0x03, 0x02, (byte) 0x8f, // pts_time(32). PTS for a second after playback position.
-        0x00, 0x00, 0x00, 0x00}; // CRC_32 (ignored, check happens at extraction).
+    byte[] rawTimeSignalSection =
+        new byte[] {
+          0, // table_id.
+          (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
+          0x14, // section_length(8).
+          0x00, // protocol_version.
+          0x00, // encrypted_packet, encryption_algorithm, pts_adjustment(1).
+          0x00,
+          0x00,
+          0x00,
+          0x00, // pts_adjustment(32).
+          0x00, // cw_index.
+          0x00, // tier(8).
+          0x00, // tier(4), splice_command_length(4).
+          0x05, // splice_command_length(8).
+          0x06, // splice_command_type = time_signal.
+          // Start of splice_time().
+          (byte) 0x80, // time_specified_flag, reserved, pts_time(1).
+          0x52,
+          0x03,
+          0x02,
+          (byte) 0x8f, // pts_time(32). PTS for a second after playback position.
+          0x00,
+          0x00,
+          0x00,
+          0x00
+        }; // CRC_32 (ignored, check happens at extraction).
 
     // The playback position is 57:15:58.43 approximately.
     // With this offset, the playback position pts before wrapping is 0x451ebf851.
@@ -73,30 +84,45 @@ public final class SpliceInfoDecoderTest {
 
   @Test
   public void test2SpliceInsertCommands() {
-    byte[] rawSpliceInsertCommand1 = new byte[] {
-        0, // table_id.
-        (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
-        0x19, // section_length(8).
-        0x00, // protocol_version.
-        0x00, // encrypted_packet, encryption_algorithm, pts_adjustment(1).
-        0x00, 0x00, 0x00, 0x00, // pts_adjustment(32).
-        0x00, // cw_index.
-        0x00, // tier(8).
-        0x00, // tier(4), splice_command_length(4).
-        0x0e, // splice_command_length(8).
-        0x05, // splice_command_type = splice_insert.
-        // Start of splice_insert().
-        0x00, 0x00, 0x00, 0x42, // splice_event_id.
-        0x00, // splice_event_cancel_indicator, reserved.
-        0x40, // out_of_network_indicator, program_splice_flag, duration_flag,
-              // splice_immediate_flag, reserved.
-        // start of splice_time().
-        (byte) 0x80, // time_specified_flag, reserved, pts_time(1).
-        0x00, 0x00, 0x00, 0x00, // PTS for playback position 3s.
-        0x00, 0x10, // unique_program_id.
-        0x01, // avail_num.
-        0x02, // avails_expected.
-        0x00, 0x00, 0x00, 0x00}; // CRC_32 (ignored, check happens at extraction).
+    byte[] rawSpliceInsertCommand1 =
+        new byte[] {
+          0, // table_id.
+          (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
+          0x19, // section_length(8).
+          0x00, // protocol_version.
+          0x00, // encrypted_packet, encryption_algorithm, pts_adjustment(1).
+          0x00,
+          0x00,
+          0x00,
+          0x00, // pts_adjustment(32).
+          0x00, // cw_index.
+          0x00, // tier(8).
+          0x00, // tier(4), splice_command_length(4).
+          0x0e, // splice_command_length(8).
+          0x05, // splice_command_type = splice_insert.
+          // Start of splice_insert().
+          0x00,
+          0x00,
+          0x00,
+          0x42, // splice_event_id.
+          0x00, // splice_event_cancel_indicator, reserved.
+          0x40, // out_of_network_indicator, program_splice_flag, duration_flag,
+          // splice_immediate_flag, reserved.
+          // start of splice_time().
+          (byte) 0x80, // time_specified_flag, reserved, pts_time(1).
+          0x00,
+          0x00,
+          0x00,
+          0x00, // PTS for playback position 3s.
+          0x00,
+          0x10, // unique_program_id.
+          0x01, // avail_num.
+          0x02, // avails_expected.
+          0x00,
+          0x00,
+          0x00,
+          0x00
+        }; // CRC_32 (ignored, check happens at extraction).
 
     Metadata metadata = feedInputBuffer(rawSpliceInsertCommand1, 2000000, 3000000);
     assertThat(metadata.length()).isEqualTo(1);
@@ -112,35 +138,50 @@ public final class SpliceInfoDecoderTest {
     assertThat(command.availNum).isEqualTo(1);
     assertThat(command.availsExpected).isEqualTo(2);
 
-    byte[] rawSpliceInsertCommand2 = new byte[] {
-        0, // table_id.
-        (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
-        0x22, // section_length(8).
-        0x00, // protocol_version.
-        0x00, // encrypted_packet, encryption_algorithm, pts_adjustment(1).
-        0x00, 0x00, 0x00, 0x00, // pts_adjustment(32).
-        0x00, // cw_index.
-        0x00, // tier(8).
-        0x00, // tier(4), splice_command_length(4).
-        0x13, // splice_command_length(8).
-        0x05, // splice_command_type = splice_insert.
-        // Start of splice_insert().
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, // splice_event_id.
-        0x00, // splice_event_cancel_indicator, reserved.
-        0x00, // out_of_network_indicator, program_splice_flag, duration_flag,
-              // splice_immediate_flag, reserved.
-        0x02, // component_count.
-        0x10, // component_tag.
-        // start of splice_time().
-        (byte) 0x81, // time_specified_flag, reserved, pts_time(1).
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, // PTS for playback position 10s.
-        // start of splice_time().
-        0x11, // component_tag.
-        0x00, // time_specified_flag, reserved.
-        0x00, 0x20, // unique_program_id.
-        0x01, // avail_num.
-        0x02, // avails_expected.
-        0x00, 0x00, 0x00, 0x00}; // CRC_32 (ignored, check happens at extraction).
+    byte[] rawSpliceInsertCommand2 =
+        new byte[] {
+          0, // table_id.
+          (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
+          0x22, // section_length(8).
+          0x00, // protocol_version.
+          0x00, // encrypted_packet, encryption_algorithm, pts_adjustment(1).
+          0x00,
+          0x00,
+          0x00,
+          0x00, // pts_adjustment(32).
+          0x00, // cw_index.
+          0x00, // tier(8).
+          0x00, // tier(4), splice_command_length(4).
+          0x13, // splice_command_length(8).
+          0x05, // splice_command_type = splice_insert.
+          // Start of splice_insert().
+          (byte) 0xff,
+          (byte) 0xff,
+          (byte) 0xff,
+          (byte) 0xff, // splice_event_id.
+          0x00, // splice_event_cancel_indicator, reserved.
+          0x00, // out_of_network_indicator, program_splice_flag, duration_flag,
+          // splice_immediate_flag, reserved.
+          0x02, // component_count.
+          0x10, // component_tag.
+          // start of splice_time().
+          (byte) 0x81, // time_specified_flag, reserved, pts_time(1).
+          (byte) 0xff,
+          (byte) 0xff,
+          (byte) 0xff,
+          (byte) 0xff, // PTS for playback position 10s.
+          // start of splice_time().
+          0x11, // component_tag.
+          0x00, // time_specified_flag, reserved.
+          0x00,
+          0x20, // unique_program_id.
+          0x01, // avail_num.
+          0x02, // avails_expected.
+          0x00,
+          0x00,
+          0x00,
+          0x00
+        }; // CRC_32 (ignored, check happens at extraction).
 
     // By changing the subsample offset we force adjuster reconstruction.
     long subsampleOffset = 1000011;
@@ -203,5 +244,4 @@ public final class SpliceInfoDecoderTest {
     return TimestampAdjuster.ptsToUs(TimestampAdjuster.usToNonWrappedPts(timeUs - offsetUs))
         + offsetUs;
   }
-
 }

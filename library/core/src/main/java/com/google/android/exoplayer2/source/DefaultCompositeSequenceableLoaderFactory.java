@@ -23,5 +23,4 @@ public final class DefaultCompositeSequenceableLoaderFactory
   public SequenceableLoader createCompositeSequenceableLoader(SequenceableLoader... loaders) {
     return new CompositeSequenceableLoader(loaders);
   }
-
 }

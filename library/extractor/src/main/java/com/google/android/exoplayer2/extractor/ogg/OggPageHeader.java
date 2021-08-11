@@ -24,16 +24,14 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
-/**
- * Data object to store header information.
- */
-/* package */  final class OggPageHeader {
+/** Data object to store header information. */
+/* package */ final class OggPageHeader {
 
   public static final int EMPTY_PAGE_HEADER_SIZE = 27;
   public static final int MAX_SEGMENT_COUNT = 255;
   public static final int MAX_PAGE_PAYLOAD = 255 * 255;
-  public static final int MAX_PAGE_SIZE = EMPTY_PAGE_HEADER_SIZE + MAX_SEGMENT_COUNT
-      + MAX_PAGE_PAYLOAD;
+  public static final int MAX_PAGE_SIZE =
+      EMPTY_PAGE_HEADER_SIZE + MAX_SEGMENT_COUNT + MAX_PAGE_PAYLOAD;
 
   private static final int CAPTURE_PATTERN = 0x4f676753; // OggS
   private static final int CAPTURE_PATTERN_SIZE = 4;
@@ -54,16 +52,14 @@ import java.io.IOException;
   public int headerSize;
   public int bodySize;
   /**
-   * Be aware that {@code laces.length} is always {@link #MAX_SEGMENT_COUNT}. Instead use
-   * {@link #pageSegmentCount} to iterate.
+   * Be aware that {@code laces.length} is always {@link #MAX_SEGMENT_COUNT}. Instead use {@link
+   * #pageSegmentCount} to iterate.
    */
   public final int[] laces = new int[MAX_SEGMENT_COUNT];
 
   private final ParsableByteArray scratch = new ParsableByteArray(MAX_SEGMENT_COUNT);
 
-  /**
-   * Resets all primitive member fields to zero.
-   */
+  /** Resets all primitive member fields to zero. */
   public void reset() {
     revision = 0;
     type = 0;
@@ -145,7 +141,8 @@ import java.io.IOException;
       if (quiet) {
         return false;
       } else {
-        throw new ParserException("unsupported bit stream revision");
+        throw ParserException.createForUnsupportedContainerFeature(
+            "unsupported bit stream revision");
       }
     }
     type = scratch.readUnsignedByte();

@@ -17,10 +17,8 @@ package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
-import android.net.Uri;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
-import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
@@ -62,16 +60,6 @@ import java.util.concurrent.Executor;
 public final class SsDownloader extends SegmentDownloader<SsManifest> {
 
   /**
-   * @deprecated Use {@link #SsDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public SsDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    this(manifestUri, streamKeys, cacheDataSourceFactory, Runnable::run);
-  }
-
-  /**
    * Creates an instance.
    *
    * @param mediaItem The {@link MediaItem} to be downloaded.
@@ -80,21 +68,6 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    */
   public SsDownloader(MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
     this(mediaItem, cacheDataSourceFactory, Runnable::run);
-  }
-
-  /**
-   * @deprecated Use {@link #SsDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
-   */
-  @Deprecated
-  public SsDownloader(
-      Uri manifestUri,
-      List<StreamKey> streamKeys,
-      CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    this(
-        new MediaItem.Builder().setUri(manifestUri).setStreamKeys(streamKeys).build(),
-        cacheDataSourceFactory,
-        executor);
   }
 
   /**
@@ -156,5 +129,4 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
     }
     return segments;
   }
-
 }

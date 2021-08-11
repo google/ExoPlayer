@@ -255,7 +255,7 @@ implements <a href="../../extractor/TrackOutput.html" title="interface in com.go
               int&nbsp;flags,
               int&nbsp;size,
               int&nbsp;offset,
-              <a href="../../extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;encryptionData)</code></th>
+              <a href="../../extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</code></th>
 <td class="colLast">
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.</div>
 </td>
@@ -372,7 +372,7 @@ implements <a href="../../extractor/TrackOutput.html" title="interface in com.go
                            int&nbsp;size,
                            int&nbsp;offset,
                            @Nullable
-                           <a href="../../extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;encryptionData)</pre>
+                           <a href="../../extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../extractor/TrackOutput.html#sampleMetadata(long,int,int,int,com.google.android.exoplayer2.extractor.TrackOutput.CryptoData)">TrackOutput</a></code></span></div>
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.
 
@@ -388,7 +388,7 @@ implements <a href="../../extractor/TrackOutput.html" title="interface in com.go
 <dd><code>offset</code> - The number of bytes that have been passed to <a href="../../extractor/TrackOutput.html#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean)"><code>TrackOutput.sampleData(DataReader, int,
      boolean)</code></a> or <a href="../../extractor/TrackOutput.html#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int)"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a> since the last byte belonging to
      the sample whose metadata is being passed.</dd>
-<dd><code>encryptionData</code> - The encryption data required to decrypt the sample. May be null.</dd>
+<dd><code>cryptoData</code> - The encryption data required to decrypt the sample. May be null.</dd>
 </dl>
 </li>
 </ul>

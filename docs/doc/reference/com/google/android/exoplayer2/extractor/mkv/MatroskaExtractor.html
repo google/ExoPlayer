@@ -411,8 +411,8 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <h4>FLAG_DISABLE_SEEK_FOR_CUES</h4>
 <pre>public static final&nbsp;int FLAG_DISABLE_SEEK_FOR_CUES</pre>
 <div class="block">Flag to disable seeking for cues.
- <p>
- Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
+
+ <p>Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
  position is specified in the seek head and if it's after the first cluster. Setting this flag
  disables seeking to the cues element. If the cues element is after the first cluster then the
  media is treated as being unseekable.</div>
@@ -515,8 +515,8 @@ public&nbsp;void&nbsp;seek&#8203;(long&nbsp;position,
                  long&nbsp;timeUs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#seek(long,long)">Extractor</a></code></span></div>
 <div class="block">Notifies the extractor that a seek has occurred.
- <p>
- Following a call to this method, the <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed to the next invocation of
+
+ <p>Following a call to this method, the <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed to the next invocation of
  <a href="../Extractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a> is required to provide data starting from <code>
  position</code> in the stream. Valid random access positions are the start of the stream and
  positions that can be obtained from any <a href="../SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> passed to the <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
