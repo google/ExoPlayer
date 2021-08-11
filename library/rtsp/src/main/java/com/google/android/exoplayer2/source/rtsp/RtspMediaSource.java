@@ -69,7 +69,7 @@ public final class RtspMediaSource extends BaseMediaSource {
     private long timeoutMs;
     private String userAgent;
     private boolean forceUseRtpTcp;
-    private boolean debugLoggingEnabled;
+    private boolean debugLoggingEnabled = true;
 
     public Factory() {
       timeoutMs = DEFAULT_TIMEOUT_MS;

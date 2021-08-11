@@ -4,7 +4,7 @@
     "samples": [
       {
         "name": "HD (MP4, H264)",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
+        "uri": "rtsp://localhost:15554"
       },
       {
         "name": "UHD (MP4, H264)",

@@ -45,7 +45,10 @@ public interface MediaCodecAdapter {
     public final MediaFormat mediaFormat;
     /** The {@link Format} for which the codec is being configured. */
     public final Format format;
-    /** For video playbacks, the output where the object will render the decoded frames. */
+    /**
+     * For video decoding, the output where the object will render the decoded frames; for video
+     * encoding, this is the input surface from which the decoded frames are retrieved.
+     */
     @Nullable public final Surface surface;
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
     @Nullable public final MediaCrypto crypto;

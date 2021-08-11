@@ -21,9 +21,11 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Surface;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -42,17 +44,29 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   public static class Factory implements MediaCodecAdapter.Factory {
 
     @Override
+    @RequiresApi(16)
     public MediaCodecAdapter createAdapter(Configuration configuration) throws IOException {
       @Nullable MediaCodec codec = null;
+      boolean isEncoder = configuration.flags == MediaCodec.CONFIGURE_FLAG_ENCODE;
+      @Nullable Surface decoderOutputSurface = isEncoder ? null : configuration.surface;
       try {
         codec = createCodec(configuration);
         TraceUtil.beginSection("configureCodec");
         codec.configure(
             configuration.mediaFormat,
-            configuration.surface,
+            decoderOutputSurface,
             configuration.crypto,
             configuration.flags);
         TraceUtil.endSection();
+        if (isEncoder && configuration.surface != null) {
+          if (Build.VERSION.SDK_INT >= 23) {
+            Api23.setCodecInputSurface(codec, configuration.surface);
+          } else {
+            throw new IllegalStateException(
+                "Encoding from a surface is only supported on API 23 and up");
+          }
+        }
+
         TraceUtil.beginSection("startCodec");
         codec.start();
         TraceUtil.endSection();
@@ -197,5 +211,13 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   @Override
   public void setVideoScalingMode(@C.VideoScalingMode int scalingMode) {
     codec.setVideoScalingMode(scalingMode);
+  }
+
+  @RequiresApi(23)
+  private static final class Api23 {
+    @DoNotInline
+    public static void setCodecInputSurface(MediaCodec codec, Surface surface) {
+      codec.setInputSurface(surface);
+    }
   }
 }
