@@ -97,7 +97,6 @@ public class SimpleExoPlayer extends BasePlayer
         ExoPlayer.AudioComponent,
         ExoPlayer.VideoComponent,
         ExoPlayer.TextComponent,
-        ExoPlayer.MetadataComponent,
         ExoPlayer.DeviceComponent {
 
   /** @deprecated Use {@link ExoPlayer.Builder} instead. */
@@ -430,8 +429,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final CopyOnWriteArraySet<VideoListener> videoListeners;
   private final CopyOnWriteArraySet<AudioListener> audioListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
-  private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
-  private final CopyOnWriteArraySet<Listener> deviceListeners;
+  private final CopyOnWriteArraySet<Listener> listeners;
   private final AnalyticsCollector analyticsCollector;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
@@ -514,8 +512,7 @@ public class SimpleExoPlayer extends BasePlayer
       videoListeners = new CopyOnWriteArraySet<>();
       audioListeners = new CopyOnWriteArraySet<>();
       textOutputs = new CopyOnWriteArraySet<>();
-      metadataOutputs = new CopyOnWriteArraySet<>();
-      deviceListeners = new CopyOnWriteArraySet<>();
+      listeners = new CopyOnWriteArraySet<>();
       Handler eventHandler = new Handler(builder.looper);
       renderers =
           builder.renderersFactory.createRenderers(
@@ -631,12 +628,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   @Nullable
   public TextComponent getTextComponent() {
-    return this;
-  }
-
-  @Override
-  @Nullable
-  public MetadataComponent getMetadataComponent() {
     return this;
   }
 
@@ -1109,21 +1100,6 @@ public class SimpleExoPlayer extends BasePlayer
     return currentCues;
   }
 
-  @Deprecated
-  @Override
-  public void addMetadataOutput(MetadataOutput output) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(output);
-    metadataOutputs.add(output);
-  }
-
-  @Deprecated
-  @Override
-  public void removeMetadataOutput(MetadataOutput output) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    metadataOutputs.remove(output);
-  }
-
   // ExoPlayer implementation
 
   @Override
@@ -1147,8 +1123,7 @@ public class SimpleExoPlayer extends BasePlayer
     addAudioListener(listener);
     addVideoListener(listener);
     addTextOutput(listener);
-    addMetadataOutput(listener);
-    deviceListeners.add(listener);
+    listeners.add(listener);
     EventListener eventListener = listener;
     addListener(eventListener);
   }
@@ -1167,8 +1142,7 @@ public class SimpleExoPlayer extends BasePlayer
     removeAudioListener(listener);
     removeVideoListener(listener);
     removeTextOutput(listener);
-    removeMetadataOutput(listener);
-    deviceListeners.remove(listener);
+    listeners.remove(listener);
     EventListener eventListener = listener;
     removeListener(eventListener);
   }
@@ -2132,8 +2106,9 @@ public class SimpleExoPlayer extends BasePlayer
     public void onMetadata(Metadata metadata) {
       analyticsCollector.onMetadata(metadata);
       player.onMetadata(metadata);
-      for (MetadataOutput metadataOutput : metadataOutputs) {
-        metadataOutput.onMetadata(metadata);
+      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+      for (Listener listener : listeners) {
+        listener.onMetadata(metadata);
       }
     }
 
@@ -2228,8 +2203,8 @@ public class SimpleExoPlayer extends BasePlayer
       if (!deviceInfo.equals(SimpleExoPlayer.this.deviceInfo)) {
         SimpleExoPlayer.this.deviceInfo = deviceInfo;
         // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-        for (Listener deviceListener : deviceListeners) {
-          deviceListener.onDeviceInfoChanged(deviceInfo);
+        for (Listener listener : listeners) {
+          listener.onDeviceInfoChanged(deviceInfo);
         }
       }
     }
@@ -2237,8 +2212,8 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener deviceListener : deviceListeners) {
-        deviceListener.onDeviceVolumeChanged(streamVolume, streamMuted);
+      for (Listener listener : listeners) {
+        listener.onDeviceVolumeChanged(streamVolume, streamMuted);
       }
     }
 

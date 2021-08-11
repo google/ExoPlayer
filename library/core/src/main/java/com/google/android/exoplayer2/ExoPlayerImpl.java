@@ -293,12 +293,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   @Nullable
-  public MetadataComponent getMetadataComponent() {
-    return null;
-  }
-
-  @Override
-  @Nullable
   public DeviceComponent getDeviceComponent() {
     return null;
   }

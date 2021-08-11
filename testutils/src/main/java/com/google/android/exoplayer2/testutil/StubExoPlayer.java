@@ -66,11 +66,6 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public MetadataComponent getMetadataComponent() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public DeviceComponent getDeviceComponent() {
     throw new UnsupportedOperationException();
   }

@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -871,8 +870,7 @@ public interface Player {
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
    */
-  interface Listener
-      extends VideoListener, AudioListener, TextOutput, MetadataOutput, EventListener {
+  interface Listener extends VideoListener, AudioListener, TextOutput, EventListener {
 
     @Override
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
@@ -963,7 +961,11 @@ public interface Player {
     @Override
     default void onCues(List<Cue> cues) {}
 
-    @Override
+    /**
+     * Called when there is metadata associated with the current playback time.
+     *
+     * @param metadata The metadata.
+     */
     default void onMetadata(Metadata metadata) {}
 
     @Override

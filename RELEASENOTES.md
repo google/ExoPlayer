@@ -24,6 +24,8 @@
     *   Remove `CacheDataSourceFactory`. Use `CacheDataSource.Factory` instead.
     *   Remove `CacheDataSinkFactory`. Use `CacheDataSink.Factory` instead.
     *   Remove `FileDataSourceFactory`. Use `FileDataSource.Factory` instead.
+    *   Remove `SimpleExoPlayer.addMetadataOutput` and `removeMetadataOutput`.
+        Use `Player.addListener` and `Player.Listener` instead.
 
 ### 2.15.0 (2021-08-10)
 

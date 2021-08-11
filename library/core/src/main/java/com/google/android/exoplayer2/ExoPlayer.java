@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -445,28 +444,6 @@ public interface ExoPlayer extends Player {
 
     /** Returns the current {@link Cue Cues}. This list may be empty. */
     List<Cue> getCurrentCues();
-  }
-
-  /** The metadata component of an {@link ExoPlayer}. */
-  interface MetadataComponent {
-
-    /**
-     * Adds a {@link MetadataOutput} to receive metadata.
-     *
-     * @param output The output to register.
-     * @deprecated Use {@link #addListener(Listener)}.
-     */
-    @Deprecated
-    void addMetadataOutput(MetadataOutput output);
-
-    /**
-     * Removes a {@link MetadataOutput}.
-     *
-     * @param output The output to remove.
-     * @deprecated Use {@link #removeListener(Listener)}.
-     */
-    @Deprecated
-    void removeMetadataOutput(MetadataOutput output);
   }
 
   /** The device component of an {@link ExoPlayer}. */
@@ -1033,12 +1010,6 @@ public interface ExoPlayer extends Player {
   /** Returns the component of this player for text output, or null if text is not supported. */
   @Nullable
   TextComponent getTextComponent();
-
-  /**
-   * Returns the component of this player for metadata output, or null if metadata is not supported.
-   */
-  @Nullable
-  MetadataComponent getMetadataComponent();
 
   /** Returns the component of this player for playback device, or null if it's not supported. */
   @Nullable
