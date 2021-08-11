@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.robolectric;
 
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.dvbsi.AppInfoTable;
@@ -63,8 +64,18 @@ public final class PlaybackOutput implements Dumper.Dumpable {
     // TODO: Consider passing playback position into MetadataOutput and TextOutput. Calling
     // player.getCurrentPosition() inside onMetadata/Cues will likely be non-deterministic
     // because renderer-thread != playback-thread.
-    player.addMetadataOutput(metadatas::add);
-    // TODO(internal b/174661563): Output subtitle data when it's not flaky.
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onMetadata(Metadata metadata) {
+            metadatas.add(metadata);
+          }
+
+          @Override
+          public void onCues(List<Cue> cues) {
+            // TODO(internal b/174661563): Output subtitle data when it's not flaky.
+          }
+        });
   }
 
   /**

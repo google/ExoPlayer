@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoListener;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -252,7 +251,7 @@ public class TestPlayerRunHelper {
   }
 
   /**
-   * Runs tasks of the main {@link Looper} until the {@link VideoListener#onRenderedFirstFrame}
+   * Runs tasks of the main {@link Looper} until the {@link Player.Listener#onRenderedFirstFrame}
    * callback is called or a playback error occurs.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}..

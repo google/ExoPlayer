@@ -1490,7 +1490,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     @Override
     public void onCues(List<Cue> cues) {
       if (subtitleView != null) {
-        subtitleView.onCues(cues);
+        subtitleView.setCues(cues);
       }
     }
 

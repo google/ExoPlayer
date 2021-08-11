@@ -1531,7 +1531,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     @Override
     public void onCues(List<Cue> cues) {
       if (subtitleView != null) {
-        subtitleView.onCues(cues);
+        subtitleView.setCues(cues);
       }
     }
 

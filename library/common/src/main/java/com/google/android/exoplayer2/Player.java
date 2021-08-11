@@ -140,7 +140,7 @@ public interface Player {
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
      * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link MetadataOutput#onMetadata(Metadata)}.
+     * selections' formats} and {@link Listener#onMetadata(Metadata)}.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -1924,7 +1924,7 @@ public interface Player {
    *
    * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
    * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link MetadataOutput#onMetadata(Metadata)}.
+   * formats} and {@link Listener#onMetadata(Metadata)}.
    */
   MediaMetadata getMediaMetadata();
 
