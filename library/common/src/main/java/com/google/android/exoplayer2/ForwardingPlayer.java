@@ -47,8 +47,8 @@ public class ForwardingPlayer implements Player {
     return player.getApplicationLooper();
   }
 
+  @Deprecated
   @Override
-  @SuppressWarnings("deprecation") // Implementing deprecated method.
   public void addListener(EventListener listener) {
     player.addListener(new ForwardingEventListener(this, listener));
   }
@@ -58,8 +58,8 @@ public class ForwardingPlayer implements Player {
     player.addListener(new ForwardingListener(this, listener));
   }
 
+  @Deprecated
   @Override
-  @SuppressWarnings("deprecation") // Implementing deprecated method.
   public void removeListener(EventListener listener) {
     player.removeListener(new ForwardingEventListener(this, listener));
   }
@@ -350,8 +350,8 @@ public class ForwardingPlayer implements Player {
     player.stop();
   }
 
+  @Deprecated
   @Override
-  @SuppressWarnings("deprecation") // Forwarding to deprecated method.
   public void stop(boolean reset) {
     player.stop(reset);
   }
