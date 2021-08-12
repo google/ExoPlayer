@@ -20,6 +20,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -90,10 +91,9 @@ public interface Renderer extends PlayerMessage.Target {
   int MSG_SET_VOLUME = 2;
   /**
    * A type of a message that can be passed to an audio renderer via {@link
-   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link
-   * com.google.android.exoplayer2.audio.AudioAttributes} instance that will configure the
-   * underlying audio track. If not set, the default audio attributes will be used. They are
-   * suitable for general media playback.
+   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AudioAttributes}
+   * instance that will configure the underlying audio track. If not set, the default audio
+   * attributes will be used. They are suitable for general media playback.
    *
    * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
    * the audio track is recreated. A new audio session id will also be generated.
