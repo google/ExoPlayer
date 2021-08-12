@@ -29,7 +29,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
-import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
@@ -145,24 +144,6 @@ public interface ExoPlayer extends Player {
 
   /** The audio component of an {@link ExoPlayer}. */
   interface AudioComponent {
-
-    /**
-     * Adds a listener to receive audio events.
-     *
-     * @param listener The listener to register.
-     * @deprecated Use {@link #addListener(Listener)}.
-     */
-    @Deprecated
-    void addAudioListener(AudioListener listener);
-
-    /**
-     * Removes a listener of audio events.
-     *
-     * @param listener The listener to unregister.
-     * @deprecated Use {@link #removeListener(Listener)}.
-     */
-    @Deprecated
-    void removeAudioListener(AudioListener listener);
 
     /**
      * Sets the attributes for audio playback, used by the underlying audio track. If not set, the

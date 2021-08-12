@@ -48,7 +48,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -427,7 +426,6 @@ public class SimpleExoPlayer extends BasePlayer
   private final ComponentListener componentListener;
   private final FrameMetadataListener frameMetadataListener;
   private final CopyOnWriteArraySet<VideoListener> videoListeners;
-  private final CopyOnWriteArraySet<AudioListener> audioListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final AnalyticsCollector analyticsCollector;
@@ -510,7 +508,6 @@ public class SimpleExoPlayer extends BasePlayer
       componentListener = new ComponentListener();
       frameMetadataListener = new FrameMetadataListener();
       videoListeners = new CopyOnWriteArraySet<>();
-      audioListeners = new CopyOnWriteArraySet<>();
       textOutputs = new CopyOnWriteArraySet<>();
       listeners = new CopyOnWriteArraySet<>();
       Handler eventHandler = new Handler(builder.looper);
@@ -802,21 +799,6 @@ public class SimpleExoPlayer extends BasePlayer
     player.removeAudioOffloadListener(listener);
   }
 
-  @Deprecated
-  @Override
-  public void addAudioListener(AudioListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
-    audioListeners.add(listener);
-  }
-
-  @Deprecated
-  @Override
-  public void removeAudioListener(AudioListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    audioListeners.remove(listener);
-  }
-
   @Override
   public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
     verifyApplicationThread();
@@ -828,8 +810,9 @@ public class SimpleExoPlayer extends BasePlayer
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
       analyticsCollector.onAudioAttributesChanged(audioAttributes);
-      for (AudioListener audioListener : audioListeners) {
-        audioListener.onAudioAttributesChanged(audioAttributes);
+      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+      for (Listener listener : listeners) {
+        listener.onAudioAttributesChanged(audioAttributes);
       }
     }
 
@@ -867,8 +850,9 @@ public class SimpleExoPlayer extends BasePlayer
     sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     analyticsCollector.onAudioSessionIdChanged(audioSessionId);
-    for (AudioListener audioListener : audioListeners) {
-      audioListener.onAudioSessionIdChanged(audioSessionId);
+    // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+    for (Listener listener : listeners) {
+      listener.onAudioSessionIdChanged(audioSessionId);
     }
   }
 
@@ -898,8 +882,9 @@ public class SimpleExoPlayer extends BasePlayer
     this.audioVolume = audioVolume;
     sendVolumeToRenderers();
     analyticsCollector.onVolumeChanged(audioVolume);
-    for (AudioListener audioListener : audioListeners) {
-      audioListener.onVolumeChanged(audioVolume);
+    // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+    for (Listener listener : listeners) {
+      listener.onVolumeChanged(audioVolume);
     }
   }
 
@@ -1120,7 +1105,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addListener(Listener listener) {
     Assertions.checkNotNull(listener);
-    addAudioListener(listener);
     addVideoListener(listener);
     addTextOutput(listener);
     listeners.add(listener);
@@ -1139,7 +1123,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void removeListener(Listener listener) {
     Assertions.checkNotNull(listener);
-    removeAudioListener(listener);
     removeVideoListener(listener);
     removeTextOutput(listener);
     listeners.remove(listener);
@@ -1827,7 +1810,8 @@ public class SimpleExoPlayer extends BasePlayer
   @SuppressWarnings("SuspiciousMethodCalls")
   private void notifySkipSilenceEnabledChanged() {
     analyticsCollector.onSkipSilenceEnabledChanged(skipSilenceEnabled);
-    for (AudioListener listener : audioListeners) {
+    // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+    for (Listener listener : listeners) {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
   }

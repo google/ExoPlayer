@@ -24,7 +24,6 @@ import android.view.TextureView;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -870,7 +869,7 @@ public interface Player {
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
    */
-  interface Listener extends VideoListener, AudioListener, TextOutput, EventListener {
+  interface Listener extends VideoListener, TextOutput, EventListener {
 
     @Override
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
@@ -928,16 +927,32 @@ public interface Player {
     @Override
     default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
 
-    @Override
+    /**
+     * Called when the audio session ID changes.
+     *
+     * @param audioSessionId The audio session ID.
+     */
     default void onAudioSessionIdChanged(int audioSessionId) {}
 
-    @Override
+    /**
+     * Called when the audio attributes change.
+     *
+     * @param audioAttributes The audio attributes.
+     */
     default void onAudioAttributesChanged(AudioAttributes audioAttributes) {}
 
-    @Override
+    /**
+     * Called when the volume changes.
+     *
+     * @param volume The new volume, with 0 being silence and 1 being unity gain.
+     */
     default void onVolumeChanged(float volume) {}
 
-    @Override
+    /**
+     * Called when skipping silences is enabled or disabled in the audio stream.
+     *
+     * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+     */
     default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
 
     /** Called when the device information changes. */
