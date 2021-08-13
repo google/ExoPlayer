@@ -1,9 +1,12 @@
 # Release notes
 
 ### dev-v2 (not yet released)
+
 *   Core Library:
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
+    *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
+        `com.google.android.exoplayer2.decoder.DecryptionException`.
     *   Make `ExoPlayer.Builder` return a `SimpleExoPlayer` instance.
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
 *   Android 12 compatibility:
