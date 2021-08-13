@@ -1041,7 +1041,6 @@ public final class C {
    * audio MIME type.
    */
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
-
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
    * #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.

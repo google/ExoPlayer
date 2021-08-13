@@ -33,6 +33,8 @@ public final class MimeTypes {
   public static final String BASE_TYPE_IMAGE = "image";
   public static final String BASE_TYPE_APPLICATION = "application";
 
+  // video/ MIME types
+
   public static final String VIDEO_MP4 = BASE_TYPE_VIDEO + "/mp4";
   public static final String VIDEO_MATROSKA = BASE_TYPE_VIDEO + "/x-matroska";
   public static final String VIDEO_WEBM = BASE_TYPE_VIDEO + "/webm";
@@ -53,6 +55,8 @@ public final class MimeTypes {
   public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
   public static final String VIDEO_OGG = BASE_TYPE_VIDEO + "/ogg";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
+
+  // audio/ MIME types
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";
@@ -87,12 +91,18 @@ public final class MimeTypes {
   public static final String AUDIO_WAV = BASE_TYPE_AUDIO + "/wav";
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
 
+  // text/ MIME types
+
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
   public static final String TEXT_SSA = BASE_TYPE_TEXT + "/x-ssa";
 
+  // application/ MIME types
+
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+
   public static final String APPLICATION_MATROSKA = BASE_TYPE_APPLICATION + "/x-matroska";
+
   public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
@@ -108,13 +118,17 @@ public final class MimeTypes {
   public static final String APPLICATION_VOBSUB = BASE_TYPE_APPLICATION + "/vobsub";
   public static final String APPLICATION_PGS = BASE_TYPE_APPLICATION + "/pgs";
   public static final String APPLICATION_SCTE35 = BASE_TYPE_APPLICATION + "/x-scte35";
+
   public static final String APPLICATION_CAMERA_MOTION = BASE_TYPE_APPLICATION + "/x-camera-motion";
+
   public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
   public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
   public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
   public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
+
+  // image/ MIME types
 
   public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
 
