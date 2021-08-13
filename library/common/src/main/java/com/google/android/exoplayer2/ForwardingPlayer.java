@@ -299,7 +299,7 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public int getMaxSeekToPreviousPosition() {
+  public long getMaxSeekToPreviousPosition() {
     return player.getMaxSeekToPreviousPosition();
   }
 
@@ -752,7 +752,7 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {
+    public void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {
       eventListener.onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs);
     }
 

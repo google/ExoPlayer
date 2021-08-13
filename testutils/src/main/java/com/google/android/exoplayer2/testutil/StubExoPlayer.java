@@ -305,7 +305,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public int getMaxSeekToPreviousPosition() {
+  public long getMaxSeekToPreviousPosition() {
     throw new UnsupportedOperationException();
   }
 

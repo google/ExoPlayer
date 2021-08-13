@@ -459,7 +459,7 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public int getMaxSeekToPreviousPosition() {
+  public long getMaxSeekToPreviousPosition() {
     return C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
   }
 

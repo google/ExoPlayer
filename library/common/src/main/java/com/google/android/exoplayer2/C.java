@@ -665,7 +665,7 @@ public final class C {
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
   /** A default seek back increment, in milliseconds. */
-  public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5000;
+  public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5_000;
   /** A default seek forward increment, in milliseconds. */
   public static final long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
 
@@ -673,7 +673,7 @@ public final class C {
    * A default maximum position for which a seek to previous will seek to the previous window, in
    * milliseconds.
    */
-  public static final int DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 3000;
+  public static final long DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 3_000;
 
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")

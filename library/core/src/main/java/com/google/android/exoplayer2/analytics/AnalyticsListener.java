@@ -623,7 +623,7 @@ public interface AnalyticsListener {
    * @param maxSeekToPreviousPositionMs The maximum seek to previous position, in milliseconds.
    */
   default void onMaxSeekToPreviousPositionChanged(
-      EventTime eventTime, int maxSeekToPreviousPositionMs) {}
+      EventTime eventTime, long maxSeekToPreviousPositionMs) {}
 
   /**
    * Called when the repeat mode changed.

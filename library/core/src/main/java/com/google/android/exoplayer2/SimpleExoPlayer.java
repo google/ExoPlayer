@@ -1380,7 +1380,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public int getMaxSeekToPreviousPosition() {
+  public long getMaxSeekToPreviousPosition() {
     verifyApplicationThread();
     return player.getMaxSeekToPreviousPosition();
   }

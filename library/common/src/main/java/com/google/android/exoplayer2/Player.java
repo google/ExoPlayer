@@ -338,7 +338,7 @@ public interface Player {
      * @param maxSeekToPreviousPositionMs The maximum position for which {@link #seekToPrevious()}
      *     seeks to the previous position, in milliseconds.
      */
-    default void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {}
+    default void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {}
 
     /**
      * @deprecated Seeks are processed without delay. Listen to {@link
@@ -1785,9 +1785,9 @@ public interface Player {
    * in milliseconds.
    *
    * @return The maximum seek to previous position, in milliseconds.
-   * @see Listener#onMaxSeekToPreviousPositionChanged(int)
+   * @see Listener#onMaxSeekToPreviousPositionChanged(long)
    */
-  int getMaxSeekToPreviousPosition();
+  long getMaxSeekToPreviousPosition();
 
   /**
    * Seeks to an earlier position in the current or previous window (if available). More precisely:
