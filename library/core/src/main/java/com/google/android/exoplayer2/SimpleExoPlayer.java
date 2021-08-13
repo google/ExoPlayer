@@ -76,7 +76,6 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -425,7 +424,6 @@ public class SimpleExoPlayer extends BasePlayer
   private final ExoPlayerImpl player;
   private final ComponentListener componentListener;
   private final FrameMetadataListener frameMetadataListener;
-  private final CopyOnWriteArraySet<VideoListener> videoListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final AnalyticsCollector analyticsCollector;
@@ -507,7 +505,6 @@ public class SimpleExoPlayer extends BasePlayer
       detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
       componentListener = new ComponentListener();
       frameMetadataListener = new FrameMetadataListener();
-      videoListeners = new CopyOnWriteArraySet<>();
       textOutputs = new CopyOnWriteArraySet<>();
       listeners = new CopyOnWriteArraySet<>();
       Handler eventHandler = new Handler(builder.looper);
@@ -1001,21 +998,6 @@ public class SimpleExoPlayer extends BasePlayer
     return audioDecoderCounters;
   }
 
-  @Deprecated
-  @Override
-  public void addVideoListener(VideoListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
-    videoListeners.add(listener);
-  }
-
-  @Deprecated
-  @Override
-  public void removeVideoListener(VideoListener listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    videoListeners.remove(listener);
-  }
-
   @Override
   public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
     verifyApplicationThread();
@@ -1105,7 +1087,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addListener(Listener listener) {
     Assertions.checkNotNull(listener);
-    addVideoListener(listener);
     addTextOutput(listener);
     listeners.add(listener);
     EventListener eventListener = listener;
@@ -1123,7 +1104,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void removeListener(Listener listener) {
     Assertions.checkNotNull(listener);
-    removeVideoListener(listener);
     removeTextOutput(listener);
     listeners.remove(listener);
     EventListener eventListener = listener;
@@ -1796,8 +1776,9 @@ public class SimpleExoPlayer extends BasePlayer
       surfaceWidth = width;
       surfaceHeight = height;
       analyticsCollector.onSurfaceSizeChanged(width, height);
-      for (VideoListener videoListener : videoListeners) {
-        videoListener.onSurfaceSizeChanged(width, height);
+      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+      for (Listener listener : listeners) {
+        listener.onSurfaceSizeChanged(width, height);
       }
     }
   }
@@ -1969,13 +1950,9 @@ public class SimpleExoPlayer extends BasePlayer
     public void onVideoSizeChanged(VideoSize videoSize) {
       SimpleExoPlayer.this.videoSize = videoSize;
       analyticsCollector.onVideoSizeChanged(videoSize);
-      for (VideoListener videoListener : videoListeners) {
-        videoListener.onVideoSizeChanged(videoSize);
-        videoListener.onVideoSizeChanged(
-            videoSize.width,
-            videoSize.height,
-            videoSize.unappliedRotationDegrees,
-            videoSize.pixelWidthHeightRatio);
+      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+      for (Listener listener : listeners) {
+        listener.onVideoSizeChanged(videoSize);
       }
     }
 
@@ -1983,8 +1960,9 @@ public class SimpleExoPlayer extends BasePlayer
     public void onRenderedFirstFrame(Object output, long renderTimeMs) {
       analyticsCollector.onRenderedFirstFrame(output, renderTimeMs);
       if (videoOutput == output) {
-        for (VideoListener videoListener : videoListeners) {
-          videoListener.onRenderedFirstFrame();
+        // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+        for (Listener listener : listeners) {
+          listener.onRenderedFirstFrame();
         }
       }
     }

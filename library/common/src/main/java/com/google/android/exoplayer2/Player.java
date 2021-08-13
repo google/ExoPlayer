@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
@@ -869,7 +868,7 @@ public interface Player {
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
    */
-  interface Listener extends VideoListener, TextOutput, EventListener {
+  interface Listener extends TextOutput, EventListener {
 
     @Override
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
@@ -964,13 +963,28 @@ public interface Player {
     @Override
     default void onEvents(Player player, Events events) {}
 
-    @Override
+    /**
+     * Called each time there's a change in the size of the video being rendered.
+     *
+     * @param videoSize The new size of the video.
+     */
     default void onVideoSizeChanged(VideoSize videoSize) {}
 
-    @Override
+    /**
+     * Called each time there's a change in the size of the surface onto which the video is being
+     * rendered.
+     *
+     * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+     *     the video is not rendered onto a surface.
+     * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+     *     the video is not rendered onto a surface.
+     */
     default void onSurfaceSizeChanged(int width, int height) {}
 
-    @Override
+    /**
+     * Called when a frame is rendered for the first time since setting the surface, or since the
+     * renderer was reset, or since the stream being rendered was changed.
+     */
     default void onRenderedFirstFrame() {}
 
     @Override

@@ -802,18 +802,9 @@ public class ForwardingPlayer implements Player {
       this.listener = listener;
     }
 
-    // VideoListener methods.
-
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
       listener.onVideoSizeChanged(videoSize);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void onVideoSizeChanged(
-        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      listener.onVideoSizeChanged(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     }
 
     @Override
@@ -825,8 +816,6 @@ public class ForwardingPlayer implements Player {
     public void onRenderedFirstFrame() {
       listener.onRenderedFirstFrame();
     }
-
-    // AudioListener methods
 
     @Override
     public void onAudioSessionIdChanged(int audioSessionId) {
@@ -848,21 +837,15 @@ public class ForwardingPlayer implements Player {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
 
-    // TextOutput methods.
-
     @Override
     public void onCues(List<Cue> cues) {
       listener.onCues(cues);
     }
 
-    // MetadataOutput methods.
-
     @Override
     public void onMetadata(Metadata metadata) {
       listener.onMetadata(metadata);
     }
-
-    // DeviceListener callbacks
 
     @Override
     public void onDeviceInfoChanged(DeviceInfo deviceInfo) {

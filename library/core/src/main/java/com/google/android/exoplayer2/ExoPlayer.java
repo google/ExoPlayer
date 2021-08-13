@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
@@ -254,24 +253,6 @@ public interface ExoPlayer extends Player {
     int getVideoChangeFrameRateStrategy();
 
     /**
-     * Adds a listener to receive video events.
-     *
-     * @param listener The listener to register.
-     * @deprecated Use {@link #addListener(Listener)}.
-     */
-    @Deprecated
-    void addVideoListener(VideoListener listener);
-
-    /**
-     * Removes a listener of video events.
-     *
-     * @param listener The listener to unregister.
-     * @deprecated Use {@link #removeListener(Listener)}.
-     */
-    @Deprecated
-    void removeVideoListener(VideoListener listener);
-
-    /**
      * Sets a listener to receive video frame metadata events.
      *
      * <p>This method is intended to be called by the same component that sets the {@link Surface}
@@ -397,7 +378,7 @@ public interface ExoPlayer extends Player {
      * <p>The width and height of size could be 0 if there is no video or the size has not been
      * determined yet.
      *
-     * @see Listener#onVideoSizeChanged(int, int, int, float)
+     * @see Listener#onVideoSizeChanged(VideoSize)
      */
     VideoSize getVideoSize();
   }
