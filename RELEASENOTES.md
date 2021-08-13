@@ -17,6 +17,10 @@
         application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
 *   GVR extension:
     *   Remove `GvrAudioProcessor`, which has been deprecated since 2.11.0.
+*   UI
+    *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
+        implements `Player.Listener`, so can be registered to a player with
+        `Player.addListener`.
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.

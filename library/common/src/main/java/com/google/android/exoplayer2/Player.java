@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.FlagSet;
@@ -868,7 +867,7 @@ public interface Player {
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
    */
-  interface Listener extends TextOutput, EventListener {
+  interface Listener extends EventListener {
 
     @Override
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
@@ -987,7 +986,14 @@ public interface Player {
      */
     default void onRenderedFirstFrame() {}
 
-    @Override
+    /**
+     * Called when there is a change in the {@link Cue Cues}.
+     *
+     * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
+     * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+     *
+     * @param cues The {@link Cue Cues}. May be empty.
+     */
     default void onCues(List<Cue> cues) {}
 
     /**

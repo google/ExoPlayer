@@ -424,7 +424,6 @@ public class SimpleExoPlayer extends BasePlayer
   private final ExoPlayerImpl player;
   private final ComponentListener componentListener;
   private final FrameMetadataListener frameMetadataListener;
-  private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final AnalyticsCollector analyticsCollector;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
@@ -505,7 +504,6 @@ public class SimpleExoPlayer extends BasePlayer
       detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
       componentListener = new ComponentListener();
       frameMetadataListener = new FrameMetadataListener();
-      textOutputs = new CopyOnWriteArraySet<>();
       listeners = new CopyOnWriteArraySet<>();
       Handler eventHandler = new Handler(builder.looper);
       renderers =
@@ -1046,21 +1044,6 @@ public class SimpleExoPlayer extends BasePlayer
         .send();
   }
 
-  @Deprecated
-  @Override
-  public void addTextOutput(TextOutput listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
-    textOutputs.add(listener);
-  }
-
-  @Deprecated
-  @Override
-  public void removeTextOutput(TextOutput listener) {
-    // Don't verify application thread. We allow calls to this method from any thread.
-    textOutputs.remove(listener);
-  }
-
   @Override
   public List<Cue> getCurrentCues() {
     verifyApplicationThread();
@@ -1087,7 +1070,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addListener(Listener listener) {
     Assertions.checkNotNull(listener);
-    addTextOutput(listener);
     listeners.add(listener);
     EventListener eventListener = listener;
     addListener(eventListener);
@@ -1104,7 +1086,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void removeListener(Listener listener) {
     Assertions.checkNotNull(listener);
-    removeTextOutput(listener);
     listeners.remove(listener);
     EventListener eventListener = listener;
     removeListener(eventListener);
@@ -2057,8 +2038,9 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onCues(List<Cue> cues) {
       currentCues = cues;
-      for (TextOutput textOutput : textOutputs) {
-        textOutput.onCues(cues);
+      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
+      for (Listener listeners : listeners) {
+        listeners.onCues(cues);
       }
     }
 

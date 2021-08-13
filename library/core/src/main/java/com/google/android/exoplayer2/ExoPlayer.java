@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -385,24 +384,6 @@ public interface ExoPlayer extends Player {
 
   /** The text component of an {@link ExoPlayer}. */
   interface TextComponent {
-
-    /**
-     * Registers an output to receive text events.
-     *
-     * @param listener The output to register.
-     * @deprecated Use {@link #addListener(Listener)}.
-     */
-    @Deprecated
-    void addTextOutput(TextOutput listener);
-
-    /**
-     * Removes a text output.
-     *
-     * @param listener The output to remove.
-     * @deprecated Use {@link #removeListener(Listener)}.
-     */
-    @Deprecated
-    void removeTextOutput(TextOutput listener);
 
     /** Returns the current {@link Cue Cues}. This list may be empty. */
     List<Cue> getCurrentCues();
