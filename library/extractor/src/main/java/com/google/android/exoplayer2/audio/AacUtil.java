@@ -300,27 +300,6 @@ public final class AacUtil {
     return specificConfig;
   }
 
-  /** Returns the encoding for a given AAC audio object type. */
-  @C.Encoding
-  public static int getEncodingForAudioObjectType(@AacAudioObjectType int audioObjectType) {
-    switch (audioObjectType) {
-      case AUDIO_OBJECT_TYPE_AAC_LC:
-        return C.ENCODING_AAC_LC;
-      case AUDIO_OBJECT_TYPE_AAC_SBR:
-        return C.ENCODING_AAC_HE_V1;
-      case AUDIO_OBJECT_TYPE_AAC_PS:
-        return C.ENCODING_AAC_HE_V2;
-      case AUDIO_OBJECT_TYPE_AAC_XHE:
-        return C.ENCODING_AAC_XHE;
-      case AUDIO_OBJECT_TYPE_AAC_ELD:
-        return C.ENCODING_AAC_ELD;
-      case AUDIO_OBJECT_TYPE_AAC_ER_BSAC:
-        return C.ENCODING_AAC_ER_BSAC;
-      default:
-        return C.ENCODING_INVALID;
-    }
-  }
-
   /**
    * Returns the AAC audio object type as specified in 14496-3 (2005) Table 1.14.
    *

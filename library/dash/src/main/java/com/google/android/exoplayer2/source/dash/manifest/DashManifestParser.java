@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -776,7 +775,7 @@ public class DashManifestParser extends DefaultHandler
     if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
       sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
       if (MimeTypes.AUDIO_E_AC3_JOC.equals(sampleMimeType)) {
-        codecs = Ac3Util.E_AC3_JOC_CODEC_STRING;
+        codecs = MimeTypes.CODEC_E_AC3_JOC;
       }
     }
     @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);

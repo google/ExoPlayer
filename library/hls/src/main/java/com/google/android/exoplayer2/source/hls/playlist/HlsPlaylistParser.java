@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -518,7 +517,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             formatBuilder.setChannelCount(channelCount);
             if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType) && channelsString.endsWith("/JOC")) {
               sampleMimeType = MimeTypes.AUDIO_E_AC3_JOC;
-              formatBuilder.setCodecs(Ac3Util.E_AC3_JOC_CODEC_STRING);
+              formatBuilder.setCodecs(MimeTypes.CODEC_E_AC3_JOC);
             }
           }
           formatBuilder.setSampleMimeType(sampleMimeType);

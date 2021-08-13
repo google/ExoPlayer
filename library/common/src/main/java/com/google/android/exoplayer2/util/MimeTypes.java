@@ -19,8 +19,6 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.audio.AacUtil;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -120,6 +118,14 @@ public final class MimeTypes {
 
   public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
 
+  /**
+   * A non-standard codec string for E-AC3-JOC. Use of this constant allows for disambiguation
+   * between regular E-AC3 ("ec-3") and E-AC3-JOC ("ec+3") streams from the codec string alone. The
+   * standard is to use "ec-3" for both, as per the <a href="https://mp4ra.org/#/codecs">MP4RA
+   * registered codec types</a>.
+   */
+  public static final String CODEC_E_AC3_JOC = "ec+3";
+
   private static final ArrayList<CustomMimeType> customMimeTypes = new ArrayList<>();
 
   private static final Pattern MP4A_RFC_6381_CODEC_PATTERN =
@@ -214,8 +220,7 @@ public final class MimeTypes {
         if (objectType == null) {
           return false;
         }
-        @C.Encoding
-        int encoding = AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
+        @C.Encoding int encoding = objectType.getEncoding();
         // xHE-AAC is an exception in which it's not true that all samples will be sync samples.
         // Also return false for ENCODING_INVALID, which indicates we weren't able to parse the
         // encoding from the codec string.
@@ -377,7 +382,7 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_AC3;
     } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
       return MimeTypes.AUDIO_E_AC3;
-    } else if (codec.startsWith(Ac3Util.E_AC3_JOC_CODEC_STRING)) {
+    } else if (codec.startsWith(CODEC_E_AC3_JOC)) {
       return MimeTypes.AUDIO_E_AC3_JOC;
     } else if (codec.startsWith("ac-4") || codec.startsWith("dac4")) {
       return MimeTypes.AUDIO_AC4;
@@ -514,7 +519,7 @@ public final class MimeTypes {
         if (objectType == null) {
           return C.ENCODING_INVALID;
         }
-        return AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
+        return objectType.getEncoding();
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
       case MimeTypes.AUDIO_E_AC3:
@@ -665,11 +670,33 @@ public final class MimeTypes {
     /** The Object Type Indication of the MP4A codec. */
     public final int objectTypeIndication;
     /** The Audio Object Type Indication of the MP4A codec, or 0 if it is absent. */
-    @AacUtil.AacAudioObjectType public final int audioObjectTypeIndication;
+    public final int audioObjectTypeIndication;
 
     public Mp4aObjectType(int objectTypeIndication, int audioObjectTypeIndication) {
       this.objectTypeIndication = objectTypeIndication;
       this.audioObjectTypeIndication = audioObjectTypeIndication;
+    }
+
+    /** Returns the encoding for {@link #audioObjectTypeIndication}. */
+    @C.Encoding
+    public int getEncoding() {
+      // See AUDIO_OBJECT_TYPE_AAC_* constants in AacUtil.
+      switch (audioObjectTypeIndication) {
+        case 2:
+          return C.ENCODING_AAC_LC;
+        case 5:
+          return C.ENCODING_AAC_HE_V1;
+        case 29:
+          return C.ENCODING_AAC_HE_V2;
+        case 42:
+          return C.ENCODING_AAC_XHE;
+        case 23:
+          return C.ENCODING_AAC_ELD;
+        case 22:
+          return C.ENCODING_AAC_ER_BSAC;
+        default:
+          return C.ENCODING_INVALID;
+      }
     }
   }
 
