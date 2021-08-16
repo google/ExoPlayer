@@ -382,10 +382,15 @@ public interface ExoPlayer extends Player {
     VideoSize getVideoSize();
   }
 
-  /** The text component of an {@link ExoPlayer}. */
+  /**
+   * @deprecated Use {@link Player} instead, as the {@link TextComponent} methods are a part of the
+   *     {@link Player interface}.
+   */
+  @Deprecated
   interface TextComponent {
 
-    /** Returns the current {@link Cue Cues}. This list may be empty. */
+    /** @deprecated Use {@link Player#getCurrentCues()} instead. */
+    @Deprecated
     List<Cue> getCurrentCues();
   }
 
@@ -950,8 +955,12 @@ public interface ExoPlayer extends Player {
   @Nullable
   VideoComponent getVideoComponent();
 
-  /** Returns the component of this player for text output, or null if text is not supported. */
+  /**
+   * @deprecated Use {@link Player} instead, as the {@link TextComponent} methods are a part of the
+   *     {@link Player interface}.
+   */
   @Nullable
+  @Deprecated
   TextComponent getTextComponent();
 
   /** Returns the component of this player for playback device, or null if it's not supported. */
