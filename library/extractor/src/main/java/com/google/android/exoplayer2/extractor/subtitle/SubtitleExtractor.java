@@ -52,7 +52,8 @@ public class SubtitleExtractor implements Extractor {
         STATE_READING,
         STATE_DECODING,
         STATE_WRITING,
-        STATE_FINISHED
+        STATE_FINISHED,
+        STATE_RELEASED
       })
   @Retention(RetentionPolicy.SOURCE)
   private @interface State {}
@@ -69,6 +70,8 @@ public class SubtitleExtractor implements Extractor {
   private static final int STATE_WRITING = 4;
   /** The extractor has finished writing. */
   private static final int STATE_FINISHED = 5;
+  /** The extractor has bean released */
+  private static final int STATE_RELEASED = 6;
 
   private static final int DEFAULT_BUFFER_SIZE = 1024;
 
@@ -82,6 +85,11 @@ public class SubtitleExtractor implements Extractor {
   private int bytesRead;
   @State private int state;
 
+  /**
+   * @param subtitleDecoder The decoder used for decoding the subtitle data. The extractor will
+   *     release the decoder in {@link SubtitleExtractor#release()}.
+   * @param format Format that describes subtitle data.
+   */
   public SubtitleExtractor(SubtitleDecoder subtitleDecoder, Format format) {
     this.subtitleDecoder = subtitleDecoder;
     cueEncoder = new CueEncoder();
@@ -128,18 +136,25 @@ public class SubtitleExtractor implements Extractor {
       case STATE_FINISHED:
         return Extractor.RESULT_END_OF_INPUT;
       case STATE_CREATED:
+      case STATE_RELEASED:
       default:
         throw new IllegalStateException();
     }
   }
 
   @Override
-  public void seek(long position, long timeUs) {}
+  public void seek(long position, long timeUs) {
+    checkState(state != STATE_CREATED && state != STATE_RELEASED);
+  }
 
+  /** Releases the extractor's resources, including the {@link SubtitleDecoder}. */
   @Override
   public void release() {
-    // TODO: Proper implementation of this method is missing. Implement release() according to the
-    // Extractor interface documentation.
+    if (state == STATE_RELEASED) {
+      return;
+    }
+    subtitleDecoder.release();
+    state = STATE_RELEASED;
   }
 
   private void prepareMemory(ExtractorInput input) {

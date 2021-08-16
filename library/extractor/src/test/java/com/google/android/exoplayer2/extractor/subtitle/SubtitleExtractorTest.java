@@ -91,11 +91,56 @@ public class SubtitleExtractorTest {
   }
 
   @Test
-  public void read_notInitialized_fails() {
+  public void read_withoutInit_fails() {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[0]).build();
     SubtitleExtractor extractor =
         new SubtitleExtractor(new WebvttDecoder(), new Format.Builder().build());
 
     assertThrows(IllegalStateException.class, () -> extractor.read(input, null));
+  }
+
+  @Test
+  public void read_afterRelease_fails() {
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[0]).build();
+    SubtitleExtractor extractor =
+        new SubtitleExtractor(new WebvttDecoder(), new Format.Builder().build());
+    FakeExtractorOutput output = new FakeExtractorOutput();
+
+    extractor.init(output);
+    extractor.release();
+
+    assertThrows(IllegalStateException.class, () -> extractor.read(input, null));
+  }
+
+  @Test
+  public void seek_withoutInit_fails() {
+    SubtitleExtractor extractor =
+        new SubtitleExtractor(new WebvttDecoder(), new Format.Builder().build());
+
+    assertThrows(IllegalStateException.class, () -> extractor.seek(0, 0));
+  }
+
+  @Test
+  public void seek_afterRelease_fails() {
+    SubtitleExtractor extractor =
+        new SubtitleExtractor(new WebvttDecoder(), new Format.Builder().build());
+    FakeExtractorOutput output = new FakeExtractorOutput();
+
+    extractor.init(output);
+    extractor.release();
+
+    assertThrows(IllegalStateException.class, () -> extractor.seek(0, 0));
+  }
+
+  @Test
+  public void released_calledTwice() {
+    SubtitleExtractor extractor =
+        new SubtitleExtractor(new WebvttDecoder(), new Format.Builder().build());
+    FakeExtractorOutput output = new FakeExtractorOutput();
+
+    extractor.init(output);
+    extractor.release();
+    extractor.release();
+    // Calling realease() twice does not throw an exception.
   }
 }
