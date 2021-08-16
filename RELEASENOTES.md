@@ -37,6 +37,8 @@
         `AudioListener`. Use `Player.addListener` and `Player.Listener` instead.
     *   Remove `SimpleExoPlayer.addVideoListener`, `removeVideoListener` and
         `VideoListener`. Use `Player.addListener` and `Player.Listener` instead.
+    *   Remove `DefaultHttpDataSourceFactory`. Use
+        `DefaultHttpDataSource.Factory` instead.
 
 ### 2.15.0 (2021-08-10)
 

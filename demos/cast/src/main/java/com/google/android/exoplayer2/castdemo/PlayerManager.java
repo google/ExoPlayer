@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
@@ -56,10 +55,6 @@ import java.util.ArrayList;
      */
     void onUnsupportedTrack(int trackType);
   }
-
-  private static final String USER_AGENT = "ExoCastDemoPlayer";
-  private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
-      new DefaultHttpDataSourceFactory(USER_AGENT);
 
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
