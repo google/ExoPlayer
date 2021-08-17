@@ -21,9 +21,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.OpusUtil;
+import com.google.android.exoplayer2.decoder.CryptoException;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.decoder.DecryptionException;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -193,8 +193,8 @@ public final class OpusDecoder
     if (result < 0) {
       if (result == DRM_ERROR) {
         String message = "Drm error: " + opusGetErrorMessage(nativeDecoderContext);
-        DecryptionException cause =
-            new DecryptionException(opusGetErrorCode(nativeDecoderContext), message);
+        CryptoException cause =
+            new CryptoException(opusGetErrorCode(nativeDecoderContext), message);
         return new OpusDecoderException(message, cause);
       } else {
         return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));

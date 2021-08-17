@@ -6,7 +6,7 @@
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
     *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
-        `com.google.android.exoplayer2.decoder.DecryptionException`.
+        `com.google.android.exoplayer2.decoder.CryptoException`.
     *   Make `ExoPlayer.Builder` return a `SimpleExoPlayer` instance.
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
 *   Android 12 compatibility:

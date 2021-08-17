@@ -21,9 +21,9 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoException;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.decoder.DecryptionException;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
@@ -145,8 +145,7 @@ public final class VpxDecoder
     if (result != NO_ERROR) {
       if (result == DRM_ERROR) {
         String message = "Drm error: " + vpxGetErrorMessage(vpxDecContext);
-        DecryptionException cause =
-            new DecryptionException(vpxGetErrorCode(vpxDecContext), message);
+        CryptoException cause = new CryptoException(vpxGetErrorCode(vpxDecContext), message);
         return new VpxDecoderException(message, cause);
       } else {
         return new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
