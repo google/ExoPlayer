@@ -33,6 +33,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.CheckResult;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -378,7 +379,7 @@ public final class DownloadManager {
    *
    * @param maxParallelDownloads The maximum number of parallel downloads. Must be greater than 0.
    */
-  public void setMaxParallelDownloads(int maxParallelDownloads) {
+  public void setMaxParallelDownloads(@IntRange(from = 1) int maxParallelDownloads) {
     Assertions.checkArgument(maxParallelDownloads > 0);
     if (this.maxParallelDownloads == maxParallelDownloads) {
       return;

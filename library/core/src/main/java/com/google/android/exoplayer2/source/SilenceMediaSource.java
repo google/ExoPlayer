@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import static java.lang.Math.min;
 
 import android.net.Uri;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -49,7 +50,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
      * @param durationUs The duration of silent audio to output, in microseconds.
      * @return This factory, for convenience.
      */
-    public Factory setDurationUs(long durationUs) {
+    public Factory setDurationUs(@IntRange(from = 1) long durationUs) {
       this.durationUs = durationUs;
       return this;
     }

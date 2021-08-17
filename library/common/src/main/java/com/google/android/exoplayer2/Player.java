@@ -21,7 +21,9 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -429,7 +431,7 @@ public interface Player {
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
     @Event
-    public int get(int index) {
+    public int get(@IntRange(from = 0) int index) {
       return flags.get(index);
     }
 
@@ -800,7 +802,7 @@ public interface Player {
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
     @Command
-    public int get(int index) {
+    public int get(@IntRange(from = 0) int index) {
       return flags.get(index);
     }
 
@@ -1498,7 +1500,7 @@ public interface Player {
    *     the playlist, the media item is added to the end of the playlist.
    * @param mediaItem The {@link MediaItem} to add.
    */
-  void addMediaItem(int index, MediaItem mediaItem);
+  void addMediaItem(@IntRange(from = 0) int index, MediaItem mediaItem);
 
   /**
    * Adds a list of media items to the end of the playlist.
@@ -1514,7 +1516,7 @@ public interface Player {
    *     the playlist, the media items are added to the end of the playlist.
    * @param mediaItems The {@link MediaItem MediaItems} to add.
    */
-  void addMediaItems(int index, List<MediaItem> mediaItems);
+  void addMediaItems(@IntRange(from = 0) int index, List<MediaItem> mediaItems);
 
   /**
    * Moves the media item at the current index to the new index.
@@ -1523,7 +1525,7 @@ public interface Player {
    * @param newIndex The new index of the media item. If the new index is larger than the size of
    *     the playlist the item is moved to the end of the playlist.
    */
-  void moveMediaItem(int currentIndex, int newIndex);
+  void moveMediaItem(@IntRange(from = 0) int currentIndex, @IntRange(from = 0) int newIndex);
 
   /**
    * Moves the media item range to the new index.
@@ -1534,14 +1536,17 @@ public interface Player {
    *     than the size of the remaining playlist after removing the range, the range is moved to the
    *     end of the playlist.
    */
-  void moveMediaItems(int fromIndex, int toIndex, int newIndex);
+  void moveMediaItems(
+      @IntRange(from = 0) int fromIndex,
+      @IntRange(from = 0) int toIndex,
+      @IntRange(from = 0) int newIndex);
 
   /**
    * Removes the media item at the given index of the playlist.
    *
    * @param index The index at which to remove the media item.
    */
-  void removeMediaItem(int index);
+  void removeMediaItem(@IntRange(from = 0) int index);
 
   /**
    * Removes a range of media items from the playlist.
@@ -1550,7 +1555,7 @@ public interface Player {
    * @param toIndex The index of the first item to be kept (exclusive). If the index is larger than
    *     the size of the playlist, media items to the end of the playlist are removed.
    */
-  void removeMediaItems(int fromIndex, int toIndex);
+  void removeMediaItems(@IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex);
 
   /** Clears the playlist. */
   void clearMediaItems();
@@ -1728,7 +1733,7 @@ public interface Player {
    * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
-  void seekToDefaultPosition(int windowIndex);
+  void seekToDefaultPosition(@IntRange(from = 0) int windowIndex);
 
   /**
    * Seeks to a position specified in milliseconds in the current window.
@@ -1747,7 +1752,7 @@ public interface Player {
    * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
-  void seekTo(int windowIndex, long positionMs);
+  void seekTo(@IntRange(from = 0) int windowIndex, long positionMs);
 
   /**
    * Returns the {@link #seekBack()} increment.
@@ -1892,7 +1897,7 @@ public interface Player {
    * @param speed The linear factor by which playback will be sped up. Must be higher than 0. 1 is
    *     normal speed, 2 is twice as fast, 0.5 is half normal speed...
    */
-  void setPlaybackSpeed(float speed);
+  void setPlaybackSpeed(@FloatRange(from = 0, fromInclusive = false) float speed);
 
   /**
    * Returns the currently active playback parameters.
@@ -2032,7 +2037,7 @@ public interface Player {
   int getMediaItemCount();
 
   /** Returns the {@link MediaItem} at the given index. */
-  MediaItem getMediaItemAt(int index);
+  MediaItem getMediaItemAt(@IntRange(from = 0) int index);
 
   /**
    * Returns the duration of the current content window or ad in milliseconds, or {@link
@@ -2145,7 +2150,7 @@ public interface Player {
    *
    * @param audioVolume Linear output gain to apply to all audio channels.
    */
-  void setVolume(float audioVolume);
+  void setVolume(@FloatRange(from = 0) float audioVolume);
 
   /**
    * Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).

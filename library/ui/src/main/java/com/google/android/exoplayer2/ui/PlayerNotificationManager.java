@@ -46,6 +46,7 @@ import android.os.Message;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -348,7 +349,7 @@ public class PlayerNotificationManager {
      * @param notificationId The id of the notification to be posted. Must be greater than 0.
      * @param channelId The id of the notification channel.
      */
-    public Builder(Context context, int notificationId, String channelId) {
+    public Builder(Context context, @IntRange(from = 1) int notificationId, String channelId) {
       checkArgument(notificationId > 0);
       this.context = context;
       this.notificationId = notificationId;

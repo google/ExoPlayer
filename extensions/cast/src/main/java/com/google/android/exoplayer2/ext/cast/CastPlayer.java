@@ -24,6 +24,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.BasePlayer;
@@ -190,8 +191,8 @@ public final class CastPlayer extends BasePlayer {
   public CastPlayer(
       CastContext castContext,
       MediaItemConverter mediaItemConverter,
-      long seekBackIncrementMs,
-      long seekForwardIncrementMs) {
+      @IntRange(from = 1) long seekBackIncrementMs,
+      @IntRange(from = 1) long seekForwardIncrementMs) {
     checkArgument(seekBackIncrementMs > 0 && seekForwardIncrementMs > 0);
     this.castContext = castContext;
     this.mediaItemConverter = mediaItemConverter;

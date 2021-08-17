@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
@@ -197,7 +198,7 @@ public final class MediaItem implements Bundleable {
      * Sets the optional start position in milliseconds which must be a value larger than or equal
      * to zero (Default: 0).
      */
-    public Builder setClipStartPositionMs(long startPositionMs) {
+    public Builder setClipStartPositionMs(@IntRange(from = 0) long startPositionMs) {
       Assertions.checkArgument(startPositionMs >= 0);
       this.clipStartPositionMs = startPositionMs;
       return this;
