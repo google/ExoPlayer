@@ -16,23 +16,28 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Bundle;
 import android.os.Looper;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.accessibility.CaptioningManager;
+import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Locale;
 
 /** Constraint parameters for track selection. */
-public class TrackSelectionParameters implements Parcelable {
+public class TrackSelectionParameters implements Bundleable {
 
   /**
    * A builder for {@link TrackSelectionParameters}. See the {@link TrackSelectionParameters}
@@ -108,10 +113,7 @@ public class TrackSelectionParameters implements Parcelable {
       setViewportSizeToPhysicalDisplaySize(context, /* viewportOrientationMayChange= */ true);
     }
 
-    /**
-     * @param initialValues The {@link TrackSelectionParameters} from which the initial values of
-     *     the builder are obtained.
-     */
+    /** Creates a builder with the initial values specified in {@code initialValues}. */
     protected Builder(TrackSelectionParameters initialValues) {
       // Video
       maxVideoWidth = initialValues.maxVideoWidth;
@@ -139,6 +141,89 @@ public class TrackSelectionParameters implements Parcelable {
       // General
       forceLowestBitrate = initialValues.forceLowestBitrate;
       forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
+    }
+
+    /** Creates a builder with the initial values specified in {@code bundle}. */
+    protected Builder(Bundle bundle) {
+      // Video
+      maxVideoWidth =
+          bundle.getInt(keyForField(FIELD_MAX_VIDEO_WIDTH), DEFAULT_WITHOUT_CONTEXT.maxVideoWidth);
+      maxVideoHeight =
+          bundle.getInt(
+              keyForField(FIELD_MAX_VIDEO_HEIGHT), DEFAULT_WITHOUT_CONTEXT.maxVideoHeight);
+      maxVideoFrameRate =
+          bundle.getInt(
+              keyForField(FIELD_MAX_VIDEO_FRAMERATE), DEFAULT_WITHOUT_CONTEXT.maxVideoFrameRate);
+      maxVideoBitrate =
+          bundle.getInt(
+              keyForField(FIELD_MAX_VIDEO_BITRATE), DEFAULT_WITHOUT_CONTEXT.maxVideoBitrate);
+      minVideoWidth =
+          bundle.getInt(keyForField(FIELD_MIN_VIDEO_WIDTH), DEFAULT_WITHOUT_CONTEXT.minVideoWidth);
+      minVideoHeight =
+          bundle.getInt(
+              keyForField(FIELD_MIN_VIDEO_HEIGHT), DEFAULT_WITHOUT_CONTEXT.minVideoHeight);
+      minVideoFrameRate =
+          bundle.getInt(
+              keyForField(FIELD_MIN_VIDEO_FRAMERATE), DEFAULT_WITHOUT_CONTEXT.minVideoFrameRate);
+      minVideoBitrate =
+          bundle.getInt(
+              keyForField(FIELD_MIN_VIDEO_BITRATE), DEFAULT_WITHOUT_CONTEXT.minVideoBitrate);
+      viewportWidth =
+          bundle.getInt(keyForField(FIELD_VIEWPORT_WIDTH), DEFAULT_WITHOUT_CONTEXT.viewportWidth);
+      viewportHeight =
+          bundle.getInt(keyForField(FIELD_VIEWPORT_HEIGHT), DEFAULT_WITHOUT_CONTEXT.viewportHeight);
+      viewportOrientationMayChange =
+          bundle.getBoolean(
+              keyForField(FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE),
+              DEFAULT_WITHOUT_CONTEXT.viewportOrientationMayChange);
+      preferredVideoMimeTypes =
+          ImmutableList.copyOf(
+              firstNonNull(
+                  bundle.getStringArray(keyForField(FIELD_PREFERRED_VIDEO_MIMETYPES)),
+                  new String[0]));
+      // Audio
+      String[] preferredAudioLanguages1 =
+          firstNonNull(
+              bundle.getStringArray(keyForField(FIELD_PREFERRED_AUDIO_LANGUAGES)), new String[0]);
+      preferredAudioLanguages = normalizeLanguageCodes(preferredAudioLanguages1);
+      preferredAudioRoleFlags =
+          bundle.getInt(
+              keyForField(FIELD_PREFERRED_AUDIO_ROLE_FLAGS),
+              DEFAULT_WITHOUT_CONTEXT.preferredAudioRoleFlags);
+      maxAudioChannelCount =
+          bundle.getInt(
+              keyForField(FIELD_MAX_AUDIO_CHANNEL_COUNT),
+              DEFAULT_WITHOUT_CONTEXT.maxAudioChannelCount);
+      maxAudioBitrate =
+          bundle.getInt(
+              keyForField(FIELD_MAX_AUDIO_BITRATE), DEFAULT_WITHOUT_CONTEXT.maxAudioBitrate);
+      preferredAudioMimeTypes =
+          ImmutableList.copyOf(
+              firstNonNull(
+                  bundle.getStringArray(keyForField(FIELD_PREFERRED_AUDIO_MIME_TYPES)),
+                  new String[0]));
+      // Text
+      preferredTextLanguages =
+          normalizeLanguageCodes(
+              firstNonNull(
+                  bundle.getStringArray(keyForField(FIELD_PREFERRED_TEXT_LANGUAGES)),
+                  new String[0]));
+      preferredTextRoleFlags =
+          bundle.getInt(
+              keyForField(FIELD_PREFERRED_TEXT_ROLE_FLAGS),
+              DEFAULT_WITHOUT_CONTEXT.preferredTextRoleFlags);
+      selectUndeterminedTextLanguage =
+          bundle.getBoolean(
+              keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE),
+              DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage);
+      // General
+      forceLowestBitrate =
+          bundle.getBoolean(
+              keyForField(FIELD_FORCE_LOWEST_BITRATE), DEFAULT_WITHOUT_CONTEXT.forceLowestBitrate);
+      forceHighestSupportedBitrate =
+          bundle.getBoolean(
+              keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
+              DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
     }
 
     // Video
@@ -322,11 +407,7 @@ public class TrackSelectionParameters implements Parcelable {
      * @return This builder.
      */
     public Builder setPreferredAudioLanguages(String... preferredAudioLanguages) {
-      ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
-      for (String language : checkNotNull(preferredAudioLanguages)) {
-        listBuilder.add(Util.normalizeLanguageCode(checkNotNull(language)));
-      }
-      this.preferredAudioLanguages = listBuilder.build();
+      this.preferredAudioLanguages = normalizeLanguageCodes(preferredAudioLanguages);
       return this;
     }
 
@@ -427,11 +508,7 @@ public class TrackSelectionParameters implements Parcelable {
      * @return This builder.
      */
     public Builder setPreferredTextLanguages(String... preferredTextLanguages) {
-      ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
-      for (String language : checkNotNull(preferredTextLanguages)) {
-        listBuilder.add(Util.normalizeLanguageCode(checkNotNull(language)));
-      }
-      this.preferredTextLanguages = listBuilder.build();
+      this.preferredTextLanguages = normalizeLanguageCodes(preferredTextLanguages);
       return this;
     }
 
@@ -512,6 +589,14 @@ public class TrackSelectionParameters implements Parcelable {
         preferredTextLanguages = ImmutableList.of(Util.getLocaleLanguageTag(preferredLocale));
       }
     }
+
+    private static ImmutableList<String> normalizeLanguageCodes(String[] preferredTextLanguages) {
+      ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
+      for (String language : checkNotNull(preferredTextLanguages)) {
+        listBuilder.add(Util.normalizeLanguageCode(checkNotNull(language)));
+      }
+      return listBuilder.build();
+    }
   }
 
   /**
@@ -536,20 +621,6 @@ public class TrackSelectionParameters implements Parcelable {
    *     #getDefaults(Context)} instead.
    */
   @Deprecated public static final TrackSelectionParameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
-
-  public static final Creator<TrackSelectionParameters> CREATOR =
-      new Creator<TrackSelectionParameters>() {
-
-        @Override
-        public TrackSelectionParameters createFromParcel(Parcel in) {
-          return new TrackSelectionParameters(in);
-        }
-
-        @Override
-        public TrackSelectionParameters[] newArray(int size) {
-          return new TrackSelectionParameters[size];
-        }
-      };
 
   /** Returns an instance configured with default values. */
   public static TrackSelectionParameters getDefaults(Context context) {
@@ -707,42 +778,6 @@ public class TrackSelectionParameters implements Parcelable {
     this.forceHighestSupportedBitrate = builder.forceHighestSupportedBitrate;
   }
 
-  /* package */ TrackSelectionParameters(Parcel in) {
-    ArrayList<String> preferredAudioLanguages = new ArrayList<>();
-    in.readList(preferredAudioLanguages, /* loader= */ null);
-    this.preferredAudioLanguages = ImmutableList.copyOf(preferredAudioLanguages);
-    this.preferredAudioRoleFlags = in.readInt();
-    ArrayList<String> preferredTextLanguages1 = new ArrayList<>();
-    in.readList(preferredTextLanguages1, /* loader= */ null);
-    this.preferredTextLanguages = ImmutableList.copyOf(preferredTextLanguages1);
-    this.preferredTextRoleFlags = in.readInt();
-    this.selectUndeterminedTextLanguage = Util.readBoolean(in);
-    // Video
-    this.maxVideoWidth = in.readInt();
-    this.maxVideoHeight = in.readInt();
-    this.maxVideoFrameRate = in.readInt();
-    this.maxVideoBitrate = in.readInt();
-    this.minVideoWidth = in.readInt();
-    this.minVideoHeight = in.readInt();
-    this.minVideoFrameRate = in.readInt();
-    this.minVideoBitrate = in.readInt();
-    this.viewportWidth = in.readInt();
-    this.viewportHeight = in.readInt();
-    this.viewportOrientationMayChange = Util.readBoolean(in);
-    ArrayList<String> preferredVideoMimeTypes = new ArrayList<>();
-    in.readList(preferredVideoMimeTypes, /* loader= */ null);
-    this.preferredVideoMimeTypes = ImmutableList.copyOf(preferredVideoMimeTypes);
-    // Audio
-    this.maxAudioChannelCount = in.readInt();
-    this.maxAudioBitrate = in.readInt();
-    ArrayList<String> preferredAudioMimeTypes = new ArrayList<>();
-    in.readList(preferredAudioMimeTypes, /* loader= */ null);
-    this.preferredAudioMimeTypes = ImmutableList.copyOf(preferredAudioMimeTypes);
-    // General
-    this.forceLowestBitrate = Util.readBoolean(in);
-    this.forceHighestSupportedBitrate = Util.readBoolean(in);
-  }
-
   /** Creates a new {@link Builder}, copying the initial values from this instance. */
   public Builder buildUpon() {
     return new Builder(this);
@@ -817,39 +852,109 @@ public class TrackSelectionParameters implements Parcelable {
     return result;
   }
 
-  // Parcelable implementation.
+  // Bundleable implementation
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_PREFERRED_AUDIO_LANGUAGES,
+    FIELD_PREFERRED_AUDIO_ROLE_FLAGS,
+    FIELD_PREFERRED_TEXT_LANGUAGES,
+    FIELD_PREFERRED_TEXT_ROLE_FLAGS,
+    FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
+    FIELD_MAX_VIDEO_WIDTH,
+    FIELD_MAX_VIDEO_HEIGHT,
+    FIELD_MAX_VIDEO_FRAMERATE,
+    FIELD_MAX_VIDEO_BITRATE,
+    FIELD_MIN_VIDEO_WIDTH,
+    FIELD_MIN_VIDEO_HEIGHT,
+    FIELD_MIN_VIDEO_FRAMERATE,
+    FIELD_MIN_VIDEO_BITRATE,
+    FIELD_VIEWPORT_WIDTH,
+    FIELD_VIEWPORT_HEIGHT,
+    FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE,
+    FIELD_PREFERRED_VIDEO_MIMETYPES,
+    FIELD_MAX_AUDIO_CHANNEL_COUNT,
+    FIELD_MAX_AUDIO_BITRATE,
+    FIELD_PREFERRED_AUDIO_MIME_TYPES,
+    FIELD_FORCE_LOWEST_BITRATE,
+    FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_PREFERRED_AUDIO_LANGUAGES = 1;
+  private static final int FIELD_PREFERRED_AUDIO_ROLE_FLAGS = 2;
+  private static final int FIELD_PREFERRED_TEXT_LANGUAGES = 3;
+  private static final int FIELD_PREFERRED_TEXT_ROLE_FLAGS = 4;
+  private static final int FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE = 5;
+  private static final int FIELD_MAX_VIDEO_WIDTH = 6;
+  private static final int FIELD_MAX_VIDEO_HEIGHT = 7;
+  private static final int FIELD_MAX_VIDEO_FRAMERATE = 8;
+  private static final int FIELD_MAX_VIDEO_BITRATE = 9;
+  private static final int FIELD_MIN_VIDEO_WIDTH = 10;
+  private static final int FIELD_MIN_VIDEO_HEIGHT = 11;
+  private static final int FIELD_MIN_VIDEO_FRAMERATE = 12;
+  private static final int FIELD_MIN_VIDEO_BITRATE = 13;
+  private static final int FIELD_VIEWPORT_WIDTH = 14;
+  private static final int FIELD_VIEWPORT_HEIGHT = 15;
+  private static final int FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE = 16;
+  private static final int FIELD_PREFERRED_VIDEO_MIMETYPES = 17;
+  private static final int FIELD_MAX_AUDIO_CHANNEL_COUNT = 18;
+  private static final int FIELD_MAX_AUDIO_BITRATE = 19;
+  private static final int FIELD_PREFERRED_AUDIO_MIME_TYPES = 20;
+  private static final int FIELD_FORCE_LOWEST_BITRATE = 21;
+  private static final int FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE = 22;
 
   @Override
-  public int describeContents() {
-    return 0;
+  @CallSuper
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+
+    // Video
+    bundle.putInt(keyForField(FIELD_MAX_VIDEO_WIDTH), maxVideoWidth);
+    bundle.putInt(keyForField(FIELD_MAX_VIDEO_HEIGHT), maxVideoHeight);
+    bundle.putInt(keyForField(FIELD_MAX_VIDEO_FRAMERATE), maxVideoFrameRate);
+    bundle.putInt(keyForField(FIELD_MAX_VIDEO_BITRATE), maxVideoBitrate);
+    bundle.putInt(keyForField(FIELD_MIN_VIDEO_WIDTH), minVideoWidth);
+    bundle.putInt(keyForField(FIELD_MIN_VIDEO_HEIGHT), minVideoHeight);
+    bundle.putInt(keyForField(FIELD_MIN_VIDEO_FRAMERATE), minVideoFrameRate);
+    bundle.putInt(keyForField(FIELD_MIN_VIDEO_BITRATE), minVideoBitrate);
+    bundle.putInt(keyForField(FIELD_VIEWPORT_WIDTH), viewportWidth);
+    bundle.putInt(keyForField(FIELD_VIEWPORT_HEIGHT), viewportHeight);
+    bundle.putBoolean(
+        keyForField(FIELD_VIEWPORT_ORIENTATION_MAY_CHANGE), viewportOrientationMayChange);
+    bundle.putStringArray(
+        keyForField(FIELD_PREFERRED_VIDEO_MIMETYPES),
+        preferredVideoMimeTypes.toArray(new String[0]));
+    // Audio
+    bundle.putStringArray(
+        keyForField(FIELD_PREFERRED_AUDIO_LANGUAGES),
+        preferredAudioLanguages.toArray(new String[0]));
+    bundle.putInt(keyForField(FIELD_PREFERRED_AUDIO_ROLE_FLAGS), preferredAudioRoleFlags);
+    bundle.putInt(keyForField(FIELD_MAX_AUDIO_CHANNEL_COUNT), maxAudioChannelCount);
+    bundle.putInt(keyForField(FIELD_MAX_AUDIO_BITRATE), maxAudioBitrate);
+    bundle.putStringArray(
+        keyForField(FIELD_PREFERRED_AUDIO_MIME_TYPES),
+        preferredAudioMimeTypes.toArray(new String[0]));
+    // Text
+    bundle.putStringArray(
+        keyForField(FIELD_PREFERRED_TEXT_LANGUAGES), preferredTextLanguages.toArray(new String[0]));
+    bundle.putInt(keyForField(FIELD_PREFERRED_TEXT_ROLE_FLAGS), preferredTextRoleFlags);
+    bundle.putBoolean(
+        keyForField(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE), selectUndeterminedTextLanguage);
+    // General
+    bundle.putBoolean(keyForField(FIELD_FORCE_LOWEST_BITRATE), forceLowestBitrate);
+    bundle.putBoolean(
+        keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE), forceHighestSupportedBitrate);
+
+    return bundle;
   }
 
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeList(preferredAudioLanguages);
-    dest.writeInt(preferredAudioRoleFlags);
-    dest.writeList(preferredTextLanguages);
-    dest.writeInt(preferredTextRoleFlags);
-    Util.writeBoolean(dest, selectUndeterminedTextLanguage);
-    // Video
-    dest.writeInt(maxVideoWidth);
-    dest.writeInt(maxVideoHeight);
-    dest.writeInt(maxVideoFrameRate);
-    dest.writeInt(maxVideoBitrate);
-    dest.writeInt(minVideoWidth);
-    dest.writeInt(minVideoHeight);
-    dest.writeInt(minVideoFrameRate);
-    dest.writeInt(minVideoBitrate);
-    dest.writeInt(viewportWidth);
-    dest.writeInt(viewportHeight);
-    Util.writeBoolean(dest, viewportOrientationMayChange);
-    dest.writeList(preferredVideoMimeTypes);
-    // Audio
-    dest.writeInt(maxAudioChannelCount);
-    dest.writeInt(maxAudioBitrate);
-    dest.writeList(preferredAudioMimeTypes);
-    // General
-    Util.writeBoolean(dest, forceLowestBitrate);
-    Util.writeBoolean(dest, forceHighestSupportedBitrate);
+  /** Object that can restore {@code TrackSelectionParameters} from a {@link Bundle}. */
+  public static final Creator<TrackSelectionParameters> CREATOR =
+      bundle -> new Builder(bundle).build();
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

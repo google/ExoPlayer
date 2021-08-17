@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -46,21 +45,15 @@ public final class FormatTest {
   }
 
   @Test
-  public void parcelFormat_createsEqualFormat_exceptExoMediaCryptoType() {
-    Format formatToParcel = createTestFormat();
+  public void roundTripViaBundle_ofParameters_yieldsEqualInstanceExceptExoMediaCryptoType() {
+    Format formatToBundle = createTestFormat();
 
-    Parcel parcel = Parcel.obtain();
-    formatToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
+    Format formatFromBundle = Format.CREATOR.fromBundle(formatToBundle.toBundle());
 
-    Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
-    Format expectedFormat =
-        formatToParcel.buildUpon().setExoMediaCryptoType(UnsupportedMediaCrypto.class).build();
-
-    assertThat(formatFromParcel.exoMediaCryptoType).isEqualTo(UnsupportedMediaCrypto.class);
-    assertThat(formatFromParcel).isEqualTo(expectedFormat);
-
-    parcel.recycle();
+    assertThat(formatFromBundle.exoMediaCryptoType).isEqualTo(UnsupportedMediaCrypto.class);
+    assertThat(formatFromBundle)
+        .isEqualTo(
+            formatToBundle.buildUpon().setExoMediaCryptoType(UnsupportedMediaCrypto.class).build());
   }
 
   private static Format createTestFormat() {

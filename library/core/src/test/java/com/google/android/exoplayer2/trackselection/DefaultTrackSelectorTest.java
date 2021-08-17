@@ -29,9 +29,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.content.Context;
-import android.os.Parcel;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -139,37 +139,26 @@ public final class DefaultTrackSelectorTest {
     assertThat(parameters.buildUpon().build()).isEqualTo(parameters);
   }
 
-  /** Tests {@link Parameters} {@link android.os.Parcelable} implementation. */
+  /** Tests {@link Parameters} {@link Bundleable} implementation. */
   @Test
-  public void parameters_parcelAndUnParcelable() {
-    Parameters parametersToParcel = buildParametersForEqualsTest();
+  public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
+    Parameters parametersToBundle = buildParametersForEqualsTest();
 
-    Parcel parcel = Parcel.obtain();
-    parametersToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
+    Parameters parametersFromBundle = Parameters.CREATOR.fromBundle(parametersToBundle.toBundle());
 
-    Parameters parametersFromParcel = Parameters.CREATOR.createFromParcel(parcel);
-    assertThat(parametersFromParcel).isEqualTo(parametersToParcel);
-
-    parcel.recycle();
+    assertThat(parametersFromBundle).isEqualTo(parametersToBundle);
   }
 
-  /** Tests {@link SelectionOverride}'s {@link android.os.Parcelable} implementation. */
+  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
   @Test
-  public void selectionOverrideParcelable() {
-    int[] tracks = new int[] {2, 3};
-    SelectionOverride selectionOverrideToParcel =
-        new SelectionOverride(/* groupIndex= */ 1, tracks);
+  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
+    SelectionOverride selectionOverrideToBundle =
+        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
 
-    Parcel parcel = Parcel.obtain();
-    selectionOverrideToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
+    SelectionOverride selectionOverrideFromBundle =
+        SelectionOverride.CREATOR.fromBundle(selectionOverrideToBundle.toBundle());
 
-    SelectionOverride selectionOverrideFromParcel =
-        SelectionOverride.CREATOR.createFromParcel(parcel);
-    assertThat(selectionOverrideFromParcel).isEqualTo(selectionOverrideToParcel);
-
-    parcel.recycle();
+    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
   }
 
   /** Tests that a null override clears a track selection. */
@@ -1764,7 +1753,13 @@ public final class DefaultTrackSelectorTest {
             /* rendererIndex= */ 2,
             new TrackGroupArray(VIDEO_TRACK_GROUP),
             new SelectionOverride(0, 1))
+        .setSelectionOverride(
+            /* rendererIndex= */ 2, new TrackGroupArray(AUDIO_TRACK_GROUP), /* override= */ null)
+        .setSelectionOverride(
+            /* rendererIndex= */ 5, new TrackGroupArray(VIDEO_TRACK_GROUP), /* override= */ null)
+        .setRendererDisabled(1, true)
         .setRendererDisabled(3, true)
+        .setRendererDisabled(5, false)
         .build();
   }
 

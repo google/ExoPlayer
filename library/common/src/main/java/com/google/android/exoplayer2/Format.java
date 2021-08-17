@@ -15,19 +15,21 @@
  */
 package com.google.android.exoplayer2;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.BundleableUtils;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Joiner;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,7 +114,7 @@ import java.util.UUID;
  *   <li>{@link #accessibilityChannel}
  * </ul>
  */
-public final class Format implements Parcelable {
+public final class Format implements Bundleable {
 
   /**
    * Builds {@link Format} instances.
@@ -610,6 +612,8 @@ public final class Format implements Parcelable {
    */
   public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
 
+  private static final Format DEFAULT = new Builder().build();
+
   /** An identifier for the format, or null if unknown or not applicable. */
   @Nullable public final String id;
   /** The human readable label, or null if unknown or not applicable. */
@@ -968,54 +972,6 @@ public final class Format implements Parcelable {
     }
   }
 
-  // Some fields are deprecated but they're still assigned below.
-  @SuppressWarnings({"ResourceType"})
-  /* package */ Format(Parcel in) {
-    id = in.readString();
-    label = in.readString();
-    language = in.readString();
-    selectionFlags = in.readInt();
-    roleFlags = in.readInt();
-    averageBitrate = in.readInt();
-    peakBitrate = in.readInt();
-    bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
-    codecs = in.readString();
-    metadata = in.readParcelable(Metadata.class.getClassLoader());
-    // Container specific.
-    containerMimeType = in.readString();
-    // Sample specific.
-    sampleMimeType = in.readString();
-    maxInputSize = in.readInt();
-    int initializationDataSize = in.readInt();
-    initializationData = new ArrayList<>(initializationDataSize);
-    for (int i = 0; i < initializationDataSize; i++) {
-      initializationData.add(checkNotNull(in.createByteArray()));
-    }
-    drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
-    subsampleOffsetUs = in.readLong();
-    // Video specific.
-    width = in.readInt();
-    height = in.readInt();
-    frameRate = in.readFloat();
-    rotationDegrees = in.readInt();
-    pixelWidthHeightRatio = in.readFloat();
-    boolean hasProjectionData = Util.readBoolean(in);
-    projectionData = hasProjectionData ? in.createByteArray() : null;
-    stereoMode = in.readInt();
-    colorInfo = in.readParcelable(ColorInfo.class.getClassLoader());
-    // Audio specific.
-    channelCount = in.readInt();
-    sampleRate = in.readInt();
-    pcmEncoding = in.readInt();
-    encoderDelay = in.readInt();
-    encoderPadding = in.readInt();
-    // Text specific.
-    accessibilityChannel = in.readInt();
-    // Provided by source.
-    // Encrypted content must always have a non-null exoMediaCryptoType.
-    exoMediaCryptoType = drmInitData != null ? UnsupportedMediaCrypto.class : null;
-  }
-
   /** Returns a {@link Format.Builder} initialized with the values of this instance. */
   public Builder buildUpon() {
     return new Builder(this);
@@ -1371,69 +1327,208 @@ public final class Format implements Parcelable {
     return builder.toString();
   }
 
-  // Parcelable implementation.
+  // Bundleable implementation.
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_ID,
+    FIELD_LABEL,
+    FIELD_LANGUAGE,
+    FIELD_SELECTION_FLAGS,
+    FIELD_ROLE_FLAGS,
+    FIELD_AVERAGE_BITRATE,
+    FIELD_PEAK_BITRATE,
+    FIELD_CODECS,
+    FIELD_METADATA,
+    FIELD_CONTAINER_MIME_TYPE,
+    FIELD_SAMPLE_MIME_TYPE,
+    FIELD_MAX_INPUT_SIZE,
+    FIELD_INITIALIZATION_DATA,
+    FIELD_DRM_INIT_DATA,
+    FIELD_SUBSAMPLE_OFFSET_US,
+    FIELD_WIDTH,
+    FIELD_HEIGHT,
+    FIELD_FRAME_RATE,
+    FIELD_ROTATION_DEGREES,
+    FIELD_PIXEL_WIDTH_HEIGHT_RATIO,
+    FIELD_PROJECTION_DATA,
+    FIELD_STEREO_MODE,
+    FIELD_COLOR_INFO,
+    FIELD_CHANNEL_COUNT,
+    FIELD_SAMPLE_RATE,
+    FIELD_PCM_ENCODING,
+    FIELD_ENCODER_DELAY,
+    FIELD_ENCODER_PADDING,
+    FIELD_ACCESSIBILITY_CHANNEL,
+  })
+  private @interface FieldNumber {}
 
-  @Override
-  public int describeContents() {
-    return 0;
-  }
+  private static final int FIELD_ID = 0;
+  private static final int FIELD_LABEL = 1;
+  private static final int FIELD_LANGUAGE = 2;
+  private static final int FIELD_SELECTION_FLAGS = 3;
+  private static final int FIELD_ROLE_FLAGS = 4;
+  private static final int FIELD_AVERAGE_BITRATE = 5;
+  private static final int FIELD_PEAK_BITRATE = 6;
+  private static final int FIELD_CODECS = 7;
+  private static final int FIELD_METADATA = 8;
+  private static final int FIELD_CONTAINER_MIME_TYPE = 9;
+  private static final int FIELD_SAMPLE_MIME_TYPE = 10;
+  private static final int FIELD_MAX_INPUT_SIZE = 11;
+  private static final int FIELD_INITIALIZATION_DATA = 12;
+  private static final int FIELD_DRM_INIT_DATA = 13;
+  private static final int FIELD_SUBSAMPLE_OFFSET_US = 14;
+  private static final int FIELD_WIDTH = 15;
+  private static final int FIELD_HEIGHT = 16;
+  private static final int FIELD_FRAME_RATE = 17;
+  private static final int FIELD_ROTATION_DEGREES = 18;
+  private static final int FIELD_PIXEL_WIDTH_HEIGHT_RATIO = 19;
+  private static final int FIELD_PROJECTION_DATA = 20;
+  private static final int FIELD_STEREO_MODE = 21;
+  private static final int FIELD_COLOR_INFO = 22;
+  private static final int FIELD_CHANNEL_COUNT = 23;
+  private static final int FIELD_SAMPLE_RATE = 24;
+  private static final int FIELD_PCM_ENCODING = 25;
+  private static final int FIELD_ENCODER_DELAY = 26;
+  private static final int FIELD_ENCODER_PADDING = 27;
+  private static final int FIELD_ACCESSIBILITY_CHANNEL = 28;
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Omits the {@link #exoMediaCryptoType} field. The {@link #exoMediaCryptoType} of an instance
+   * restored by {@link #CREATOR} will always be {@link UnsupportedMediaCrypto}.
+   */
   @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(id);
-    dest.writeString(label);
-    dest.writeString(language);
-    dest.writeInt(selectionFlags);
-    dest.writeInt(roleFlags);
-    dest.writeInt(averageBitrate);
-    dest.writeInt(peakBitrate);
-    dest.writeString(codecs);
-    dest.writeParcelable(metadata, 0);
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putString(keyForField(FIELD_ID), id);
+    bundle.putString(keyForField(FIELD_LABEL), label);
+    bundle.putString(keyForField(FIELD_LANGUAGE), language);
+    bundle.putInt(keyForField(FIELD_SELECTION_FLAGS), selectionFlags);
+    bundle.putInt(keyForField(FIELD_ROLE_FLAGS), roleFlags);
+    bundle.putInt(keyForField(FIELD_AVERAGE_BITRATE), averageBitrate);
+    bundle.putInt(keyForField(FIELD_PEAK_BITRATE), peakBitrate);
+    bundle.putString(keyForField(FIELD_CODECS), codecs);
+    // Metadata is currently not Bundleable because Metadata.Entry is an Interface,
+    // which would be difficult to unbundle in a backward compatible way.
+    // The entries are additionally of limited usefulness to remote processes.
+    bundle.putParcelable(keyForField(FIELD_METADATA), metadata);
     // Container specific.
-    dest.writeString(containerMimeType);
+    bundle.putString(keyForField(FIELD_CONTAINER_MIME_TYPE), containerMimeType);
     // Sample specific.
-    dest.writeString(sampleMimeType);
-    dest.writeInt(maxInputSize);
-    int initializationDataSize = initializationData.size();
-    dest.writeInt(initializationDataSize);
-    for (int i = 0; i < initializationDataSize; i++) {
-      dest.writeByteArray(initializationData.get(i));
+    bundle.putString(keyForField(FIELD_SAMPLE_MIME_TYPE), sampleMimeType);
+    bundle.putInt(keyForField(FIELD_MAX_INPUT_SIZE), maxInputSize);
+    for (int i = 0; i < initializationData.size(); i++) {
+      bundle.putByteArray(keyForInitializationData(i), initializationData.get(i));
     }
-    dest.writeParcelable(drmInitData, 0);
-    dest.writeLong(subsampleOffsetUs);
+    // DrmInitData doesn't need to be Bundleable as it's only used in the playing process to
+    // initialize the decoder.
+    bundle.putParcelable(keyForField(FIELD_DRM_INIT_DATA), drmInitData);
+    bundle.putLong(keyForField(FIELD_SUBSAMPLE_OFFSET_US), subsampleOffsetUs);
     // Video specific.
-    dest.writeInt(width);
-    dest.writeInt(height);
-    dest.writeFloat(frameRate);
-    dest.writeInt(rotationDegrees);
-    dest.writeFloat(pixelWidthHeightRatio);
-    Util.writeBoolean(dest, projectionData != null);
-    if (projectionData != null) {
-      dest.writeByteArray(projectionData);
-    }
-    dest.writeInt(stereoMode);
-    dest.writeParcelable(colorInfo, flags);
+    bundle.putInt(keyForField(FIELD_WIDTH), width);
+    bundle.putInt(keyForField(FIELD_HEIGHT), height);
+    bundle.putFloat(keyForField(FIELD_FRAME_RATE), frameRate);
+    bundle.putInt(keyForField(FIELD_ROTATION_DEGREES), rotationDegrees);
+    bundle.putFloat(keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), pixelWidthHeightRatio);
+    bundle.putByteArray(keyForField(FIELD_PROJECTION_DATA), projectionData);
+    bundle.putInt(keyForField(FIELD_STEREO_MODE), stereoMode);
+    bundle.putBundle(keyForField(FIELD_COLOR_INFO), BundleableUtils.toNullableBundle(colorInfo));
     // Audio specific.
-    dest.writeInt(channelCount);
-    dest.writeInt(sampleRate);
-    dest.writeInt(pcmEncoding);
-    dest.writeInt(encoderDelay);
-    dest.writeInt(encoderPadding);
+    bundle.putInt(keyForField(FIELD_CHANNEL_COUNT), channelCount);
+    bundle.putInt(keyForField(FIELD_SAMPLE_RATE), sampleRate);
+    bundle.putInt(keyForField(FIELD_PCM_ENCODING), pcmEncoding);
+    bundle.putInt(keyForField(FIELD_ENCODER_DELAY), encoderDelay);
+    bundle.putInt(keyForField(FIELD_ENCODER_PADDING), encoderPadding);
     // Text specific.
-    dest.writeInt(accessibilityChannel);
+    bundle.putInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), accessibilityChannel);
+    return bundle;
   }
 
-  public static final Creator<Format> CREATOR =
-      new Creator<Format>() {
+  /** Object that can restore {@code Format} from a {@link Bundle}. */
+  public static final Creator<Format> CREATOR = Format::fromBundle;
 
-        @Override
-        public Format createFromParcel(Parcel in) {
-          return new Format(in);
-        }
+  private static Format fromBundle(Bundle bundle) {
+    Builder builder = new Builder();
+    BundleableUtils.ensureClassLoader(bundle);
+    builder
+        .setId(defaultIfNull(bundle.getString(keyForField(FIELD_ID)), DEFAULT.id))
+        .setLabel(defaultIfNull(bundle.getString(keyForField(FIELD_LABEL)), DEFAULT.label))
+        .setLanguage(defaultIfNull(bundle.getString(keyForField(FIELD_LANGUAGE)), DEFAULT.language))
+        .setSelectionFlags(
+            bundle.getInt(keyForField(FIELD_SELECTION_FLAGS), DEFAULT.selectionFlags))
+        .setRoleFlags(bundle.getInt(keyForField(FIELD_ROLE_FLAGS), DEFAULT.roleFlags))
+        .setAverageBitrate(
+            bundle.getInt(keyForField(FIELD_AVERAGE_BITRATE), DEFAULT.averageBitrate))
+        .setPeakBitrate(bundle.getInt(keyForField(FIELD_PEAK_BITRATE), DEFAULT.peakBitrate))
+        .setCodecs(defaultIfNull(bundle.getString(keyForField(FIELD_CODECS)), DEFAULT.codecs))
+        .setMetadata(
+            defaultIfNull(bundle.getParcelable(keyForField(FIELD_METADATA)), DEFAULT.metadata))
+        // Container specific.
+        .setContainerMimeType(
+            defaultIfNull(
+                bundle.getString(keyForField(FIELD_CONTAINER_MIME_TYPE)),
+                DEFAULT.containerMimeType))
+        // Sample specific.
+        .setSampleMimeType(
+            defaultIfNull(
+                bundle.getString(keyForField(FIELD_SAMPLE_MIME_TYPE)), DEFAULT.sampleMimeType))
+        .setMaxInputSize(bundle.getInt(keyForField(FIELD_MAX_INPUT_SIZE), DEFAULT.maxInputSize));
 
-        @Override
-        public Format[] newArray(int size) {
-          return new Format[size];
-        }
-      };
+    List<byte[]> initializationData = new ArrayList<>();
+    for (int i = 0; ; i++) {
+      @Nullable byte[] data = bundle.getByteArray(keyForInitializationData(i));
+      if (data == null) {
+        break;
+      }
+      initializationData.add(data);
+    }
+    builder
+        .setInitializationData(initializationData)
+        .setDrmInitData(bundle.getParcelable(keyForField(FIELD_DRM_INIT_DATA)))
+        .setSubsampleOffsetUs(
+            bundle.getLong(keyForField(FIELD_SUBSAMPLE_OFFSET_US), DEFAULT.subsampleOffsetUs))
+        // Video specific.
+        .setWidth(bundle.getInt(keyForField(FIELD_WIDTH), DEFAULT.width))
+        .setHeight(bundle.getInt(keyForField(FIELD_HEIGHT), DEFAULT.height))
+        .setFrameRate(bundle.getFloat(keyForField(FIELD_FRAME_RATE), DEFAULT.frameRate))
+        .setRotationDegrees(
+            bundle.getInt(keyForField(FIELD_ROTATION_DEGREES), DEFAULT.rotationDegrees))
+        .setPixelWidthHeightRatio(
+            bundle.getFloat(
+                keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), DEFAULT.pixelWidthHeightRatio))
+        .setProjectionData(bundle.getByteArray(keyForField(FIELD_PROJECTION_DATA)))
+        .setStereoMode(bundle.getInt(keyForField(FIELD_STEREO_MODE), DEFAULT.stereoMode))
+        .setColorInfo(
+            BundleableUtils.fromNullableBundle(
+                ColorInfo.CREATOR, bundle.getBundle(keyForField(FIELD_COLOR_INFO))))
+        // Audio specific.
+        .setChannelCount(bundle.getInt(keyForField(FIELD_CHANNEL_COUNT), DEFAULT.channelCount))
+        .setSampleRate(bundle.getInt(keyForField(FIELD_SAMPLE_RATE), DEFAULT.sampleRate))
+        .setPcmEncoding(bundle.getInt(keyForField(FIELD_PCM_ENCODING), DEFAULT.pcmEncoding))
+        .setEncoderDelay(bundle.getInt(keyForField(FIELD_ENCODER_DELAY), DEFAULT.encoderDelay))
+        .setEncoderPadding(
+            bundle.getInt(keyForField(FIELD_ENCODER_PADDING), DEFAULT.encoderPadding))
+        // Text specific.
+        .setAccessibilityChannel(
+            bundle.getInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), DEFAULT.accessibilityChannel));
+
+    return builder.build();
+  }
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  private static String keyForInitializationData(int initialisationDataIndex) {
+    return keyForField(FIELD_INITIALIZATION_DATA)
+        + "_"
+        + Integer.toString(initialisationDataIndex, Character.MAX_RADIX);
+  }
+
+  @Nullable
+  private static <T> T defaultIfNull(@Nullable T value, @Nullable T defaultValue) {
+    return value != null ? value : defaultValue;
+  }
 }

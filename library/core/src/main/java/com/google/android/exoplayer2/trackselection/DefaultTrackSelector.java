@@ -17,13 +17,14 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -39,11 +40,15 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.BundleableUtils;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -237,6 +242,66 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       // Overrides
       selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
       rendererDisabledFlags = initialValues.rendererDisabledFlags.clone();
+    }
+
+    @SuppressWarnings("method.invocation") // Only setter are invoked.
+    private ParametersBuilder(Bundle bundle) {
+      super(bundle);
+      Parameters defaultValue = Parameters.DEFAULT_WITHOUT_CONTEXT;
+      // Video
+      setExceedVideoConstraintsIfNecessary(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY),
+              defaultValue.exceedVideoConstraintsIfNecessary));
+      setAllowVideoMixedMimeTypeAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS),
+              defaultValue.allowVideoMixedMimeTypeAdaptiveness));
+      setAllowVideoNonSeamlessAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS),
+              defaultValue.allowVideoNonSeamlessAdaptiveness));
+      // Audio
+      setExceedAudioConstraintsIfNecessary(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
+              defaultValue.exceedAudioConstraintsIfNecessary));
+      setAllowAudioMixedMimeTypeAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS),
+              defaultValue.allowAudioMixedMimeTypeAdaptiveness));
+      setAllowAudioMixedSampleRateAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS),
+              defaultValue.allowAudioMixedSampleRateAdaptiveness));
+      setAllowAudioMixedChannelCountAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS),
+              defaultValue.allowAudioMixedChannelCountAdaptiveness));
+      // Text
+      setDisabledTextTrackSelectionFlags(
+          bundle.getInt(
+              Parameters.keyForField(Parameters.FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS),
+              defaultValue.disabledTextTrackSelectionFlags));
+      // General
+      setExceedRendererCapabilitiesIfNecessary(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY),
+              defaultValue.exceedRendererCapabilitiesIfNecessary));
+      setTunnelingEnabled(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_TUNNELING_ENABLED),
+              defaultValue.tunnelingEnabled));
+      setAllowMultipleAdaptiveSelections(
+          bundle.getBoolean(
+              Parameters.keyForField(Parameters.FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS),
+              defaultValue.allowMultipleAdaptiveSelections));
+
+      selectionOverrides = new SparseArray<>();
+      setSelectionOverridesFromBundle(bundle);
+
+      rendererDisabledFlags = new SparseBooleanArray();
+      setRendererDisableFlagsFromBundle(bundle);
     }
 
     // Video
@@ -724,12 +789,52 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
       return clone;
     }
+
+    private void setSelectionOverridesFromBundle(Bundle bundle) {
+      @Nullable
+      int[] rendererIndexes =
+          bundle.getIntArray(
+              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES));
+      List<TrackGroupArray> trackGroupArrays =
+          BundleableUtils.fromBundleNullableList(
+              TrackGroupArray.CREATOR,
+              bundle.getParcelableArrayList(
+                  Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS)),
+              /* defaultValue= */ ImmutableList.of());
+      SparseArray<SelectionOverride> selectionOverrides =
+          BundleableUtils.fromBundleNullableSparseArray(
+              SelectionOverride.CREATOR,
+              bundle.getSparseParcelableArray(
+                  Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES)),
+              /* defaultValue= */ new SparseArray<>());
+
+      if (rendererIndexes == null || rendererIndexes.length != trackGroupArrays.size()) {
+        return; // Incorrect format, ignore all overrides.
+      }
+      for (int i = 0; i < rendererIndexes.length; i++) {
+        int rendererIndex = rendererIndexes[i];
+        TrackGroupArray groups = trackGroupArrays.get(i);
+        @Nullable SelectionOverride selectionOverride = selectionOverrides.get(i);
+        setSelectionOverride(rendererIndex, groups, selectionOverride);
+      }
+    }
+
+    private void setRendererDisableFlagsFromBundle(Bundle bundle) {
+      int[] rendererIndexes =
+          bundle.getIntArray(Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDEXES));
+      if (rendererIndexes == null) {
+        return;
+      }
+      for (int rendererIndex : rendererIndexes) {
+        setRendererDisabled(rendererIndex, true);
+      }
+    }
   }
 
   /**
    * Extends {@link Parameters} by adding fields that are specific to {@link DefaultTrackSelector}.
    */
-  public static final class Parameters extends TrackSelectionParameters implements Parcelable {
+  public static final class Parameters extends TrackSelectionParameters implements Bundleable {
 
     /**
      * An instance with default values, except those obtained from the {@link Context}.
@@ -755,19 +860,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Deprecated public static final Parameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
 
-    public static final Creator<Parameters> CREATOR =
-        new Creator<Parameters>() {
-
-          @Override
-          public Parameters createFromParcel(Parcel in) {
-            return new Parameters(in);
-          }
-
-          @Override
-          public Parameters[] newArray(int size) {
-            return new Parameters[size];
-          }
-        };
     /**
      * Bitmask of selection flags that are disabled for text track selections. See {@link
      * C.SelectionFlags}. The default value is {@code 0} (i.e. no flags).
@@ -868,28 +960,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       rendererDisabledFlags = builder.rendererDisabledFlags;
     }
 
-    /* package */ Parameters(Parcel in) {
-      super(in);
-      // Video
-      this.exceedVideoConstraintsIfNecessary = Util.readBoolean(in);
-      this.allowVideoMixedMimeTypeAdaptiveness = Util.readBoolean(in);
-      this.allowVideoNonSeamlessAdaptiveness = Util.readBoolean(in);
-      // Audio
-      this.exceedAudioConstraintsIfNecessary = Util.readBoolean(in);
-      this.allowAudioMixedMimeTypeAdaptiveness = Util.readBoolean(in);
-      this.allowAudioMixedSampleRateAdaptiveness = Util.readBoolean(in);
-      this.allowAudioMixedChannelCountAdaptiveness = Util.readBoolean(in);
-      // Text
-      this.disabledTextTrackSelectionFlags = in.readInt();
-      // General
-      this.exceedRendererCapabilitiesIfNecessary = Util.readBoolean(in);
-      this.tunnelingEnabled = Util.readBoolean(in);
-      this.allowMultipleAdaptiveSelections = Util.readBoolean(in);
-      // Overrides
-      this.selectionOverrides = readSelectionOverrides(in);
-      this.rendererDisabledFlags = Util.castNonNull(in.readSparseBooleanArray());
-    }
-
     /**
      * Returns whether the renderer is disabled.
      *
@@ -928,6 +998,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /** Creates a new {@link ParametersBuilder}, copying the initial values from this instance. */
+    @Override
     public ParametersBuilder buildUpon() {
       return new ParametersBuilder(this);
     }
@@ -987,78 +1058,139 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return result;
     }
 
-    // Parcelable implementation.
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY,
+      FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS,
+      FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS,
+      FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY,
+      FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS,
+      FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS,
+      FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS,
+      FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS,
+      FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY,
+      FIELD_TUNNELING_ENABLED,
+      FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS,
+      FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES,
+      FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS,
+      FIELD_SELECTION_OVERRIDES,
+      FIELD_RENDERER_DISABLED_INDEXES,
+    })
+    private @interface FieldNumber {}
+
+    // Start at 1000 to avoid conflict with the base class fields.
+    private static final int FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY = 1000;
+    private static final int FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS = 1001;
+    private static final int FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS = 1002;
+    private static final int FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY = 1003;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS = 1004;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS = 1005;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS = 1006;
+    private static final int FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS = 1007;
+    private static final int FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY = 1008;
+    private static final int FIELD_TUNNELING_ENABLED = 1009;
+    private static final int FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS = 1010;
+    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES = 1011;
+    private static final int FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS = 1012;
+    private static final int FIELD_SELECTION_OVERRIDES = 1013;
+    private static final int FIELD_RENDERER_DISABLED_INDEXES = 1014;
 
     @Override
-    public int describeContents() {
-      return 0;
-    }
+    public Bundle toBundle() {
+      Bundle bundle = super.toBundle();
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-      super.writeToParcel(dest, flags);
       // Video
-      Util.writeBoolean(dest, exceedVideoConstraintsIfNecessary);
-      Util.writeBoolean(dest, allowVideoMixedMimeTypeAdaptiveness);
-      Util.writeBoolean(dest, allowVideoNonSeamlessAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY),
+          exceedVideoConstraintsIfNecessary);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS),
+          allowVideoMixedMimeTypeAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS),
+          allowVideoNonSeamlessAdaptiveness);
       // Audio
-      Util.writeBoolean(dest, exceedAudioConstraintsIfNecessary);
-      Util.writeBoolean(dest, allowAudioMixedMimeTypeAdaptiveness);
-      Util.writeBoolean(dest, allowAudioMixedSampleRateAdaptiveness);
-      Util.writeBoolean(dest, allowAudioMixedChannelCountAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
+          exceedAudioConstraintsIfNecessary);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_AUDIO_MIXED_MIME_TYPE_ADAPTIVENESS),
+          allowAudioMixedMimeTypeAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_AUDIO_MIXED_SAMPLE_RATE_ADAPTIVENESS),
+          allowAudioMixedSampleRateAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS),
+          allowAudioMixedChannelCountAdaptiveness);
       // Text
-      dest.writeInt(disabledTextTrackSelectionFlags);
+      bundle.putInt(
+          keyForField(FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS), disabledTextTrackSelectionFlags);
       // General
-      Util.writeBoolean(dest, exceedRendererCapabilitiesIfNecessary);
-      Util.writeBoolean(dest, tunnelingEnabled);
-      Util.writeBoolean(dest, allowMultipleAdaptiveSelections);
-      // Overrides
-      writeSelectionOverridesToParcel(dest, selectionOverrides);
-      dest.writeSparseBooleanArray(rendererDisabledFlags);
+      bundle.putBoolean(
+          keyForField(FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY),
+          exceedRendererCapabilitiesIfNecessary);
+      bundle.putBoolean(keyForField(FIELD_TUNNELING_ENABLED), tunnelingEnabled);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS), allowMultipleAdaptiveSelections);
+
+      putSelectionOverridesToBundle(bundle, selectionOverrides);
+      putRendererDisabledFlagsToBundle(bundle, rendererDisabledFlags);
+
+      return bundle;
     }
 
-    // Static utility methods.
+    /** Object that can restore {@code Parameters} from a {@link Bundle}. */
+    public static final Creator<Parameters> CREATOR =
+        bundle -> new ParametersBuilder(bundle).build();
 
-    private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
-        readSelectionOverrides(Parcel in) {
-      int renderersWithOverridesCount = in.readInt();
-      SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides =
-          new SparseArray<>(renderersWithOverridesCount);
-      for (int i = 0; i < renderersWithOverridesCount; i++) {
-        int rendererIndex = in.readInt();
-        int overrideCount = in.readInt();
-        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
-            new HashMap<>(overrideCount);
-        for (int j = 0; j < overrideCount; j++) {
-          TrackGroupArray trackGroups =
-              Assertions.checkNotNull(in.readParcelable(TrackGroupArray.class.getClassLoader()));
-          @Nullable
-          SelectionOverride override = in.readParcelable(SelectionOverride.class.getClassLoader());
-          overrides.put(trackGroups, override);
-        }
-        selectionOverrides.put(rendererIndex, overrides);
-      }
-      return selectionOverrides;
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
 
-    private static void writeSelectionOverridesToParcel(
-        Parcel dest,
+    /**
+     * Bundles selection overrides in 3 arrays of equal length. Each triplet of matching index is -
+     * the selection override (stored in a sparse array as they can be null) - the trackGroupArray
+     * of that override - the rendererIndex of that override
+     */
+    private static void putSelectionOverridesToBundle(
+        Bundle bundle,
         SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides) {
-      int renderersWithOverridesCount = selectionOverrides.size();
-      dest.writeInt(renderersWithOverridesCount);
-      for (int i = 0; i < renderersWithOverridesCount; i++) {
+      ArrayList<Integer> rendererIndexes = new ArrayList<>();
+      ArrayList<TrackGroupArray> trackGroupArrays = new ArrayList<>();
+      SparseArray<SelectionOverride> selections = new SparseArray<>();
+
+      for (int i = 0; i < selectionOverrides.size(); i++) {
         int rendererIndex = selectionOverrides.keyAt(i);
-        Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
-            selectionOverrides.valueAt(i);
-        int overrideCount = overrides.size();
-        dest.writeInt(rendererIndex);
-        dest.writeInt(overrideCount);
         for (Map.Entry<TrackGroupArray, @NullableType SelectionOverride> override :
-            overrides.entrySet()) {
-          dest.writeParcelable(override.getKey(), /* parcelableFlags= */ 0);
-          dest.writeParcelable(override.getValue(), /* parcelableFlags= */ 0);
+            selectionOverrides.valueAt(i).entrySet()) {
+          @Nullable SelectionOverride selection = override.getValue();
+          if (selection != null) {
+            selections.put(trackGroupArrays.size(), selection);
+          }
+          trackGroupArrays.add(override.getKey());
+          rendererIndexes.add(rendererIndex);
         }
+        bundle.putIntArray(
+            keyForField(FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES), Ints.toArray(rendererIndexes));
+        bundle.putParcelableArrayList(
+            keyForField(FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS),
+            BundleableUtils.toBundleArrayList(trackGroupArrays));
+        bundle.putSparseParcelableArray(
+            keyForField(FIELD_SELECTION_OVERRIDES),
+            BundleableUtils.toBundleSparseArray(selections));
       }
+    }
+
+    private static void putRendererDisabledFlagsToBundle(
+        Bundle bundle, SparseBooleanArray rendererDisabledFlags) {
+      int[] rendererIndexes = new int[rendererDisabledFlags.size()];
+      for (int i = 0; i < rendererDisabledFlags.size(); i++) {
+        rendererIndexes[i] = rendererDisabledFlags.keyAt(i);
+      }
+      bundle.putIntArray(keyForField(FIELD_RENDERER_DISABLED_INDEXES), rendererIndexes);
     }
 
     private static boolean areRendererDisabledFlagsEqual(
@@ -1113,7 +1245,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /** A track selection override. */
-  public static final class SelectionOverride implements Parcelable {
+  public static final class SelectionOverride implements Bundleable {
 
     public final int groupIndex;
     public final int[] tracks;
@@ -1121,6 +1253,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final int type;
 
     /**
+     * Constructs a {@code SelectionOverride} to override tracks of a group.
+     *
      * @param groupIndex The overriding track group index.
      * @param tracks The overriding track indices within the track group.
      */
@@ -1129,6 +1263,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
+     * Constructs a {@code SelectionOverride} of the given type to override tracks of a group.
+     *
      * @param groupIndex The overriding track group index.
      * @param tracks The overriding track indices within the track group.
      * @param type The type that will be returned from {@link TrackSelection#getType()}.
@@ -1139,14 +1275,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.length = tracks.length;
       this.type = type;
       Arrays.sort(this.tracks);
-    }
-
-    /* package */ SelectionOverride(Parcel in) {
-      groupIndex = in.readInt();
-      length = in.readByte();
-      tracks = new int[length];
-      in.readIntArray(tracks);
-      type = in.readInt();
     }
 
     /** Returns whether this override contains the specified track index. */
@@ -1179,34 +1307,44 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && type == other.type;
     }
 
-    // Parcelable implementation.
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_GROUP_INDEX,
+      FIELD_TRACKS,
+      FIELD_TRACK_TYPE,
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_GROUP_INDEX = 0;
+    private static final int FIELD_TRACKS = 1;
+    private static final int FIELD_TRACK_TYPE = 2;
 
     @Override
-    public int describeContents() {
-      return 0;
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(keyForField(FIELD_GROUP_INDEX), groupIndex);
+      bundle.putIntArray(keyForField(FIELD_TRACKS), tracks);
+      bundle.putInt(keyForField(FIELD_TRACK_TYPE), type);
+      return bundle;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-      dest.writeInt(groupIndex);
-      dest.writeInt(tracks.length);
-      dest.writeIntArray(tracks);
-      dest.writeInt(type);
-    }
-
-    public static final Parcelable.Creator<SelectionOverride> CREATOR =
-        new Parcelable.Creator<SelectionOverride>() {
-
-          @Override
-          public SelectionOverride createFromParcel(Parcel in) {
-            return new SelectionOverride(in);
-          }
-
-          @Override
-          public SelectionOverride[] newArray(int size) {
-            return new SelectionOverride[size];
-          }
+    /** Object that can restore {@code SelectionOverride} from a {@link Bundle}. */
+    public static final Creator<SelectionOverride> CREATOR =
+        bundle -> {
+          int groupIndex = bundle.getInt(keyForField(FIELD_GROUP_INDEX), -1);
+          @Nullable int[] tracks = bundle.getIntArray(keyForField(FIELD_TRACKS));
+          int trackType = bundle.getInt(keyForField(FIELD_TRACK_TYPE), -1);
+          Assertions.checkArgument(groupIndex >= 0 && trackType >= 0);
+          Assertions.checkNotNull(tracks);
+          return new SelectionOverride(groupIndex, tracks, trackType);
         };
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
   }
 
   /**

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -29,20 +28,15 @@ import org.junit.runner.RunWith;
 public final class TrackGroupTest {
 
   @Test
-  public void parcelable() {
+  public void roundTripViaBundle_ofTrackGroup_yieldsEqualInstance() {
     Format.Builder formatBuilder = new Format.Builder();
     Format format1 = formatBuilder.setSampleMimeType(MimeTypes.VIDEO_H264).build();
     Format format2 = formatBuilder.setSampleMimeType(MimeTypes.AUDIO_AAC).build();
 
-    TrackGroup trackGroupToParcel = new TrackGroup(format1, format2);
+    TrackGroup trackGroupToBundle = new TrackGroup(format1, format2);
 
-    Parcel parcel = Parcel.obtain();
-    trackGroupToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
+    TrackGroup trackGroupFromBundle = TrackGroup.CREATOR.fromBundle(trackGroupToBundle.toBundle());
 
-    TrackGroup trackGroupFromParcel = TrackGroup.CREATOR.createFromParcel(parcel);
-    assertThat(trackGroupFromParcel).isEqualTo(trackGroupToParcel);
-
-    parcel.recycle();
+    assertThat(trackGroupFromBundle).isEqualTo(trackGroupToBundle);
   }
 }

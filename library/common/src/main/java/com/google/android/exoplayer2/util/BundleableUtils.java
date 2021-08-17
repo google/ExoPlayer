@@ -15,7 +15,11 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Bundle;
+import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.common.collect.ImmutableList;
@@ -68,11 +72,39 @@ public final class BundleableUtils {
       Bundleable.Creator<T> creator, List<Bundle> bundleList) {
     ImmutableList.Builder<T> builder = ImmutableList.builder();
     for (int i = 0; i < bundleList.size(); i++) {
-      Bundle bundle = bundleList.get(i);
+      Bundle bundle = checkNotNull(bundleList.get(i)); // Fail fast during parsing.
       T bundleable = creator.fromBundle(bundle);
       builder.add(bundleable);
     }
     return builder.build();
+  }
+
+  /**
+   * Converts a list of {@link Bundle} to a list of {@link Bundleable}. Returns {@code defaultValue}
+   * if {@code bundleList} is null.
+   */
+  public static <T extends Bundleable> List<T> fromBundleNullableList(
+      Bundleable.Creator<T> creator, @Nullable List<Bundle> bundleList, List<T> defaultValue) {
+    return (bundleList == null) ? defaultValue : fromBundleList(creator, bundleList);
+  }
+
+  /**
+   * Converts a {@link SparseArray} of {@link Bundle} to a {@link SparseArray} of {@link
+   * Bundleable}. Returns {@code defaultValue} if {@code bundleSparseArray} is null.
+   */
+  public static <T extends Bundleable> SparseArray<T> fromBundleNullableSparseArray(
+      Bundleable.Creator<T> creator,
+      @Nullable SparseArray<Bundle> bundleSparseArray,
+      SparseArray<T> defaultValue) {
+    if (bundleSparseArray == null) {
+      return defaultValue;
+    }
+    // Can't use ImmutableList as it doesn't support null elements.
+    SparseArray<T> result = new SparseArray<>(bundleSparseArray.size());
+    for (int i = 0; i < bundleSparseArray.size(); i++) {
+      result.put(bundleSparseArray.keyAt(i), creator.fromBundle(bundleSparseArray.valueAt(i)));
+    }
+    return result;
   }
 
   /**
@@ -86,6 +118,32 @@ public final class BundleableUtils {
       arrayList.add(bundleableList.get(i).toBundle());
     }
     return arrayList;
+  }
+
+  /**
+   * Converts a {@link SparseArray} of {@link Bundleable} to an {@link SparseArray} of {@link
+   * Bundle} so that the returned {@link SparseArray} can be put to {@link Bundle} using {@link
+   * Bundle#putSparseParcelableArray} conveniently.
+   */
+  public static <T extends Bundleable> SparseArray<Bundle> toBundleSparseArray(
+      SparseArray<T> bundleableSparseArray) {
+    SparseArray<Bundle> sparseArray = new SparseArray<>(bundleableSparseArray.size());
+    for (int i = 0; i < bundleableSparseArray.size(); i++) {
+      sparseArray.put(bundleableSparseArray.keyAt(i), bundleableSparseArray.valueAt(i).toBundle());
+    }
+    return sparseArray;
+  }
+
+  /**
+   * Set the application class loader to the given {@link Bundle} if no class loader is present.
+   *
+   * <p>This assumes that all classes unparceled from {@code bundle} are sharing the class loader of
+   * {@code BundleableUtils}.
+   */
+  public static void ensureClassLoader(@Nullable Bundle bundle) {
+    if (bundle != null) {
+      bundle.setClassLoader(castNonNull(BundleableUtils.class.getClassLoader()));
+    }
   }
 
   private BundleableUtils() {}

@@ -98,7 +98,7 @@ public class PlayerActivity extends AppCompatActivity
   // Activity lifecycle.
 
   @Override
-  public void onCreate(Bundle savedInstanceState) {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     dataSourceFactory = DemoUtil.getDataSourceFactory(/* context= */ this);
 
@@ -114,7 +114,9 @@ public class PlayerActivity extends AppCompatActivity
     playerView.requestFocus();
 
     if (savedInstanceState != null) {
-      trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);
+      trackSelectorParameters =
+          DefaultTrackSelector.Parameters.CREATOR.fromBundle(
+              savedInstanceState.getBundle(KEY_TRACK_SELECTOR_PARAMETERS));
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startWindow = savedInstanceState.getInt(KEY_WINDOW);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
@@ -207,7 +209,7 @@ public class PlayerActivity extends AppCompatActivity
     super.onSaveInstanceState(outState);
     updateTrackSelectorParameters();
     updateStartPosition();
-    outState.putParcelable(KEY_TRACK_SELECTOR_PARAMETERS, trackSelectorParameters);
+    outState.putBundle(KEY_TRACK_SELECTOR_PARAMETERS, trackSelectorParameters.toBundle());
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
     outState.putInt(KEY_WINDOW, startWindow);
     outState.putLong(KEY_POSITION, startPosition);
