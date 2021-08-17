@@ -109,7 +109,7 @@ public final class NetworkTypeObserver {
     mainHandler = new Handler(Looper.getMainLooper());
     listeners = new CopyOnWriteArrayList<>();
     networkTypeLock = new Object();
-    networkType = C.NETWORK_TYPE_UNKNOWN;
+    networkType = getNetworkTypeFromConnectivityManager(context);
     IntentFilter filter = new IntentFilter();
     filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
     context.registerReceiver(/* receiver= */ new Receiver(), filter);
