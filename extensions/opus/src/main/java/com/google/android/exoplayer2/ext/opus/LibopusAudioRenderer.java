@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.audio.OpusUtil;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -81,9 +81,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
   @Override
   @C.FormatSupport
   protected int supportsFormatInternal(Format format) {
-    boolean drmIsSupported =
-        format.exoMediaCryptoType == null
-            || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
+    boolean drmIsSupported = OpusLibrary.supportsCryptoType(format.cryptoType);
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return C.FORMAT_UNSUPPORTED_TYPE;
@@ -98,7 +96,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
   }
 
   @Override
-  protected OpusDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+  protected OpusDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws OpusDecoderException {
     TraceUtil.beginSection("createOpusDecoder");
     @SinkFormatSupport
@@ -115,7 +113,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
             NUM_BUFFERS,
             initialInputBufferSize,
             format.initializationData,
-            mediaCrypto,
+            cryptoConfig,
             outputFloat);
 
     TraceUtil.endSection();

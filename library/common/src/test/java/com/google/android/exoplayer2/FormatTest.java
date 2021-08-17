@@ -22,8 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -45,15 +43,11 @@ public final class FormatTest {
   }
 
   @Test
-  public void roundTripViaBundle_ofParameters_yieldsEqualInstanceExceptExoMediaCryptoType() {
+  public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
     Format formatToBundle = createTestFormat();
-
     Format formatFromBundle = Format.CREATOR.fromBundle(formatToBundle.toBundle());
 
-    assertThat(formatFromBundle.exoMediaCryptoType).isEqualTo(UnsupportedMediaCrypto.class);
-    assertThat(formatFromBundle)
-        .isEqualTo(
-            formatToBundle.buildUpon().setExoMediaCryptoType(UnsupportedMediaCrypto.class).build());
+    assertThat(formatFromBundle).isEqualTo(formatToBundle);
   }
 
   private static Format createTestFormat() {
@@ -93,7 +87,7 @@ public final class FormatTest {
         .setPeakBitrate(2048)
         .setCodecs("codec")
         .setMetadata(metadata)
-        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setContainerMimeType(VIDEO_MP4)
         .setSampleMimeType(MimeTypes.VIDEO_H264)
         .setMaxInputSize(5000)
         .setInitializationData(initializationData)
@@ -113,7 +107,7 @@ public final class FormatTest {
         .setEncoderDelay(1001)
         .setEncoderPadding(1002)
         .setAccessibilityChannel(2)
-        .setExoMediaCryptoType(ExoMediaCrypto.class)
+        .setCryptoType(C.CRYPTO_TYPE_CUSTOM_BASE)
         .build();
   }
 

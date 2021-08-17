@@ -34,12 +34,12 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -128,7 +128,7 @@ public final class DecoderVideoRendererTest {
                   VideoDecoderInputBuffer,
                   ? extends VideoDecoderOutputBuffer,
                   ? extends DecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
+              createDecoder(Format format, @Nullable CryptoConfig cryptoConfig) {
             return new SimpleDecoder<
                 VideoDecoderInputBuffer, VideoDecoderOutputBuffer, DecoderException>(
                 new VideoDecoderInputBuffer[10], new VideoDecoderOutputBuffer[10]) {

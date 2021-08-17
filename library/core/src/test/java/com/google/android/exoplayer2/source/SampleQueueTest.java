@@ -41,8 +41,8 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.testutil.FakeCryptoConfig;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -73,7 +73,7 @@ public final class SampleQueueTest {
   private static final Format FORMAT_ENCRYPTED =
       new Format.Builder().setId(/* id= */ "encrypted").setDrmInitData(new DrmInitData()).build();
   private static final Format FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE =
-      FORMAT_ENCRYPTED.copyWithExoMediaCryptoType(MockExoMediaCrypto.class);
+      FORMAT_ENCRYPTED.copyWithCryptoType(FakeCryptoConfig.TYPE);
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 
   /*
@@ -1761,8 +1761,6 @@ public final class SampleQueueTest {
     return format.buildUpon().setLabel(label).build();
   }
 
-  private static final class MockExoMediaCrypto implements ExoMediaCrypto {}
-
   private static final class MockDrmSessionManager implements DrmSessionManager {
 
     private final DrmSession mockDrmSession;
@@ -1772,8 +1770,8 @@ public final class SampleQueueTest {
       this.mockDrmSession = mockDrmSession;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public DrmSession acquireSession(
         Looper playbackLooper,
         @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
@@ -1781,12 +1779,12 @@ public final class SampleQueueTest {
       return format.drmInitData != null ? mockDrmSession : mockPlaceholderDrmSession;
     }
 
-    @Nullable
     @Override
-    public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format) {
+    @C.CryptoType
+    public int getCryptoType(Format format) {
       return mockPlaceholderDrmSession != null || format.drmInitData != null
-          ? MockExoMediaCrypto.class
-          : null;
+          ? FakeCryptoConfig.TYPE
+          : C.CRYPTO_TYPE_NONE;
     }
   }
 }

@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -100,7 +100,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
     }
     if (!sinkSupportsFormat(outputFormat)) {
       return C.FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (format.exoMediaCryptoType != null) {
+    } else if (format.cryptoType != C.CRYPTO_TYPE_NONE) {
       return C.FORMAT_UNSUPPORTED_DRM;
     } else {
       return C.FORMAT_HANDLED;
@@ -108,7 +108,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
   }
 
   @Override
-  protected FlacDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+  protected FlacDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws FlacDecoderException {
     TraceUtil.beginSection("createFlacDecoder");
     FlacDecoder decoder =

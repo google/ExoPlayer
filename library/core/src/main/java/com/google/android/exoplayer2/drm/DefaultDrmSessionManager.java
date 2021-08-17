@@ -579,19 +579,16 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  @Nullable
-  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format) {
-    Class<? extends ExoMediaCrypto> exoMediaCryptoType =
-        checkNotNull(exoMediaDrm).getExoMediaCryptoType();
+  @C.CryptoType
+  public int getCryptoType(Format format) {
+    @C.CryptoType int cryptoType = checkNotNull(exoMediaDrm).getCryptoType();
     if (format.drmInitData == null) {
       int trackType = MimeTypes.getTrackType(format.sampleMimeType);
       return Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) != C.INDEX_UNSET
-          ? exoMediaCryptoType
-          : null;
+          ? cryptoType
+          : C.CRYPTO_TYPE_NONE;
     } else {
-      return canAcquireSession(format.drmInitData)
-          ? exoMediaCryptoType
-          : UnsupportedMediaCrypto.class;
+      return canAcquireSession(format.drmInitData) ? cryptoType : C.CRYPTO_TYPE_UNSUPPORTED;
     }
   }
 
@@ -602,12 +599,12 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       int trackType, boolean shouldReleasePreacquiredSessionsBeforeRetrying) {
     ExoMediaDrm exoMediaDrm = checkNotNull(this.exoMediaDrm);
     boolean avoidPlaceholderDrmSessions =
-        FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
-            && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
+        exoMediaDrm.getCryptoType() == C.CRYPTO_TYPE_FRAMEWORK
+            && FrameworkCryptoConfig.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
     // Avoid attaching a session to sparse formats.
     if (avoidPlaceholderDrmSessions
         || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
-        || UnsupportedMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())) {
+        || exoMediaDrm.getCryptoType() == C.CRYPTO_TYPE_UNSUPPORTED) {
       return null;
     }
     if (placeholderDrmSession == null) {

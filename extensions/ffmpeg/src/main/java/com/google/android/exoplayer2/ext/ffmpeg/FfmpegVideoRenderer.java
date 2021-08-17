@@ -25,9 +25,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
@@ -95,7 +95,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   @SuppressWarnings("nullness:return")
   @Override
   protected Decoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+      createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
           throws FfmpegDecoderException {
     TraceUtil.beginSection("createFfmpegVideoDecoder");
     // TODO: Implement, remove the SuppressWarnings annotation, and update the return type to use

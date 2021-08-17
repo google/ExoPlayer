@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.drm;
+package com.google.android.exoplayer2.decoder;
 
-/** Enables decoding of encrypted data using keys in a DRM session. */
-public interface ExoMediaCrypto {}
+import com.google.android.exoplayer2.C;
+
+/**
+ * Configuration for a decoder to allow it to decode encrypted media data. The configuration is
+ * {@link C.CryptoType} specific.
+ */
+public interface CryptoConfig {}

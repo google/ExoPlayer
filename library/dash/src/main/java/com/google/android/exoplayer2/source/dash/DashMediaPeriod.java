@@ -667,8 +667,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
         Format format = representations.get(j).format;
-        formats[j] =
-            format.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(format));
+        formats[j] = format.copyWithCryptoType(drmSessionManager.getCryptoType(format));
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);

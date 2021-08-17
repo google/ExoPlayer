@@ -26,8 +26,9 @@ import android.os.Parcelable;
 import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.ExoMediaDrm;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallbackException;
@@ -334,15 +335,16 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public ExoMediaCrypto createMediaCrypto(byte[] sessionId) throws MediaCryptoException {
+  public CryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException {
     Assertions.checkState(referenceCount > 0);
     Assertions.checkState(openSessionIds.contains(toByteList(sessionId)));
-    return new FakeExoMediaCrypto();
+    return new FakeCryptoConfig();
   }
 
   @Override
-  public Class<FakeExoMediaCrypto> getExoMediaCryptoType() {
-    return FakeExoMediaCrypto.class;
+  @C.CryptoType
+  public int getCryptoType() {
+    return FakeCryptoConfig.TYPE;
   }
 
   // Methods to facilitate testing
@@ -388,8 +390,6 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   private static ImmutableList<Byte> toByteList(byte[] byteArray) {
     return ImmutableList.copyOf(Bytes.asList(byteArray));
   }
-
-  private static class FakeExoMediaCrypto implements ExoMediaCrypto {}
 
   /** An license server implementation to interact with {@link FakeExoMediaDrm}. */
   public static class LicenseServer implements MediaDrmCallback {

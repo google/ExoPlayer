@@ -25,6 +25,8 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -538,14 +540,19 @@ public interface ExoMediaDrm {
   void setPropertyByteArray(String propertyName, byte[] value);
 
   /**
-   * Creates an {@link ExoMediaCrypto} for a given session.
+   * Creates a {@link CryptoConfig} that can be passed to a compatible decoder to allow decryption
+   * of protected content using the specified session.
    *
    * @param sessionId The ID of the session.
-   * @return An {@link ExoMediaCrypto} for the given session.
-   * @throws MediaCryptoException If an {@link ExoMediaCrypto} could not be created.
+   * @return A {@link CryptoConfig} for the given session.
+   * @throws MediaCryptoException If a {@link CryptoConfig} could not be created.
    */
-  ExoMediaCrypto createMediaCrypto(byte[] sessionId) throws MediaCryptoException;
+  CryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException;
 
-  /** Returns the {@link ExoMediaCrypto} type created by {@link #createMediaCrypto(byte[])}. */
-  Class<? extends ExoMediaCrypto> getExoMediaCryptoType();
+  /**
+   * Returns the {@link C.CryptoType type} of {@link CryptoConfig} instances returned by {@link
+   * #createCryptoConfig}.
+   */
+  @C.CryptoType
+  int getCryptoType();
 }

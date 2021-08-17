@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.drm;
+package com.google.android.exoplayer2.testutil;
 
-/** {@link ExoMediaCrypto} type that cannot be used to handle any type of protected content. */
-public final class UnsupportedMediaCrypto implements ExoMediaCrypto {}
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
+
+/** Fake {@link CryptoConfig}. */
+public final class FakeCryptoConfig implements CryptoConfig {
+  public static final int TYPE = C.CRYPTO_TYPE_CUSTOM_BASE;
+}

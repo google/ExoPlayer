@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
@@ -46,7 +47,6 @@ import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -330,12 +330,12 @@ public abstract class DecoderAudioRenderer<
    * Creates a decoder for the given format.
    *
    * @param format The format for which a decoder is required.
-   * @param mediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted content.
-   *     Maybe null and can be ignored if decoder does not handle encrypted content.
+   * @param cryptoConfig The {@link CryptoConfig} object required for decoding encrypted content.
+   *     May be null and can be ignored if decoder does not handle encrypted content.
    * @return The decoder.
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
-  protected abstract T createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+  protected abstract T createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws DecoderException;
 
   /**
@@ -603,10 +603,10 @@ public abstract class DecoderAudioRenderer<
 
     setDecoderDrmSession(sourceDrmSession);
 
-    ExoMediaCrypto mediaCrypto = null;
+    CryptoConfig cryptoConfig = null;
     if (decoderDrmSession != null) {
-      mediaCrypto = decoderDrmSession.getMediaCrypto();
-      if (mediaCrypto == null) {
+      cryptoConfig = decoderDrmSession.getCryptoConfig();
+      if (cryptoConfig == null) {
         DrmSessionException drmError = decoderDrmSession.getError();
         if (drmError != null) {
           // Continue for now. We may be able to avoid failure if a new input format causes the
@@ -621,7 +621,7 @@ public abstract class DecoderAudioRenderer<
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createAudioDecoder");
-      decoder = createDecoder(inputFormat, mediaCrypto);
+      decoder = createDecoder(inputFormat, cryptoConfig);
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
       eventDispatcher.decoderInitialized(

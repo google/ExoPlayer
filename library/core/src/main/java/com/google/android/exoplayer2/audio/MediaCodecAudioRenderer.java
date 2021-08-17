@@ -272,7 +272,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    boolean formatHasDrm = format.exoMediaCryptoType != null;
+    boolean formatHasDrm = format.cryptoType != C.CRYPTO_TYPE_NONE;
     boolean supportsFormatDrm = supportsFormatDrm(format);
     // In direct mode, if the format has DRM then we need to use a decoder that only decrypts.
     // Else we don't don't need a decoder at all.

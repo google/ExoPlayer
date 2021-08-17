@@ -19,8 +19,6 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.BundleableUtils;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -174,7 +172,7 @@ public final class Format implements Bundleable {
 
     // Provided by the source.
 
-    @Nullable private Class<? extends ExoMediaCrypto> exoMediaCryptoType;
+    @C.CryptoType private int cryptoType;
 
     /** Creates a new instance with default values. */
     public Builder() {
@@ -195,6 +193,8 @@ public final class Format implements Bundleable {
       pcmEncoding = NO_VALUE;
       // Text specific.
       accessibilityChannel = NO_VALUE;
+      // Provided by the source.
+      cryptoType = C.CRYPTO_TYPE_NONE;
     }
 
     /**
@@ -238,7 +238,7 @@ public final class Format implements Bundleable {
       // Text specific.
       this.accessibilityChannel = format.accessibilityChannel;
       // Provided by the source.
-      this.exoMediaCryptoType = format.exoMediaCryptoType;
+      this.cryptoType = format.cryptoType;
     }
 
     /**
@@ -585,14 +585,13 @@ public final class Format implements Bundleable {
     // Provided by source.
 
     /**
-     * Sets {@link Format#exoMediaCryptoType}. The default value is {@code null}.
+     * Sets {@link Format#cryptoType}. The default value is {@link C#CRYPTO_TYPE_NONE}.
      *
-     * @param exoMediaCryptoType The {@link Format#exoMediaCryptoType}.
+     * @param cryptoType The {@link C.CryptoType}.
      * @return The builder.
      */
-    public Builder setExoMediaCryptoType(
-        @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
-      this.exoMediaCryptoType = exoMediaCryptoType;
+    public Builder setCryptoType(@C.CryptoType int cryptoType) {
+      this.cryptoType = cryptoType;
       return this;
     }
 
@@ -756,11 +755,12 @@ public final class Format implements Bundleable {
   // Provided by source.
 
   /**
-   * The type of {@link ExoMediaCrypto} that will be associated with the content this format
-   * describes, or {@code null} if the content is not encrypted. Cannot be null if {@link
-   * #drmInitData} is non-null.
+   * The type of crypto that must be used to decode samples associated with this format, or {@link
+   * C#CRYPTO_TYPE_NONE} if the content is not encrypted. Cannot be {@link C#CRYPTO_TYPE_NONE} if
+   * {@link #drmInitData} is non-null, but may be {@link C#CRYPTO_TYPE_UNSUPPORTED} to indicate that
+   * the samples are encrypted using an unsupported crypto type.
    */
-  @Nullable public final Class<? extends ExoMediaCrypto> exoMediaCryptoType;
+  @C.CryptoType public final int cryptoType;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -964,11 +964,11 @@ public final class Format implements Bundleable {
     // Text specific.
     accessibilityChannel = builder.accessibilityChannel;
     // Provided by source.
-    if (builder.exoMediaCryptoType == null && drmInitData != null) {
-      // Encrypted content must always have a non-null exoMediaCryptoType.
-      exoMediaCryptoType = UnsupportedMediaCrypto.class;
+    if (builder.cryptoType == C.CRYPTO_TYPE_NONE && drmInitData != null) {
+      // Encrypted content cannot use CRYPTO_TYPE_NONE.
+      cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
     } else {
-      exoMediaCryptoType = builder.exoMediaCryptoType;
+      cryptoType = builder.cryptoType;
     }
   }
 
@@ -1113,10 +1113,9 @@ public final class Format implements Bundleable {
     return buildUpon().setWidth(width).setHeight(height).build();
   }
 
-  /** Returns a copy of this format with the specified {@link #exoMediaCryptoType}. */
-  public Format copyWithExoMediaCryptoType(
-      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
-    return buildUpon().setExoMediaCryptoType(exoMediaCryptoType).build();
+  /** Returns a copy of this format with the specified {@link #cryptoType}. */
+  public Format copyWithCryptoType(@C.CryptoType int cryptoType) {
+    return buildUpon().setCryptoType(cryptoType).build();
   }
 
   /**
@@ -1197,7 +1196,7 @@ public final class Format implements Bundleable {
       // Text specific.
       result = 31 * result + accessibilityChannel;
       // Provided by the source.
-      result = 31 * result + (exoMediaCryptoType == null ? 0 : exoMediaCryptoType.hashCode());
+      result = 31 * result + cryptoType;
       hashCode = result;
     }
     return hashCode;
@@ -1232,9 +1231,9 @@ public final class Format implements Bundleable {
         && encoderDelay == other.encoderDelay
         && encoderPadding == other.encoderPadding
         && accessibilityChannel == other.accessibilityChannel
+        && cryptoType == other.cryptoType
         && Float.compare(frameRate, other.frameRate) == 0
         && Float.compare(pixelWidthHeightRatio, other.pixelWidthHeightRatio) == 0
-        && Util.areEqual(exoMediaCryptoType, other.exoMediaCryptoType)
         && Util.areEqual(id, other.id)
         && Util.areEqual(label, other.label)
         && Util.areEqual(codecs, other.codecs)
@@ -1360,6 +1359,7 @@ public final class Format implements Bundleable {
     FIELD_ENCODER_DELAY,
     FIELD_ENCODER_PADDING,
     FIELD_ACCESSIBILITY_CHANNEL,
+    FIELD_CRYPTO_TYPE,
   })
   private @interface FieldNumber {}
 
@@ -1392,13 +1392,8 @@ public final class Format implements Bundleable {
   private static final int FIELD_ENCODER_DELAY = 26;
   private static final int FIELD_ENCODER_PADDING = 27;
   private static final int FIELD_ACCESSIBILITY_CHANNEL = 28;
+  private static final int FIELD_CRYPTO_TYPE = 29;
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Omits the {@link #exoMediaCryptoType} field. The {@link #exoMediaCryptoType} of an instance
-   * restored by {@link #CREATOR} will always be {@link UnsupportedMediaCrypto}.
-   */
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
@@ -1443,6 +1438,8 @@ public final class Format implements Bundleable {
     bundle.putInt(keyForField(FIELD_ENCODER_PADDING), encoderPadding);
     // Text specific.
     bundle.putInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), accessibilityChannel);
+    // Source specific.
+    bundle.putInt(keyForField(FIELD_CRYPTO_TYPE), cryptoType);
     return bundle;
   }
 
@@ -1512,7 +1509,9 @@ public final class Format implements Bundleable {
             bundle.getInt(keyForField(FIELD_ENCODER_PADDING), DEFAULT.encoderPadding))
         // Text specific.
         .setAccessibilityChannel(
-            bundle.getInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), DEFAULT.accessibilityChannel));
+            bundle.getInt(keyForField(FIELD_ACCESSIBILITY_CHANNEL), DEFAULT.accessibilityChannel))
+        // Source specific.
+        .setCryptoType(bundle.getInt(keyForField(FIELD_CRYPTO_TYPE), DEFAULT.cryptoType));
 
     return builder.build();
   }

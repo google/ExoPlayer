@@ -21,11 +21,11 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.CryptoException;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
@@ -43,7 +43,7 @@ public final class VpxDecoder
   private static final int DECODE_ERROR = -1;
   private static final int DRM_ERROR = -2;
 
-  @Nullable private final ExoMediaCrypto exoMediaCrypto;
+  @Nullable private final CryptoConfig cryptoConfig;
   private final long vpxDecContext;
 
   @Nullable private ByteBuffer lastSupplementalData;
@@ -56,8 +56,8 @@ public final class VpxDecoder
    * @param numInputBuffers The number of input buffers.
    * @param numOutputBuffers The number of output buffers.
    * @param initialInputBufferSize The initial size of each input buffer.
-   * @param exoMediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted
-   *     content. Maybe null and can be ignored if decoder does not handle encrypted content.
+   * @param cryptoConfig The {@link CryptoConfig} object required for decoding encrypted content.
+   *     May be null and can be ignored if decoder does not handle encrypted content.
    * @param threads Number of threads libvpx will use to decode.
    * @throws VpxDecoderException Thrown if an exception occurs when initializing the decoder.
    */
@@ -65,7 +65,7 @@ public final class VpxDecoder
       int numInputBuffers,
       int numOutputBuffers,
       int initialInputBufferSize,
-      @Nullable ExoMediaCrypto exoMediaCrypto,
+      @Nullable CryptoConfig cryptoConfig,
       int threads)
       throws VpxDecoderException {
     super(
@@ -74,8 +74,8 @@ public final class VpxDecoder
     if (!VpxLibrary.isAvailable()) {
       throw new VpxDecoderException("Failed to load decoder native libraries.");
     }
-    this.exoMediaCrypto = exoMediaCrypto;
-    if (exoMediaCrypto != null && !VpxLibrary.vpxIsSecureDecodeSupported()) {
+    this.cryptoConfig = cryptoConfig;
+    if (cryptoConfig != null && !VpxLibrary.vpxIsSecureDecodeSupported()) {
       throw new VpxDecoderException("Vpx decoder does not support secure decode.");
     }
     vpxDecContext =
@@ -134,7 +134,7 @@ public final class VpxDecoder
                 vpxDecContext,
                 inputData,
                 inputSize,
-                exoMediaCrypto,
+                cryptoConfig,
                 cryptoInfo.mode,
                 Assertions.checkNotNull(cryptoInfo.key),
                 Assertions.checkNotNull(cryptoInfo.iv),
@@ -215,7 +215,7 @@ public final class VpxDecoder
       long context,
       ByteBuffer encoded,
       int length,
-      @Nullable ExoMediaCrypto mediaCrypto,
+      @Nullable CryptoConfig mediaCrypto,
       int inputMode,
       byte[] key,
       byte[] iv,

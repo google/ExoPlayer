@@ -261,8 +261,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (int j = 0; j < manifestFormats.length; j++) {
         Format manifestFormat = manifestFormats[j];
         exposedFormats[j] =
-            manifestFormat.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(manifestFormat));
+            manifestFormat.copyWithCryptoType(drmSessionManager.getCryptoType(manifestFormat));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }

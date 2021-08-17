@@ -21,7 +21,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
-/** Compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}. */
+/**
+ * Metadata describing the structure of an encrypted input sample.
+ *
+ * <p>This class is a compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}.
+ */
 public final class CryptoInfo {
 
   /**

@@ -20,6 +20,7 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.IntDef;
@@ -115,6 +116,33 @@ public final class C {
 
   /** The name of the sans-serif font family. */
   public static final String SANS_SERIF_NAME = "sans-serif";
+
+  /**
+   * Types of crypto implementation. May be one of {@link #CRYPTO_TYPE_NONE}, {@link
+   * #CRYPTO_TYPE_UNSUPPORTED} or {@link #CRYPTO_TYPE_FRAMEWORK}. May also be an app-defined value
+   * (see {@link #CRYPTO_TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        CRYPTO_TYPE_UNSUPPORTED,
+        CRYPTO_TYPE_NONE,
+        CRYPTO_TYPE_FRAMEWORK,
+      })
+  public @interface CryptoType {}
+  /** No crypto. */
+  public static final int CRYPTO_TYPE_NONE = 0;
+  /** An unsupported crypto type. */
+  public static final int CRYPTO_TYPE_UNSUPPORTED = 1;
+  /** Framework crypto in which a {@link MediaCodec} is configured with a {@link MediaCrypto}. */
+  public static final int CRYPTO_TYPE_FRAMEWORK = 2;
+  /**
+   * Applications or extensions may define custom {@code CRYPTO_TYPE_*} constants greater than or
+   * equal to this value.
+   */
+  public static final int CRYPTO_TYPE_CUSTOM_BASE = 10000;
 
   /**
    * Crypto modes for a codec. One of {@link #CRYPTO_MODE_UNENCRYPTED}, {@link #CRYPTO_MODE_AES_CTR}

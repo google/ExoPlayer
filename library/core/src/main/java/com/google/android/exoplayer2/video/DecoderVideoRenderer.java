@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
@@ -43,7 +44,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -529,14 +529,14 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * Creates a decoder for the given format.
    *
    * @param format The format for which a decoder is required.
-   * @param mediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted content.
+   * @param cryptoConfig The {@link CryptoConfig} object required for decoding encrypted content.
    *     May be null and can be ignored if decoder does not handle encrypted content.
    * @return The decoder.
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
   protected abstract Decoder<
           VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException;
+      createDecoder(Format format, @Nullable CryptoConfig cryptoConfig) throws DecoderException;
 
   /**
    * Renders the specified output buffer.
@@ -664,10 +664,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     setDecoderDrmSession(sourceDrmSession);
 
-    ExoMediaCrypto mediaCrypto = null;
+    CryptoConfig cryptoConfig = null;
     if (decoderDrmSession != null) {
-      mediaCrypto = decoderDrmSession.getMediaCrypto();
-      if (mediaCrypto == null) {
+      cryptoConfig = decoderDrmSession.getCryptoConfig();
+      if (cryptoConfig == null) {
         DrmSessionException drmError = decoderDrmSession.getError();
         if (drmError != null) {
           // Continue for now. We may be able to avoid failure if a new input format causes the
@@ -681,7 +681,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     try {
       long decoderInitializingTimestamp = SystemClock.elapsedRealtime();
-      decoder = createDecoder(inputFormat, mediaCrypto);
+      decoder = createDecoder(inputFormat, cryptoConfig);
       setDecoderOutputMode(outputMode);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
       eventDispatcher.decoderInitialized(

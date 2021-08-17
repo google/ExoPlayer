@@ -21,12 +21,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.OpusUtil;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.CryptoException;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -44,7 +44,7 @@ public final class OpusDecoder
   public final boolean outputFloat;
   public final int channelCount;
 
-  @Nullable private final ExoMediaCrypto exoMediaCrypto;
+  @Nullable private final CryptoConfig cryptoConfig;
   private final int preSkipSamples;
   private final int seekPreRollSamples;
   private final long nativeDecoderContext;
@@ -60,8 +60,8 @@ public final class OpusDecoder
    * @param initializationData Codec-specific initialization data. The first element must contain an
    *     opus header. Optionally, the list may contain two additional buffers, which must contain
    *     the encoder delay and seek pre roll values in nanoseconds, encoded as longs.
-   * @param exoMediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted
-   *     content. Maybe null and can be ignored if decoder does not handle encrypted content.
+   * @param cryptoConfig The {@link CryptoConfig} object required for decoding encrypted content.
+   *     May be null and can be ignored if decoder does not handle encrypted content.
    * @param outputFloat Forces the decoder to output float PCM samples when set
    * @throws OpusDecoderException Thrown if an exception occurs when initializing the decoder.
    */
@@ -70,15 +70,15 @@ public final class OpusDecoder
       int numOutputBuffers,
       int initialInputBufferSize,
       List<byte[]> initializationData,
-      @Nullable ExoMediaCrypto exoMediaCrypto,
+      @Nullable CryptoConfig cryptoConfig,
       boolean outputFloat)
       throws OpusDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!OpusLibrary.isAvailable()) {
       throw new OpusDecoderException("Failed to load decoder native libraries");
     }
-    this.exoMediaCrypto = exoMediaCrypto;
-    if (exoMediaCrypto != null && !OpusLibrary.opusIsSecureDecodeSupported()) {
+    this.cryptoConfig = cryptoConfig;
+    if (cryptoConfig != null && !OpusLibrary.opusIsSecureDecodeSupported()) {
       throw new OpusDecoderException("Opus decoder does not support secure decode");
     }
     int initializationDataSize = initializationData.size();
@@ -177,7 +177,7 @@ public final class OpusDecoder
                 inputData.limit(),
                 outputBuffer,
                 OpusUtil.SAMPLE_RATE,
-                exoMediaCrypto,
+                cryptoConfig,
                 cryptoInfo.mode,
                 Assertions.checkNotNull(cryptoInfo.key),
                 Assertions.checkNotNull(cryptoInfo.iv),
@@ -248,7 +248,7 @@ public final class OpusDecoder
       int inputSize,
       SimpleOutputBuffer outputBuffer,
       int sampleRate,
-      @Nullable ExoMediaCrypto mediaCrypto,
+      @Nullable CryptoConfig mediaCrypto,
       int inputMode,
       byte[] key,
       byte[] iv,

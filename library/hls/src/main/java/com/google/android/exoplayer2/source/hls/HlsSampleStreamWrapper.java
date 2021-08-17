@@ -1411,8 +1411,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format[] exposedFormats = new Format[trackGroup.length];
       for (int j = 0; j < trackGroup.length; j++) {
         Format format = trackGroup.getFormat(j);
-        exposedFormats[j] =
-            format.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(format));
+        exposedFormats[j] = format.copyWithCryptoType(drmSessionManager.getCryptoType(format));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }

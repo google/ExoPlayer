@@ -15,15 +15,19 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.media.MediaCodec;
 import android.media.MediaCrypto;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.util.Util;
 import java.util.UUID;
 
 /**
- * An {@link ExoMediaCrypto} implementation that contains the necessary information to build or
- * update a framework {@link MediaCrypto}.
+ * A {@link CryptoConfig} for {@link C#CRYPTO_TYPE_FRAMEWORK}. Contains the necessary information to
+ * build or update a framework {@link MediaCrypto} that can be used to configure a {@link
+ * MediaCodec}.
  */
-public final class FrameworkMediaCrypto implements ExoMediaCrypto {
+public final class FrameworkCryptoConfig implements CryptoConfig {
 
   /**
    * Whether the device needs keys to have been loaded into the {@link DrmSession} before codec
@@ -50,7 +54,7 @@ public final class FrameworkMediaCrypto implements ExoMediaCrypto {
    * @param forceAllowInsecureDecoderComponents Whether to allow use of insecure decoder components
    *     even if the underlying platform says otherwise.
    */
-  public FrameworkMediaCrypto(
+  public FrameworkCryptoConfig(
       UUID uuid, byte[] sessionId, boolean forceAllowInsecureDecoderComponents) {
     this.uuid = uuid;
     this.sessionId = sessionId;

@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
@@ -57,8 +58,7 @@ import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkCryptoConfig;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -545,8 +545,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecDrmSession != null) {
       if (mediaCrypto == null) {
         @Nullable
-        FrameworkMediaCrypto sessionMediaCrypto = getFrameworkMediaCrypto(codecDrmSession);
-        if (sessionMediaCrypto == null) {
+        FrameworkCryptoConfig sessionCryptoConfig = getFrameworkCryptoConfig(codecDrmSession);
+        if (sessionCryptoConfig == null) {
           @Nullable DrmSessionException drmError = codecDrmSession.getError();
           if (drmError != null) {
             // Continue for now. We may be able to avoid failure if a new input format causes the
@@ -557,17 +557,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           }
         } else {
           try {
-            mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
+            mediaCrypto = new MediaCrypto(sessionCryptoConfig.uuid, sessionCryptoConfig.sessionId);
           } catch (MediaCryptoException e) {
             throw createRendererException(
                 e, inputFormat, PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR);
           }
           mediaCryptoRequiresSecureDecoder =
-              !sessionMediaCrypto.forceAllowInsecureDecoderComponents
+              !sessionCryptoConfig.forceAllowInsecureDecoderComponents
                   && mediaCrypto.requiresSecureDecoderComponent(mimeType);
         }
       }
-      if (FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
+      if (FrameworkCryptoConfig.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
           DrmSessionException drmSessionException =
@@ -1074,11 +1074,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return codecInfos;
   }
 
-  /**
-   * Configures rendering where no codec is used. Called instead of {@link
-   * #configureCodec(MediaCodecInfo, MediaCodecAdapter, Format, MediaCrypto, float)} when no codec
-   * is used to render.
-   */
+  /** Configures rendering where no codec is used. */
   private void initBypass(Format format) {
     disableBypass(); // In case of transition between 2 bypass formats.
 
@@ -2047,8 +2043,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Returns whether this renderer supports the given {@link Format Format's} DRM scheme. */
   protected static boolean supportsFormatDrm(Format format) {
-    return format.exoMediaCryptoType == null
-        || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
+    return format.cryptoType == C.CRYPTO_TYPE_NONE || format.cryptoType == C.CRYPTO_TYPE_FRAMEWORK;
   }
 
   /**
@@ -2088,8 +2083,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // TODO: Add an API check once [Internal ref: b/128835874] is fixed.
       return true;
     }
-    @Nullable FrameworkMediaCrypto newMediaCrypto = getFrameworkMediaCrypto(newSession);
-    if (newMediaCrypto == null) {
+    @Nullable FrameworkCryptoConfig newCryptoConfig = getFrameworkCryptoConfig(newSession);
+    if (newCryptoConfig == null) {
       // We'd only expect this to happen if the CDM from which newSession is obtained needs
       // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
       // to another, where the new CDM hasn't been used before and needs provisioning). It would be
@@ -2101,7 +2096,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     boolean requiresSecureDecoder;
-    if (newMediaCrypto.forceAllowInsecureDecoderComponents) {
+    if (newCryptoConfig.forceAllowInsecureDecoderComponents) {
       requiresSecureDecoder = false;
     } else {
       requiresSecureDecoder = newSession.requiresSecureDecoder(newFormat.sampleMimeType);
@@ -2136,7 +2131,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @RequiresApi(23)
   private void updateDrmSessionV23() throws ExoPlaybackException {
     try {
-      mediaCrypto.setMediaDrmSession(getFrameworkMediaCrypto(sourceDrmSession).sessionId);
+      mediaCrypto.setMediaDrmSession(getFrameworkCryptoConfig(sourceDrmSession).sessionId);
     } catch (MediaCryptoException e) {
       throw createRendererException(e, inputFormat, PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR);
     }
@@ -2146,18 +2141,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Nullable
-  private FrameworkMediaCrypto getFrameworkMediaCrypto(DrmSession drmSession)
+  private FrameworkCryptoConfig getFrameworkCryptoConfig(DrmSession drmSession)
       throws ExoPlaybackException {
-    @Nullable ExoMediaCrypto mediaCrypto = drmSession.getMediaCrypto();
-    if (mediaCrypto != null && !(mediaCrypto instanceof FrameworkMediaCrypto)) {
+    @Nullable CryptoConfig cryptoConfig = drmSession.getCryptoConfig();
+    if (cryptoConfig != null && !(cryptoConfig instanceof FrameworkCryptoConfig)) {
       // This should not happen if the track went through a supportsFormatDrm() check, during track
       // selection.
       throw createRendererException(
-          new IllegalArgumentException("Expecting FrameworkMediaCrypto but found: " + mediaCrypto),
+          new IllegalArgumentException(
+              "Expecting FrameworkCryptoConfig but found: " + cryptoConfig),
           inputFormat,
           PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED);
     }
-    return (FrameworkMediaCrypto) mediaCrypto;
+    return (FrameworkCryptoConfig) cryptoConfig;
   }
 
   /**
