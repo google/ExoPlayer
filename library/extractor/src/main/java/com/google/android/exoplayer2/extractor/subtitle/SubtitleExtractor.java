@@ -181,8 +181,8 @@ public class SubtitleExtractor implements Extractor {
     try {
       @Nullable SubtitleInputBuffer inputBuffer = subtitleDecoder.dequeueInputBuffer();
       while (inputBuffer == null) {
-        inputBuffer = subtitleDecoder.dequeueInputBuffer();
         Thread.sleep(5);
+        inputBuffer = subtitleDecoder.dequeueInputBuffer();
       }
       inputBuffer.ensureSpaceForWrite(bytesRead);
       inputBuffer.data.put(subtitleData.getData(), /* offset= */ 0, bytesRead);
@@ -200,8 +200,8 @@ public class SubtitleExtractor implements Extractor {
     try {
       @Nullable SubtitleOutputBuffer outputBuffer = subtitleDecoder.dequeueOutputBuffer();
       while (outputBuffer == null) {
-        outputBuffer = subtitleDecoder.dequeueOutputBuffer();
         Thread.sleep(5);
+        outputBuffer = subtitleDecoder.dequeueOutputBuffer();
       }
 
       for (int i = 0; i < outputBuffer.getEventTimeCount(); i++) {
@@ -215,6 +215,7 @@ public class SubtitleExtractor implements Extractor {
             /* offset= */ 0,
             /* cryptoData= */ null);
       }
+      outputBuffer.release();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new InterruptedIOException();
