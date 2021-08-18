@@ -30,6 +30,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -59,7 +60,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /** An {@link ExoPlayer} implementation. */
-/* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
+/* package */ final class ExoPlayerImpl extends BasePlayer {
 
   private static final String TAG = "ExoPlayerImpl";
 
@@ -263,41 +264,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
     internalPlayer.experimentalSetForegroundModeTimeoutMs(timeoutMs);
   }
 
-  @Override
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     internalPlayer.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
   }
 
-  @Override
   public boolean experimentalIsSleepingForOffload() {
     return playbackInfo.sleepingForOffload;
   }
 
-  @Override
-  @Nullable
-  public AudioComponent getAudioComponent() {
-    return null;
-  }
-
-  @Override
-  @Nullable
-  public VideoComponent getVideoComponent() {
-    return null;
-  }
-
-  @Override
-  @Nullable
-  public TextComponent getTextComponent() {
-    return null;
-  }
-
-  @Override
-  @Nullable
-  public DeviceComponent getDeviceComponent() {
-    return null;
-  }
-
-  @Override
   public Looper getPlaybackLooper() {
     return internalPlayer.getPlaybackLooper();
   }
@@ -307,7 +281,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return applicationLooper;
   }
 
-  @Override
   public Clock getClock() {
     return clock;
   }
@@ -334,12 +307,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     listeners.remove(listener);
   }
 
-  @Override
   public void addAudioOffloadListener(AudioOffloadListener listener) {
     audioOffloadListeners.add(listener);
   }
 
-  @Override
   public void removeAudioOffloadListener(AudioOffloadListener listener) {
     audioOffloadListeners.remove(listener);
   }
@@ -369,7 +340,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   /** @deprecated Use {@link #prepare()} instead. */
   @Deprecated
-  @Override
   public void retry() {
     prepare();
   }
@@ -404,7 +374,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
    */
   @Deprecated
-  @Override
   public void prepare(MediaSource mediaSource) {
     setMediaSource(mediaSource);
     prepare();
@@ -415,7 +384,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *     instead.
    */
   @Deprecated
-  @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     setMediaSource(mediaSource, resetPosition);
     prepare();
@@ -432,28 +400,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
     setMediaSources(createMediaSources(mediaItems), startWindowIndex, startPositionMs);
   }
 
-  @Override
   public void setMediaSource(MediaSource mediaSource) {
     setMediaSources(Collections.singletonList(mediaSource));
   }
 
-  @Override
   public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
     setMediaSources(
         Collections.singletonList(mediaSource), /* startWindowIndex= */ 0, startPositionMs);
   }
 
-  @Override
   public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
     setMediaSources(Collections.singletonList(mediaSource), resetPosition);
   }
 
-  @Override
   public void setMediaSources(List<MediaSource> mediaSources) {
     setMediaSources(mediaSources, /* resetPosition= */ true);
   }
 
-  @Override
   public void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition) {
     setMediaSourcesInternal(
         mediaSources,
@@ -462,7 +425,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* resetToDefaultPosition= */ resetPosition);
   }
 
-  @Override
   public void setMediaSources(
       List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
     setMediaSourcesInternal(
@@ -475,22 +437,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
     addMediaSources(index, createMediaSources(mediaItems));
   }
 
-  @Override
   public void addMediaSource(MediaSource mediaSource) {
     addMediaSources(Collections.singletonList(mediaSource));
   }
 
-  @Override
   public void addMediaSource(int index, MediaSource mediaSource) {
     addMediaSources(index, Collections.singletonList(mediaSource));
   }
 
-  @Override
   public void addMediaSources(List<MediaSource> mediaSources) {
     addMediaSources(/* index= */ mediaSourceHolderSnapshots.size(), mediaSources);
   }
 
-  @Override
   public void addMediaSources(int index, List<MediaSource> mediaSources) {
     Assertions.checkArgument(index >= 0);
     Timeline oldTimeline = getCurrentTimeline();
@@ -560,7 +518,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* ignored */ C.INDEX_UNSET);
   }
 
-  @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     Timeline timeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
@@ -591,7 +548,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
         PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
-  @Override
   public void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
     if (this.pauseAtEndOfMediaItems == pauseAtEndOfMediaItems) {
       return;
@@ -600,7 +556,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     internalPlayer.setPauseAtEndOfWindow(pauseAtEndOfMediaItems);
   }
 
-  @Override
   public boolean getPauseAtEndOfMediaItems() {
     return pauseAtEndOfMediaItems;
   }
@@ -755,7 +710,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return playbackInfo.playbackParameters;
   }
 
-  @Override
   public void setSeekParameters(@Nullable SeekParameters seekParameters) {
     if (seekParameters == null) {
       seekParameters = SeekParameters.DEFAULT;
@@ -766,12 +720,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
   }
 
-  @Override
   public SeekParameters getSeekParameters() {
     return seekParameters;
   }
 
-  @Override
   public void setForegroundMode(boolean foregroundMode) {
     if (this.foregroundMode != foregroundMode) {
       this.foregroundMode = foregroundMode;
@@ -863,7 +815,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     playbackInfo.totalBufferedDurationUs = 0;
   }
 
-  @Override
   public PlayerMessage createMessage(Target target) {
     return new PlayerMessage(
         internalPlayer,
@@ -971,17 +922,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
             playbackInfo.timeline, playbackInfo.loadingMediaPeriodId, contentBufferedPositionUs));
   }
 
-  @Override
   public int getRendererCount() {
     return renderers.length;
   }
 
-  @Override
   public int getRendererType(int index) {
     return renderers[index].getTrackType();
   }
 
-  @Override
   @Nullable
   public TrackSelector getTrackSelector() {
     return trackSelector;
