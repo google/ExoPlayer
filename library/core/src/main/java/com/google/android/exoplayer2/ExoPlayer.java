@@ -394,42 +394,39 @@ public interface ExoPlayer extends Player {
     List<Cue> getCurrentCues();
   }
 
-  /** The device component of an {@link ExoPlayer}. */
+  /**
+   * @deprecated Use {@link Player} instead, as the {@link DeviceComponent} methods are a part of
+   *     the {@link Player} interface.
+   */
+  @Deprecated
   interface DeviceComponent {
 
-    /** Gets the device information. */
+    /** @deprecated Use {@link Player#getDeviceInfo()} instead. */
+    @Deprecated
     DeviceInfo getDeviceInfo();
 
-    /**
-     * Gets the current volume of the device.
-     *
-     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume
-     * returned by this method varies according to the current {@link C.StreamType stream type}. The
-     * stream type is determined by {@link AudioAttributes#usage} which can be converted to stream
-     * type with {@link Util#getStreamTypeForAudioUsage(int)}.
-     *
-     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of
-     * the remote device is returned.
-     */
+    /** @deprecated Use {@link Player#getDeviceVolume()} instead. */
+    @Deprecated
     int getDeviceVolume();
 
-    /** Gets whether the device is muted or not. */
+    /** @deprecated Use {@link Player#isDeviceMuted()} instead. */
+    @Deprecated
     boolean isDeviceMuted();
 
-    /**
-     * Sets the volume of the device.
-     *
-     * @param volume The volume to set.
-     */
+    /** @deprecated Use {@link Player#setDeviceVolume(int)} instead. */
+    @Deprecated
     void setDeviceVolume(int volume);
 
-    /** Increases the volume of the device. */
+    /** @deprecated Use {@link Player#increaseDeviceVolume()} instead. */
+    @Deprecated
     void increaseDeviceVolume();
 
-    /** Decreases the volume of the device. */
+    /** @deprecated Use {@link Player#decreaseDeviceVolume()} instead. */
+    @Deprecated
     void decreaseDeviceVolume();
 
-    /** Sets the mute state of the device. */
+    /** @deprecated Use {@link Player#setDeviceMuted(boolean)} instead. */
+    @Deprecated
     void setDeviceMuted(boolean muted);
   }
 
