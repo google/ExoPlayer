@@ -756,6 +756,9 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player != null) {
       player.addListener(componentListener);
     }
+    if (player instanceof ForwardingPlayer) {
+      player = ((ForwardingPlayer) player).getWrappedPlayer();
+    }
     if (player instanceof ExoPlayer) {
       TrackSelector trackSelector = ((ExoPlayer) player).getTrackSelector();
       if (trackSelector instanceof DefaultTrackSelector) {

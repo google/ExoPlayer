@@ -9,6 +9,8 @@
         `com.google.android.exoplayer2.decoder.CryptoException`.
     *   Make `ExoPlayer.Builder` return a `SimpleExoPlayer` instance.
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
+    *   Fix track selection in `StyledPlayerControlView` when using
+        `ForwardingPlayer`.
 *   Android 12 compatibility:
     *   Disable platform transcoding when playing content URIs on Android 12.
     *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
