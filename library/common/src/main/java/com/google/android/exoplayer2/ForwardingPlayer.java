@@ -615,6 +615,11 @@ public class ForwardingPlayer implements Player {
     player.setDeviceMuted(muted);
   }
 
+  /** Returns the {@link Player} to which operations are forwarded. */
+  public Player getWrappedPlayer() {
+    return player;
+  }
+
   @SuppressWarnings("deprecation") // Use of deprecated type for backwards compatibility.
   private static class ForwardingEventListener implements EventListener {
 

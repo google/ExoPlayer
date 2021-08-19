@@ -1,5 +1,11 @@
 # Release notes
 
+### dev-v2 (not yet released)
+
+*   Core Library:
+    *   Fix track selection in `StyledPlayerControlView` when using
+        `ForwardingPlayer`.
+
 ### 2.15.0 (2021-08-10)
 
 *   Core Library:
