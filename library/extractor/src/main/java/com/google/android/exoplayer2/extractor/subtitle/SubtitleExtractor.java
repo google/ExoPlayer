@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
@@ -94,7 +95,12 @@ public class SubtitleExtractor implements Extractor {
     this.subtitleDecoder = subtitleDecoder;
     cueEncoder = new CueEncoder();
     subtitleData = new ParsableByteArray();
-    this.format = format;
+    this.format =
+        format
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.TEXT_EXOPLAYER_CUES)
+            .setCodecs(format.sampleMimeType)
+            .build();
     state = STATE_CREATED;
   }
 

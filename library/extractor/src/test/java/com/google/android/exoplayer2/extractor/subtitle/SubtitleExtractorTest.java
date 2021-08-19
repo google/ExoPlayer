@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueDecoder;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 import org.junit.Test;
@@ -56,12 +57,16 @@ public class SubtitleExtractorTest {
             .setSimulatePartialReads(true)
             .build();
     SubtitleExtractor extractor =
-        new SubtitleExtractor(new WebvttDecoder(), new Format.Builder().build());
+        new SubtitleExtractor(
+            new WebvttDecoder(),
+            new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
     extractor.init(output);
 
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
 
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
+    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
+    assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
     assertThat(trackOutput.getSampleCount()).isEqualTo(6);
     // Check sample timestamps.
     assertThat(trackOutput.getSampleTimeUs(0)).isEqualTo(0L);
