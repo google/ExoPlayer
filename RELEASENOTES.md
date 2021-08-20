@@ -17,8 +17,10 @@
         calls from the player to `Surface.setFrameRate`. This is useful for
         applications wanting to call `Surface.setFrameRate` directly from
         application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
-*   GVR extension:
-    *   Remove `GvrAudioProcessor`, which has been deprecated since 2.11.0.
+*   Video
+    *   Request smaller decoder input buffers for Dolby Vision. This fixes an
+        issue that could cause UHD Dolby Vision playbacks to fail on some
+        devices, including Amazon Fire TV 4K.
 *   UI
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
@@ -41,6 +43,8 @@
         `VideoListener`. Use `Player.addListener` and `Player.Listener` instead.
     *   Remove `DefaultHttpDataSourceFactory`. Use
         `DefaultHttpDataSource.Factory` instead.
+    *   Remove `GvrAudioProcessor` and the GVR extension, which has been
+        deprecated since 2.11.0.
 
 ### 2.15.0 (2021-08-10)
 
