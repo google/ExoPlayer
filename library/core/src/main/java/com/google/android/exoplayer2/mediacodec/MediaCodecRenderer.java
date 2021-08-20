@@ -1968,7 +1968,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
    * @param isDecodeOnlyBuffer Whether the buffer was marked with {@link C#BUFFER_FLAG_DECODE_ONLY}
    *     by the source.
-   * @param isLastBuffer Whether the buffer is the last sample of the current stream.
+   * @param isLastBuffer Whether the buffer is known to contain the last sample of the current
+   *     stream. This flag is set on a best effort basis, and any logic relying on it should degrade
+   *     gracefully to handle cases where it's not set.
    * @param format The {@link Format} associated with the buffer.
    * @return Whether the output buffer was fully processed (for example, rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
