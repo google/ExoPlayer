@@ -24,6 +24,7 @@ import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.Download;
+import com.google.android.exoplayer2.scheduler.Requirements;
 import java.util.List;
 
 /** Helper for creating download notifications. */
@@ -43,6 +44,21 @@ public final class DownloadNotificationHelper {
   }
 
   /**
+   * @deprecated Use {@link #buildProgressNotification(Context, int, PendingIntent, String, List,
+   *     int)}.
+   */
+  @Deprecated
+  public Notification buildProgressNotification(
+      Context context,
+      @DrawableRes int smallIcon,
+      @Nullable PendingIntent contentIntent,
+      @Nullable String message,
+      List<Download> downloads) {
+    return buildProgressNotification(
+        context, smallIcon, contentIntent, message, downloads, /* notMetRequirements= */ 0);
+  }
+
+  /**
    * Returns a progress notification for the given downloads.
    *
    * @param context A context.
@@ -50,6 +66,7 @@ public final class DownloadNotificationHelper {
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @param downloads The downloads.
+   * @param notMetRequirements Any requirements for downloads that are not currently met.
    * @return The notification.
    */
   public Notification buildProgressNotification(
@@ -57,52 +74,88 @@ public final class DownloadNotificationHelper {
       @DrawableRes int smallIcon,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
-      List<Download> downloads) {
+      List<Download> downloads,
+      @Requirements.RequirementFlags int notMetRequirements) {
     float totalPercentage = 0;
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
     boolean haveDownloadedBytes = false;
-    boolean haveDownloadTasks = false;
-    boolean haveRemoveTasks = false;
+    boolean haveDownloadingTasks = false;
+    boolean haveQueuedTasks = false;
+    boolean haveRemovingTasks = false;
     for (int i = 0; i < downloads.size(); i++) {
       Download download = downloads.get(i);
-      if (download.state == Download.STATE_REMOVING) {
-        haveRemoveTasks = true;
-        continue;
+      switch (download.state) {
+        case Download.STATE_REMOVING:
+          haveRemovingTasks = true;
+          break;
+        case Download.STATE_QUEUED:
+          haveQueuedTasks = true;
+          break;
+        case Download.STATE_RESTARTING:
+        case Download.STATE_DOWNLOADING:
+          haveDownloadingTasks = true;
+          float downloadPercentage = download.getPercentDownloaded();
+          if (downloadPercentage != C.PERCENTAGE_UNSET) {
+            allDownloadPercentagesUnknown = false;
+            totalPercentage += downloadPercentage;
+          }
+          haveDownloadedBytes |= download.getBytesDownloaded() > 0;
+          downloadTaskCount++;
+          break;
+          // Terminal states aren't expected, but if we encounter them we do nothing.
+        case Download.STATE_STOPPED:
+        case Download.STATE_COMPLETED:
+        case Download.STATE_FAILED:
+        default:
+          break;
       }
-      if (download.state != Download.STATE_RESTARTING
-          && download.state != Download.STATE_DOWNLOADING) {
-        continue;
-      }
-      haveDownloadTasks = true;
-      float downloadPercentage = download.getPercentDownloaded();
-      if (downloadPercentage != C.PERCENTAGE_UNSET) {
-        allDownloadPercentagesUnknown = false;
-        totalPercentage += downloadPercentage;
-      }
-      haveDownloadedBytes |= download.getBytesDownloaded() > 0;
-      downloadTaskCount++;
     }
 
-    int titleStringId =
-        haveDownloadTasks
-            ? R.string.exo_download_downloading
-            : (haveRemoveTasks ? R.string.exo_download_removing : NULL_STRING_ID);
-    int progress = 0;
-    boolean indeterminate = true;
-    if (haveDownloadTasks) {
-      progress = (int) (totalPercentage / downloadTaskCount);
-      indeterminate = allDownloadPercentagesUnknown && haveDownloadedBytes;
+    int titleStringId;
+    boolean showProgress = true;
+    if (haveDownloadingTasks) {
+      titleStringId = R.string.exo_download_downloading;
+    } else if (haveQueuedTasks && notMetRequirements != 0) {
+      showProgress = false;
+      if ((notMetRequirements & Requirements.NETWORK_UNMETERED) != 0) {
+        // Note: This assumes that "unmetered" == "WiFi", since it provides a clearer message that's
+        // correct in the majority of cases.
+        titleStringId = R.string.exo_download_paused_for_wifi;
+      } else if ((notMetRequirements & Requirements.NETWORK) != 0) {
+        titleStringId = R.string.exo_download_paused_for_network;
+      } else {
+        titleStringId = R.string.exo_download_paused;
+      }
+    } else if (haveRemovingTasks) {
+      titleStringId = R.string.exo_download_removing;
+    } else {
+      // There are either no downloads, or all downloads are in terminal states.
+      titleStringId = NULL_STRING_ID;
     }
+
+    int maxProgress = 0;
+    int currentProgress = 0;
+    boolean indeterminateProgress = false;
+    if (showProgress) {
+      maxProgress = 100;
+      if (haveDownloadingTasks) {
+        currentProgress = (int) (totalPercentage / downloadTaskCount);
+        indeterminateProgress = allDownloadPercentagesUnknown && haveDownloadedBytes;
+      } else {
+        indeterminateProgress = true;
+      }
+    }
+
     return buildNotification(
         context,
         smallIcon,
         contentIntent,
         message,
         titleStringId,
-        /* maxProgress= */ 100,
-        progress,
-        indeterminate,
+        maxProgress,
+        currentProgress,
+        indeterminateProgress,
         /* ongoing= */ true,
         /* showWhen= */ false);
   }

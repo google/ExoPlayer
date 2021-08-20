@@ -747,13 +747,15 @@ public abstract class DownloadService extends Service {
    * be implemented to throw {@link UnsupportedOperationException}.
    *
    * @param downloads The current downloads.
+   * @param notMetRequirements Any requirements for downloads that are not currently met.
    * @return The foreground notification to display.
    */
-  protected abstract Notification getForegroundNotification(List<Download> downloads);
+  protected abstract Notification getForegroundNotification(
+      List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements);
 
   /**
    * Invalidates the current foreground notification and causes {@link
-   * #getForegroundNotification(List)} to be invoked again if the service isn't stopped.
+   * #getForegroundNotification(List, int)} to be invoked again if the service isn't stopped.
    */
   protected final void invalidateForegroundNotification() {
     if (foregroundNotificationUpdater != null && !isDestroyed) {
@@ -908,7 +910,9 @@ public abstract class DownloadService extends Service {
 
     private void update() {
       List<Download> downloads = Assertions.checkNotNull(downloadManager).getCurrentDownloads();
-      startForeground(notificationId, getForegroundNotification(downloads));
+      @Requirements.RequirementFlags
+      int notMetRequirements = downloadManager.getNotMetRequirements();
+      startForeground(notificationId, getForegroundNotification(downloads, notMetRequirements));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
         handler.removeCallbacksAndMessages(null);
