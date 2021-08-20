@@ -5,6 +5,10 @@
 *   Core Library:
     *   Fix track selection in `StyledPlayerControlView` when using
         `ForwardingPlayer`.
+*   Video
+    *   Request smaller decoder input buffers for Dolby Vision. This fixes an
+        issue that could cause UHD Dolby Vision playbacks to fail on some
+        devices, including Amazon Fire TV 4K.
 
 ### 2.15.0 (2021-08-10)
 
