@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
 
   private static final String TAG = "TransformerTranscodingVideoRenderer";
 
-  private final DecoderInputBuffer buffer;
+  private final DecoderInputBuffer decoderInputBuffer;
   /** The format the encoder is configured to output, may differ from the actual output format. */
   private final Format encoderConfigurationOutputFormat;
 
@@ -57,7 +57,7 @@ import java.nio.ByteBuffer;
       Format encoderConfigurationOutputFormat) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
 
-    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+    decoderInputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     surface = MediaCodec.createPersistentInputSurface();
     this.encoderConfigurationOutputFormat = encoderConfigurationOutputFormat;
   }
@@ -89,6 +89,23 @@ import java.nio.ByteBuffer;
     return muxerWrapperTrackEnded;
   }
 
+  @Override
+  protected void onReset() {
+    decoderInputBuffer.clear();
+    decoderInputBuffer.data = null;
+    surface.release();
+    if (decoder != null) {
+      decoder.release();
+      decoder = null;
+    }
+    if (encoder != null) {
+      encoder.release();
+      encoder = null;
+    }
+    hasEncoderActualOutputFormat = false;
+    muxerWrapperTrackEnded = false;
+  }
+
   private boolean ensureDecoderConfigured() throws ExoPlaybackException {
     if (decoder != null) {
       return true;
@@ -97,7 +114,8 @@ import java.nio.ByteBuffer;
     FormatHolder formatHolder = getFormatHolder();
     @SampleStream.ReadDataResult
     int result =
-        readSource(formatHolder, buffer, /* readFlags= */ SampleStream.FLAG_REQUIRE_FORMAT);
+        readSource(
+            formatHolder, decoderInputBuffer, /* readFlags= */ SampleStream.FLAG_REQUIRE_FORMAT);
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
@@ -133,23 +151,23 @@ import java.nio.ByteBuffer;
 
   private boolean feedDecoderFromInput() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
-    if (!decoder.maybeDequeueInputBuffer(buffer)) {
+    if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
       return false;
     }
 
-    buffer.clear();
+    decoderInputBuffer.clear();
     @SampleStream.ReadDataResult
-    int result = readSource(getFormatHolder(), buffer, /* readFlags= */ 0);
+    int result = readSource(getFormatHolder(), decoderInputBuffer, /* readFlags= */ 0);
 
     switch (result) {
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
       case C.RESULT_BUFFER_READ:
-        mediaClock.updateTimeForTrackType(getTrackType(), buffer.timeUs);
-        ByteBuffer data = checkNotNull(buffer.data);
+        mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
+        ByteBuffer data = checkNotNull(decoderInputBuffer.data);
         data.flip();
-        decoder.queueInputBuffer(buffer);
-        return !buffer.isEndOfStream();
+        decoder.queueInputBuffer(decoderInputBuffer);
+        return !decoderInputBuffer.isEndOfStream();
       case C.RESULT_NOTHING_READ:
       default:
         return false;
