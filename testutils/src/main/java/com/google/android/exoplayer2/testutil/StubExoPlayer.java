@@ -42,7 +42,9 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
 
 /**
@@ -58,6 +60,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  @Deprecated
   public VideoComponent getVideoComponent() {
     throw new UnsupportedOperationException();
   }
@@ -310,6 +313,46 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public boolean getSkipSilenceEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoScalingMode(int videoScalingMode) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getVideoScalingMode() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoChangeFrameRateStrategy(int videoChangeFrameRateStrategy) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getVideoChangeFrameRateStrategy() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setCameraMotionListener(CameraMotionListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearCameraMotionListener(CameraMotionListener listener) {
     throw new UnsupportedOperationException();
   }
 

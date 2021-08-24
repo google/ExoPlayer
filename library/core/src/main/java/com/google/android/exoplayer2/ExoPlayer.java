@@ -185,170 +185,94 @@ public interface ExoPlayer extends Player {
     boolean getSkipSilenceEnabled();
   }
 
-  /** The video component of an {@link ExoPlayer}. */
+  /**
+   * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are defined by that
+   *     interface.
+   */
+  @Deprecated
   interface VideoComponent {
 
-    /**
-     * Sets the {@link C.VideoScalingMode}.
-     *
-     * <p>The scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer} is
-     * enabled and if the output surface is owned by a {@link SurfaceView}.
-     *
-     * @param videoScalingMode The {@link C.VideoScalingMode}.
-     */
+    /** @deprecated Use {@link ExoPlayer#setVideoScalingMode(int)} instead. */
+    @Deprecated
     void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
 
-    /** Returns the {@link C.VideoScalingMode}. */
+    /** @deprecated Use {@link ExoPlayer#getVideoScalingMode()} instead. */
+    @Deprecated
     @C.VideoScalingMode
     int getVideoScalingMode();
 
-    /**
-     * Sets a {@link C.VideoChangeFrameRateStrategy} that will be used by the player when provided
-     * with a video output {@link Surface}.
-     *
-     * <p>The strategy only applies if a {@link MediaCodec}-based video {@link Renderer} is enabled.
-     * Applications wishing to use {@link Surface#CHANGE_FRAME_RATE_ALWAYS} should set the mode to
-     * {@link C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF} to disable calls to {@link
-     * Surface#setFrameRate} from ExoPlayer, and should then call {@link Surface#setFrameRate}
-     * directly from application code.
-     *
-     * @param videoChangeFrameRateStrategy A {@link C.VideoChangeFrameRateStrategy}.
-     */
+    /** @deprecated Use {@link ExoPlayer#setVideoChangeFrameRateStrategy(int)} instead. */
+    @Deprecated
     void setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy);
 
-    /** Returns the {@link C.VideoChangeFrameRateStrategy}. */
+    /** @deprecated Use {@link ExoPlayer#getVideoChangeFrameRateStrategy()} instead. */
+    @Deprecated
     @C.VideoChangeFrameRateStrategy
     int getVideoChangeFrameRateStrategy();
 
     /**
-     * Sets a listener to receive video frame metadata events.
-     *
-     * <p>This method is intended to be called by the same component that sets the {@link Surface}
-     * onto which video will be rendered. If using ExoPlayer's standard UI components, this method
-     * should not be called directly from application code.
-     *
-     * @param listener The listener.
+     * @deprecated Use {@link ExoPlayer#setVideoFrameMetadataListener(VideoFrameMetadataListener)}
+     *     instead.
      */
+    @Deprecated
     void setVideoFrameMetadataListener(VideoFrameMetadataListener listener);
 
     /**
-     * Clears the listener which receives video frame metadata events if it matches the one passed.
-     * Else does nothing.
-     *
-     * @param listener The listener to clear.
+     * @deprecated Use {@link ExoPlayer#clearVideoFrameMetadataListener(VideoFrameMetadataListener)}
+     *     instead.
      */
+    @Deprecated
     void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
 
-    /**
-     * Sets a listener of camera motion events.
-     *
-     * @param listener The listener.
-     */
+    /** @deprecated Use {@link ExoPlayer#setCameraMotionListener(CameraMotionListener)} instead. */
+    @Deprecated
     void setCameraMotionListener(CameraMotionListener listener);
 
     /**
-     * Clears the listener which receives camera motion events if it matches the one passed. Else
-     * does nothing.
-     *
-     * @param listener The listener to clear.
+     * @deprecated Use {@link ExoPlayer#clearCameraMotionListener(CameraMotionListener)} instead.
      */
+    @Deprecated
     void clearCameraMotionListener(CameraMotionListener listener);
 
-    /**
-     * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
-     * currently set on the player.
-     */
+    /** @deprecated Use {@link Player#clearVideoSurface()} instead. */
+    @Deprecated
     void clearVideoSurface();
 
-    /**
-     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
-     * Else does nothing.
-     *
-     * @param surface The surface to clear.
-     */
+    /** @deprecated Use {@link Player#clearVideoSurface(Surface)} instead. */
+    @Deprecated
     void clearVideoSurface(@Nullable Surface surface);
 
-    /**
-     * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
-     * tracking the lifecycle of the surface, and must clear the surface by calling {@code
-     * setVideoSurface(null)} if the surface is destroyed.
-     *
-     * <p>If the surface is held by a {@link SurfaceView}, {@link TextureView} or {@link
-     * SurfaceHolder} then it's recommended to use {@link #setVideoSurfaceView(SurfaceView)}, {@link
-     * #setVideoTextureView(TextureView)} or {@link #setVideoSurfaceHolder(SurfaceHolder)} rather
-     * than this method, since passing the holder allows the player to track the lifecycle of the
-     * surface automatically.
-     *
-     * @param surface The {@link Surface}.
-     */
+    /** @deprecated Use {@link Player#setVideoSurface(Surface)} instead. */
+    @Deprecated
     void setVideoSurface(@Nullable Surface surface);
 
-    /**
-     * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
-     * rendered. The player will track the lifecycle of the surface automatically.
-     *
-     * <p>The thread that calls the {@link SurfaceHolder.Callback} methods must be the thread
-     * associated with {@link #getApplicationLooper()}.
-     *
-     * @param surfaceHolder The surface holder.
-     */
+    /** @deprecated Use {@link Player#setVideoSurfaceHolder(SurfaceHolder)} instead. */
+    @Deprecated
     void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
-    /**
-     * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
-     * rendered if it matches the one passed. Else does nothing.
-     *
-     * @param surfaceHolder The surface holder to clear.
-     */
+    /** @deprecated Use {@link Player#clearVideoSurfaceHolder(SurfaceHolder)} instead. */
+    @Deprecated
     void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
-    /**
-     * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
-     * lifecycle of the surface automatically.
-     *
-     * <p>The thread that calls the {@link SurfaceHolder.Callback} methods must be the thread
-     * associated with {@link #getApplicationLooper()}.
-     *
-     * @param surfaceView The surface view.
-     */
+    /** @deprecated Use {@link Player#setVideoSurfaceView(SurfaceView)} instead. */
+    @Deprecated
     void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
-    /**
-     * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one
-     * passed. Else does nothing.
-     *
-     * @param surfaceView The texture view to clear.
-     */
+    /** @deprecated Use {@link Player#clearVideoSurfaceView(SurfaceView)} instead. */
+    @Deprecated
     void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
-    /**
-     * Sets the {@link TextureView} onto which video will be rendered. The player will track the
-     * lifecycle of the surface automatically.
-     *
-     * <p>The thread that calls the {@link TextureView.SurfaceTextureListener} methods must be the
-     * thread associated with {@link #getApplicationLooper()}.
-     *
-     * @param textureView The texture view.
-     */
+    /** @deprecated Use {@link Player#setVideoTextureView(TextureView)} instead. */
+    @Deprecated
     void setVideoTextureView(@Nullable TextureView textureView);
 
-    /**
-     * Clears the {@link TextureView} onto which video is being rendered if it matches the one
-     * passed. Else does nothing.
-     *
-     * @param textureView The texture view to clear.
-     */
+    /** @deprecated Use {@link Player#clearVideoTextureView(TextureView)} instead. */
+    @Deprecated
     void clearVideoTextureView(@Nullable TextureView textureView);
 
-    /**
-     * Gets the size of the video.
-     *
-     * <p>The width and height of size could be 0 if there is no video or the size has not been
-     * determined yet.
-     *
-     * @see Listener#onVideoSizeChanged(VideoSize)
-     */
+    /** @deprecated Use {@link Player#getVideoSize()} instead. */
+    @Deprecated
     VideoSize getVideoSize();
   }
 
@@ -922,8 +846,12 @@ public interface ExoPlayer extends Player {
   @Deprecated
   AudioComponent getAudioComponent();
 
-  /** Returns the component of this player for video output, or null if video is not supported. */
+  /**
+   * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are part of the
+   *     interface.
+   */
   @Nullable
+  @Deprecated
   VideoComponent getVideoComponent();
 
   /**
@@ -1138,6 +1066,73 @@ public interface ExoPlayer extends Player {
 
   /** Returns whether skipping silences in the audio stream is enabled. */
   boolean getSkipSilenceEnabled();
+
+  /**
+   * Sets the {@link C.VideoScalingMode}.
+   *
+   * <p>The scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer} is
+   * enabled and if the output surface is owned by a {@link SurfaceView}.
+   *
+   * @param videoScalingMode The {@link C.VideoScalingMode}.
+   */
+  void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
+
+  /** Returns the {@link C.VideoScalingMode}. */
+  @C.VideoScalingMode
+  int getVideoScalingMode();
+
+  /**
+   * Sets a {@link C.VideoChangeFrameRateStrategy} that will be used by the player when provided
+   * with a video output {@link Surface}.
+   *
+   * <p>The strategy only applies if a {@link MediaCodec}-based video {@link Renderer} is enabled.
+   * Applications wishing to use {@link Surface#CHANGE_FRAME_RATE_ALWAYS} should set the mode to
+   * {@link C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF} to disable calls to {@link Surface#setFrameRate}
+   * from ExoPlayer, and should then call {@link Surface#setFrameRate} directly from application
+   * code.
+   *
+   * @param videoChangeFrameRateStrategy A {@link C.VideoChangeFrameRateStrategy}.
+   */
+  void setVideoChangeFrameRateStrategy(
+      @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy);
+
+  /** Returns the {@link C.VideoChangeFrameRateStrategy}. */
+  @C.VideoChangeFrameRateStrategy
+  int getVideoChangeFrameRateStrategy();
+
+  /**
+   * Sets a listener to receive video frame metadata events.
+   *
+   * <p>This method is intended to be called by the same component that sets the {@link Surface}
+   * onto which video will be rendered. If using ExoPlayer's standard UI components, this method
+   * should not be called directly from application code.
+   *
+   * @param listener The listener.
+   */
+  void setVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+  /**
+   * Clears the listener which receives video frame metadata events if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param listener The listener to clear.
+   */
+  void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+  /**
+   * Sets a listener of camera motion events.
+   *
+   * @param listener The listener.
+   */
+  void setCameraMotionListener(CameraMotionListener listener);
+
+  /**
+   * Clears the listener which receives camera motion events if it matches the one passed. Else does
+   * nothing.
+   *
+   * @param listener The listener to clear.
+   */
+  void clearCameraMotionListener(CameraMotionListener listener);
 
   /**
    * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message
