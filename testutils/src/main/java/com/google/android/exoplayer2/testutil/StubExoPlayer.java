@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
@@ -51,6 +52,7 @@ import java.util.List;
 public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
+  @Deprecated
   public AudioComponent getAudioComponent() {
     throw new UnsupportedOperationException();
   }
@@ -61,11 +63,13 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  @Deprecated
   public TextComponent getTextComponent() {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  @Deprecated
   public DeviceComponent getDeviceComponent() {
     throw new UnsupportedOperationException();
   }
@@ -271,6 +275,41 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAudioSessionId(int audioSessionId) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getAudioSessionId() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearAuxEffectInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean getSkipSilenceEnabled() {
     throw new UnsupportedOperationException();
   }
 
