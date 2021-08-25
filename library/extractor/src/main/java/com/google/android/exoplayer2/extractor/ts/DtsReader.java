@@ -66,6 +66,7 @@ public final class DtsReader implements ElementaryStreamReader {
   public DtsReader(@Nullable String language) {
     headerScratchBytes = new ParsableByteArray(new byte[HEADER_SIZE]);
     state = STATE_FINDING_SYNC;
+    timeUs = C.TIME_UNSET;
     this.language = language;
   }
 
@@ -74,6 +75,7 @@ public final class DtsReader implements ElementaryStreamReader {
     state = STATE_FINDING_SYNC;
     bytesRead = 0;
     syncBytes = 0;
+    timeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -85,7 +87,9 @@ public final class DtsReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    timeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      timeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -111,8 +115,10 @@ public final class DtsReader implements ElementaryStreamReader {
           output.sampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
-            output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
-            timeUs += sampleDurationUs;
+            if (timeUs != C.TIME_UNSET) {
+              output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+              timeUs += sampleDurationUs;
+            }
             state = STATE_FINDING_SYNC;
           }
           break;

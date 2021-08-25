@@ -87,6 +87,8 @@ public final class H262Reader implements ElementaryStreamReader {
       userData = null;
       userDataParsable = null;
     }
+    pesTimeUs = C.TIME_UNSET;
+    sampleTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -98,6 +100,8 @@ public final class H262Reader implements ElementaryStreamReader {
     }
     totalBytesWritten = 0;
     startedFirstSample = false;
+    pesTimeUs = C.TIME_UNSET;
+    sampleTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -182,7 +186,7 @@ public final class H262Reader implements ElementaryStreamReader {
       }
       if (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER) {
         int bytesWrittenPastStartCode = limit - startCodeOffset;
-        if (startedFirstSample && sampleHasPicture && hasOutputFormat) {
+        if (sampleHasPicture && hasOutputFormat && sampleTimeUs != C.TIME_UNSET) {
           // Output the sample.
           @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
           int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastStartCode;
@@ -194,7 +198,9 @@ public final class H262Reader implements ElementaryStreamReader {
           sampleTimeUs =
               pesTimeUs != C.TIME_UNSET
                   ? pesTimeUs
-                  : (startedFirstSample ? (sampleTimeUs + frameDurationUs) : 0);
+                  : (sampleTimeUs != C.TIME_UNSET
+                      ? (sampleTimeUs + frameDurationUs)
+                      : C.TIME_UNSET);
           sampleIsKeyframe = false;
           pesTimeUs = C.TIME_UNSET;
           startedFirstSample = true;

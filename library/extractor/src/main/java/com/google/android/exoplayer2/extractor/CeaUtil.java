@@ -102,12 +102,14 @@ public final class CeaUtil {
     for (TrackOutput output : outputs) {
       ccDataBuffer.setPosition(sampleStartPosition);
       output.sampleData(ccDataBuffer, sampleLength);
-      output.sampleMetadata(
-          presentationTimeUs,
-          C.BUFFER_FLAG_KEY_FRAME,
-          sampleLength,
-          /* offset= */ 0,
-          /* encryptionData= */ null);
+      if (presentationTimeUs != C.TIME_UNSET) {
+        output.sampleMetadata(
+            presentationTimeUs,
+            C.BUFFER_FLAG_KEY_FRAME,
+            sampleLength,
+            /* offset= */ 0,
+            /* cryptoData= */ null);
+      }
     }
   }
 

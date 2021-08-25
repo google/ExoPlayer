@@ -114,6 +114,7 @@ public final class AdtsReader implements ElementaryStreamReader {
     firstFrameVersion = VERSION_UNSET;
     firstFrameSampleRateIndex = C.INDEX_UNSET;
     sampleDurationUs = C.TIME_UNSET;
+    timeUs = C.TIME_UNSET;
     this.exposeId3 = exposeId3;
     this.language = language;
   }
@@ -125,6 +126,7 @@ public final class AdtsReader implements ElementaryStreamReader {
 
   @Override
   public void seek() {
+    timeUs = C.TIME_UNSET;
     resetSync();
   }
 
@@ -149,7 +151,9 @@ public final class AdtsReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    timeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      timeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -529,8 +533,10 @@ public final class AdtsReader implements ElementaryStreamReader {
     currentOutput.sampleData(data, bytesToRead);
     bytesRead += bytesToRead;
     if (bytesRead == sampleSize) {
-      currentOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
-      timeUs += currentSampleDuration;
+      if (timeUs != C.TIME_UNSET) {
+        currentOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+        timeUs += currentSampleDuration;
+      }
       setFindingSampleState();
     }
   }
