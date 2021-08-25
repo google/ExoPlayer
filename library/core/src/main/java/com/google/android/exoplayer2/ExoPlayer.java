@@ -140,7 +140,10 @@ import java.util.List;
  */
 public interface ExoPlayer extends Player {
 
-  /** @deprecated Use the methods in {@link ExoPlayer} instead. */
+  /**
+   * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are defined by that
+   *     interface.
+   */
   @Deprecated
   interface AudioComponent {
 
@@ -277,8 +280,8 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * @deprecated Use {@link Player} instead, as the {@link TextComponent} methods are a part of the
-   *     {@link Player interface}.
+   * @deprecated Use {@link Player}, as the {@link TextComponent} methods are defined by that
+   *     interface.
    */
   @Deprecated
   interface TextComponent {
@@ -289,8 +292,8 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * @deprecated Use {@link Player} instead, as the {@link DeviceComponent} methods are a part of
-   *     the {@link Player} interface.
+   * @deprecated Use {@link Player}, as the {@link DeviceComponent} methods are defined by that
+   *     interface.
    */
   @Deprecated
   interface DeviceComponent {
@@ -839,7 +842,7 @@ public interface ExoPlayer extends Player {
   ExoPlaybackException getPlayerError();
 
   /**
-   * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are part of the
+   * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are defined by that
    *     interface.
    */
   @Nullable
@@ -847,7 +850,7 @@ public interface ExoPlayer extends Player {
   AudioComponent getAudioComponent();
 
   /**
-   * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are part of the
+   * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are defined by that
    *     interface.
    */
   @Nullable
@@ -855,15 +858,19 @@ public interface ExoPlayer extends Player {
   VideoComponent getVideoComponent();
 
   /**
-   * @deprecated Use {@link Player}, as the {@link TextComponent} methods are a part of the {@link
-   *     Player interface}.
+   * @deprecated Use {@link Player}, as the {@link TextComponent} methods are defined by that
+   *     interface.
    */
   @Nullable
   @Deprecated
   TextComponent getTextComponent();
 
-  /** Returns the component of this player for playback device, or null if it's not supported. */
+  /**
+   * @deprecated Use {@link Player}, as the {@link DeviceComponent} methods are defined by that
+   *     interface.
+   */
   @Nullable
+  @Deprecated
   DeviceComponent getDeviceComponent();
 
   /**
