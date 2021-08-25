@@ -575,7 +575,8 @@ public class DefaultDrmSessionManagerTest {
   }
 
   @Test
-  public void deviceNotProvisioned_provisioningDoneAndOpenSessionRetried() {
+  public void
+      deviceNotProvisioned_exceptionThrownFromOpenSession_provisioningDoneAndOpenSessionRetried() {
     FakeExoMediaDrm.LicenseServer licenseServer =
         FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
 
@@ -592,13 +593,47 @@ public class DefaultDrmSessionManagerTest {
                 /* playbackLooper= */ checkNotNull(Looper.myLooper()),
                 /* eventDispatcher= */ null,
                 FORMAT_WITH_DRM_INIT_DATA));
-    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    // Confirm that opening the session threw NotProvisionedException (otherwise state would be
+    // OPENED)
     assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
     waitForOpenedWithKeys(drmSession);
 
     assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
     assertThat(drmSession.queryKeyStatus())
         .containsExactly(FakeExoMediaDrm.KEY_STATUS_KEY, FakeExoMediaDrm.KEY_STATUS_AVAILABLE);
+    assertThat(licenseServer.getReceivedProvisionRequests()).hasSize(1);
+  }
+
+  @Test
+  public void
+      deviceNotProvisioned_exceptionThrownFromGetKeyRequest_provisioningDoneAndOpenSessionRetried() {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+
+    DefaultDrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid ->
+                    new FakeExoMediaDrm.Builder()
+                        .setProvisionsRequired(1)
+                        .throwNotProvisionedExceptionFromGetKeyRequest()
+                        .build())
+            .build(/* mediaDrmCallback= */ licenseServer);
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED);
+    waitForOpenedWithKeys(drmSession);
+
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertThat(drmSession.queryKeyStatus())
+        .containsExactly(FakeExoMediaDrm.KEY_STATUS_KEY, FakeExoMediaDrm.KEY_STATUS_AVAILABLE);
+    assertThat(licenseServer.getReceivedProvisionRequests()).hasSize(1);
   }
 
   @Test
@@ -619,13 +654,15 @@ public class DefaultDrmSessionManagerTest {
                 /* playbackLooper= */ checkNotNull(Looper.myLooper()),
                 /* eventDispatcher= */ null,
                 FORMAT_WITH_DRM_INIT_DATA));
-    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    // Confirm that opening the session threw NotProvisionedException (otherwise state would be
+    // OPENED)
     assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
     waitForOpenedWithKeys(drmSession);
 
     assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
     assertThat(drmSession.queryKeyStatus())
         .containsExactly(FakeExoMediaDrm.KEY_STATUS_KEY, FakeExoMediaDrm.KEY_STATUS_AVAILABLE);
+    assertThat(licenseServer.getReceivedProvisionRequests()).hasSize(2);
   }
 
   @Test
@@ -646,7 +683,8 @@ public class DefaultDrmSessionManagerTest {
                 /* playbackLooper= */ checkNotNull(Looper.myLooper()),
                 /* eventDispatcher= */ null,
                 FORMAT_WITH_DRM_INIT_DATA));
-    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    // Confirm that opening the session threw NotProvisionedException (otherwise state would be
+    // OPENED)
     assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
     waitForOpenedWithKeys(drmSession);
     drmSession.release(/* eventDispatcher= */ null);
@@ -659,9 +697,11 @@ public class DefaultDrmSessionManagerTest {
                 /* playbackLooper= */ checkNotNull(Looper.myLooper()),
                 /* eventDispatcher= */ null,
                 FORMAT_WITH_DRM_INIT_DATA));
-    // Confirm the device isn't provisioned (otherwise state would be OPENED)
+    // Confirm that opening the session threw NotProvisionedException (otherwise state would be
+    // OPENED)
     assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENING);
     waitForOpenedWithKeys(drmSession);
+    assertThat(licenseServer.getReceivedProvisionRequests()).hasSize(4);
   }
 
   @Test
