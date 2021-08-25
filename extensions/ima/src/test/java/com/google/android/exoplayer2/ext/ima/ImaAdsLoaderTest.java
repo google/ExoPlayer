@@ -56,6 +56,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -281,6 +282,7 @@ public final class ImaAdsLoaderTest {
         new Player.PositionInfo(
             /* windowUid= */ new Object(),
             /* windowIndex= */ 0,
+            /* mediaItem= */ MediaItem.fromUri("http://google.com/0"),
             /* periodUid= */ new Object(),
             /* periodIndex= */ 0,
             /* positionMs= */ 10_000,
@@ -290,6 +292,7 @@ public final class ImaAdsLoaderTest {
         new Player.PositionInfo(
             /* windowUid= */ new Object(),
             /* windowIndex= */ 1,
+            /* mediaItem= */ MediaItem.fromUri("http://google.com/1"),
             /* periodUid= */ new Object(),
             /* periodIndex= */ 0,
             /* positionMs= */ 20_000,

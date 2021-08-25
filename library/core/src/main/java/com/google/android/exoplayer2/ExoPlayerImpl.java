@@ -1360,6 +1360,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     @Nullable Object oldPeriodUid = null;
     int oldWindowIndex = oldMaskingWindowIndex;
     int oldPeriodIndex = C.INDEX_UNSET;
+    @Nullable MediaItem oldMediaItem = null;
     Timeline.Period oldPeriod = new Timeline.Period();
     if (!oldPlaybackInfo.timeline.isEmpty()) {
       oldPeriodUid = oldPlaybackInfo.periodId.periodUid;
@@ -1367,6 +1368,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       oldWindowIndex = oldPeriod.windowIndex;
       oldPeriodIndex = oldPlaybackInfo.timeline.getIndexOfPeriod(oldPeriodUid);
       oldWindowUid = oldPlaybackInfo.timeline.getWindow(oldWindowIndex, window).uid;
+      oldMediaItem = window.mediaItem;
     }
     long oldPositionUs;
     long oldContentPositionUs;
@@ -1397,6 +1399,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return new PositionInfo(
         oldWindowUid,
         oldWindowIndex,
+        oldMediaItem,
         oldPeriodUid,
         oldPeriodIndex,
         C.usToMs(oldPositionUs),
@@ -1410,16 +1413,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
     @Nullable Object newPeriodUid = null;
     int newWindowIndex = getCurrentWindowIndex();
     int newPeriodIndex = C.INDEX_UNSET;
+    @Nullable MediaItem newMediaItem = null;
     if (!playbackInfo.timeline.isEmpty()) {
       newPeriodUid = playbackInfo.periodId.periodUid;
       playbackInfo.timeline.getPeriodByUid(newPeriodUid, period);
       newPeriodIndex = playbackInfo.timeline.getIndexOfPeriod(newPeriodUid);
       newWindowUid = playbackInfo.timeline.getWindow(newWindowIndex, window).uid;
+      newMediaItem = window.mediaItem;
     }
     long positionMs = C.usToMs(discontinuityWindowStartPositionUs);
     return new PositionInfo(
         newWindowUid,
         newWindowIndex,
+        newMediaItem,
         newPeriodUid,
         newPeriodIndex,
         positionMs,

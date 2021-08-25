@@ -790,6 +790,7 @@ public final class CastPlayer extends BasePlayer {
           new PositionInfo(
               window.uid,
               period.windowIndex,
+              window.mediaItem,
               period.uid,
               period.windowIndex,
               /* positionMs= */ windowDurationMs,
@@ -802,6 +803,7 @@ public final class CastPlayer extends BasePlayer {
           new PositionInfo(
               window.uid,
               period.windowIndex,
+              window.mediaItem,
               period.uid,
               period.windowIndex,
               /* positionMs= */ window.getDefaultPositionMs(),
@@ -904,6 +906,7 @@ public final class CastPlayer extends BasePlayer {
               new PositionInfo(
                   window.uid,
                   period.windowIndex,
+                  window.mediaItem,
                   period.uid,
                   period.windowIndex,
                   getCurrentPosition(),
@@ -1082,17 +1085,19 @@ public final class CastPlayer extends BasePlayer {
 
   private PositionInfo getCurrentPositionInfo() {
     Timeline currentTimeline = getCurrentTimeline();
-    @Nullable
-    Object newPeriodUid =
-        !currentTimeline.isEmpty()
-            ? currentTimeline.getPeriod(getCurrentPeriodIndex(), period, /* setIds= */ true).uid
-            : null;
-    @Nullable
-    Object newWindowUid =
-        newPeriodUid != null ? currentTimeline.getWindow(period.windowIndex, window).uid : null;
+    @Nullable Object newPeriodUid = null;
+    @Nullable Object newWindowUid = null;
+    @Nullable MediaItem newMediaItem = null;
+    if (!currentTimeline.isEmpty()) {
+      newPeriodUid =
+          currentTimeline.getPeriod(getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
+      newWindowUid = currentTimeline.getWindow(period.windowIndex, window).uid;
+      newMediaItem = window.mediaItem;
+    }
     return new PositionInfo(
         newWindowUid,
         getCurrentWindowIndex(),
+        newMediaItem,
         newPeriodUid,
         getCurrentPeriodIndex(),
         getCurrentPosition(),

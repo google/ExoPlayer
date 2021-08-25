@@ -380,6 +380,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 1,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 1,
             /* positionMs= */ 2000,
@@ -390,6 +391,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 3,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(3).build(),
             /* periodUid= */ 3,
             /* periodIndex= */ 0,
             /* positionMs= */ 1000,
@@ -660,6 +662,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 1234,
@@ -670,6 +673,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ null,
             /* windowIndex= */ 0,
+            /* mediaItem= */ null,
             /* periodUid= */ null,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -744,6 +748,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 1234,
@@ -754,6 +759,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -825,6 +831,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0, // position at which we receive the timeline change
@@ -835,6 +842,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -937,6 +945,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -947,6 +956,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 1,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 1,
             /* positionMs= */ 1234,
@@ -992,10 +1002,12 @@ public class CastPlayerTest {
     updateTimeLine(mediaItems, mediaQueueItemIds, /* currentItemId= */ 1);
     castPlayer.seekTo(/* windowIndex= */ 0, /* positionMs= */ 1234);
 
+    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build();
     Player.PositionInfo oldPosition =
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -1006,6 +1018,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 1234,
@@ -1076,6 +1089,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 12500,
@@ -1086,6 +1100,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 1,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 1,
             /* positionMs= */ 0,
@@ -1120,10 +1135,12 @@ public class CastPlayerTest {
         mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
     castPlayer.seekBack();
 
+    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build();
     Player.PositionInfo oldPosition =
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS,
@@ -1134,6 +1151,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ C.DEFAULT_SEEK_BACK_INCREMENT_MS,
@@ -1166,10 +1184,12 @@ public class CastPlayerTest {
         mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
     castPlayer.seekForward();
 
+    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build();
     Player.PositionInfo oldPosition =
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -1180,6 +1200,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.ima;
 
 import android.os.Looper;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
   private final Timeline.Period period;
   private final Object windowUid = new Object();
   private final Object periodUid = new Object();
+  private final MediaItem mediaItem = MediaItem.fromUri("http://google.com/0");
 
   private Timeline timeline;
   @Player.State private int state;
@@ -72,6 +74,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
         new PositionInfo(
             windowUid,
             /* windowIndex= */ 0,
+            mediaItem,
             periodUid,
             /* periodIndex= */ 0,
             this.positionMs,
@@ -89,6 +92,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
           new PositionInfo(
               windowUid,
               /* windowIndex= */ 0,
+              mediaItem,
               periodUid,
               /* periodIndex= */ 0,
               positionMs,
@@ -119,6 +123,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
         new PositionInfo(
             windowUid,
             /* windowIndex= */ 0,
+            mediaItem,
             periodUid,
             /* periodIndex= */ 0,
             this.positionMs,
@@ -136,6 +141,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
           new PositionInfo(
               windowUid,
               /* windowIndex= */ 0,
+              mediaItem,
               periodUid,
               /* periodIndex= */ 0,
               positionMs,

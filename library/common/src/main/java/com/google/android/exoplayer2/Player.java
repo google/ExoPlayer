@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.util.BundleableUtils;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -468,13 +469,15 @@ public interface Player {
   final class PositionInfo implements Bundleable {
 
     /**
-     * The UID of the window, or {@code null}, if the timeline is {@link Timeline#isEmpty() empty}.
+     * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object windowUid;
     /** The window index. */
     public final int windowIndex;
+    /** The media item, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}. */
+    @Nullable public final MediaItem mediaItem;
     /**
-     * The UID of the period, or {@code null}, if the timeline is {@link Timeline#isEmpty() empty}.
+     * The UID of the period, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object periodUid;
     /** The period index. */
@@ -498,7 +501,11 @@ public interface Player {
      */
     public final int adIndexInAdGroup;
 
-    /** Creates an instance. */
+    /**
+     * @deprecated Use {@link #PositionInfo(Object, int, MediaItem, Object, int, long, long, int,
+     *     int)} instead.
+     */
+    @Deprecated
     public PositionInfo(
         @Nullable Object windowUid,
         int windowIndex,
@@ -508,8 +515,32 @@ public interface Player {
         long contentPositionMs,
         int adGroupIndex,
         int adIndexInAdGroup) {
+      this(
+          windowUid,
+          windowIndex,
+          MediaItem.EMPTY,
+          periodUid,
+          periodIndex,
+          positionMs,
+          contentPositionMs,
+          adGroupIndex,
+          adIndexInAdGroup);
+    }
+
+    /** Creates an instance. */
+    public PositionInfo(
+        @Nullable Object windowUid,
+        int windowIndex,
+        @Nullable MediaItem mediaItem,
+        @Nullable Object periodUid,
+        int periodIndex,
+        long positionMs,
+        long contentPositionMs,
+        int adGroupIndex,
+        int adIndexInAdGroup) {
       this.windowUid = windowUid;
       this.windowIndex = windowIndex;
+      this.mediaItem = mediaItem;
       this.periodUid = periodUid;
       this.periodIndex = periodIndex;
       this.positionMs = positionMs;
@@ -534,7 +565,8 @@ public interface Player {
           && adGroupIndex == that.adGroupIndex
           && adIndexInAdGroup == that.adIndexInAdGroup
           && Objects.equal(windowUid, that.windowUid)
-          && Objects.equal(periodUid, that.periodUid);
+          && Objects.equal(periodUid, that.periodUid)
+          && Objects.equal(mediaItem, that.mediaItem);
     }
 
     @Override
@@ -542,6 +574,7 @@ public interface Player {
       return Objects.hashCode(
           windowUid,
           windowIndex,
+          mediaItem,
           periodUid,
           periodIndex,
           windowIndex,
@@ -556,6 +589,7 @@ public interface Player {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       FIELD_WINDOW_INDEX,
+      FIELD_MEDIA_ITEM,
       FIELD_PERIOD_INDEX,
       FIELD_POSITION_MS,
       FIELD_CONTENT_POSITION_MS,
@@ -565,11 +599,12 @@ public interface Player {
     private @interface FieldNumber {}
 
     private static final int FIELD_WINDOW_INDEX = 0;
-    private static final int FIELD_PERIOD_INDEX = 1;
-    private static final int FIELD_POSITION_MS = 2;
-    private static final int FIELD_CONTENT_POSITION_MS = 3;
-    private static final int FIELD_AD_GROUP_INDEX = 4;
-    private static final int FIELD_AD_INDEX_IN_AD_GROUP = 5;
+    private static final int FIELD_MEDIA_ITEM = 1;
+    private static final int FIELD_PERIOD_INDEX = 2;
+    private static final int FIELD_POSITION_MS = 3;
+    private static final int FIELD_CONTENT_POSITION_MS = 4;
+    private static final int FIELD_AD_GROUP_INDEX = 5;
+    private static final int FIELD_AD_INDEX_IN_AD_GROUP = 6;
 
     /**
      * {@inheritDoc}
@@ -581,6 +616,7 @@ public interface Player {
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
+      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtils.toNullableBundle(mediaItem));
       bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
       bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
@@ -595,6 +631,10 @@ public interface Player {
     private static PositionInfo fromBundle(Bundle bundle) {
       int windowIndex =
           bundle.getInt(keyForField(FIELD_WINDOW_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      @Nullable
+      MediaItem mediaItem =
+          BundleableUtils.fromNullableBundle(
+              MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
       int periodIndex =
           bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
       long positionMs =
@@ -608,6 +648,7 @@ public interface Player {
       return new PositionInfo(
           /* windowUid= */ null,
           windowIndex,
+          mediaItem,
           /* periodUid= */ null,
           periodIndex,
           positionMs,
