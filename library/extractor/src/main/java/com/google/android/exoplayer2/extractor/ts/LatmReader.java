@@ -78,11 +78,13 @@ public final class LatmReader implements ElementaryStreamReader {
     this.language = language;
     sampleDataBuffer = new ParsableByteArray(INITIAL_BUFFER_SIZE);
     sampleBitArray = new ParsableBitArray(sampleDataBuffer.getData());
+    timeUs = C.TIME_UNSET;
   }
 
   @Override
   public void seek() {
     state = STATE_FINDING_SYNC_1;
+    timeUs = C.TIME_UNSET;
     streamMuxRead = false;
   }
 
@@ -95,7 +97,9 @@ public final class LatmReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    timeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      timeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -306,8 +310,10 @@ public final class LatmReader implements ElementaryStreamReader {
       sampleDataBuffer.setPosition(0);
     }
     output.sampleData(sampleDataBuffer, muxLengthBytes);
-    output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, muxLengthBytes, 0, null);
-    timeUs += sampleDurationUs;
+    if (timeUs != C.TIME_UNSET) {
+      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, muxLengthBytes, 0, null);
+      timeUs += sampleDurationUs;
+    }
   }
 
   private void resetBufferForSize(int newSize) {

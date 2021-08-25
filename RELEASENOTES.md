@@ -11,6 +11,9 @@
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
     *   Fix track selection in `StyledPlayerControlView` when using
         `ForwardingPlayer`.
+*   Extractors:
+    *   Support TS packets without PTS flag
+        ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
 *   Android 12 compatibility:
     *   Disable platform transcoding when playing content URIs on Android 12.
     *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
