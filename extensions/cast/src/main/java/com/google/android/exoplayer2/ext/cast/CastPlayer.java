@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
@@ -541,6 +542,14 @@ public final class CastPlayer extends BasePlayer {
   public TrackGroupArray getCurrentTrackGroups() {
     return currentTrackGroups;
   }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT;
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {}
 
   @Deprecated
   @Override

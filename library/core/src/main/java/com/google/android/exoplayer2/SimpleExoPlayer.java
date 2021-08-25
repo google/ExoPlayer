@@ -65,6 +65,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -1447,6 +1448,18 @@ public class SimpleExoPlayer extends BasePlayer
   public TrackSelectionArray getCurrentTrackSelections() {
     verifyApplicationThread();
     return player.getCurrentTrackSelections();
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    verifyApplicationThread();
+    return player.getTrackSelectionParameters();
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    verifyApplicationThread();
+    player.setTrackSelectionParameters(parameters);
   }
 
   @Deprecated

@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -210,6 +211,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 COMMAND_GET_MEDIA_ITEMS_METADATA,
                 COMMAND_SET_MEDIA_ITEMS_METADATA,
                 COMMAND_CHANGE_MEDIA_ITEMS)
+            .addIf(COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
             .addAll(additionalPermanentAvailableCommands)
             .build();
     availableCommands =
@@ -949,6 +951,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     return playbackInfo.staticMetadata;
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return trackSelector.getParameters();
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    if (!trackSelector.isSetParametersSupported()
+        || parameters.equals(trackSelector.getParameters())) {
+      return;
+    }
+    trackSelector.setParameters(parameters);
+    listeners.queueEvent(
+        EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+        listener -> listener.onTrackSelectionParametersChanged(parameters));
   }
 
   @Override

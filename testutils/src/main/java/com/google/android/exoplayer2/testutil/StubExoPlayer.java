@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -449,6 +450,16 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
     throw new UnsupportedOperationException();
   }
 

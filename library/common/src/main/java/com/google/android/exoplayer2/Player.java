@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -174,6 +175,16 @@ public interface Player {
      * @param availableCommands The available {@link Commands}.
      */
     default void onAvailableCommandsChanged(Commands availableCommands) {}
+
+    /**
+     * Called when the value returned from {@link #getTrackSelectionParameters()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param parameters The new {@link TrackSelectionParameters}.
+     */
+    default void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {}
 
     /**
      * @deprecated Use {@link #onPlaybackStateChanged(int)} and {@link
@@ -648,7 +659,8 @@ public interface Player {
         COMMAND_SET_DEVICE_VOLUME,
         COMMAND_ADJUST_DEVICE_VOLUME,
         COMMAND_SET_VIDEO_SURFACE,
-        COMMAND_GET_TEXT
+        COMMAND_GET_TEXT,
+        COMMAND_SET_TRACK_SELECTION_PARAMETERS,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -1226,7 +1238,8 @@ public interface Player {
     EVENT_PLAYLIST_METADATA_CHANGED,
     EVENT_SEEK_BACK_INCREMENT_CHANGED,
     EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
-    EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED
+    EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
+    EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
   })
   @interface Event {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1272,6 +1285,8 @@ public interface Player {
   int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 18;
   /** {@link #getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 19;
+  /** {@link #getTrackSelectionParameters()} changed. */
+  int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = 20;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
@@ -1286,7 +1301,8 @@ public interface Player {
    * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
+   * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT} or {@link
+   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1318,7 +1334,8 @@ public interface Player {
     COMMAND_SET_DEVICE_VOLUME,
     COMMAND_ADJUST_DEVICE_VOLUME,
     COMMAND_SET_VIDEO_SURFACE,
-    COMMAND_GET_TEXT
+    COMMAND_GET_TEXT,
+    COMMAND_SET_TRACK_SELECTION_PARAMETERS,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1375,6 +1392,8 @@ public interface Player {
   int COMMAND_SET_VIDEO_SURFACE = 26;
   /** Command to get the text that should currently be displayed by the player. */
   int COMMAND_GET_TEXT = 27;
+  /** Command to set the player's track selection parameters. */
+  int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 28;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -1950,6 +1969,28 @@ public interface Player {
    * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
    */
   TrackSelectionArray getCurrentTrackSelections();
+
+  /** Returns the parameters constraining the track selection. */
+  TrackSelectionParameters getTrackSelectionParameters();
+
+  /**
+   * Sets the parameters constraining the track selection.
+   *
+   * <p>Unsupported parameters will be silently ignored.
+   *
+   * <p>Use {@link #getTrackSelectionParameters()} to retrieve the current parameters. For example,
+   * the following snippet restricts video to SD whilst keep other track selection parameters
+   * unchanged:
+   *
+   * <pre>{@code
+   * player.setTrackSelectionParameters(
+   *   player.getTrackSelectionParameters()
+   *         .buildUpon()
+   *         .setMaxVideoSizeSd()
+   *         .build())
+   * }</pre>
+   */
+  void setTrackSelectionParameters(TrackSelectionParameters parameters);
 
   /**
    * @deprecated Use {@link #getMediaMetadata()} and {@link

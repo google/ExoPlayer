@@ -35,8 +35,28 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Locale;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
-/** Constraint parameters for track selection. */
+/**
+ * Constraint parameters for track selection.
+ *
+ * <p>For example the following code modifies the parameters to restrict video track selections to
+ * SD, and to select a German audio track if there is one:
+ *
+ * <pre>{@code
+ * // Build on the current parameters.
+ * TrackSelectionParameters currentParameters = player.getTrackSelectionParameters()
+ * // Build the resulting parameters.
+ * TrackSelectionParameters newParameters = currentParameters
+ *     .buildUpon()
+ *     .setMaxVideoSizeSd()
+ *     .setPreferredAudioLanguage("deu")
+ *     .build();
+ * // Set the new parameters.
+ * player.setTrackSelectionParameters(newParameters);
+ * }</pre>
+ */
 public class TrackSelectionParameters implements Bundleable {
 
   /**
@@ -115,32 +135,7 @@ public class TrackSelectionParameters implements Bundleable {
 
     /** Creates a builder with the initial values specified in {@code initialValues}. */
     protected Builder(TrackSelectionParameters initialValues) {
-      // Video
-      maxVideoWidth = initialValues.maxVideoWidth;
-      maxVideoHeight = initialValues.maxVideoHeight;
-      maxVideoFrameRate = initialValues.maxVideoFrameRate;
-      maxVideoBitrate = initialValues.maxVideoBitrate;
-      minVideoWidth = initialValues.minVideoWidth;
-      minVideoHeight = initialValues.minVideoHeight;
-      minVideoFrameRate = initialValues.minVideoFrameRate;
-      minVideoBitrate = initialValues.minVideoBitrate;
-      viewportWidth = initialValues.viewportWidth;
-      viewportHeight = initialValues.viewportHeight;
-      viewportOrientationMayChange = initialValues.viewportOrientationMayChange;
-      preferredVideoMimeTypes = initialValues.preferredVideoMimeTypes;
-      // Audio
-      preferredAudioLanguages = initialValues.preferredAudioLanguages;
-      preferredAudioRoleFlags = initialValues.preferredAudioRoleFlags;
-      maxAudioChannelCount = initialValues.maxAudioChannelCount;
-      maxAudioBitrate = initialValues.maxAudioBitrate;
-      preferredAudioMimeTypes = initialValues.preferredAudioMimeTypes;
-      // Text
-      preferredTextLanguages = initialValues.preferredTextLanguages;
-      preferredTextRoleFlags = initialValues.preferredTextRoleFlags;
-      selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
-      // General
-      forceLowestBitrate = initialValues.forceLowestBitrate;
-      forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
+      init(initialValues);
     }
 
     /** Creates a builder with the initial values specified in {@code bundle}. */
@@ -224,6 +219,48 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
+    }
+
+    /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
+    @EnsuresNonNull({
+      "preferredVideoMimeTypes",
+      "preferredAudioLanguages",
+      "preferredAudioMimeTypes",
+      "preferredTextLanguages"
+    })
+    private void init(@UnknownInitialization Builder this, TrackSelectionParameters parameters) {
+      // Video
+      maxVideoWidth = parameters.maxVideoWidth;
+      maxVideoHeight = parameters.maxVideoHeight;
+      maxVideoFrameRate = parameters.maxVideoFrameRate;
+      maxVideoBitrate = parameters.maxVideoBitrate;
+      minVideoWidth = parameters.minVideoWidth;
+      minVideoHeight = parameters.minVideoHeight;
+      minVideoFrameRate = parameters.minVideoFrameRate;
+      minVideoBitrate = parameters.minVideoBitrate;
+      viewportWidth = parameters.viewportWidth;
+      viewportHeight = parameters.viewportHeight;
+      viewportOrientationMayChange = parameters.viewportOrientationMayChange;
+      preferredVideoMimeTypes = parameters.preferredVideoMimeTypes;
+      // Audio
+      preferredAudioLanguages = parameters.preferredAudioLanguages;
+      preferredAudioRoleFlags = parameters.preferredAudioRoleFlags;
+      maxAudioChannelCount = parameters.maxAudioChannelCount;
+      maxAudioBitrate = parameters.maxAudioBitrate;
+      preferredAudioMimeTypes = parameters.preferredAudioMimeTypes;
+      // Text
+      preferredTextLanguages = parameters.preferredTextLanguages;
+      preferredTextRoleFlags = parameters.preferredTextRoleFlags;
+      selectUndeterminedTextLanguage = parameters.selectUndeterminedTextLanguage;
+      // General
+      forceLowestBitrate = parameters.forceLowestBitrate;
+      forceHighestSupportedBitrate = parameters.forceHighestSupportedBitrate;
+    }
+
+    /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
+    protected Builder set(TrackSelectionParameters parameters) {
+      init(parameters);
+      return this;
     }
 
     // Video

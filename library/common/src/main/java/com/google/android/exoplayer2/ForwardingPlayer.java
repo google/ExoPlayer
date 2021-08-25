@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
@@ -371,6 +372,16 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentTrackSelections();
   }
 
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return player.getTrackSelectionParameters();
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    player.setTrackSelectionParameters(parameters);
+  }
+
   @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
@@ -681,6 +692,11 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onAvailableCommandsChanged(Commands availableCommands) {
       eventListener.onAvailableCommandsChanged(availableCommands);
+    }
+
+    @Override
+    public void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {
+      eventListener.onTrackSelectionParametersChanged(parameters);
     }
 
     @Override

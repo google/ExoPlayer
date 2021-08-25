@@ -61,7 +61,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /**
  * A default {@link TrackSelector} suitable for most use cases. Track selections are made according
  * to configurable {@link Parameters}, which can be set by calling {@link
- * #setParameters(Parameters)}.
+ * Player#setTrackSelectionParameters}.
  *
  * <h2>Modifying parameters</h2>
  *
@@ -73,25 +73,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *
  * <pre>{@code
  * // Build on the current parameters.
- * Parameters currentParameters = trackSelector.getParameters();
+ * TrackSelectionParameters currentParameters = player.getTrackSelectionParameters();
  * // Build the resulting parameters.
- * Parameters newParameters = currentParameters
+ * TrackSelectionParameters newParameters = currentParameters
  *     .buildUpon()
  *     .setMaxVideoSizeSd()
  *     .setPreferredAudioLanguage("deu")
  *     .build();
  * // Set the new parameters.
- * trackSelector.setParameters(newParameters);
+ * player.setTrackSelectionParameters(newParameters);
  * }</pre>
  *
  * Convenience methods and chaining allow this to be written more concisely as:
  *
  * <pre>{@code
- * trackSelector.setParameters(
- *     trackSelector
- *         .buildUponParameters()
+ * player.setTrackSelectionParameters(
+ *     player.getTrackSelectionParameters()
+ *         .buildUpon()
  *         .setMaxVideoSizeSd()
- *         .setPreferredAudioLanguage("deu"));
+ *         .setPreferredAudioLanguage("deu")
+ *         .build());
  * }</pre>
  *
  * Selection {@link Parameters} support many different options, some of which are described below.
@@ -117,10 +118,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *
  * <pre>{@code
  * SelectionOverride selectionOverride = new SelectionOverride(groupIndex, trackIndices);
- * trackSelector.setParameters(
- *     trackSelector
- *         .buildUponParameters()
- *         .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride));
+ * player.setTrackSelectionParameters(
+ *     ((Parameters)player.getTrackSelectionParameters())
+ *         .buildUpon()
+ *         .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride)
+ *         .build());
  * }</pre>
  *
  * <h2>Constraint based track selection</h2>
@@ -132,11 +134,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * a simpler and more flexible approach is to specify these constraints directly:
  *
  * <pre>{@code
- * trackSelector.setParameters(
- *     trackSelector
- *         .buildUponParameters()
+ * player.setTrackSelectionParameters(
+ *     player.getTrackSelectionParameters()
+ *         .buildUpon()
  *         .setMaxVideoSizeSd()
- *         .setPreferredAudioLanguage("deu"));
+ *         .setPreferredAudioLanguage("deu")
+ *         .build());
  * }</pre>
  *
  * There are several benefits to using constraint based track selection instead of specific track
@@ -301,7 +304,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       setSelectionOverridesFromBundle(bundle);
 
       rendererDisabledFlags = new SparseBooleanArray();
-      setRendererDisableFlagsFromBundle(bundle);
+      setRendererDisabledFlagsFromBundle(bundle);
+    }
+
+    @Override
+    protected ParametersBuilder set(TrackSelectionParameters parameters) {
+      super.set(parameters);
+      return this;
     }
 
     // Video
@@ -819,7 +828,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
     }
 
-    private void setRendererDisableFlagsFromBundle(Bundle bundle) {
+    private void setRendererDisabledFlagsFromBundle(Bundle bundle) {
       int[] rendererIndexes =
           bundle.getIntArray(Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDEXES));
       if (rendererIndexes == null) {
@@ -1151,9 +1160,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Bundles selection overrides in 3 arrays of equal length. Each triplet of matching index is -
-     * the selection override (stored in a sparse array as they can be null) - the trackGroupArray
-     * of that override - the rendererIndex of that override
+     * Bundles selection overrides in 3 arrays of equal length. Each triplet of matching indices is:
+     * the selection override (stored in a sparse array as they can be null), the trackGroupArray of
+     * that override, the rendererIndex of that override.
      */
     private static void putSelectionOverridesToBundle(
         Bundle bundle,
@@ -1403,16 +1412,25 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     parametersReference = new AtomicReference<>(parameters);
   }
 
-  /**
-   * Atomically sets the provided parameters for track selection.
-   *
-   * @param parameters The parameters for track selection.
-   */
-  public void setParameters(Parameters parameters) {
-    Assertions.checkNotNull(parameters);
-    if (!parametersReference.getAndSet(parameters).equals(parameters)) {
-      invalidate();
+  @Override
+  public Parameters getParameters() {
+    return parametersReference.get();
+  }
+
+  @Override
+  public boolean isSetParametersSupported() {
+    return true;
+  }
+
+  @Override
+  public void setParameters(TrackSelectionParameters parameters) {
+    if (parameters instanceof Parameters) {
+      setParametersInternal((Parameters) parameters);
     }
+    // Only add the fields of `TrackSelectionParameters` to `parameters`.
+    Parameters mergedParameters =
+        new ParametersBuilder(parametersReference.get()).set(parameters).build();
+    setParametersInternal(mergedParameters);
   }
 
   /**
@@ -1421,21 +1439,24 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param parametersBuilder A builder from which to obtain the parameters for track selection.
    */
   public void setParameters(ParametersBuilder parametersBuilder) {
-    setParameters(parametersBuilder.build());
-  }
-
-  /**
-   * Gets the current selection parameters.
-   *
-   * @return The current selection parameters.
-   */
-  public Parameters getParameters() {
-    return parametersReference.get();
+    setParametersInternal(parametersBuilder.build());
   }
 
   /** Returns a new {@link ParametersBuilder} initialized with the current selection parameters. */
   public ParametersBuilder buildUponParameters() {
     return getParameters().buildUpon();
+  }
+
+  /**
+   * Atomically sets the provided {@link Parameters} for track selection.
+   *
+   * @param parameters The parameters for track selection.
+   */
+  private void setParametersInternal(Parameters parameters) {
+    Assertions.checkNotNull(parameters);
+    if (!parametersReference.getAndSet(parameters).equals(parameters)) {
+      invalidate();
+    }
   }
 
   // MappingTrackSelector implementation.
