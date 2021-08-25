@@ -218,7 +218,7 @@ public abstract class DataSourceContractTest {
   }
 
   @Test
-  public void dataSpecWithPositionAtEnd_throwsPositionOutOfRangeException() throws Exception {
+  public void dataSpecWithPositionAtEnd_readsZeroBytes() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
 
@@ -249,8 +249,7 @@ public abstract class DataSourceContractTest {
   }
 
   @Test
-  public void dataSpecWithPositionAtEndAndLength_throwsPositionOutOfRangeException()
-      throws Exception {
+  public void dataSpecWithPositionAtEndAndLength_readsZeroBytes() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
 
