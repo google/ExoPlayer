@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -389,10 +390,8 @@ public abstract class DataSourceContractTest {
     for (int i = 0; i < resources.size(); i++) {
       additionalFailureInfo.setInfo(getFailureLabel(resources, i));
       DataSource dataSource = createDataSource();
-      TransferListener listener = mock(TransferListener.class);
-      ByteCountingTransferListener byteCountingTransferListener =
-          new ByteCountingTransferListener(listener);
-      dataSource.addTransferListener(byteCountingTransferListener);
+      FakeTransferListener listener = spy(new FakeTransferListener());
+      dataSource.addTransferListener(listener);
       InOrder inOrder = Mockito.inOrder(listener);
       @Nullable DataSource callbackSource = getTransferListenerDataSource();
       if (callbackSource == null) {
@@ -430,8 +429,7 @@ public abstract class DataSourceContractTest {
         }
         // Verify sufficient onBytesTransferred() callbacks have been triggered before closing the
         // DataSource.
-        assertThat(byteCountingTransferListener.bytesTransferred)
-            .isAtLeast(resource.getExpectedBytes().length);
+        assertThat(listener.bytesTransferred).isAtLeast(resource.getExpectedBytes().length);
 
       } finally {
         dataSource.close();
@@ -616,37 +614,23 @@ public abstract class DataSourceContractTest {
     }
   }
 
-  /** A {@link TransferListener} that keeps track of the transferred bytes. */
-  private static final class ByteCountingTransferListener implements TransferListener {
-
-    private final TransferListener transferListener;
-
+  /** A {@link TransferListener} that only keeps track of the transferred bytes. */
+  public static class FakeTransferListener implements TransferListener {
     private int bytesTransferred;
 
-    public ByteCountingTransferListener(TransferListener transferListener) {
-      this.transferListener = transferListener;
-    }
+    @Override
+    public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
 
     @Override
-    public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {
-      transferListener.onTransferInitializing(source, dataSpec, isNetwork);
-    }
-
-    @Override
-    public void onTransferStart(DataSource source, DataSpec dataSpec, boolean isNetwork) {
-      transferListener.onTransferStart(source, dataSpec, isNetwork);
-    }
+    public void onTransferStart(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
 
     @Override
     public void onBytesTransferred(
         DataSource source, DataSpec dataSpec, boolean isNetwork, int bytesTransferred) {
-      transferListener.onBytesTransferred(source, dataSpec, isNetwork, bytesTransferred);
       this.bytesTransferred += bytesTransferred;
     }
 
     @Override
-    public void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {
-      transferListener.onTransferEnd(source, dataSpec, isNetwork);
-    }
+    public void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
   }
 }
