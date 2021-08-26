@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -407,8 +408,8 @@ public final class Transformer {
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
    * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link com.google.android.exoplayer2.source.MediaSource media
-   * sources}, the highest bitrate video and audio streams are selected.
+   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
+   * audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
    *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
@@ -432,8 +433,8 @@ public final class Transformer {
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
    * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link com.google.android.exoplayer2.source.MediaSource media
-   * sources}, the highest bitrate video and audio streams are selected.
+   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
+   * audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
    *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
