@@ -138,6 +138,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   private static final ImmutableList<Byte> VALID_KEY_RESPONSE = TestUtil.createByteList(1, 2, 3);
   private static final ImmutableList<Byte> KEY_DENIED_RESPONSE = TestUtil.createByteList(9, 8, 7);
+  private static final ImmutableList<Byte> PROVISIONING_REQUIRED_RESPONSE =
+      TestUtil.createByteList(4, 5, 6);
 
   private final int provisionsRequired;
   private final int maxConcurrentSessions;
@@ -258,7 +260,6 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
     return new KeyRequest(requestData.toByteArray(), /* licenseServerUrl= */ "", requestType);
   }
 
-  @Nullable
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
@@ -268,6 +269,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       sessionIdsWithValidKeys.add(Bytes.asList(scope));
     } else if (responseAsList.equals(KEY_DENIED_RESPONSE)) {
       throw new DeniedByServerException("Key request denied");
+    } else if (responseAsList.equals(PROVISIONING_REQUIRED_RESPONSE)) {
+      throw new NotProvisionedException("Provisioning required");
     }
     return Util.EMPTY_BYTE_ARRAY;
   }
@@ -417,6 +420,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
     private final List<ImmutableList<Byte>> receivedProvisionRequests;
     private final List<ImmutableList<DrmInitData.SchemeData>> receivedSchemeDatas;
 
+    private boolean nextResponseIndicatesProvisioningRequired;
+
     @SafeVarargs
     public static LicenseServer allowingSchemeDatas(List<DrmInitData.SchemeData>... schemeDatas) {
       ImmutableSet.Builder<ImmutableList<DrmInitData.SchemeData>> schemeDatasBuilder =
@@ -425,6 +430,19 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
         schemeDatasBuilder.add(ImmutableList.copyOf(schemeData));
       }
       return new LicenseServer(schemeDatasBuilder.build());
+    }
+
+    @SafeVarargs
+    public static LicenseServer requiringProvisioningThenAllowingSchemeDatas(
+        List<DrmInitData.SchemeData>... schemeDatas) {
+      ImmutableSet.Builder<ImmutableList<DrmInitData.SchemeData>> schemeDatasBuilder =
+          ImmutableSet.builder();
+      for (List<DrmInitData.SchemeData> schemeData : schemeDatas) {
+        schemeDatasBuilder.add(ImmutableList.copyOf(schemeData));
+      }
+      LicenseServer licenseServer = new LicenseServer(schemeDatasBuilder.build());
+      licenseServer.nextResponseIndicatesProvisioningRequired = true;
+      return licenseServer;
     }
 
     private LicenseServer(ImmutableSet<ImmutableList<DrmInitData.SchemeData>> allowedSchemeDatas) {
@@ -459,8 +477,17 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       ImmutableList<DrmInitData.SchemeData> schemeDatas =
           KeyRequestData.fromByteArray(request.getData()).schemeDatas;
       receivedSchemeDatas.add(schemeDatas);
-      return Bytes.toArray(
-          allowedSchemeDatas.contains(schemeDatas) ? VALID_KEY_RESPONSE : KEY_DENIED_RESPONSE);
+
+      ImmutableList<Byte> response;
+      if (nextResponseIndicatesProvisioningRequired) {
+        nextResponseIndicatesProvisioningRequired = false;
+        response = PROVISIONING_REQUIRED_RESPONSE;
+      } else if (allowedSchemeDatas.contains(schemeDatas)) {
+        response = VALID_KEY_RESPONSE;
+      } else {
+        response = KEY_DENIED_RESPONSE;
+      }
+      return Bytes.toArray(response);
     }
   }
 
