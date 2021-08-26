@@ -589,7 +589,8 @@ public final class Transformer {
         index++;
       }
       if (!transformation.removeVideo) {
-        renderers[index] = new TransformerVideoRenderer(muxerWrapper, mediaClock, transformation);
+        renderers[index] =
+            new TransformerMuxingVideoRenderer(muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;

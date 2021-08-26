@@ -28,8 +28,9 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import java.nio.ByteBuffer;
 
+/** A video renderer that doesn't re-encoder the samples. */
 @RequiresApi(18)
-/* package */ final class TransformerVideoRenderer extends TransformerBaseRenderer {
+/* package */ final class TransformerMuxingVideoRenderer extends TransformerBaseRenderer {
 
   private static final String TAG = "TransformerVideoRenderer";
 
@@ -41,7 +42,7 @@ import java.nio.ByteBuffer;
   private boolean isBufferPending;
   private boolean isInputStreamEnded;
 
-  public TransformerVideoRenderer(
+  public TransformerMuxingVideoRenderer(
       MuxerWrapper muxerWrapper, TransformerMediaClock mediaClock, Transformation transformation) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
