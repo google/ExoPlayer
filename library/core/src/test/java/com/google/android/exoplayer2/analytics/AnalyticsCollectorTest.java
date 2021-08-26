@@ -173,7 +173,9 @@ public final class AnalyticsCollectorTest {
 
   private final DrmSessionManager drmSessionManager =
       new DefaultDrmSessionManager.Builder()
-          .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+          .setUuidAndExoMediaDrmProvider(
+              DRM_SCHEME_UUID,
+              uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
           .setMultiSession(true)
           .build(new EmptyDrmCallback());
 
@@ -1452,7 +1454,9 @@ public final class AnalyticsCollectorTest {
     BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.returnsEmpty();
     DrmSessionManager blockingDrmSessionManager =
         new DefaultDrmSessionManager.Builder()
-            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
             .setMultiSession(true)
             .build(mediaDrmCallback);
     MediaSource mediaSource =
@@ -1518,7 +1522,9 @@ public final class AnalyticsCollectorTest {
     BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.alwaysFailing();
     DrmSessionManager failingDrmSessionManager =
         new DefaultDrmSessionManager.Builder()
-            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
             .setMultiSession(true)
             .build(mediaDrmCallback);
     MediaSource mediaSource =

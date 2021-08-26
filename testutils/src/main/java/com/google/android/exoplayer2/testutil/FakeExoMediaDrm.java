@@ -65,14 +65,27 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   /** Builder for {@link FakeExoMediaDrm} instances. */
   public static class Builder {
+    private boolean enforceValidKeyResponses;
     private int provisionsRequired;
     private boolean throwNotProvisionedExceptionFromGetKeyRequest;
     private int maxConcurrentSessions;
 
     /** Constructs an instance. */
     public Builder() {
+      enforceValidKeyResponses = true;
       provisionsRequired = 0;
       maxConcurrentSessions = Integer.MAX_VALUE;
+    }
+
+    /**
+     * Sets whether key responses passed to {@link #provideKeyResponse(byte[], byte[])} should be
+     * checked for validity (i.e. that they came from a {@link LicenseServer}).
+     *
+     * <p>Defaults to true.
+     */
+    public Builder setEnforceValidKeyResponses(boolean enforceValidKeyResponses) {
+      this.enforceValidKeyResponses = enforceValidKeyResponses;
+      return this;
     }
 
     /**
@@ -120,7 +133,10 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
      */
     public FakeExoMediaDrm build() {
       return new FakeExoMediaDrm(
-          provisionsRequired, throwNotProvisionedExceptionFromGetKeyRequest, maxConcurrentSessions);
+          enforceValidKeyResponses,
+          provisionsRequired,
+          throwNotProvisionedExceptionFromGetKeyRequest,
+          maxConcurrentSessions);
     }
   }
 
@@ -141,6 +157,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   private static final ImmutableList<Byte> PROVISIONING_REQUIRED_RESPONSE =
       TestUtil.createByteList(4, 5, 6);
 
+  private final boolean enforceValidKeyResponses;
   private final int provisionsRequired;
   private final int maxConcurrentSessions;
   private final boolean throwNotProvisionedExceptionFromGetKeyRequest;
@@ -164,15 +181,18 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Deprecated
   public FakeExoMediaDrm(int maxConcurrentSessions) {
     this(
+        /* enforceValidKeyResponses= */ true,
         /* provisionsRequired= */ 0,
         /* throwNotProvisionedExceptionFromGetKeyRequest= */ false,
         maxConcurrentSessions);
   }
 
   private FakeExoMediaDrm(
+      boolean enforceValidKeyResponses,
       int provisionsRequired,
       boolean throwNotProvisionedExceptionFromGetKeyRequest,
       int maxConcurrentSessions) {
+    this.enforceValidKeyResponses = enforceValidKeyResponses;
     this.provisionsRequired = provisionsRequired;
     this.maxConcurrentSessions = maxConcurrentSessions;
     this.throwNotProvisionedExceptionFromGetKeyRequest =
@@ -265,13 +285,20 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       throws NotProvisionedException, DeniedByServerException {
     Assertions.checkState(referenceCount > 0);
     List<Byte> responseAsList = Bytes.asList(response);
-    if (responseAsList.equals(VALID_KEY_RESPONSE)) {
-      sessionIdsWithValidKeys.add(Bytes.asList(scope));
-    } else if (responseAsList.equals(KEY_DENIED_RESPONSE)) {
+    if (responseAsList.equals(KEY_DENIED_RESPONSE)) {
       throw new DeniedByServerException("Key request denied");
-    } else if (responseAsList.equals(PROVISIONING_REQUIRED_RESPONSE)) {
+    }
+    if (responseAsList.equals(PROVISIONING_REQUIRED_RESPONSE)) {
       throw new NotProvisionedException("Provisioning required");
     }
+    if (enforceValidKeyResponses && !responseAsList.equals(VALID_KEY_RESPONSE)) {
+      throw new IllegalArgumentException(
+          "Unrecognised response. scope="
+              + Util.toHexString(scope)
+              + ", response="
+              + Util.toHexString(response));
+    }
+    sessionIdsWithValidKeys.add(Bytes.asList(scope));
     return Util.EMPTY_BYTE_ARRAY;
   }
 
