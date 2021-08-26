@@ -19,7 +19,6 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.media.MediaCodec;
-import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -32,7 +31,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-@RequiresApi(23)
+@RequiresApi(18)
 /* package */ final class TransformerTranscodingVideoRenderer extends TransformerBaseRenderer {
 
   private static final String TAG = "TransformerTranscodingVideoRenderer";
@@ -40,8 +39,6 @@ import java.nio.ByteBuffer;
   private final DecoderInputBuffer decoderInputBuffer;
   /** The format the encoder is configured to output, may differ from the actual output format. */
   private final Format encoderConfigurationOutputFormat;
-
-  private final Surface surface;
 
   @Nullable private MediaCodecAdapterWrapper decoder;
   @Nullable private MediaCodecAdapterWrapper encoder;
@@ -58,7 +55,6 @@ import java.nio.ByteBuffer;
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
 
     decoderInputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
-    surface = MediaCodec.createPersistentInputSurface();
     this.encoderConfigurationOutputFormat = encoderConfigurationOutputFormat;
   }
 
@@ -93,7 +89,6 @@ import java.nio.ByteBuffer;
   protected void onReset() {
     decoderInputBuffer.clear();
     decoderInputBuffer.data = null;
-    surface.release();
     if (decoder != null) {
       decoder.release();
       decoder = null;
@@ -121,8 +116,11 @@ import java.nio.ByteBuffer;
     }
 
     Format inputFormat = checkNotNull(formatHolder.format);
+    MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     try {
-      decoder = MediaCodecAdapterWrapper.createForVideoDecoding(inputFormat, surface);
+      decoder =
+          MediaCodecAdapterWrapper.createForVideoDecoding(
+              inputFormat, checkNotNull(encoder.getInputSurface()));
     } catch (IOException e) {
       throw createRendererException(
           e, formatHolder.format, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
@@ -136,9 +134,7 @@ import java.nio.ByteBuffer;
     }
 
     try {
-      encoder =
-          MediaCodecAdapterWrapper.createForVideoEncoding(
-              encoderConfigurationOutputFormat, surface);
+      encoder = MediaCodecAdapterWrapper.createForVideoEncoding(encoderConfigurationOutputFormat);
     } catch (IOException e) {
       throw createRendererException(
           // TODO(claincly): should be "ENCODER_INIT_FAILED"

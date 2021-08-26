@@ -195,6 +195,12 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
     @Nullable
     @Override
+    public Surface getInputSurface() {
+      return delegate.getInputSurface();
+    }
+
+    @Nullable
+    @Override
     public ByteBuffer getOutputBuffer(int index) {
       return delegate.getOutputBuffer(index);
     }

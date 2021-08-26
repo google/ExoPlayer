@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Surface;
@@ -47,31 +46,34 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
     @RequiresApi(16)
     public MediaCodecAdapter createAdapter(Configuration configuration) throws IOException {
       @Nullable MediaCodec codec = null;
-      boolean isEncoder = configuration.flags == MediaCodec.CONFIGURE_FLAG_ENCODE;
-      @Nullable Surface decoderOutputSurface = isEncoder ? null : configuration.surface;
+      @Nullable Surface inputSurface = null;
       try {
         codec = createCodec(configuration);
         TraceUtil.beginSection("configureCodec");
         codec.configure(
             configuration.mediaFormat,
-            decoderOutputSurface,
+            configuration.surface,
             configuration.crypto,
             configuration.flags);
         TraceUtil.endSection();
-        if (isEncoder && configuration.surface != null) {
-          if (Build.VERSION.SDK_INT >= 23) {
-            Api23.setCodecInputSurface(codec, configuration.surface);
+
+        if (configuration.createInputSurface) {
+          if (Util.SDK_INT >= 18) {
+            inputSurface = Api18.createCodecInputSurface(codec);
           } else {
             throw new IllegalStateException(
-                "Encoding from a surface is only supported on API 23 and up");
+                "Encoding from a surface is only supported on API 18 and up.");
           }
         }
 
         TraceUtil.beginSection("startCodec");
         codec.start();
         TraceUtil.endSection();
-        return new SynchronousMediaCodecAdapter(codec);
+        return new SynchronousMediaCodecAdapter(codec, inputSurface);
       } catch (IOException | RuntimeException e) {
+        if (inputSurface != null) {
+          inputSurface.release();
+        }
         if (codec != null) {
           codec.release();
         }
@@ -91,11 +93,13 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   }
 
   private final MediaCodec codec;
+  @Nullable private final Surface inputSurface;
   @Nullable private ByteBuffer[] inputByteBuffers;
   @Nullable private ByteBuffer[] outputByteBuffers;
 
-  private SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
+  private SynchronousMediaCodecAdapter(MediaCodec mediaCodec, @Nullable Surface inputSurface) {
     this.codec = mediaCodec;
+    this.inputSurface = inputSurface;
     if (Util.SDK_INT < 21) {
       inputByteBuffers = codec.getInputBuffers();
       outputByteBuffers = codec.getOutputBuffers();
@@ -142,6 +146,12 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
 
   @Override
   @Nullable
+  public Surface getInputSurface() {
+    return inputSurface;
+  }
+
+  @Override
+  @Nullable
   public ByteBuffer getOutputBuffer(int index) {
     if (Util.SDK_INT >= 21) {
       return codec.getOutputBuffer(index);
@@ -183,6 +193,9 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   public void release() {
     inputByteBuffers = null;
     outputByteBuffers = null;
+    if (inputSurface != null) {
+      inputSurface.release();
+    }
     codec.release();
   }
 
@@ -213,11 +226,11 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
     codec.setVideoScalingMode(scalingMode);
   }
 
-  @RequiresApi(23)
-  private static final class Api23 {
+  @RequiresApi(18)
+  private static final class Api18 {
     @DoNotInline
-    public static void setCodecInputSurface(MediaCodec codec, Surface surface) {
-      codec.setInputSurface(surface);
+    public static Surface createCodecInputSurface(MediaCodec codec) {
+      return codec.createInputSurface();
     }
   }
 }

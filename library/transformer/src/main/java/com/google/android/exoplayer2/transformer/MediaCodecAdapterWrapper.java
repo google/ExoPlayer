@@ -48,6 +48,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * through {@link MediaCodecAdapter}. This is done by simplifying the calls needed to queue and
  * dequeue buffers, removing the need to track buffer indices and codec events.
  */
+@RequiresApi(18)
 /* package */ final class MediaCodecAdapterWrapper {
 
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
@@ -142,7 +143,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return A configured and started decoder wrapper.
    * @throws IOException If the underlying codec cannot be created.
    */
-  @RequiresApi(23)
   public static MediaCodecAdapterWrapper createForVideoDecoding(Format format, Surface surface)
       throws IOException {
     @Nullable MediaCodecAdapter adapter = null;
@@ -163,7 +163,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                       surface,
                       /* crypto= */ null,
                       /* flags= */ 0));
-      adapter.setOutputSurface(surface);
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -217,13 +216,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param format The {@link Format} (of the output data) used to determine the underlying {@link
    *     MediaCodec} and its configuration values.
-   * @param surface The {@link Surface} from which the encoder obtains the frame input.
    * @return A configured and started encoder wrapper.
    * @throws IOException If the underlying codec cannot be created.
    */
-  @RequiresApi(18)
-  public static MediaCodecAdapterWrapper createForVideoEncoding(Format format, Surface surface)
-      throws IOException {
+  public static MediaCodecAdapterWrapper createForVideoEncoding(Format format) throws IOException {
     @Nullable MediaCodecAdapter adapter = null;
     try {
       MediaFormat mediaFormat =
@@ -242,9 +238,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                       createPlaceholderMediaCodecInfo(),
                       mediaFormat,
                       format,
-                      surface,
+                      /* surface= */ null,
                       /* crypto= */ null,
-                      MediaCodec.CONFIGURE_FLAG_ENCODE));
+                      MediaCodec.CONFIGURE_FLAG_ENCODE,
+                      /* createInputSurface= */ true));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -259,6 +256,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
+  }
+
+  /** Returns the input {@link Surface}, or null if the input is not a surface. */
+  @Nullable
+  public Surface getInputSurface() {
+    return codec.getInputSurface();
   }
 
   /**

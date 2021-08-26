@@ -45,10 +45,7 @@ public interface MediaCodecAdapter {
     public final MediaFormat mediaFormat;
     /** The {@link Format} for which the codec is being configured. */
     public final Format format;
-    /**
-     * For video decoding, the output where the object will render the decoded frames; for video
-     * encoding, this is the input surface from which the decoded frames are retrieved.
-     */
+    /** For video decoding, the output where the object will render the decoded frames. */
     @Nullable public final Surface surface;
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
     @Nullable public final MediaCrypto crypto;
@@ -58,6 +55,11 @@ public interface MediaCodecAdapter {
      * @see MediaCodec#configure
      */
     public final int flags;
+    /**
+     * Whether to request a {@link Surface} and use it as to the input to an encoder. This can only
+     * be set to {@code true} on API 18+.
+     */
+    public final boolean createInputSurface;
 
     public Configuration(
         MediaCodecInfo codecInfo,
@@ -66,12 +68,24 @@ public interface MediaCodecAdapter {
         @Nullable Surface surface,
         @Nullable MediaCrypto crypto,
         int flags) {
+      this(codecInfo, mediaFormat, format, surface, crypto, flags, /* createInputSurface= */ false);
+    }
+
+    public Configuration(
+        MediaCodecInfo codecInfo,
+        MediaFormat mediaFormat,
+        Format format,
+        @Nullable Surface surface,
+        @Nullable MediaCrypto crypto,
+        int flags,
+        boolean createInputSurface) {
       this.codecInfo = codecInfo;
       this.mediaFormat = mediaFormat;
       this.format = format;
       this.surface = surface;
       this.crypto = crypto;
       this.flags = flags;
+      this.createInputSurface = createInputSurface;
     }
   }
 
@@ -128,6 +142,14 @@ public interface MediaCodecAdapter {
    */
   @Nullable
   ByteBuffer getInputBuffer(int index);
+
+  /**
+   * Returns the input {@link Surface}, or null if the input is not a surface.
+   *
+   * @see MediaCodec#createInputSurface()
+   */
+  @Nullable
+  Surface getInputSurface();
 
   /**
    * Returns a read-only ByteBuffer for a dequeued output buffer index.

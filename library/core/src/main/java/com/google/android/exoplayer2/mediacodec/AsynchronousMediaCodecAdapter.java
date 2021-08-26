@@ -118,7 +118,8 @@ import java.nio.ByteBuffer;
             configuration.mediaFormat,
             configuration.surface,
             configuration.crypto,
-            configuration.flags);
+            configuration.flags,
+            configuration.createInputSurface);
         return codecAdapter;
       } catch (Exception e) {
         if (codecAdapter != null) {
@@ -146,6 +147,7 @@ import java.nio.ByteBuffer;
   private final boolean synchronizeCodecInteractionsWithQueueing;
   private boolean codecReleased;
   @State private int state;
+  @Nullable private Surface inputSurface;
 
   private AsynchronousMediaCodecAdapter(
       MediaCodec codec,
@@ -166,11 +168,15 @@ import java.nio.ByteBuffer;
       @Nullable MediaFormat mediaFormat,
       @Nullable Surface surface,
       @Nullable MediaCrypto crypto,
-      int flags) {
+      int flags,
+      boolean createInputSurface) {
     asynchronousMediaCodecCallback.initialize(codec);
     TraceUtil.beginSection("configureCodec");
     codec.configure(mediaFormat, surface, crypto, flags);
     TraceUtil.endSection();
+    if (createInputSurface) {
+      inputSurface = codec.createInputSurface();
+    }
     bufferEnqueuer.start();
     TraceUtil.beginSection("startCodec");
     codec.start();
@@ -228,6 +234,12 @@ import java.nio.ByteBuffer;
 
   @Override
   @Nullable
+  public Surface getInputSurface() {
+    return inputSurface;
+  }
+
+  @Override
+  @Nullable
   public ByteBuffer getOutputBuffer(int index) {
     return codec.getOutputBuffer(index);
   }
@@ -253,6 +265,9 @@ import java.nio.ByteBuffer;
       }
       state = STATE_SHUT_DOWN;
     } finally {
+      if (inputSurface != null) {
+        inputSurface.release();
+      }
       if (!codecReleased) {
         codec.release();
         codecReleased = true;
