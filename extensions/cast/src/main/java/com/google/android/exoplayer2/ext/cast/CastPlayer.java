@@ -97,12 +97,16 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_WINDOW,
               COMMAND_SET_REPEAT_MODE,
+              COMMAND_SET_SPEED_AND_PITCH,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
               COMMAND_GET_TIMELINE,
               COMMAND_GET_MEDIA_ITEMS_METADATA,
               COMMAND_SET_MEDIA_ITEMS_METADATA,
               COMMAND_CHANGE_MEDIA_ITEMS)
           .build();
+
+  public static final float MIN_SPEED_SUPPORTED = 0.5f;
+  public static final float MAX_SPEED_SUPPORTED = 2.0f;
 
   private static final String TAG = "CastPlayer";
 
@@ -134,6 +138,7 @@ public final class CastPlayer extends BasePlayer {
   // Internal state.
   private final StateHolder<Boolean> playWhenReady;
   private final StateHolder<Integer> repeatMode;
+  private final StateHolder<PlaybackParameters> playbackParameters;
   @Nullable private RemoteMediaClient remoteMediaClient;
   private CastTimeline currentTimeline;
   private TrackGroupArray currentTrackGroups;
@@ -210,6 +215,7 @@ public final class CastPlayer extends BasePlayer {
             (listener, flags) -> listener.onEvents(/* player= */ this, new Events(flags)));
     playWhenReady = new StateHolder<>(false);
     repeatMode = new StateHolder<>(REPEAT_MODE_OFF);
+    playbackParameters = new StateHolder<>(PlaybackParameters.DEFAULT);
     playbackState = STATE_IDLE;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
     currentTrackGroups = TrackGroupArray.EMPTY;
@@ -466,13 +472,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    // Unsupported by the RemoteMediaClient API. Do nothing.
-  }
-
-  @Override
   public PlaybackParameters getPlaybackParameters() {
-    return PlaybackParameters.DEFAULT;
+    return playbackParameters.value;
   }
 
   @Override
@@ -489,6 +490,32 @@ public final class CastPlayer extends BasePlayer {
     SessionManager sessionManager = castContext.getSessionManager();
     sessionManager.removeSessionManagerListener(statusListener, CastSession.class);
     sessionManager.endCurrentSession(false);
+  }
+
+  @Override
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+    if (remoteMediaClient == null) {
+      return;
+    }
+    PlaybackParameters actualPlaybackParameters =
+        new PlaybackParameters(
+            Util.constrainValue(
+                playbackParameters.speed, MIN_SPEED_SUPPORTED, MAX_SPEED_SUPPORTED));
+    setPlaybackParametersAndNotifyIfChanged(actualPlaybackParameters);
+    listeners.flushEvents();
+    PendingResult<MediaChannelResult> pendingResult =
+        remoteMediaClient.setPlaybackRate(actualPlaybackParameters.speed, /* customData= */ null);
+    this.playbackParameters.pendingResultCallback =
+        new ResultCallback<MediaChannelResult>() {
+          @Override
+          public void onResult(MediaChannelResult mediaChannelResult) {
+            if (remoteMediaClient != null) {
+              updatePlaybackRateAndNotifyIfChanged(this);
+              listeners.flushEvents();
+            }
+          }
+        };
+    pendingResult.setResultCallback(this.playbackParameters.pendingResultCallback);
   }
 
   @Override
@@ -771,6 +798,7 @@ public final class CastPlayer extends BasePlayer {
           Player.EVENT_IS_PLAYING_CHANGED, listener -> listener.onIsPlayingChanged(isPlaying));
     }
     updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
+    updatePlaybackRateAndNotifyIfChanged(/* resultCallback= */ null);
     boolean playingPeriodChangedByTimelineChange = updateTimelineAndNotifyIfChanged();
     Timeline currentTimeline = getCurrentTimeline();
     currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
@@ -854,6 +882,22 @@ public final class CastPlayer extends BasePlayer {
     // We do not mask the playback state, so try setting it regardless of the playWhenReady masking.
     setPlayerStateAndNotifyIfChanged(
         newPlayWhenReadyValue, playWhenReadyChangeReason, fetchPlaybackState(remoteMediaClient));
+  }
+
+  @RequiresNonNull("remoteMediaClient")
+  private void updatePlaybackRateAndNotifyIfChanged(@Nullable ResultCallback<?> resultCallback) {
+    if (playbackParameters.acceptsUpdate(resultCallback)) {
+      @Nullable MediaStatus mediaStatus = remoteMediaClient.getMediaStatus();
+      float speed =
+          mediaStatus != null
+              ? (float) mediaStatus.getPlaybackRate()
+              : PlaybackParameters.DEFAULT.speed;
+      if (speed > 0.0f) {
+        // Set the speed if not paused.
+        setPlaybackParametersAndNotifyIfChanged(new PlaybackParameters(speed));
+      }
+      playbackParameters.clearPendingResultCallback();
+    }
   }
 
   @RequiresNonNull("remoteMediaClient")
@@ -1113,6 +1157,17 @@ public final class CastPlayer extends BasePlayer {
           Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
       updateAvailableCommandsAndNotifyIfChanged();
     }
+  }
+
+  private void setPlaybackParametersAndNotifyIfChanged(PlaybackParameters playbackParameters) {
+    if (this.playbackParameters.value.equals(playbackParameters)) {
+      return;
+    }
+    this.playbackParameters.value = playbackParameters;
+    listeners.queueEvent(
+        Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
+        listener -> listener.onPlaybackParametersChanged(playbackParameters));
+    updateAvailableCommandsAndNotifyIfChanged();
   }
 
   @SuppressWarnings("deprecation")

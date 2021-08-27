@@ -48,6 +48,10 @@
         `DefaultHttpDataSource.Factory` instead.
     *   Remove `GvrAudioProcessor` and the GVR extension, which has been
         deprecated since 2.11.0.
+*   Cast extension:
+    *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
+        support setting the playback speed
+        ([#6784](https://github.com/google/ExoPlayer/issues/6784)).
 
 ### 2.15.0 (2021-08-10)
 
