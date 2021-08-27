@@ -175,8 +175,15 @@ import java.nio.ByteBuffer;
     if (decoder.isEnded()) {
       return false;
     }
+
     // Rendering the decoder output queues input to the encoder because they share the same surface.
-    return decoder.maybeDequeueRenderAndReleaseOutputBuffer();
+    boolean hasProcessedOutputBuffer = decoder.maybeDequeueRenderAndReleaseOutputBuffer();
+    if (decoder.isEnded()) {
+      checkNotNull(encoder).signalEndOfInputStream();
+      // All decoded frames have been rendered to the encoder's input surface.
+      return false;
+    }
+    return hasProcessedOutputBuffer;
   }
 
   private boolean feedMuxerFromEncoder() {
@@ -190,10 +197,7 @@ import java.nio.ByteBuffer;
       muxerWrapper.addTrackFormat(encoderOutputFormat);
     }
 
-    // TODO(claincly) May have to use inputStreamBuffer.isEndOfStream result to call
-    // decoder.signalEndOfInputStream().
-    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
-    if (decoder.isEnded()) {
+    if (encoder.isEnded()) {
       muxerWrapper.endTrack(getTrackType());
       muxerWrapperTrackEnded = true;
       return false;

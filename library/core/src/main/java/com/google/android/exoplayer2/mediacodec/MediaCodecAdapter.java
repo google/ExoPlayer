@@ -242,4 +242,13 @@ public interface MediaCodecAdapter {
 
   /** Whether the adapter needs to be reconfigured before it is used. */
   boolean needsReconfiguration();
+
+  /**
+   * Signals the encoder of end-of-stream on input. The call can only be used when the encoder
+   * receives its input from a {@link Surface surface}.
+   *
+   * @see MediaCodec#signalEndOfInputStream()
+   */
+  @RequiresApi(18)
+  void signalEndOfInputStream();
 }

@@ -311,6 +311,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputBuffer.data = null;
   }
 
+  @RequiresApi(18)
+  public void signalEndOfInputStream() {
+    codec.signalEndOfInputStream();
+  }
+
   /** Returns the current output format, if available. */
   @Nullable
   public Format getOutputFormat() {

@@ -200,6 +200,12 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   }
 
   @Override
+  @RequiresApi(18)
+  public void signalEndOfInputStream() {
+    Api18.signalEndOfInputStream(codec);
+  }
+
+  @Override
   @RequiresApi(23)
   public void setOnFrameRenderedListener(OnFrameRenderedListener listener, Handler handler) {
     codec.setOnFrameRenderedListener(
@@ -231,6 +237,11 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
     @DoNotInline
     public static Surface createCodecInputSurface(MediaCodec codec) {
       return codec.createInputSurface();
+    }
+
+    @DoNotInline
+    public static void signalEndOfInputStream(MediaCodec codec) {
+      codec.signalEndOfInputStream();
     }
   }
 }

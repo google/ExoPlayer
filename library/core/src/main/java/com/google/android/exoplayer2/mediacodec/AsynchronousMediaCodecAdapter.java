@@ -303,6 +303,11 @@ import java.nio.ByteBuffer;
     codec.setVideoScalingMode(scalingMode);
   }
 
+  @Override
+  public void signalEndOfInputStream() {
+    codec.signalEndOfInputStream();
+  }
+
   @VisibleForTesting
   /* package */ void onError(MediaCodec.CodecException error) {
     asynchronousMediaCodecCallback.onError(codec, error);

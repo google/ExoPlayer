@@ -268,6 +268,12 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
       delegate.setVideoScalingMode(scalingMode);
     }
 
+    @RequiresApi(18)
+    @Override
+    public void signalEndOfInputStream() {
+      delegate.signalEndOfInputStream();
+    }
+
     // Dumpable implementation
 
     @Override
