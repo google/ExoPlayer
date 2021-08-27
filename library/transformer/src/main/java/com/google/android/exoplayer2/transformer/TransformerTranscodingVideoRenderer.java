@@ -69,14 +69,12 @@ import java.nio.ByteBuffer;
       return;
     }
 
-    if (!ensureDecoderConfigured()) {
+    if (!ensureEncoderConfigured() || !ensureDecoderConfigured()) {
       return;
     }
 
-    if (ensureEncoderConfigured()) {
-      while (feedMuxerFromEncoder()) {}
-      while (feedEncoderFromDecoder()) {}
-    }
+    while (feedMuxerFromEncoder()) {}
+    while (feedEncoderFromDecoder()) {}
     while (feedDecoderFromInput()) {}
   }
 
