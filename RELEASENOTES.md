@@ -12,6 +12,10 @@
     *   Request smaller decoder input buffers for Dolby Vision. This fixes an
         issue that could cause UHD Dolby Vision playbacks to fail on some
         devices, including Amazon Fire TV 4K.
+*   Cast extension:
+    *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
+        support setting the playback speed
+        ([#6784](https://github.com/google/ExoPlayer/issues/6784)).
 
 ### 2.15.0 (2021-08-10)
 
