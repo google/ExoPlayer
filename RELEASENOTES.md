@@ -11,6 +11,8 @@
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
     *   Fix track selection in `StyledPlayerControlView` when using
         `ForwardingPlayer`.
+    *   Remove `ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED`. Use
+        `GlUtil.glAssertionsEnabled` instead.
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
