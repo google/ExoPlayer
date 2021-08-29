@@ -86,7 +86,8 @@ import com.google.common.collect.ImmutableList;
       }
 
       if (uri == null
-          || uri.getScheme() == null // Checks if the URI is a URL.
+          || (uri.getScheme() == null // Checks if the URI is a URL and
+              && !uri.toString().matches(RtspResponse.RTP_INFO_URL_TEST)) // URI is not a quirky one
           || (sequenceNumber == C.INDEX_UNSET && rtpTime == C.TIME_UNSET)) {
         throw ParserException.createForMalformedManifest(perTrackTimingString, /* cause= */ null);
       }

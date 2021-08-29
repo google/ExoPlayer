@@ -26,6 +26,9 @@ package com.google.android.exoplayer2.source.rtsp;
   /** The body of this RTSP message, or empty string if absent. */
   public final String messageBody;
 
+  /** Regex test to match the quirky RTP-Info url responses */
+  public static final String RTP_INFO_URL_TEST = "^(?i)track(id=)?\\d+$";
+
   /**
    * Creates a new instance.
    *

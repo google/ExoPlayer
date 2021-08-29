@@ -506,7 +506,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // Validate that the trackTimingList contains timings for the selected tracks.
       ArrayList<String> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
       for (int i = 0; i < trackTimingList.size(); i++) {
-        trackUrisWithTiming.add(checkNotNull(trackTimingList.get(i).uri.getPath()));
+        String uriPath = trackTimingList.get(i).uri.getPath();
+        // Skip URIs that match trackID=\d+
+        if (!uriPath.matches(RtspResponse.RTP_INFO_URL_TEST)) {
+          trackUrisWithTiming.add(checkNotNull(uriPath));
+        }
       }
       for (int i = 0; i < selectedLoadInfos.size(); i++) {
         RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
