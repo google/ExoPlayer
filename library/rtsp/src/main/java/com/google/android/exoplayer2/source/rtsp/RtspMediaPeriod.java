@@ -512,13 +512,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           trackUrisWithTiming.add(checkNotNull(uriPath));
         }
       }
-      for (int i = 0; i < selectedLoadInfos.size(); i++) {
-        RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
-        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri().getPath())) {
-          playbackException =
-              new RtspPlaybackException(
-                  "Server did not provide timing for track " + loadInfo.getTrackUri());
-          return;
+      if (trackUrisWithTiming.size() > 0) {
+        for (int i = 0; i < selectedLoadInfos.size(); i++) {
+          RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
+          if (!trackUrisWithTiming.contains(loadInfo.getTrackUri().getPath())) {
+            playbackException =
+                    new RtspPlaybackException(
+                            "Server did not provide timing for track " + loadInfo.getTrackUri());
+            return;
+          }
         }
       }
 
