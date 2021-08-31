@@ -333,7 +333,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Returns the {@link BufferInfo} associated with the current output buffer, if available. */
   @Nullable
   public BufferInfo getOutputBufferInfo() {
-    return maybeDequeueAndSetOutputBuffer() ? outputBufferInfo : null;
+    return maybeDequeueOutputBuffer() ? outputBufferInfo : null;
   }
 
   /**
