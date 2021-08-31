@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueEncoder;
@@ -117,6 +118,8 @@ public class SubtitleExtractor implements Extractor {
     checkState(state == STATE_CREATED);
     extractorOutput = output;
     trackOutput = extractorOutput.track(/* id= */ 0, C.TRACK_TYPE_TEXT);
+    extractorOutput.endTracks();
+    extractorOutput.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
     trackOutput.format(format);
     state = STATE_INITIALIZED;
   }
