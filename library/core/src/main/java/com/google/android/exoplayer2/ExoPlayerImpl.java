@@ -947,12 +947,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return new TrackSelectionArray(playbackInfo.trackSelectorResult.selections);
   }
 
-  @Deprecated
-  @Override
-  public List<Metadata> getCurrentStaticMetadata() {
-    return playbackInfo.staticMetadata;
-  }
-
   @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     return trackSelector.getParameters();
@@ -1275,11 +1269,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
-    }
-    if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
-      listeners.queueEvent(
-          Player.EVENT_STATIC_METADATA_CHANGED,
-          listener -> listener.onStaticMetadataChanged(newPlaybackInfo.staticMetadata));
     }
     if (metadataChanged) {
       final MediaMetadata finalMediaMetadata = mediaMetadata;

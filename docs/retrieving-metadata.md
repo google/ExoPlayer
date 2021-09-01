@@ -22,10 +22,10 @@ public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
 {: .language-java}
 
 If an application needs access to specific [`Metadata.Entry`][] objects, then it
-should listen for `Player#onStaticMetadataChanged` (for static metadata from the
-`Format`s) and/or add a `MetadataOutput` (for dynamic metadata delivered during
-playback) to the player. The return values of these callbacks are used to
-populate the `MediaMetadata`.
+should add a `MetadataOutput` (for dynamic metadata delivered during
+playback) to the player. Alternatively, if there is a need to look at static
+metadata, this can be accessed through the `TrackSelections#getFormat`. Both of
+these options are used to populate the `Player#getMediaMetadata`.
 
 ## Without playback ##
 

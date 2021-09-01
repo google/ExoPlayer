@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
-import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -460,12 +459,6 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Deprecated
-  @Override
-  public List<Metadata> getCurrentStaticMetadata() {
     throw new UnsupportedOperationException();
   }
 

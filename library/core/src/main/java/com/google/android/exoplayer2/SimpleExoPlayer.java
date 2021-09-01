@@ -1462,13 +1462,6 @@ public class SimpleExoPlayer extends BasePlayer
     player.setTrackSelectionParameters(parameters);
   }
 
-  @Deprecated
-  @Override
-  public List<Metadata> getCurrentStaticMetadata() {
-    verifyApplicationThread();
-    return player.getCurrentStaticMetadata();
-  }
-
   @Override
   public MediaMetadata getMediaMetadata() {
     return player.getMediaMetadata();

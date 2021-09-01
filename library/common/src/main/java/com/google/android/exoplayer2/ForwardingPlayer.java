@@ -382,12 +382,6 @@ public class ForwardingPlayer implements Player {
     player.setTrackSelectionParameters(parameters);
   }
 
-  @Deprecated
-  @Override
-  public List<Metadata> getCurrentStaticMetadata() {
-    return player.getCurrentStaticMetadata();
-  }
-
   @Override
   public MediaMetadata getMediaMetadata() {
     return player.getMediaMetadata();
@@ -661,12 +655,6 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
       eventListener.onTracksChanged(trackGroups, trackSelections);
-    }
-
-    @Deprecated
-    @Override
-    public void onStaticMetadataChanged(List<Metadata> metadataList) {
-      eventListener.onStaticMetadataChanged(metadataList);
     }
 
     @Override

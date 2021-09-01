@@ -58,7 +58,6 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 /**
  * A listener for analytics events.
@@ -159,7 +158,6 @@ public interface AnalyticsListener {
     EVENT_TIMELINE_CHANGED,
     EVENT_MEDIA_ITEM_TRANSITION,
     EVENT_TRACKS_CHANGED,
-    EVENT_STATIC_METADATA_CHANGED,
     EVENT_IS_LOADING_CHANGED,
     EVENT_PLAYBACK_STATE_CHANGED,
     EVENT_PLAY_WHEN_READY_CHANGED,
@@ -226,8 +224,6 @@ public interface AnalyticsListener {
    * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
    */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
-  /** @deprecated See {@link Player#EVENT_MEDIA_METADATA_CHANGED}. */
-  @Deprecated int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
   /** {@link Player#getPlaybackState()} changed. */
@@ -681,14 +677,6 @@ public interface AnalyticsListener {
    */
   default void onTracksChanged(
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
-
-  /**
-   * @deprecated Use {@link Player#getMediaMetadata()} and {@link #onMediaMetadataChanged(EventTime,
-   *     MediaMetadata)} for access to structured metadata, or access the raw static metadata
-   *     directly from the {@link TrackSelection#getFormat(int) track selections' formats}.
-   */
-  @Deprecated
-  default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
 
   /**
    * Called when the combined {@link MediaMetadata} changes.

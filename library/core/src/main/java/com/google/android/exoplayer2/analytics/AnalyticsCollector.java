@@ -602,16 +602,6 @@ public class AnalyticsCollector
         listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
   }
 
-  @Deprecated
-  @Override
-  public final void onStaticMetadataChanged(List<Metadata> metadataList) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_STATIC_METADATA_CHANGED,
-        listener -> listener.onStaticMetadataChanged(eventTime, metadataList));
-  }
-
   @SuppressWarnings("deprecation") // Calling deprecated listener method.
   @Override
   public final void onIsLoadingChanged(boolean isLoading) {

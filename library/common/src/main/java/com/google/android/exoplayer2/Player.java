@@ -127,15 +127,6 @@ public interface Player {
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
-     * @deprecated Use {@link Player#getMediaMetadata()} and {@link
-     *     #onMediaMetadataChanged(MediaMetadata)} for access to structured metadata, or access the
-     *     raw static metadata directly from the {@link TrackSelection#getFormat(int) track
-     *     selections' formats}.
-     */
-    @Deprecated
-    default void onStaticMetadataChanged(List<Metadata> metadataList) {}
-
-    /**
      * Called when the combined {@link MediaMetadata} changes.
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
@@ -1263,7 +1254,6 @@ public interface Player {
     EVENT_TIMELINE_CHANGED,
     EVENT_MEDIA_ITEM_TRANSITION,
     EVENT_TRACKS_CHANGED,
-    EVENT_STATIC_METADATA_CHANGED,
     EVENT_IS_LOADING_CHANGED,
     EVENT_PLAYBACK_STATE_CHANGED,
     EVENT_PLAY_WHEN_READY_CHANGED,
@@ -1289,45 +1279,43 @@ public interface Player {
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
   /** {@link #getCurrentTrackGroups()} or {@link #getCurrentTrackSelections()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
-  /** @deprecated Use {@link #EVENT_MEDIA_METADATA_CHANGED} for structured metadata changes. */
-  @Deprecated int EVENT_STATIC_METADATA_CHANGED = 3;
   /** {@link #isLoading()} ()} changed. */
-  int EVENT_IS_LOADING_CHANGED = 4;
+  int EVENT_IS_LOADING_CHANGED = 3;
   /** {@link #getPlaybackState()} changed. */
-  int EVENT_PLAYBACK_STATE_CHANGED = 5;
+  int EVENT_PLAYBACK_STATE_CHANGED = 4;
   /** {@link #getPlayWhenReady()} changed. */
-  int EVENT_PLAY_WHEN_READY_CHANGED = 6;
+  int EVENT_PLAY_WHEN_READY_CHANGED = 5;
   /** {@link #getPlaybackSuppressionReason()} changed. */
-  int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = 7;
+  int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = 6;
   /** {@link #isPlaying()} changed. */
-  int EVENT_IS_PLAYING_CHANGED = 8;
+  int EVENT_IS_PLAYING_CHANGED = 7;
   /** {@link #getRepeatMode()} changed. */
-  int EVENT_REPEAT_MODE_CHANGED = 9;
+  int EVENT_REPEAT_MODE_CHANGED = 8;
   /** {@link #getShuffleModeEnabled()} changed. */
-  int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = 10;
+  int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = 9;
   /** {@link #getPlayerError()} changed. */
-  int EVENT_PLAYER_ERROR = 11;
+  int EVENT_PLAYER_ERROR = 10;
   /**
    * A position discontinuity occurred. See {@link Listener#onPositionDiscontinuity(PositionInfo,
    * PositionInfo, int)}.
    */
-  int EVENT_POSITION_DISCONTINUITY = 12;
+  int EVENT_POSITION_DISCONTINUITY = 11;
   /** {@link #getPlaybackParameters()} changed. */
-  int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;
+  int EVENT_PLAYBACK_PARAMETERS_CHANGED = 12;
   /** {@link #isCommandAvailable(int)} changed for at least one {@link Command}. */
-  int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
+  int EVENT_AVAILABLE_COMMANDS_CHANGED = 13;
   /** {@link #getMediaMetadata()} changed. */
-  int EVENT_MEDIA_METADATA_CHANGED = 15;
+  int EVENT_MEDIA_METADATA_CHANGED = 14;
   /** {@link #getPlaylistMetadata()} changed. */
-  int EVENT_PLAYLIST_METADATA_CHANGED = 16;
+  int EVENT_PLAYLIST_METADATA_CHANGED = 15;
   /** {@link #getSeekBackIncrement()} changed. */
-  int EVENT_SEEK_BACK_INCREMENT_CHANGED = 17;
+  int EVENT_SEEK_BACK_INCREMENT_CHANGED = 16;
   /** {@link #getSeekForwardIncrement()} changed. */
-  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 18;
+  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 17;
   /** {@link #getMaxSeekToPreviousPosition()} changed. */
-  int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 19;
+  int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 18;
   /** {@link #getTrackSelectionParameters()} changed. */
-  int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = 20;
+  int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = 19;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
@@ -2032,15 +2020,6 @@ public interface Player {
    * }</pre>
    */
   void setTrackSelectionParameters(TrackSelectionParameters parameters);
-
-  /**
-   * @deprecated Use {@link #getMediaMetadata()} and {@link
-   *     Listener#onMediaMetadataChanged(MediaMetadata)} for access to structured metadata, or
-   *     access the raw static metadata directly from the {@link TrackSelection#getFormat(int) track
-   *     selections' formats}.
-   */
-  @Deprecated
-  List<Metadata> getCurrentStaticMetadata();
 
   /**
    * Returns the current combined {@link MediaMetadata}, or {@link MediaMetadata#EMPTY} if not

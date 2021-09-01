@@ -54,6 +54,13 @@
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
         ([#6784](https://github.com/google/ExoPlayer/issues/6784)).
+    *   Remove `Player.getCurrentStaticMetadata`,
+        `Player.Listener.onStaticMetadataChanged` and
+        `Player.EVENT_STATIC_METADATA_CHANGED`. Use `Player.getMediaMetadata`,
+        `Player.Listener.onMediaMetadataChanged` and
+        `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
+        structured metadata, or access the raw static metadata directly from
+        the `TrackSelection#getFormat()`.
 
 ### 2.15.0 (2021-08-10)
 

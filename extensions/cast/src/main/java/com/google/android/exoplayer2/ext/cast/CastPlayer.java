@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -577,13 +576,6 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void setTrackSelectionParameters(TrackSelectionParameters parameters) {}
-
-  @Deprecated
-  @Override
-  public ImmutableList<Metadata> getCurrentStaticMetadata() {
-    // CastPlayer does not currently support metadata.
-    return ImmutableList.of();
-  }
 
   @Override
   public MediaMetadata getMediaMetadata() {
