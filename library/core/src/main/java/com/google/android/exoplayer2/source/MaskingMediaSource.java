@@ -140,11 +140,6 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
-      if (unpreparedMaskingMediaPeriod != null) {
-        // Reset override in case the duration changed and we need to update our override.
-        setPreparePositionOverrideToUnpreparedMaskingPeriod(
-            unpreparedMaskingMediaPeriod.getPreparePositionOverrideUs());
-      }
     } else if (newTimeline.isEmpty()) {
       timeline =
           hasRealTimeline
