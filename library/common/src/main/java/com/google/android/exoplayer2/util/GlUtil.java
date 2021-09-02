@@ -31,6 +31,8 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -433,6 +435,24 @@ public final class GlUtil {
   public static FloatBuffer createBuffer(int capacity) {
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(capacity * C.BYTES_PER_FLOAT);
     return byteBuffer.order(ByteOrder.nativeOrder()).asFloatBuffer();
+  }
+
+  /**
+   * Loads a file from the assets folder.
+   *
+   * @param context The {@link Context}.
+   * @param assetPath The path to the file to load, from the assets folder.
+   * @return The content of the file to load.
+   * @throws IOException If the file couldn't be read.
+   */
+  public static String loadAsset(Context context, String assetPath) throws IOException {
+    @Nullable InputStream inputStream = null;
+    try {
+      inputStream = context.getAssets().open(assetPath);
+      return Util.fromUtf8Bytes(Util.toByteArray(inputStream));
+    } finally {
+      Util.closeQuietly(inputStream);
+    }
   }
 
   /**
