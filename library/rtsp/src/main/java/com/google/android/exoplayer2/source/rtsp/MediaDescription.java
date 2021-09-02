@@ -43,7 +43,7 @@ import java.util.HashMap;
 
     /** Parses the RTPMAP attribute value (with the part "a=rtpmap:" removed). */
     public static RtpMapAttribute parse(String rtpmapString) throws ParserException {
-      String[] rtpmapInfo = Util.split(rtpmapString, " ");
+      String[] rtpmapInfo = rtpmapString.split(" ");
       checkArgument(rtpmapInfo.length == 2);
       int payloadType = parseInt(rtpmapInfo[0]);
 

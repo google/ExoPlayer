@@ -100,7 +100,7 @@ import com.google.common.collect.ImmutableMap;
     String rtpmapAttribute = castNonNull(mediaDescription.attributes.get(ATTR_RTPMAP));
 
     // rtpmap string format: RFC2327 Page 22.
-    String[] rtpmap = Util.split(rtpmapAttribute, " ");
+    String[] rtpmap = rtpmapAttribute.split(" ");
     checkArgument(rtpmap.length == 2);
     int rtpPayloadType = mediaDescription.rtpMapAttribute.payloadType;
 

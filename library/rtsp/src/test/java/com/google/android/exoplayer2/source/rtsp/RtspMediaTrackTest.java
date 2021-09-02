@@ -334,6 +334,33 @@ public class RtspMediaTrackTest {
         () -> RtspMediaTrack.generatePayloadFormat(mediaDescription));
   }
 
+  @Test
+  public void generatePayloadFormat_withAc3MediaDescriptionWithRtpMapTrailingSpace_succeeds() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(
+            MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 97)
+            .setConnection("IN IP4 0.0.0.0")
+            .setBitrate(48_000)
+            .addAttribute(ATTR_RTPMAP, "97 AC3/48000 ")
+            .addAttribute(ATTR_CONTROL, "track2")
+            .build();
+
+    RtpPayloadFormat format = RtspMediaTrack.generatePayloadFormat(mediaDescription);
+    RtpPayloadFormat expectedFormat =
+        new RtpPayloadFormat(
+            new Format.Builder()
+                .setSampleMimeType(MimeTypes.AUDIO_AC3)
+                .setChannelCount(6)
+                .setSampleRate(48000)
+                .setAverageBitrate(48_000)
+                .build(),
+            /* rtpPayloadType= */ 97,
+            /* clockRate= */ 48000,
+            /* fmtpParameters= */ ImmutableMap.of());
+
+    assertThat(format).isEqualTo(expectedFormat);
+  }
+
   private static MediaDescription createGenericMediaDescriptionWithControlAttribute(
       String controlAttribute) {
     return new MediaDescription.Builder(
