@@ -93,11 +93,15 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     if (inputBufferState != INPUT_BUFFER_QUEUED || availableOutputBuffers.isEmpty()) {
       return null;
     }
-    SingleEventSubtitle subtitle =
-        new SingleEventSubtitle(
-            inputBuffer.timeUs, cueDecoder.decode(checkNotNull(inputBuffer.data).array()));
     SubtitleOutputBuffer outputBuffer = availableOutputBuffers.removeFirst();
-    outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs=*/ 0);
+    if (inputBuffer.isEndOfStream()) {
+      outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+    } else {
+      SingleEventSubtitle subtitle =
+          new SingleEventSubtitle(
+              inputBuffer.timeUs, cueDecoder.decode(checkNotNull(inputBuffer.data).array()));
+      outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs=*/ 0);
+    }
     inputBuffer.clear();
     inputBufferState = INPUT_BUFFER_AVAILABLE;
     return outputBuffer;

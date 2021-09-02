@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,17 @@ public class ExoplayerCuesDecoderTest {
     assertThat(decoder.dequeueOutputBuffer()).isNull();
     outputBuffer.release();
     assertThat(decoder.dequeueOutputBuffer()).isNotNull();
+  }
+
+  @Test
+  public void dequeueOutputBuffer_queuedOnEndOfStreamInputBuffer_returnsEndOfStreamOutputBuffer()
+      throws Exception {
+    SubtitleInputBuffer inputBuffer = decoder.dequeueInputBuffer();
+    inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    decoder.queueInputBuffer(inputBuffer);
+    SubtitleOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
+
+    assertThat(outputBuffer.isEndOfStream()).isTrue();
   }
 
   @Test
