@@ -21,14 +21,18 @@ import android.content.Context;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.subtitle.SubtitleExtractor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -112,6 +116,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private long liveMaxOffsetMs;
   private float liveMinSpeed;
   private float liveMaxSpeed;
+  private boolean useProgressiveMediaSourceForSubtitles;
 
   /**
    * Creates a new instance.
@@ -164,6 +169,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     liveMaxOffsetMs = C.TIME_UNSET;
     liveMinSpeed = C.RATE_UNSET;
     liveMaxSpeed = C.RATE_UNSET;
+  }
+
+  /**
+   * Sets whether a {@link ProgressiveMediaSource} or {@link SingleSampleMediaSource} is constructed
+   * to handle {@link MediaItem.PlaybackProperties#subtitles}. Defaults to false (i.e. {@link
+   * SingleSampleMediaSource}.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param useProgressiveMediaSourceForSubtitles Indicates that {@link ProgressiveMediaSource}
+   *     should be used for subtitles instead of {@link SingleSampleMediaSource}.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory experimentalUseProgressiveMediaSourceForSubtitles(
+      boolean useProgressiveMediaSourceForSubtitles) {
+    this.useProgressiveMediaSourceForSubtitles = useProgressiveMediaSourceForSubtitles;
+    return this;
   }
 
   /**
@@ -370,14 +392,38 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     if (!subtitles.isEmpty()) {
       MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
       mediaSources[0] = mediaSource;
-      SingleSampleMediaSource.Factory singleSampleSourceFactory =
-          new SingleSampleMediaSource.Factory(dataSourceFactory)
-              .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       for (int i = 0; i < subtitles.size(); i++) {
-        mediaSources[i + 1] =
-            singleSampleSourceFactory.createMediaSource(
-                subtitles.get(i), /* durationUs= */ C.TIME_UNSET);
+        if (useProgressiveMediaSourceForSubtitles
+            && subtitles.get(i).mimeType.equals(MimeTypes.TEXT_VTT)) {
+          int index = i;
+          ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
+              new ProgressiveMediaSource.Factory(
+                  dataSourceFactory,
+                  () ->
+                      new Extractor[] {
+                        new SubtitleExtractor(
+                            new WebvttDecoder(),
+                            new Format.Builder()
+                                .setSampleMimeType(subtitles.get(index).mimeType)
+                                .setLanguage(subtitles.get(index).language)
+                                .setSelectionFlags(subtitles.get(index).selectionFlags)
+                                .setRoleFlags(subtitles.get(index).roleFlags)
+                                .setLabel(subtitles.get(index).label)
+                                .build())
+                      });
+          mediaSources[i + 1] =
+              progressiveMediaSourceFactory.createMediaSource(
+                  MediaItem.fromUri(subtitles.get(i).uri.toString()));
+        } else {
+          SingleSampleMediaSource.Factory singleSampleSourceFactory =
+              new SingleSampleMediaSource.Factory(dataSourceFactory)
+                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+          mediaSources[i + 1] =
+              singleSampleSourceFactory.createMediaSource(
+                  subtitles.get(i), /* durationUs= */ C.TIME_UNSET);
+        }
       }
+
       mediaSource = new MergingMediaSource(mediaSources);
     }
     return maybeWrapWithAdsMediaSource(mediaItem, maybeClipMediaSource(mediaItem, mediaSource));
