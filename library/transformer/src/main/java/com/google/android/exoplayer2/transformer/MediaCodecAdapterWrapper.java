@@ -343,8 +343,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * be available until the previous has been released.
    */
   public void releaseOutputBuffer() {
+    releaseOutputBuffer(/* render= */ false);
+  }
+
+  /**
+   * Releases the current output buffer. If the {@link MediaCodec} was configured with an output
+   * surface, setting {@code render} to {@code true} will first send the buffer to the output
+   * surface. The surface will release the buffer back to the codec once it is no longer
+   * used/displayed.
+   *
+   * <p>This should be called after the buffer has been processed. The next output buffer will not
+   * be available until the previous has been released.
+   */
+  public void releaseOutputBuffer(boolean render) {
     outputBuffer = null;
-    codec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
+    codec.releaseOutputBuffer(outputBufferIndex, render);
     outputBufferIndex = C.INDEX_UNSET;
   }
 
@@ -357,18 +370,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void release() {
     outputBuffer = null;
     codec.release();
-  }
-
-  /** Returns {@code true} if a buffer is successfully obtained, rendered and released. */
-  public boolean maybeDequeueRenderAndReleaseOutputBuffer() {
-    if (!maybeDequeueOutputBuffer()) {
-      return false;
-    }
-
-    codec.releaseOutputBuffer(outputBufferIndex, /* render= */ true);
-    outputBuffer = null;
-    outputBufferIndex = C.INDEX_UNSET;
-    return true;
   }
 
   /**

@@ -223,6 +223,9 @@ public final class GlUtil {
     }
   }
 
+  /** Represents an unset texture ID. */
+  public static final int TEXTURE_ID_UNSET = -1;
+
   /** Whether to throw a {@link GlException} in case of an OpenGL error. */
   public static boolean glAssertionsEnabled = false;
 
