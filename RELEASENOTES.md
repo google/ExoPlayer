@@ -13,6 +13,7 @@
         `ForwardingPlayer`.
     *   Remove `ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED`. Use
         `GlUtil.glAssertionsEnabled` instead.
+    *   Fix `FlagSet#equals` on API levels below 24.
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
