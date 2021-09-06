@@ -429,6 +429,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
     tracksEnded = true;
   }
 
+  @C.TrackType
   private static int toTrackTypeConstant(@Nullable String string) {
     if (string == null) {
       return C.TRACK_TYPE_UNKNOWN;

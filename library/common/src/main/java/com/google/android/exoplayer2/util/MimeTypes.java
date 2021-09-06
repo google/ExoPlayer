@@ -486,13 +486,14 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .TRACK_TYPE_*} constant corresponding to a specified MIME type, or
-   * {@link C#TRACK_TYPE_UNKNOWN} if it could not be determined.
+   * Returns the {@link C.TrackType track type} constant corresponding to a specified MIME type,
+   * which may be {@link C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    *
    * @param mimeType A MIME type.
-   * @return The corresponding {@link C}{@code .TRACK_TYPE_*}, or {@link C#TRACK_TYPE_UNKNOWN} if it
-   *     could not be determined.
+   * @return The corresponding {@link C.TrackType track type}, which may be {@link
+   *     C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    */
+  @C.TrackType
   public static int getTrackType(@Nullable String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
       return C.TRACK_TYPE_UNKNOWN;
@@ -559,9 +560,10 @@ public final class MimeTypes {
    * Equivalent to {@code getTrackType(getMediaMimeType(codec))}.
    *
    * @param codec An RFC 6381 codec string.
-   * @return The corresponding {@link C}{@code .TRACK_TYPE_*}, or {@link C#TRACK_TYPE_UNKNOWN} if it
-   *     could not be determined.
+   * @return The corresponding {@link C.TrackType track type}, which may be {@link
+   *     C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    */
+  @C.TrackType
   public static int getTrackTypeOfCodec(String codec) {
     return getTrackType(getMediaMimeType(codec));
   }

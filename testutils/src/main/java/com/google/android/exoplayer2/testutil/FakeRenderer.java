@@ -62,7 +62,7 @@ public class FakeRenderer extends BaseRenderer {
   public int positionResetCount;
   public int sampleBufferReadCount;
 
-  public FakeRenderer(int trackType) {
+  public FakeRenderer(@C.TrackType int trackType) {
     super(trackType);
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     lastSamplePositionUs = Long.MIN_VALUE;

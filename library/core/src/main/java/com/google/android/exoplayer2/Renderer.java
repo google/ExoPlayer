@@ -208,8 +208,9 @@ public interface Renderer extends PlayerMessage.Target {
    * Returns the track type that the renderer handles.
    *
    * @see ExoPlayer#getRendererType(int)
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   * @return The {@link C.TrackType track type}.
    */
+  @C.TrackType
   int getTrackType();
 
   /**

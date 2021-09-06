@@ -125,7 +125,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new HashSet<>(
               Arrays.asList(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_METADATA)));
 
-  private final int trackType;
+  @C.TrackType private final int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
@@ -135,7 +135,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
-  private final @HlsMediaSource.MetadataType int metadataType;
+  @HlsMediaSource.MetadataType private final int metadataType;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
   private final List<HlsMediaChunk> readOnlyMediaChunks;
@@ -185,7 +185,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private HlsMediaChunk sourceChunk;
 
   /**
-   * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
+   * @param trackType The {@link C.TrackType track type}.
    * @param callback A callback for the wrapper.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param overridingDrmInitData Overriding {@link DrmInitData}, keyed by protection scheme type
@@ -203,7 +203,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     events.
    */
   public HlsSampleStreamWrapper(
-      int trackType,
+      @C.TrackType int trackType,
       Callback callback,
       HlsChunkSource chunkSource,
       Map<String, DrmInitData> overridingDrmInitData,

@@ -376,7 +376,7 @@ public class DashManifestParser extends DefaultHandler
       long timeShiftBufferDepthMs)
       throws XmlPullParserException, IOException {
     int id = parseInt(xpp, "id", AdaptationSet.ID_UNSET);
-    int contentType = parseContentType(xpp);
+    @C.TrackType int contentType = parseContentType(xpp);
 
     String mimeType = xpp.getAttributeValue(null, "mimeType");
     String codecs = xpp.getAttributeValue(null, "codecs");
@@ -514,7 +514,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected AdaptationSet buildAdaptationSet(
       int id,
-      int contentType,
+      @C.TrackType int contentType,
       List<Representation> representations,
       List<Descriptor> accessibilityDescriptors,
       List<Descriptor> essentialProperties,
@@ -528,6 +528,7 @@ public class DashManifestParser extends DefaultHandler
         supplementalProperties);
   }
 
+  @C.TrackType
   protected int parseContentType(XmlPullParser xpp) {
     String contentType = xpp.getAttributeValue(null, "contentType");
     return TextUtils.isEmpty(contentType)
@@ -1676,7 +1677,8 @@ public class DashManifestParser extends DefaultHandler
    * @param secondType The second type.
    * @return The consistent type.
    */
-  private static int checkContentTypeConsistency(int firstType, int secondType) {
+  private static int checkContentTypeConsistency(
+      @C.TrackType int firstType, @C.TrackType int secondType) {
     if (firstType == C.TRACK_TYPE_UNKNOWN) {
       return secondType;
     } else if (secondType == C.TRACK_TYPE_UNKNOWN) {

@@ -1008,7 +1008,7 @@ public final class Format implements Bundleable {
       return this;
     }
 
-    int trackType = MimeTypes.getTrackType(sampleMimeType);
+    @C.TrackType int trackType = MimeTypes.getTrackType(sampleMimeType);
 
     // Use manifest value only.
     @Nullable String id = manifestFormat.id;

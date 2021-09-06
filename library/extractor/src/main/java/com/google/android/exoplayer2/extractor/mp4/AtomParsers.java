@@ -866,6 +866,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Returns the track type for a given handler value. */
+  @C.TrackType
   private static int getTrackTypeForHdlr(int hdlr) {
     if (hdlr == TYPE_soun) {
       return C.TRACK_TYPE_AUDIO;

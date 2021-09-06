@@ -1837,7 +1837,8 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
-  private void sendRendererMessage(int trackType, int messageType, @Nullable Object payload) {
+  private void sendRendererMessage(
+      @C.TrackType int trackType, int messageType, @Nullable Object payload) {
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == trackType) {
         player.createMessage(renderer).setType(messageType).setPayload(payload).send();

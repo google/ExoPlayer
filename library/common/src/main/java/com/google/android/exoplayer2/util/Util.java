@@ -1498,7 +1498,7 @@ public final class Util {
   }
 
   /** Returns the number of codec strings in {@code codecs} whose type matches {@code trackType}. */
-  public static int getCodecCountOfType(@Nullable String codecs, int trackType) {
+  public static int getCodecCountOfType(@Nullable String codecs, @C.TrackType int trackType) {
     String[] codecArray = splitCodecs(codecs);
     int count = 0;
     for (String codec : codecArray) {
@@ -2333,27 +2333,29 @@ public final class Util {
   }
 
   /**
-   * Returns a string representation of a {@code TRACK_TYPE_*} constant defined in {@link C}.
+   * Returns a string representation of a {@link C.TrackType}.
    *
-   * @param trackType A {@code TRACK_TYPE_*} constant,
+   * @param trackType A {@link C.TrackType} constant,
    * @return A string representation of this constant.
    */
-  public static String getTrackTypeString(int trackType) {
+  public static String getTrackTypeString(@C.TrackType int trackType) {
     switch (trackType) {
-      case C.TRACK_TYPE_AUDIO:
-        return "audio";
       case C.TRACK_TYPE_DEFAULT:
         return "default";
+      case C.TRACK_TYPE_AUDIO:
+        return "audio";
+      case C.TRACK_TYPE_VIDEO:
+        return "video";
+      case C.TRACK_TYPE_TEXT:
+        return "text";
+      case C.TRACK_TYPE_IMAGE:
+        return "image";
       case C.TRACK_TYPE_METADATA:
         return "metadata";
       case C.TRACK_TYPE_CAMERA_MOTION:
         return "camera motion";
       case C.TRACK_TYPE_NONE:
         return "none";
-      case C.TRACK_TYPE_TEXT:
-        return "text";
-      case C.TRACK_TYPE_VIDEO:
-        return "video";
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
     }

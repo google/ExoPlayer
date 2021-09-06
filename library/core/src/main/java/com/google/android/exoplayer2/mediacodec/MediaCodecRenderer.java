@@ -360,8 +360,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private int pendingOutputStreamOffsetCount;
 
   /**
-   * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
-   *     constants defined in {@link C}.
+   * @param trackType The {@link C.TrackType track type} that the renderer handles.
    * @param mediaCodecSelector A decoder selector.
    * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
    *     initialization fails. This may result in using a decoder that is less efficient or slower
@@ -371,7 +370,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
    */
   public MediaCodecRenderer(
-      int trackType,
+      @C.TrackType int trackType,
       MediaCodecAdapter.Factory codecAdapterFactory,
       MediaCodecSelector mediaCodecSelector,
       boolean enableDecoderFallback,

@@ -73,7 +73,7 @@ import java.nio.ByteBuffer;
      *     {@link MediaCodec}.
      */
     public Factory(
-        int trackType,
+        @C.TrackType int trackType,
         boolean forceQueueingSynchronizationWorkaround,
         boolean synchronizeCodecInteractionsWithQueueing) {
       this(
@@ -331,15 +331,15 @@ import java.nio.ByteBuffer;
     }
   }
 
-  private static String createCallbackThreadLabel(int trackType) {
+  private static String createCallbackThreadLabel(@C.TrackType int trackType) {
     return createThreadLabel(trackType, /* prefix= */ "ExoPlayer:MediaCodecAsyncAdapter:");
   }
 
-  private static String createQueueingThreadLabel(int trackType) {
+  private static String createQueueingThreadLabel(@C.TrackType int trackType) {
     return createThreadLabel(trackType, /* prefix= */ "ExoPlayer:MediaCodecQueueingThread:");
   }
 
-  private static String createThreadLabel(int trackType, String prefix) {
+  private static String createThreadLabel(@C.TrackType int trackType, String prefix) {
     StringBuilder labelBuilder = new StringBuilder(prefix);
     if (trackType == C.TRACK_TYPE_AUDIO) {
       labelBuilder.append("Audio");

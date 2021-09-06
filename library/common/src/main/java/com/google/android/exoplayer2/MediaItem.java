@@ -352,8 +352,8 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets a list of {@link C}{@code .TRACK_TYPE_*} constants for which to use a DRM session even
-     * when the tracks are in the clear.
+     * Sets a list of {@link C.TrackType track types} for which to use a DRM session even when the
+     * tracks are in the clear.
      *
      * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
      * C#TRACK_TYPE_AUDIO} the {@link #setDrmSessionForClearPeriods(boolean)} can be used.

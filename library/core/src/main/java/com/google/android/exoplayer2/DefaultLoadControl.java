@@ -84,6 +84,9 @@ public class DefaultLoadControl implements LoadControl {
   /** A default size in bytes for a camera motion buffer. */
   public static final int DEFAULT_CAMERA_MOTION_BUFFER_SIZE = 2 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
 
+  /** A default size in bytes for an image buffer. */
+  public static final int DEFAULT_IMAGE_BUFFER_SIZE = 2 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
   /** A default size in bytes for a muxed buffer (e.g. containing video, audio and text). */
   public static final int DEFAULT_MUXED_BUFFER_SIZE =
       DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
@@ -421,7 +424,7 @@ public class DefaultLoadControl implements LoadControl {
     }
   }
 
-  private static int getDefaultBufferSize(int trackType) {
+  private static int getDefaultBufferSize(@C.TrackType int trackType) {
     switch (trackType) {
       case C.TRACK_TYPE_DEFAULT:
         return DEFAULT_MUXED_BUFFER_SIZE;
@@ -435,8 +438,11 @@ public class DefaultLoadControl implements LoadControl {
         return DEFAULT_METADATA_BUFFER_SIZE;
       case C.TRACK_TYPE_CAMERA_MOTION:
         return DEFAULT_CAMERA_MOTION_BUFFER_SIZE;
+      case C.TRACK_TYPE_IMAGE:
+        return DEFAULT_IMAGE_BUFFER_SIZE;
       case C.TRACK_TYPE_NONE:
         return 0;
+      case C.TRACK_TYPE_UNKNOWN:
       default:
         throw new IllegalArgumentException();
     }

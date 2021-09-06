@@ -649,6 +649,29 @@ public final class C {
    */
   public static final int DATA_TYPE_CUSTOM_BASE = 10000;
 
+  /**
+   * Represents a type of media track. May be one of {@link #TRACK_TYPE_UNKNOWN}, {@link
+   * #TRACK_TYPE_DEFAULT}, {@link #TRACK_TYPE_AUDIO}, {@link #TRACK_TYPE_VIDEO}, {@link
+   * #TRACK_TYPE_TEXT}, {@link #TRACK_TYPE_IMAGE}, {@link #TRACK_TYPE_METADATA}, {@link
+   * #TRACK_TYPE_CAMERA_MOTION} or {@link #TRACK_TYPE_NONE}. May also be an app-defined value (see
+   * {@link #TRACK_TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        TRACK_TYPE_UNKNOWN,
+        TRACK_TYPE_DEFAULT,
+        TRACK_TYPE_AUDIO,
+        TRACK_TYPE_VIDEO,
+        TRACK_TYPE_TEXT,
+        TRACK_TYPE_IMAGE,
+        TRACK_TYPE_METADATA,
+        TRACK_TYPE_CAMERA_MOTION,
+        TRACK_TYPE_NONE,
+      })
+  public @interface TrackType {}
   /** A type constant for tracks of unknown type. */
   public static final int TRACK_TYPE_UNKNOWN = -1;
   /** A type constant for tracks of some default type, where the type itself is unknown. */
