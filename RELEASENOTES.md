@@ -5,6 +5,7 @@
 *   Core Library:
     *   Fix track selection in `StyledPlayerControlView` when using
         `ForwardingPlayer`.
+    *   Fix `FlagSet#equals` on API levels below 24.
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).

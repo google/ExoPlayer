@@ -211,11 +211,33 @@ public final class FlagSet {
       return false;
     }
     FlagSet that = (FlagSet) o;
-    return flags.equals(that.flags);
+    if (Util.SDK_INT < 24) {
+      // SparseBooleanArray.equals() is not implemented on API levels below 24.
+      if (size() != that.size()) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (get(i) != that.get(i)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return flags.equals(that.flags);
+    }
   }
 
   @Override
   public int hashCode() {
-    return flags.hashCode();
+    if (Util.SDK_INT < 24) {
+      // SparseBooleanArray.hashCode() is not implemented on API levels below 24.
+      int hashCode = size();
+      for (int i = 0; i < size(); i++) {
+        hashCode = 31 * hashCode + get(i);
+      }
+      return hashCode;
+    } else {
+      return flags.hashCode();
+    }
   }
 }
