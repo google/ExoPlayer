@@ -32,6 +32,7 @@ project.ext {
     // Keep this in sync with Google's internal Checker Framework version.
     checkerframeworkVersion = '3.5.0'
     checkerframeworkCompatVersion = '2.5.0'
+    errorProneVersion = '2.9.0'
     jsr305Version = '3.0.2'
     kotlinAnnotationsVersion = '1.5.20'
     androidxAnnotationVersion = '1.2.0'

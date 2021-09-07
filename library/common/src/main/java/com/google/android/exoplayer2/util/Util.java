@@ -38,6 +38,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -60,6 +62,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
@@ -1170,6 +1173,28 @@ public final class Util {
   }
 
   /**
+   * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
+   * C#TIME_UNSET} and {@link C#TIME_END_OF_SOURCE} values.
+   *
+   * @param timeUs The time in microseconds.
+   * @return The corresponding time in milliseconds.
+   */
+  public static long usToMs(long timeUs) {
+    return (timeUs == C.TIME_UNSET || timeUs == C.TIME_END_OF_SOURCE) ? timeUs : (timeUs / 1000);
+  }
+
+  /**
+   * Converts a time in milliseconds to the corresponding time in microseconds, preserving {@link
+   * C#TIME_UNSET} values and {@link C#TIME_END_OF_SOURCE} values.
+   *
+   * @param timeMs The time in milliseconds.
+   * @return The corresponding time in microseconds.
+   */
+  public static long msToUs(long timeMs) {
+    return (timeMs == C.TIME_UNSET || timeMs == C.TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to decode.
@@ -1756,6 +1781,19 @@ public final class Util {
   }
 
   /**
+   * Returns a newly generated audio session identifier, or {@link AudioManager#ERROR} if an error
+   * occurred in which case audio playback may fail.
+   *
+   * @see AudioManager#generateAudioSessionId()
+   */
+  @RequiresApi(21)
+  public static int generateAudioSessionIdV21(Context context) {
+    @Nullable
+    AudioManager audioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
+    return audioManager == null ? AudioManager.ERROR : audioManager.generateAudioSessionId();
+  }
+
+  /**
    * Derives a DRM {@link UUID} from {@code drmScheme}.
    *
    * @param drmScheme A UUID string, or {@code "widevine"}, {@code "playready"} or {@code
@@ -1776,6 +1814,41 @@ public final class Util {
         } catch (RuntimeException e) {
           return null;
         }
+    }
+  }
+
+  /**
+   * Returns a {@link PlaybackException.ErrorCode} value that corresponds to the provided {@link
+   * MediaDrm.ErrorCodes} value. Returns {@link PlaybackException#ERROR_CODE_DRM_SYSTEM_ERROR} if
+   * the provided error code isn't recognised.
+   */
+  @PlaybackException.ErrorCode
+  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
+    switch (mediaDrmErrorCode) {
+      case MediaDrm.ErrorCodes.ERROR_PROVISIONING_CONFIG:
+      case MediaDrm.ErrorCodes.ERROR_PROVISIONING_PARSE:
+      case MediaDrm.ErrorCodes.ERROR_PROVISIONING_REQUEST_REJECTED:
+      case MediaDrm.ErrorCodes.ERROR_PROVISIONING_CERTIFICATE:
+      case MediaDrm.ErrorCodes.ERROR_PROVISIONING_RETRY:
+        return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
+      case MediaDrm.ErrorCodes.ERROR_LICENSE_PARSE:
+      case MediaDrm.ErrorCodes.ERROR_LICENSE_RELEASE:
+      case MediaDrm.ErrorCodes.ERROR_LICENSE_REQUEST_REJECTED:
+      case MediaDrm.ErrorCodes.ERROR_LICENSE_RESTORE:
+      case MediaDrm.ErrorCodes.ERROR_LICENSE_STATE:
+      case MediaDrm.ErrorCodes.ERROR_CERTIFICATE_MALFORMED:
+        return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
+      case MediaDrm.ErrorCodes.ERROR_LICENSE_POLICY:
+      case MediaDrm.ErrorCodes.ERROR_INSUFFICIENT_OUTPUT_PROTECTION:
+      case MediaDrm.ErrorCodes.ERROR_INSUFFICIENT_SECURITY:
+      case MediaDrm.ErrorCodes.ERROR_KEY_EXPIRED:
+      case MediaDrm.ErrorCodes.ERROR_KEY_NOT_LOADED:
+        return PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION;
+      case MediaDrm.ErrorCodes.ERROR_INIT_DATA:
+      case MediaDrm.ErrorCodes.ERROR_FRAME_TOO_LARGE:
+        return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
+      default:
+        return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
     }
   }
 
@@ -2425,6 +2498,29 @@ public final class Util {
       return isNegative ? -errorCode : errorCode;
     } catch (NumberFormatException e) {
       return 0;
+    }
+  }
+
+  /**
+   * Returns string representation of a {@link C.FormatSupport} flag.
+   *
+   * @param formatSupport A {@link C.FormatSupport} flag.
+   * @return A string representation of the flag.
+   */
+  public static String getFormatSupportString(@C.FormatSupport int formatSupport) {
+    switch (formatSupport) {
+      case C.FORMAT_HANDLED:
+        return "YES";
+      case C.FORMAT_EXCEEDS_CAPABILITIES:
+        return "NO_EXCEEDS_CAPABILITIES";
+      case C.FORMAT_UNSUPPORTED_DRM:
+        return "NO_UNSUPPORTED_DRM";
+      case C.FORMAT_UNSUPPORTED_SUBTYPE:
+        return "NO_UNSUPPORTED_TYPE";
+      case C.FORMAT_UNSUPPORTED_TYPE:
+        return "NO";
+      default:
+        throw new IllegalStateException();
     }
   }
 

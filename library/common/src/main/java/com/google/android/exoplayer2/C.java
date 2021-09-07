@@ -24,10 +24,10 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1110,112 +1110,51 @@ public final class C {
    * audio MIME type.
    */
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
-  /**
-   * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
-   * #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
-   *
-   * @param timeUs The time in microseconds.
-   * @return The corresponding time in milliseconds.
-   */
+
+  /** @deprecated Use {@link Util#usToMs(long)}. */
+  @InlineMe(
+      replacement = "Util.usToMs(timeUs)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   public static long usToMs(long timeUs) {
-    return (timeUs == TIME_UNSET || timeUs == TIME_END_OF_SOURCE) ? timeUs : (timeUs / 1000);
+    return Util.usToMs(timeUs);
   }
 
-  /**
-   * Converts a time in milliseconds to the corresponding time in microseconds, preserving {@link
-   * #TIME_UNSET} values and {@link #TIME_END_OF_SOURCE} values.
-   *
-   * @param timeMs The time in milliseconds.
-   * @return The corresponding time in microseconds.
-   */
+  /** @deprecated Use {@link Util#msToUs(long)}. */
+  @InlineMe(
+      replacement = "Util.msToUs(timeMs)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   public static long msToUs(long timeMs) {
-    return (timeMs == TIME_UNSET || timeMs == TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
+    return Util.msToUs(timeMs);
   }
 
-  /**
-   * Returns a newly generated audio session identifier, or {@link AudioManager#ERROR} if an error
-   * occurred in which case audio playback may fail.
-   *
-   * @see AudioManager#generateAudioSessionId()
-   */
+  /** @deprecated Use {@link Util#generateAudioSessionIdV21(Context)}. */
+  @InlineMe(
+      replacement = "Util.generateAudioSessionIdV21(context)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   @RequiresApi(21)
   public static int generateAudioSessionIdV21(Context context) {
-    @Nullable
-    AudioManager audioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
-    return audioManager == null ? AudioManager.ERROR : audioManager.generateAudioSessionId();
+    return Util.generateAudioSessionIdV21(context);
   }
 
-  /**
-   * Returns string representation of a {@link FormatSupport} flag.
-   *
-   * @param formatSupport A {@link FormatSupport} flag.
-   * @return A string representation of the flag.
-   */
+  /** @deprecated Use {@link Util#getFormatSupportString(int)}. */
+  @InlineMe(
+      replacement = "Util.getFormatSupportString(formatSupport)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   public static String getFormatSupportString(@FormatSupport int formatSupport) {
-    switch (formatSupport) {
-      case FORMAT_HANDLED:
-        return "YES";
-      case FORMAT_EXCEEDS_CAPABILITIES:
-        return "NO_EXCEEDS_CAPABILITIES";
-      case FORMAT_UNSUPPORTED_DRM:
-        return "NO_UNSUPPORTED_DRM";
-      case FORMAT_UNSUPPORTED_SUBTYPE:
-        return "NO_UNSUPPORTED_TYPE";
-      case FORMAT_UNSUPPORTED_TYPE:
-        return "NO";
-      default:
-        throw new IllegalStateException();
-    }
+    return Util.getFormatSupportString(formatSupport);
   }
 
-  // Copy of relevant error codes defined in MediaDrm.ErrorCodes from API 31.
-  // TODO (internal b/192337376): Remove once ExoPlayer depends on SDK 31.
-  private static final int ERROR_KEY_EXPIRED = 2;
-  private static final int ERROR_INSUFFICIENT_OUTPUT_PROTECTION = 4;
-  private static final int ERROR_INSUFFICIENT_SECURITY = 7;
-  private static final int ERROR_FRAME_TOO_LARGE = 8;
-  private static final int ERROR_CERTIFICATE_MALFORMED = 10;
-  private static final int ERROR_INIT_DATA = 15;
-  private static final int ERROR_KEY_NOT_LOADED = 16;
-  private static final int ERROR_LICENSE_PARSE = 17;
-  private static final int ERROR_LICENSE_POLICY = 18;
-  private static final int ERROR_LICENSE_RELEASE = 19;
-  private static final int ERROR_LICENSE_REQUEST_REJECTED = 20;
-  private static final int ERROR_LICENSE_RESTORE = 21;
-  private static final int ERROR_LICENSE_STATE = 22;
-  private static final int ERROR_PROVISIONING_CERTIFICATE = 24;
-  private static final int ERROR_PROVISIONING_CONFIG = 25;
-  private static final int ERROR_PROVISIONING_PARSE = 26;
-  private static final int ERROR_PROVISIONING_REQUEST_REJECTED = 27;
-  private static final int ERROR_PROVISIONING_RETRY = 28;
-
+  /** @deprecated Use {@link Util#getErrorCodeForMediaDrmErrorCode(int)}. */
+  @InlineMe(
+      replacement = "Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   @PlaybackException.ErrorCode
   public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
-    switch (mediaDrmErrorCode) {
-      case ERROR_PROVISIONING_CONFIG:
-      case ERROR_PROVISIONING_PARSE:
-      case ERROR_PROVISIONING_REQUEST_REJECTED:
-      case ERROR_PROVISIONING_CERTIFICATE:
-      case ERROR_PROVISIONING_RETRY:
-        return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
-      case ERROR_LICENSE_PARSE:
-      case ERROR_LICENSE_RELEASE:
-      case ERROR_LICENSE_REQUEST_REJECTED:
-      case ERROR_LICENSE_RESTORE:
-      case ERROR_LICENSE_STATE:
-      case ERROR_CERTIFICATE_MALFORMED:
-        return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
-      case ERROR_LICENSE_POLICY:
-      case ERROR_INSUFFICIENT_OUTPUT_PROTECTION:
-      case ERROR_INSUFFICIENT_SECURITY:
-      case ERROR_KEY_EXPIRED:
-      case ERROR_KEY_NOT_LOADED:
-        return PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION;
-      case ERROR_INIT_DATA:
-      case ERROR_FRAME_TOO_LARGE:
-        return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
-      default:
-        return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    }
+    return Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode);
   }
 }
