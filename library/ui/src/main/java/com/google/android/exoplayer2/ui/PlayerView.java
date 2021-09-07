@@ -367,7 +367,11 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     boolean controllerHideDuringAds = true;
     int showBuffering = SHOW_BUFFERING_NEVER;
     if (attrs != null) {
-      TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayerView, 0, 0);
+      TypedArray a =
+          context
+              .getTheme()
+              .obtainStyledAttributes(
+                  attrs, R.styleable.PlayerView, defStyleAttr, /* defStyleRes= */ 0);
       try {
         shutterColorSet = a.hasValue(R.styleable.PlayerView_shutter_background_color);
         shutterColor = a.getColor(R.styleable.PlayerView_shutter_background_color, shutterColor);

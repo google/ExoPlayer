@@ -491,7 +491,11 @@ public class StyledPlayerControlView extends FrameLayout {
       TypedArray a =
           context
               .getTheme()
-              .obtainStyledAttributes(playbackAttrs, R.styleable.StyledPlayerControlView, 0, 0);
+              .obtainStyledAttributes(
+                  playbackAttrs,
+                  R.styleable.StyledPlayerControlView,
+                  defStyleAttr,
+                  /* defStyleRes= */ 0);
       try {
         controllerLayoutId =
             a.getResourceId(
@@ -576,8 +580,8 @@ public class StyledPlayerControlView extends FrameLayout {
     if (customTimeBar != null) {
       timeBar = customTimeBar;
     } else if (timeBarPlaceholder != null) {
-      // Propagate attrs as timebarAttrs so that DefaultTimeBar's custom attributes are transferred,
-      // but standard attributes (e.g. background) are not.
+      // Propagate playbackAttrs as timebarAttrs so that DefaultTimeBar's custom attributes are
+      // transferred, but standard attributes (e.g. background) are not.
       DefaultTimeBar defaultTimeBar =
           new DefaultTimeBar(context, null, 0, playbackAttrs, R.style.ExoStyledControls_TimeBar);
       defaultTimeBar.setId(R.id.exo_progress);

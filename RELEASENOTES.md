@@ -9,7 +9,7 @@
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
-*   Video
+*   Video:
     *   Request smaller decoder input buffers for Dolby Vision. This fixes an
         issue that could cause UHD Dolby Vision playbacks to fail on some
         devices, including Amazon Fire TV 4K.
@@ -18,6 +18,10 @@
         thrown from `Requirements.isInternetConnectivityValidated` on devices
         running Android 11
         ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
+*   UI:
+    *   Use `defStyleAttr` when obtaining styled attributes in
+        `StyledPlayerView`, `PlayerView` and `PlayerControlView`
+        ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
@@ -247,6 +251,11 @@
         ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
     *   Allow the timeout to be customised via
         `RtspMediaSource.Factory.setTimeoutMs`.
+*   Downloads and caching:
+    *   Workaround platform issue that can cause a `SecurityException` to be
+        thrown from `Requirements.isInternetConnectivityValidated` on devices
+        running Android 11
+        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
 
 ### 2.14.1 (2021-06-11)
 
