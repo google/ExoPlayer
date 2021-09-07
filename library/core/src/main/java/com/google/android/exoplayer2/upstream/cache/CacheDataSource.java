@@ -597,14 +597,14 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int length) throws IOException {
-    DataSpec requestDataSpec = checkNotNull(this.requestDataSpec);
-    DataSpec currentDataSpec = checkNotNull(this.currentDataSpec);
     if (length == 0) {
       return 0;
     }
     if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
+    DataSpec requestDataSpec = checkNotNull(this.requestDataSpec);
+    DataSpec currentDataSpec = checkNotNull(this.currentDataSpec);
     try {
       if (readPosition >= checkCachePosition) {
         openNextSource(requestDataSpec, true);

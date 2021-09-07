@@ -6,6 +6,9 @@
     *   Fix track selection in `StyledPlayerControlView` when using
         `ForwardingPlayer`.
     *   Fix `FlagSet#equals` on API levels below 24.
+    *   Fix `NullPointerException` being thrown from `CacheDataSource` when
+        reading a fully cached resource with `DataSpec.position` equal to the
+        resource length.
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
