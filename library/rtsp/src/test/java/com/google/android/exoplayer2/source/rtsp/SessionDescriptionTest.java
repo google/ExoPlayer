@@ -192,6 +192,25 @@ public class SessionDescriptionTest {
   }
 
   @Test
+  public void parse_sdpStringWithExtraSpaceInRtpMapAttribute_succeeds() throws Exception {
+    String testMediaSdpInfo =
+        "v=0\r\n"
+            + "o=MNobody 2890844526 2890842807 IN IP4 192.0.2.46\r\n"
+            + "s=SDP Seminar\r\n"
+            + "t=0 0\r\n"
+            + "a=control:*\r\n"
+            + "m=audio 3456 RTP/AVP 0\r\n"
+            + "a=rtpmap:97 AC3/44100  \r\n";
+
+    SessionDescription sessionDescription = SessionDescriptionParser.parse(testMediaSdpInfo);
+    MediaDescription.RtpMapAttribute rtpMapAttribute =
+        sessionDescription.mediaDescriptionList.get(0).rtpMapAttribute;
+    assertThat(rtpMapAttribute.payloadType).isEqualTo(97);
+    assertThat(rtpMapAttribute.mediaEncoding).isEqualTo("AC3");
+    assertThat(rtpMapAttribute.clockRate).isEqualTo(44100);
+  }
+
+  @Test
   public void buildMediaDescription_withInvalidRtpmapAttribute_throwsIllegalStateException() {
     assertThrows(
         IllegalStateException.class,

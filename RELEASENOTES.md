@@ -18,6 +18,9 @@
         thrown from `Requirements.isInternetConnectivityValidated` on devices
         running Android 11
         ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
+*   RTSP:
+    *   Handle when additional spaces are in SDP's RTPMAP atrribute
+        ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
 *   UI:
     *   Use `defStyleAttr` when obtaining styled attributes in
         `StyledPlayerView`, `PlayerView` and `PlayerControlView`
