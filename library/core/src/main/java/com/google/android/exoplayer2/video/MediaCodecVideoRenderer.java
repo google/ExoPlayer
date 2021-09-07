@@ -505,7 +505,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VIDEO_OUTPUT:
         setOutput(message);
@@ -532,6 +533,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           }
         }
         break;
+      case MSG_SET_AUDIO_ATTRIBUTES:
+      case MSG_SET_AUX_EFFECT_INFO:
+      case MSG_SET_CAMERA_MOTION_LISTENER:
+      case MSG_SET_SKIP_SILENCE_ENABLED:
+      case MSG_SET_VOLUME:
+      case MSG_SET_WAKEUP_LISTENER:
       default:
         super.handleMessage(messageType, message);
     }

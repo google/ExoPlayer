@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -616,7 +617,8 @@ public final class ActionSchedule {
         SimpleExoPlayer player, int messageType, @Nullable Object message);
 
     @Override
-    public final void handleMessage(int messageType, @Nullable Object message) {
+    public final void handleMessage(
+        @Renderer.MessageType int messageType, @Nullable Object message) {
       handleMessage(Assertions.checkStateNotNull(player), messageType, message);
       if (callback != null) {
         hasArrived = true;

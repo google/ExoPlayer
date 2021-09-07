@@ -571,7 +571,8 @@ public abstract class DecoderAudioRenderer<
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);
@@ -590,6 +591,12 @@ public abstract class DecoderAudioRenderer<
       case MSG_SET_AUDIO_SESSION_ID:
         audioSink.setAudioSessionId((Integer) message);
         break;
+      case MSG_SET_CAMERA_MOTION_LISTENER:
+      case MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
+      case MSG_SET_SCALING_MODE:
+      case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
+      case MSG_SET_VIDEO_OUTPUT:
+      case MSG_SET_WAKEUP_LISTENER:
       default:
         super.handleMessage(messageType, message);
         break;

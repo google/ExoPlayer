@@ -247,7 +247,8 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     if (messageType == MSG_SET_VIDEO_OUTPUT) {
       setOutput(message);
     } else if (messageType == MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {

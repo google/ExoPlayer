@@ -64,7 +64,8 @@ public final class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     if (messageType == MSG_SET_CAMERA_MOTION_LISTENER) {
       listener = (CameraMotionListener) message;
     } else {

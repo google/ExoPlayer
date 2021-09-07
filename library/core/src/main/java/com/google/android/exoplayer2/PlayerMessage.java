@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Renderer.MessageType;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import java.util.concurrent.TimeoutException;
@@ -39,7 +40,8 @@ public final class PlayerMessage {
      * @throws ExoPlaybackException If an error occurred whilst handling the message. Should only be
      *     thrown by targets that handle messages on the playback thread.
      */
-    void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException;
+    void handleMessage(@MessageType int messageType, @Nullable Object message)
+        throws ExoPlaybackException;
   }
 
   /** A sender for messages. */

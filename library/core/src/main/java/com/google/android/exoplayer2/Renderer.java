@@ -75,6 +75,33 @@ public interface Renderer extends PlayerMessage.Target {
   }
 
   /**
+   * Represents a type of message that can be passed to a renderer. May be one of {@link
+   * #MSG_SET_VIDEO_OUTPUT}, {@link #MSG_SET_VOLUME}, {@link #MSG_SET_AUDIO_ATTRIBUTES}, {@link
+   * #MSG_SET_SCALING_MODE}, {@link #MSG_SET_CHANGE_FRAME_RATE_STRATEGY}, {@link
+   * #MSG_SET_AUX_EFFECT_INFO}, {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER}, {@link
+   * #MSG_SET_CAMERA_MOTION_LISTENER}, {@link #MSG_SET_SKIP_SILENCE_ENABLED}, {@link
+   * #MSG_SET_AUDIO_SESSION_ID} or {@link #MSG_SET_WAKEUP_LISTENER}. May also be an app-defined
+   * value (see {@link #MSG_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        MSG_SET_VIDEO_OUTPUT,
+        MSG_SET_VOLUME,
+        MSG_SET_AUDIO_ATTRIBUTES,
+        MSG_SET_SCALING_MODE,
+        MSG_SET_CHANGE_FRAME_RATE_STRATEGY,
+        MSG_SET_AUX_EFFECT_INFO,
+        MSG_SET_VIDEO_FRAME_METADATA_LISTENER,
+        MSG_SET_CAMERA_MOTION_LISTENER,
+        MSG_SET_SKIP_SILENCE_ENABLED,
+        MSG_SET_AUDIO_SESSION_ID,
+        MSG_SET_WAKEUP_LISTENER
+      })
+  public @interface MessageType {}
+  /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload is normally a {@link Surface}, however
    * some video renderers may accept other outputs (e.g., {@link VideoDecoderOutputBufferRenderer}).

@@ -2573,7 +2573,7 @@ public final class ExoPlayerTest {
     Renderer videoRenderer =
         new FakeRenderer(C.TRACK_TYPE_VIDEO) {
           @Override
-          public void handleMessage(int messageType, @Nullable Object message)
+          public void handleMessage(@MessageType int messageType, @Nullable Object message)
               throws ExoPlaybackException {
             super.handleMessage(messageType, message);
             rendererMessages.add(messageType);
@@ -11093,7 +11093,7 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public void handleMessage(int messageType, @Nullable Object message)
+    public void handleMessage(@MessageType int messageType, @Nullable Object message)
         throws ExoPlaybackException {
       if (messageType == MSG_SET_WAKEUP_LISTENER) {
         assertThat(message).isNotNull();
@@ -11116,7 +11116,7 @@ public final class ExoPlayerTest {
     public int messageCount;
 
     @Override
-    public void handleMessage(int messageType, @Nullable Object message) {
+    public void handleMessage(@Renderer.MessageType int messageType, @Nullable Object message) {
       messageCount++;
     }
   }

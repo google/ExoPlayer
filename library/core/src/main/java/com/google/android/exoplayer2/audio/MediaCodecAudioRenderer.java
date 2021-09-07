@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -667,7 +672,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);
@@ -689,6 +695,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case MSG_SET_WAKEUP_LISTENER:
         this.wakeupListener = (WakeupListener) message;
         break;
+      case MSG_SET_CAMERA_MOTION_LISTENER:
+      case MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
+      case MSG_SET_SCALING_MODE:
+      case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
+      case MSG_SET_VIDEO_OUTPUT:
       default:
         super.handleMessage(messageType, message);
         break;

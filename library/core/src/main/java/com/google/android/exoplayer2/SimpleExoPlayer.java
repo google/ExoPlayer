@@ -45,6 +45,7 @@ import android.view.TextureView;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.Renderer.MessageType;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -2206,11 +2207,15 @@ public class SimpleExoPlayer extends BasePlayer
   private static final class FrameMetadataListener
       implements VideoFrameMetadataListener, CameraMotionListener, PlayerMessage.Target {
 
+    @MessageType
     public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER =
         Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
+
+    @MessageType
     public static final int MSG_SET_CAMERA_MOTION_LISTENER =
         Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
-    public static final int MSG_SET_SPHERICAL_SURFACE_VIEW = Renderer.MSG_CUSTOM_BASE;
+
+    @MessageType public static final int MSG_SET_SPHERICAL_SURFACE_VIEW = Renderer.MSG_CUSTOM_BASE;
 
     @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
     @Nullable private CameraMotionListener cameraMotionListener;
@@ -2218,7 +2223,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Nullable private CameraMotionListener internalCameraMotionListener;
 
     @Override
-    public void handleMessage(int messageType, @Nullable Object message) {
+    public void handleMessage(@MessageType int messageType, @Nullable Object message) {
       switch (messageType) {
         case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
           videoFrameMetadataListener = (VideoFrameMetadataListener) message;
@@ -2227,7 +2232,7 @@ public class SimpleExoPlayer extends BasePlayer
           cameraMotionListener = (CameraMotionListener) message;
           break;
         case MSG_SET_SPHERICAL_SURFACE_VIEW:
-          SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) message;
+          @Nullable SphericalGLSurfaceView surfaceView = (SphericalGLSurfaceView) message;
           if (surfaceView == null) {
             internalVideoFrameMetadataListener = null;
             internalCameraMotionListener = null;
@@ -2236,6 +2241,15 @@ public class SimpleExoPlayer extends BasePlayer
             internalCameraMotionListener = surfaceView.getCameraMotionListener();
           }
           break;
+        case Renderer.MSG_SET_AUDIO_ATTRIBUTES:
+        case Renderer.MSG_SET_AUDIO_SESSION_ID:
+        case Renderer.MSG_SET_AUX_EFFECT_INFO:
+        case Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
+        case Renderer.MSG_SET_SCALING_MODE:
+        case Renderer.MSG_SET_SKIP_SILENCE_ENABLED:
+        case Renderer.MSG_SET_VIDEO_OUTPUT:
+        case Renderer.MSG_SET_VOLUME:
+        case Renderer.MSG_SET_WAKEUP_LISTENER:
         default:
           break;
       }
