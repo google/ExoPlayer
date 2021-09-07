@@ -229,9 +229,9 @@ public interface MediaSourceEventListener {
     public void loadStarted(
         LoadEventInfo loadEventInfo,
         @DataType int dataType,
-        int trackType,
+        @C.TrackType int trackType,
         @Nullable Format trackFormat,
-        int trackSelectionReason,
+        @C.SelectionReason int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
         long mediaEndTimeUs) {
@@ -274,9 +274,9 @@ public interface MediaSourceEventListener {
     public void loadCompleted(
         LoadEventInfo loadEventInfo,
         @DataType int dataType,
-        int trackType,
+        @C.TrackType int trackType,
         @Nullable Format trackFormat,
-        int trackSelectionReason,
+        @C.SelectionReason int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
         long mediaEndTimeUs) {
@@ -320,9 +320,9 @@ public interface MediaSourceEventListener {
     public void loadCanceled(
         LoadEventInfo loadEventInfo,
         @DataType int dataType,
-        int trackType,
+        @C.TrackType int trackType,
         @Nullable Format trackFormat,
-        int trackSelectionReason,
+        @C.SelectionReason int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
         long mediaEndTimeUs) {
@@ -378,9 +378,9 @@ public interface MediaSourceEventListener {
     public void loadError(
         LoadEventInfo loadEventInfo,
         @DataType int dataType,
-        int trackType,
+        @C.TrackType int trackType,
         @Nullable Format trackFormat,
-        int trackSelectionReason,
+        @C.SelectionReason int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
         long mediaEndTimeUs,
@@ -445,9 +445,9 @@ public interface MediaSourceEventListener {
 
     /** Dispatches {@link #onDownstreamFormatChanged(int, MediaPeriodId, MediaLoadData)}. */
     public void downstreamFormatChanged(
-        int trackType,
+        @C.TrackType int trackType,
         @Nullable Format trackFormat,
-        int trackSelectionReason,
+        @C.SelectionReason int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaTimeUs) {
       downstreamFormatChanged(

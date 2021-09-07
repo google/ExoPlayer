@@ -609,7 +609,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       RepresentationHolder representationHolder,
       DataSource dataSource,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       Object trackSelectionData,
       @Nullable RangedUri initializationUri,
       RangedUri indexUri) {
@@ -644,9 +644,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
   protected Chunk newMediaChunk(
       RepresentationHolder representationHolder,
       DataSource dataSource,
-      int trackType,
+      @C.TrackType int trackType,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       Object trackSelectionData,
       long firstSegmentNum,
       int maxSegmentCount,

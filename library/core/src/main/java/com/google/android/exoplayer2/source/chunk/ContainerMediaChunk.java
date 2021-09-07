@@ -61,7 +61,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       DataSource dataSource,
       DataSpec dataSpec,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,

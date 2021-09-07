@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.DataType;
+import com.google.android.exoplayer2.C.SelectionReason;
 import com.google.android.exoplayer2.C.TrackType;
 import com.google.android.exoplayer2.Format;
 
@@ -37,8 +38,8 @@ public final class MediaLoadData {
    */
   @Nullable public final Format trackFormat;
   /**
-   * One of the {@link C} {@code SELECTION_REASON_*} constants if the data belongs to a track.
-   * {@link C#SELECTION_REASON_UNKNOWN} otherwise.
+   * One of the {@link SelectionReason selection reasons} if the data belongs to a track. {@link
+   * C#SELECTION_REASON_UNKNOWN} otherwise.
    */
   public final int trackSelectionReason;
   /**
@@ -82,9 +83,9 @@ public final class MediaLoadData {
    */
   public MediaLoadData(
       @DataType int dataType,
-      int trackType,
+      @TrackType int trackType,
       @Nullable Format trackFormat,
-      int trackSelectionReason,
+      @SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       long mediaStartTimeMs,
       long mediaEndTimeMs) {

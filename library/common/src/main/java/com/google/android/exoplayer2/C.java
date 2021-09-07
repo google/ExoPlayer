@@ -696,6 +696,24 @@ public final class C {
    */
   public static final int TRACK_TYPE_CUSTOM_BASE = 10000;
 
+  /**
+   * Represents a reason for selection. May be one of {@link #SELECTION_REASON_UNKNOWN}, {@link
+   * #SELECTION_REASON_INITIAL}, {@link #SELECTION_REASON_MANUAL}, {@link
+   * #SELECTION_REASON_ADAPTIVE} or {@link #SELECTION_REASON_TRICK_PLAY}. May also be an app-defined
+   * value (see {@link #SELECTION_REASON_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        SELECTION_REASON_UNKNOWN,
+        SELECTION_REASON_INITIAL,
+        SELECTION_REASON_MANUAL,
+        SELECTION_REASON_ADAPTIVE,
+        SELECTION_REASON_TRICK_PLAY
+      })
+  public @interface SelectionReason {}
   /** A selection reason constant for selections whose reasons are unknown or unspecified. */
   public static final int SELECTION_REASON_UNKNOWN = 0;
   /** A selection reason constant for an initial track selection. */

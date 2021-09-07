@@ -318,7 +318,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       long chunkStartTimeUs,
       long chunkEndTimeUs,
       long chunkSeekTimeUs,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       ChunkExtractor chunkExtractor) {
     DataSpec dataSpec = new DataSpec(uri);

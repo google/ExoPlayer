@@ -1096,6 +1096,7 @@ public final class DownloadHelper {
     }
 
     @Override
+    @C.SelectionReason
     public int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }

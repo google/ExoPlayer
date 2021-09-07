@@ -51,7 +51,7 @@ public abstract class DataChunk extends Chunk {
       DataSpec dataSpec,
       @DataType int type,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       @Nullable byte[] data) {
     super(

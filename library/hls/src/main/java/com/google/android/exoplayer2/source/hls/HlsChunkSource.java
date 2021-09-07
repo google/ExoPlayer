@@ -875,7 +875,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         DataSource dataSource,
         DataSpec dataSpec,
         Format trackFormat,
-        int trackSelectionReason,
+        @C.SelectionReason int trackSelectionReason,
         @Nullable Object trackSelectionData,
         byte[] scratchSpace) {
       super(

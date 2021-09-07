@@ -51,7 +51,7 @@ public final class InitializationChunk extends Chunk {
       DataSource dataSource,
       DataSpec dataSpec,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       ChunkExtractor chunkExtractor) {
     super(
