@@ -12,6 +12,8 @@
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
+    *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
+        ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
 *   Video:
     *   Request smaller decoder input buffers for Dolby Vision. This fixes an
         issue that could cause UHD Dolby Vision playbacks to fail on some

@@ -806,9 +806,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       return terminationPos;
     }
 
-    // Otherwise ensure an even index and look for a second zero byte.
+    // Otherwise ensure an even offset from the start, and look for a second zero byte.
     while (terminationPos < data.length - 1) {
-      if (terminationPos % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
+      if ((terminationPos - fromIndex) % 2 == 0 && data[terminationPos + 1] == (byte) 0) {
         return terminationPos;
       }
       terminationPos = indexOfZeroByte(data, terminationPos + 1);
