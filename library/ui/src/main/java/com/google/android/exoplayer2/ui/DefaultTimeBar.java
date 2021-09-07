@@ -512,6 +512,9 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @Override
   public void setPosition(long position) {
+    if (this.position == position) {
+      return;
+    }
     this.position = position;
     setContentDescription(getProgressText());
     update();
@@ -519,12 +522,18 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @Override
   public void setBufferedPosition(long bufferedPosition) {
+    if (this.bufferedPosition == bufferedPosition) {
+      return;
+    }
     this.bufferedPosition = bufferedPosition;
     update();
   }
 
   @Override
   public void setDuration(long duration) {
+    if (this.duration == duration) {
+      return;
+    }
     this.duration = duration;
     if (scrubbing && duration == C.TIME_UNSET) {
       stopScrubbing(/* canceled= */ true);

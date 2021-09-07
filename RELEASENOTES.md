@@ -30,6 +30,8 @@
     *   Use `defStyleAttr` when obtaining styled attributes in
         `StyledPlayerView`, `PlayerView` and `PlayerControlView`
         ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
+    *   Fix accessibility focus in `PlayerControlView`
+        ([#9111](https://github.com/google/ExoPlayer/issues/9111)).
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
