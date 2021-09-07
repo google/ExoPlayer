@@ -38,6 +38,7 @@ public final class Id3DecoderTest {
 
   @Test
   public void decodeTxxxFrame() {
+    // Test UTF-8.
     byte[] rawId3 =
         buildSingleFrameTag(
             "TXXX",
@@ -52,6 +53,21 @@ public final class Id3DecoderTest {
     assertThat(textInformationFrame.id).isEqualTo("TXXX");
     assertThat(textInformationFrame.description).isEmpty();
     assertThat(textInformationFrame.value).isEqualTo("mdialog_VINDICO1527664_start");
+
+    // Test UTF-16.
+    rawId3 =
+        buildSingleFrameTag(
+            "TXXX",
+            new byte[] {
+              1, 0, 72, 0, 101, 0, 108, 0, 108, 0, 111, 0, 32, 0, 87, 0, 111, 0, 114, 0, 108, 0,
+              100, 0, 0
+            });
+    metadata = decoder.decode(rawId3, rawId3.length);
+    assertThat(metadata.length()).isEqualTo(1);
+    textInformationFrame = (TextInformationFrame) metadata.get(0);
+    assertThat(textInformationFrame.id).isEqualTo("TXXX");
+    assertThat(textInformationFrame.description).isEqualTo("Hello World");
+    assertThat(textInformationFrame.value).isEmpty();
 
     // Test empty.
     rawId3 = buildSingleFrameTag("TXXX", new byte[0]);
@@ -216,6 +232,43 @@ public final class Id3DecoderTest {
     assertThat(metadata.length()).isEqualTo(1);
     ApicFrame apicFrame = (ApicFrame) metadata.get(0);
     assertThat(apicFrame.mimeType).isEqualTo("image/jpeg");
+    assertThat(apicFrame.pictureType).isEqualTo(16);
+    assertThat(apicFrame.description).isEqualTo("Hello World");
+    assertThat(apicFrame.pictureData).hasLength(10);
+    assertThat(apicFrame.pictureData).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+
+    // Test with UTF-16 description at even offset.
+    rawId3 =
+        buildSingleFrameTag(
+            "APIC",
+            new byte[] {
+              1, 105, 109, 97, 103, 101, 47, 106, 112, 101, 103, 0, 16, 0, 72, 0, 101, 0, 108, 0,
+              108, 0, 111, 0, 32, 0, 87, 0, 111, 0, 114, 0, 108, 0, 100, 0, 0, 1, 2, 3, 4, 5, 6, 7,
+              8, 9, 0
+            });
+    decoder = new Id3Decoder();
+    metadata = decoder.decode(rawId3, rawId3.length);
+    assertThat(metadata.length()).isEqualTo(1);
+    apicFrame = (ApicFrame) metadata.get(0);
+    assertThat(apicFrame.mimeType).isEqualTo("image/jpeg");
+    assertThat(apicFrame.pictureType).isEqualTo(16);
+    assertThat(apicFrame.description).isEqualTo("Hello World");
+    assertThat(apicFrame.pictureData).hasLength(10);
+    assertThat(apicFrame.pictureData).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+
+    // Test with UTF-16 description at odd offset.
+    rawId3 =
+        buildSingleFrameTag(
+            "APIC",
+            new byte[] {
+              1, 105, 109, 97, 103, 101, 47, 112, 110, 103, 0, 16, 0, 72, 0, 101, 0, 108, 0, 108, 0,
+              111, 0, 32, 0, 87, 0, 111, 0, 114, 0, 108, 0, 100, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+            });
+    decoder = new Id3Decoder();
+    metadata = decoder.decode(rawId3, rawId3.length);
+    assertThat(metadata.length()).isEqualTo(1);
+    apicFrame = (ApicFrame) metadata.get(0);
+    assertThat(apicFrame.mimeType).isEqualTo("image/png");
     assertThat(apicFrame.pictureType).isEqualTo(16);
     assertThat(apicFrame.description).isEqualTo("Hello World");
     assertThat(apicFrame.pictureData).hasLength(10);

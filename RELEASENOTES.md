@@ -71,6 +71,9 @@
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
+*   Extractors:
+    *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
+        ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
 
 ### 2.15.0 (2021-08-10)
 
