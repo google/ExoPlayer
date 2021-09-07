@@ -47,33 +47,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Generic extractor for extracting subtitles from various subtitle formats. */
 public class SubtitleExtractor implements Extractor {
-  @IntDef(
-      value = {
-        STATE_CREATED,
-        STATE_INITIALIZED,
-        STATE_READING,
-        STATE_DECODING,
-        STATE_WRITING,
-        STATE_FINISHED,
-        STATE_RELEASED
-      })
   @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STATE_CREATED, STATE_INITIALIZED, STATE_EXTRACTING, STATE_FINISHED, STATE_RELEASED})
   private @interface State {}
 
   /** The extractor has been created. */
   private static final int STATE_CREATED = 0;
   /** The extractor has been initialized. */
   private static final int STATE_INITIALIZED = 1;
-  /** The extractor is reading data from the input. */
-  private static final int STATE_READING = 2;
-  /** The extractor is queueing data for decoding. */
-  private static final int STATE_DECODING = 3;
-  /** The extractor is writing data to the output. */
-  private static final int STATE_WRITING = 4;
-  /** The extractor has finished writing. */
-  private static final int STATE_FINISHED = 5;
-  /** The extractor has bean released */
-  private static final int STATE_RELEASED = 6;
+  /** The extractor is reading from input and writing to output. */
+  private static final int STATE_EXTRACTING = 2;
+  /** The extractor has finished. */
+  private static final int STATE_FINISHED = 3;
+  /** The extractor has been released. */
+  private static final int STATE_RELEASED = 4;
 
   private static final int DEFAULT_BUFFER_SIZE = 1024;
 
@@ -126,29 +113,26 @@ public class SubtitleExtractor implements Extractor {
 
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
-    switch (state) {
-      case STATE_INITIALIZED:
-        prepareMemory(input);
-        state = readFromInput(input) ? STATE_DECODING : STATE_READING;
-        return Extractor.RESULT_CONTINUE;
-      case STATE_READING:
-        state = readFromInput(input) ? STATE_DECODING : STATE_READING;
-        return Extractor.RESULT_CONTINUE;
-      case STATE_DECODING:
-        queueDataToDecoder();
-        state = STATE_WRITING;
-        return RESULT_CONTINUE;
-      case STATE_WRITING:
-        writeToOutput();
-        state = STATE_FINISHED;
-        return Extractor.RESULT_END_OF_INPUT;
-      case STATE_FINISHED:
-        return Extractor.RESULT_END_OF_INPUT;
-      case STATE_CREATED:
-      case STATE_RELEASED:
-      default:
-        throw new IllegalStateException();
+    checkState(state != STATE_CREATED && state != STATE_RELEASED);
+    if (state == STATE_INITIALIZED) {
+      subtitleData.reset(
+          input.getLength() != C.LENGTH_UNSET
+              ? Ints.checkedCast(input.getLength())
+              : DEFAULT_BUFFER_SIZE);
+      bytesRead = 0;
+      state = STATE_EXTRACTING;
     }
+    if (state == STATE_EXTRACTING) {
+      boolean inputFinished = readFromInput(input);
+      if (inputFinished) {
+        decodeAndWriteToOutput();
+        state = STATE_FINISHED;
+      }
+    }
+    if (state == STATE_FINISHED) {
+      return RESULT_END_OF_INPUT;
+    }
+    return RESULT_CONTINUE;
   }
 
   @Override
@@ -166,13 +150,6 @@ public class SubtitleExtractor implements Extractor {
     state = STATE_RELEASED;
   }
 
-  private void prepareMemory(ExtractorInput input) {
-    subtitleData.reset(
-        input.getLength() != C.LENGTH_UNSET
-            ? Ints.checkedCast(input.getLength())
-            : DEFAULT_BUFFER_SIZE);
-  }
-
   /** Returns whether reading has been finished. */
   private boolean readFromInput(ExtractorInput input) throws IOException {
     if (subtitleData.capacity() == bytesRead) {
@@ -186,7 +163,9 @@ public class SubtitleExtractor implements Extractor {
     return readResult == C.RESULT_END_OF_INPUT;
   }
 
-  private void queueDataToDecoder() throws IOException {
+  /** Decodes subtitle data and writes samples to the output. */
+  private void decodeAndWriteToOutput() throws IOException {
+    checkStateNotNull(this.trackOutput);
     try {
       @Nullable SubtitleInputBuffer inputBuffer = subtitleDecoder.dequeueInputBuffer();
       while (inputBuffer == null) {
@@ -196,23 +175,11 @@ public class SubtitleExtractor implements Extractor {
       inputBuffer.ensureSpaceForWrite(bytesRead);
       inputBuffer.data.put(subtitleData.getData(), /* offset= */ 0, bytesRead);
       subtitleDecoder.queueInputBuffer(inputBuffer);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new InterruptedIOException();
-    } catch (SubtitleDecoderException e) {
-      throw ParserException.createForMalformedContainer("SubtitleDecoder failed.", e);
-    }
-  }
-
-  private void writeToOutput() throws IOException {
-    checkStateNotNull(this.trackOutput);
-    try {
       @Nullable SubtitleOutputBuffer outputBuffer = subtitleDecoder.dequeueOutputBuffer();
       while (outputBuffer == null) {
         Thread.sleep(5);
         outputBuffer = subtitleDecoder.dequeueOutputBuffer();
       }
-
       for (int i = 0; i < outputBuffer.getEventTimeCount(); i++) {
         List<Cue> cues = outputBuffer.getCues(outputBuffer.getEventTime(i));
         byte[] cuesSample = cueEncoder.encode(cues);
