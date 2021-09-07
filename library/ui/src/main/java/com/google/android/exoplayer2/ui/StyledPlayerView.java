@@ -369,7 +369,10 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     int showBuffering = SHOW_BUFFERING_NEVER;
     if (attrs != null) {
       TypedArray a =
-          context.getTheme().obtainStyledAttributes(attrs, R.styleable.StyledPlayerView, 0, 0);
+          context
+              .getTheme()
+              .obtainStyledAttributes(
+                  attrs, R.styleable.StyledPlayerView, defStyleAttr, /* defStyleRes= */ 0);
       try {
         shutterColorSet = a.hasValue(R.styleable.StyledPlayerView_shutter_background_color);
         shutterColor =

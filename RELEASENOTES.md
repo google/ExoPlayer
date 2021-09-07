@@ -31,6 +31,9 @@
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
         `Player.addListener`.
+    *   Use `defStyleAttr` when obtaining styled attributes in
+        `StyledPlayerView`, `PlayerView` and `PlayerControlView`
+        ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
