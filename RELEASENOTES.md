@@ -63,8 +63,11 @@
         `Player.EVENT_STATIC_METADATA_CHANGED`. Use `Player.getMediaMetadata`,
         `Player.Listener.onMediaMetadataChanged` and
         `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
-        structured metadata, or access the raw static metadata directly from
-        the `TrackSelection#getFormat()`.
+        structured metadata, or access the raw static metadata directly from the
+        `TrackSelection#getFormat()`.
+*   RTSP:
+    *   Handle when additional spaces are in SDP's RTPMAP atrribute
+        ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
 
 ### 2.15.0 (2021-08-10)
 

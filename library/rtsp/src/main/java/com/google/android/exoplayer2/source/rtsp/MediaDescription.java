@@ -43,11 +43,11 @@ import java.util.HashMap;
 
     /** Parses the RTPMAP attribute value (with the part "a=rtpmap:" removed). */
     public static RtpMapAttribute parse(String rtpmapString) throws ParserException {
-      String[] rtpmapInfo = Util.split(rtpmapString, " ");
+      String[] rtpmapInfo = Util.splitAtFirst(rtpmapString, " ");
       checkArgument(rtpmapInfo.length == 2);
       int payloadType = parseInt(rtpmapInfo[0]);
 
-      String[] mediaInfo = Util.split(rtpmapInfo[1], "/");
+      String[] mediaInfo = Util.split(rtpmapInfo[1].trim(), "/");
       checkArgument(mediaInfo.length >= 2);
       int clockRate = parseInt(mediaInfo[1]);
       int encodingParameters = C.INDEX_UNSET;
