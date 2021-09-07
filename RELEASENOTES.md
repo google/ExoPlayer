@@ -13,6 +13,11 @@
     *   Request smaller decoder input buffers for Dolby Vision. This fixes an
         issue that could cause UHD Dolby Vision playbacks to fail on some
         devices, including Amazon Fire TV 4K.
+*   Downloads and caching:
+    *   Workaround platform issue that can cause a `SecurityException` to be
+        thrown from `Requirements.isInternetConnectivityValidated` on devices
+        running Android 11
+        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
