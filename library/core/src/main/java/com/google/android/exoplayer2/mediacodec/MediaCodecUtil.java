@@ -580,10 +580,10 @@ public final class MediaCodecUtil {
       }
     }
 
-    if (Util.SDK_INT < 30 && decoderInfos.size() > 1) {
+    if (Util.SDK_INT < 32 && decoderInfos.size() > 1) {
       String firstCodecName = decoderInfos.get(0).name;
       // Prefer anything other than OMX.qti.audio.decoder.flac on older devices. See [Internal
-      // ref: b/147278539] and [Internal ref: b/147354613].
+      // ref: b/199124812].
       if ("OMX.qti.audio.decoder.flac".equals(firstCodecName)) {
         decoderInfos.add(decoderInfos.remove(0));
       }
