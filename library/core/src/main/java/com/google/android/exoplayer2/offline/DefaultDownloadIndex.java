@@ -415,7 +415,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
           .append('.')
           .append(streamKey.groupIndex)
           .append('.')
-          .append(streamKey.trackIndex)
+          .append(streamKey.streamIndex)
           .append(',');
     }
     if (stringBuilder.length() > 0) {
