@@ -1333,6 +1333,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (c2Mp3TimestampTracker != null) {
       presentationTimeUs =
           c2Mp3TimestampTracker.updateAndGetPresentationTimeUs(inputFormat, buffer);
+      // When draining the C2 MP3 decoder it produces an extra non-empty buffer with a timestamp
+      // after all queued input buffer timestamps (unlike other decoders, which generally propagate
+      // the input timestamps to output buffers 1:1). To detect the end of the stream when this
+      // buffer is dequeued we override the largest queued timestamp accordingly.
+      largestQueuedPresentationTimeUs =
+          max(
+              largestQueuedPresentationTimeUs,
+              c2Mp3TimestampTracker.getLastOutputBufferPresentationTimeUs(inputFormat));
     }
 
     if (buffer.isDecodeOnly()) {
@@ -1342,14 +1350,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       formatQueue.add(presentationTimeUs, inputFormat);
       waitingForFirstSampleInFormat = false;
     }
-
-    // TODO(b/158483277): Find the root cause of why a gap is introduced in MP3 playback when using
-    // presentationTimeUs from the c2Mp3TimestampTracker.
-    if (c2Mp3TimestampTracker != null) {
-      largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, buffer.timeUs);
-    } else {
-      largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
-    }
+    largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
     buffer.flip();
     if (buffer.hasSupplementalData()) {
       handleInputBufferSupplementalData(buffer);

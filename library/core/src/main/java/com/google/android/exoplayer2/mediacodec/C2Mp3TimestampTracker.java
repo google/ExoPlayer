@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static java.lang.Math.max;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
@@ -29,13 +31,11 @@ import java.nio.ByteBuffer;
  */
 /* package */ final class C2Mp3TimestampTracker {
 
-  // Mirroring the actual codec, as can be found at
-  // https://cs.android.com/android/platform/superproject/+/main:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.h;l=55;drc=3665390c9d32a917398b240c5a46ced07a3b65eb
-  private static final long DECODER_DELAY_SAMPLES = 529;
+  private static final long DECODER_DELAY_FRAMES = 529;
   private static final String TAG = "C2Mp3TimestampTracker";
 
-  private long processedSamples;
   private long anchorTimestampUs;
+  private long processedFrames;
   private boolean seenInvalidMpegAudioHeader;
 
   /**
@@ -44,8 +44,8 @@ import java.nio.ByteBuffer;
    * <p>This should be done when the codec is flushed.
    */
   public void reset() {
-    processedSamples = 0;
     anchorTimestampUs = 0;
+    processedFrames = 0;
     seenInvalidMpegAudioHeader = false;
   }
 
@@ -57,6 +57,10 @@ import java.nio.ByteBuffer;
    * @return The expected output presentation time, in microseconds.
    */
   public long updateAndGetPresentationTimeUs(Format format, DecoderInputBuffer buffer) {
+    if (processedFrames == 0) {
+      anchorTimestampUs = buffer.timeUs;
+    }
+
     if (seenInvalidMpegAudioHeader) {
       return buffer.timeUs;
     }
@@ -71,23 +75,32 @@ import java.nio.ByteBuffer;
     int frameCount = MpegAudioUtil.parseMpegAudioFrameSampleCount(sampleHeaderData);
     if (frameCount == C.LENGTH_UNSET) {
       seenInvalidMpegAudioHeader = true;
+      processedFrames = 0;
+      anchorTimestampUs = buffer.timeUs;
       Log.w(TAG, "MPEG audio header is invalid.");
       return buffer.timeUs;
     }
-
-    // These calculations mirror the timestamp calculations in the Codec2 Mp3 Decoder.
-    // https://cs.android.com/android/platform/superproject/+/main:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.cpp;l=464;drc=ed134640332fea70ca4b05694289d91a5265bb46
-    if (processedSamples == 0) {
-      anchorTimestampUs = buffer.timeUs;
-      processedSamples = frameCount - DECODER_DELAY_SAMPLES;
-      return anchorTimestampUs;
-    }
-    long processedDurationUs = getProcessedDurationUs(format);
-    processedSamples += frameCount;
-    return anchorTimestampUs + processedDurationUs;
+    long currentBufferTimestampUs = getBufferTimestampUs(format.sampleRate);
+    processedFrames += frameCount;
+    return currentBufferTimestampUs;
   }
 
-  private long getProcessedDurationUs(Format format) {
-    return processedSamples * C.MICROS_PER_SECOND / format.sampleRate;
+  /**
+   * Returns the timestamp of the last buffer that will be produced if the stream ends at the
+   * current position, in microseconds.
+   *
+   * @param format The format associated with input buffers.
+   * @return The timestamp of the last buffer that will be produced if the stream ends at the
+   *     current position, in microseconds.
+   */
+  public long getLastOutputBufferPresentationTimeUs(Format format) {
+    return getBufferTimestampUs(format.sampleRate);
+  }
+
+  private long getBufferTimestampUs(long sampleRate) {
+    // This calculation matches the timestamp calculation in the Codec2 Mp3 Decoder.
+    // https://cs.android.com/android/platform/superproject/+/main:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.cpp;l=464;drc=ed134640332fea70ca4b05694289d91a5265bb46
+    return anchorTimestampUs
+        + max(0, (processedFrames - DECODER_DELAY_FRAMES) * C.MICROS_PER_SECOND / sampleRate);
   }
 }
