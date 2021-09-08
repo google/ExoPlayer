@@ -339,7 +339,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
         copiedFormats.clear();
       }
       currentStreamElement = streamElement;
-      copiedFormats.add(streamElement.formats[key.trackIndex]);
+      copiedFormats.add(streamElement.formats[key.streamIndex]);
     }
     if (currentStreamElement != null) {
       // Add the last stream element.
