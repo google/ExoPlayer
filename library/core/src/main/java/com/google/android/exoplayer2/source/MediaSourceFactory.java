@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -31,7 +32,13 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.util.List;
 
-/** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
+/**
+ * Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}.
+ *
+ * <p>A factory must only be used by a single {@link Player} at a time. A factory can only be
+ * re-used by a second {@link Player} if the previous {@link Player} and all associated resources
+ * are fully released.
+ */
 public interface MediaSourceFactory {
 
   /** @deprecated Use {@link MediaItem.PlaybackProperties#streamKeys} instead. */

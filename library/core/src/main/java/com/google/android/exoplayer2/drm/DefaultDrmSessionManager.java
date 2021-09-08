@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
@@ -298,8 +297,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Nullable private ExoMediaDrm exoMediaDrm;
   @Nullable private DefaultDrmSession placeholderDrmSession;
   @Nullable private DefaultDrmSession noMultiSessionDrmSession;
-  private @MonotonicNonNull Looper playbackLooper;
-  private @MonotonicNonNull Handler playbackHandler;
+  @Nullable private Looper playbackLooper;
+  @Nullable private Handler playbackHandler;
   private int mode;
   @Nullable private byte[] offlineLicenseKeySetId;
 
@@ -484,7 +483,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     }
     releaseAllPreacquiredSessions();
 
-    maybeReleaseMediaDrm();
+    maybeFullyReleaseManager();
   }
 
   @Override
@@ -663,6 +662,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       this.playbackLooper = playbackLooper;
       this.playbackHandler = new Handler(playbackLooper);
     } else {
+      // Check this manager is only being used by a single player at a time.
       checkState(this.playbackLooper == playbackLooper);
       checkNotNull(playbackHandler);
     }
@@ -779,12 +779,18 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     return session;
   }
 
-  private void maybeReleaseMediaDrm() {
+  private void maybeFullyReleaseManager() {
     if (exoMediaDrm != null
         && prepareCallsCount == 0
         && sessions.isEmpty()
         && preacquiredSessionReferences.isEmpty()) {
-      // This manager and all its sessions are fully released so we can release exoMediaDrm.
+      // This manager and all its sessions are fully released so we can null out the looper &
+      // handler references and release exoMediaDrm.
+      if (playbackLooper != null) {
+        checkNotNull(playbackHandler).removeCallbacksAndMessages(/* token= */ null);
+        playbackHandler = null;
+        playbackLooper = null;
+      }
       checkNotNull(exoMediaDrm).release();
       exoMediaDrm = null;
     }
@@ -935,7 +941,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
           keepaliveSessions.remove(session);
         }
       }
-      maybeReleaseMediaDrm();
+      maybeFullyReleaseManager();
     }
   }
 
