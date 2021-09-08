@@ -69,6 +69,9 @@
         `VideoListener`. Use `Player.addListener` and `Player.Listener` instead.
     *   Remove `DefaultHttpDataSourceFactory`. Use
         `DefaultHttpDataSource.Factory` instead.
+    *   Remove `SingleSampleMediaSource.createMediaSource(Uri, Format, long)`.
+        Use `SingleSampleMediaSource.createMediaSource(MediaItem.Subtitle,
+        long)` instead.
     *   Remove `GvrAudioProcessor` and the GVR extension, which has been
         deprecated since 2.11.0.
 *   Cast extension:

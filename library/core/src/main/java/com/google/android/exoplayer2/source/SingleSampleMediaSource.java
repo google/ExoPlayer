@@ -128,20 +128,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
           treatLoadErrorsAsEndOfStream,
           tag);
     }
-
-    /** @deprecated Use {@link #createMediaSource(MediaItem.Subtitle, long)} instead. */
-    @Deprecated
-    public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
-      return new SingleSampleMediaSource(
-          format.id == null ? trackId : format.id,
-          new MediaItem.Subtitle(
-              uri, checkNotNull(format.sampleMimeType), format.language, format.selectionFlags),
-          dataSourceFactory,
-          durationUs,
-          loadErrorHandlingPolicy,
-          treatLoadErrorsAsEndOfStream,
-          tag);
-    }
   }
 
   private final DataSpec dataSpec;
