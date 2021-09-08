@@ -79,6 +79,23 @@ import java.util.Map;
     }
 
     /**
+     * Creates a new instance with common header values.
+     *
+     * @param userAgent The user agent string.
+     * @param sessionId The RTSP session ID; use {@code null} when the session is not yet set up.
+     * @param cSeq The RTSP cSeq sequence number.
+     */
+    public Builder(String userAgent, @Nullable String sessionId, int cSeq) {
+      this();
+
+      add(USER_AGENT, userAgent);
+      add(CSEQ, String.valueOf(cSeq));
+      if (sessionId != null) {
+        add(SESSION, sessionId);
+      }
+    }
+
+    /**
      * Creates a new instance to build upon the provided {@link RtspHeaders}.
      *
      * @param namesAndValuesBuilder A {@link ImmutableListMultimap.Builder} that this builder builds

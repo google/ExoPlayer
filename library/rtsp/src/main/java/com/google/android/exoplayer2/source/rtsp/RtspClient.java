@@ -34,6 +34,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static java.lang.Math.max;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -376,18 +377,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               lastRequest.method, sessionId, lastRequestHeaders, lastRequest.uri));
     }
 
+    public void sendMethodNotAllowedResponse(int cSeq) {
+      // RTSP status code 405: Method Not Allowed (RFC2326 Section 7.1.1).
+      sendResponse(
+          new RtspResponse(
+              /* status= */ 405, new RtspHeaders.Builder(userAgent, sessionId, cSeq).build()));
+
+      // The server could send a cSeq that is larger than the current stored cSeq. To maintain a
+      // monotonically increasing cSeq number, this.cSeq needs to be reset to server's cSeq + 1.
+      this.cSeq = max(this.cSeq, cSeq + 1);
+    }
+
     private RtspRequest getRequestWithCommonHeaders(
         @RtspRequest.Method int method,
         @Nullable String sessionId,
         Map<String, String> additionalHeaders,
         Uri uri) {
-      RtspHeaders.Builder headersBuilder = new RtspHeaders.Builder();
-      headersBuilder.add(RtspHeaders.CSEQ, String.valueOf(cSeq++));
-      headersBuilder.add(RtspHeaders.USER_AGENT, userAgent);
-
-      if (sessionId != null) {
-        headersBuilder.add(RtspHeaders.SESSION, sessionId);
-      }
+      RtspHeaders.Builder headersBuilder = new RtspHeaders.Builder(userAgent, sessionId, cSeq++);
 
       if (rtspAuthenticationInfo != null) {
         checkStateNotNull(rtspAuthUserInfo);
@@ -413,6 +419,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       messageChannel.send(message);
       lastRequest = request;
     }
+
+    private void sendResponse(RtspResponse response) {
+      List<String> message = RtspMessageUtil.serializeResponse(response);
+      maybeLogMessage(message);
+      messageChannel.send(message);
+    }
   }
 
   private final class MessageListener implements RtspMessageChannel.MessageListener {
@@ -436,6 +448,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private void handleRtspMessage(List<String> message) {
       maybeLogMessage(message);
+
+      if (RtspMessageUtil.isRtspResponse(message)) {
+        handleRtspResponse(message);
+      } else {
+        handleRtspRequest(message);
+      }
+    }
+
+    private void handleRtspRequest(List<String> message) {
+      // Handling RTSP requests on the client is optional (RFC2326 Section 10). Decline all
+      // requests with 'Method Not Allowed'.
+      messageSender.sendMethodNotAllowedResponse(
+          Integer.parseInt(
+              checkNotNull(RtspMessageUtil.parseRequest(message).headers.get(RtspHeaders.CSEQ))));
+    }
+
+    private void handleRtspResponse(List<String> message) {
       RtspResponse response = RtspMessageUtil.parseResponse(message);
 
       int cSeq = Integer.parseInt(checkNotNull(response.headers.get(RtspHeaders.CSEQ)));
