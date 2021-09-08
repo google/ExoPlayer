@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
@@ -1314,7 +1315,8 @@ public class PlayerControlView extends FrameLayout {
           EVENT_REPEAT_MODE_CHANGED,
           EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           EVENT_POSITION_DISCONTINUITY,
-          EVENT_TIMELINE_CHANGED)) {
+          EVENT_TIMELINE_CHANGED,
+          EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateNavigation();
       }
       if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {

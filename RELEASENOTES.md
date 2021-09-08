@@ -32,6 +32,8 @@
         ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
     *   Fix accessibility focus in `PlayerControlView`
         ([#9111](https://github.com/google/ExoPlayer/issues/9111)).
+    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI
+        when available player commands change.
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
