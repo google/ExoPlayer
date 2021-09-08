@@ -78,6 +78,8 @@
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
+    *   Handle partial URIs in RTP-Info headers
+        ([#9346](https://github.com/google/ExoPlayer/issues/9346)).
 *   Extractors:
     *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
         ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
