@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-def rootDir = file(gradle.ext.exoplayerRoot)
+def rootDir = file(".")
 if (!gradle.ext.has('exoplayerSettingsDir')) {
     gradle.ext.exoplayerSettingsDir = rootDir.getCanonicalPath()
 }
