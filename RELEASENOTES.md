@@ -9,6 +9,9 @@
     *   Fix `NullPointerException` being thrown from `CacheDataSource` when
         reading a fully cached resource with `DataSpec.position` equal to the
         resource length.
+    *   Fix a bug when [depending on ExoPlayer locally](README.md#locally) with
+        a relative path
+        ([#9403](https://github.com/google/ExoPlayer/issues/9403)).
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
