@@ -118,15 +118,15 @@ import java.nio.ByteBuffer;
 
     if (ensureDecoderConfigured()) {
       if (ensureEncoderAndAudioProcessingConfigured()) {
-        while (drainEncoderToFeedMuxer()) {}
+        while (feedMuxerFromEncoder()) {}
         if (sonicAudioProcessor.isActive()) {
-          while (drainSonicToFeedEncoder()) {}
-          while (drainDecoderToFeedSonic()) {}
+          while (feedEncoderFromSonic()) {}
+          while (feedSonicFromDecoder()) {}
         } else {
-          while (drainDecoderToFeedEncoder()) {}
+          while (feedEncoderFromDecoder()) {}
         }
       }
-      while (feedDecoderInputFromSource()) {}
+      while (feedDecoderFromInput()) {}
     }
   }
 
@@ -134,7 +134,7 @@ import java.nio.ByteBuffer;
    * Attempts to write encoder output data to the muxer, and returns whether it may be possible to
    * write more data immediately by calling this method again.
    */
-  private boolean drainEncoderToFeedMuxer() {
+  private boolean feedMuxerFromEncoder() {
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     if (!hasEncoderOutputFormat) {
       @Nullable Format encoderOutputFormat = encoder.getOutputFormat();
@@ -170,7 +170,7 @@ import java.nio.ByteBuffer;
    * Attempts to pass decoder output data to the encoder, and returns whether it may be possible to
    * pass more data immediately by calling this method again.
    */
-  private boolean drainDecoderToFeedEncoder() {
+  private boolean feedEncoderFromDecoder() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
@@ -201,7 +201,7 @@ import java.nio.ByteBuffer;
    * Attempts to pass audio processor output data to the encoder, and returns whether it may be
    * possible to pass more data immediately by calling this method again.
    */
-  private boolean drainSonicToFeedEncoder() {
+  private boolean feedEncoderFromSonic() {
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
@@ -225,7 +225,7 @@ import java.nio.ByteBuffer;
    * Attempts to process decoder output data, and returns whether it may be possible to process more
    * data immediately by calling this method again.
    */
-  private boolean drainDecoderToFeedSonic() {
+  private boolean feedSonicFromDecoder() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
 
     if (drainingSonicForSpeedChange) {
@@ -268,7 +268,7 @@ import java.nio.ByteBuffer;
    * Attempts to pass input data to the decoder, and returns whether it may be possible to pass more
    * data immediately by calling this method again.
    */
-  private boolean feedDecoderInputFromSource() {
+  private boolean feedDecoderFromInput() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
     if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
       return false;
