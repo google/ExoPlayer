@@ -15,12 +15,15 @@
  */
 package com.google.android.exoplayer2.source.dash.offline;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
+import com.google.android.exoplayer2.source.dash.BaseUrlExclusionList;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.DashWrappingSegmentIndex;
@@ -70,6 +73,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  */
 public final class DashDownloader extends SegmentDownloader<DashManifest> {
 
+  private final BaseUrlExclusionList baseUrlExclusionList;
+
   /**
    * Creates a new instance.
    *
@@ -113,6 +118,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
     super(mediaItem, manifestParser, cacheDataSourceFactory, executor);
+    baseUrlExclusionList = new BaseUrlExclusionList();
   }
 
   @Override
@@ -163,28 +169,32 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
         throw new DownloadException("Unbounded segment index");
       }
 
-      String baseUrl = representation.baseUrls.get(0).url;
-      RangedUri initializationUri = representation.getInitializationUri();
+      String baseUrl = castNonNull(baseUrlExclusionList.selectBaseUrl(representation.baseUrls)).url;
+      @Nullable RangedUri initializationUri = representation.getInitializationUri();
       if (initializationUri != null) {
-        addSegment(periodStartUs, baseUrl, initializationUri, out);
+        out.add(createSegment(representation, baseUrl, periodStartUs, initializationUri));
       }
-      RangedUri indexUri = representation.getIndexUri();
+      @Nullable RangedUri indexUri = representation.getIndexUri();
       if (indexUri != null) {
-        addSegment(periodStartUs, baseUrl, indexUri, out);
+        out.add(createSegment(representation, baseUrl, periodStartUs, indexUri));
       }
       long firstSegmentNum = index.getFirstSegmentNum();
       long lastSegmentNum = firstSegmentNum + segmentCount - 1;
       for (long j = firstSegmentNum; j <= lastSegmentNum; j++) {
-        addSegment(periodStartUs + index.getTimeUs(j), baseUrl, index.getSegmentUrl(j), out);
+        out.add(
+            createSegment(
+                representation,
+                baseUrl,
+                periodStartUs + index.getTimeUs(j),
+                index.getSegmentUrl(j)));
       }
     }
   }
 
-  private static void addSegment(
-      long startTimeUs, String baseUrl, RangedUri rangedUri, ArrayList<Segment> out) {
-    DataSpec dataSpec =
-        new DataSpec(rangedUri.resolveUri(baseUrl), rangedUri.start, rangedUri.length);
-    out.add(new Segment(startTimeUs, dataSpec));
+  private Segment createSegment(
+      Representation representation, String baseUrl, long startTimeUs, RangedUri rangedUri) {
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, baseUrl, rangedUri, /* flags= */ 0);
+    return new Segment(startTimeUs, dataSpec);
   }
 
   @Nullable

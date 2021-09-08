@@ -23,6 +23,9 @@
         thrown from `Requirements.isInternetConnectivityValidated` on devices
         running Android 11
         ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
+*   DASH:
+    *   Use identical cache keys for downloading and playing DASH segments
+        ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
