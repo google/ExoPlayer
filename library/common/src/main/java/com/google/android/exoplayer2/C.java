@@ -672,6 +672,8 @@ public final class C {
         TRACK_TYPE_NONE,
       })
   public @interface TrackType {}
+  /** A type constant for a fake or empty track. */
+  public static final int TRACK_TYPE_NONE = -2;
   /** A type constant for tracks of unknown type. */
   public static final int TRACK_TYPE_UNKNOWN = -1;
   /** A type constant for tracks of some default type, where the type itself is unknown. */
@@ -688,8 +690,6 @@ public final class C {
   public static final int TRACK_TYPE_METADATA = 5;
   /** A type constant for camera motion tracks. */
   public static final int TRACK_TYPE_CAMERA_MOTION = 6;
-  /** A type constant for a fake or empty track. */
-  public static final int TRACK_TYPE_NONE = 7;
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
