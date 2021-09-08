@@ -39,8 +39,11 @@
         ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
     *   Fix accessibility focus in `PlayerControlView`
         ([#9111](https://github.com/google/ExoPlayer/issues/9111)).
-    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI
-        when available player commands change.
+    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI when
+        available player commands change.
+*   DASH
+    *   Use identical cache keys for downloading and playing DASH segments
+        ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.

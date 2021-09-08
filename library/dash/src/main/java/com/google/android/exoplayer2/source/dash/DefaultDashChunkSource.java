@@ -628,10 +628,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
     DataSpec dataSpec =
         DashUtil.buildDataSpec(
-            representationHolder.selectedBaseUrl.url,
-            requestUri,
-            representation.getCacheKey(),
-            /* flags= */ 0);
+            representation, representationHolder.selectedBaseUrl.url, requestUri, /* flags= */ 0);
     return new InitializationChunk(
         dataSource,
         dataSpec,
@@ -664,10 +661,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
-              representationHolder.selectedBaseUrl.url,
-              segmentUri,
-              representation.getCacheKey(),
-              flags);
+              representation, representationHolder.selectedBaseUrl.url, segmentUri, flags);
       return new SingleSampleMediaChunk(
           dataSource,
           dataSpec,
@@ -706,10 +700,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
-              representationHolder.selectedBaseUrl.url,
-              segmentUri,
-              representation.getCacheKey(),
-              flags);
+              representation, representationHolder.selectedBaseUrl.url, segmentUri, flags);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -765,9 +756,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       return DashUtil.buildDataSpec(
+          representationHolder.representation,
           representationHolder.selectedBaseUrl.url,
           segmentUri,
-          representationHolder.representation.getCacheKey(),
           flags);
     }
 
