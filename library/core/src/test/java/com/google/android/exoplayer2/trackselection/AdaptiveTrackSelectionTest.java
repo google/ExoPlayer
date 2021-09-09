@@ -322,6 +322,52 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
+  public void evaluateQueueSizeDiscardChunksLessThanOrEqualToMaximumResolution() {
+    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
+    Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
+    TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
+
+    FakeMediaChunk chunk1 =
+        new FakeMediaChunk(format2, /* startTimeUs= */ 0, /* endTimeUs= */ 10_000_000);
+    FakeMediaChunk chunk2 =
+        new FakeMediaChunk(format2, /* startTimeUs= */ 10_000_000, /* endTimeUs= */ 20_000_000);
+    FakeMediaChunk chunk3 =
+        new FakeMediaChunk(format2, /* startTimeUs= */ 20_000_000, /* endTimeUs= */ 30_000_000);
+    FakeMediaChunk chunk4 =
+        new FakeMediaChunk(format2, /* startTimeUs= */ 30_000_000, /* endTimeUs= */ 40_000_000);
+    FakeMediaChunk chunk5 =
+        new FakeMediaChunk(format1, /* startTimeUs= */ 40_000_000, /* endTimeUs= */ 50_000_000);
+
+    List<FakeMediaChunk> queue = new ArrayList<>();
+    queue.add(chunk1);
+    queue.add(chunk2);
+    queue.add(chunk3);
+    queue.add(chunk4);
+    queue.add(chunk5);
+
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(500L);
+    AdaptiveTrackSelection adaptiveTrackSelection =
+        prepareAdaptiveTrackSelectionWithMaxResolutionToDiscard(
+            trackGroup,
+            /* maxWidthToDiscard= */320,
+            /* maxHeightToDiscard= */240
+        );
+
+    int initialQueueSize = adaptiveTrackSelection.evaluateQueueSize(0, queue);
+    assertThat(initialQueueSize).isEqualTo(5);
+
+    fakeClock.advanceTime(2000);
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(2000L);
+
+    // When bandwidth estimation is updated and time has advanced enough, we can discard chunks at
+    // the end of the queue now.
+    // In this case, only chunks less than or equal to width = 320 and height = 240 are discarded.
+    int newSize = adaptiveTrackSelection.evaluateQueueSize(0, queue);
+    assertThat(newSize).isEqualTo(4);
+  }
+
+  @Test
   public void updateSelectedTrack_usesFormatOfLastChunkInTheQueueForSelection() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
@@ -331,6 +377,8 @@ public final class AdaptiveTrackSelectionTest {
                 /* minDurationForQualityIncreaseMs= */ 10_000,
                 /* maxDurationForQualityDecreaseMs= */ 10_000,
                 /* minDurationToRetainAfterDiscardMs= */ 25_000,
+                /* maxWidthToDiscard= */ 1279,
+                /* maxHeightToDiscard= */ 719,
                 /* bandwidthFraction= */ 1f)
             .createAdaptiveTrackSelection(
                 trackGroup,
@@ -616,6 +664,8 @@ public final class AdaptiveTrackSelectionTest {
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
+            AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD,
             bandwidthFraction,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
             /* adaptationCheckpoints= */ ImmutableList.of(),
@@ -633,6 +683,8 @@ public final class AdaptiveTrackSelectionTest {
             minDurationForQualityIncreaseMs,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
+            AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
             /* adaptationCheckpoints= */ ImmutableList.of(),
@@ -650,6 +702,8 @@ public final class AdaptiveTrackSelectionTest {
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             maxDurationForQualityDecreaseMs,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
+            AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
             /* adaptationCheckpoints= */ ImmutableList.of(),
@@ -668,6 +722,30 @@ public final class AdaptiveTrackSelectionTest {
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
             durationToRetainAfterDiscardMs,
+            AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
+            AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD,
+            /* bandwidthFraction= */ 1.0f,
+            AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
+            /* adaptationCheckpoints= */ ImmutableList.of(),
+            fakeClock));
+  }
+
+  private AdaptiveTrackSelection
+  prepareAdaptiveTrackSelectionWithMaxResolutionToDiscard(
+      TrackGroup trackGroup,
+      int maxWidthToDiscard,
+      int maxHeightToDiscard) {
+    return prepareTrackSelection(
+        new AdaptiveTrackSelection(
+            trackGroup,
+            selectedAllTracksInGroup(trackGroup),
+            TrackSelection.TYPE_UNSET,
+            mockBandwidthMeter,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            maxWidthToDiscard,
+            maxHeightToDiscard,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
             /* adaptationCheckpoints= */ ImmutableList.of(),
@@ -685,6 +763,8 @@ public final class AdaptiveTrackSelectionTest {
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
+            AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
             adaptationCheckpoints,
