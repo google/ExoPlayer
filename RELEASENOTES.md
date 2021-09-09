@@ -29,6 +29,8 @@
 *   DASH:
     *   Use identical cache keys for downloading and playing DASH segments
         ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
+    *   Fix base URL selection and load error handling when base URLs are shared
+        across adaptation sets.
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).

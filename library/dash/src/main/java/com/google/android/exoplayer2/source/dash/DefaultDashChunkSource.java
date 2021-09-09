@@ -350,12 +350,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
         playbackPositionUs, bufferedDurationUs, availableLiveDurationUs, queue, chunkIterators);
 
     RepresentationHolder representationHolder =
-        representationHolders[trackSelection.getSelectedIndex()];
-
+        updateSelectedBaseUrl(trackSelection.getSelectedIndex());
     if (representationHolder.chunkExtractor != null) {
       Representation selectedRepresentation = representationHolder.representation;
-      RangedUri pendingInitializationUri = null;
-      RangedUri pendingIndexUri = null;
+      @Nullable RangedUri pendingInitializationUri = null;
+      @Nullable RangedUri pendingIndexUri = null;
       if (representationHolder.chunkExtractor.getSampleFormats() == null) {
         pendingInitializationUri = selectedRepresentation.getInitializationUri();
       }
@@ -495,6 +494,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     int trackIndex = trackSelection.indexOf(chunk.trackFormat);
     RepresentationHolder representationHolder = representationHolders[trackIndex];
+    @Nullable
+    BaseUrl newBaseUrl =
+        baseUrlExclusionList.selectBaseUrl(representationHolder.representation.baseUrls);
+    if (newBaseUrl != null && !representationHolder.selectedBaseUrl.equals(newBaseUrl)) {
+      // The base URL has changed since the failing chunk was created. Request a replacement chunk,
+      // which will use the new base URL.
+      return true;
+    }
+
     LoadErrorHandlingPolicy.FallbackOptions fallbackOptions =
         createFallbackOptions(trackSelection, representationHolder.representation.baseUrls);
     if (!fallbackOptions.isFallbackAvailable(LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK)
@@ -505,8 +513,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     @Nullable
     LoadErrorHandlingPolicy.FallbackSelection fallbackSelection =
         loadErrorHandlingPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo);
-    if (fallbackSelection == null) {
-      // Policy indicated to not use any fallback.
+    if (fallbackSelection == null || !fallbackOptions.isFallbackAvailable(fallbackSelection.type)) {
+      // Policy indicated to not use any fallback or a fallback type that is not available.
       return false;
     }
 
@@ -518,17 +526,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } else if (fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION) {
       baseUrlExclusionList.exclude(
           representationHolder.selectedBaseUrl, fallbackSelection.exclusionDurationMs);
-      for (int i = 0; i < representationHolders.length; i++) {
-        @Nullable
-        BaseUrl baseUrl =
-            baseUrlExclusionList.selectBaseUrl(representationHolders[i].representation.baseUrls);
-        if (baseUrl != null) {
-          if (i == trackIndex) {
-            cancelLoad = true;
-          }
-          representationHolders[i] = representationHolders[i].copyWithNewSelectedBaseUrl(baseUrl);
-        }
-      }
+      cancelLoad = true;
     }
     return cancelLoad;
   }
@@ -612,7 +610,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int trackSelectionReason,
       Object trackSelectionData,
       @Nullable RangedUri initializationUri,
-      RangedUri indexUri) {
+      @Nullable RangedUri indexUri) {
     Representation representation = representationHolder.representation;
     @Nullable RangedUri requestUri;
     if (initializationUri != null) {
@@ -717,6 +715,18 @@ public class DefaultDashChunkSource implements DashChunkSource {
           sampleOffsetUs,
           representationHolder.chunkExtractor);
     }
+  }
+
+  private RepresentationHolder updateSelectedBaseUrl(int trackIndex) {
+    RepresentationHolder representationHolder = representationHolders[trackIndex];
+    @Nullable
+    BaseUrl selectedBaseUrl =
+        baseUrlExclusionList.selectBaseUrl(representationHolder.representation.baseUrls);
+    if (selectedBaseUrl != null && !selectedBaseUrl.equals(representationHolder.selectedBaseUrl)) {
+      representationHolder = representationHolder.copyWithNewSelectedBaseUrl(selectedBaseUrl);
+      representationHolders[trackIndex] = representationHolder;
+    }
+    return representationHolder;
   }
 
   // Protected classes.
