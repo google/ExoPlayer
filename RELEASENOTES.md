@@ -51,6 +51,8 @@
 *   DASH
     *   Use identical cache keys for downloading and playing DASH segments
         ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
+    *   Fix base URL selection and load error handling when base URLs are shared
+        across adaptation sets.
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
