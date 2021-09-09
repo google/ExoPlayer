@@ -213,6 +213,19 @@
     ]
   },
   {
+    "name": "DASH - Multiple base URLs",
+    "samples": [
+      {
+        "name": "DASH - Multiple base URLs",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-0/dash-multiple-base-urls/manifest.mpd"
+      },
+      {
+        "name": "DASH - Multiple base URLs (fail over)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-0/dash-multiple-base-urls/manifest-failover.mpd"
+      }
+    ]
+  },
+  {
     "name": "HLS",
     "samples": [
       {
