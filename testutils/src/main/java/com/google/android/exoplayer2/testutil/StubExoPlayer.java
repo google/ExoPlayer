@@ -543,7 +543,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setVolume(float audioVolume) {
+  public void setVolume(float volume) {
     throw new UnsupportedOperationException();
   }
 

@@ -452,7 +452,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
   private AudioAttributes audioAttributes;
-  private float audioVolume;
+  private float volume;
   private boolean skipSilenceEnabled;
   private List<Cue> currentCues;
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
@@ -517,7 +517,7 @@ public class SimpleExoPlayer extends BasePlayer
               componentListener);
 
       // Set initial values.
-      audioVolume = 1;
+      volume = 1;
       if (Util.SDK_INT < 21) {
         audioSessionId = initializeKeepSessionIdAudioTrack(C.AUDIO_SESSION_ID_UNSET);
       } else {
@@ -870,24 +870,24 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setVolume(float audioVolume) {
+  public void setVolume(float volume) {
     verifyApplicationThread();
-    audioVolume = Util.constrainValue(audioVolume, /* min= */ 0, /* max= */ 1);
-    if (this.audioVolume == audioVolume) {
+    volume = Util.constrainValue(volume, /* min= */ 0, /* max= */ 1);
+    if (this.volume == volume) {
       return;
     }
-    this.audioVolume = audioVolume;
+    this.volume = volume;
     sendVolumeToRenderers();
-    analyticsCollector.onVolumeChanged(audioVolume);
+    analyticsCollector.onVolumeChanged(volume);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
     for (Listener listener : listeners) {
-      listener.onVolumeChanged(audioVolume);
+      listener.onVolumeChanged(volume);
     }
   }
 
   @Override
   public float getVolume() {
-    return audioVolume;
+    return volume;
   }
 
   @Override
@@ -1772,7 +1772,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   private void sendVolumeToRenderers() {
-    float scaledVolume = audioVolume * audioFocusManager.getVolumeMultiplier();
+    float scaledVolume = volume * audioFocusManager.getVolumeMultiplier();
     sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_VOLUME, scaledVolume);
   }
 

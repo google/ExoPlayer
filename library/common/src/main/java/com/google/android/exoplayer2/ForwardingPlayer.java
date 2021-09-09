@@ -525,8 +525,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void setVolume(float audioVolume) {
-    player.setVolume(audioVolume);
+  public void setVolume(float volume) {
+    player.setVolume(volume);
   }
 
   @Override

@@ -1010,7 +1010,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   /** This method is not supported and does nothing. */
   @Override
-  public void setVolume(float audioVolume) {}
+  public void setVolume(float volume) {}
 
   /** This method is not supported and returns 1. */
   @Override

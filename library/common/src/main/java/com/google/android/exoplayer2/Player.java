@@ -2210,9 +2210,9 @@ public interface Player {
   /**
    * Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
    *
-   * @param audioVolume Linear output gain to apply to all audio channels.
+   * @param volume Linear output gain to apply to all audio channels.
    */
-  void setVolume(@FloatRange(from = 0) float audioVolume);
+  void setVolume(@FloatRange(from = 0) float volume);
 
   /**
    * Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
