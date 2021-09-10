@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -584,6 +585,31 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs)
         && exclusionDurationMs != C.TIME_UNSET;
   }
+
+  /**
+   * Check if the primary sample stream is video, {@link C#TRACK_TYPE_VIDEO}.  This
+   * HlsSampleStreamWrapper may managed audio and other streams muxed in the same
+   * container, but as long as it has a video stream this method returns true.
+   *
+   * @return true if there is a video SampleStream managed by this object.
+   */
+  public boolean isVideoSampleStream() {
+    return primarySampleQueueType == C.TRACK_TYPE_VIDEO;
+  }
+
+
+  /**
+   * Adjusts a seek position given the specified {@link SeekParameters}.  Method delegates to
+   * the associated {@link HlsChunkSource#getAdjustedSeekPositionUs(long, SeekParameters)}.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    return chunkSource.getAdjustedSeekPositionUs(positionUs, seekParameters);
+  }
+
 
   // SampleStream implementation.
 

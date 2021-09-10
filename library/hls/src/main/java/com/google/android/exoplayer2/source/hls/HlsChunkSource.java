@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
@@ -235,6 +236,43 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void setIsTimestampMaster(boolean isTimestampMaster) {
     this.isTimestampMaster = isTimestampMaster;
+  }
+
+  /**
+   * Adjusts a seek position given the specified {@link SeekParameters}.  The HLS Segment start times
+   * are used as the sync points iff the playlist declares {@link HlsMediaPlaylist#hasIndependentSegments}
+   * indicating each segment starts with an IDR.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    long adjustedPositionUs = positionUs;
+
+    int selectedIndex = trackSelection.getSelectedIndex();
+    boolean haveTrackSelection = selectedIndex < playlistUrls.length && selectedIndex != C.INDEX_UNSET;
+    @Nullable HlsMediaPlaylist mediaPlaylist = null;
+    if (haveTrackSelection) {
+      mediaPlaylist = playlistTracker.getPlaylistSnapshot(playlistUrls[selectedIndex], /* isForPlayback= */ true);
+    }
+
+    // Resolve to a segment boundary, current track is fine (all should be same).
+    // and, segments must start with sync (EXT-X-INDEPENDENT-SEGMENTS must be present)
+    if (mediaPlaylist != null && mediaPlaylist.hasIndependentSegments && !mediaPlaylist.segments.isEmpty()) {
+      long startOfPlaylistInPeriodUs = mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+      long targetPositionInPlaylistUs = positionUs - startOfPlaylistInPeriodUs;
+
+      int segIndex = Util.binarySearchFloor(mediaPlaylist.segments, targetPositionInPlaylistUs, true, true);
+      long firstSyncUs = mediaPlaylist.segments.get(segIndex).relativeStartTimeUs + startOfPlaylistInPeriodUs;
+      long secondSyncUs = firstSyncUs;
+      if (segIndex != mediaPlaylist.segments.size() - 1) {
+        secondSyncUs = mediaPlaylist.segments.get(segIndex + 1).relativeStartTimeUs + startOfPlaylistInPeriodUs;
+      }
+      adjustedPositionUs = seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
+    }
+
+    return adjustedPositionUs;
   }
 
   /**
