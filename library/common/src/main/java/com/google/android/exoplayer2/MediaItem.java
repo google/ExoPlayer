@@ -26,13 +26,14 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -71,14 +72,9 @@ public final class MediaItem implements Bundleable {
     private boolean clipRelativeToLiveWindow;
     private boolean clipRelativeToDefaultPosition;
     private boolean clipStartsAtKeyFrame;
-    @Nullable private Uri drmLicenseUri;
-    private Map<String, String> drmLicenseRequestHeaders;
-    @Nullable private UUID drmUuid;
-    private boolean drmMultiSession;
-    private boolean drmPlayClearContentWithoutKey;
-    private boolean drmForceDefaultLicenseUri;
-    private List<Integer> drmSessionForClearTypes;
-    @Nullable private byte[] drmKeySetId;
+    // TODO: Change this to @Nullable DrmConfiguration once all the deprecated individual setters
+    // are removed.
+    private DrmConfiguration.Builder drmConfiguration;
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
@@ -93,10 +89,10 @@ public final class MediaItem implements Bundleable {
     private float liveMaxPlaybackSpeed;
 
     /** Creates a builder. */
+    @SuppressWarnings("deprecation") // Temporarily uses DrmConfiguration.Builder() constructor.
     public Builder() {
       clipEndPositionMs = C.TIME_END_OF_SOURCE;
-      drmSessionForClearTypes = Collections.emptyList();
-      drmLicenseRequestHeaders = Collections.emptyMap();
+      drmConfiguration = new DrmConfiguration.Builder();
       streamKeys = Collections.emptyList();
       subtitles = Collections.emptyList();
       liveTargetOffsetMs = C.TIME_UNSET;
@@ -128,17 +124,10 @@ public final class MediaItem implements Bundleable {
         streamKeys = playbackProperties.streamKeys;
         subtitles = playbackProperties.subtitles;
         tag = playbackProperties.tag;
-        @Nullable DrmConfiguration drmConfiguration = playbackProperties.drmConfiguration;
-        if (drmConfiguration != null) {
-          drmLicenseUri = drmConfiguration.licenseUri;
-          drmLicenseRequestHeaders = drmConfiguration.requestHeaders;
-          drmMultiSession = drmConfiguration.multiSession;
-          drmForceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
-          drmPlayClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
-          drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
-          drmUuid = drmConfiguration.uuid;
-          drmKeySetId = drmConfiguration.getKeySetId();
-        }
+        drmConfiguration =
+            playbackProperties.drmConfiguration != null
+                ? playbackProperties.drmConfiguration.buildUpon()
+                : new DrmConfiguration.Builder();
         @Nullable AdsConfiguration adsConfiguration = playbackProperties.adsConfiguration;
         if (adsConfiguration != null) {
           adTagUri = adsConfiguration.adTagUri;
@@ -243,149 +232,111 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
+    /** Sets the optional DRM configuration. */
+    public Builder setDrmConfiguration(@Nullable DrmConfiguration drmConfiguration) {
+      this.drmConfiguration =
+          drmConfiguration != null ? drmConfiguration.buildUpon() : new DrmConfiguration.Builder();
+      return this;
+    }
+
     /**
-     * Sets the optional default DRM license server URI. If this URI is set, the {@link
-     * DrmConfiguration#uuid} needs to be specified as well.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setLicenseUri(Uri)} instead.
      */
+    @Deprecated
     public Builder setDrmLicenseUri(@Nullable Uri licenseUri) {
-      drmLicenseUri = licenseUri;
+      drmConfiguration.setLicenseUri(licenseUri);
       return this;
     }
 
     /**
-     * Sets the optional default DRM license server URI. If this URI is set, the {@link
-     * DrmConfiguration#uuid} needs to be specified as well.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setLicenseUri(String)} instead.
      */
+    @Deprecated
     public Builder setDrmLicenseUri(@Nullable String licenseUri) {
-      drmLicenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
+      drmConfiguration.setLicenseUri(licenseUri);
       return this;
     }
 
     /**
-     * Sets the optional request headers attached to the DRM license request.
-     *
-     * <p>{@code null} or an empty {@link Map} can be used for a reset.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} instead.
      */
+    @Deprecated
     public Builder setDrmLicenseRequestHeaders(
         @Nullable Map<String, String> licenseRequestHeaders) {
-      this.drmLicenseRequestHeaders =
-          licenseRequestHeaders != null && !licenseRequestHeaders.isEmpty()
-              ? Collections.unmodifiableMap(new HashMap<>(licenseRequestHeaders))
-              : Collections.emptyMap();
+      drmConfiguration.setLicenseRequestHeaders(licenseRequestHeaders);
       return this;
     }
 
     /**
-     * Sets the {@link UUID} of the protection scheme.
-     *
-     * <p>If {@code uuid} is null or unset then no {@link DrmConfiguration} object is created during
-     * {@link #build()} and no other {@code Builder} methods that would populate {@link
-     * MediaItem.PlaybackProperties#drmConfiguration} should be called.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and pass the {@code uuid} to
+     *     {@link DrmConfiguration.Builder#Builder(UUID)} instead.
      */
+    @Deprecated
     public Builder setDrmUuid(@Nullable UUID uuid) {
-      drmUuid = uuid;
+      drmConfiguration.setNullableUuid(uuid);
       return this;
     }
 
     /**
-     * Sets whether the DRM configuration is multi session enabled.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setMultiSession(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmMultiSession(boolean multiSession) {
-      drmMultiSession = multiSession;
+      drmConfiguration.setMultiSession(multiSession);
       return this;
     }
 
     /**
-     * Sets whether to force use the default DRM license server URI even if the media specifies its
-     * own DRM license server URI.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setForceDefaultLicenseUri(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
-      this.drmForceDefaultLicenseUri = forceDefaultLicenseUri;
+      drmConfiguration.setForceDefaultLicenseUri(forceDefaultLicenseUri);
       return this;
     }
 
     /**
-     * Sets whether clear samples within protected content should be played when keys for the
-     * encrypted part of the content have yet to be loaded.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setPlayClearContentWithoutKey(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
-      this.drmPlayClearContentWithoutKey = playClearContentWithoutKey;
+      drmConfiguration.setPlayClearContentWithoutKey(playClearContentWithoutKey);
       return this;
     }
 
     /**
-     * Sets whether a DRM session should be used for clear tracks of type {@link C#TRACK_TYPE_VIDEO}
-     * and {@link C#TRACK_TYPE_AUDIO}.
-     *
-     * <p>This method overrides what has been set by previously calling {@link
-     * #setDrmSessionForClearTypes(List)}.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setSessionForClearPeriods(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
-      this.setDrmSessionForClearTypes(
-          sessionForClearPeriods
-              ? Arrays.asList(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
-              : Collections.emptyList());
+      drmConfiguration.setSessionForClearPeriods(sessionForClearPeriods);
       return this;
     }
 
     /**
-     * Sets a list of {@link C.TrackType track types} for which to use a DRM session even when the
-     * tracks are in the clear.
-     *
-     * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
-     * C#TRACK_TYPE_AUDIO} the {@link #setDrmSessionForClearPeriods(boolean)} can be used.
-     *
-     * <p>This method overrides what has been set by previously calling {@link
-     * #setDrmSessionForClearPeriods(boolean)}.
-     *
-     * <p>{@code null} or an empty {@link List} can be used for a reset.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setSessionForClearTypes(List)} instead.
      */
+    @Deprecated
     public Builder setDrmSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
-      this.drmSessionForClearTypes =
-          sessionForClearTypes != null && !sessionForClearTypes.isEmpty()
-              ? Collections.unmodifiableList(new ArrayList<>(sessionForClearTypes))
-              : Collections.emptyList();
+      drmConfiguration.setSessionForClearTypes(sessionForClearTypes);
       return this;
     }
 
     /**
-     * Sets the key set ID of the offline license.
-     *
-     * <p>The key set ID identifies an offline license. The ID is required to query, renew or
-     * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
-     * mode,byte[] offlineLicenseKeySetId)}).
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setKeySetId(byte[])} instead.
      */
+    @Deprecated
     public Builder setDrmKeySetId(@Nullable byte[] keySetId) {
-      this.drmKeySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+      drmConfiguration.setKeySetId(keySetId);
       return this;
     }
 
@@ -568,7 +519,8 @@ public final class MediaItem implements Bundleable {
 
     /** Returns a new {@link MediaItem} instance with the current builder values. */
     public MediaItem build() {
-      checkState(drmLicenseUri == null || drmUuid != null);
+      // TODO: remove this check once all the deprecated individual DRM setters are removed.
+      checkState(drmConfiguration.licenseUri == null || drmConfiguration.uuid != null);
       @Nullable PlaybackProperties playbackProperties = null;
       @Nullable Uri uri = this.uri;
       if (uri != null) {
@@ -576,17 +528,7 @@ public final class MediaItem implements Bundleable {
             new PlaybackProperties(
                 uri,
                 mimeType,
-                drmUuid != null
-                    ? new DrmConfiguration(
-                        drmUuid,
-                        drmLicenseUri,
-                        drmLicenseRequestHeaders,
-                        drmMultiSession,
-                        drmForceDefaultLicenseUri,
-                        drmPlayClearContentWithoutKey,
-                        drmSessionForClearTypes,
-                        drmKeySetId)
-                    : null,
+                drmConfiguration.uuid != null ? drmConfiguration.build() : null,
                 adTagUri != null ? new AdsConfiguration(adTagUri, adsId) : null,
                 streamKeys,
                 customCacheKey,
@@ -615,6 +557,165 @@ public final class MediaItem implements Bundleable {
   /** DRM configuration for a media item. */
   public static final class DrmConfiguration {
 
+    /** Builder for {@link DrmConfiguration}. */
+    public static final class Builder {
+
+      // TODO remove @Nullable annotation when the deprecated zero-arg constructor is removed.
+      @Nullable private UUID uuid;
+      @Nullable private Uri licenseUri;
+      private ImmutableMap<String, String> licenseRequestHeaders;
+      private boolean multiSession;
+      private boolean playClearContentWithoutKey;
+      private boolean forceDefaultLicenseUri;
+      private ImmutableList<Integer> sessionForClearTypes;
+      @Nullable private byte[] keySetId;
+
+      /**
+       * Constructs an instance.
+       *
+       * @param uuid The {@link UUID} of the protection scheme.
+       */
+      public Builder(UUID uuid) {
+        this.uuid = uuid;
+        this.licenseRequestHeaders = ImmutableMap.of();
+        this.sessionForClearTypes = ImmutableList.of();
+      }
+
+      /**
+       * @deprecated This only exists to support the deprecated setters for individual DRM
+       *     properties on {@link MediaItem.Builder}.
+       */
+      @Deprecated
+      private Builder() {
+        this.licenseRequestHeaders = ImmutableMap.of();
+        this.sessionForClearTypes = ImmutableList.of();
+      }
+
+      private Builder(DrmConfiguration drmConfiguration) {
+        this.uuid = drmConfiguration.uuid;
+        this.licenseUri = drmConfiguration.licenseUri;
+        this.licenseRequestHeaders = drmConfiguration.requestHeaders;
+        this.multiSession = drmConfiguration.multiSession;
+        this.playClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
+        this.forceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
+        this.sessionForClearTypes = drmConfiguration.sessionForClearTypes;
+        this.keySetId = drmConfiguration.keySetId;
+      }
+
+      /** Sets the {@link UUID} of the protection scheme. */
+      public Builder setUuid(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+      }
+
+      /**
+       * @deprecated This only exists to support the deprecated {@link
+       *     MediaItem.Builder#setDrmUuid(UUID)}.
+       */
+      @Deprecated
+      private Builder setNullableUuid(@Nullable UUID uuid) {
+        this.uuid = uuid;
+        return this;
+      }
+
+      /** Sets the optional default DRM license server URI. */
+      public Builder setLicenseUri(@Nullable Uri licenseUri) {
+        this.licenseUri = licenseUri;
+        return this;
+      }
+
+      /** Sets the optional default DRM license server URI. */
+      public Builder setLicenseUri(@Nullable String licenseUri) {
+        this.licenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
+        return this;
+      }
+
+      /** Sets the optional request headers attached to DRM license requests. */
+      public Builder setLicenseRequestHeaders(@Nullable Map<String, String> licenseRequestHeaders) {
+        this.licenseRequestHeaders =
+            licenseRequestHeaders != null
+                ? ImmutableMap.copyOf(licenseRequestHeaders)
+                : ImmutableMap.of();
+        return this;
+      }
+
+      /** Sets whether multi session is enabled. */
+      public Builder setMultiSession(boolean multiSession) {
+        this.multiSession = multiSession;
+        return this;
+      }
+
+      /**
+       * Sets whether to always use the default DRM license server URI even if the media specifies
+       * its own DRM license server URI.
+       */
+      public Builder setForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
+        this.forceDefaultLicenseUri = forceDefaultLicenseUri;
+        return this;
+      }
+
+      /**
+       * Sets whether clear samples within protected content should be played when keys for the
+       * encrypted part of the content have yet to be loaded.
+       */
+      public Builder setPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
+        this.playClearContentWithoutKey = playClearContentWithoutKey;
+        return this;
+      }
+
+      /**
+       * Sets whether a DRM session should be used for clear tracks of type {@link
+       * C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_AUDIO}.
+       *
+       * <p>This method overrides what has been set by previously calling {@link
+       * #setSessionForClearTypes(List)}.
+       */
+      public Builder setSessionForClearPeriods(boolean sessionForClearPeriods) {
+        this.setSessionForClearTypes(
+            sessionForClearPeriods
+                ? ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
+                : ImmutableList.of());
+        return this;
+      }
+
+      /**
+       * Sets a list of {@link C}{@code .TRACK_TYPE_*} constants for which to use a DRM session even
+       * when the tracks are in the clear.
+       *
+       * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
+       * C#TRACK_TYPE_AUDIO} the {@link #setSessionForClearPeriods(boolean)} can be used.
+       *
+       * <p>This method overrides what has been set by previously calling {@link
+       * #setSessionForClearPeriods(boolean)}.
+       *
+       * <p>{@code null} or an empty {@link List} can be used for a reset.
+       */
+      public Builder setSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
+        this.sessionForClearTypes =
+            sessionForClearTypes != null
+                ? ImmutableList.copyOf(sessionForClearTypes)
+                : ImmutableList.of();
+        return this;
+      }
+
+      /**
+       * Sets the key set ID of the offline license.
+       *
+       * <p>The key set ID identifies an offline license. The ID is required to query, renew or
+       * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
+       * mode,byte[] offlineLicenseKeySetId)}).
+       */
+      public Builder setKeySetId(@Nullable byte[] keySetId) {
+        this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+        return this;
+      }
+
+      public DrmConfiguration build() {
+
+        return new DrmConfiguration(this);
+      }
+    }
+
     /** The UUID of the protection scheme. */
     public final UUID uuid;
 
@@ -625,7 +726,7 @@ public final class MediaItem implements Bundleable {
     @Nullable public final Uri licenseUri;
 
     /** The headers to attach to the request to the DRM license server. */
-    public final Map<String, String> requestHeaders;
+    public final ImmutableMap<String, String> requestHeaders;
 
     /** Whether the DRM configuration is multi session enabled. */
     public final boolean multiSession;
@@ -643,34 +744,33 @@ public final class MediaItem implements Bundleable {
     public final boolean forceDefaultLicenseUri;
 
     /** The types of clear tracks for which to use a DRM session. */
-    public final List<Integer> sessionForClearTypes;
+    public final ImmutableList<Integer> sessionForClearTypes;
 
     @Nullable private final byte[] keySetId;
 
-    private DrmConfiguration(
-        UUID uuid,
-        @Nullable Uri licenseUri,
-        Map<String, String> requestHeaders,
-        boolean multiSession,
-        boolean forceDefaultLicenseUri,
-        boolean playClearContentWithoutKey,
-        List<Integer> drmSessionForClearTypes,
-        @Nullable byte[] keySetId) {
-      Assertions.checkArgument(!(forceDefaultLicenseUri && licenseUri == null));
-      this.uuid = uuid;
-      this.licenseUri = licenseUri;
-      this.requestHeaders = requestHeaders;
-      this.multiSession = multiSession;
-      this.forceDefaultLicenseUri = forceDefaultLicenseUri;
-      this.playClearContentWithoutKey = playClearContentWithoutKey;
-      this.sessionForClearTypes = drmSessionForClearTypes;
-      this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+    private DrmConfiguration(Builder builder) {
+      checkState(!(builder.forceDefaultLicenseUri && builder.licenseUri == null));
+      this.uuid = checkNotNull(builder.uuid);
+      this.licenseUri = builder.licenseUri;
+      this.requestHeaders = builder.licenseRequestHeaders;
+      this.multiSession = builder.multiSession;
+      this.forceDefaultLicenseUri = builder.forceDefaultLicenseUri;
+      this.playClearContentWithoutKey = builder.playClearContentWithoutKey;
+      this.sessionForClearTypes = builder.sessionForClearTypes;
+      this.keySetId =
+          builder.keySetId != null
+              ? Arrays.copyOf(builder.keySetId, builder.keySetId.length)
+              : null;
     }
 
     /** Returns the key set ID of the offline license. */
     @Nullable
     public byte[] getKeySetId() {
       return keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+    }
+
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override

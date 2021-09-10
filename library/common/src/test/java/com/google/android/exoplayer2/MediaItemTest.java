@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,14 +78,15 @@ public class MediaItemTest {
   }
 
   @Test
-  public void builderSetDrmConfig_isNullByDefault() {
+  public void builder_drmConfigIsNullByDefault() {
     // Null value by default.
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNull();
   }
 
   @Test
-  public void builderSetDrmConfig_setsAllProperties() {
+  @SuppressWarnings("deprecation") // Testing deprecated methods
+  public void builderSetDrmPropertiesIndividually() {
     Uri licenseUri = Uri.parse(URI_STRING);
     Map<String, String> requestHeaders = new HashMap<>();
     requestHeaders.put("Referer", "http://www.google.com");
@@ -92,14 +94,14 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_STRING)
-            .setDrmUuid(C.WIDEVINE_UUID)
             .setDrmLicenseUri(licenseUri)
             .setDrmLicenseRequestHeaders(requestHeaders)
             .setDrmMultiSession(true)
             .setDrmForceDefaultLicenseUri(true)
             .setDrmPlayClearContentWithoutKey(true)
-            .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
+            .setDrmSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
             .setDrmKeySetId(keySetId)
+            .setDrmUuid(C.WIDEVINE_UUID)
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
@@ -116,6 +118,73 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated methods
+  public void builderSetDrmConfigurationOverwritesIndividualProperties() {
+    Uri licenseUri = Uri.parse(URI_STRING);
+    Map<String, String> requestHeaders = new HashMap<>();
+    requestHeaders.put("Referer", "http://www.google.com");
+    byte[] keySetId = new byte[] {1, 2, 3};
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setDrmLicenseUri(licenseUri)
+            .setDrmLicenseRequestHeaders(requestHeaders)
+            .setDrmMultiSession(true)
+            .setDrmForceDefaultLicenseUri(true)
+            .setDrmPlayClearContentWithoutKey(true)
+            .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
+            .setDrmKeySetId(keySetId)
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.CLEARKEY_UUID).build())
+            .build();
+
+    assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isNull();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders).isEmpty();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isFalse();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isFalse();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isFalse();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes).isEmpty();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.getKeySetId()).isNull();
+  }
+
+  @Test
+  public void builderSetDrmConfiguration() {
+    Uri licenseUri = Uri.parse(URI_STRING);
+    Map<String, String> requestHeaders = new HashMap<>();
+    requestHeaders.put("Referer", "http://www.google.com");
+    byte[] keySetId = new byte[] {1, 2, 3};
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri(licenseUri)
+                    .setLicenseRequestHeaders(requestHeaders)
+                    .setMultiSession(true)
+                    .setForceDefaultLicenseUri(true)
+                    .setPlayClearContentWithoutKey(true)
+                    .setSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+                    .setKeySetId(keySetId)
+                    .build())
+            .build();
+
+    assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
+        .isEqualTo(requestHeaders);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isTrue();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated methods
   public void builderSetDrmSessionForClearPeriods_setsAudioAndVideoTracks() {
     Uri licenseUri = Uri.parse(URI_STRING);
     MediaItem mediaItem =
@@ -132,6 +201,21 @@ public class MediaItemTest {
   }
 
   @Test
+  public void drmConfigurationBuilderSetSessionForClearPeriods_overridesSetSessionForClearTypes() {
+    Uri licenseUri = Uri.parse(URI_STRING);
+    MediaItem.DrmConfiguration drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+            .setLicenseUri(licenseUri)
+            .setSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+            .setSessionForClearPeriods(true)
+            .build();
+
+    assertThat(drmConfiguration.sessionForClearTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated methods
   public void builderSetDrmUuid_notCalled_throwsIllegalStateException() {
     assertThrows(
         IllegalStateException.class,
