@@ -407,6 +407,16 @@ public final class RtspMessageUtilTest {
   }
 
   @Test
+  public void parseSessionHeader_withSessionIdContainingSpecialCharactersAndTimeout_succeeds()
+      throws Exception {
+    String sessionHeaderString = "610a63df-9b57.4856_97ac$665f+56e9c04;timeout=60";
+    RtspMessageUtil.RtspSessionHeader sessionHeader =
+        RtspMessageUtil.parseSessionHeader(sessionHeaderString);
+    assertThat(sessionHeader.sessionId).isEqualTo("610a63df-9b57.4856_97ac$665f+56e9c04");
+    assertThat(sessionHeader.timeoutMs).isEqualTo(60_000);
+  }
+
+  @Test
   public void removeUserInfo_withUserInfo() {
     Uri uri = Uri.parse("rtsp://user:pass@foo.bar/foo.mkv");
     assertThat(RtspMessageUtil.removeUserInfo(uri)).isEqualTo(Uri.parse("rtsp://foo.bar/foo.mkv"));
