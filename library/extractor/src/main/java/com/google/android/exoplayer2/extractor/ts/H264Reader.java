@@ -200,8 +200,8 @@ public final class H264Reader implements ElementaryStreamReader {
           List<byte[]> initializationData = new ArrayList<>();
           initializationData.add(Arrays.copyOf(sps.nalData, sps.nalLength));
           initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
-          NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
-          NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
+          NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnitPayload(sps.nalData, 4, sps.nalLength);
+          NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnitPayload(pps.nalData, 4, pps.nalLength);
           String codecs =
               CodecSpecificDataUtil.buildAvcCodecString(
                   spsData.profileIdc,
@@ -224,11 +224,11 @@ public final class H264Reader implements ElementaryStreamReader {
           pps.reset();
         }
       } else if (sps.isCompleted()) {
-        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
+        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnitPayload(sps.nalData, 4, sps.nalLength);
         sampleReader.putSps(spsData);
         sps.reset();
       } else if (pps.isCompleted()) {
-        NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
+        NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnitPayload(pps.nalData, 4, pps.nalLength);
         sampleReader.putPps(ppsData);
         pps.reset();
       }

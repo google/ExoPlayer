@@ -86,28 +86,11 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
-   * Returns an RFC 6381 HEVC codec string based on the SPS NAL unit read from the provided bit
-   * array. The position of the bit array must be the start of an SPS NALU (nal_unit_header), and
-   * the position may be modified by this method.
+   * Builds a RFC 6381 HEVC codec string using the provided parameters.
    */
-  public static String buildHevcCodecStringFromSps(ParsableNalUnitBitArray bitArray) {
-    // Skip nal_unit_header, sps_video_parameter_set_id, sps_max_sub_layers_minus1 and
-    // sps_temporal_id_nesting_flag.
-    bitArray.skipBits(16 + 4 + 3 + 1);
-    int generalProfileSpace = bitArray.readBits(2);
-    boolean generalTierFlag = bitArray.readBit();
-    int generalProfileIdc = bitArray.readBits(5);
-    int generalProfileCompatibilityFlags = 0;
-    for (int i = 0; i < 32; i++) {
-      if (bitArray.readBit()) {
-        generalProfileCompatibilityFlags |= (1 << i);
-      }
-    }
-    int[] constraintBytes = new int[6];
-    for (int i = 0; i < constraintBytes.length; ++i) {
-      constraintBytes[i] = bitArray.readBits(8);
-    }
-    int generalLevelIdc = bitArray.readBits(8);
+  public static String buildHevcCodecString(
+      int generalProfileSpace, boolean generalTierFlag, int generalProfileIdc,
+      int generalProfileCompatibilityFlags, int[] constraintBytes, int generalLevelIdc) {
     StringBuilder builder =
         new StringBuilder(
             Util.formatInvariant(

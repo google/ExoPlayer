@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,6 +58,9 @@ public final class HevcConfig {
       data.setPosition(csdStartPosition);
       byte[] buffer = new byte[csdLength];
       int bufferPosition = 0;
+      int width = Format.NO_VALUE;
+      int height = Format.NO_VALUE;
+      float pixelWidthAspectRatio = 1;
       @Nullable String codecs = null;
       for (int i = 0; i < numberOfArrays; i++) {
         int nalUnitType = data.readUnsignedByte() & 0x7F; // completeness (1), nal_unit_type (7)
@@ -74,12 +77,16 @@ public final class HevcConfig {
           System.arraycopy(
               data.getData(), data.getPosition(), buffer, bufferPosition, nalUnitLength);
           if (nalUnitType == SPS_NAL_UNIT_TYPE && j == 0) {
-            ParsableNalUnitBitArray bitArray =
-                new ParsableNalUnitBitArray(
-                    buffer,
-                    /* offset= */ bufferPosition,
-                    /* limit= */ bufferPosition + nalUnitLength);
-            codecs = CodecSpecificDataUtil.buildHevcCodecStringFromSps(bitArray);
+            NalUnitUtil.H265SpsData spsData =
+                NalUnitUtil.parseH265SpsNalUnitPayload(
+                    buffer, bufferPosition + 1, bufferPosition + nalUnitLength);
+            width = spsData.picWidthInLumaSamples;
+            height = spsData.picHeightInLumaSamples;
+            pixelWidthAspectRatio = spsData.pixelWidthHeightRatio;
+            codecs = CodecSpecificDataUtil.buildHevcCodecString(spsData.generalProfileSpace,
+                spsData.generalTierFlag, spsData.generalProfileIdc,
+                spsData.generalProfileCompatibilityFlags, spsData.constraintBytes,
+                spsData.generalLevelIdc);
           }
           bufferPosition += nalUnitLength;
           data.skipBytes(nalUnitLength);
@@ -88,7 +95,13 @@ public final class HevcConfig {
 
       @Nullable
       List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
-      return new HevcConfig(initializationData, lengthSizeMinusOne + 1, codecs);
+      return new HevcConfig(
+          initializationData,
+          lengthSizeMinusOne + 1,
+          width,
+          height,
+          pixelWidthAspectRatio,
+          codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw ParserException.createForMalformedContainer("Error parsing HEVC config", e);
     }
@@ -105,6 +118,9 @@ public final class HevcConfig {
   @Nullable public final List<byte[]> initializationData;
   /** The length of the NAL unit length field in the bitstream's container, in bytes. */
   public final int nalUnitLengthFieldLength;
+  public final int width;
+  public final int height;
+  public final float pixelWidthHeightRatio;
   /**
    * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
    *
@@ -115,9 +131,15 @@ public final class HevcConfig {
   private HevcConfig(
       @Nullable List<byte[]> initializationData,
       int nalUnitLengthFieldLength,
+      int width,
+      int height,
+      float pixelWidthAspectRatio,
       @Nullable String codecs) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
+    this.width = width;
+    this.height = height;
+    this.pixelWidthHeightRatio = pixelWidthAspectRatio;
     this.codecs = codecs;
   }
 }

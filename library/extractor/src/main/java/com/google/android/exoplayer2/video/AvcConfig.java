@@ -66,9 +66,8 @@ public final class AvcConfig {
       @Nullable String codecs = null;
       if (numSequenceParameterSets > 0) {
         byte[] sps = initializationData.get(0);
-        SpsData spsData =
-            NalUnitUtil.parseSpsNalUnit(
-                initializationData.get(0), nalUnitLengthFieldLength, sps.length);
+        SpsData spsData = NalUnitUtil.parseSpsNalUnitPayload(sps,
+            nalUnitLengthFieldLength + 1, sps.length);
         width = spsData.width;
         height = spsData.height;
         pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
