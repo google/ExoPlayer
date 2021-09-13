@@ -555,27 +555,6 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   }
 
   /**
-   * Asserts that the media items reported by {@link
-   * Player.Listener#onMediaItemTransition(MediaItem, int)} are the same as the provided media
-   * items.
-   *
-   * @param mediaItems A list of expected {@link MediaItem media items}.
-   */
-  public void assertMediaItemsTransitionedSame(MediaItem... mediaItems) {
-    assertThat(this.mediaItems).containsExactlyElementsIn(mediaItems).inOrder();
-  }
-
-  /**
-   * Asserts that the media item transition reasons reported by {@link
-   * Player.Listener#onMediaItemTransition(MediaItem, int)} are the same as the provided reasons.
-   *
-   * @param reasons A list of expected transition reasons.
-   */
-  public void assertMediaItemsTransitionReasonsEqual(Integer... reasons) {
-    assertThat(this.mediaItemTransitionReasons).containsExactlyElementsIn(reasons).inOrder();
-  }
-
-  /**
    * Asserts that the playback states reported by {@link
    * Player.Listener#onPlaybackStateChanged(int)} are equal to the provided playback states.
    */

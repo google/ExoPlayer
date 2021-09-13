@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.media.MediaCodec;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -45,6 +46,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Random;
 
 /** Utility methods for tests. */
@@ -181,6 +183,23 @@ public class TestUtil {
             // Do nothing.
           }
         });
+  }
+
+  /**
+   * Asserts that the actual timelines are the same to the expected timelines. This assert differs
+   * from testing equality by not comparing period ids which may be different due to id mapping of
+   * child source period ids.
+   *
+   * @param actualTimelines A list of actual {@link Timeline timelines}.
+   * @param expectedTimelines A list of expected {@link Timeline timelines}.
+   */
+  public static void assertTimelinesSame(
+      List<Timeline> actualTimelines, List<Timeline> expectedTimelines) {
+    assertThat(actualTimelines).hasSize(expectedTimelines.size());
+    for (int i = 0; i < actualTimelines.size(); i++) {
+      assertThat(new NoUidTimeline(actualTimelines.get(i)))
+          .isEqualTo(new NoUidTimeline(expectedTimelines.get(i)));
+    }
   }
 
   /**

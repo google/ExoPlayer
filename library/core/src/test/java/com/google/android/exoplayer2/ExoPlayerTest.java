@@ -55,6 +55,7 @@ import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runU
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilTimelineChanged;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static com.google.android.exoplayer2.testutil.TestUtil.assertTimelinesSame;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
@@ -104,7 +105,6 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.SilenceMediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -7823,298 +7823,292 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setMediaSources_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource = factory.setTag("1").createMediaSource();
+  public void setMediaSource_notifiesMediaItemTransition() {
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
+    player.setMediaSource(mediaSource);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    assertThat(reportedMediaItems).containsExactly(mediaSource.getMediaItem());
+    assertThat(reportedTransitionReasons)
+        .containsExactly(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    player.release();
   }
 
   @Test
-  public void setMediaSources_replaceWithSameMediaItem_notifiesMediaItemTransition()
+  public void setMediaSource_replaceWithSameMediaItem_notifiesMediaItemTransition()
       throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource = factory.setTag("1").createMediaSource();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForPlaybackState(Player.STATE_READY)
-            .setMediaSources(mediaSource)
-            .waitForPlaybackState(Player.STATE_READY)
-            .build();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.setMediaSource(mediaSource);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    player.setMediaSource(mediaSource);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
-        mediaSource.getMediaItem(), mediaSource.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    assertThat(reportedMediaItems)
+        .containsExactly(mediaSource.getMediaItem(), mediaSource.getMediaItem());
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    player.release();
   }
 
   @Test
   public void automaticWindowTransition_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
-        mediaSource1.getMediaItem(), mediaSource2.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
-        Player.MEDIA_ITEM_TRANSITION_REASON_AUTO);
+    assertThat(reportedMediaItems)
+        .containsExactly(mediaSource1.getMediaItem(), mediaSource2.getMediaItem())
+        .inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_AUTO)
+        .inOrder();
+    player.release();
   }
 
   @Test
-  public void clearMediaItem_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .playUntilPosition(/* windowIndex= */ 1, /* positionMs= */ 2000)
-            .clearMediaItems()
-            .build();
+  public void clearMediaItems_notifiesMediaItemTransition() throws Exception {
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
+    player.play();
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.clearMediaItems();
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
-        mediaSource1.getMediaItem(), mediaSource2.getMediaItem(), null);
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
-        Player.MEDIA_ITEM_TRANSITION_REASON_AUTO,
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    assertThat(reportedMediaItems)
+        .containsExactly(mediaSource1.getMediaItem(), mediaSource2.getMediaItem(), null)
+        .inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_AUTO,
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+        .inOrder();
+    player.release();
   }
 
   @Test
   public void seekTo_otherWindow_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForPlaybackState(Player.STATE_READY)
-            .seek(/* windowIndex= */ 1, /* positionMs= */ 2000)
-            .build();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 2000);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
-        mediaSource1.getMediaItem(), mediaSource2.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
-        Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+    assertThat(reportedMediaItems)
+        .containsExactly(mediaSource1.getMediaItem(), mediaSource2.getMediaItem())
+        .inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_SEEK)
+        .inOrder();
+    player.release();
   }
 
   @Test
   public void seekTo_sameWindow_doesNotNotifyMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
-            .seek(/* windowIndex= */ 0, /* positionMs= */ 20_000)
-            .stop()
-            .build();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 2000);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource1.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    assertThat(reportedMediaItems).containsExactly(mediaSource1.getMediaItem()).inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+        .inOrder();
+    player.release();
   }
 
   @Test
   public void repeat_notifiesMediaItemTransition() throws Exception {
-    MediaItem mediaItem1 = MediaItem.fromUri("http://foo.bar/fake1");
-    TimelineWindowDefinition window1 =
-        new TimelineWindowDefinition(
-            /* periodCount= */ 1,
-            /* id= */ 1,
-            /* isSeekable= */ true,
-            /* isDynamic= */ false,
-            /* isLive= */ false,
-            /* isPlaceholder= */ false,
-            /* durationUs = */ 100_000,
-            /* defaultPositionUs = */ 0,
-            /* windowOffsetInFirstPeriodUs= */ 0,
-            AdPlaybackState.NONE,
-            mediaItem1);
-    MediaItem mediaItem2 = MediaItem.fromUri("http://foo.bar/fake2");
-    TimelineWindowDefinition window2 =
-        new TimelineWindowDefinition(
-            /* periodCount= */ 1,
-            /* id= */ 2,
-            /* isSeekable= */ true,
-            /* isDynamic= */ false,
-            /* isLive= */ false,
-            /* isPlaceholder= */ false,
-            /* durationUs = */ 100_000,
-            /* defaultPositionUs = */ 0,
-            /* windowOffsetInFirstPeriodUs= */ 0,
-            AdPlaybackState.NONE,
-            mediaItem2);
-    FakeMediaSource mediaSource1 = new FakeMediaSource(new FakeTimeline(window1));
-    FakeMediaSource mediaSource2 = new FakeMediaSource(new FakeTimeline(window2));
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.setRepeatMode(Player.REPEAT_MODE_ONE);
-                  }
-                })
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 90)
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 80)
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 70)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.setRepeatMode(Player.REPEAT_MODE_OFF);
-                  }
-                })
-            .play()
-            .build();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.play();
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    player.setRepeatMode(Player.REPEAT_MODE_OFF);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
-        mediaSource1.getMediaItem(),
-        mediaSource1.getMediaItem(),
-        mediaSource1.getMediaItem(),
-        mediaSource2.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
-        Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT,
-        Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT,
-        Player.MEDIA_ITEM_TRANSITION_REASON_AUTO);
+    assertThat(reportedMediaItems)
+        .containsExactly(
+            mediaSource1.getMediaItem(),
+            mediaSource1.getMediaItem(),
+            mediaSource1.getMediaItem(),
+            mediaSource2.getMediaItem())
+        .inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT,
+            Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT,
+            Player.MEDIA_ITEM_TRANSITION_REASON_AUTO)
+        .inOrder();
+    player.release();
   }
 
+  // Tests deprecated stop(boolean reset)
+  @SuppressWarnings("deprecation")
   @Test
   public void stop_withReset_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
-            .stop(/* reset= */ true)
-            .build();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.stop(/* reset= */ true);
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource1.getMediaItem(), null);
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    assertThat(reportedMediaItems).containsExactly(mediaSource1.getMediaItem(), null).inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+        .inOrder();
+    player.release();
   }
 
   @Test
   public void stop_withoutReset_doesNotNotifyMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
-            .stop(/* reset= */ false)
-            .build();
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    MediaSource mediaSource1 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    MediaSource mediaSource2 = FakeMediaSource.createWithWindowId(/* windowId= */ new Object());
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSources(ImmutableList.of(mediaSource1, mediaSource2));
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource1, mediaSource2)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+    player.stop();
 
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource1.getMediaItem());
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    assertThat(reportedMediaItems).containsExactly(mediaSource1.getMediaItem()).inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+        .inOrder();
+    player.release();
   }
 
   @Test
   public void timelineRefresh_withModifiedMediaItem_doesNotNotifyMediaItemTransition()
       throws Exception {
+    List<MediaItem> reportedMediaItems = new ArrayList<>();
+    List<Integer> reportedTransitionReasons = new ArrayList<>();
+    List<Timeline> reportedTimelines = new ArrayList<>();
     MediaItem initialMediaItem = FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(0).build();
     TimelineWindowDefinition initialWindow =
         new TimelineWindowDefinition(
@@ -8145,32 +8139,35 @@ public final class ExoPlayerTest {
     FakeTimeline timeline = new FakeTimeline(initialWindow);
     FakeTimeline newTimeline = new FakeTimeline(secondWindow);
     FakeMediaSource mediaSource = new FakeMediaSource(timeline);
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
-            .waitForPlayWhenReady(false)
-            .executeRunnable(
-                () -> {
-                  mediaSource.setNewSourceInfo(newTimeline);
-                })
-            .play()
-            .build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(
+        new Listener() {
+          @Override
+          public void onTimelineChanged(Timeline timeline, int reason) {
+            reportedTimelines.add(timeline);
+          }
 
-    ExoPlayerTestRunner exoPlayerTestRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(mediaSource)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            reportedMediaItems.add(mediaItem);
+            reportedTransitionReasons.add(reason);
+          }
+        });
+    player.setMediaSource(mediaSource);
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
-    exoPlayerTestRunner.assertTimelinesSame(placeholderTimeline, timeline, newTimeline);
-    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
-        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
-    exoPlayerTestRunner.assertMediaItemsTransitionedSame(initialMediaItem);
+    mediaSource.setNewSourceInfo(newTimeline);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    assertTimelinesSame(
+        reportedTimelines, ImmutableList.of(placeholderTimeline, timeline, newTimeline));
+    assertThat(reportedMediaItems).containsExactly(initialMediaItem).inOrder();
+    assertThat(reportedTransitionReasons)
+        .containsExactly(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+        .inOrder();
+    player.release();
   }
 
   @Test

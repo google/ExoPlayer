@@ -73,6 +73,13 @@ public class FakeMediaSource extends BaseMediaSource {
     }
   }
 
+  /** Convenience method to create a {@link FakeMediaSource} with the given window id. */
+  public static FakeMediaSource createWithWindowId(Object windowId) {
+    return new FakeMediaSource(
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(/* periodCount= */ 1, windowId)));
+  }
+
   /** The media item used by the fake media source. */
   public static final MediaItem FAKE_MEDIA_ITEM =
       new MediaItem.Builder().setMediaId("FakeMediaSource").setUri("http://manifest.uri").build();
