@@ -50,6 +50,7 @@ import java.util.Map;
   public static final String CSEQ = "CSeq";
   public static final String DATE = "Date";
   public static final String EXPIRES = "Expires";
+  public static final String LOCATION = "Location";
   public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
   public static final String PROXY_REQUIRE = "Proxy-Require";
   public static final String PUBLIC = "Public";
@@ -251,6 +252,8 @@ import java.util.Map;
       return DATE;
     } else if (Ascii.equalsIgnoreCase(messageHeaderName, EXPIRES)) {
       return EXPIRES;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, LOCATION)) {
+      return LOCATION;
     } else if (Ascii.equalsIgnoreCase(messageHeaderName, PROXY_AUTHENTICATE)) {
       return PROXY_AUTHENTICATE;
     } else if (Ascii.equalsIgnoreCase(messageHeaderName, PROXY_REQUIRE)) {

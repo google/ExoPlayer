@@ -101,8 +101,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final SessionInfoListener sessionInfoListener;
   private final PlaybackEventListener playbackEventListener;
-  private final Uri uri;
-  @Nullable private final RtspAuthUserInfo rtspAuthUserInfo;
   private final String userAgent;
   private final boolean debugLoggingEnabled;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
@@ -110,7 +108,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SparseArray<RtspRequest> pendingRequests;
   private final MessageSender messageSender;
 
+  /** RTSP session URI. */
+  private Uri uri;
+
   private RtspMessageChannel messageChannel;
+  @Nullable private RtspAuthUserInfo rtspAuthUserInfo;
   @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
@@ -140,15 +142,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean debugLoggingEnabled) {
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
-    this.uri = RtspMessageUtil.removeUserInfo(uri);
-    this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
     this.userAgent = userAgent;
     this.debugLoggingEnabled = debugLoggingEnabled;
-    pendingSetupRtpLoadInfos = new ArrayDeque<>();
-    pendingRequests = new SparseArray<>();
-    messageSender = new MessageSender();
-    pendingSeekPositionUs = C.TIME_UNSET;
-    messageChannel = new RtspMessageChannel(new MessageListener());
+    this.pendingSetupRtpLoadInfos = new ArrayDeque<>();
+    this.pendingRequests = new SparseArray<>();
+    this.messageSender = new MessageSender();
+    this.uri = RtspMessageUtil.removeUserInfo(uri);
+    this.messageChannel = new RtspMessageChannel(new MessageListener());
+    this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
+    this.pendingSeekPositionUs = C.TIME_UNSET;
   }
 
   /**
@@ -482,6 +484,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         switch (response.status) {
           case 200:
             break;
+          case 301:
+          case 302:
+            // Redirection request.
+            @Nullable String redirectionUriString = response.headers.get(RtspHeaders.LOCATION);
+            if (redirectionUriString == null) {
+              sessionInfoListener.onSessionTimelineRequestFailed(
+                  "Redirection without new location.", /* cause= */ null);
+            } else {
+              Uri redirectionUri = Uri.parse(redirectionUriString);
+              RtspClient.this.uri = RtspMessageUtil.removeUserInfo(redirectionUri);
+              RtspClient.this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(redirectionUri);
+              messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId);
+            }
+            return;
           case 401:
             if (rtspAuthUserInfo != null && !receivedAuthorizationRequest) {
               // Unauthorized.

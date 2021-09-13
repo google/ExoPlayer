@@ -462,6 +462,10 @@ import java.util.regex.Pattern;
     switch (statusCode) {
       case 200:
         return "OK";
+      case 301:
+        return "Move Permanently";
+      case 302:
+        return "Move Temporarily";
       case 400:
         return "Bad Request";
       case 401:
