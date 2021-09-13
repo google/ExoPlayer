@@ -769,10 +769,12 @@ public final class PlaybackStatsListener
           }
         }
       }
-      mediaTimeHistory.add(
-          mediaTimeMs == C.TIME_UNSET
-              ? guessMediaTimeBasedOnElapsedRealtime(realtimeMs)
-              : new long[] {realtimeMs, mediaTimeMs});
+
+      if (mediaTimeMs != C.TIME_UNSET) {
+        mediaTimeHistory.add(new long[] {realtimeMs, mediaTimeMs});
+      } else if (!mediaTimeHistory.isEmpty()) {
+        mediaTimeHistory.add(guessMediaTimeBasedOnElapsedRealtime(realtimeMs));
+      }
     }
 
     private long[] guessMediaTimeBasedOnElapsedRealtime(long realtimeMs) {
