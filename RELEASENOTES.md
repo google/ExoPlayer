@@ -27,7 +27,7 @@
     *   Better handle invalid seek requests. Seeks to positions that are before
         the start or after the end of the media are now handled as seeks to the
         start and end respectively
-        ([8906](https://github.com/google/ExoPlayer/issues/8906)).
+        ([#8906](https://github.com/google/ExoPlayer/issues/8906)).
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
