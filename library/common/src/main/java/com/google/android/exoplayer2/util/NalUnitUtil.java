@@ -452,7 +452,7 @@ public final class NalUnitUtil {
   }
 
   /**
-   * Parses a H.265 SPS NAL unit payload (excluding the NAL unit header)  using the syntax defined in ITU-T Recommendation H.265 (2019)
+   * Parses a H.265 SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T Recommendation H.265 (2019)
    * subsection 7.3.2.2.1.
    *
    * @param nalData A buffer containing escaped SPS data.
@@ -615,7 +615,7 @@ public final class NalUnitUtil {
   }
 
   /**
-   * Parses a PPS NAL unit payload (excluding the NAL unit header)  using the syntax defined in ITU-T Recommendation H.264 (2013)
+   * Parses a PPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T Recommendation H.264 (2013)
    * subsection 7.3.2.2.
    *
    * @param nalData A buffer containing escaped PPS data.
