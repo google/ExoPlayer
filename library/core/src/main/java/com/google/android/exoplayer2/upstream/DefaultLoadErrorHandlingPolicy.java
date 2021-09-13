@@ -101,8 +101,9 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   /**
    * Retries for any exception that is not a subclass of {@link ParserException}, {@link
    * FileNotFoundException}, {@link CleartextNotPermittedException} or {@link
-   * UnexpectedLoaderException}. The retry delay is calculated as {@code Math.min((errorCount - 1) *
-   * 1000, 5000)}.
+   * UnexpectedLoaderException}, and for which {@link
+   * DataSourceException#isCausedByPositionOutOfRange} returns {@code false}. The retry delay is
+   * calculated as {@code Math.min((errorCount - 1) * 1000, 5000)}.
    */
   @Override
   public long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo) {
@@ -111,6 +112,7 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
             || exception instanceof FileNotFoundException
             || exception instanceof CleartextNotPermittedException
             || exception instanceof UnexpectedLoaderException
+            || DataSourceException.isCausedByPositionOutOfRange(exception)
         ? C.TIME_UNSET
         : min((loadErrorInfo.errorCount - 1) * 1000, 5000);
   }
