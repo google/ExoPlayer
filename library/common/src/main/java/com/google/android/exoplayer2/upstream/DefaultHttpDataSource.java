@@ -78,13 +78,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
     }
 
-    /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
-    @Deprecated
-    @Override
-    public final RequestProperties getDefaultRequestProperties() {
-      return defaultRequestProperties;
-    }
-
     @Override
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);

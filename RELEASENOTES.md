@@ -78,6 +78,8 @@
     *   Remove `SingleSampleMediaSource.createMediaSource(Uri, Format, long)`.
         Use `SingleSampleMediaSource.createMediaSource(MediaItem.Subtitle,
         long)` instead.
+    *   Remove `HttpDataSource.Factory.getDefaultRequestProperties`. Use
+        `HttpDataSource.Factory.setDefaultRequestProperties` instead.
     *   Remove `GvrAudioProcessor` and the GVR extension, which has been
         deprecated since 2.11.0.
 *   Cast extension:

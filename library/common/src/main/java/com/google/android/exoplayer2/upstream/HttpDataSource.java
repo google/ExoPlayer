@@ -42,10 +42,6 @@ public interface HttpDataSource extends DataSource {
     @Override
     HttpDataSource createDataSource();
 
-    /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
-    @Deprecated
-    RequestProperties getDefaultRequestProperties();
-
     /**
      * Sets the default request headers for {@link HttpDataSource} instances created by the factory.
      *
@@ -151,13 +147,6 @@ public interface HttpDataSource extends DataSource {
     @Override
     public final HttpDataSource createDataSource() {
       return createDataSourceInternal(defaultRequestProperties);
-    }
-
-    /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
-    @Deprecated
-    @Override
-    public final RequestProperties getDefaultRequestProperties() {
-      return defaultRequestProperties;
     }
 
     @Override
