@@ -1022,7 +1022,7 @@ public final class CastPlayer extends BasePlayer {
       trackGroups[i] = new TrackGroup(CastUtils.mediaTrackToFormat(mediaTrack));
 
       long id = mediaTrack.getId();
-      int trackType = MimeTypes.getTrackType(mediaTrack.getContentType());
+      @C.TrackType int trackType = MimeTypes.getTrackType(mediaTrack.getContentType());
       int rendererIndex = getRendererIndexForTrackType(trackType);
       if (isTrackActive(id, activeTrackIds)
           && rendererIndex != C.INDEX_UNSET
@@ -1289,7 +1289,7 @@ public final class CastPlayer extends BasePlayer {
     return false;
   }
 
-  private static int getRendererIndexForTrackType(int trackType) {
+  private static int getRendererIndexForTrackType(@C.TrackType int trackType) {
     return trackType == C.TRACK_TYPE_VIDEO
         ? RENDERER_INDEX_VIDEO
         : trackType == C.TRACK_TYPE_AUDIO

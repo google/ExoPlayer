@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.SampleQueue;
@@ -29,7 +30,7 @@ public final class BaseMediaChunkOutput implements TrackOutputProvider {
 
   private static final String TAG = "BaseMediaChunkOutput";
 
-  private final int[] trackTypes;
+  private final @C.TrackType int[] trackTypes;
   private final SampleQueue[] sampleQueues;
 
   /**
@@ -42,7 +43,7 @@ public final class BaseMediaChunkOutput implements TrackOutputProvider {
   }
 
   @Override
-  public TrackOutput track(int id, int type) {
+  public TrackOutput track(int id, @C.TrackType int type) {
     for (int i = 0; i < trackTypes.length; i++) {
       if (type == trackTypes[i]) {
         return sampleQueues[i];

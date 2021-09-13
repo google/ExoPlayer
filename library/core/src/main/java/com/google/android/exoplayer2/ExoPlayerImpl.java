@@ -928,7 +928,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return renderers.length;
   }
 
-  public int getRendererType(int index) {
+  public @C.TrackType int getRendererType(int index) {
     return renderers[index].getTrackType();
   }
 

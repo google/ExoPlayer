@@ -90,7 +90,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
     private final int rendererCount;
     private final String[] rendererNames;
-    private final int[] rendererTrackTypes;
+    private final @C.TrackType int[] rendererTrackTypes;
     private final TrackGroupArray[] rendererTrackGroups;
     @AdaptiveSupport private final int[] rendererMixedMimeTypeAdaptiveSupports;
     @Capabilities private final int[][][] rendererFormatSupports;
@@ -98,7 +98,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
     /**
      * @param rendererNames The name of each renderer.
-     * @param rendererTrackTypes The track type handled by each renderer.
+     * @param rendererTrackTypes The {@link C.TrackType track type} handled by each renderer.
      * @param rendererTrackGroups The {@link TrackGroup}s mapped to each renderer.
      * @param rendererMixedMimeTypeAdaptiveSupports The {@link AdaptiveSupport} for mixed MIME type
      *     adaptation for the renderer.
@@ -109,7 +109,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     @SuppressWarnings("deprecation")
     /* package */ MappedTrackInfo(
         String[] rendererNames,
-        int[] rendererTrackTypes,
+        @C.TrackType int[] rendererTrackTypes,
         TrackGroupArray[] rendererTrackGroups,
         @AdaptiveSupport int[] rendererMixedMimeTypeAdaptiveSupports,
         @Capabilities int[][][] rendererFormatSupports,
@@ -146,7 +146,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param rendererIndex The renderer index.
      * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
      */
-    public int getRendererType(int rendererIndex) {
+    public @C.TrackType int getRendererType(int rendererIndex) {
       return rendererTrackTypes[rendererIndex];
     }
 
@@ -199,11 +199,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * specified type. If no such renderers exist then {@link #RENDERER_SUPPORT_NO_TRACKS} is
      * returned.
      *
-     * @param trackType The track type. One of the {@link C} {@code TRACK_TYPE_*} constants.
+     * @param trackType The {@link C.TrackType track type}.
      * @return The {@link RendererSupport}.
      */
     @RendererSupport
-    public int getTypeSupport(int trackType) {
+    public int getTypeSupport(@C.TrackType int trackType) {
       @RendererSupport int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       for (int i = 0; i < rendererCount; i++) {
         if (rendererTrackTypes[i] == trackType) {

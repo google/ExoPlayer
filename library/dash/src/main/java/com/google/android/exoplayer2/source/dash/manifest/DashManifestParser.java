@@ -528,8 +528,7 @@ public class DashManifestParser extends DefaultHandler
         supplementalProperties);
   }
 
-  @C.TrackType
-  protected int parseContentType(XmlPullParser xpp) {
+  protected @C.TrackType int parseContentType(XmlPullParser xpp) {
     String contentType = xpp.getAttributeValue(null, "contentType");
     return TextUtils.isEmpty(contentType)
         ? C.TRACK_TYPE_UNKNOWN

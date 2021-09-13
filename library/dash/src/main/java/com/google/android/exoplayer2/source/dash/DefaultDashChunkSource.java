@@ -105,7 +105,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,
-        int trackType,
+        @C.TrackType int trackType,
         long elapsedRealtimeOffsetMs,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
@@ -136,7 +136,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final BaseUrlExclusionList baseUrlExclusionList;
   private final int[] adaptationSetIndices;
-  private final int trackType;
+  private final @C.TrackType int trackType;
   private final DataSource dataSource;
   private final long elapsedRealtimeOffsetMs;
   private final int maxSegmentsPerLoad;
@@ -159,7 +159,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param periodIndex The index of the period in the manifest.
    * @param adaptationSetIndices The indices of the adaptation sets in the period.
    * @param trackSelection The track selection.
-   * @param trackType The type of the tracks in the selection.
+   * @param trackType The {@link C.TrackType type} of the tracks in the selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
@@ -180,7 +180,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int periodIndex,
       int[] adaptationSetIndices,
       ExoTrackSelection trackSelection,
-      int trackType,
+      @C.TrackType int trackType,
       DataSource dataSource,
       long elapsedRealtimeOffsetMs,
       int maxSegmentsPerLoad,

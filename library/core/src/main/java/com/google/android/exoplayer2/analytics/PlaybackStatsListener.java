@@ -527,6 +527,7 @@ public final class PlaybackStatsListener
         boolean audioEnabled = false;
         for (TrackSelection trackSelection : player.getCurrentTrackSelections().getAll()) {
           if (trackSelection != null && trackSelection.length() > 0) {
+            @C.TrackType
             int trackType = MimeTypes.getTrackType(trackSelection.getFormat(0).sampleMimeType);
             if (trackType == C.TRACK_TYPE_VIDEO) {
               videoEnabled = true;

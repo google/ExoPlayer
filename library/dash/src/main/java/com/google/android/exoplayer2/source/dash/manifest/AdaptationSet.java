@@ -32,7 +32,7 @@ public class AdaptationSet {
   public final int id;
 
   /** The {@link C.TrackType track type} of the adaptation set. */
-  @C.TrackType public final int type;
+  public final @C.TrackType int type;
 
   /** {@link Representation}s in the adaptation set. */
   public final List<Representation> representations;

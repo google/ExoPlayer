@@ -30,7 +30,7 @@ public final class DeviceInfo implements Bundleable {
   /** Types of playback. One of {@link #PLAYBACK_TYPE_LOCAL} or {@link #PLAYBACK_TYPE_REMOTE}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
+  @Target({ElementType.TYPE_USE})
   @IntDef({
     PLAYBACK_TYPE_LOCAL,
     PLAYBACK_TYPE_REMOTE,

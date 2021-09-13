@@ -28,10 +28,10 @@ public final class MediaLoadData {
   /** The {@link DataType data type}. */
   @DataType public final int dataType;
   /**
-   * One of the {@link TrackType track type}, which is a media track type if the data corresponds to
-   * media of a specific type, or {@link C#TRACK_TYPE_UNKNOWN} otherwise.
+   * One of the {@link TrackType track types}, which is a media track type if the data corresponds
+   * to media of a specific type, or {@link C#TRACK_TYPE_UNKNOWN} otherwise.
    */
-  @TrackType public final int trackType;
+  public final @TrackType int trackType;
   /**
    * The format of the track to which the data belongs. Null if the data does not belong to a
    * specific track.

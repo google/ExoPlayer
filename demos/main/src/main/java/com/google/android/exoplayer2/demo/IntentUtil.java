@@ -216,7 +216,7 @@ public class IntentUtil {
     }
     intent.putExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA + extrasKeySuffix, drmKeyRequestProperties);
 
-    List<Integer> drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
+    List<@C.TrackType Integer> drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
     if (!drmSessionForClearTypes.isEmpty()) {
       // Only video and audio together are supported.
       Assertions.checkState(

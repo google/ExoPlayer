@@ -201,8 +201,9 @@ public interface RendererCapabilities {
    * text renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
    *
    * @see Renderer#getTrackType()
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   * @return The {@link C.TrackType track type}.
    */
+  @C.TrackType
   int getTrackType();
 
   /**

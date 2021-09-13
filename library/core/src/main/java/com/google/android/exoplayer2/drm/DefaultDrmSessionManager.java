@@ -74,7 +74,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     private UUID uuid;
     private ExoMediaDrm.Provider exoMediaDrmProvider;
     private boolean multiSession;
-    private int[] useDrmSessionsForClearContentTrackTypes;
+    private @C.TrackType int[] useDrmSessionsForClearContentTrackTypes;
     private boolean playClearSamplesWithoutKeys;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long sessionKeepaliveMs;
@@ -165,8 +165,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      *     track types other than {@link C#TRACK_TYPE_AUDIO} and {@link C#TRACK_TYPE_VIDEO}.
      */
     public Builder setUseDrmSessionsForClearContent(
-        int... useDrmSessionsForClearContentTrackTypes) {
-      for (int trackType : useDrmSessionsForClearContentTrackTypes) {
+        @C.TrackType int... useDrmSessionsForClearContentTrackTypes) {
+      for (@C.TrackType int trackType : useDrmSessionsForClearContentTrackTypes) {
         checkArgument(trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_AUDIO);
       }
       this.useDrmSessionsForClearContentTrackTypes =
@@ -282,7 +282,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private final MediaDrmCallback callback;
   private final HashMap<String, String> keyRequestParameters;
   private final boolean multiSession;
-  private final int[] useDrmSessionsForClearContentTrackTypes;
+  private final @C.TrackType int[] useDrmSessionsForClearContentTrackTypes;
   private final boolean playClearSamplesWithoutKeys;
   private final ProvisioningManagerImpl provisioningManagerImpl;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -393,7 +393,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       MediaDrmCallback callback,
       HashMap<String, String> keyRequestParameters,
       boolean multiSession,
-      int[] useDrmSessionsForClearContentTrackTypes,
+      @C.TrackType int[] useDrmSessionsForClearContentTrackTypes,
       boolean playClearSamplesWithoutKeys,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long sessionKeepaliveMs) {

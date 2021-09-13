@@ -103,7 +103,7 @@ public final class DashUtil {
   @Nullable
   public static Format loadFormatWithDrmInitData(DataSource dataSource, Period period)
       throws IOException {
-    int primaryTrackType = C.TRACK_TYPE_VIDEO;
+    @C.TrackType int primaryTrackType = C.TRACK_TYPE_VIDEO;
     Representation representation = getFirstRepresentation(period, primaryTrackType);
     if (representation == null) {
       primaryTrackType = C.TRACK_TYPE_AUDIO;
@@ -329,7 +329,7 @@ public final class DashUtil {
   }
 
   @Nullable
-  private static Representation getFirstRepresentation(Period period, int type) {
+  private static Representation getFirstRepresentation(Period period, @C.TrackType int type) {
     int index = period.getAdaptationSetIndex(type);
     if (index == C.INDEX_UNSET) {
       return null;

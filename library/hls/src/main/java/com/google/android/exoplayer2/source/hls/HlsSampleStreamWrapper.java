@@ -125,7 +125,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new HashSet<>(
               Arrays.asList(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_METADATA)));
 
-  @C.TrackType private final int trackType;
+  private final @C.TrackType int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;

@@ -35,7 +35,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   private boolean streamIsFinal;
 
   @Override
-  public final int getTrackType() {
+  public final @C.TrackType int getTrackType() {
     return C.TRACK_TYPE_NONE;
   }
 

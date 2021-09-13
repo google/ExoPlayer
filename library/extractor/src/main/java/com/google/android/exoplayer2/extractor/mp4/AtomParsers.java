@@ -280,6 +280,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       boolean isQuickTime)
       throws ParserException {
     Atom.ContainerAtom mdia = checkNotNull(trak.getContainerAtomOfType(Atom.TYPE_mdia));
+    @C.TrackType
     int trackType =
         getTrackTypeForHdlr(parseHdlr(checkNotNull(mdia.getLeafAtomOfType(Atom.TYPE_hdlr)).data));
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
@@ -866,8 +867,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Returns the track type for a given handler value. */
-  @C.TrackType
-  private static int getTrackTypeForHdlr(int hdlr) {
+  private static @C.TrackType int getTrackTypeForHdlr(int hdlr) {
     if (hdlr == TYPE_soun) {
       return C.TRACK_TYPE_AUDIO;
     } else if (hdlr == TYPE_vide) {

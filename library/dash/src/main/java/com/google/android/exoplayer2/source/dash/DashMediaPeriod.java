@@ -921,7 +921,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private static final int CATEGORY_MANIFEST_EVENTS = 2;
 
     public final int[] adaptationSetIndices;
-    @C.TrackType public final int trackType;
+    public final @C.TrackType int trackType;
     @TrackGroupCategory public final int trackGroupCategory;
 
     public final int eventStreamGroupIndex;

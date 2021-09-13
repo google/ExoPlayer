@@ -897,8 +897,9 @@ public interface ExoPlayer extends Player {
    * return {@link C#TRACK_TYPE_AUDIO} and a text renderer will return {@link C#TRACK_TYPE_TEXT}.
    *
    * @param index The index of the renderer.
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   * @return The {@link C.TrackType track type} that the renderer handles.
    */
+  @C.TrackType
   int getRendererType(int index);
 
   /**

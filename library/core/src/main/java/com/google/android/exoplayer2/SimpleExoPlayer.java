@@ -1427,7 +1427,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public int getRendererType(int index) {
+  public @C.TrackType int getRendererType(int index) {
     verifyApplicationThread();
     return player.getRendererType(index);
   }

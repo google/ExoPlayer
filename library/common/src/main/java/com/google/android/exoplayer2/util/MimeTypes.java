@@ -154,10 +154,11 @@ public final class MimeTypes {
    *
    * @param mimeType The custom MIME type to register.
    * @param codecPrefix The RFC 6381 codec string prefix associated with the MIME type.
-   * @param trackType The {@link C}{@code .TRACK_TYPE_*} constant associated with the MIME type.
-   *     This value is ignored if the top-level type of {@code mimeType} is audio, video or text.
+   * @param trackType The {@link C.TrackType track type} associated with the MIME type. This value
+   *     is ignored if the top-level type of {@code mimeType} is audio, video or text.
    */
-  public static void registerCustomMimeType(String mimeType, String codecPrefix, int trackType) {
+  public static void registerCustomMimeType(
+      String mimeType, String codecPrefix, @C.TrackType int trackType) {
     CustomMimeType customMimeType = new CustomMimeType(mimeType, codecPrefix, trackType);
     int customMimeTypeCount = customMimeTypes.size();
     for (int i = 0; i < customMimeTypeCount; i++) {
@@ -493,8 +494,7 @@ public final class MimeTypes {
    * @return The corresponding {@link C.TrackType track type}, which may be {@link
    *     C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    */
-  @C.TrackType
-  public static int getTrackType(@Nullable String mimeType) {
+  public static @C.TrackType int getTrackType(@Nullable String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
       return C.TRACK_TYPE_UNKNOWN;
     } else if (isAudio(mimeType)) {
@@ -563,8 +563,7 @@ public final class MimeTypes {
    * @return The corresponding {@link C.TrackType track type}, which may be {@link
    *     C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    */
-  @C.TrackType
-  public static int getTrackTypeOfCodec(String codec) {
+  public static @C.TrackType int getTrackTypeOfCodec(String codec) {
     return getTrackType(getMediaMimeType(codec));
   }
 
@@ -628,7 +627,7 @@ public final class MimeTypes {
     return null;
   }
 
-  private static int getTrackTypeForCustomMimeType(String mimeType) {
+  private static @C.TrackType int getTrackTypeForCustomMimeType(String mimeType) {
     int customMimeTypeCount = customMimeTypes.size();
     for (int i = 0; i < customMimeTypeCount; i++) {
       CustomMimeType customMimeType = customMimeTypes.get(i);
@@ -721,9 +720,9 @@ public final class MimeTypes {
   private static final class CustomMimeType {
     public final String mimeType;
     public final String codecPrefix;
-    public final int trackType;
+    public final @C.TrackType int trackType;
 
-    public CustomMimeType(String mimeType, String codecPrefix, int trackType) {
+    public CustomMimeType(String mimeType, String codecPrefix, @C.TrackType int trackType) {
       this.mimeType = mimeType;
       this.codecPrefix = codecPrefix;
       this.trackType = trackType;

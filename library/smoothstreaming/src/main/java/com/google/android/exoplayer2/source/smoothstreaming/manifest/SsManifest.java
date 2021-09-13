@@ -60,7 +60,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     private static final String URL_PLACEHOLDER_BITRATE_1 = "{bitrate}";
     private static final String URL_PLACEHOLDER_BITRATE_2 = "{Bitrate}";
 
-    @C.TrackType public final int type;
+    public final @C.TrackType int type;
     public final String subType;
     public final long timescale;
     public final String name;

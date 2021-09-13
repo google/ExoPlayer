@@ -52,8 +52,8 @@ import java.nio.ByteBuffer;
     private final boolean forceQueueingSynchronizationWorkaround;
     private final boolean synchronizeCodecInteractionsWithQueueing;
 
-    /** Creates a factory for the specified {@code trackType}. */
-    public Factory(int trackType) {
+    /** Creates a factory for codecs handling the specified {@link C.TrackType track type}. */
+    public Factory(@C.TrackType int trackType) {
       this(
           trackType,
           /* forceQueueingSynchronizationWorkaround= */ false,

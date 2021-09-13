@@ -81,15 +81,15 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
   /**
    * Creates a new instance.
    *
-   * @param primaryTrackType The type of the primary track, or {@link C#TRACK_TYPE_NONE} if there is
-   *     no primary track. Must be one of the {@link C C.TRACK_TYPE_*} constants.
+   * @param primaryTrackType The {@link C.TrackType type} of the primary track. {@link
+   *     C#TRACK_TYPE_NONE} if there is no primary track.
    * @param manifestFormat The chunks {@link Format} as obtained from the manifest.
    * @param closedCaptionFormats A list containing the {@link Format Formats} of the closed-caption
    *     tracks in the chunks.
    */
   @SuppressLint("WrongConstant")
   public MediaParserChunkExtractor(
-      int primaryTrackType, Format manifestFormat, List<Format> closedCaptionFormats) {
+      @C.TrackType int primaryTrackType, Format manifestFormat, List<Format> closedCaptionFormats) {
     outputConsumerAdapter =
         new OutputConsumerAdapterV30(
             manifestFormat, primaryTrackType, /* expectDummySeekMap= */ true);

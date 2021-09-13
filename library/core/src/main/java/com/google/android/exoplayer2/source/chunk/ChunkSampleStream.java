@@ -69,7 +69,7 @@ public class ChunkSampleStream<T extends ChunkSource>
 
   private static final String TAG = "ChunkSampleStream";
 
-  @C.TrackType public final int primaryTrackType;
+  public final @C.TrackType int primaryTrackType;
 
   private final int[] embeddedTrackTypes;
   private final Format[] embeddedTrackFormats;

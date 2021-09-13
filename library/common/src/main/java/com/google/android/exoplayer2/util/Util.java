@@ -1539,11 +1539,12 @@ public final class Util {
    * trackType}.
    *
    * @param codecs A codec sequence string, as defined in RFC 6381.
-   * @param trackType One of {@link C}{@code .TRACK_TYPE_*}.
+   * @param trackType The {@link C.TrackType track type}.
    * @return A copy of {@code codecs} without the codecs whose track type doesn't match {@code
-   *     trackType}. If this ends up empty, or {@code codecs} is null, return null.
+   *     trackType}. If this ends up empty, or {@code codecs} is null, returns null.
    */
-  public static @Nullable String getCodecsOfType(@Nullable String codecs, int trackType) {
+  @Nullable
+  public static String getCodecsOfType(@Nullable String codecs, @C.TrackType int trackType) {
     String[] codecArray = splitCodecs(codecs);
     if (codecArray.length == 0) {
       return null;

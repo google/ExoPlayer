@@ -29,8 +29,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.UUID;
 
 /** Defines constants used by the library. */
@@ -658,6 +660,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({ElementType.TYPE_USE})
   @IntDef(
       open = true,
       value = {

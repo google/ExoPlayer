@@ -325,7 +325,8 @@ public final class MediaItem implements Bundleable {
      *     DrmConfiguration.Builder#setSessionForClearTypes(List)} instead.
      */
     @Deprecated
-    public Builder setDrmSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
+    public Builder setDrmSessionForClearTypes(
+        @Nullable List<@C.TrackType Integer> sessionForClearTypes) {
       drmConfiguration.setSessionForClearTypes(sessionForClearTypes);
       return this;
     }
@@ -567,7 +568,7 @@ public final class MediaItem implements Bundleable {
       private boolean multiSession;
       private boolean playClearContentWithoutKey;
       private boolean forceDefaultLicenseUri;
-      private ImmutableList<Integer> sessionForClearTypes;
+      private ImmutableList<@C.TrackType Integer> sessionForClearTypes;
       @Nullable private byte[] keySetId;
 
       /**
@@ -679,18 +680,19 @@ public final class MediaItem implements Bundleable {
       }
 
       /**
-       * Sets a list of {@link C}{@code .TRACK_TYPE_*} constants for which to use a DRM session even
+       * Sets a list of {@link C.TrackType track type} constants for which to use a DRM session even
        * when the tracks are in the clear.
        *
        * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
-       * C#TRACK_TYPE_AUDIO} the {@link #setSessionForClearPeriods(boolean)} can be used.
+       * C#TRACK_TYPE_AUDIO}, {@link #setSessionForClearPeriods(boolean)} can be used.
        *
        * <p>This method overrides what has been set by previously calling {@link
        * #setSessionForClearPeriods(boolean)}.
        *
        * <p>{@code null} or an empty {@link List} can be used for a reset.
        */
-      public Builder setSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
+      public Builder setSessionForClearTypes(
+          @Nullable List<@C.TrackType Integer> sessionForClearTypes) {
         this.sessionForClearTypes =
             sessionForClearTypes != null
                 ? ImmutableList.copyOf(sessionForClearTypes)
@@ -744,7 +746,7 @@ public final class MediaItem implements Bundleable {
     public final boolean forceDefaultLicenseUri;
 
     /** The types of clear tracks for which to use a DRM session. */
-    public final ImmutableList<Integer> sessionForClearTypes;
+    public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
 
     @Nullable private final byte[] keySetId;
 

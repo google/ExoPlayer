@@ -29,7 +29,7 @@ import java.io.IOException;
 /** A {@link BaseMediaChunk} for chunks consisting of a single raw sample. */
 public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
-  private final int trackType;
+  private final @C.TrackType int trackType;
   private final Format sampleFormat;
 
   private long nextLoadPosition;
@@ -44,8 +44,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
-   * @param trackType The type of the chunk. Typically one of the {@link C} {@code TRACK_TYPE_*}
-   *     constants.
+   * @param trackType The {@link C.TrackType track type} of the chunk.
    * @param sampleFormat The {@link Format} of the sample in the chunk.
    */
   public SingleSampleMediaChunk(
@@ -57,7 +56,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       long startTimeUs,
       long endTimeUs,
       long chunkIndex,
-      int trackType,
+      @C.TrackType int trackType,
       Format sampleFormat) {
     super(
         dataSource,
