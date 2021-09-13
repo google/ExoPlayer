@@ -28,13 +28,23 @@ import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
    * @param inputLength The length of the stream in bytes, or {@link C#LENGTH_UNSET} if unknown.
    * @param firstFramePosition The position of the first frame in the stream.
    * @param mpegAudioHeader The MPEG audio header associated with the first frame.
+   * @param allowSeeksIfLengthUnknown Whether to allow seeking even if the length of the content is
+   *     unknown.
    */
   public ConstantBitrateSeeker(
-      long inputLength, long firstFramePosition, MpegAudioUtil.Header mpegAudioHeader) {
+      long inputLength,
+      long firstFramePosition,
+      MpegAudioUtil.Header mpegAudioHeader,
+      boolean allowSeeksIfLengthUnknown) {
     // Set the seeker frame size to the size of the first frame (even though some constant bitrate
     // streams have variable frame sizes) to avoid the need to re-synchronize for constant frame
     // size streams.
-    super(inputLength, firstFramePosition, mpegAudioHeader.bitrate, mpegAudioHeader.frameSize);
+    super(
+        inputLength,
+        firstFramePosition,
+        mpegAudioHeader.bitrate,
+        mpegAudioHeader.frameSize,
+        allowSeeksIfLengthUnknown);
   }
 
   @Override

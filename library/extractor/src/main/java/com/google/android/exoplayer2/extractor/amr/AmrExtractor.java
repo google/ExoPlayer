@@ -19,6 +19,8 @@ import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -52,20 +54,33 @@ public final class AmrExtractor implements Extractor {
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new AmrExtractor()};
 
   /**
-   * Flags controlling the behavior of the extractor. Possible flag value is {@link
-   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}.
+   * Flags controlling the behavior of the extractor. Possible flag values are {@link
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING} and {@link
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING})
+      value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING, FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS})
   public @interface Flags {}
   /**
    * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
    * otherwise not be possible.
    */
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
+  /**
+   * Like {@link #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}, except that seeking is also enabled in
+   * cases where the content length (and hence the duration of the media) is unknown. Application
+   * code should ensure that requested seek positions are valid when using this flag, or be ready to
+   * handle playback failures reported through {@link Player.Listener#onPlayerError} with {@link
+   * PlaybackException#errorCode} set to {@link
+   * PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE}.
+   *
+   * <p>If this flag is set, then the behavior enabled by {@link
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING} is implicitly enabled as well.
+   */
+  public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS = 1 << 1;
 
   /**
    * The frame size in bytes, including header (1 byte), for each of the 16 frame types for AMR
@@ -152,6 +167,9 @@ public final class AmrExtractor implements Extractor {
 
   /** @param flags Flags that control the extractor's behavior. */
   public AmrExtractor(@Flags int flags) {
+    if ((flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS) != 0) {
+      flags |= FLAG_ENABLE_CONSTANT_BITRATE_SEEKING;
+    }
     this.flags = flags;
     scratch = new byte[1];
     firstSampleSize = C.LENGTH_UNSET;
@@ -360,15 +378,18 @@ public final class AmrExtractor implements Extractor {
       hasOutputSeekMap = true;
     } else if (numSamplesWithSameSize >= NUM_SAME_SIZE_CONSTANT_BIT_RATE_THRESHOLD
         || sampleReadResult == RESULT_END_OF_INPUT) {
-      seekMap = getConstantBitrateSeekMap(inputLength);
+      seekMap =
+          getConstantBitrateSeekMap(
+              inputLength, (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS) != 0);
       extractorOutput.seekMap(seekMap);
       hasOutputSeekMap = true;
     }
   }
 
-  private SeekMap getConstantBitrateSeekMap(long inputLength) {
+  private SeekMap getConstantBitrateSeekMap(long inputLength, boolean allowSeeksIfLengthUnknown) {
     int bitrate = getBitrateFromFrameSize(firstSampleSize, SAMPLE_TIME_PER_FRAME_US);
-    return new ConstantBitrateSeekMap(inputLength, firstSamplePosition, bitrate, firstSampleSize);
+    return new ConstantBitrateSeekMap(
+        inputLength, firstSamplePosition, bitrate, firstSampleSize, allowSeeksIfLengthUnknown);
   }
 
   @EnsuresNonNull({"extractorOutput", "trackOutput"})

@@ -20,6 +20,8 @@ import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
@@ -125,6 +127,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   private boolean constantBitrateSeekingEnabled;
+  private boolean constantBitrateSeekingAlwaysEnabled;
   @AdtsExtractor.Flags private int adtsFlags;
   @AmrExtractor.Flags private int amrFlags;
   @FlacExtractor.Flags private int flacFlags;
@@ -155,6 +158,30 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingEnabled(
       boolean constantBitrateSeekingEnabled) {
     this.constantBitrateSeekingEnabled = constantBitrateSeekingEnabled;
+    return this;
+  }
+
+  /**
+   * Convenience method to set whether approximate seeking using constant bitrate assumptions should
+   * be enabled for all extractors that support it, and if it should be enabled even if the content
+   * length (and hence the duration of the media) is unknown. If set to true, the flags required to
+   * enable this functionality will be OR'd with those passed to the setters when creating extractor
+   * instances. If set to false then the flags passed to the setters will be used without
+   * modification.
+   *
+   * <p>When seeking into content where the length is unknown, application code should ensure that
+   * requested seek positions are valid, or should be ready to handle playback failures reported
+   * through {@link Player.Listener#onPlayerError} with {@link PlaybackException#errorCode} set to
+   * {@link PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE}.
+   *
+   * @param constantBitrateSeekingAlwaysEnabled Whether approximate seeking using a constant bitrate
+   *     assumption should be enabled for all extractors that support it, including when the content
+   *     duration is unknown.
+   * @return The factory, for convenience.
+   */
+  public synchronized DefaultExtractorsFactory setConstantBitrateSeekingAlwaysEnabled(
+      boolean constantBitrateSeekingAlwaysEnabled) {
+    this.constantBitrateSeekingAlwaysEnabled = constantBitrateSeekingAlwaysEnabled;
     return this;
   }
 
@@ -333,6 +360,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 adtsFlags
                     | (constantBitrateSeekingEnabled
                         ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                        : 0)
+                    | (constantBitrateSeekingAlwaysEnabled
+                        ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS
                         : 0)));
         break;
       case FileTypes.AMR:
@@ -341,6 +371,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 amrFlags
                     | (constantBitrateSeekingEnabled
                         ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                        : 0)
+                    | (constantBitrateSeekingAlwaysEnabled
+                        ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS
                         : 0)));
         break;
       case FileTypes.FLAC:
@@ -367,6 +400,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 mp3Flags
                     | (constantBitrateSeekingEnabled
                         ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                        : 0)
+                    | (constantBitrateSeekingAlwaysEnabled
+                        ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS
                         : 0)));
         break;
       case FileTypes.MP4:
