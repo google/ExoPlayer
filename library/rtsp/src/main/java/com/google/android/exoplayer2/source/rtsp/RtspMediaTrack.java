@@ -183,8 +183,8 @@ import com.google.common.collect.ImmutableMap;
     // Process SPS (Sequence Parameter Set).
     byte[] spsNalDataWithStartCode = initializationData.get(0);
     NalUnitUtil.SpsData spsData =
-        NalUnitUtil.parseSpsNalUnitPayload(
-            spsNalDataWithStartCode, NAL_START_CODE.length + 1, spsNalDataWithStartCode.length);
+        NalUnitUtil.parseSpsNalUnit(
+            spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthAspectRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);

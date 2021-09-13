@@ -78,8 +78,8 @@ public final class HevcConfig {
               data.getData(), data.getPosition(), buffer, bufferPosition, nalUnitLength);
           if (nalUnitType == SPS_NAL_UNIT_TYPE && j == 0) {
             NalUnitUtil.H265SpsData spsData =
-                NalUnitUtil.parseH265SpsNalUnitPayload(
-                    buffer, bufferPosition + 1, bufferPosition + nalUnitLength);
+                NalUnitUtil.parseH265SpsNalUnit(
+                    buffer, bufferPosition, bufferPosition + nalUnitLength);
             width = spsData.picWidthInLumaSamples;
             height = spsData.picHeightInLumaSamples;
             pixelWidthAspectRatio = spsData.pixelWidthHeightRatio;

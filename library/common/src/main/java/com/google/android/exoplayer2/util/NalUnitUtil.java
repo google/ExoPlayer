@@ -292,11 +292,24 @@ public final class NalUnitUtil {
   }
 
   /**
-   * Parses a SPS NAL unit payload using the syntax defined in ITU-T Recommendation H.264 (2013)
+   * Parses a SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+   * 7.3.2.1.1.
+   *
+   * @param nalData A buffer containing escaped SPS data.
+   * @param nalOffset The offset of the NAL unit header in {@code nalData}.
+   * @param nalLimit The limit of the NAL unit in {@code nalData}.
+   * @return A parsed representation of the SPS data.
+   */
+  public static SpsData parseSpsNalUnit(byte[] nalData, int nalOffset, int nalLimit) {
+    return parseSpsNalUnitPayload(nalData, nalOffset + 1, nalLimit);
+  }
+
+  /**
+   * Parses a SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T Recommendation H.264 (2013)
    * subsection 7.3.2.1.1.
    *
    * @param nalData A buffer containing escaped SPS data.
-   * @param nalOffset The offset of the NAL unit in {@code nalData}.
+   * @param nalOffset The offset of the NAL unit payload in {@code nalData}.
    * @param nalLimit The limit of the NAL unit in {@code nalData}.
    * @return A parsed representation of the SPS data.
    */
@@ -426,11 +439,24 @@ public final class NalUnitUtil {
   }
 
   /**
-   * Parses a H.265 SPS NAL unit payload using the syntax defined in ITU-T Recommendation H.265 (2019)
+   * Parses a H.265 SPS NAL unit using the syntax defined in ITU-T Recommendation H.265 (2019)
    * subsection 7.3.2.2.1.
    *
    * @param nalData A buffer containing escaped SPS data.
-   * @param nalOffset The offset of the NAL unit in {@code nalData}.
+   * @param nalOffset The offset of the NAL unit header in {@code nalData}.
+   * @param nalLimit The limit of the NAL unit in {@code nalData}.
+   * @return A parsed representation of the SPS data.
+   */
+  public static H265SpsData parseH265SpsNalUnit(byte[] nalData, int nalOffset, int nalLimit) {
+    return parseH265SpsNalUnitPayload(nalData, nalOffset + 1, nalLimit);
+  }
+
+  /**
+   * Parses a H.265 SPS NAL unit payload (excluding the NAL unit header)  using the syntax defined in ITU-T Recommendation H.265 (2019)
+   * subsection 7.3.2.2.1.
+   *
+   * @param nalData A buffer containing escaped SPS data.
+   * @param nalOffset The offset of the NAL unit payload in {@code nalData}.
    * @param nalLimit The limit of the NAL unit in {@code nalData}.
    * @return A parsed representation of the SPS data.
    */
@@ -576,11 +602,24 @@ public final class NalUnitUtil {
   }
 
   /**
-   * Parses a PPS NAL unit payload using the syntax defined in ITU-T Recommendation H.264 (2013)
+   * Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+   * 7.3.2.2.
+   *
+   * @param nalData A buffer containing escaped PPS data.
+   * @param nalOffset The offset of the NAL unit header in {@code nalData}.
+   * @param nalLimit The limit of the NAL unit in {@code nalData}.
+   * @return A parsed representation of the PPS data.
+   */
+  public static PpsData parsePpsNalUnit(byte[] nalData, int nalOffset, int nalLimit) {
+    return parsePpsNalUnitPayload(nalData, nalOffset + 1, nalLimit);
+  }
+
+  /**
+   * Parses a PPS NAL unit payload (excluding the NAL unit header)  using the syntax defined in ITU-T Recommendation H.264 (2013)
    * subsection 7.3.2.2.
    *
    * @param nalData A buffer containing escaped PPS data.
-   * @param nalOffset The offset of the NAL unit in {@code nalData}.
+   * @param nalOffset The offset of the NAL unit payload in {@code nalData}.
    * @param nalLimit The limit of the NAL unit in {@code nalData}.
    * @return A parsed representation of the PPS data.
    */
