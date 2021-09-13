@@ -302,8 +302,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       selectionOverrides = new SparseArray<>();
       setSelectionOverridesFromBundle(bundle);
 
-      rendererDisabledFlags = new SparseBooleanArray();
-      setRendererDisabledFlagsFromBundle(bundle);
+      rendererDisabledFlags =
+          makeSparseBooleanArrayFromTrueKeys(
+              bundle.getIntArray(
+                  Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDEXES)));
     }
 
     @Override
@@ -827,15 +829,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
     }
 
-    private void setRendererDisabledFlagsFromBundle(Bundle bundle) {
-      int[] rendererIndexes =
-          bundle.getIntArray(Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDEXES));
-      if (rendererIndexes == null) {
-        return;
+    private SparseBooleanArray makeSparseBooleanArrayFromTrueKeys(@Nullable int[] trueKeys) {
+      if (trueKeys == null) {
+        return new SparseBooleanArray();
       }
-      for (int rendererIndex : rendererIndexes) {
-        setRendererDisabled(rendererIndex, true);
+      SparseBooleanArray sparseBooleanArray = new SparseBooleanArray(trueKeys.length);
+      for (int trueKey : trueKeys) {
+        sparseBooleanArray.append(trueKey, true);
       }
+      return sparseBooleanArray;
     }
   }
 
@@ -1145,7 +1147,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           keyForField(FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS), allowMultipleAdaptiveSelections);
 
       putSelectionOverridesToBundle(bundle, selectionOverrides);
-      putRendererDisabledFlagsToBundle(bundle, rendererDisabledFlags);
+      // Only true values are put into rendererDisabledFlags.
+      bundle.putIntArray(
+          keyForField(FIELD_RENDERER_DISABLED_INDEXES),
+          getKeysFromSparseBooleanArray(rendererDisabledFlags));
 
       return bundle;
     }
@@ -1192,13 +1197,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
     }
 
-    private static void putRendererDisabledFlagsToBundle(
-        Bundle bundle, SparseBooleanArray rendererDisabledFlags) {
-      int[] rendererIndexes = new int[rendererDisabledFlags.size()];
-      for (int i = 0; i < rendererDisabledFlags.size(); i++) {
-        rendererIndexes[i] = rendererDisabledFlags.keyAt(i);
+    private static int[] getKeysFromSparseBooleanArray(SparseBooleanArray sparseBooleanArray) {
+      int[] keys = new int[sparseBooleanArray.size()];
+      for (int i = 0; i < sparseBooleanArray.size(); i++) {
+        keys[i] = sparseBooleanArray.keyAt(i);
       }
-      bundle.putIntArray(keyForField(FIELD_RENDERER_DISABLED_INDEXES), rendererIndexes);
+      return keys;
     }
 
     private static boolean areRendererDisabledFlagsEqual(
