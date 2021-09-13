@@ -40,7 +40,7 @@ public interface DashChunkSource extends ChunkSource {
      * @param periodIndex The index of the corresponding period in the manifest.
      * @param adaptationSetIndices The indices of the corresponding adaptation sets in the period.
      * @param trackSelection The track selection.
-     * @param type The {@link C.TrackType track type}.
+     * @param trackType The {@link C.TrackType track type}.
      * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
      *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds,
      *     specified as the server's unix time minus the local elapsed time. Or {@link C#TIME_UNSET}
@@ -58,7 +58,7 @@ public interface DashChunkSource extends ChunkSource {
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,
-        @C.TrackType int type,
+        @C.TrackType int trackType,
         long elapsedRealtimeOffsetMs,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
