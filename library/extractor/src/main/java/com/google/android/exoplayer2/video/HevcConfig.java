@@ -116,11 +116,19 @@ public final class HevcConfig {
    * @see com.google.android.exoplayer2.Format#initializationData
    */
   @Nullable public final List<byte[]> initializationData;
+
   /** The length of the NAL unit length field in the bitstream's container, in bytes. */
   public final int nalUnitLengthFieldLength;
+
+  /** The width of the encoded picture in luma samples. */
   public final int width;
+
+  /** The height of the encoded picture in luma samples. */
   public final int height;
+
+  /** The pixel aspect ratio. */
   public final float pixelWidthHeightRatio;
+
   /**
    * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
    *
