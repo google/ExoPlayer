@@ -135,7 +135,7 @@ public final class BundleableUtils {
   }
 
   /**
-   * Set the application class loader to the given {@link Bundle} if no class loader is present.
+   * Sets the application class loader to the given {@link Bundle} if no class loader is present.
    *
    * <p>This assumes that all classes unparceled from {@code bundle} are sharing the class loader of
    * {@code BundleableUtils}.

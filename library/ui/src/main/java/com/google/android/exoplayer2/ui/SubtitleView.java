@@ -163,7 +163,7 @@ public final class SubtitleView extends FrameLayout implements Player.Listener {
   }
 
   /**
-   * Set the type of {@link View} used to display subtitles.
+   * Sets the type of {@link View} used to display subtitles.
    *
    * <p>NOTE: {@link #VIEW_TYPE_WEB} is currently very experimental, and doesn't support most
    * styling and layout properties of {@link Cue}.
@@ -198,7 +198,7 @@ public final class SubtitleView extends FrameLayout implements Player.Listener {
   }
 
   /**
-   * Set the text size to a given unit and value.
+   * Sets the text size to a given unit and value.
    *
    * <p>See {@link TypedValue} for the possible dimension units.
    *

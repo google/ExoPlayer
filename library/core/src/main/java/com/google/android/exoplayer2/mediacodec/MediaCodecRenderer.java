@@ -416,7 +416,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Set a limit on the time a single {@link #render(long, long)} call can spend draining and
+   * Sets a limit on the time a single {@link #render(long, long)} call can spend draining and
    * filling the decoder.
    *
    * <p>This method should be called right after creating an instance of this class.

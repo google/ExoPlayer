@@ -482,7 +482,7 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Set a limit on the time a call to {@link #setForegroundMode} can spend. If a call to {@link
+     * Sets a limit on the time a call to {@link #setForegroundMode} can spend. If a call to {@link
      * #setForegroundMode} takes more than {@code timeoutMs} milliseconds to complete, the player
      * will raise an error via {@link Player.Listener#onPlayerError}.
      *

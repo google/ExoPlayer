@@ -562,7 +562,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Set the {@link Player} to use.
+   * Sets the {@link Player} to use.
    *
    * <p>To transition a {@link Player} from targeting one view to another, it's recommended to use
    * {@link #switchTargetView(Player, StyledPlayerView, StyledPlayerView)} rather than this method.
@@ -917,7 +917,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Set the {@link StyledPlayerControlView.VisibilityListener}.
+   * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
@@ -1067,7 +1067,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Set the {@link AspectRatioFrameLayout.AspectRatioListener}.
+   * Sets the {@link AspectRatioFrameLayout.AspectRatioListener}.
    *
    * @param listener The listener to be notified about aspect ratios changes of the video content or
    *     the content frame.

@@ -1417,7 +1417,7 @@ public final class Util {
   }
 
   /**
-   * Return the long that is composed of the bits of the 2 specified integers.
+   * Returns the long that is composed of the bits of the 2 specified integers.
    *
    * @param mostSignificantBits The 32 most significant bits of the long to return.
    * @param leastSignificantBits The 32 least significant bits of the long to return.
