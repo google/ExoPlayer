@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Extracts data from the MPEG-2 TS container format. */
 public final class TsExtractor implements Extractor {
@@ -110,7 +112,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
   private static final int SNIFF_TS_PACKET_COUNT = 5;
 
-  private final @Mode int mode;
+  @Mode private final int mode;
   private final int timestampSearchBytes;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
@@ -122,13 +124,13 @@ public final class TsExtractor implements Extractor {
   private final TsDurationReader durationReader;
 
   // Accessed only by the loading thread.
-  private TsBinarySearchSeeker tsBinarySearchSeeker;
+  private @MonotonicNonNull TsBinarySearchSeeker tsBinarySearchSeeker;
   private ExtractorOutput output;
   private int remainingPmts;
   private boolean tracksEnded;
   private boolean hasOutputSeekMap;
   private boolean pendingSeekToStart;
-  private TsPayloadReader id3Reader;
+  @Nullable private TsPayloadReader id3Reader;
   private int bytesSinceLastSync;
   private int pcrPid;
 
@@ -214,6 +216,7 @@ public final class TsExtractor implements Extractor {
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
     durationReader = new TsDurationReader(timestampSearchBytes);
+    output = ExtractorOutput.PLACEHOLDER;
     pcrPid = -1;
     resetPayloadReaders();
   }
@@ -289,8 +292,8 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException {
+  @ReadResult
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     long inputLength = input.getLength();
     if (tracksEnded) {
       boolean canReadDuration = inputLength != C.LENGTH_UNSET && mode != MODE_HLS;
@@ -549,7 +552,7 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_DVB_EXT_AC4 = 0x15;
 
     private final ParsableBitArray pmtScratch;
-    private final SparseArray<TsPayloadReader> trackIdToReaderScratch;
+    private final SparseArray<@NullableType TsPayloadReader> trackIdToReaderScratch;
     private final SparseIntArray trackIdToPidScratch;
     private final int pid;
 
@@ -618,10 +621,12 @@ public final class TsExtractor implements Extractor {
         // appears intermittently during playback. See [Internal: b/20261500].
         EsInfo id3EsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, Util.EMPTY_BYTE_ARRAY);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, id3EsInfo);
-        id3Reader.init(
-            timestampAdjuster,
-            output,
-            new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
+        if (id3Reader != null) {
+          id3Reader.init(
+              timestampAdjuster,
+              output,
+              new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
+        }
       }
 
       trackIdToReaderScratch.clear();
