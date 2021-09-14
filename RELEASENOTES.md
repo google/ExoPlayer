@@ -30,6 +30,9 @@
         thrown from `Requirements.isInternetConnectivityValidated` on devices
         running Android 11
         ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
+*   DRM:
+    *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
+        DRM sessions when there's a shortage of DRM resources on the device.
 *   DASH:
     *   Use identical cache keys for downloading and playing DASH segments
         ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
