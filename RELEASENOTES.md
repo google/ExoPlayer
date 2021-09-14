@@ -41,6 +41,9 @@
     *   Request smaller decoder input buffers for Dolby Vision. This fixes an
         issue that could cause UHD Dolby Vision playbacks to fail on some
         devices, including Amazon Fire TV 4K.
+*   DRM:
+    *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
+        DRM sessions when there's a shortage of DRM resources on the device.
 *   UI
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
