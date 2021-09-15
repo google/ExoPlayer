@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -432,7 +433,8 @@ public class MediaItemTest {
   }
 
   @Test
-  public void buildUpon_equalsToOriginal() {
+  @SuppressWarnings("deprecation") // Testing deprecated setter methods
+  public void buildUpon_individualSetters_equalsToOriginal() {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setAdTagUri(URI_STRING)
@@ -463,6 +465,54 @@ public class MediaItemTest {
             .setLiveMaxOffsetMs(4444)
             .setSubtitles(
                 Collections.singletonList(
+                    new MediaItem.Subtitle(
+                        Uri.parse(URI_STRING + "/en"),
+                        MimeTypes.APPLICATION_TTML,
+                        /* language= */ "en",
+                        C.SELECTION_FLAG_FORCED,
+                        C.ROLE_FLAG_ALTERNATE,
+                        "label")))
+            .setTag(new Object())
+            .build();
+
+    MediaItem copy = mediaItem.buildUpon().build();
+
+    assertThat(copy).isEqualTo(mediaItem);
+  }
+
+  @Test
+  public void buildUpon_wholeObjectSetters_equalsToOriginal() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setAdTagUri(URI_STRING)
+            .setClipEndPositionMs(1000)
+            .setClipRelativeToDefaultPosition(true)
+            .setClipRelativeToLiveWindow(true)
+            .setClipStartPositionMs(100)
+            .setClipStartsAtKeyFrame(true)
+            .setCustomCacheKey("key")
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri(URI_STRING + "/license")
+                    .setLicenseRequestHeaders(ImmutableMap.of("Referer", "http://www.google.com"))
+                    .setMultiSession(true)
+                    .setForceDefaultLicenseUri(true)
+                    .setPlayClearContentWithoutKey(true)
+                    .setSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+                    .setKeySetId(new byte[] {1, 2, 3})
+                    .build())
+            .setMediaId("mediaId")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
+            .setMimeType(MimeTypes.APPLICATION_MP4)
+            .setUri(URI_STRING)
+            .setStreamKeys(ImmutableList.of(new StreamKey(1, 0, 0)))
+            .setLiveTargetOffsetMs(20_000)
+            .setLiveMinPlaybackSpeed(.9f)
+            .setLiveMaxPlaybackSpeed(1.1f)
+            .setLiveMinOffsetMs(2222)
+            .setLiveMaxOffsetMs(4444)
+            .setSubtitles(
+                ImmutableList.of(
                     new MediaItem.Subtitle(
                         Uri.parse(URI_STRING + "/en"),
                         MimeTypes.APPLICATION_TTML,
