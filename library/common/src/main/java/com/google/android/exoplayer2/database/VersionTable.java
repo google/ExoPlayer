@@ -26,8 +26,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Utility methods for accessing versions of ExoPlayer database components. This allows them to be
- * versioned independently to the version of the containing database.
+ * Utility methods for accessing versions of media library database components. This allows them to
+ * be versioned independently to the version of the containing database.
  */
 public final class VersionTable {
 

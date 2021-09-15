@@ -23,15 +23,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.google.android.exoplayer2.util.Log;
 
 /**
- * An {@link SQLiteOpenHelper} that provides instances of a standalone ExoPlayer database.
+ * An {@link SQLiteOpenHelper} that provides instances of a standalone database.
  *
  * <p>Suitable for use by applications that do not already have their own database, or that would
- * prefer to keep ExoPlayer tables isolated in their own database. Other applications should prefer
- * to use {@link DefaultDatabaseProvider} with their own {@link SQLiteOpenHelper}.
+ * prefer to keep tables used by media library components isolated in their own database. Other
+ * applications should prefer to use {@link DefaultDatabaseProvider} with their own {@link
+ * SQLiteOpenHelper}.
  */
 public final class ExoDatabaseProvider extends SQLiteOpenHelper implements DatabaseProvider {
 
-  /** The file name used for the standalone ExoPlayer database. */
+  /** The file name used for the standalone database. */
   public static final String DATABASE_NAME = "exoplayer_internal.db";
 
   private static final int VERSION = 1;
