@@ -57,10 +57,12 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Implements the internal behavior of {@link ExoPlayerImpl}. */
@@ -165,6 +167,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final long MIN_RENDERER_SLEEP_DURATION_MS = 2000;
 
   private final Renderer[] renderers;
+  private final Set<Renderer> renderersToReset;
   private final RendererCapabilities[] rendererCapabilities;
   private final TrackSelector trackSelector;
   private final TrackSelectorResult emptyTrackSelectorResult;
@@ -254,6 +257,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     mediaClock = new DefaultMediaClock(this, clock);
     pendingMessages = new ArrayList<>();
+    renderersToReset = Sets.newIdentityHashSet();
     window = new Timeline.Window();
     period = new Timeline.Period();
     trackSelector.init(/* listener= */ this, bandwidthMeter);
@@ -1322,7 +1326,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       this.foregroundMode = foregroundMode;
       if (!foregroundMode) {
         for (Renderer renderer : renderers) {
-          if (!isRendererEnabled(renderer)) {
+          if (!isRendererEnabled(renderer) && renderersToReset.remove(renderer)) {
             renderer.reset();
           }
         }
@@ -1382,11 +1386,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     if (resetRenderers) {
       for (Renderer renderer : renderers) {
-        try {
-          renderer.reset();
-        } catch (RuntimeException e) {
-          // There's nothing we can do.
-          Log.e(TAG, "Reset failed.", e);
+        if (renderersToReset.remove(renderer)) {
+          try {
+            renderer.reset();
+          } catch (RuntimeException e) {
+            // There's nothing we can do.
+            Log.e(TAG, "Reset failed.", e);
+          }
         }
       }
     }
@@ -2385,7 +2391,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Reset all disabled renderers before enabling any new ones. This makes sure resources released
     // by the disabled renderers will be available to renderers that are being enabled.
     for (int i = 0; i < renderers.length; i++) {
-      if (!trackSelectorResult.isRendererEnabled(i)) {
+      if (!trackSelectorResult.isRendererEnabled(i) && renderersToReset.remove(renderers[i])) {
         renderers[i].reset();
       }
     }
@@ -2417,6 +2423,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean joining = !wasRendererEnabled && playing;
     // Enable the renderer.
     enabledRendererCount++;
+    renderersToReset.add(renderer);
     renderer.enable(
         rendererConfiguration,
         formats,
@@ -2426,7 +2433,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         mayRenderStartOfStream,
         periodHolder.getStartPositionRendererTime(),
         periodHolder.getRendererOffset());
-
     renderer.handleMessage(
         Renderer.MSG_SET_WAKEUP_LISTENER,
         new Renderer.WakeupListener() {

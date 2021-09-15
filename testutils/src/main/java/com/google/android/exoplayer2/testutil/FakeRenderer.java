@@ -61,6 +61,8 @@ public class FakeRenderer extends BaseRenderer {
   public boolean isEnded;
   public int positionResetCount;
   public int sampleBufferReadCount;
+  public int enabledCount;
+  public int resetCount;
 
   public FakeRenderer(@C.TrackType int trackType) {
     super(trackType);
@@ -134,6 +136,17 @@ public class FakeRenderer extends BaseRenderer {
         hasPendingBuffer = false;
       }
     }
+  }
+
+  @Override
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
+    enabledCount++;
+  }
+
+  @Override
+  protected void onReset() {
+    resetCount++;
   }
 
   @Override

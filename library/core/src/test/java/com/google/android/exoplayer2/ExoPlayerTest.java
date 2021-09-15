@@ -335,6 +335,146 @@ public final class ExoPlayerTest {
     assertThat(renderer.isEnded).isTrue();
   }
 
+  @Test
+  public void renderersLifecycle_renderersThatAreNeverEnabled_areNotReset() throws Exception {
+    Timeline timeline = new FakeTimeline();
+    final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
+    final FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
+    SimpleExoPlayer player =
+        new TestExoPlayerBuilder(context).setRenderers(videoRenderer, audioRenderer).build();
+    Player.Listener mockPlayerListener = mock(Player.Listener.class);
+    player.addListener(mockPlayerListener);
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    assertThat(audioRenderer.enabledCount).isEqualTo(1);
+    assertThat(audioRenderer.resetCount).isEqualTo(1);
+    assertThat(videoRenderer.enabledCount).isEqualTo(0);
+    assertThat(videoRenderer.resetCount).isEqualTo(0);
+  }
+
+  @Test
+  public void renderersLifecycle_setForegroundMode_resetsDisabledRenderersThatHaveBeenEnabled()
+      throws Exception {
+    Timeline timeline = new FakeTimeline();
+    final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
+    final FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
+    final FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
+    SimpleExoPlayer player =
+        new TestExoPlayerBuilder(context).setRenderers(videoRenderer, audioRenderer).build();
+    Player.Listener mockPlayerListener = mock(Player.Listener.class);
+    player.addListener(mockPlayerListener);
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(
+                timeline, ExoPlayerTestRunner.AUDIO_FORMAT, ExoPlayerTestRunner.VIDEO_FORMAT),
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT)));
+    player.prepare();
+
+    player.play();
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    player.setForegroundMode(/* foregroundMode= */ true);
+    // Only the video renderer that is disabled in the second window has been reset.
+    assertThat(audioRenderer.resetCount).isEqualTo(0);
+    assertThat(videoRenderer.resetCount).isEqualTo(1);
+
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+    // After release the audio renderer is reset as well.
+    assertThat(audioRenderer.enabledCount).isEqualTo(1);
+    assertThat(audioRenderer.resetCount).isEqualTo(1);
+    assertThat(videoRenderer.enabledCount).isEqualTo(1);
+    assertThat(videoRenderer.resetCount).isEqualTo(1);
+    assertThat(textRenderer.enabledCount).isEqualTo(0);
+    assertThat(textRenderer.resetCount).isEqualTo(0);
+  }
+
+  @Test
+  public void renderersLifecycle_selectTextTracksWhilePlaying_textRendererEnabledAndReset()
+      throws Exception {
+    Timeline timeline = new FakeTimeline();
+    final FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
+    final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
+    final FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
+    Format textFormat =
+        new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).setLanguage("en").build();
+    SimpleExoPlayer player =
+        new TestExoPlayerBuilder(context).setRenderers(audioRenderer, textRenderer).build();
+    Player.Listener mockPlayerListener = mock(Player.Listener.class);
+    player.addListener(mockPlayerListener);
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT, textFormat)));
+    player.prepare();
+
+    player.play();
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    // Only the audio renderer enabled so far.
+    assertThat(audioRenderer.enabledCount).isEqualTo(1);
+    assertThat(textRenderer.enabledCount).isEqualTo(0);
+    player.setTrackSelectionParameters(
+        player.getTrackSelectionParameters().buildUpon().setPreferredTextLanguage("en").build());
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    assertThat(audioRenderer.enabledCount).isEqualTo(1);
+    assertThat(audioRenderer.resetCount).isEqualTo(1);
+    assertThat(textRenderer.enabledCount).isEqualTo(1);
+    assertThat(textRenderer.resetCount).isEqualTo(1);
+    assertThat(videoRenderer.enabledCount).isEqualTo(0);
+    assertThat(videoRenderer.resetCount).isEqualTo(0);
+  }
+
+  @Test
+  public void renderersLifecycle_seekTo_resetsDisabledRenderersIfRequired() throws Exception {
+    Timeline timeline = new FakeTimeline();
+    final FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
+    final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
+    final FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
+    Format textFormat =
+        new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).setLanguage("en").build();
+    SimpleExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setRenderers(videoRenderer, audioRenderer, textRenderer)
+            .build();
+    Player.Listener mockPlayerListener = mock(Player.Listener.class);
+    player.addListener(mockPlayerListener);
+    player.setTrackSelectionParameters(
+        player.getTrackSelectionParameters().buildUpon().setPreferredTextLanguage("en").build());
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT, textFormat)));
+    player.prepare();
+
+    player.play();
+    runUntilPositionDiscontinuity(player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    // Disable text renderer by selecting a language that is not available.
+    player.setTrackSelectionParameters(
+        player.getTrackSelectionParameters().buildUpon().setPreferredTextLanguage("de").build());
+    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 1000);
+    runUntilPlaybackState(player, Player.STATE_READY);
+    // Expect formerly enabled renderers to be reset after seek.
+    assertThat(textRenderer.resetCount).isEqualTo(1);
+    assertThat(audioRenderer.resetCount).isEqualTo(0);
+    assertThat(videoRenderer.resetCount).isEqualTo(0);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    // Verify that the text renderer has not been reset a second time.
+    assertThat(audioRenderer.enabledCount).isEqualTo(2);
+    assertThat(audioRenderer.resetCount).isEqualTo(1);
+    assertThat(textRenderer.enabledCount).isEqualTo(1);
+    assertThat(textRenderer.resetCount).isEqualTo(1);
+    assertThat(videoRenderer.enabledCount).isEqualTo(0);
+    assertThat(videoRenderer.resetCount).isEqualTo(0);
+  }
+
   /**
    * Tests that the player does not unnecessarily reset renderers when playing a multi-period
    * source.
