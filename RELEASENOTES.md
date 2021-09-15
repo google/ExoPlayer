@@ -20,10 +20,6 @@
     *   Fix a bug when [depending on ExoPlayer locally](README.md#locally) with
         a relative path
         ([#9403](https://github.com/google/ExoPlayer/issues/9403)).
-    *   Fix bug in `DefaultDrmSessionManager` which prevented
-        `MediaSourceFactory` instances from being re-used by `ExoPlayer`
-        instances with non-overlapping lifecycles
-        ([#9099](https://github.com/google/ExoPlayer/issues/9099)).
     *   Better handle invalid seek requests. Seeks to positions that are before
         the start or after the end of the media are now handled as seeks to the
         start and end respectively
