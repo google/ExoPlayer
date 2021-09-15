@@ -67,17 +67,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean outputStreamEnded;
 
   private static class Factory extends SynchronousMediaCodecAdapter.Factory {
-    private final boolean decoder;
-
-    public Factory(boolean decoder) {
-      this.decoder = decoder;
-    }
-
     @Override
     protected MediaCodec createCodec(Configuration configuration) throws IOException {
       String sampleMimeType =
           checkNotNull(configuration.mediaFormat.getString(MediaFormat.KEY_MIME));
-      return decoder
+      boolean isDecoder = (configuration.flags & MediaCodec.CONFIGURE_FLAG_ENCODE) == 0;
+      return isDecoder
           ? MediaCodec.createDecoderByType(checkNotNull(sampleMimeType))
           : MediaCodec.createEncoderByType(checkNotNull(sampleMimeType));
     }
@@ -115,15 +110,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
       adapter =
-          new Factory(/* decoder= */ true)
+          new Factory()
               .createAdapter(
-                  new MediaCodecAdapter.Configuration(
-                      createPlaceholderMediaCodecInfo(),
-                      mediaFormat,
-                      format,
-                      /* surface= */ null,
-                      /* crypto= */ null,
-                      /* flags= */ 0));
+                  MediaCodecAdapter.Configuration.createForAudioDecoding(
+                      createPlaceholderMediaCodecInfo(), mediaFormat, format, /* crypto= */ null));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -154,15 +144,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
       adapter =
-          new Factory(/* decoder= */ true)
+          new Factory()
               .createAdapter(
-                  new MediaCodecAdapter.Configuration(
+                  MediaCodecAdapter.Configuration.createForVideoDecoding(
                       createPlaceholderMediaCodecInfo(),
                       mediaFormat,
                       format,
                       surface,
-                      /* crypto= */ null,
-                      /* flags= */ 0));
+                      /* crypto= */ null));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -190,15 +179,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
       mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
       adapter =
-          new Factory(/* decoder= */ false)
+          new Factory()
               .createAdapter(
-                  new MediaCodecAdapter.Configuration(
-                      createPlaceholderMediaCodecInfo(),
-                      mediaFormat,
-                      format,
-                      /* surface= */ null,
-                      /* crypto= */ null,
-                      /* flags= */ MediaCodec.CONFIGURE_FLAG_ENCODE));
+                  MediaCodecAdapter.Configuration.createForAudioEncoding(
+                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -232,16 +216,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 5_000_000);
 
       adapter =
-          new Factory(/* decoder= */ false)
+          new Factory()
               .createAdapter(
-                  new MediaCodecAdapter.Configuration(
-                      createPlaceholderMediaCodecInfo(),
-                      mediaFormat,
-                      format,
-                      /* surface= */ null,
-                      /* crypto= */ null,
-                      MediaCodec.CONFIGURE_FLAG_ENCODE,
-                      /* createInputSurface= */ true));
+                  MediaCodecAdapter.Configuration.createForVideoEncoding(
+                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {

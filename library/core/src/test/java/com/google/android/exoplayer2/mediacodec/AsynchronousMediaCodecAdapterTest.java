@@ -41,15 +41,13 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Before
   public void setUp() throws Exception {
-    MediaCodecInfo codecInfo = createMediaCodecInfo("h264", "video/mp4");
+    MediaCodecInfo codecInfo = createMediaCodecInfo("aac", "audio/aac");
     MediaCodecAdapter.Configuration configuration =
-        new MediaCodecAdapter.Configuration(
+        MediaCodecAdapter.Configuration.createForAudioDecoding(
             codecInfo,
             createMediaFormat("format"),
-            /* format= */ new Format.Builder().build(),
-            /* surface= */ null,
-            /* crypto= */ null,
-            /* flags= */ 0);
+            new Format.Builder().build(),
+            /* crypto= */ null);
     callbackThread = new HandlerThread("TestCallbackThread");
     queueingThread = new HandlerThread("TestQueueingThread");
     adapter =

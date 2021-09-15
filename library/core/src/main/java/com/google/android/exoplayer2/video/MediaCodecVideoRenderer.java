@@ -640,8 +640,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       surface = dummySurface;
     }
-    return new MediaCodecAdapter.Configuration(
-        codecInfo, mediaFormat, format, surface, crypto, /* flags= */ 0);
+    return MediaCodecAdapter.Configuration.createForVideoDecoding(
+        codecInfo, mediaFormat, format, surface, crypto);
   }
 
   @Override

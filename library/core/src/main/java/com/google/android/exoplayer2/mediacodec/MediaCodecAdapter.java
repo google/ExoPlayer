@@ -39,13 +39,109 @@ import java.nio.ByteBuffer;
 public interface MediaCodecAdapter {
   /** Configuration parameters for a {@link MediaCodecAdapter}. */
   final class Configuration {
+
+    /**
+     * Creates a configuration for audio decoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @param crypto See {@link #crypto}.
+     * @return The created instance.
+     */
+    public static Configuration createForAudioDecoding(
+        MediaCodecInfo codecInfo,
+        MediaFormat mediaFormat,
+        Format format,
+        @Nullable MediaCrypto crypto) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          /* surface= */ null,
+          crypto,
+          /* flags= */ 0,
+          /* createInputSurface= */ false);
+    }
+
+    /**
+     * Creates a configuration for video decoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @param surface See {@link #surface}.
+     * @param crypto See {@link #crypto}.
+     * @return The created instance.
+     */
+    public static Configuration createForVideoDecoding(
+        MediaCodecInfo codecInfo,
+        MediaFormat mediaFormat,
+        Format format,
+        @Nullable Surface surface,
+        @Nullable MediaCrypto crypto) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          surface,
+          crypto,
+          /* flags= */ 0,
+          /* createInputSurface= */ false);
+    }
+
+    /**
+     * Creates a configuration for audio encoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @return The created instance.
+     */
+    public static Configuration createForAudioEncoding(
+        MediaCodecInfo codecInfo, MediaFormat mediaFormat, Format format) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          /* surface= */ null,
+          /* crypto= */ null,
+          MediaCodec.CONFIGURE_FLAG_ENCODE,
+          /* createInputSurface= */ false);
+    }
+
+    /**
+     * Creates a configuration for video encoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @return The created instance.
+     */
+    @RequiresApi(18)
+    public static Configuration createForVideoEncoding(
+        MediaCodecInfo codecInfo, MediaFormat mediaFormat, Format format) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          /* surface= */ null,
+          /* crypto= */ null,
+          MediaCodec.CONFIGURE_FLAG_ENCODE,
+          /* createInputSurface= */ true);
+    }
+
     /** Information about the {@link MediaCodec} being configured. */
     public final MediaCodecInfo codecInfo;
     /** The {@link MediaFormat} for which the codec is being configured. */
     public final MediaFormat mediaFormat;
     /** The {@link Format} for which the codec is being configured. */
     public final Format format;
-    /** For video decoding, the output where the object will render the decoded frames. */
+    /**
+     * For video decoding, the output where the object will render the decoded frames. This must be
+     * null if the codec is not a video decoder, or if it is configured for {@link ByteBuffer}
+     * output.
+     */
     @Nullable public final Surface surface;
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
     @Nullable public final MediaCrypto crypto;
@@ -61,17 +157,7 @@ public interface MediaCodecAdapter {
      */
     public final boolean createInputSurface;
 
-    public Configuration(
-        MediaCodecInfo codecInfo,
-        MediaFormat mediaFormat,
-        Format format,
-        @Nullable Surface surface,
-        @Nullable MediaCrypto crypto,
-        int flags) {
-      this(codecInfo, mediaFormat, format, surface, crypto, flags, /* createInputSurface= */ false);
-    }
-
-    public Configuration(
+    private Configuration(
         MediaCodecInfo codecInfo,
         MediaFormat mediaFormat,
         Format format,
