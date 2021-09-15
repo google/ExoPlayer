@@ -273,7 +273,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   protected AdaptiveTrackSelection(
       TrackGroup group,
       int[] tracks,
-      int type,
+      @Type int type,
       BandwidthMeter bandwidthMeter,
       long minDurationForQualityIncreaseMs,
       long maxDurationForQualityDecreaseMs,

@@ -39,7 +39,7 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
   protected final int[] tracks;
 
   /** The type of the selection. */
-  private final int type;
+  private final @Type int type;
   /** The {@link Format}s of the selected tracks, in order of decreasing bandwidth. */
   private final Format[] formats;
   /** Selected track exclusion timestamps, in order of decreasing bandwidth. */
@@ -63,7 +63,7 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
    *     null or empty. May be in any order.
    * @param type The type that will be returned from {@link TrackSelection#getType()}.
    */
-  public BaseTrackSelection(TrackGroup group, int[] tracks, int type) {
+  public BaseTrackSelection(TrackGroup group, int[] tracks, @Type int type) {
     Assertions.checkState(tracks.length > 0);
     this.type = type;
     this.group = Assertions.checkNotNull(group);

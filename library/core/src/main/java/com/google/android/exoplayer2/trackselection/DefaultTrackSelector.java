@@ -1262,7 +1262,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final int groupIndex;
     public final int[] tracks;
     public final int length;
-    public final int type;
+    public final @TrackSelection.Type int type;
 
     /**
      * Constructs a {@code SelectionOverride} to override tracks of a group.
@@ -1281,7 +1281,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param tracks The overriding track indices within the track group.
      * @param type The type that will be returned from {@link TrackSelection#getType()}.
      */
-    public SelectionOverride(int groupIndex, int[] tracks, int type) {
+    public SelectionOverride(int groupIndex, int[] tracks, @TrackSelection.Type int type) {
       this.groupIndex = groupIndex;
       this.tracks = Arrays.copyOf(tracks, tracks.length);
       this.length = tracks.length;
