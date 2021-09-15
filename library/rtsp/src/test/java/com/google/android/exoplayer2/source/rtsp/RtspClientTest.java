@@ -118,6 +118,7 @@ public final class RtspClientTest {
     RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
 
     assertThat(tracksInSession.get()).hasSize(2);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -168,6 +169,7 @@ public final class RtspClientTest {
     RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
 
     assertThat(tracksInSession.get()).hasSize(2);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -210,6 +212,7 @@ public final class RtspClientTest {
     RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
 
     assertThat(tracksInSession.get()).hasSize(2);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -256,6 +259,7 @@ public final class RtspClientTest {
 
     assertThat(failureMessage.get()).contains("DESCRIBE not supported.");
     assertThat(clientHasSentDescribeRequest.get()).isFalse();
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -300,5 +304,6 @@ public final class RtspClientTest {
 
     RobolectricUtil.runMainLooperUntil(() -> failureCause.get() != null);
     assertThat(failureCause.get()).hasCauseThat().isInstanceOf(ParserException.class);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 }
